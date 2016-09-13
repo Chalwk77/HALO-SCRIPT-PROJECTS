@@ -102,7 +102,7 @@ function crNotice(message)
     hprintf(_LICENSE)
 end
 
- -- -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
--- for k, v in pairs( crNotice ) do
-   -- print(k, v)
--- end
+ -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+for k, v in pairs( crNotice ) do
+   print(k, v)
+end

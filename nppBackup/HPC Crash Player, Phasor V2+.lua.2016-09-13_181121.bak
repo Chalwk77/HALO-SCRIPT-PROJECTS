@@ -91,18 +91,7 @@ function table.HasValue(table, value)
 	 end
 end
 
-function crNotice(message)
-    hprintf(_DOCUMENT)
-    hprintf(_VERSION)
-    hprintf(_DESCRIPTION)
-    hprintf(_ENGINE)
-    hprintf(_INTENDED)
-    hprintf(_URL)
-    hprintf(_AUTHOR)
-    hprintf(_LICENSE)
+ -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+for k, v in pairs( crNotice ) do
+   print(k, v)
 end
-
- -- -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
--- for k, v in pairs( crNotice ) do
-   -- print(k, v)
--- end
