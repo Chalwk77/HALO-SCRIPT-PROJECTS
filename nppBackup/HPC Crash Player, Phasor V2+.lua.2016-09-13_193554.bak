@@ -38,7 +38,7 @@ end
 
 function OnScriptLoad( )
     
---  load tables
+--  Load Tables
     InitiateTables()
 end
 
@@ -96,5 +96,5 @@ end
 
 -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
 for k, v in pairs( crNotice ) do
-    print(k, v) --  print contents of crNotice to console
+    print(k, v)
 end

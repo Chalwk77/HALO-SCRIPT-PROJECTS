@@ -37,13 +37,11 @@ function GetRequiredVersion( )
 end
 
 function OnScriptLoad( )
-    
---  load tables
     InitiateTables()
 end
 
 function OnScriptUnload( )
-
+    
     Victim_Name_Table = {}
     Victim_Hash_Table = {}
 end
@@ -82,7 +80,6 @@ end
 
 function OnGameEnd( )
     
---  unload tables
     InitiateTables()
 end
 
@@ -94,7 +91,18 @@ function table.HasValue(table, value)
 	 end
 end
 
--- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
-for k, v in pairs( crNotice ) do
-    print(k, v) --  print contents of crNotice to console
+function crNotice(message)
+    hprintf(_DOCUMENT)
+    hprintf(_VERSION)
+    hprintf(_DESCRIPTION)
+    hprintf(_ENGINE)
+    hprintf(_INTENDED)
+    hprintf(_URL)
+    hprintf(_AUTHOR)
+    hprintf(_LICENSE)
 end
+
+ -- -- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+-- for k, v in pairs( crNotice ) do
+   -- print(k, v)
+-- end
