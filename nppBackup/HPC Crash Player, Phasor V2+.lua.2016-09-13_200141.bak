@@ -1,5 +1,5 @@
 local crNotice = {
-  DOCUMENT    = "HPC Crash Player, Phasor V2+.lua",
+  DOCUMENT    = "crash.lua",
   VERSION     = "1.1.0",
   DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)",
   ENGINE      = "Phasor V2+ (modified)",
@@ -40,7 +40,6 @@ function OnScriptLoad( )
    
 --  Load Name/Hash tables
     InitiateTables()
-    printCRnotice()
 end
 
 function OnScriptUnload( )
@@ -96,12 +95,7 @@ function table.HasValue(table, value)
 	 end
 end
 
---[[=========================================================================]]--
--------copyright------------------DO NOT REMOVE------------------copyright-------
-function printCRnotice()
+--  The following Terminal/Console Interaction Copyright Noticed method shall not be removed for any reason.
     for k, v in pairs( crNotice ) do
-        print(k, v)
+       print(k, v)
     end
-end
--------copyright------------------DO NOT REMOVE------------------copyright-------
---[[=========================================================================]]--

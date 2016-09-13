@@ -1,12 +1,11 @@
-local crNotice = {
-  DOCUMENT    = "HPC Crash Player, Phasor V2+.lua",
-  VERSION     = "1.1.0",
-  DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)",
-  ENGINE      = "Phasor V2+ (modified)",
-  INTENDED    = "Halo PC (Combat Evolved)",
-  URL         = "https://github.com/Chalwk77",
-  AUTHOR      = "Jericho Crosby (Chalwk)",
-  LICENSE     = [[
+local DOCUMENT = "HPC Crash Player, Phasor V2+.lua"
+local VERSION = "1.1.0"
+local DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)"
+local ENGINE = "Phasor V2+ (modified)"
+local INTENDED = "Halo PC (Combat Evolved)"
+local URL = "https://github.com/Chalwk77"
+local AUTHOR = "Jericho Crosby (Chalwk)"
+local LICENSE = [[
     MIT LICENSE
     
     Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -30,22 +29,19 @@ local crNotice = {
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   ]]
-}
 
 function GetRequiredVersion( )
     return 200
 end
 
 function OnScriptLoad( )
-   
+    
 --  Load Name/Hash tables
     InitiateTables()
-    printCRnotice()
 end
 
 function OnScriptUnload( )
-    
---  Unload Name/Hash tables
+
     Victim_Name_Table = {}
     Victim_Hash_Table = {}
 end
@@ -76,7 +72,7 @@ function OnPlayerJoin(player)
     for i = 0, 15 do
         if getplayer(i) ~= nil then
             if table.HasValue(Victim_Name_Table, VictimName) and table.HasValue(Victim_Hash_Table, VictimHash) then
-                svcmd("sv_crash " .. resolveplayer(i))
+                svcmd("sv_crash " .. resolveplayer(i)) -- Initiate Crash Player
             end
         end
     end
@@ -89,19 +85,14 @@ function OnGameEnd( )
 end
 
 function table.HasValue(table, value)
-	for k,v in pairs(table) do
-		if v == value then
-		return k
-		end
-	 end
-end
-
---[[=========================================================================]]--
--------copyright------------------DO NOT REMOVE------------------copyright-------
-function printCRnotice()
-    for k, v in pairs( crNotice ) do
-        print(k, v)
+    for k,v in pairs(table) do
+        if v == value then
+            return k
+        end
     end
 end
--------copyright------------------DO NOT REMOVE------------------copyright-------
---[[=========================================================================]]--
+
+-- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+for k, v in pairs( crNotice ) do
+    print(k, v) --  print contents of crNotice to console
+end

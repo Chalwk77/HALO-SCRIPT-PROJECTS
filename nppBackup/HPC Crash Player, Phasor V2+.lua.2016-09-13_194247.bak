@@ -1,12 +1,12 @@
 local crNotice = {
   DOCUMENT    = "HPC Crash Player, Phasor V2+.lua",
-  VERSION     = "1.1.0",
-  DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)",
-  ENGINE      = "Phasor V2+ (modified)",
-  INTENDED    = "Halo PC (Combat Evolved)",
-  URL         = "https://github.com/Chalwk77",
-  AUTHOR      = "Jericho Crosby (Chalwk)",
-  LICENSE     = [[
+  Script Version     = "1.1.0",
+  _DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)",
+  _ENGINE      = "Phasor V2+ (modified)",
+  _INTENDED    = "Halo PC (Combat Evolved)",
+  _URL         = "https://github.com/Chalwk77",
+  _AUTHOR      = "Jericho Crosby (Chalwk)",
+  _LICENSE     = [[
     MIT LICENSE
     
     Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -37,15 +37,13 @@ function GetRequiredVersion( )
 end
 
 function OnScriptLoad( )
-   
---  Load Name/Hash tables
+    
+--  load tables
     InitiateTables()
-    printCRnotice()
 end
 
 function OnScriptUnload( )
-    
---  Unload Name/Hash tables
+
     Victim_Name_Table = {}
     Victim_Hash_Table = {}
 end
@@ -84,7 +82,7 @@ end
 
 function OnGameEnd( )
     
---  Unload Name/Hash tables
+--  unload tables
     InitiateTables()
 end
 
@@ -96,12 +94,7 @@ function table.HasValue(table, value)
 	 end
 end
 
---[[=========================================================================]]--
--------copyright------------------DO NOT REMOVE------------------copyright-------
-function printCRnotice()
-    for k, v in pairs( crNotice ) do
-        print(k, v)
-    end
+-- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+for k, v in pairs( crNotice ) do
+    print(k, v) --  print contents of crNotice to console
 end
--------copyright------------------DO NOT REMOVE------------------copyright-------
---[[=========================================================================]]--

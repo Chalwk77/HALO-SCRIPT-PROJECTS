@@ -1,3 +1,5 @@
+local 
+
 local crNotice = {
   DOCUMENT    = "HPC Crash Player, Phasor V2+.lua",
   VERSION     = "1.1.0",
@@ -37,15 +39,13 @@ function GetRequiredVersion( )
 end
 
 function OnScriptLoad( )
-   
+    
 --  Load Name/Hash tables
     InitiateTables()
-    printCRnotice()
 end
 
 function OnScriptUnload( )
-    
---  Unload Name/Hash tables
+
     Victim_Name_Table = {}
     Victim_Hash_Table = {}
 end
@@ -76,7 +76,7 @@ function OnPlayerJoin(player)
     for i = 0, 15 do
         if getplayer(i) ~= nil then
             if table.HasValue(Victim_Name_Table, VictimName) and table.HasValue(Victim_Hash_Table, VictimHash) then
-                svcmd("sv_crash " .. resolveplayer(i))
+                svcmd("sv_crash " .. resolveplayer(i)) -- Initiate Crash Player
             end
         end
     end
@@ -89,19 +89,14 @@ function OnGameEnd( )
 end
 
 function table.HasValue(table, value)
-	for k,v in pairs(table) do
-		if v == value then
-		return k
-		end
-	 end
-end
-
---[[=========================================================================]]--
--------copyright------------------DO NOT REMOVE------------------copyright-------
-function printCRnotice()
-    for k, v in pairs( crNotice ) do
-        print(k, v)
+    for k,v in pairs(table) do
+        if v == value then
+            return k
+        end
     end
 end
--------copyright------------------DO NOT REMOVE------------------copyright-------
---[[=========================================================================]]--
+
+-- The following Terminal Interaction Copyright Noticed Function shall not be removed for any reason.
+for k, v in pairs( crNotice ) do
+    print(k, v) --  print contents of crNotice to console
+end
