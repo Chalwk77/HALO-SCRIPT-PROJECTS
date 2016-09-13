@@ -1,8 +1,0 @@
-<a name="1.5.8"></a>
-#  HPC Crash Player, Phasor V2+ 1.1.0 (13-Sep-2016)
-
-## Bug Fixes
-
-- **table** do not get affected by custom, enumerable properties on `Object.prototype`
-  ([181e4401](https://github.com/angular/angular.js/commit/181e44019e850e5253378e29415cddf8d768bbef),
-   [#14804](https://github.com/angular/angular.js/issues/14804), [#14830](https://github.com/angular/angular.js/issues/14830))
