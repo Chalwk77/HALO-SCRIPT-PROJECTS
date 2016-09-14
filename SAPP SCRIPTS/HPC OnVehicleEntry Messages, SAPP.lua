@@ -3,7 +3,7 @@
 Script Name: HPC OnVehicleEntry Messages, SAPP
     - Implementing API version: 1.10.0.0
     
-Description: This script will print Vehicle Names & Seat position On vehicle Entry
+Description: This script will print (to console) Vehicle Name & Seat positions On-vehicle-Entry
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -32,9 +32,9 @@ function OnVehicleEnter(PlayerIndex, Seat)
         Vehicle_Name = "Warthog" 
         if Seat == "0" then 
             Seat_Position = "Drivers Seat" 
-            elseif Seat == "1" then 
+        elseif Seat == "1" then 
             Seat_Position = "Passengers Seat"
-            elseif Seat == "2" then 
+        elseif Seat == "2" then 
             Seat_Position = "Gunners Seat"
         end
     end
