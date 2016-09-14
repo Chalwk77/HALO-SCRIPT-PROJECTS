@@ -7,6 +7,9 @@ Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
+If you want the Phasor V2+ version please visit:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/HPC%20SetRespawnTime%2C%20Phasor%20V2%2B.lua
+
 * IGN: Chalwk
 * Written by Jericho Crosby
 -----------------------------------
