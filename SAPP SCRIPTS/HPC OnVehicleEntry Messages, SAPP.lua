@@ -3,7 +3,8 @@
 Script Name: HPC OnVehicleEntry Messages, SAPP
     - Implementing API version: 1.10.0.0
     
-Description: This script will print (to console) Vehicle Names & Seat positions OnVehicleEntry
+Description: This script will print Vehicle Name and Seat positions (to console)
+when a player enters a vehicle.
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -13,6 +14,23 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby
 -----------------------------------
 ]]-- 
+
+--      Warthog:
+--      Seat 0 = Drivers Seat
+--      Seat 1 = Passengers Seat
+--      Seat 2 = Gunners Seat
+
+--      Rocket Hog:
+--      Seat 0 = Drivers Seat
+--      Seat 1 = Passengers Seat
+--      Seat 2 = Gunners Seat
+
+--      Ghost, Banshee and Turret:
+--      Seat 0 = Drivers Seat
+
+--      Scorpion Tank
+--      Seat 0 = Drivers Seat
+--      Seat 1 - 5 = Passengers Seat
 
 api_version = "1.10.0.0"
 
@@ -31,7 +49,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
     if MetaIndex == 0xE3D40260 then
         Vehicle_Name = "Warthog" 
         if Seat == "0" then 
-            Seat_Position = "Drivers Seat"
+            Seat_Position = "Drivers Seat" 
         elseif Seat == "1" then 
             Seat_Position = "Passengers Seat"
         elseif Seat == "2" then 
@@ -78,7 +96,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
             Seat_Position = "Drivers Seat" 
         end
     end
-    cprint("Vehicle Name: " ..tostring(Vehicle_Name).. " - " ..tostring(Seat_Position))
+    print(PlayerIndex, get_var(PlayerIndex, "$name") .. " entered the "..tostring(Seat_Position).." of a "..tostring(Vehicle_Name))
 end
 
 function OnError(Message)
