@@ -4,6 +4,8 @@ Description: HPC Set Respawn-Time, SAPP
     - Implementing API version: 1.10.0.0
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
 * Written by Jericho Crosby
