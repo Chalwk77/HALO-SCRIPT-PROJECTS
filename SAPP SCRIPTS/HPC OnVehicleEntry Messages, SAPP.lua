@@ -38,10 +38,10 @@ function OnScriptLoad()
 	register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload()
-end
+function OnScriptUnload() end
 
 function OnVehicleEnter(PlayerIndex, Seat)
+    
 	local PlayerObj = get_dynamic_player(PlayerIndex)
 	local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
 	local MetaIndex = read_dword(VehicleObj)
@@ -96,7 +96,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
             Seat_Position = "Drivers Seat" 
         end
     end
-    print(PlayerIndex, get_var(PlayerIndex, "$name") .. " entered the "..tostring(Seat_Position).." of a "..tostring(Vehicle_Name))
+    print(PlayerIndex, get_var(PlayerIndex, "$name").. " entered the " ..tostring(Seat_Position).. " of a " ..tostring(Vehicle_Name))
 end
 
 function OnError(Message)
