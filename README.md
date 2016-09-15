@@ -2,8 +2,8 @@
 
 # Halo Lua Scripts for Phasor V2+ and SAPP
 
-## PHASOR SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
-## SAPP SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
+### PHASOR SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
+### SAPP SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 SAPP Lua API: [link] (http://halo.isimaginary.com/lua_info/)
 * Sapp Forums: [weblink] (http://halo.isimaginary.com/forum/)
 
