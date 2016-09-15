@@ -5,12 +5,11 @@ Contributors to [code]
 
   * Author of the original Phasor for Halo
         - https://github.com/urbanyoung/Phasor
-        - 
+
 * **[sehé°°](http://halo.isimaginary.com/forum/user-1.html)**
 
   * Author of the SAPP for Halo
         - http://halo.isimaginary.com/forum/user-1.html
-        -
 
 * **[AelitePrime](http://phasor.proboards.com/user/37)**
 
