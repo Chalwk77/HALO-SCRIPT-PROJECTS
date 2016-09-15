@@ -5,11 +5,9 @@
 * Contributors: [CONTRIBUTING.md](https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/CONTRIBUTING.md)
 ##### Contributors are those whom have contributed code to my projects in some way. Sometimes I will use functions written by other people. In which case, their names will be credited in the relevant scripts (at the top) and their names will be listen in the CONTRIBUTING.md file.
 
-* PHASOR V2: [Halo PC (Combat Evolved)] (https://github.com/urbanyoung/Phasor)
-* SAPP: [Halo PC (Combat Evolved)] (http://halo.isimaginary.com/)
-* Lua 5.3.3: [Website] (https://www.lua.org/)
-* * PHASOR SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
-* * SAPP SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
+
+## PHASOR SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
+## SAPP SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 
 SAPP Lua API: [link] (http://halo.isimaginary.com/lua_info/)
 * Sapp Forums: [weblink] (http://halo.isimaginary.com/forum/)
