@@ -10,6 +10,9 @@ Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
+For the Phasor version, visit:
+    https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/HPC%20OnVehicleEntry%20%231%20(Advanced)%2C%20Phasor%20V2.lua
+
 * IGN: Chalwk
 * Written by Jericho Crosby
 -----------------------------------
@@ -38,15 +41,14 @@ function OnScriptLoad()
 	register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload() 
-    
-end
+function OnScriptUnload() end
 
 function OnVehicleEnter(PlayerIndex, Seat)
     
 	local PlayerObj = get_dynamic_player(PlayerIndex)
 	local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
 	local MetaIndex = read_dword(VehicleObj)
+    local name = get_var(PlayerIndex, "$name")
     
     if MetaIndex == 0xE3D40260 then
         Vehicle_Name = "Warthog" 
@@ -70,10 +72,10 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
 
-    if MetaIndex == 0xE45702E3 then
+    if MetaIndex == 0xE45702E3 then 
         Vehicle_Name = "Scorpion Tank" 
         if Seat == "0" then 
-            Seat_Position = "Drivers Seat" 
+            Seat_Position = "Drivers Seat"
         elseif Seat == "1" then
             Seat_Position = "Passengers Seat"
         elseif Seat == "2" then
@@ -85,7 +87,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
 
-    if MetaIndex == 0xE4B70343 then 
+    if MetaIndex == 0xE4B70343 then
         Vehicle_Name = "Ghost" 
         if Seat == "0" then
             Seat_Position = "Drivers Seat" 
@@ -98,7 +100,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
             Seat_Position = "Drivers Seat" 
         end
     end
-    print(PlayerIndex, get_var(PlayerIndex, "$name").. " entered the " ..tostring(Seat_Position).. " of a " ..tostring(Vehicle_Name))
+    cprint(name.. " entered the " ..tostring(Seat_Position).. " of a " ..tostring(Vehicle_Name))
 end
 
 function OnError(Message)
