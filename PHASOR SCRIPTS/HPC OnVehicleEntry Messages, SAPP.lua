@@ -3,10 +3,9 @@
 Script Name: HPC OnVehicleEntry Messages, SAPP
     - Implementing API version: 1.10.0.0
     
-Description: This script will print Vehicle Name and Seat positions (to console)
-when a player enters a vehicle.
+Description: This script will print Vehicle Names & Seat position On vehicle Entry
     
-Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -15,35 +14,16 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]-- 
 
---      Warthog:
---      Seat 0 = Drivers Seat
---      Seat 1 = Passengers Seat
---      Seat 2 = Gunners Seat
-
---      Rocket Hog:
---      Seat 0 = Drivers Seat
---      Seat 1 = Passengers Seat
---      Seat 2 = Gunners Seat
-
---      Ghost, Banshee and Turret:
---      Seat 0 = Drivers Seat
-
---      Scorpion Tank
---      Seat 0 = Drivers Seat
---      Seat 1 - 5 = Passengers Seat
-
 api_version = "1.10.0.0"
 
 function OnScriptLoad()
 	register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload() 
-    
+function OnScriptUnload()
 end
 
 function OnVehicleEnter(PlayerIndex, Seat)
-    
 	local PlayerObj = get_dynamic_player(PlayerIndex)
 	local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
 	local MetaIndex = read_dword(VehicleObj)
@@ -52,9 +32,9 @@ function OnVehicleEnter(PlayerIndex, Seat)
         Vehicle_Name = "Warthog" 
         if Seat == "0" then 
             Seat_Position = "Drivers Seat" 
-        elseif Seat == "1" then 
+            elseif Seat == "1" then 
             Seat_Position = "Passengers Seat"
-        elseif Seat == "2" then 
+            elseif Seat == "2" then 
             Seat_Position = "Gunners Seat"
         end
     end
@@ -98,7 +78,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
             Seat_Position = "Drivers Seat" 
         end
     end
-    print(PlayerIndex, get_var(PlayerIndex, "$name").. " entered the " ..tostring(Seat_Position).. " of a " ..tostring(Vehicle_Name))
+    cprint("Vehicle Name: " ..tostring(Vehicle_Name).. " - " ..tostring(Seat_Position))
 end
 
 function OnError(Message)
