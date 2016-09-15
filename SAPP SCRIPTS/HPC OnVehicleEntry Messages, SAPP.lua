@@ -41,7 +41,9 @@ function OnScriptLoad()
 	register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload() 
+    
+end
 
 function OnVehicleEnter(PlayerIndex, Seat)
     
