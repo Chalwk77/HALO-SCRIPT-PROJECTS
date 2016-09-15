@@ -7,6 +7,8 @@ Script Name: HPC Chat IDs, SAPP
     -- Currently broken?
     
 Description: This script will display index ids when they talk in chat
+
+eg. [GLOBAL] Chalwk [1]: This is a test message.
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
