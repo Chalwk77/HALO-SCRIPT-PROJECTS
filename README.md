@@ -1,4 +1,4 @@
-Halo Lua Scripts for Phasor V2
+Halo Lua Scripts for Phasor V2 and SAPP
 
 
 * Chalwk: [profile](https://github.com/Chalwk77)
