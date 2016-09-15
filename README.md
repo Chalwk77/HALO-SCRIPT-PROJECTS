@@ -5,7 +5,7 @@ Halo Lua Scripts for Phasor V2+ and SAPP
 
 * Chalwk: [github profile](https://github.com/Chalwk77)
 * Contributors: [CONTRIBUTING.md](https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/CONTRIBUTING.md)
--- Contributors list those whom have contributed code to my projects in some way. Sometimes we use functions written by other people. In which case, their names will be credited in the scripts ad in Contributors.md
+##### Contributors list those whom have contributed code to my projects in some way. Sometimes we use functions written by other people. In which case, their names will be credited in the scripts ad in Contributors.md
 
 * PHASOR V2: [Halo PC (Combat Evolved)] (https://github.com/urbanyoung/Phasor)
 * SAPP: [Halo PC (Combat Evolved)] (http://halo.isimaginary.com/)
