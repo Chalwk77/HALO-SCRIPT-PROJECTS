@@ -32,7 +32,7 @@ end
 function OnPlayerChat(PlayerIndex, Message)
 
     local chatFormat = GetChatFormat
-   
+  
     if player_present(PlayerIndex) ~= nil then
         GetChatFormat = ("["..get_var(PlayerIndex, "$n").."]: " ..Message)
         return true, chatFormat
