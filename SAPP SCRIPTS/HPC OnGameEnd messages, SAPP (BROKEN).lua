@@ -22,7 +22,6 @@ end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    safe_read(true)
 end
 
 function OnGameEnd(PlayerIndex)
