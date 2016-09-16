@@ -100,8 +100,8 @@ function OnError(Message)
 end
 
 --[[
-SAPP will log player chat to the sapp.log file, however, it's difficult wade through all the other event logs it handles. 
-Personally, I find it convenient to have a 'dedicated' chat.txt file. Which is where this script comes into play.
+SAPP will log player chat to the sapp.log file, however, it's difficult to wade through all the other event logs it handles. 
+Personally, I find it convenient to have a 'dedicated' chat.txt file of sorts. Which is where this script comes into play.
 
 
 
