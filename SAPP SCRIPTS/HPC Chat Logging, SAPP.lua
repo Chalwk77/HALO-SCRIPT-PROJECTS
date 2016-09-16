@@ -28,40 +28,42 @@ function OnScriptLoad()
 end
 
 function OnPlayerChat(PlayerIndex, Message)
-
+    
+--      Format: [timestamp]     PlayerName [INDEX ID]: <message>
+--      Example Output: [15:01:05 - 16/09/2016]     Chalwk: [1]: Seems to be working fine.
+    
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
-    -- Format: <timestamp> PlayerName [INDEXID]: <message>
-    -- 15:01:05 - 16/09/2016 Chalwk: [1]: Seems to be working
     local GetChatFormat = string.format("["..get_var(PlayerIndex, "$n").."]: " ..(tostring(Message)))
-    	-- Write the value of GetChatFormat to /logs/Server Chat.txt
+    
 	WriteLog(fileDirectory, name.. ": " ..GetChatFormat)
 end
 
 function WriteLog(fileDirectory, value)
 	local file = io.open(fileDirectory, "a")
-    if file then -- if the file exists...
+    if file then
     	if WriteToFile == true then
-            local timestamp = os.date("%H:%M:%S - %d/%m/%Y")
-            local line = string.format("%s\t%s\n", timestamp, tostring(value))
-            file:write(line) 
-            file:close()
+            local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+            local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
+            file:write(chatValue) -- Write the value of timestamp & GetChatFormat to "/logs/Server Chat.txt"
+            file:close() -- Close the file.
         end
     else
-        -- If the file(s) /logs/Server Chat.txt do not exist, we call CreateDirectory() to produce them.
+--      If the file path "/logs/Server Chat.txt" does not exist, we call CreateDirectory() to produce it.
         cprint("ERROR: <writelog.lua> = [Function] on WriteLog() - File not Found: " ..fileDirectory)
         cprint("Creating file(s)..")
         CreateDirectory()
 	end
 end
 
+--      I may update this function in the future
 function CreateDirectory()
     local file = io.open(fileDirectory, "a")
     if file == nil then
-        os.execute("mkdir logs")
-        createFile = io.open( "logs\\Server Chat.txt", "w+" )
-        local line = string.format("File(s) Created!\n")
-        createFile:write( line )
+        os.execute("mkdir logs") -- Create Logs folder.
+        createFile = io.open( "logs\\Server Chat.txt", "w+" ) -- Create Server Chat.txt
+        local openInitiate = string.format("File(s) Created!\n")
+        createFile:write( openInitiate )
         createFile:close()
     else
     return false -- File already exists!
