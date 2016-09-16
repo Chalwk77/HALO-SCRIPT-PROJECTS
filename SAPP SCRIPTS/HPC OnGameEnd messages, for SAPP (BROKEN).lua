@@ -1,8 +1,8 @@
---[[    
+--[[
 ------------------------------------
 Script Name: HPC OnGameEnd messages, for SAPP (BROKEN)
     - Implementing API version: 1.10.0.0
-    
+
 Description: This script will display taunting messages to the player on game end
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -16,8 +16,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.10.0.0"
 
-function OnScriptUnload( )
-    
+function OnScriptUnload()
+
 end
 
 function OnScriptLoad()
@@ -25,7 +25,7 @@ function OnScriptLoad()
 end
 
 function OnGameEnd(PlayerIndex)
-    
+
     local player = get_player(PlayerIndex)
     local kills = read_word(player + 0x9C)
     if kills == 0 then

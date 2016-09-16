@@ -1,10 +1,10 @@
---[[    
+--[[
 ------------------------------------
 Script Name: HPC Set Respawn-Time, for SAPP
     - Implementing API version: 1.10.0.0
 
 Description: This script will allow you to set player respawn time (in seconds)
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -21,11 +21,11 @@ api_version = "1.10.0.0"
 RespawnTime = 1.5 -- 1.5 seconds
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'],"OnPlayerKill")
+    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
-function OnScriptUnload( ) 
-    
+function OnScriptUnload()
+
 end
 
 function OnPlayerKill(player_index)
