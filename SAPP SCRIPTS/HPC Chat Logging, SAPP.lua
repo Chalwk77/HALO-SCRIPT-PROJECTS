@@ -102,4 +102,14 @@ end
 --[[
 SAPP will log player chat to the sapp.log file, however, it's difficult wade through all the other event logs it handles. 
 Personally, I find it convenient to have a 'dedicated' chat.txt file. Which is where this script comes into play.
+
+
+
+To do:
+
+    - Display map name and game type On New Game.
+    - Format: New Game, Map: <map type>, Mode: <gametype>
+        e.g:  New Game, Map: bloodgulch, Mode: ctf
+        e.g:  New Game, Map: ratrace, Mode: classic_slayer
+
 ]]
