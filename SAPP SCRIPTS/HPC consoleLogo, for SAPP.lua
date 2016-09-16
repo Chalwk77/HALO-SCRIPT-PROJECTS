@@ -7,7 +7,7 @@ Script Name: HPC consoleLogo, for SAPP
     
 Description: 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -25,8 +25,8 @@ end
 function consoleLogo()
     local timestamp = os.date("%A, %d %B %Y - %X")
     cprint("===================================================================================================")
-	cprint(timestamp)
-	cprint("")
+    cprint(timestamp)
+    cprint("")
     cprint("                  '||'                  ||     ..|'''.|                   .'|.   .")
     cprint("                   ||    ....  ... ..  ...   .|'     '  ... ..   ....   .||.   .||.")
     cprint("                   ||  .|...||  ||' ''  ||   ||          ||' '' '' .||   ||     ||")
@@ -35,9 +35,9 @@ function consoleLogo()
     cprint("                '''")
     cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
     cprint("                                         Chalwk's Realm")
-	cprint("                                 vm153 - Pro Snipers + (no lag)")
-	cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-	cprint("")
+    cprint("                                 vm153 - Pro Snipers + (no lag)")
+    cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+    cprint("")
     cprint("===================================================================================================")
 end
    
