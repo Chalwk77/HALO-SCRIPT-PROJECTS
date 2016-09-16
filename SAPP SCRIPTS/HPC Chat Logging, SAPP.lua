@@ -5,7 +5,7 @@ Script Name: HPC Chat Logging, SAPP
     
 Description: This script will log player chat to /logs/Server Chat.txt
     
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -31,18 +31,20 @@ function OnPlayerChat(PlayerIndex, Message)
 
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
+    -- Format: <timestamp> PlayerName [INDEXID]: <message>
+    -- 15:01:05 - 16/09/2016 Chalwk: [1]: Seems to be working
     local GetChatFormat = string.format("["..get_var(PlayerIndex, "$n").."]: " ..(tostring(Message)))
-    
+    	-- Write the value of GetChatFormat to /logs/Server Chat.txt
 	WriteLog(fileDirectory, name.. ": " ..GetChatFormat)
 end
 
 function WriteLog(fileDirectory, value)
 	local file = io.open(fileDirectory, "a")
-    if file then
+    if file then -- if the file exists...
     	if WriteToFile == true then
             local timestamp = os.date("%H:%M:%S - %d/%m/%Y")
             local line = string.format("%s\t%s\n", timestamp, tostring(value))
-            file:write(line)
+            file:write(line) 
             file:close()
         end
     else
