@@ -16,6 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.10.0.0"
 
+file_name = "writelog.lua"
 WriteToFile = true
 local fileDirectory = "logs\\Server Chat.txt"
 
@@ -36,7 +37,7 @@ function OnPlayerChat(PlayerIndex, Message)
     local id = get_var(PlayerIndex, "$n")
     local GetChatFormat = string.format("["..get_var(PlayerIndex, "$n").."]: " ..(tostring(Message)))
     
-	WriteLog(fileDirectory, name.. ": " ..GetChatFormat)
+	WriteLog(fileDirectory, name.. " " ..GetChatFormat)
 end
 
 function WriteLog(fileDirectory, value)
@@ -49,14 +50,14 @@ function WriteLog(fileDirectory, value)
             file:close() -- Close the file.
         end
     else
---      If the file path "/logs/Server Chat.txt" does not exist, we call CreateDirectory() to produce it.
-        cprint("ERROR: <writelog.lua> = [Function] on WriteLog() - File not Found: " ..fileDirectory)
-        cprint("Creating file(s)..")
+--  If the file path "/logs/Server Chat.txt" does not exist, we call CreateDirectory() to produce it.
+        cprint("[SCRIPT] " ..file_name.. " - [Function] on WriteLog() - File not Found: " ..fileDirectory)
+        cprint("[SCRIPT] " ..file_name.. " - Creating file(s)...")
         CreateDirectory()
 	end
 end
 
---      I may update this function in the future
+--  I may update this function in the future to detect if either Logs Folder or Server Chat.txt exists independently.
 function CreateDirectory()
     local file = io.open(fileDirectory, "a")
     if file == nil then
@@ -64,6 +65,7 @@ function CreateDirectory()
         createFile = io.open( "logs\\Server Chat.txt", "w+" ) -- Create Server Chat.txt
         local openInitiate = string.format("File(s) Created!\n")
         createFile:write( openInitiate )
+        cprint("[SCRIPT] " ..file_name.. " - successfully created files.")
         createFile:close()
     else
     return false -- File already exists!
