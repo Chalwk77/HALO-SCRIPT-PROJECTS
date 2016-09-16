@@ -8,7 +8,7 @@ Script Name: HPC Chat IDs, SAPP
     
 Description: This script will display index ids when they talk in chat
 
-eg. Chalwk [1]: This is a test message.
+eg. [GLOBAL] Chalwk [1]: This is a test message.
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -31,13 +31,14 @@ end
 
 function OnPlayerChat(PlayerIndex, Message)
 
-    local chatFormat = GetChatFormat
-  
+    local id = get_var(PlayerIndex, "$n")
+    local name = get_var(PlayerIndex, "$name")
+    local chatFormat = string.format(" ["..id.."]: " ..(tostring(Message)))
+    
     if player_present(PlayerIndex) ~= nil then
-        GetChatFormat = ("["..get_var(PlayerIndex, "$n").."]: " ..Message)
         return true, chatFormat
     else
-        return chatFormat 
+        return true, chatFormat 
     end
 end
 
