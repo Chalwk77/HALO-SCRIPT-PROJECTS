@@ -53,7 +53,7 @@ function WriteLog(fileDirectory, value)
             local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
             file:write(chatValue)
             -- Write the value of timestamp & GetChatFormat to "/logs/Server Chat.txt"
-            cprint("[SCRIPT] " .. file_name .. " creating chat entry " .. fileDirectory)
+            -- cprint("[SCRIPT] " .. file_name .. " creating chat entry " .. fileDirectory)
             file:close()
             -- Close the file.
         end
