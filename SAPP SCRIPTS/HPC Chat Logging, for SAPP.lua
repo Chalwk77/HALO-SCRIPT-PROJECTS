@@ -23,14 +23,14 @@ WriteToFile = true
 local fileDirectory = "logs\\Server Chat.txt"
 game_started = false
 
-function OnScriptUnload()
-    game_started = true
-end
-
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+end
+
+function OnScriptUnload()
+    game_started = true
 end
 
 function OnPlayerChat(PlayerIndex, Message)
