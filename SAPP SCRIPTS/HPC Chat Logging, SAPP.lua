@@ -31,13 +31,13 @@ end
 function OnPlayerChat(PlayerIndex, Message)
     
 --      Format: [timestamp]     PlayerName [INDEX ID]: <message>
---      Example Output: [15:01:05 - 16/09/2016]     Chalwk: [1]: Seems to be working fine.
+--      Example Output: [15:01:05 - 16/09/2016]     Chalwk [1]: Seems to be working fine.
     
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
     local GetChatFormat = string.format("["..get_var(PlayerIndex, "$n").."]: " ..(tostring(Message)))
     
-	WriteLog(fileDirectory, name.. ": " ..GetChatFormat)
+	WriteLog(fileDirectory, name.. " " ..GetChatFormat)
 end
 
 function WriteLog(fileDirectory, value)
