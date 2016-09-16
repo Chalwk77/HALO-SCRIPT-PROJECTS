@@ -28,6 +28,7 @@ end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -72,6 +73,26 @@ function CreateDirectory()
     else
     return false -- File already exists!
     end
+end
+
+function OnNewGame()
+    NewLine(fileDirectory)
+end	
+
+-- Formatted for better readability
+function NewLine(fileDirectory, value)
+	local file = io.open(fileDirectory, "a")
+    if file then
+    	if WriteToFile == true then
+            local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started!")
+            NewLine = "\n"
+            Time = (timestamp)
+            Divider = "\n---------------------------------------------------------------------------------------------------\n"
+            NewLine = "\n"
+            file:write(NewLine, Time, Divider, NewLine)
+            file:close()
+        end
+	end
 end
 
 function OnError(Message)

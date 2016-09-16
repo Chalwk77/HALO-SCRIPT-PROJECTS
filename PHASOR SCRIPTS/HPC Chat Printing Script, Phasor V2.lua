@@ -94,12 +94,12 @@ function NewLine(filename, value)
         if file then
             local timestamp = os.date("%H:%M:%S  -  %d/%m/%Y")
             local Line0 = string.format("%s\t%s\n", timestamp, tostring(value))
-            Line1 = " \n"
-            Line0 = (timestamp)
-            Line_1 = "\n---------------------------------------------------------------------------------------------------\n"
-            Line_2 = "New Game, Map: " ..map_name.. ", Mode: " ..Game_Mode.."\n"
-            Line_3 = "\n"
-            file:write(Line1, Line0, Line_1, Line_2, Line_3)
+            Line0 = "\n"
+            Line1 = (timestamp)
+            Line2 = "\n---------------------------------------------------------------------------------------------------\n"
+            Line3 = "New Game, Map: " ..map_name.. ", Mode: " ..Game_Mode.."\n"
+            Line4 = "\n"
+            file:write(Line0, Line1, Line2, Line3, Line4)
             file:close()
         end
     end
