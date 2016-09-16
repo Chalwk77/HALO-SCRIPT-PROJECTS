@@ -4,9 +4,10 @@ Script Name: HPC Chat IDs, SAPP
     - Implementing API version: 1.10.0.0
 
     
-    -- Currently broken?
+    -- Currently broken!
     
-Description: This script will display index ids when they talk in chat
+Description:  This script will modify player message chat format
+              by adding their index id infront of their name in square brackets.
 
 eg. [GLOBAL] Chalwk [1]: This is a test message.
     
@@ -32,7 +33,6 @@ end
 function OnPlayerChat(PlayerIndex, Message)
 
     local id = get_var(PlayerIndex, "$n")
-    local name = get_var(PlayerIndex, "$name")
     local chatFormat = string.format(" ["..id.."]: " ..(tostring(Message)))
     
     if player_present(PlayerIndex) ~= nil then
