@@ -4,7 +4,6 @@ Script Name: HPC Chat Logging, SAPP
     - Implementing API version: 1.10.0.0
     
 Description: This script will log player chat to /logs/Server Chat.txt
-when a player enters a vehicle.
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
