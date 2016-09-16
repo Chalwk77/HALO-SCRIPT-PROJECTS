@@ -1,6 +1,6 @@
 --[[    
 ------------------------------------
-Script Name: HPC Chat IDs, SAPP
+Script Name: HPC Chat IDs, for SAPP
     - Implementing API version: 1.10.0.0
 
     

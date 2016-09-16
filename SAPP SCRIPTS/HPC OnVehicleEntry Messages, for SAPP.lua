@@ -1,6 +1,6 @@
 --[[    
 ------------------------------------
-Script Name: HPC OnVehicleEntry Messages, SAPP
+Script Name: HPC OnVehicleEntry Messages, for SAPP
     - Implementing API version: 1.10.0.0
     
 Description: This script will print Vehicle Name and Seat positions (to console)

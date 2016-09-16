@@ -5,6 +5,10 @@ Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Written and Created by Jericho Crosby
+
+-- SAPP Version:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Chat%20IDs%2C%20SAPP%20(BROKEN).lua
+
 -----------------------------------
 ]]--
 
@@ -18,21 +22,12 @@ function OnScriptLoad(processId, game, persistent)
 end
 
 function OnServerChat(player, chattype, message)
-
-    local charr = message:sub(1, 1)
-    local chatcmd = charr == "\\"
-    local pchat = charr == "@"
-    local number
-
-    if tonumber(charr) then
-        number = tonumber(charr) <= 8
-    end
-
-    if not(chatcmd or pchat) then
-        if player then
-            return true, "[" .. resolveplayer(player) .. "]  " .. message
+    
+        local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
+        if player ~= nil then
+            return true, GetChatFormat
         else
-            return true
+            return true, GetChatFormat
         end
     end
 end

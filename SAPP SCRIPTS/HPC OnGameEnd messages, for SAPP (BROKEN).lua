@@ -1,6 +1,6 @@
 --[[    
 ------------------------------------
-Script Name: HPC OnGameEnd messages, SAPP (BROKEN)
+Script Name: HPC OnGameEnd messages, for SAPP (BROKEN)
     - Implementing API version: 1.10.0.0
     
 Description: This script will display taunting messages to the player on game end

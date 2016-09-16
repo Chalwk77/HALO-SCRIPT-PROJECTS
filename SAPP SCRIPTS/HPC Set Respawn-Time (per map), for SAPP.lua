@@ -1,6 +1,6 @@
 --[[    
 ------------------------------------
-Script Name: HPC Set Respawn-Time (per map), SAPP
+Script Name: HPC Set Respawn-Time (per map), for SAPP
 - Implementing API version: 1.10.0.0
 - Script Version: v2
     

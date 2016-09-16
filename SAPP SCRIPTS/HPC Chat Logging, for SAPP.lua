@@ -1,9 +1,11 @@
 --[[    
 ------------------------------------
-Script Name: HPC Chat Logging, SAPP
+Script Name: HPC Chat Logging, for SAPP
     - Implementing API version: 1.10.0.0
     
 Description: This script will log player chat to /logs/Server Chat.txt
+
+* Notes at the bottom of the script.
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -75,3 +77,8 @@ end
 function OnError(Message)
     print(debug.traceback())
 end
+
+--[[
+SAPP will log player chat to the sapp.log file, however, it's difficult wade through all the other event logs it handles. 
+Personally, I find it convenient to have a 'dedicated' chat.txt file. Which is where this script comes into play.
+]]
