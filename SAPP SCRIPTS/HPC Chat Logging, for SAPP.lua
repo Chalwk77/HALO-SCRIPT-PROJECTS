@@ -87,7 +87,6 @@ end
 function OnNewGame()
     game_started = true
     NewLine(fileDirectory)
-    cprint("[SCRIPT] " .. file_name .. " - [Function] on OnNewGame() - initiated. " .. fileDirectory)
 end
 
 function OnGameEnd()
@@ -109,7 +108,6 @@ function NewLine(fileDirectory, value)
             NewLine = "\n"
             file:write(NewLine, Time, Divider, NewLine)
             file:close()
-            cprint("[SCRIPT] " .. file_name .. " - A new game has started!")
         end
     end
 end
