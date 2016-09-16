@@ -31,7 +31,7 @@ end
 function OnPlayerChat(PlayerIndex, Message)
     
 --      Format: [timestamp]     PlayerName [INDEX ID]: <message>
---      Example Output: [15:01:05 - 16/09/2016]     Chalwk [1]: Seems to be working fine.
+--      Example Output: [15:01:05 - 16/09/2016]     Chalwk: [1]: Seems to be working fine.
     
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
@@ -51,8 +51,8 @@ function WriteLog(fileDirectory, value)
         end
     else
 --  If the file path "/logs/Server Chat.txt" does not exist, we call CreateDirectory() to produce it.
-        cprint("[SCRIPT] " ..file_name.." - [Function] on WriteLog() - File not Found: " ..fileDirectory)
-        cprint("[SCRIPT] " ..file_name.." - Creating file(s)...")
+        cprint("[SCRIPT] " ..file_name.. " - [Function] on WriteLog() - File not Found: " ..fileDirectory)
+        cprint("[SCRIPT] " ..file_name.. " - Creating file(s)...")
         CreateDirectory()
 	end
 end
@@ -65,7 +65,7 @@ function CreateDirectory()
         createFile = io.open( "logs\\Server Chat.txt", "w+" ) -- Create Server Chat.txt
         local openInitiate = string.format("File(s) Created!\n")
         createFile:write( openInitiate )
-        cprint("[SCRIPT] " ..file_name.." - successfully created files.")
+        cprint("[SCRIPT] " ..file_name.. " - successfully created files.")
         createFile:close()
     else
     return false -- File already exists!
