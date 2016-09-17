@@ -7,9 +7,9 @@ Description: This script will display taunting messages to the player when the g
 
 -- To do:
 
-        From a table, have it say any 1 of 100+ (random) 
+        From a table, have it say any 1 of 100+ (random)
         taunting phrases about the persons play style
-        
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -52,14 +52,14 @@ function OnScriptLoad()
 end
 
 function OnPlayerDie(PlayerIndex, KillerIndex)
-    --local n = get_var(PlayerIndex,"$name")
+    -- local n = get_var(PlayerIndex,"$name")
     local tauntPlayer = GetRandomElement(tauntMessages)
     say(KillerIndex, tauntPlayer)
 end
 
 function OnGameEnd(PlayerIndex)
-	local m_player = getplayer(PlayerIndex)
-	if m_player then
+    local m_player = getplayer(PlayerIndex)
+    if m_player then
         local kills = tonumber(read_word(m_player + 0x9C))
         if kills == 0 then
             say(PlayerIndex, "You have no kills... noob alert!")
@@ -83,13 +83,13 @@ function OnGameEnd(PlayerIndex)
 end
 
 function getplayer(PlayerIndex)
-	if tonumber(PlayerIndex) then
-		if tonumber(PlayerIndex) ~= 0 then
-			local m_player = get_player(PlayerIndex)
-			if m_player ~= 0 then return m_player end
-		end
-	end
-	return nil
+    if tonumber(PlayerIndex) then
+        if tonumber(PlayerIndex) ~= 0 then
+            local m_player = get_player(PlayerIndex)
+            if m_player ~= 0 then return m_player end
+        end
+    end
+    return nil
 end
 
 function GetRandomElement(a)

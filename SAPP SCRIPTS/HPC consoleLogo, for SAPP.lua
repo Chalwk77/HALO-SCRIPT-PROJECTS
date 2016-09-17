@@ -1,11 +1,11 @@
---[[    
+--[[
 ------------------------------------
 Script Name: HPC consoleLogo, for SAPP
     - Implementing API version: 1.10.0.0
-    
+
     Only on github for safe keeping
-    
-Description: 
+
+Description:
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

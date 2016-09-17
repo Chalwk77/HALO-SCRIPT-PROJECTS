@@ -86,7 +86,7 @@ function OnNewGame(fileDirectory, value)
     if file == nil then
         CreateDirectory()
     end
-    end
+end
 
 -- Formatted for better readability
 function NewLine(fileDirectory, value)
