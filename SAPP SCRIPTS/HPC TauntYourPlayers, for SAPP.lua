@@ -44,7 +44,7 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
     
     -- We only want to display messages to the victim if he was killed 
     -- by another player, not from suicides and vehicle deaths ect.
-    elseif (victimPlayer == > 0) and tauntsonDeath == true then
+    elseif (victimPlayer > 0) and tauntsonDeath == true then
         local tauntMessages = {
             " Aw, "..get_var(PlayerIndex,"$name")..", I seen better shooting at the county fair!",
             " Ees too bad you got manure for brains!!",
