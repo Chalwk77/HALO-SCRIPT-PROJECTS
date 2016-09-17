@@ -82,7 +82,9 @@ function CreateDirectory()
 end
 
 function OnNewGame(fileDirectory, value)
-    local file = io.open(fileDirectory, "a")
+	MAP = get_var(0,"$map")
+	GAME_TYPE = get_var(0,"$mode")
+    local file = io.open("logs\\Server Chat.txt", "a")
     if file == nil then
         CreateDirectory()
     end
@@ -96,7 +98,9 @@ function NewLine(fileDirectory, value)
     end
     if file then
         if WriteToFile == true then
-            local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started!")
+            MAP = get_var(0,"$map")
+            GAME_TYPE = get_var(0,"$mode")
+            local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started on " ..MAP.. ", Mode: " ..GAME_TYPE)
             NewLine = "\n"
             Time = (timestamp)
             Divider = "\n---------------------------------------------------------------------------------------------------\n"
