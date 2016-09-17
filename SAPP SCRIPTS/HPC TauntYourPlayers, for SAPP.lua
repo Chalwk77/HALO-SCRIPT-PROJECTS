@@ -86,43 +86,40 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
     end
 end
 
--- I plan on updating this function in the future.
 function OnGameEnd(PlayerIndex)
     
-    if tauntsOnGameEnd == true then
-    local validatePlayer = GetValidPlayer(PlayerIndex)
-        if validatePlayer then
-            local kills = tonumber(read_word(validatePlayer + 0x9C))
+	for i=1,16 do
+        local player = get_player(i)
+            if player_present(i) then
+            local kills = tonumber(get_var(i, "$kills"))
+            
             if (kills == 0) then
-                say(PlayerIndex, "You have no kills... noob alert!")
-            end
-            if (kills == 1) then
-                say(PlayerIndex, "One kill? You must be new at this...")
-            end
-            if (kills == 2) then
-                say(PlayerIndex, "Eh, two kills... not bad. But you still suck.")
-            end
-            if (kills == 3) then
-                say(PlayerIndex, "Relax sonny! 3 kills, and you be like... mad bro?")
-            end
-            if (kills == 4) then
-                say(PlayerIndex, "Dun dun dun... them 4 kills though!")
-            end
-            if (kills > 4) then
-                say(PlayerIndex, "Well, you've got more than 4 kills... #AchievingTheImpossible")
+                say(i, "You have no kills. Noob alert!")
+            elseif (kills == 1) then
+                say(i, "One kill? You must be new at this!!")
+            elseif (kills == 2) then
+                say(i, "You have sustained lethal injuries, but you do have 2 kills!")
+            elseif (kills == 3) then
+                say(i, "Game Over - Why don't you try harder next time. 3 Kills, really?")
+            elseif (kills == 4) then
+                say(i, "Pathetic, you're pathetic! 4 Kills doens't win you a gold medal, sir.")             
+            elseif (kills == 5) then
+                say_all(get_var(i,"$name")..": I ain't scared of you! Not one bit! No sir! Ha-Ha-Ha!!")                 
+            elseif (kills == 6) then
+                say_all(get_var(i,"$name")..": Any last requests!? A dyin' man always has last requests!\n…And you just been tried, sentenced and condemned!\nYou lose!")                 
+            elseif (kills == 7) then
+                say_all(get_var(i,"$name")..": Look I'm feeling generous today,\nI'm only gonna shoot out your brains - which shouldn't make much difference to you!")                 
+            elseif (kills == 8) then
+                say_all(get_var(i,"$name")..": Don't be shy… You can shoot at me next time, I don't mind!")                 
+            elseif (kills == 9) then
+                say_all(get_var(i,"$name")..": Is that really a gun in your hand or is it just wishful thinkin'!\nHa, ha, ha, ha, ha, ha, ha, ha, ha, ha!")                 
+            elseif (kills == 10) then
+                say_all(get_var(i,"$name")..": Hey, why don't we just sit down and talk about this reasonably. \nHomicidal-maniac to crazed-vengeance- seeking-gamer. \nDo you really think you can beat me? Ha-Ha-Ha!")                 
+            elseif (kills > 11) then
+                say_all(get_var(i,"$name")..": Well, well … now what is it my papa used to say?\nOh, yes, yes he used to say, \nSon! Life is wasted on the living!")
             end
         end
     end
-end
-
-function GetValidPlayer(PlayerIndex)
-    if tonumber(PlayerIndex) then
-        if tonumber(PlayerIndex) ~= 0 then
-            local validatePlayer = get_player(PlayerIndex)
-            if validatePlayer ~= 0 then return validatePlayer end
-        end
-    end
-    return nil
 end
 
 function GetRandomElement(a)
