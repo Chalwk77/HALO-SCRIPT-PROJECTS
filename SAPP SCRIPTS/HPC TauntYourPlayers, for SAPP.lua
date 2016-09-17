@@ -7,7 +7,7 @@ Description: This script will display 1-30 random taunting messages
              from a lua table to your players under two events:
              events: OnGameEnd | OnPlayerDie
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -88,35 +88,36 @@ end
 
 function OnGameEnd(PlayerIndex)
     
-	for i=1,16 do
-        local player = get_player(i)
-            if player_present(i) then
-            local kills = tonumber(get_var(i, "$kills"))
-            
-            if (kills == 0) then
-                say(i, "You have no kills. Noob alert!")
-            elseif (kills == 1) then
-                say(i, "One kill? You must be new at this!!")
-            elseif (kills == 2) then
-                say(i, "You have sustained lethal injuries, but you do have 2 kills!")
-            elseif (kills == 3) then
-                say(i, "Game Over - Why don't you try harder next time. 3 Kills, really?")
-            elseif (kills == 4) then
-                say(i, "Pathetic, you're pathetic! 4 Kills doens't win you a gold medal, sir.")             
-            elseif (kills == 5) then
-                say_all(get_var(i,"$name")..": I ain't scared of you! Not one bit! No sir! Ha-Ha-Ha!!")                 
-            elseif (kills == 6) then
-                say_all(get_var(i,"$name")..": Any last requests!? A dyin' man always has last requests!\n…And you just been tried, sentenced and condemned!\nYou lose!")                 
-            elseif (kills == 7) then
-                say_all(get_var(i,"$name")..": Look I'm feeling generous today,\nI'm only gonna shoot out your brains - which shouldn't make much difference to you!")                 
-            elseif (kills == 8) then
-                say_all(get_var(i,"$name")..": Don't be shy… You can shoot at me next time, I don't mind!")                 
-            elseif (kills == 9) then
-                say_all(get_var(i,"$name")..": Is that really a gun in your hand or is it just wishful thinkin'!\nHa, ha, ha, ha, ha, ha, ha, ha, ha, ha!")                 
-            elseif (kills == 10) then
-                say_all(get_var(i,"$name")..": Hey, why don't we just sit down and talk about this reasonably. \nHomicidal-maniac to crazed-vengeance- seeking-gamer. \nDo you really think you can beat me? Ha-Ha-Ha!")                 
-            elseif (kills > 11) then
-                say_all(get_var(i,"$name")..": Well, well … now what is it my papa used to say?\nOh, yes, yes he used to say, \nSon! Life is wasted on the living!")
+    if tauntsOnGameEnd == true then
+        for i=1,16 do
+            local player = get_player(i)
+                if player_present(i) then
+                local kills = tonumber(get_var(i, "$kills"))
+                if (kills == 0) then
+                    say(i, "You have no kills. Noob alert!")
+                elseif (kills == 1) then
+                    say(i, "One kill? You must be new at this!!")
+                elseif (kills == 2) then
+                    say(i, "You have sustained lethal injuries, but you do have 2 kills!")
+                elseif (kills == 3) then
+                    say(i, "Game Over - Why don't you try harder next time. 3 Kills, really?")
+                elseif (kills == 4) then
+                    say(i, "Pathetic, you're pathetic! 4 Kills doens't win you a gold medal, sir.")             
+                elseif (kills == 5) then
+                    say_all(get_var(i,"$name")..": I ain't scared of you! Not one bit! No sir! Ha-Ha-Ha!!")                 
+                elseif (kills == 6) then
+                    say_all(get_var(i,"$name")..": Any last requests!? A dyin' man always has last requests!\nâ€¦And you just been tried, sentenced and condemned!\nYou lose!")                 
+                elseif (kills == 7) then
+                    say_all(get_var(i,"$name")..": Look I'm feeling generous today,\nI'm only gonna shoot out your brains - which shouldn't make much difference to you!")                 
+                elseif (kills == 8) then
+                    say_all(get_var(i,"$name")..": Don't be shyâ€¦ You can shoot at me next time, I don't mind!")                 
+                elseif (kills == 9) then
+                    say_all(get_var(i,"$name")..": Is that really a gun in your hand or is it just wishful thinkin'!\nHa, ha, ha, ha, ha, ha, ha, ha, ha, ha!")                 
+                elseif (kills == 10) then
+                    say_all(get_var(i,"$name")..": Hey, why don't we just sit down and talk about this reasonably. \nHomicidal-maniac to crazed-vengeance- seeking-gamer. \nDo you really think you can beat me? Ha-Ha-Ha!")                 
+                elseif (kills > 11) then
+                    say_all(get_var(i,"$name")..": Well, well â€¦ now what is it my papa used to say?\nOh, yes, yes he used to say, \nSon! Life is wasted on the living!")
+                end
             end
         end
     end
