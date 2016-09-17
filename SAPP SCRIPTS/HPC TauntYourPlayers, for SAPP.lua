@@ -59,7 +59,7 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
             " I'm going to send ya to an early grave!!",
             " Had enough yet?!",
             " Hope ya plant better than ya shoot!!",
-            " Damn you and the cyber you rode in on!!",
+            " Damn you and the horse you rode in on!!",
             " Time to fit you for a coffin!!",
             " You have a date with the undertaker!!",
             " Your life ends in the wasteland...",
