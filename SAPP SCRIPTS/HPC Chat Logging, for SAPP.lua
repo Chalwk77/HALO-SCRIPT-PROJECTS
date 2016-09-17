@@ -21,16 +21,13 @@ api_version = "1.10.0.0"
 file_name = "writelog.lua"
 WriteToFile = true
 local fileDirectory = "logs\\Server Chat.txt"
-game_started = false
+
+function OnScriptUnload()
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-end
-
-function OnScriptUnload()
-    game_started = true
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -84,14 +81,12 @@ function CreateDirectory()
     end
 end
 
-function OnNewGame()
-    game_started = true
-    NewLine(fileDirectory)
-end
-
-function OnGameEnd()
-    game_started = false
-end
+function OnNewGame(fileDirectory, value)
+    local file = io.open(fileDirectory, "a")
+    if file == nil then
+        CreateDirectory()
+    end
+    end
 
 -- Formatted for better readability
 function NewLine(fileDirectory, value)
