@@ -3,7 +3,8 @@
 Script Name: HPC TauntYourPlayers, for SAPP
     - Implementing API version: 1.10.0.0
 
-Description: This script will display taunting messages to your players under two events:
+Description: This script will display 1-30 random taunting messages
+             from a lua table to your players under two events:
              events: OnGameEnd | OnPlayerDie
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -85,6 +86,7 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
     end
 end
 
+-- I plan on updating this function in the future.
 function OnGameEnd(PlayerIndex)
     
     if tauntsOnGameEnd == true then
