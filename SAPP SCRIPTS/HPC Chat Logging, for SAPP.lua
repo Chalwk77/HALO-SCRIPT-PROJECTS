@@ -64,11 +64,11 @@ end
 
 --  I may update this function in the future to detect if either Logs Folder or Server Chat.txt exists independently.
 function CreateDirectory()
-    local file = io.open(fileDirectory, "a")
+    local file = io.open(fileDirectory, "a+")
     if file == nil then
         os.execute("mkdir logs")
         -- Create Logs folder.
-        createFile = io.open("logs\\Server Chat.txt", "w+")
+        createFile = io.open("logs\\Server Chat.txt", "w")
         -- Create Server Chat.txt
         local openInitiate = string.format("File(s) Created!\n")
         createFile:write(openInitiate)
@@ -82,27 +82,47 @@ function CreateDirectory()
 end
 
 function OnNewGame(fileDirectory, value)
-    MAP = get_var(0, "$map")
-    GAME_TYPE = get_var(0, "$mode")
-    local file = io.open("logs\\Server Chat.txt", "a")
-    if file == nil then
-        CreateDirectory()
+	MAP = get_var(0,"$map")
+	GAME_TYPE = get_var(0,"$mode")
+    local file = io.open("logs\\Server Chat.txt", "r")
+    if file == nil then 
+    -- File does not exist, so we create it.
+        CreateDirectory() 
+    end
+    -- File exists, format NewLine.
+    if file ~= nil then
+        local file = io.open("logs\\Server Chat.txt", "a+")
+        lineFile(fileDirectory)
+    end
+end
+
+-- Necessary for a workaround
+function lineFile(fileDirectory, value)
+    local file = io.open("logs\\Server Chat.txt", "a+")
+    if WriteToFile == true then
+        MAP = get_var(0,"$map")
+        GAME_TYPE = get_var(0,"$mode")
+        local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started on " ..MAP.. ", Mode: " ..GAME_TYPE)
+        NewLine = "\n"
+        Time = (timestamp)
+        Divider = "\n---------------------------------------------------------------------------------------------------\n"
+        NewLine = "\n"
+        file:write(NewLine, Time, Divider, NewLine)
+        file:close()
     end
 end
 
 -- Formatted for better readability
 function NewLine(fileDirectory, value)
     local file = io.open(fileDirectory, "a")
-    if file == nil then
-        CreateDirectory()
-    end
-    if file then
+    if file == nil then CreateDirectory()
+    elseif file then
         if WriteToFile == true then
-            MAP = get_var(0, "$map")
-            GAME_TYPE = get_var(0, "$mode")
-            local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started on " .. MAP .. ", Mode: " .. GAME_TYPE)
+            MAP = get_var(0,"$map")
+            GAME_TYPE = get_var(0,"$mode")
+            local timestamp = os.date("[%A %d %B %Y] - %X - A new game has started on " ..MAP.. ", Mode: " ..GAME_TYPE)
             NewLine = "\n"
-            Time =(timestamp)
+            Time = (timestamp)
             Divider = "\n---------------------------------------------------------------------------------------------------\n"
             NewLine = "\n"
             file:write(NewLine, Time, Divider, NewLine)
