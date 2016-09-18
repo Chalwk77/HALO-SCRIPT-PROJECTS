@@ -80,8 +80,9 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
         -- Temporarily modify Server Prefix
         execute_command("msg_prefix " ..tPrefix)
         local tauntPlayer = GetRandomElement(tauntMessages)
+        -- Send Taunt
         rprint(PlayerIndex, tauntPlayer)
-        -- Reset Server Prefix
+        -- Restore Server Prefix
         execute_command("msg_prefix \"** SAPP ** \"")
     end
 end
@@ -93,16 +94,18 @@ function OnGameEnd(PlayerIndex)
             local player = get_player(i)
                 if player_present(i) then
                 local kills = tonumber(get_var(i, "$kills"))
+                -- Temporarily modify Server Prefix
+                execute_command("msg_prefix " ..tPrefix)
                 if (kills == 0) then
-                    say(i, "You have no kills. Noob alert!")
+                    say(i, " You have no kills. Noob alert!")
                 elseif (kills == 1) then
-                    say(i, "One kill? You must be new at this!!")
+                    say(i, " One kill? You must be new at this!!")
                 elseif (kills == 2) then
-                    say(i, "You have sustained lethal injuries, but you do have 2 kills!")
+                    say(i, " You have sustained lethal injuries, but you do have 2 kills!")
                 elseif (kills == 3) then
-                    say(i, "Game Over - Why don't you try harder next time. 3 Kills, really?")
+                    say(i, " Game Over - Why don't you try harder next time. 3 Kills, really?")
                 elseif (kills == 4) then
-                    say(i, "Pathetic, you're pathetic! 4 Kills doens't win you a gold medal, sir.")             
+                    say(i, " Pathetic, you're pathetic! 4 Kills doens't win you a gold medal, sir.")             
                 elseif (kills == 5) then
                     say_all(get_var(i,"$name")..": I ain't scared of you! Not one bit! No sir! Ha-Ha-Ha!!")                 
                 elseif (kills == 6) then
@@ -114,13 +117,15 @@ function OnGameEnd(PlayerIndex)
                 elseif (kills == 9) then
                     say_all(get_var(i,"$name")..": Is that really a gun in your hand or is it just wishful thinkin'!\nHa, ha, ha, ha, ha, ha, ha, ha, ha, ha!")                 
                 elseif (kills == 10) then
-                    say_all(get_var(i,"$name")..": Hey, why don't we just sit down and talk about this reasonably. \nHomicidal-maniac to crazed-vengeance- seeking-gamer. \nDo you really think you can beat me? Ha-Ha-Ha!")                 
+                    say_all(get_var(i,"$name")..": Hey, why don't we just sit down and talk about this reasonably.\nHomicidal-maniac to crazed-vengeance- seeking-gamer.\nDo you really think you can beat me? Ha-Ha-Ha!")                 
                 elseif (kills > 11) then
-                    say_all(get_var(i,"$name")..": Well, well … now what is it my papa used to say?\nOh, yes, yes he used to say, \nSon! Life is wasted on the living!")
+                    say_all(get_var(i,"$name")..": Well, well … now what is it my papa used to say?\nOh, yes, yes he used to say,\nSon! Life is wasted on the living!")
                 end
             end
         end
     end
+    -- Restore Server Prefix
+    execute_command("msg_prefix \"** SAPP ** \"")
 end
 
 function GetRandomElement(a)
