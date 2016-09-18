@@ -8,7 +8,7 @@ Contributors to [code]
 
 * **[sehé°°](http://halo.isimaginary.com/forum/user-1.html)**
 
-  * Author of the SAPP for Halo
+  * Author of SAPP for Halo
         - http://halo.isimaginary.com/forum/user-1.html
 
 * **[AelitePrime](http://phasor.proboards.com/user/37)**
