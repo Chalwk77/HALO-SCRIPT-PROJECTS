@@ -7,7 +7,7 @@ Script Name: HPC vm351 - Game Settings
     
 Description: 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -19,7 +19,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.10.0.0"
 
 function OnScriptLoad()
-
+    write_byte(0x671340, 0x58, 25)
     logo = timer(50, "consoleLogo")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -42,6 +42,7 @@ end
 
 function OnPlayerPrejoin(PlayerIndex)
     
+    os.execute("echo \7")
     local timestamp = os.date("%A %d %B %Y - %X")
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
@@ -75,6 +76,7 @@ function OnPlayerLeave(PlayerIndex)
     local ping = get_var(PlayerIndex, "$ping")
     local timestamp = os.date("%A %d %B %Y - %X")
 
+    
     cprint("---------------------------------------------------------------------------------------------------")
     cprint(name.. " quit the game! - IndexID [" ..id.. "]")
     cprint("Time: " ..timestamp)
