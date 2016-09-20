@@ -24,17 +24,13 @@ api_version = "1.10.0.0"
 local dir = 'sapp\\Server Chat.txt'
 
 function OnScriptLoad()
-
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
-function OnScriptUnload()
-
-end
+function OnScriptUnload() end
 
 function OnNewGame()
-
     local file = io.open(dir, "a+")
     if file ~= nil then
         local map = get_var(0, "$map")
@@ -48,7 +44,6 @@ function OnNewGame()
 end
 
 function WriteData(dir, value)
-
     local file = io.open(dir, "a+")
     if file ~= nil then
         local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]    ")
@@ -59,7 +54,6 @@ function WriteData(dir, value)
 end
 
 function OnPlayerChat(PlayerIndex, Message)
-
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
     local GetChatFormat = string.format("[" .. tonumber(id) .. "]: " ..(tostring(Message)))
