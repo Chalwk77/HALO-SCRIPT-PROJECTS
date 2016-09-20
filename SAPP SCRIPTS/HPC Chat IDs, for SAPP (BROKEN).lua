@@ -4,7 +4,7 @@ Script Name: HPC Chat IDs, for SAPP
     - Implementing API version: 1.10.0.0
 
 
-    -- Currently broken!
+    -- This script is Currently broken!
 
 Description:  This script will modify your players message chat format
               by adding an index id in front of their name in square brackets.
