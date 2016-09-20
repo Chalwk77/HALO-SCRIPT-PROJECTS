@@ -44,4 +44,3 @@ end
 function OnScriptUnload()
     timer(consoleLogo)
 end
-
