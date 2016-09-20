@@ -33,7 +33,7 @@ end
 function OnPlayerChat(PlayerIndex, Message)
 
     local id = get_var(PlayerIndex, "$n")
-    local chatFormat = string.format(" [" .. tonumber(id) .. "]: " ..(tostring(Message)))
+    local chatFormat = string.format(" [" .. (tonumber(id)) .. "]: " ..(tostring(Message)))
 
     if player_present(PlayerIndex) ~= nil then
         return true, chatFormat
