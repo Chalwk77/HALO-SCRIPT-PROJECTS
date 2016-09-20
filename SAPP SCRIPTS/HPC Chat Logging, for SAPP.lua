@@ -70,3 +70,10 @@ end
 function OnError(Message)
     print(debug.traceback())
 end
+
+--[[
+
+SAPP will log player chat to the sapp.log file, however, it's difficult to wade through all the other event logs it handles.
+Personally, I find it convenient to have a 'dedicated' server chat.txt file. Which is where this script comes into play.
+
+]]
