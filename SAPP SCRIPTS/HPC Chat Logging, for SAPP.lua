@@ -42,7 +42,7 @@ function OnNewGame()
         local gt = get_var(0, "$mode")
         local n1 = "\n"
         local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. map .. ", Mode: " .. gt)
-        local n2 = "\n--------------------------------------------------------------------------------------------\n"
+        local n2 = "\n---------------------------------------------------------------------------------------------\n"
         file:write(n1, t1, n2)
         file:close()
     end
