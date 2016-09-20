@@ -3,7 +3,7 @@
 Script Name: HPC Chat Logger V2, for SAPP
     - Implementing API version: 1.10.0.0
 
-Description: This script will log player chat to <sapp server>/logs/Chat.txt
+Description: This script will log player chat to <sapp server>/Server Chat.txt
 
 * Change log:
     [1] I had to rewrite this script. It was driving me crazy.
