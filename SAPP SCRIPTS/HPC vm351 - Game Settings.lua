@@ -7,7 +7,7 @@ Script Name: HPC vm351 - Game Settings
     
 Description: 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -42,12 +42,10 @@ function OnGameEnd()
 end
 
 function OnPlayerPrejoin(PlayerIndex)
-    
-    
     os.execute("echo \7")
-	local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-	local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-	local name = read_widestring(client_network_struct, 12)
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
+    local name = read_widestring(client_network_struct, 12)
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
@@ -62,7 +60,6 @@ function OnPlayerPrejoin(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    
     local timestamp = os.date("%A %d %B %Y - %X")
     cprint("Join Time: " ..timestamp)
     cprint("Status: connected successfully.")
@@ -70,7 +67,6 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-  
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
@@ -90,11 +86,10 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function consoleLogo()
-    
     local timestamp = os.date("%A, %d %B %Y - %X")
     cprint("===================================================================================================")
-	cprint(timestamp)
-	cprint("")
+    cprint(timestamp)
+    cprint("")
     cprint("                  '||'                  ||     ..|'''.|                   .'|.   .")
     cprint("                   ||    ....  ... ..  ...   .|'     '  ... ..   ....   .||.   .||.")
     cprint("                   ||  .|...||  ||' ''  ||   ||          ||' '' '' .||   ||     ||")
@@ -103,9 +98,9 @@ function consoleLogo()
     cprint("                '''")
     cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
     cprint("                                         Chalwk's Realm")
-	cprint("                                 vm153 - Pro Snipers + (no lag)")
-	cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-	cprint("")
+    cprint("                                 vm153 - Pro Snipers + (no lag)")
+    cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+    cprint("")
     cprint("===================================================================================================")
 end
 
