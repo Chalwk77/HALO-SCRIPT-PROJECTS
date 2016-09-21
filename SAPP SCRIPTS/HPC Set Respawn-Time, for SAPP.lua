@@ -24,9 +24,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
-function OnScriptUnload()
-
-end
+function OnScriptUnload() end
 
 function OnPlayerKill(player_index)
     local player = get_player(player_index)

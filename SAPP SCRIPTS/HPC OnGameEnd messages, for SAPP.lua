@@ -21,16 +21,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.10.0.0"
 
-function OnScriptUnload()
-
-end
+function OnScriptUnload() end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnGameEnd(PlayerIndex)
-
     local m_player = getplayer(PlayerIndex)
     if m_player then
         local kills = tonumber(read_word(m_player + 0x9C))

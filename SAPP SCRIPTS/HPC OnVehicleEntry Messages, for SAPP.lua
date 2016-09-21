@@ -41,12 +41,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload()
-
-end
+function OnScriptUnload() end
 
 function OnVehicleEnter(PlayerIndex, Seat)
-
     local PlayerObj = get_dynamic_player(PlayerIndex)
     local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
     local MetaIndex = read_dword(VehicleObj)
