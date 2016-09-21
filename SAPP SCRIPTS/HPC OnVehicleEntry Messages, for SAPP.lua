@@ -35,7 +35,7 @@ For the Phasor version, visit:
 --      Seat 0 = Drivers Seat
 --      Seat 1 - 5 = Passengers Seat
 
-api_version = "1.10.0.0"
+api_version = "1.11.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
