@@ -36,7 +36,7 @@ function OnNewGame()
         local map = get_var(0, "$map")
         local gt = get_var(0, "$mode")
         local n1 = "\n"
-        local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. map .. ", Mode: " .. gt)
+        local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
         local n2 = "\n---------------------------------------------------------------------------------------------\n"
         file:write(n1, t1, n2)
         file:close()
@@ -46,7 +46,7 @@ end
 function WriteData(dir, value)
     local file = io.open(dir, "a+")
     if file ~= nil then
-        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]    ")
+        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]    ")
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
