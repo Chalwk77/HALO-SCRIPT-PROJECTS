@@ -71,7 +71,7 @@ EQUIPMENT_TABLE[19] = "weapons\\shotgun\\shotgun"
 EQUIPMENT_TABLE[20] = "weapons\\sniper rifle\\sniper rifle"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
 MAP_EQ_TABLE_BLOODGULCH = { }
 MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -85,7 +85,7 @@ MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
 MAP_EQ_TABLE_RATRACE = { }
 MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -99,7 +99,7 @@ MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 -- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap must be false
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
 GAMETYPE_EQ_TABLE_BLOODGULCH = { }
 GAMETYPE_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -112,8 +112,8 @@ GAMETYPE_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
--- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap must be false
+-- Based on Game-Type -- 
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
 GAMETYPE_EQ_TABLE_RATRACE = { }
 GAMETYPE_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -259,7 +259,7 @@ end
 function DropTable(victim, x, y, z)
 
     -- Based On Map --
-    -- Used when BasedOnMap is true, but BasedOnGameType must be false
+    -- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
     if BasedOnMap == true and BasedOnGameType == false then
         -- Check if map is bloodgulch
         if map_name == "bloodgulch" then
@@ -283,7 +283,7 @@ function DropTable(victim, x, y, z)
     end
 
     -- Based on Game-Type --
-    -- Used when BasedOnGameType is true, but BasedOnMap must be false
+    -- Used when BasedOnGameType is true, but BasedOnMap, and GlobalSettings must be set to false
     if BasedOnGameType == true and BasedOnMap == false then
         -- Check if gametype is CTF
         if game_type == "ctf" then
@@ -307,7 +307,7 @@ function DropTable(victim, x, y, z)
     end
 
     -- Global Settings --
-    -- Used when BasedOnMap and BasedOnGameType are both false
+    -- Used when BasedOnMap and BasedOnGameType are both set to false
     if globalsettings == true then
         if BasedOnGameType == false and BasedOnMap == false then
             -- pick 1 of 12 random items from the respective table
