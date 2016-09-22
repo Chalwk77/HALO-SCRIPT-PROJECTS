@@ -16,7 +16,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
+globalsettings == true
+BasedOnMap == false
+BasedOnGameType == false
+
 VICTIM_LOCATION = { }
+
+-- Used when BasedOnMap and BasedOnGameType are false
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -31,10 +37,97 @@ EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 EQUIPMENT_TABLE[11] = "powerups\\double speed"
 EQUIPMENT_TABLE[12] = "powerups\\full-spectrum vision"
 
+-- Used when BasedOnMap is true, but BasedOnGameType must be false
+MAP_EQ_TABLE_BLOODGULCH = { }
+MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
+MAP_EQ_TABLE_BLOODGULCH[3] = "powerups\\over shield"
+MAP_EQ_TABLE_BLOODGULCH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_BLOODGULCH[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_BLOODGULCH[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
+MAP_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
+
+-- Used when BasedOnMap is true, but BasedOnGameType must be false
+MAP_EQ_TABLE_RATRACE = { }
+MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
+MAP_EQ_TABLE_RATRACE[3] = "powerups\\over shield"
+MAP_EQ_TABLE_RATRACE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_RATRACE[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_RATRACE[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
+MAP_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
+
+-- Used when BasedOnGameType is true, but BasedOnMap must be false
+GAMETYPE_EQ_TABLE_BLOODGULCH = { }
+GAMETYPE_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
+GAMETYPE_EQ_TABLE_BLOODGULCH[3] = "powerups\\over shield"
+GAMETYPE_EQ_TABLE_BLOODGULCH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
+GAMETYPE_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
+
+-- Used when BasedOnGameType is true, but BasedOnMap must be false
+GAMETYPE_EQ_TABLE_RATRACE = { }
+GAMETYPE_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
+GAMETYPE_EQ_TABLE_RATRACE[3] = "powerups\\over shield"
+GAMETYPE_EQ_TABLE_RATRACE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_TABLE_RATRACE[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_TABLE_RATRACE[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
+GAMETYPE_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
+
+function LoadMaps()
+    mapnames = {
+        "beavercreek",
+        "bloodgulch",
+        "boardingaction",
+        "carousel",
+        "chillout",
+        "damnation",
+        "dangercanyon",
+        "deathisland",
+        "gephyrophobia",
+        "hangemhigh",
+        "icefields",
+        "infinity",
+        "longest",
+        "prisoner",
+        "putput",
+        "ratrace",
+        "sidewinder",
+        "timberland",
+        "wizard"
+    }
+    map_name = get_var(1, "$map")
+    mapnames[map_name] = mapnames[map_name] or false
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    map_name = get_var(1, "$map")
+    LoadMaps()
 end
 
 function OnScriptUnload() end
@@ -122,12 +215,78 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function DropTable(victim, x, y, z)
-    itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
-    local player = get_player(victim)
-    local rotation = read_float(player + 0x138)
-    spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    
+    if BasedOnMap == true and BasedOnGameType == false then 
+        if map_name == "bloodgulch" then
+            itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
+            local player = get_player(victim)
+            local rotation = read_float(player + 0x138)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    elseif map_name == "ratrace" then
+        itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
+        local player = get_player(victim)
+        local rotation = read_float(player + 0x138)
+        spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    end
+    
+    if BasedOnGameType == true and BasedOnMap == false then 
+        if get_var(1,"$gt") == "ctf") then
+            itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
+            local player = get_player(victim)
+            local rotation = read_float(player + 0x138)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    elseif get_var(1,"$gt") == "slayer") then
+        itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
+        local player = get_player(victim)
+        local rotation = read_float(player + 0x138)
+        spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    end
+    
+    if globalsettings == true then
+        if BasedOnGameType == false and BasedOnMap == false then 
+            itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
+            local player = get_player(victim)
+            local rotation = read_float(player + 0x138)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+        end
+    end
 end
 
 function OnError(Message)
     print(debug.traceback())
 end
+
+--[[
+    
+    -- Equipment --
+"eqip", "powerups\\active camouflage"
+"eqip", "powerups\\health pack"
+"eqip", "powerups\\over shield"
+"eqip", "powerups\\double speed"
+"eqip", "powerups\\full-spectrum vision"
+"eqip", "weapons\\frag grenade\\frag grenade"
+"eqip", "weapons\\plasma grenade\\plasma grenade"
+"eqip", "powerups\\assault rifle ammo\\assault rifle ammo"
+"eqip", "powerups\\needler ammo\\needler ammo"
+"eqip", "powerups\\pistol ammo\\pistol ammo"
+"eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo"
+"eqip", "powerups\\shotgun ammo\\shotgun ammo"
+"eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo"
+"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"
+
+    -- Weapons --
+"weap", "weapons\\assault rifle\\assault rifle"
+"weap", "weapons\\ball\\ball"
+"weap", "weapons\\flag\\flag"
+"weap", "weapons\\flamethrower\\flamethrower"
+"weap", "weapons\\gravity rifle\\gravity rifle"
+"weap", "weapons\\needler\\mp_needler"
+"weap", "weapons\\pistol\\pistol"
+"weap", "weapons\\plasma pistol\\plasma pistol"
+"weap", "weapons\\plasma rifle\\plasma rifle"
+"weap", "weapons\\plasma_cannon\\plasma_cannon"
+"weap", "weapons\\rocket launcher\\rocket launcher"
+"weap", "weapons\\shotgun\\shotgun"
+"weap", "weapons\\sniper rifle\\sniper rifle"
+    
+]]
