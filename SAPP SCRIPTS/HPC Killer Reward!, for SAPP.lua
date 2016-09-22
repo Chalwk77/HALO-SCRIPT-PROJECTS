@@ -22,7 +22,8 @@ BasedOnGameType == false
 
 VICTIM_LOCATION = { }
 
--- Used when BasedOnMap and BasedOnGameType are false
+-- Global Settings -- 
+-- Used when BasedOnMap and BasedOnGameType are both false
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -37,7 +38,8 @@ EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 EQUIPMENT_TABLE[11] = "powerups\\double speed"
 EQUIPMENT_TABLE[12] = "powerups\\full-spectrum vision"
 
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Based On Map --
+--Used when BasedOnMap is true, but BasedOnGameType must be false
 MAP_EQ_TABLE_BLOODGULCH = { }
 MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -52,7 +54,8 @@ MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 MAP_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
 MAP_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Based On Map --
+--Used when BasedOnMap is true, but BasedOnGameType must be false
 MAP_EQ_TABLE_RATRACE = { }
 MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -67,6 +70,7 @@ MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 MAP_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
 MAP_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
 
+-- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
 GAMETYPE_EQ_TABLE_BLOODGULCH = { }
 GAMETYPE_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
@@ -82,6 +86,7 @@ GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower am
 GAMETYPE_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
 GAMETYPE_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
+-- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
 GAMETYPE_EQ_TABLE_RATRACE = { }
 GAMETYPE_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
@@ -96,6 +101,7 @@ GAMETYPE_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 GAMETYPE_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
 GAMETYPE_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
+
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 
 function LoadMaps()
@@ -139,9 +145,11 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local kills = tonumber(get_var(killer, "$kills"))
     local player_object = get_dynamic_player(victim)
     
+    -- Check if killer and victim are valid.
     if killer and victim ~= nil then
             -- Equal to 10 Kills
         if (kills == 10) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -149,6 +157,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 20 Kills
         elseif (kills == 20) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -156,6 +165,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 30 Kills
         elseif (kills == 30) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -163,6 +173,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 40 Kills
         elseif (kills == 40) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -170,6 +181,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 50 Kills
         elseif (kills == 50) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -177,6 +189,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 60 Kills
         elseif (kills == 60) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -184,6 +197,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 70 Kills
         elseif (kills == 70) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -191,6 +205,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 80 Kills
         elseif (kills == 80) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -198,6 +213,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to 90 Kills
         elseif (kills == 90) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -205,6 +221,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             DropTable(victim, x, y, z)
             -- Equal to or greater than 100 kills
         elseif (kills >= 100) then
+        -- Get Player Coordinates
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
@@ -216,37 +233,48 @@ end
 
 function DropTable(victim, x, y, z)
     
+-- Based On Map --
+--Used when BasedOnMap is true, but BasedOnGameType must be false
     if BasedOnMap == true and BasedOnGameType == false then 
         if map_name == "bloodgulch" then
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
     elseif map_name == "ratrace" then
-        itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
+    itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
         local player = get_player(victim)
         local rotation = read_float(player + 0x138)
+        -- Summon random <item> from respective equipment table at the coordinates of the victims death location
         spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
     end
-    
+
+-- Based on Game-Type --
+-- Used when BasedOnGameType is true, but BasedOnMap must be false
     if BasedOnGameType == true and BasedOnMap == false then 
         if get_var(1,"$gt") == "ctf") then
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
     elseif get_var(1,"$gt") == "slayer") then
         itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
         local player = get_player(victim)
         local rotation = read_float(player + 0x138)
+        -- Summon random <item> from respective equipment table at the coordinates of the victims death location
         spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
     end
     
+-- Global Settings -- 
+-- Used when BasedOnMap and BasedOnGameType are both false
     if globalsettings == true then
         if BasedOnGameType == false and BasedOnMap == false then 
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
