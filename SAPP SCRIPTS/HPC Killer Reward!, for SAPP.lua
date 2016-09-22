@@ -44,73 +44,74 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
     local kills = tonumber(get_var(KillerIndex, "$kills"))
-    local player_object = get_dynamic_player(VictimIndex)
-    if victim and killer ~= KillerIndex then
-        if (kills == 10) then
+    local player_object = get_dynamic_player(victim)
+    
+    if killer ~= nil then
             -- Equal to 10 Kills
+        if (kills == 10) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 20) then
             -- Equal to 20 Kills
+        elseif (kills == 20) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 30) then
             -- Equal to 30 Kills
+        elseif (kills == 30) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 40) then
             -- Equal to 40 Kills
+        elseif (kills == 40) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 50) then
             -- Equal to 50 Kills
+        elseif (kills == 50) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 60) then
             -- Equal to 60 Kills
+        elseif (kills == 60) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 70) then
             -- Equal to 70 Kills
+        elseif (kills == 70) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 80) then
             -- Equal to 80 Kills
+        elseif (kills == 80) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills == 90) then
             -- Equal to 90 Kills
+        elseif (kills == 90) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
             VICTIM_LOCATION[victim][3] = z
             DropTable(victim, x, y, z)
-        elseif (kills >= 100) then
             -- Equal to or greater than 100 kills
+        elseif (kills >= 100) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             VICTIM_LOCATION[victim][1] = x
             VICTIM_LOCATION[victim][2] = y
