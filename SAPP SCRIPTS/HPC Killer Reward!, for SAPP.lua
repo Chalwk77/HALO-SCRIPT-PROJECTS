@@ -3,7 +3,24 @@
 Script Name: HPC Killer Reward!, for SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will drop a special item from the EQUIPMENT_TABLE at the victims death location.
+Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
+
+-- Three Settings available:
+    Global, BasedOnMap, and BasedOnGameType.
+    
+    Currently, these settings cannot be used in conjunction with one another. 
+    They are used independentely, meaning two of the three have to be set to false, and a minimum of 1 must be true.
+    This will change in the future.
+
+    [1] BasedOnMap: Script will pull random items from the MAP EQUIPMENT TABLE.
+    [2] BasedOnGameType: Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
+    [3] Global Settings: Script will pull random items from the GLOBAL EQUIPMENT TABLE
+    
+    This script is currently set up so the Killer has to reach a certain kill-threshold in order for his victim to
+    drop a random item. In the future, this will be a togglable option. 
+    That means, if the Kill-Setting is off, then your victim will always drop an item, however, if this setting is on, then the killer
+    must reach the aforementioned kill-threshold. 
+    
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,6 +33,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
+---------------------
+-- Not Currently Used!
+KillSettings = false 
+---------------------
 globalsettings = true
 BasedOnMap = false
 BasedOnGameType = false
