@@ -5,7 +5,7 @@ Script Name: HPC Killer Reward!, for SAPP
 
 Description: This script will drop a special item from the EQUIPMENT_TABLE at the victims death location.
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -22,6 +22,9 @@ BasedOnGameType = false
 
 VICTIM_LOCATION = { }
 
+--=====================================================================================================--
+-- Feel free to change these values as you wish.
+
 -- Global Settings --
 -- Used when BasedOnMap and BasedOnGameType are both false
 EQUIPMENT_TABLE = { }
@@ -35,8 +38,16 @@ EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
 EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-EQUIPMENT_TABLE[11] = "powerups\\double speed"
-EQUIPMENT_TABLE[12] = "powerups\\full-spectrum vision"
+EQUIPMENT_TABLE[11] = "weapons\\assault rifle\\assault rifle"
+EQUIPMENT_TABLE[12] = "weapons\\flamethrower\\flamethrower"
+EQUIPMENT_TABLE[13] = "weapons\\needler\\mp_needler"
+EQUIPMENT_TABLE[14] = "weapons\\pistol\\pistol"
+EQUIPMENT_TABLE[15] = "weapons\\plasma pistol\\plasma pistol"
+EQUIPMENT_TABLE[16] = "weapons\\plasma rifle\\plasma rifle"
+EQUIPMENT_TABLE[17] = "weapons\\plasma_cannon\\plasma_cannon"
+EQUIPMENT_TABLE[18] = "weapons\\rocket launcher\\rocket launcher"
+EQUIPMENT_TABLE[19] = "weapons\\shotgun\\shotgun"
+EQUIPMENT_TABLE[20] = "weapons\\sniper rifle\\sniper rifle"
 
 -- Based On Map --
 -- Used when BasedOnMap is true, but BasedOnGameType must be false
@@ -51,8 +62,6 @@ MAP_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher am
 MAP_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
 MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-MAP_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
-MAP_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
 -- Based On Map --
 -- Used when BasedOnMap is true, but BasedOnGameType must be false
@@ -67,8 +76,6 @@ MAP_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
 MAP_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-MAP_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
-MAP_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
 
 -- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
@@ -83,8 +90,6 @@ GAMETYPE_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launch
 GAMETYPE_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-GAMETYPE_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
-GAMETYPE_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
 -- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
@@ -99,9 +104,7 @@ GAMETYPE_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher 
 GAMETYPE_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-GAMETYPE_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
-GAMETYPE_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
-
+--=====================================================================================================--
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 
 function LoadMaps()
@@ -244,7 +247,8 @@ function DropTable(victim, x, y, z)
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if map is ratrace
         elseif map_name == "ratrace" then
             -- pick 1 of 12 random items from the respective table
@@ -252,7 +256,8 @@ function DropTable(victim, x, y, z)
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
@@ -266,7 +271,8 @@ function DropTable(victim, x, y, z)
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if gametype is slayer
         elseif game_type == "slayer" then
             -- pick 1 of 12 random items from the respective table
@@ -274,10 +280,10 @@ function DropTable(victim, x, y, z)
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
-
 
     -- Global Settings --
     -- Used when BasedOnMap and BasedOnGameType are both false
@@ -288,7 +294,8 @@ function DropTable(victim, x, y, z)
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 end
@@ -303,10 +310,6 @@ end
 "eqip", "powerups\\active camouflage"
 "eqip", "powerups\\health pack"
 "eqip", "powerups\\over shield"
-"eqip", "powerups\\double speed"
-"eqip", "powerups\\full-spectrum vision"
-"eqip", "weapons\\frag grenade\\frag grenade"
-"eqip", "weapons\\plasma grenade\\plasma grenade"
 "eqip", "powerups\\assault rifle ammo\\assault rifle ammo"
 "eqip", "powerups\\needler ammo\\needler ammo"
 "eqip", "powerups\\pistol ammo\\pistol ammo"
@@ -317,10 +320,7 @@ end
 
     -- Weapons --
 "weap", "weapons\\assault rifle\\assault rifle"
-"weap", "weapons\\ball\\ball"
-"weap", "weapons\\flag\\flag"
 "weap", "weapons\\flamethrower\\flamethrower"
-"weap", "weapons\\gravity rifle\\gravity rifle"
 "weap", "weapons\\needler\\mp_needler"
 "weap", "weapons\\pistol\\pistol"
 "weap", "weapons\\plasma pistol\\plasma pistol"
