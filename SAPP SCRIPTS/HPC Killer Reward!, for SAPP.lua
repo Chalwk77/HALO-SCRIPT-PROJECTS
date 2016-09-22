@@ -16,9 +16,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-globalsettings == true
-BasedOnMap == false
-BasedOnGameType == false
+globalsettings = true
+BasedOnMap = false
+BasedOnGameType = false
 
 VICTIM_LOCATION = { }
 
@@ -133,6 +133,7 @@ end
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     map_name = get_var(1, "$map")
+    game_type = get_var(0, "$gt")
     LoadMaps()
 end
 
@@ -236,6 +237,7 @@ function DropTable(victim, x, y, z)
 -- Based On Map --
 --Used when BasedOnMap is true, but BasedOnGameType must be false
     if BasedOnMap == true and BasedOnGameType == false then 
+        -- Check if map is bloodgulch
         if map_name == "bloodgulch" then
             -- pick 1 of 12 random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
@@ -243,6 +245,7 @@ function DropTable(victim, x, y, z)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    -- Check if map is ratrace
     elseif map_name == "ratrace" then
     -- pick 1 of 12 random items from the respective table
     itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
@@ -250,29 +253,32 @@ function DropTable(victim, x, y, z)
         local rotation = read_float(player + 0x138)
         -- Summon random <item> from respective equipment table at the coordinates of the victims death location
         spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+        end
     end
 
 -- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
     if BasedOnGameType == true and BasedOnMap == false then 
         -- Check if gametype is CTF
-        if get_var(1,"$gt") == "ctf") then
+        if game_type == "ctf" then
             -- pick 1 of 12 random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
-    -- Check if gametype is slayer
-    elseif get_var(1,"$gt") == "slayer") then
-        -- pick 1 of 12 random items from the respective table
-        itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
-        local player = get_player(victim)
-        local rotation = read_float(player + 0x138)
-        -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-        spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            -- Check if gametype is slayer
+    elseif game_type == "slayer" then
+            -- pick 1 of 12 random items from the respective table
+            itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
+            local player = get_player(victim)
+            local rotation = read_float(player + 0x138)
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+        end
     end
     
+ 
 -- Global Settings -- 
 -- Used when BasedOnMap and BasedOnGameType are both false
     if globalsettings == true then
