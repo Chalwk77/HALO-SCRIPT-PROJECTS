@@ -156,12 +156,25 @@ end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+	if get_var(0, "$gt") ~= "n/a" then	
+		game_started = true
     map_name = get_var(1, "$map")
     game_type = get_var(0, "$gt")
     LoadMaps()
+    end
 end
 
 function OnScriptUnload() end
+
+function OnNewGame()
+	game_started = true	
+end
+
+function OnGameEnd()
+	game_started = false
+end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
 
@@ -175,104 +188,106 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     -- Check if killer and victim are valid.
     if killer and victim ~= nil then
-        -- Equal to 10 Kills
-        if (kills == 10) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 20 Kills
-        elseif (kills == 20) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 30 Kills
-        elseif (kills == 30) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 40 Kills
-        elseif (kills == 40) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 50 Kills
-        elseif (kills == 50) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 60 Kills
-        elseif (kills == 60) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 70 Kills
-        elseif (kills == 70) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 80 Kills
-        elseif (kills == 80) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to 90 Kills
-        elseif (kills == 90) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            -- Call DropTable Function
-            DropTable(victim, x, y, z)
-            
-            -- Equal to or greater than 100 kills
-        elseif (kills >= 100) then
-            -- Get victim Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
+        if game_started == true then
+            -- Equal to 10 Kills
+            if (kills == 10) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 20 Kills
+            elseif (kills == 20) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 30 Kills
+            elseif (kills == 30) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 40 Kills
+            elseif (kills == 40) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 50 Kills
+            elseif (kills == 50) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 60 Kills
+            elseif (kills == 60) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 70 Kills
+            elseif (kills == 70) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 80 Kills
+            elseif (kills == 80) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 90 Kills
+            elseif (kills == 90) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to or greater than 100 kills
+            elseif (kills >= 100) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                DropTable(victim, x, y, z)
+            end
         end
     end
 end
