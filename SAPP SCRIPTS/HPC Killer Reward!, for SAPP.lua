@@ -263,7 +263,7 @@ function DropTable(victim, x, y, z)
     if BasedOnMap == true and BasedOnGameType == false then
         -- Check if map is bloodgulch
         if map_name == "bloodgulch" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
@@ -272,7 +272,7 @@ function DropTable(victim, x, y, z)
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if map is ratrace
         elseif map_name == "ratrace" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
@@ -287,7 +287,7 @@ function DropTable(victim, x, y, z)
     if BasedOnGameType == true and BasedOnMap == false then
         -- Check if gametype is CTF
         if game_type == "ctf" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
@@ -296,7 +296,7 @@ function DropTable(victim, x, y, z)
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if gametype is slayer
         elseif game_type == "slayer" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
@@ -310,7 +310,7 @@ function DropTable(victim, x, y, z)
     -- Used when BasedOnMap and BasedOnGameType are both set to false
     if globalsettings == true then
         if BasedOnGameType == false and BasedOnMap == false then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
