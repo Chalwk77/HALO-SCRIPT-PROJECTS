@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: HPC Chat IDs, for SAPP
-    - Implementing API version: 1.10.0.0
+    - Implementing API version: 1.11.0.0
 
 
     -- Currently broken!
@@ -35,7 +35,7 @@ function OnPlayerChat(PlayerIndex, Message)
     if player_present(PlayerIndex) ~= nil then
         return true, chatFormat
     else
-        return true, chatFormat
+    return true, chatFormat
     end
 end
 

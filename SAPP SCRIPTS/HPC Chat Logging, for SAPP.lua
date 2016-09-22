@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: HPC Chat Logger V2, for SAPP
-    - Implementing API version: 1.10.0.0
+    - Implementing API version: 1.11.0.0
 
 Description: This script will log player chat to <sapp server>/Server Chat.txt
 

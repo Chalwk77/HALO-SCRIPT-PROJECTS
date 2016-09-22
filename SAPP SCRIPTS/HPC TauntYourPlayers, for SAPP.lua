@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: HPC TauntYourPlayers, for SAPP
-    - Implementing API version: 1.10.0.0
+    - Implementing API version: 1.11.0.0
 
 Description: This script will display 1-30 random taunting messages
              from a lua table to your players under two events:
