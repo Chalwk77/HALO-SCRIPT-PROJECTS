@@ -22,21 +22,22 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-function OnScriptUnload() end
+function OnScriptUnload()
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
 end
 
-function OnPlayerChat(PlayerIndex, Message)
-    local id = get_var(PlayerIndex, "$n")
-    local chatFormat = string.format(" [" .. (tonumber(id)) .. "]: " ..(tostring(Message)))
+function OnScriptLoad()
+    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
+end
 
-    if player_present(PlayerIndex) ~= nil then
-        return true, chatFormat
-    else
+function OnChatMessage(PlayerIndex, Message)
+
+    local id = get_var(PlayerIndex, "$n")
+    local chatFormat = string.format(" [" .. tonumber(id) .. "]: " ..tostring(Message))
+        if player_present(PlayerIndex) ~= nil then
+            return true, chatFormat
+        end
     return true, chatFormat
-    end
 end
 
 function OnError(Message)
