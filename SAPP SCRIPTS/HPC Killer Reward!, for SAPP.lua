@@ -5,7 +5,7 @@ Script Name: HPC Killer Reward!, for SAPP
 
 Description: This script will drop a special item from the EQUIPMENT_TABLE at the victims death location.
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -43,10 +43,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
-    local kills = tonumber(get_var(KillerIndex, "$kills"))
+    local kills = tonumber(get_var(killer, "$kills"))
     local player_object = get_dynamic_player(victim)
     
-    if killer ~= nil then
+    if killer and victim ~= nil then
             -- Equal to 10 Kills
         if (kills == 10) then
             local x, y, z = read_vector3d(player_object + 0x5C)
