@@ -2,6 +2,11 @@
     ------------------------------------
 Script Name: HPC Killer Reward!, for SAPP
     - Implementing API version: 1.11.0.0
+    
+     <<----!!----!!---->> SCRIPT IS IN BETA, AND MIGHT BE BUGGY <<----!!----!!----!!->>
+     <<----!!----!!---->> SCRIPT IS IN BETA, AND MIGHT BE BUGGY <<----!!----!!----!!->>
+     <<----!!----!!---->> SCRIPT IS IN BETA, AND MIGHT BE BUGGY <<----!!----!!----!!->>
+     <<----!!----!!---->> SCRIPT IS IN BETA, AND MIGHT BE BUGGY <<----!!----!!----!!->>
 
 Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
 
