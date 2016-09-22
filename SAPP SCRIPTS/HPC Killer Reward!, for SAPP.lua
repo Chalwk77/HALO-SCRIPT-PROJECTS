@@ -237,12 +237,14 @@ function DropTable(victim, x, y, z)
 --Used when BasedOnMap is true, but BasedOnGameType must be false
     if BasedOnMap == true and BasedOnGameType == false then 
         if map_name == "bloodgulch" then
+            -- pick 1 of 12 random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
     elseif map_name == "ratrace" then
+    -- pick 1 of 12 random items from the respective table
     itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
         local player = get_player(victim)
         local rotation = read_float(player + 0x138)
@@ -253,13 +255,17 @@ function DropTable(victim, x, y, z)
 -- Based on Game-Type --
 -- Used when BasedOnGameType is true, but BasedOnMap must be false
     if BasedOnGameType == true and BasedOnMap == false then 
+        -- Check if gametype is CTF
         if get_var(1,"$gt") == "ctf") then
+            -- pick 1 of 12 random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+    -- Check if gametype is slayer
     elseif get_var(1,"$gt") == "slayer") then
+        -- pick 1 of 12 random items from the respective table
         itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
         local player = get_player(victim)
         local rotation = read_float(player + 0x138)
@@ -271,6 +277,7 @@ function DropTable(victim, x, y, z)
 -- Used when BasedOnMap and BasedOnGameType are both false
     if globalsettings == true then
         if BasedOnGameType == false and BasedOnMap == false then 
+            -- pick 1 of 12 random items from the respective table
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
