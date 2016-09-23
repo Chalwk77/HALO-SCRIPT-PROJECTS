@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Description: HPC Chat ID's, Phasor V2+
-Copyright © 2016-2017 Jericho Crosby
+Copyright Â© 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Written and Created by Jericho Crosby
@@ -23,11 +23,10 @@ end
 
 function OnServerChat(player, chattype, message)
     
-        local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
-        if player ~= nil then
-            return true, GetChatFormat
-        else
-            return true, GetChatFormat
-        end
+    local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
+    if player ~= nil then
+        return true, GetChatFormat
+    else
+        return true, GetChatFormat
     end
 end
