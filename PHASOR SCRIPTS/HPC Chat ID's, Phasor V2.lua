@@ -13,21 +13,17 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%
 ]]--
 
 function GetRequiredVersion()
-    return
-    200
+    return 200
 end
 
-function OnScriptLoad(processId, game, persistent)
-
-end
+function OnScriptLoad(processId, game, persistent) end
 
 function OnServerChat(player, chattype, message)
     
-        local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
-        if player ~= nil then
-            return true, GetChatFormat
-        else
-            return true, GetChatFormat
-        end
+    local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
+    if player ~= nil then
+        return true, GetChatFormat
+    else
+        return true, GetChatFormat
     end
 end

@@ -20,7 +20,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-globalsettings = true
+GlobalSettings = true
 KillSettings = false 
 BasedOnMap = false
 BasedOnGameType = false
@@ -243,7 +243,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                         VICTIM_LOCATION[victim][3] = z
                         DropTable(victim, x, y, z)
 
-                    elseif KillSettings == false and globalsettings == true then
+                    -- Global Settings --
+                    elseif KillSettings == false and BasedOnMap == false and BasedOnGameType == false and GlobalSettings == true then
                         if killer and victim ~= nil then
                             if (killer > 0) then
                                 local x, y, z = read_vector3d(player_object + 0x5C)
@@ -297,7 +298,7 @@ function DropTable(victim, x, y, z)
     end
 
     -- Global Settings --
-    if globalsettings == true then
+    if GlobalSettings == true then
         if BasedOnGameType == false and BasedOnMap == false then
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)

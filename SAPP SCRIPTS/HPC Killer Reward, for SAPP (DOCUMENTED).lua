@@ -9,21 +9,29 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     - If you would prefer to view a UN-documented version of this script,
       please visit: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward!%2C%20for%20SAPP%20(DOCUMENTED).lua
 
--- Three Settings available:
-    Global, BasedOnMap, and BasedOnGameType.
+-- Four Settings available:
+    [1]: BasedOnMap, [2]: BasedOnGameType, [3]: GlobalSettings and [4]: KillSettings.
 
-    Currently, these settings cannot be used in conjunction with one another.
-    They are used independently, meaning two of the three have to be set to false, and a minimum of 1 must be true.
-    This will change in the future.
+    Currently, settings [1] and [2] (see below) cannot be used in conjunction with setting [3]...
+    However, setting [4] can be used in conjunction with settings [1] and [2].
+    
+    Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
 
     [1] BasedOnMap: Script will pull random items from the MAP EQUIPMENT TABLE.
     [2] BasedOnGameType: Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
-    [3] Global Settings: Script will pull random items from the GLOBAL EQUIPMENT TABLE
+    [3] GlobalSettings: Script will pull random items from the GLOBAL EQUIPMENT TABLE
+    [4] KillSettings: Toggle on\off required-kill-threshold
+    
+    The current configuration of this script is set up so the 'Killer' has to reach a required kill-threshold in order for his victim to
+    drop an item from the respective drop table.
+    
+    You can turn on|off (true/false) a setting called 'KillSettings'. 
+    - If true, the Killer will have to reach 10 kills first, and only then will his victim drop an item. 
+    - Then after 20 kills, his victim will drop another item and so on. 
+    - You can change these values in the OnPlayerDeath function.
 
-    This script is currently set up so the Killer has to reach a certain kill-threshold in order for his victim to
-    drop a random item. In the future, this will be a toggleable option.
-    That means, if the Kill-Setting is off, then your victim will always drop an item, however, if this setting is on, then the killer
-    must reach the aforementioned kill-threshold.
+    If 'KillSettings' is set to "false", the victim will indefinitely drop an item from the EQUIPMENT_TABLE.
+    - KillSettings can be used in conjunction with BasedOnMap, and BasedOnGameType as described above.
 
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -35,20 +43,25 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]-- 
 
+-- Do Not Touch!
 api_version = "1.11.0.0"
 
-globalsettings = true
-KillSettings = false 
+-- Setting [1]
 BasedOnMap = false
+-- Setting [2]
 BasedOnGameType = false
+-- Setting [3]
+GlobalSettings = false
+-- Setting [4]
+KillSettings = true 
 
+-- Do Not Touch!
 VICTIM_LOCATION = { }
 
 -- =====================================================================================================--
--- Feel free to change these values as you wish.
 
 -- Global Settings --
--- Used when BasedOnMap and BasedOnGameType are both false
+-- Used when BasedOnMap and BasedOnGameType are both false.
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -72,7 +85,7 @@ EQUIPMENT_TABLE[19] = "weapons\\shotgun\\shotgun"
 EQUIPMENT_TABLE[20] = "weapons\\sniper rifle\\sniper rifle"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false.
 MAP_EQ_TABLE_BLOODGULCH = { }
 MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -86,7 +99,7 @@ MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false.
 MAP_EQ_TABLE_RATRACE = { }
 MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -100,7 +113,7 @@ MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 -- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false.
 GAMETYPE_EQ_TABLE_BLOODGULCH = { }
 GAMETYPE_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -114,7 +127,7 @@ GAMETYPE_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle amm
 GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 -- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false.
 GAMETYPE_EQ_TABLE_RATRACE = { }
 GAMETYPE_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -127,6 +140,8 @@ GAMETYPE_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 -- =====================================================================================================--
+
+-- Do Not Touch!
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 
 function LoadMaps()
@@ -170,20 +185,22 @@ end
 function OnScriptUnload() end
 
 function OnNewGame()
+    -- Do Not Touch!
     game_started = true
 end
 
 function OnGameEnd()
+    -- Do Not Touch!
     game_started = false
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
 
-    -- victim = Victim? (Player who died)
+    -- victim = Victim? (Player who died).
     local victim = tonumber(VictimIndex)
-    -- killer = Killer? (Player whom killed the Victim - RIP!!)
+    -- killer = Killer? (Player whom killed the Victim - RIP!!).
     local killer = tonumber(KillerIndex)
-    -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak)
+    -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak).
     local kills = tonumber(get_var(killer, "$kills"))
     local player_object = get_dynamic_player(victim)
 
@@ -201,51 +218,51 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         if KillSettings == true then
             -- Check if killer and victim are valid.
             if killer and victim ~= nil then
-                -- If killed by another player...
+                -- Killed by another player.
                 if (killer > 0) then
-                    -- Equal to 10 Kills
+                    -- Equal to 10 Kills.
                     if (kills == 10) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 20 Kills
+                        -- Equal to 20 Kills.
                     elseif (kills == 20) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 30 Kills
+                        -- Equal to 30 Kills.
                     elseif (kills == 30) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 40 Kills
+                        -- Equal to 40 Kills.
                     elseif (kills == 40) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 50 Kills
+                        -- Equal to 50 Kills.
                     elseif (kills == 50) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -253,39 +270,39 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                         -- Call DropTable Function
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 60 Kills
+                        -- Equal to 60 Kills.
                     elseif (kills == 60) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 70 Kills
+                        -- Equal to 70 Kills.
                     elseif (kills == 70) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 80 Kills
+                        -- Equal to 80 Kills.
                     elseif (kills == 80) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function
+                        -- Call DropTable Function.
                         DropTable(victim, x, y, z)
 
-                        -- Equal to 90 Kills
+                        -- Equal to 90 Kills.
                     elseif (kills == 90) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -293,22 +310,28 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                         -- Call DropTable Function
                         DropTable(victim, x, y, z)
 
-                        -- Equal to or greater than 100 kills
+                        -- Equal to or greater than 100 kills.
                     elseif (kills >= 100) then
-                        -- Get victim Coordinates
+                        -- Get victim Coordinates.
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
+                        -- Call DropTable Function
                         DropTable(victim, x, y, z)
 
-                    elseif KillSettings == false and globalsettings == true then
+                        -- Global Settings --
+                    elseif KillSettings == false and BasedOnMap == false and BasedOnGameType == false and GlobalSettings == true then
+                        -- Check if killer and victim are valid.
                         if killer and victim ~= nil then
+                            -- Killed by another player.
                             if (killer > 0) then
+                                -- Get victim Coordinates.
                                 local x, y, z = read_vector3d(player_object + 0x5C)
                                 VICTIM_LOCATION[victim][1] = x
                                 VICTIM_LOCATION[victim][2] = y
                                 VICTIM_LOCATION[victim][3] = z
+                                -- Call DropTable Function.
                                 DropTable(victim, x, y, z)
                             end
                         end
@@ -322,68 +345,69 @@ end
 function DropTable(victim, x, y, z)
 
     -- Based On Map --
-    -- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
+    -- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false.
     if BasedOnMap == true and BasedOnGameType == false then
-        -- Check if map is bloodgulch
+        -- Check if map is bloodgulch.
         if map_name == "bloodgulch" then
-            -- pick 1 of (up to 20) random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table.
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
             local tag_id = "eqip" or "weap"
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
-            -- Check if map is ratrace
+            -- Check if map is ratrace.
         elseif map_name == "ratrace" then
-            -- pick 1 of (up to 20) random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table.
             itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
             local tag_id = "eqip" or "weap"
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
     -- Based on Game-Type --
-    -- Used when BasedOnGameType is true, but BasedOnMap, and GlobalSettings must be set to false
+    -- Used when BasedOnGameType is true, but BasedOnMap, and GlobalSettings must be set to false.
     if BasedOnGameType == true and BasedOnMap == false then
-        -- Check if gametype is CTF
+        -- Check if gametype is CTF.
         if game_type == "ctf" then
-            -- pick 1 of (up to 20) random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table.
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
             local tag_id = "eqip" or "weap"
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
-            -- Check if gametype is slayer
+            -- Check if gametype is slayer.
         elseif game_type == "slayer" then
-            -- pick 1 of (up to 20) random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table.
             itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
             local tag_id = "eqip" or "weap"
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
     -- Global Settings --
-    -- Used when BasedOnMap and BasedOnGameType are both set to false
-    if globalsettings == true then
+    -- Used when BasedOnMap and BasedOnGameType are both set to false.
+    if GlobalSettings == true then
         if BasedOnGameType == false and BasedOnMap == false then
-            -- pick 1 of (up to 20) random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table.
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location at the coordinates of the victims death location
+            -- Summon random <item> from respective equipment table at the coordinates of the victims death location at the coordinates of the victims death location.
             local tag_id = "eqip" or "weap"
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 end
 
+-- Do Not Touch!
 function OnError(Message)
     print(debug.traceback())
 end
