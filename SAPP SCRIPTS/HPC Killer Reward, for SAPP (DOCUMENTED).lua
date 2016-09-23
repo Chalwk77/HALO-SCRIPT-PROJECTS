@@ -1,13 +1,13 @@
 --[[
     ------------------------------------
-Script Name: HPC Killer Reward!, for SAPP
+Script Name: HPC Killer Reward, for SAPP (DOCUMENTED)
     - Implementing API version: 1.11.0.0
 
 Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
 
 *** DOCUMENTATION ***
     - If you would prefer to view a UN-documented version of this script,
-      please visit: <link>
+      please visit: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward!%2C%20for%20SAPP%20(DOCUMENTED).lua
 
 -- Three Settings available:
     Global, BasedOnMap, and BasedOnGameType.
