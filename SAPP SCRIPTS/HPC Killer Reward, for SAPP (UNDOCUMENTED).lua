@@ -8,7 +8,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     - If you would prefer to view a documented version of this script, please visit:
     https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward%2C%20for%20SAPP%20(DOCUMENTED).lua
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -458,46 +458,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                 local player = get_player(victim)
                 local rotation = read_float(player + 0x138)
-                local eqTable = math.random(1, 20)
+                local eqTable = math.random(1, 2)
                 if (tonumber(eqTable) == 1) then
                     spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                 elseif (tonumber(eqTable) == 2) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 3) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 4) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 5) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 6) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 7) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 8) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 9) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 10) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 11) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 12) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 13) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 14) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 15) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 16) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 17) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 18) then
-                    spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 19) then
-                    spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                elseif (tonumber(eqTable) == 20) then
                     spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                 end
             end
@@ -513,46 +477,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -566,46 +494,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -619,46 +511,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -672,46 +528,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -725,46 +545,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -778,46 +562,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -831,46 +579,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -884,46 +596,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -937,46 +613,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
 
@@ -990,46 +630,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(0, #GLOBAL_WEAPON_TABLE - 1)]
                     local player = get_player(victim)
                     local rotation = read_float(player + 0x138)
-                    local eqTable = math.random(1, 20)
+                    local eqTable = math.random(1, 2)
                     if (tonumber(eqTable) == 1) then
                         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
                     elseif (tonumber(eqTable) == 2) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 3) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 4) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 5) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 6) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 7) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 8) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 9) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 10) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 11) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 12) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 13) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 14) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 15) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 16) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 17) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 18) then
-                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 19) then
-                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-                    elseif (tonumber(eqTable) == 20) then
                         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                     end
                 end
