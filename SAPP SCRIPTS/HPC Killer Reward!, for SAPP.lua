@@ -22,7 +22,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     must reach the aforementioned kill-threshold.
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -33,11 +33,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
----------------------
--- Not Currently Used!
-KillSettings = true 
----------------------
 globalsettings = true
+KillSettings = false 
 BasedOnMap = false
 BasedOnGameType = false
 
@@ -301,7 +298,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                         VICTIM_LOCATION[victim][3] = z
                         DropTable(victim, x, y, z)
 
-                    elseif KillSettings == false then
+                    elseif KillSettings == false and globalsettings == true then
                         if killer and victim ~= nil then
                             if (killer > 0) then
                                 local x, y, z = read_vector3d(player_object + 0x5C)
