@@ -3,7 +3,24 @@
 Script Name: HPC Killer Reward!, for SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will drop a special item from the EQUIPMENT_TABLE at the victims death location.
+Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
+
+-- Three Settings available:
+    Global, BasedOnMap, and BasedOnGameType.
+    
+    Currently, these settings cannot be used in conjunction with one another. 
+    They are used independently, meaning two of the three have to be set to false, and a minimum of 1 must be true.
+    This will change in the future.
+
+    [1] BasedOnMap: Script will pull random items from the MAP EQUIPMENT TABLE.
+    [2] BasedOnGameType: Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
+    [3] Global Settings: Script will pull random items from the GLOBAL EQUIPMENT TABLE
+    
+    This script is currently set up so the Killer has to reach a certain kill-threshold in order for his victim to
+    drop a random item. In the future, this will be a toggleable option. 
+    That means, if the Kill-Setting is off, then your victim will always drop an item, however, if this setting is on, then the killer
+    must reach the aforementioned kill-threshold. 
+    
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,14 +33,21 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
+---------------------
+-- Not Currently Used!
+KillSettings = false 
+---------------------
 globalsettings = true
 BasedOnMap = false
 BasedOnGameType = false
 
 VICTIM_LOCATION = { }
 
+--=====================================================================================================--
+-- Feel free to change these values as you wish.
+
 -- Global Settings --
--- Used when BasedOnMap and BasedOnGameType are both false
+-- Used when BasedOnMap and BasedOnGameType are both set to false
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -35,11 +59,19 @@ EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
 EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-EQUIPMENT_TABLE[11] = "powerups\\double speed"
-EQUIPMENT_TABLE[12] = "powerups\\full-spectrum vision"
+EQUIPMENT_TABLE[11] = "weapons\\assault rifle\\assault rifle"
+EQUIPMENT_TABLE[12] = "weapons\\flamethrower\\flamethrower"
+EQUIPMENT_TABLE[13] = "weapons\\needler\\mp_needler"
+EQUIPMENT_TABLE[14] = "weapons\\pistol\\pistol"
+EQUIPMENT_TABLE[15] = "weapons\\plasma pistol\\plasma pistol"
+EQUIPMENT_TABLE[16] = "weapons\\plasma rifle\\plasma rifle"
+EQUIPMENT_TABLE[17] = "weapons\\plasma_cannon\\plasma_cannon"
+EQUIPMENT_TABLE[18] = "weapons\\rocket launcher\\rocket launcher"
+EQUIPMENT_TABLE[19] = "weapons\\shotgun\\shotgun"
+EQUIPMENT_TABLE[20] = "weapons\\sniper rifle\\sniper rifle"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
 MAP_EQ_TABLE_BLOODGULCH = { }
 MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -51,11 +83,9 @@ MAP_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher am
 MAP_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
 MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-MAP_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
-MAP_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
 -- Based On Map --
--- Used when BasedOnMap is true, but BasedOnGameType must be false
+-- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
 MAP_EQ_TABLE_RATRACE = { }
 MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -67,11 +97,9 @@ MAP_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
 MAP_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-MAP_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
-MAP_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
 
 -- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap must be false
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
 GAMETYPE_EQ_TABLE_BLOODGULCH = { }
 GAMETYPE_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
@@ -83,11 +111,9 @@ GAMETYPE_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launch
 GAMETYPE_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-GAMETYPE_EQ_TABLE_BLOODGULCH[11] = "powerups\\double speed"
-GAMETYPE_EQ_TABLE_BLOODGULCH[12] = "powerups\\full-spectrum vision"
 
--- Based on Game-Type --
--- Used when BasedOnGameType is true, but BasedOnMap must be false
+-- Based on Game-Type -- 
+-- Used when BasedOnGameType is true, but BasedOnMap and GlobalSettings must be set to false
 GAMETYPE_EQ_TABLE_RATRACE = { }
 GAMETYPE_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
@@ -99,9 +125,7 @@ GAMETYPE_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher 
 GAMETYPE_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-GAMETYPE_EQ_TABLE_RATRACE[11] = "powerups\\double speed"
-GAMETYPE_EQ_TABLE_RATRACE[12] = "powerups\\full-spectrum vision"
-
+--=====================================================================================================--
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 
 function LoadMaps()
@@ -132,102 +156,138 @@ end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+	if get_var(0, "$gt") ~= "n/a" then	
+		game_started = true
     map_name = get_var(1, "$map")
     game_type = get_var(0, "$gt")
     LoadMaps()
+    end
 end
 
 function OnScriptUnload() end
 
+function OnNewGame()
+	game_started = true	
+end
+
+function OnGameEnd()
+	game_started = false
+end
+
 function OnPlayerDeath(VictimIndex, KillerIndex)
 
+    -- victim = Victim? (Player who died)
     local victim = tonumber(VictimIndex)
+    -- killer = Killer? (Player whom killed the Victim - RIP!!)
     local killer = tonumber(KillerIndex)
+    -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak)
     local kills = tonumber(get_var(killer, "$kills"))
     local player_object = get_dynamic_player(victim)
 
     -- Check if killer and victim are valid.
     if killer and victim ~= nil then
-        -- Equal to 10 Kills
-        if (kills == 10) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 20 Kills
-        elseif (kills == 20) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 30 Kills
-        elseif (kills == 30) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 40 Kills
-        elseif (kills == 40) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 50 Kills
-        elseif (kills == 50) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 60 Kills
-        elseif (kills == 60) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 70 Kills
-        elseif (kills == 70) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 80 Kills
-        elseif (kills == 80) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to 90 Kills
-        elseif (kills == 90) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
-            -- Equal to or greater than 100 kills
-        elseif (kills >= 100) then
-            -- Get Player Coordinates
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            DropTable(victim, x, y, z)
+        if game_started == true then
+            -- Equal to 10 Kills
+            if (kills == 10) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 20 Kills
+            elseif (kills == 20) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 30 Kills
+            elseif (kills == 30) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 40 Kills
+            elseif (kills == 40) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 50 Kills
+            elseif (kills == 50) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 60 Kills
+            elseif (kills == 60) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 70 Kills
+            elseif (kills == 70) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 80 Kills
+            elseif (kills == 80) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to 90 Kills
+            elseif (kills == 90) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                -- Call DropTable Function
+                DropTable(victim, x, y, z)
+                
+                -- Equal to or greater than 100 kills
+            elseif (kills >= 100) then
+                -- Get victim Coordinates
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                DropTable(victim, x, y, z)
+            end
         end
     end
 end
@@ -235,60 +295,64 @@ end
 function DropTable(victim, x, y, z)
 
     -- Based On Map --
-    -- Used when BasedOnMap is true, but BasedOnGameType must be false
+    -- Used when BasedOnMap is true, but BasedOnGameType and GlobalSettings must be set to false
     if BasedOnMap == true and BasedOnGameType == false then
         -- Check if map is bloodgulch
         if map_name == "bloodgulch" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if map is ratrace
         elseif map_name == "ratrace" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
     -- Based on Game-Type --
-    -- Used when BasedOnGameType is true, but BasedOnMap must be false
+    -- Used when BasedOnGameType is true, but BasedOnMap, and GlobalSettings must be set to false
     if BasedOnGameType == true and BasedOnMap == false then
         -- Check if gametype is CTF
         if game_type == "ctf" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_BLOODGULCH[math.random(0, #GAMETYPE_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if gametype is slayer
         elseif game_type == "slayer" then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = GAMETYPE_EQ_TABLE_RATRACE[math.random(0, #GAMETYPE_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
-
     -- Global Settings --
-    -- Used when BasedOnMap and BasedOnGameType are both false
+    -- Used when BasedOnMap and BasedOnGameType are both set to false
     if globalsettings == true then
         if BasedOnGameType == false and BasedOnMap == false then
-            -- pick 1 of 12 random items from the respective table
+            -- pick 1 of (up to 20) random items from the respective table
             itemtoDrop = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location at the coordinates of the victims death location
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local tag_id = "eqip" or "weap"
+            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 end
@@ -303,10 +367,6 @@ end
 "eqip", "powerups\\active camouflage"
 "eqip", "powerups\\health pack"
 "eqip", "powerups\\over shield"
-"eqip", "powerups\\double speed"
-"eqip", "powerups\\full-spectrum vision"
-"eqip", "weapons\\frag grenade\\frag grenade"
-"eqip", "weapons\\plasma grenade\\plasma grenade"
 "eqip", "powerups\\assault rifle ammo\\assault rifle ammo"
 "eqip", "powerups\\needler ammo\\needler ammo"
 "eqip", "powerups\\pistol ammo\\pistol ammo"
@@ -317,10 +377,7 @@ end
 
     -- Weapons --
 "weap", "weapons\\assault rifle\\assault rifle"
-"weap", "weapons\\ball\\ball"
-"weap", "weapons\\flag\\flag"
 "weap", "weapons\\flamethrower\\flamethrower"
-"weap", "weapons\\gravity rifle\\gravity rifle"
 "weap", "weapons\\needler\\mp_needler"
 "weap", "weapons\\pistol\\pistol"
 "weap", "weapons\\plasma pistol\\plasma pistol"
