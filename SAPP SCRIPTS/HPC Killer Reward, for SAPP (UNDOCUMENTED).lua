@@ -14,7 +14,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
 * Written by Jericho Crosby
---]]
+]]
 
 api_version = "1.11.0.0"
 
@@ -24,12 +24,11 @@ NonGlobalKillsRequired = false
 GlobalSettings = true
 GlobalNoKills = true
 
--- Do Not Touch --
 weap =("weap")
 eqip =("eqip")
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
--- []=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]--
+---------------------------------------------------------------------------------------------------------
 GLOBAL_EQUIPMENT_TABLE = { }
 GLOBAL_EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 GLOBAL_EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -41,6 +40,7 @@ GLOBAL_EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher amm
 GLOBAL_EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GLOBAL_EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GLOBAL_EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+
 GLOBAL_WEAPON_TABLE = { }
 GLOBAL_WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
 GLOBAL_WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
@@ -52,8 +52,7 @@ GLOBAL_WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
 GLOBAL_WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
 GLOBAL_WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
 GLOBAL_WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
--- []=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]=[]--
-
+---------------------------------------------------------------------------------------------------------
 MAP_EQ_TABLE_BEAVERCREEK = { }
 MAP_EQ_TABLE_BEAVERCREEK[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BEAVERCREEK[2] = "powerups\\health pack"
@@ -649,110 +648,92 @@ function DropTable(victim, x, y, z)
             itemtoDrop = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "bloodgulch" then
             itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "boardingaction" then
             itemtoDrop = MAP_EQ_TABLE_BOARDINGACTION[math.random(0, #MAP_EQ_TABLE_BOARDINGACTION - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "carousel" then
             itemtoDrop = MAP_EQ_TABLE_CAROUSEL[math.random(0, #MAP_EQ_TABLE_CAROUSEL - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "chillout" then
             itemtoDrop = MAP_EQ_TABLE_CHILLOUT[math.random(0, #MAP_EQ_TABLE_CHILLOUT - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "damnation" then
             itemtoDrop = MAP_EQ_TABLE_DAMNATION[math.random(0, #MAP_EQ_TABLE_DAMNATION - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "dangercanyon" then
             itemtoDrop = MAP_EQ_TABLE_DANGERCANYON[math.random(0, #MAP_EQ_TABLE_DANGERCANYON - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "deathisland" then
             itemtoDrop = MAP_EQ_TABLE_DEATHISLAND[math.random(0, #MAP_EQ_TABLE_DEATHISLAND - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "gephyrophobia" then
             itemtoDrop = MAP_EQ_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_EQ_TABLE_GEPHYROPHOBIA - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "hangemhigh" then
             itemtoDrop = MAP_EQ_TABLE_HANGEMHIGH[math.random(0, #MAP_EQ_TABLE_HANGEMHIGH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "icefields" then
             itemtoDrop = MAP_EQ_TABLE_ICEFIELDSE[math.random(0, #MAP_EQ_TABLE_ICEFIELDSE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "infinity" then
             itemtoDrop = MAP_EQ_TABLE_INFINITY[math.random(0, #MAP_EQ_TABLE_INFINITY - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "longest" then
             itemtoDrop = MAP_EQ_TABLE_LONGEST[math.random(0, #MAP_EQ_TABLE_LONGEST - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "prisoner" then
             itemtoDrop = MAP_EQ_TABLE_PRISONER[math.random(0, #MAP_EQ_TABLE_PRISONER - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "ratrace" then
             itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "sidewinder" then
             itemtoDrop = MAP_EQ_TABLE_SIDEWINDER[math.random(0, #MAP_EQ_TABLE_SIDEWINDER - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "timberland" then
             itemtoDrop = MAP_EQ_TABLE_TIMBERLANDE[math.random(0, #MAP_EQ_TABLE_TIMBERLANDE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif map_name == "wizard" then
             itemtoDrop = MAP_EQ_TABLE_WIZARD[math.random(0, #MAP_EQ_TABLE_WIZARD - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 
@@ -761,14 +742,12 @@ function DropTable(victim, x, y, z)
             itemtoDrop = GAMETYPE_EQ_TABLE_CTF[math.random(0, #GAMETYPE_EQ_TABLE_CTF - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         elseif game_type == "slayer" then
             itemtoDrop = GAMETYPE_EQ_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_TABLE_SLAYER - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
 end
