@@ -7,7 +7,7 @@ Script Name: HPC Chat IDs, for SAPP
     -- Currently broken!
 
 Description:  This script will modify your players message chat format
-              by adding an index id in front of their name in square brackets.
+              by adding an IndexID in front of their name in square brackets.
 
 eg. Chalwk [1]: This is a test message.
 
