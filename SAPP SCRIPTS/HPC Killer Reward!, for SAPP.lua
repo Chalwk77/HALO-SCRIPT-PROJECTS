@@ -5,6 +5,10 @@ Script Name: HPC Killer Reward!, for SAPP
 
 Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
 
+*** DOCUMENTATION ***
+    - If you would prefer to view a UN-documented version of this script,
+      please visit: <link>
+
 -- Three Settings available:
     Global, BasedOnMap, and BasedOnGameType.
 
