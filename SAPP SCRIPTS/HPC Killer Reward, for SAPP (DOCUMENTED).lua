@@ -2,15 +2,15 @@
     ------------------------------------
 Script Name: HPC Killer Reward, for SAPP (DOCUMENTED)
     - Implementing API version: 1.11.0.0
-    
+
 Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
 
 
 *** DOCUMENTATION ***
     - If you would prefer to view a UN-documented version of this script, please visit:
-    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward!%2C%20for%20SAPP%20(DOCUMENTED).lua
-      
-      
+    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward%2C%20for%20SAPP%20(UNDOCUMENTED).lua
+
+
 -- Five Settings available:
 
 [1] BasedOnMap
@@ -21,31 +21,31 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
 
     Currently, settings [1] and [2] cannot be used in conjunction with global settings.
     Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
-    
+
     * BasedOnMap:           Script will pull random items from the MAP EQUIPMENT TABLE.
     * BasedOnGameType:      Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
     * GlobalSettings:       Script will pull random items from the GLOBAL EQUIPMENT TABLE
     * GlobalNoKills:         Toggle on\off required-kill-threshold
-    
+
     The current configuration of this script is set up so the 'Killer' has to reach a required kill-threshold in order for his victim to
     drop an item from (global) EQUIPMENT_TABLE drop table.
-    
-    You can turn on|off (true/false) a setting called 'GlobalNoKills'. 
-    
-    - If true, the Killer will have to reach 10 kills first, and only then will his victim drop an item. 
-    - Then after 20 kills, his victim will drop another item and so on. 
+
+    You can turn on|off (true/false) a setting called 'GlobalNoKills'.
+
+    - If true, the Killer will have to reach 10 kills first, and only then will his victim drop an item.
+    - Then after 20 kills, his victim will drop another item and so on.
     - You can change these values in the OnPlayerDeath function.
-    
+
     If 'GlobalNoKills' is set to "false", the victim will indefinitely drop an item from the GLOBAL EQUIPMENT TABLE.
     - GlobalNoKills cannot be used in conjunction with BasedOnMap, and BasedOnGameType.
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
 * Written by Jericho Crosby
 -----------------------------------
-]]-- 
+]]--
 
 -- Do Not Touch!
 api_version = "1.11.0.0"
@@ -203,13 +203,13 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     -- Suicide
     if killer == victim then
         return false
-    -- Killed by Vehicle
+        -- Killed by Vehicle
     elseif (killer == 0) then
         return false
-    -- Killed by Server
+        -- Killed by Server
     elseif (killer == -1) then
         return false
-    -- Killer is unknown
+        -- Killer is unknown
     elseif (killer == nil) then
         return false
     end
@@ -323,163 +323,163 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     end
                 end
             end
-        -- Kills NOT Required, and uses Global Equipment Table (does not take into account the gametype or map)
+            -- Kills NOT Required, and uses Global Equipment Table (does not take into account the gametype or map)
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == true then
-          -- Killed by another player.
-          if (killer > 0) then 
-            -- Get victim Coordinates.
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
-          end
-        -- Kills Required, and uses Global Equipment Table (does not take into account the gametype or map)
+            -- Killed by another player.
+            if (killer > 0) then
+                -- Get victim Coordinates.
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                local player = get_player(victim)
+                local rotation = read_float(player + 0x138)
+                local tag_id = "eqip" or "weap"
+                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+            end
+            -- Kills Required, and uses Global Equipment Table (does not take into account the gametype or map)
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then
                 if (kills == 10) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 20 Kills.
-            elseif (kills == 20) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 20 Kills.
+                elseif (kills == 20) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 30 Kills.
-            elseif (kills == 30) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 30 Kills.
+                elseif (kills == 30) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 40 Kills.
-            elseif (kills == 40) then
-                -- Get victim Coordinates.
-                 local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 40 Kills.
+                elseif (kills == 40) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 50 Kills.
-            elseif (kills == 50) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 50 Kills.
+                elseif (kills == 50) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 60 Kills.
-            elseif (kills == 60) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 60 Kills.
+                elseif (kills == 60) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 70 Kills.
-            elseif (kills == 70) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 70 Kills.
+                elseif (kills == 70) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 80 Kills.
-            elseif (kills == 80) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 80 Kills.
+                elseif (kills == 80) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to 90 Kills.
-            elseif (kills == 90) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to 90 Kills.
+                elseif (kills == 90) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-                -- Equal to or greater than 100 kills.
-            elseif (kills >= 100) then
-                -- Get victim Coordinates.
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    -- Equal to or greater than 100 kills.
+                elseif (kills >= 100) then
+                    -- Get victim Coordinates.
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
                 end
             end
         end

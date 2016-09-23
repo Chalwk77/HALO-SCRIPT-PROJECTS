@@ -1,8 +1,12 @@
 --[[
-Script Name: HPC Killer Reward, for SAPP (DOCUMENTED)
+Script Name: HPC Killer Reward, for SAPP (UNDOCUMENTED)
     - Implementing API version: 1.11.0.0
 
 Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
+
+*** DOCUMENTATION ***
+    - If you would prefer to view a documented version of this script, please visit:
+    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward%2C%20for%20SAPP%20(DOCUMENTED).lua
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -235,129 +239,129 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 end
             end
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == true then
-          if (killer > 0) then 
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            VICTIM_LOCATION[victim][1] = x
-            VICTIM_LOCATION[victim][2] = y
-            VICTIM_LOCATION[victim][3] = z
-            itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local tag_id = "eqip" or "weap"
-            spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
-            cprint("doing something")
-          end
+            if (killer > 0) then
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                VICTIM_LOCATION[victim][1] = x
+                VICTIM_LOCATION[victim][2] = y
+                VICTIM_LOCATION[victim][3] = z
+                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                local player = get_player(victim)
+                local rotation = read_float(player + 0x138)
+                local tag_id = "eqip" or "weap"
+                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                cprint("doing something")
+            end
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then
                 if (kills == 10) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 20) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 20) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 30) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 30) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 40) then
-                 local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 40) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 50) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 50) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 60) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 60) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 70) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 70) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 80) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 80) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills == 90) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills == 90) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
-            elseif (kills >= 100) then
-                local x, y, z = read_vector3d(player_object + 0x5C)
-                VICTIM_LOCATION[victim][1] = x
-                VICTIM_LOCATION[victim][2] = y
-                VICTIM_LOCATION[victim][3] = z
-                itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
-                local player = get_player(victim)
-                local rotation = read_float(player + 0x138)
-                local tag_id = "eqip" or "weap"
-                spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
+                elseif (kills >= 100) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    itemtoDrop = GLOBAL_EQUIPMENT_TABLE[math.random(0, #GLOBAL_EQUIPMENT_TABLE - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local tag_id = "eqip" or "weap"
+                    spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
                 end
             end
         end
