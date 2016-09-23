@@ -13,7 +13,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     [1]: BasedOnMap, [2]: BasedOnGameType, [3]: GlobalSettings and [4]: KillSettings.
 
     Currently, settings [1] and [2] (see below) cannot be used in conjunction with setting [3]...
-    However, setting [4] can be used in conjunction with settings [1], [2] AND [3].
+    However, setting [4] can be used in conjunction with setting [3].
     
     Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
 
