@@ -13,7 +13,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     [1]: BasedOnMap, [2]: BasedOnGameType, [3]: GlobalSettings and [4]: KillSettings.
 
     Currently, settings [1] and [2] (see below) cannot be used in conjunction with setting [3]...
-    However, setting [4] can be used in conjunction with settings [1] and [2].
+    However, setting [4] can be used in conjunction with settings [1], [2] AND [3].
     
     Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
 
@@ -23,7 +23,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     [4] KillSettings: Toggle on\off required-kill-threshold
     
     The current configuration of this script is set up so the 'Killer' has to reach a required kill-threshold in order for his victim to
-    drop an item from the respective drop table.
+    drop an item from (global) EQUIPMENT_TABLE drop table.
     
     You can turn on|off (true/false) a setting called 'KillSettings'. 
     - If true, the Killer will have to reach 10 kills first, and only then will his victim drop an item. 
@@ -34,7 +34,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     - KillSettings can be used in conjunction with BasedOnMap, and BasedOnGameType as described above.
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -51,7 +51,7 @@ BasedOnMap = false
 -- Setting [2]
 BasedOnGameType = false
 -- Setting [3]
-GlobalSettings = false
+GlobalSettings = true
 -- Setting [4]
 KillSettings = true 
 
