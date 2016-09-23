@@ -249,7 +249,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 local rotation = read_float(player + 0x138)
                 local tag_id = "eqip" or "weap"
                 spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
-                cprint("doing something")
             end
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then

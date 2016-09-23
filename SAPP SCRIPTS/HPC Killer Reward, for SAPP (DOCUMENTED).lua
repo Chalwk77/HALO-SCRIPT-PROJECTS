@@ -21,11 +21,15 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
 
     Currently, settings [1] and [2] cannot be used in conjunction with global settings.
     Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
+    
+    ** IMPORTANT **
+    -   In order to use global settings, you must have NonGlobalKillsRequired set to false.
+    -   Global Settings do not take into account the gametype or map.
 
     * BasedOnMap:           Script will pull random items from the MAP EQUIPMENT TABLE.
     * BasedOnGameType:      Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
     * GlobalSettings:       Script will pull random items from the GLOBAL EQUIPMENT TABLE
-    * GlobalNoKills:         Toggle on\off required-kill-threshold
+    * GlobalNoKills:        Toggle on\off required-kill-threshold
 
     The current configuration of this script is set up so the 'Killer' has to reach a required kill-threshold in order for his victim to
     drop an item from (global) EQUIPMENT_TABLE drop table.
@@ -38,6 +42,11 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
 
     If 'GlobalNoKills' is set to "false", the victim will indefinitely drop an item from the GLOBAL EQUIPMENT TABLE.
     - GlobalNoKills cannot be used in conjunction with BasedOnMap, and BasedOnGameType.
+    
+
+    true = Enabled
+    false = Disabled
+    
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -141,6 +150,7 @@ GAMETYPE_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 -- Do Not Touch!
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 
+-- Do Not Touch
 function LoadMaps()
     mapnames = {
         "beavercreek",
@@ -167,10 +177,17 @@ function LoadMaps()
     mapnames[map_name] = mapnames[map_name] or false
 end
 
+-- Do Not Touch
 function OnScriptLoad()
+    -->> register_callback: This function registers a function that will be called every time the event is called. 
+    -->> You may only have one function registered per event. 
+    -->> Callback IDs are in the cb global variable and are retrieved using cb[“EVENT_ID”].
+    -->> Ref: http://halo.isimaginary.com/lua_info/#register_callback
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    -->> This function retrieves an event variable, or a custom variable set by var_add.
+    -->> Ref: http://halo.isimaginary.com/lua_info/#get_var
     if get_var(0, "$gt") ~= "n/a" then
         game_started = true
         map_name = get_var(1, "$map")
@@ -198,6 +215,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak).
     local kills = tonumber(get_var(killer, "$kills"))
+    -->> Gets the player's object if the player is alive.
+    -->> Ref: http://halo.isimaginary.com/lua_info/#get_dynamic_player
     local player_object = get_dynamic_player(victim)
 
     -- Suicide
@@ -222,7 +241,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 if (killer > 0) then
                     -- Equal to 10 Kills.
                     if (kills == 10) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -232,7 +253,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 20 Kills.
                     elseif (kills == 20) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -242,7 +265,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 30 Kills.
                     elseif (kills == 30) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -252,7 +277,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 40 Kills.
                     elseif (kills == 40) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -262,7 +289,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 50 Kills.
                     elseif (kills == 50) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -272,7 +301,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 60 Kills.
                     elseif (kills == 60) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -282,7 +313,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 70 Kills.
                     elseif (kills == 70) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -292,7 +325,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 80 Kills.
                     elseif (kills == 80) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -302,7 +337,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to 90 Kills.
                     elseif (kills == 90) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
@@ -312,14 +349,15 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
                         -- Equal to or greater than 100 kills.
                     elseif (kills >= 100) then
-                        -- Get victim Coordinates.
+                        -- >> Get victim Coordinates.
+                        -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                        -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
                         -- Call DropTable Function
                         DropTable(victim, x, y, z)
-                        -- Global Settings --
                     end
                 end
             end
@@ -327,7 +365,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == true then
             -- Killed by another player.
             if (killer > 0) then
-                -- Get victim Coordinates.
+                -- >> Get victim Coordinates.
+                -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                 local x, y, z = read_vector3d(player_object + 0x5C)
                 VICTIM_LOCATION[victim][1] = x
                 VICTIM_LOCATION[victim][2] = y
@@ -337,13 +377,19 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 local rotation = read_float(player + 0x138)
                 local tag_id = "eqip" or "weap"
                 -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                -- >> This function spawns an object at the specified coordiantes. 
+                -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                 spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             end
             -- Kills Required, and uses Global Equipment Table (does not take into account the gametype or map)
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then
                 if (kills == 10) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -353,11 +399,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 20 Kills.
                 elseif (kills == 20) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -367,11 +419,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 30 Kills.
                 elseif (kills == 30) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -381,11 +439,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 40 Kills.
                 elseif (kills == 40) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -395,11 +459,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 50 Kills.
                 elseif (kills == 50) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -409,11 +479,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 60 Kills.
                 elseif (kills == 60) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -423,11 +499,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 70 Kills.
                 elseif (kills == 70) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -437,11 +519,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 80 Kills.
                 elseif (kills == 80) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -451,11 +539,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to 90 Kills.
                 elseif (kills == 90) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -465,11 +559,17 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
 
                     -- Equal to or greater than 100 kills.
                 elseif (kills >= 100) then
-                    -- Get victim Coordinates.
+                    -- >> Get victim Coordinates.
+                    -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
+                    -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     VICTIM_LOCATION[victim][1] = x
                     VICTIM_LOCATION[victim][2] = y
@@ -479,6 +579,10 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     local rotation = read_float(player + 0x138)
                     local tag_id = "eqip" or "weap"
                     -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+                    -- >> This function spawns an object at the specified coordiantes. 
+                    -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+                    -->> It will return the Object ID of the spawned object.
+                    -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
                     spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
                 end
             end
@@ -499,6 +603,10 @@ function DropTable(victim, x, y, z)
             local rotation = read_float(player + 0x138)
             local tag_id = "eqip" or "weap"
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+            -- >> This function spawns an object at the specified coordiantes. 
+            -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+            -->> It will return the Object ID of the spawned object.
+            -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if map is ratrace.
         elseif map_name == "ratrace" then
@@ -508,6 +616,10 @@ function DropTable(victim, x, y, z)
             local rotation = read_float(player + 0x138)
             local tag_id = "eqip" or "weap"
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+            -- >> This function spawns an object at the specified coordiantes. 
+            -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+            -->> It will return the Object ID of the spawned object.
+            -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
@@ -523,6 +635,10 @@ function DropTable(victim, x, y, z)
             local rotation = read_float(player + 0x138)
             local tag_id = "eqip" or "weap"
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+            -- >> This function spawns an object at the specified coordiantes. 
+            -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+            -->> It will return the Object ID of the spawned object.
+            -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
             -- Check if gametype is slayer.
         elseif game_type == "slayer" then
@@ -532,6 +648,10 @@ function DropTable(victim, x, y, z)
             local rotation = read_float(player + 0x138)
             local tag_id = "eqip" or "weap"
             -- Summon random <item> from respective equipment table at the coordinates of the victims death location.
+            -- >> This function spawns an object at the specified coordiantes. 
+            -->> If TagID is specified, then TagType and TagPath are not read and effectively become optional arguments.
+            -->> It will return the Object ID of the spawned object.
+            -->> Ref: http://halo.isimaginary.com/lua_info/#spawn_object
             spawn_object(tag_id, itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
