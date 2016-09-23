@@ -23,9 +23,12 @@ BasedOnGameType = false
 NonGlobalKillsRequired = false
 GlobalSettings = true
 GlobalNoKills = true
+-- For a future update!
+WeaponAndEquipment = false
 
 weap =("weap")
 eqip =("eqip")
+GameHasStarted = false
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 ---------------------------------------------------------------------------------------------------------
@@ -306,29 +309,31 @@ GAMETYPE_EQ_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 function LoadMaps()
-    mapnames = {
-        "beavercreek",
-        "bloodgulch",
-        "boardingaction",
-        "carousel",
-        "chillout",
-        "damnation",
-        "dangercanyon",
-        "deathisland",
-        "gephyrophobia",
-        "hangemhigh",
-        "icefields",
-        "infinity",
-        "longest",
-        "prisoner",
-        "putput",
-        "ratrace",
-        "sidewinder",
-        "timberland",
-        "wizard"
-    }
-    map_name = get_var(1, "$map")
-    mapnames[map_name] = mapnames[map_name] or false
+    if GameHasStarted then
+        mapnames = {
+            "beavercreek",
+            "bloodgulch",
+            "boardingaction",
+            "carousel",
+            "chillout",
+            "damnation",
+            "dangercanyon",
+            "deathisland",
+            "gephyrophobia",
+            "hangemhigh",
+            "icefields",
+            "infinity",
+            "longest",
+            "prisoner",
+            "putput",
+            "ratrace",
+            "sidewinder",
+            "timberland",
+            "wizard"
+        }
+        map_name = get_var(1, "$map")
+        mapnames[map_name] = mapnames[map_name] or false
+    end
 end
 
 function OnScriptLoad()
@@ -336,7 +341,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     if get_var(0, "$gt") ~= "n/a" then
-        game_started = true
+        GameHasStarted = true
         map_name = get_var(1, "$map")
         game_type = get_var(0, "$gt")
         LoadMaps()
@@ -346,11 +351,11 @@ end
 function OnScriptUnload() end
 
 function OnNewGame()
-    game_started = true
+    GameHasStarted = true
 end
 
 function OnGameEnd()
-    game_started = false
+    GameHasStarted = false
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -370,7 +375,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         return false
     end
     
-    if game_started == true then
+    if GameHasStarted then
         if NonGlobalKillsRequired == true then
             if killer and victim ~= nil then
                 if (killer > 0) then
@@ -446,6 +451,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     end
                 end
             end
+            
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == true then
             if (killer > 0) then
                 local x, y, z = read_vector3d(player_object + 0x5C)
@@ -464,6 +470,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                 end
             end
+            
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then
                 if (kills == 10) then
@@ -642,7 +649,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function DropTable(victim, x, y, z)
-
     if BasedOnMap == true and BasedOnGameType == false then
         if map_name == "beavercreek" then
             itemtoDrop = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
@@ -736,7 +742,6 @@ function DropTable(victim, x, y, z)
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
-
     if BasedOnGameType == true and BasedOnMap == false then
         if game_type == "ctf" then
             itemtoDrop = GAMETYPE_EQ_TABLE_CTF[math.random(0, #GAMETYPE_EQ_TABLE_CTF - 1)]
