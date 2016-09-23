@@ -13,13 +13,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%
 ]]--
 
 function GetRequiredVersion()
-    return
-    200
+    return 200
 end
 
-function OnScriptLoad(processId, game, persistent)
-
-end
+function OnScriptLoad(processId, game, persistent) end
 
 function OnServerChat(player, chattype, message)
     
