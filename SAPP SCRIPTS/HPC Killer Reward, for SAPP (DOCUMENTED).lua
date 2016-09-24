@@ -128,9 +128,9 @@ function OnScriptUnload() end
 function OnNewGame()
     -- Do Not Touch!
     GameHasStarted = true
-    
+
     map_name = get_var(1, "$map")
-        if map_name == "bloodgulch" then
+    if map_name == "bloodgulch" then
         TableType1 = "MAP_EQ_TABLE_BLOODGULCH"
         TableType2 = "MAP_WEAPON_TABLE_BLOODGULCH"
     end
@@ -149,28 +149,28 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     -- victimName = retrieves victim's Name
     local victimName = tostring(get_var(victim, "$name"))
     -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak).
-    
-    
-    --local kills = tonumber(get_var(killer, "$kills")) -- Disabled for testing (revert afterwards)
+
+
+    -- local kills = tonumber(get_var(killer, "$kills")) -- Disabled for testing (revert afterwards)
     local kills = tonumber(get_var(victim, "$kills"))
-    
-    
+
+
     -- >> Gets the player's object if the player is alive.
     -- >> Ref: http://halo.isimaginary.com/lua_info/#get_dynamic_player
     local player_object = get_dynamic_player(victim)
 
     -- -- Suicide
     -- if killer == victim then
-        -- return false
-        -- -- Killed by Vehicle
+    -- return false
+    -- -- Killed by Vehicle
     -- elseif (killer == 0) then
-        -- return false
-        -- -- Killed by Server
+    -- return false
+    -- -- Killed by Server
     -- elseif (killer == -1) then
-        -- return false
-        -- -- Killer is unknown
+    -- return false
+    -- -- Killer is unknown
     -- elseif (killer == nil) then
-        -- return false
+    -- return false
     -- end
 
     if GameHasStarted then
@@ -178,8 +178,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             -- Check if killer and victim are valid.
             if killer and victim ~= nil then
                 -- Killed by another player.
-                --if (killer > 0) then          -- Disabled for testing (revert afterwards)
-                if (killer == -1)then
+                -- if (killer > 0) then          -- Disabled for testing (revert afterwards)
+                if (killer == -1) then
                     -- Equal to 10 Kills.
                     if (kills == 0) then
                         -- >> Get victim Coordinates.
@@ -497,233 +497,309 @@ function DropTable(victim, x, y, z)
         if map_name == "bloodgulch" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "bloodgulch" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "boardingaction" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "chillout" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "damnation" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "dangercanyon" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "deathisland" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "gephyrophobia" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "hangemhigh" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "icefields" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "infinity" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "longest" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "prisoner" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "putput" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "ratrace" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "sidewinder" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "timberland" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         elseif map_name == "wizard" then
             if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil -- still trying to figure this part out
+                TableToUse2 = nil
+                -- still trying to figure this part out
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil -- still trying to figure this part out
+                TableToUse1 = nil
+                -- still trying to figure this part out
             end
         end
     end
---=======================================================================================================================--
+    -- =======================================================================================================================--
     -- Based on Game-Type --
     if BasedOnGameType == true and BasedOnMap == false then
         -- Check if gametype is CTF.
@@ -740,7 +816,7 @@ function DropTable(victim, x, y, z)
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
---=======================================================================================================================--
+    -- =======================================================================================================================--
 end
 
 -- Do Not Touch!
@@ -1212,7 +1288,7 @@ MAP_WEAPON_TABLE_WIZARD[8] = "weapons\\rocket launcher\\rocket launcher"
 MAP_WEAPON_TABLE_WIZARD[9] = "weapons\\shotgun\\shotgun"
 MAP_WEAPON_TABLE_WIZARD[10] = "weapons\\sniper rifle\\sniper rifle"
 
---================================================================================================--
+-- ================================================================================================--
 GAMETYPE_EQ_TABLE_CTF = { }
 GAMETYPE_EQ_TABLE_CTF[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_CTF[2] = "powerups\\health pack"
@@ -1236,4 +1312,4 @@ GAMETYPE_EQ_TABLE_SLAYER[7] = "powerups\\rocket launcher ammo\\rocket launcher a
 GAMETYPE_EQ_TABLE_SLAYER[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
---================================================================================================--
+-- ================================================================================================--
