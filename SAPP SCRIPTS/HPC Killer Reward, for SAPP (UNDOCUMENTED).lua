@@ -20,6 +20,7 @@ api_version = "1.11.0.0"
 
 BasedOnMap = false
 BasedOnGameType = false
+-- This must be true in order to use BasedOnMap or BasedOnGameType
 NonGlobalKillsRequired = false
 GlobalSettings = true
 GlobalNoKills = true

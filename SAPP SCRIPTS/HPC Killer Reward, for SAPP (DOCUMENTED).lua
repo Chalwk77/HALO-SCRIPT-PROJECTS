@@ -60,12 +60,15 @@ api_version = "1.11.0.0"
 
 BasedOnMap = false
 BasedOnGameType = false
+-- This must be true in order to use BasedOnMap or BasedOnGameType
 NonGlobalKillsRequired = false
 -- Global Settings do not take into account the gametype or map.
 GlobalSettings = true
 GlobalNoKills = true
--- For a future update!
-WeaponAndEquipment = false
+-- Only one of these can be true. The other two must be false.
+WeaponsAndEquipement = true
+JustEquipment = false
+JustWeapons = false
 
 -- Do Not Touch!
 weap = "weap"
@@ -397,7 +400,9 @@ function OnScriptLoad()
         game_type = get_var(0, "$gt")
         LoadMaps()
     end
+    dofile("sapp/mapTables.lua")
 end
+
 
 function OnScriptUnload() end
 
@@ -730,98 +735,236 @@ function DropTable(victim, x, y, z)
     if BasedOnMap == true and BasedOnGameType == false then
         -- Check if mapname is beavercreek
         if map_name == "beavercreek" then
-            itemtoDrop = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_BEAVERCREEK[math.random(0, #MAP_WEAPON_TABLE_BEAVERCREEK - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "bloodgulch" then
-            itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_BLOODGULCH[math.random(0, #MAP_WEAPON_TABLE_BLOODGULCH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "boardingaction" then
-            itemtoDrop = MAP_EQ_TABLE_BOARDINGACTION[math.random(0, #MAP_EQ_TABLE_BOARDINGACTION - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_BOARDINGACTION[math.random(0, #MAP_EQ_TABLE_BOARDINGACTION - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_BOARDINGACTION[math.random(0, #MAP_WEAPON_TABLE_BOARDINGACTION - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "carousel" then
-            itemtoDrop = MAP_EQ_TABLE_CAROUSEL[math.random(0, #MAP_EQ_TABLE_CAROUSEL - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_CAROUSEL[math.random(0, #MAP_EQ_TABLE_CAROUSEL - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_CAROUSEL[math.random(0, #MAP_WEAPON_TABLE_CAROUSEL - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "chillout" then
-            itemtoDrop = MAP_EQ_TABLE_CHILLOUT[math.random(0, #MAP_EQ_TABLE_CHILLOUT - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_CHILLOUT[math.random(0, #MAP_EQ_TABLE_CHILLOUT - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_CHILLOUT[math.random(0, #MAP_WEAPON_TABLE_CHILLOUT - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "damnation" then
-            itemtoDrop = MAP_EQ_TABLE_DAMNATION[math.random(0, #MAP_EQ_TABLE_DAMNATION - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_DAMNATION[math.random(0, #MAP_EQ_TABLE_DAMNATION - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_DAMNATION[math.random(0, #MAP_WEAPON_TABLE_DAMNATION - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "dangercanyon" then
-            itemtoDrop = MAP_EQ_TABLE_DANGERCANYON[math.random(0, #MAP_EQ_TABLE_DANGERCANYON - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_DANGERCANYON[math.random(0, #MAP_EQ_TABLE_DANGERCANYON - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_DANGERCANYON[math.random(0, #MAP_WEAPON_TABLE_DANGERCANYON - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "deathisland" then
-            itemtoDrop = MAP_EQ_TABLE_DEATHISLAND[math.random(0, #MAP_EQ_TABLE_DEATHISLAND - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_DEATHISLAND[math.random(0, #MAP_EQ_TABLE_DEATHISLAND - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_DEATHISLAND[math.random(0, #MAP_WEAPON_TABLE_DEATHISLAND - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "gephyrophobia" then
-            itemtoDrop = MAP_EQ_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_EQ_TABLE_GEPHYROPHOBIA - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_EQ_TABLE_GEPHYROPHOBIA - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_WEAPON_TABLE_GEPHYROPHOBIA - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "hangemhigh" then
-            itemtoDrop = MAP_EQ_TABLE_HANGEMHIGH[math.random(0, #MAP_EQ_TABLE_HANGEMHIGH - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_HANGEMHIGH[math.random(0, #MAP_EQ_TABLE_HANGEMHIGH - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_HANGEMHIGH[math.random(0, #MAP_WEAPON_TABLE_HANGEMHIGH - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "icefields" then
-            itemtoDrop = MAP_EQ_TABLE_ICEFIELDSE[math.random(0, #MAP_EQ_TABLE_ICEFIELDSE - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_ICEFIELDS[math.random(0, #MAP_EQ_TABLE_ICEFIELDS - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_ICEFIELDS[math.random(0, #MAP_WEAPON_TABLE_ICEFIELDS - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "infinity" then
-            itemtoDrop = MAP_EQ_TABLE_INFINITY[math.random(0, #MAP_EQ_TABLE_INFINITY - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_INFINITY[math.random(0, #MAP_EQ_TABLE_INFINITY - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_INFINITY[math.random(0, #MAP_WEAPON_TABLE_INFINITY - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "longest" then
-            itemtoDrop = MAP_EQ_TABLE_LONGEST[math.random(0, #MAP_EQ_TABLE_LONGEST - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_LONGEST[math.random(0, #MAP_EQ_TABLE_LONGEST - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_LONGEST[math.random(0, #MAP_WEAPON_TABLE_LONGEST - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "prisoner" then
-            itemtoDrop = MAP_EQ_TABLE_PRISONER[math.random(0, #MAP_EQ_TABLE_PRISONER - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_PRISONER[math.random(0, #MAP_EQ_TABLE_PRISONER - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_PRISONER[math.random(0, #MAP_WEAPON_TABLE_PRISONER - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
+        elseif map_name == "putput" then
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_PUTPUT[math.random(0, #MAP_EQ_TABLE_PUTPUT - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_PUTPUT[math.random(0, #MAP_WEAPON_TABLE_PUTPUT - 1)]
+            local player = get_player(victim)
+            local rotation = read_float(player + 0x138)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "ratrace" then
-            itemtoDrop = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_RATRACE[math.random(0, #MAP_WEAPON_TABLE_RATRACE - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "sidewinder" then
-            itemtoDrop = MAP_EQ_TABLE_SIDEWINDER[math.random(0, #MAP_EQ_TABLE_SIDEWINDER - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_SIDEWINDER[math.random(0, #MAP_EQ_TABLE_SIDEWINDER - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_SIDEWINDER[math.random(0, #MAP_WEAPON_TABLE_SIDEWINDER - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "timberland" then
-            itemtoDrop = MAP_EQ_TABLE_TIMBERLANDE[math.random(0, #MAP_EQ_TABLE_TIMBERLANDE - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_TIMBERLAND[math.random(0, #MAP_EQ_TABLE_TIMBERLAND - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_TIMBERLAND[math.random(0, #MAP_WEAPON_TABLE_TIMBERLAND - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         elseif map_name == "wizard" then
-            itemtoDrop = MAP_EQ_TABLE_WIZARD[math.random(0, #MAP_EQ_TABLE_WIZARD - 1)]
+            math.randomseed(os.time())
+            local itemtoDrop1 = MAP_EQ_TABLE_WIZARD[math.random(0, #MAP_EQ_TABLE_WIZARD - 1)]
+            local itemtoDrop2 = MAP_WEAPON_TABLE_WIZARD[math.random(0, #MAP_WEAPON_TABLE_WIZARD - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            local eqTable = math.random(1, 2)
+            if (tonumber(eqTable) == 1) then
+                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+            elseif (tonumber(eqTable) == 2) then
+                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            end
         end
     end
-
+--=======================================================================================================================--
     -- Based on Game-Type --
     if BasedOnGameType == true and BasedOnMap == false then
         -- Check if gametype is CTF.
@@ -838,6 +981,7 @@ function DropTable(victim, x, y, z)
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
+--=======================================================================================================================--
 end
 
 -- Do Not Touch!
