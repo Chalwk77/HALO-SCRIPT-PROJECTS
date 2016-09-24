@@ -9,9 +9,24 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
 *** DOCUMENTATION ***
     - If you would prefer to view a UN-documented version of this script, please visit:
     https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward%2C%20for%20SAPP%20(UNDOCUMENTED).lua
+    
+    
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
+    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
 
 
--- Five Settings available:
+-- Eight Settings available:
 
 [1] BasedOnMap
 [2] BasedOnGameType
@@ -48,7 +63,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     false = Disabled
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
@@ -113,7 +128,7 @@ end
 function OnScriptLoad()
     -- >> register_callback: This function registers a function that will be called every time the event is called.
     -- >> You may only have one function registered per event.
-    -- >> Callback IDs are in the cb global variable and are retrieved using cb[“EVENT_ID”].
+    -- >> Callback IDs are in the cb global variable and are retrieved using cb[â€œEVENT_IDâ€].
     -- >> Ref: http://halo.isimaginary.com/lua_info/#register_callback
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -125,7 +140,6 @@ function OnScriptLoad()
         map_name = get_var(1, "$map")
         game_type = get_var(0, "$gt")
         LoadMaps()
-        protect = true
     end
 end
 
@@ -135,176 +149,266 @@ function OnNewGame()
     -- Do Not Touch!
     GameHasStarted = true
     map_name = get_var(1, "$map")
+    game_type = get_var(0, "$gt")
     if map_name == "beavercreek" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
         end
     elseif map_name == "bloodgulch" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_BLOODGULCH
             TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_BLOODGULCH
         end
     elseif map_name == "boardingaction" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_BOARDINGACTION
             TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_BOARDINGACTION
         end
     elseif map_name == "carousel" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_CAROUSEL
             TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_CAROUSEL
         end
     elseif map_name == "chillout" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
         end
     elseif map_name == "damnation" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_DAMNATION
             TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_DAMNATION
         end
     elseif map_name == "dangercanyon" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_DANGERCANYON
             TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_DANGERCANYON
         end
     elseif map_name == "deathisland" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_DEATHISLAND
             TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_DEATHISLAND
         end
     elseif map_name == "gephyrophobia" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_GEPHYROPHOBIA
             TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_GEPHYROPHOBIA
         end
     elseif map_name == "hangemhigh" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_HANGEMHIGH
             TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_HANGEMHIGH
         end
     elseif map_name == "icefields" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_ICEFIELDS
             TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_ICEFIELDS
         end
     elseif map_name == "infinity" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_INFINITY
             TableToUse2 = MAP_WEAPON_TABLE_INFINITY
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_INFINITY
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_INFINITY
         end
     elseif map_name == "longest" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_LONGEST
             TableToUse2 = MAP_WEAPON_TABLE_LONGEST
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_LONGEST
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_LONGEST
         end
     elseif map_name == "prisoner" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_PRISONER
             TableToUse2 = MAP_WEAPON_TABLE_PRISONER
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_PRISONER
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_PRISONER
         end
     elseif map_name == "putput" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_PUTPUT
             TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_PUTPUT
         end
     elseif map_name == "ratrace" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_RATRACE
             TableToUse2 = MAP_WEAPON_TABLE_RATRACE
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_RATRACE
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_RATRACE
         end
     elseif map_name == "sidewinder" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_SIDEWINDER
             TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_SIDEWINDER
         end
     elseif map_name == "timberland" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_TIMBERLAND
             TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_TIMBERLAND
         end
     elseif map_name == "wizard" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            access = WAE
             TableToUse1 = MAP_EQ_TABLE_WIZARD
             TableToUse2 = MAP_WEAPON_TABLE_WIZARD
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            access = JW
             TableToUse2 = MAP_WEAPON_TABLE_WIZARD
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            access = JE
             TableToUse1 = MAP_EQ_TABLE_WIZARD
+        end
+    end
+--====================================GAME TYPE MODES====================================--
+--=======================================================================================--
+    if game_type == "ctf" then
+        if BasedOnGameType == true and BasedOnMap == false then
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                access = GT_WAE
+                TableToUse1 = GAMETYPE_EQ_TABLE_CTF
+                TableToUse2 = GAMETYPE_WEAPON_TABLE_CTF
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                access = GT_JW
+                TableToUse2 = GAMETYPE_WEAPON_TABLE_CTF
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                access = GT_JE
+                TableToUse1 = GAMETYPE_EQ_TABLE_CTF
+            end
+        end
+    end
+    if game_type == "slayer" then
+        if BasedOnGameType == true and BasedOnMap == false then
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                access = GT_WAE
+                TableToUse1 = GAMETYPE_EQ_TABLE_SLAYER
+                TableToUse2 = GAMETYPE_WEAPON_TABLE_SLAYER
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                access = GT_JW
+                TableToUse2 = GAMETYPE_WEAPON_TABLE_SLAYER
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                access = GT_JE
+                TableToUse1 = GAMETYPE_EQ_TABLE_SLAYER
+            end
         end
     end
 end
@@ -330,16 +434,16 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     -- Suicide
     if killer == victim then
-        return false
-        -- Killed by Vehicle
+    return false
+    -- Killed by Vehicle
     elseif (killer == 0) then
-        return false
-        -- Killed by Server
+    return false
+    -- Killed by Server
     elseif (killer == -1) then
-        return false
-        -- Killer is unknown
+    return false
+    -- Killer is unknown
     elseif (killer == nil) then
-        return false
+    return false
     end
 
     if GameHasStarted then
@@ -662,163 +766,109 @@ function GameSettings(victim, x, y, z)
     map_name = get_var(1, "$map")
     if BasedOnMap == true and BasedOnGameType == false then
         if map_name == "beavercreek" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "bloodgulch" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "boardingaction" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "carousel" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "chillout" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "damnation" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "dangercanyon" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "deathisland" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "gephyrophobia" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "hangemhigh" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "icefields" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "infinity" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "longest" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "prisoner" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "putput" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "ratrace" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "sidewinder" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         elseif map_name == "wizard" then
-            if access == WAE then
-                WeaponsAndEquipment(victim, x, y, z)
-            elseif access == JW then
-                JustWeapons(victim, x, y, z)
-            elseif access == JE then
-                JustEquipment(victim, x, y, z)
+            if access == WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == JW then JustWeapons(victim, x, y, z)
+                elseif access == JE then JustEquipment(victim, x, y, z)
             end
         end
     end
     -- Based on Map --
     if BasedOnGameType == true and BasedOnMap == false then
         if game_type == "ctf" then
-            itemtoDrop = GAMETYPE_EQ_TABLE_CTF[math.random(0, #GAMETYPE_EQ_TABLE_CTF - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            if access == GT_WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == GT_JW then JustWeapons(victim, x, y, z)
+                elseif access == GT_JE then JustEquipment(victim, x, y, z)
+            end
         elseif game_type == "slayer" then
-            itemtoDrop = GAMETYPE_EQ_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_TABLE_SLAYER - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
+            if access == GT_WAE then WeaponsAndEquipment(victim, x, y, z) 
+                elseif access == GT_JW then JustWeapons(victim, x, y, z)
+                elseif access == GT_JE then JustEquipment(victim, x, y, z)
+            end
         end
     end
 end
@@ -1327,6 +1377,17 @@ GAMETYPE_EQ_TABLE_CTF[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo
 GAMETYPE_EQ_TABLE_CTF[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_CTF[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_CTF[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_WEAPON_TABLE_CTF = { }
+GAMETYPE_WEAPON_TABLE_CTF[1] = "weapons\\assault rifle\\assault rifle"
+GAMETYPE_WEAPON_TABLE_CTF[2] = "weapons\\flamethrower\\flamethrower"
+GAMETYPE_WEAPON_TABLE_CTF[3] = "weapons\\needler\\mp_needler"
+GAMETYPE_WEAPON_TABLE_CTF[4] = "weapons\\pistol\\pistol"
+GAMETYPE_WEAPON_TABLE_CTF[5] = "weapons\\plasma pistol\\plasma pistol"
+GAMETYPE_WEAPON_TABLE_CTF[6] = "weapons\\plasma rifle\\plasma rifle"
+GAMETYPE_WEAPON_TABLE_CTF[7] = "weapons\\plasma_cannon\\plasma_cannon"
+GAMETYPE_WEAPON_TABLE_CTF[8] = "weapons\\rocket launcher\\rocket launcher"
+GAMETYPE_WEAPON_TABLE_CTF[9] = "weapons\\shotgun\\shotgun"
+GAMETYPE_WEAPON_TABLE_CTF[10] = "weapons\\sniper rifle\\sniper rifle"
 
 GAMETYPE_EQ_TABLE_SLAYER = { }
 GAMETYPE_EQ_TABLE_SLAYER[1] = "powerups\\active camouflage"
@@ -1339,4 +1400,15 @@ GAMETYPE_EQ_TABLE_SLAYER[7] = "powerups\\rocket launcher ammo\\rocket launcher a
 GAMETYPE_EQ_TABLE_SLAYER[8] = "powerups\\shotgun ammo\\shotgun ammo"
 GAMETYPE_EQ_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 GAMETYPE_EQ_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_WEAPON_TABLE_SLAYER = { }
+GAMETYPE_WEAPON_TABLE_SLAYER[1] = "weapons\\assault rifle\\assault rifle"
+GAMETYPE_WEAPON_TABLE_SLAYER[2] = "weapons\\flamethrower\\flamethrower"
+GAMETYPE_WEAPON_TABLE_SLAYER[3] = "weapons\\needler\\mp_needler"
+GAMETYPE_WEAPON_TABLE_SLAYER[4] = "weapons\\pistol\\pistol"
+GAMETYPE_WEAPON_TABLE_SLAYER[5] = "weapons\\plasma pistol\\plasma pistol"
+GAMETYPE_WEAPON_TABLE_SLAYER[6] = "weapons\\plasma rifle\\plasma rifle"
+GAMETYPE_WEAPON_TABLE_SLAYER[7] = "weapons\\plasma_cannon\\plasma_cannon"
+GAMETYPE_WEAPON_TABLE_SLAYER[8] = "weapons\\rocket launcher\\rocket launcher"
+GAMETYPE_WEAPON_TABLE_SLAYER[9] = "weapons\\shotgun\\shotgun"
+GAMETYPE_WEAPON_TABLE_SLAYER[10] = "weapons\\sniper rifle\\sniper rifle"
 -- ================================================================================================--
