@@ -27,7 +27,7 @@ Description: This script will drop a random item from the respective Equipment/W
 [!] Based on GameType now supports global settings.
     To use BasedOnGameType with global Settings, set the following to 'true': "GlobalSettings", "BasedOnGameType".
         - But set the following to 'false': "NonGlobalKillsRequired", "BasedOnMap".
-        If you want to make the kill reach a certain kill-threshold, set the follow to 'false': "GlobalNoKills".
+        If you want to force the killer to reach a certain kill-threshold, set the follow to 'false': "GlobalNoKills".
         If you want your victim to drop something regardless of kills, set "GlobalNoKills" to 'true'.
 
 
@@ -61,7 +61,7 @@ Description: This script will drop a random item from the respective Equipment/W
     false = Disabled
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
@@ -125,7 +125,7 @@ end
 function OnScriptLoad()
     -- >> register_callback: This function registers a function that will be called every time the event is called.
     -- >> You may only have one function registered per event.
-    -- >> Callback IDs are in the cb global variable and are retrieved using cb[“EVENT_ID”].
+    -- >> Callback IDs are in the cb global variable and are retrieved using cb[â€œEVENT_IDâ€].
     -- >> Ref: http://halo.isimaginary.com/lua_info/#register_callback
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
