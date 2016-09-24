@@ -27,8 +27,8 @@ Description: This script will drop a random item from the respective Equipment/W
 [!] Based on GameType now supports global settings.
     To use BasedOnGameType with global Settings, set the following to 'true': "GlobalSettings", "BasedOnGameType".
         - But set the following to 'false': "NonGlobalKillsRequired", "BasedOnMap".
-        If you want to make the kill reach a certain kill-threshold, set the follow to 'false': "GlobalNoKills".
-        If you want your victim to drop something regardless of kills, set "GlobalNoKills" to 'true'.
+        If you want to force the killer to reach a certain kill-threshold, set the follow to 'false': "GlobalNoKills".
+        If you want the victim to drop something regardless of kills, set "GlobalNoKills" to 'true'.
 
 
         Global (BasedOnMap) will come in a future update!
@@ -74,13 +74,13 @@ api_version = "1.11.0.0"
 -- Configuration --
 BasedOnMap = false
 BasedOnGameType = false
--- This must be true in order to use BasedOnMap or BasedOnGameType
+-- [!] This must be true in order to use BasedOnMap or BasedOnGameType
 NonGlobalKillsRequired = false
--- Global Settings do not take into account the gametype or map.
+-- [!] Global Settings do not take into account the MAP, but it does support gametype
 GlobalSettings = true
 GlobalNoKills = true
--- Only one of these can be true. The other two must be false.
 
+-- [!] Used only for BasedOnMap, and BasedOnGameType
 -- Item Set
 Weapons_And_Equipment = true
 Just_Equipment = false
