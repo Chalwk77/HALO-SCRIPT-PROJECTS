@@ -18,11 +18,12 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-BasedOnMap = true
+BasedOnMap = false
 BasedOnGameType = false
-NonGlobalKillsRequired = true
-GlobalSettings = false
-GlobalNoKills = false
+NonGlobalKillsRequired = false
+GlobalSettings = true
+GlobalNoKills = true
+
 Weapons_And_Equipment = true
 Just_Equipment = false
 Just_Weapons = false
@@ -349,6 +350,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     local victimName = tostring(get_var(victim, "$name"))
     local kills = tonumber(get_var(killer, "$kills"))
+    game_type = get_var(0, "$gt")
+
     local player_object = get_dynamic_player(victim)
 
     if killer == victim then
@@ -454,6 +457,394 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                     spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
                 end
             end
+        elseif NonGlobalKillsRequired == false and BasedOnGameType == true and GlobalSettings == true and GlobalNoKills == true then
+            if game_type == "ctf" then
+                if (killer > 0) then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    VICTIM_LOCATION[victim][1] = x
+                    VICTIM_LOCATION[victim][2] = y
+                    VICTIM_LOCATION[victim][3] = z
+                    math.randomseed(os.time())
+                    local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                    local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                    local player = get_player(victim)
+                    local rotation = read_float(player + 0x138)
+                    local eqTable = math.random(1, 2)
+                    if (tonumber(eqTable) == 1) then
+                        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                    elseif (tonumber(eqTable) == 2) then
+                        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                    end
+                elseif game_type == "slayer" then
+                    if (killer > 0) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+                    end
+                end
+            end
+        elseif NonGlobalKillsRequired == false and BasedOnGameType == true and GlobalSettings == true and GlobalNoKills == false then
+            if game_type == "ctf" then
+                if (killer > 0) then
+                    if (kills == 10) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 20) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 30) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 40) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 50) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 60) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 70) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 80) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 90) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills >= 100) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_CTF - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_CTF - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+                    end
+                end
+
+            elseif game_type == "ctf" then
+                if (killer > 0) then
+                    if (kills == 10) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 20) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 30) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 40) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 50) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 60) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 70) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 80) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills == 90) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+
+                    elseif (kills >= 100) then
+                        local x, y, z = read_vector3d(player_object + 0x5C)
+                        VICTIM_LOCATION[victim][1] = x
+                        VICTIM_LOCATION[victim][2] = y
+                        VICTIM_LOCATION[victim][3] = z
+                        math.randomseed(os.time())
+                        local itemtoDrop1 = GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_GLOBAL_TABLE_SLAYER - 1)]
+                        local itemtoDrop2 = GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[math.random(0, #GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER - 1)]
+                        local player = get_player(victim)
+                        local rotation = read_float(player + 0x138)
+                        local eqTable = math.random(1, 2)
+                        if (tonumber(eqTable) == 1) then
+                            spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+                        elseif (tonumber(eqTable) == 2) then
+                            spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+                        end
+                    end
+                end
+            end
+
         elseif NonGlobalKillsRequired == false and GlobalSettings == true and GlobalNoKills == false then
             if (killer > 0) then
                 if (kills == 10) then
@@ -1340,3 +1731,48 @@ GAMETYPE_WEAPON_TABLE_SLAYER[7] = "weapons\\plasma_cannon\\plasma_cannon"
 GAMETYPE_WEAPON_TABLE_SLAYER[8] = "weapons\\rocket launcher\\rocket launcher"
 GAMETYPE_WEAPON_TABLE_SLAYER[9] = "weapons\\shotgun\\shotgun"
 GAMETYPE_WEAPON_TABLE_SLAYER[10] = "weapons\\sniper rifle\\sniper rifle"
+
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER = { }
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[2] = "powerups\\health pack"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[3] = "powerups\\over shield"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER = { }
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[1] = "weapons\\assault rifle\\assault rifle"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[2] = "weapons\\flamethrower\\flamethrower"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[3] = "weapons\\needler\\mp_needler"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[4] = "weapons\\pistol\\pistol"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[5] = "weapons\\plasma pistol\\plasma pistol"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[6] = "weapons\\plasma rifle\\plasma rifle"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[7] = "weapons\\plasma_cannon\\plasma_cannon"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[8] = "weapons\\rocket launcher\\rocket launcher"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[9] = "weapons\\shotgun\\shotgun"
+GAMETYPE_WEAPON_GLOBAL_TABLE_SLAYER[10] = "weapons\\sniper rifle\\sniper rifle"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF = { }
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[2] = "powerups\\health pack"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[3] = "powerups\\over shield"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_GLOBAL_TABLE_CTF[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF = { }
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[1] = "weapons\\assault rifle\\assault rifle"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[2] = "weapons\\flamethrower\\flamethrower"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[3] = "weapons\\needler\\mp_needler"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[4] = "weapons\\pistol\\pistol"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[5] = "weapons\\plasma pistol\\plasma pistol"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[6] = "weapons\\plasma rifle\\plasma rifle"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[7] = "weapons\\plasma_cannon\\plasma_cannon"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[8] = "weapons\\rocket launcher\\rocket launcher"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[9] = "weapons\\shotgun\\shotgun"
+GAMETYPE_WEAPON_GLOBAL_TABLE_CTF[10] = "weapons\\sniper rifle\\sniper rifle"
