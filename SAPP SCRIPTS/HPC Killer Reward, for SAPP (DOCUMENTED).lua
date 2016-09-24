@@ -58,6 +58,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
+
+-- Configuration --
 BasedOnMap = true
 BasedOnGameType = false
 -- This must be true in order to use BasedOnMap or BasedOnGameType
@@ -66,9 +68,12 @@ NonGlobalKillsRequired = true
 GlobalSettings = false
 GlobalNoKills = false
 -- Only one of these can be true. The other two must be false.
+
+-- Item Set
 Weapons_And_Equipment = true
 Just_Equipment = false
 Just_Weapons = false
+-- Configuration Ends --
 
 -- Do Not Touch!
 weap = "weap"
@@ -120,6 +125,7 @@ function OnScriptLoad()
         map_name = get_var(1, "$map")
         game_type = get_var(0, "$gt")
         LoadMaps()
+        protect = true
     end
 end
 
@@ -128,11 +134,178 @@ function OnScriptUnload() end
 function OnNewGame()
     -- Do Not Touch!
     GameHasStarted = true
-
     map_name = get_var(1, "$map")
-    if map_name == "bloodgulch" then
-        TableType1 = "MAP_EQ_TABLE_BLOODGULCH"
-        TableType2 = "MAP_WEAPON_TABLE_BLOODGULCH"
+    if map_name == "beavercreek" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+        end
+    elseif map_name == "bloodgulch" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_BLOODGULCH
+            TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_BLOODGULCH
+        end
+    elseif map_name == "boardingaction" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_BOARDINGACTION
+            TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_BOARDINGACTION
+        end
+    elseif map_name == "carousel" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_CAROUSEL
+            TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_CAROUSEL
+        end
+    elseif map_name == "chillout" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+        end
+    elseif map_name == "damnation" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_DAMNATION
+            TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_DAMNATION
+        end
+    elseif map_name == "dangercanyon" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_DANGERCANYON
+            TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_DANGERCANYON
+        end
+    elseif map_name == "deathisland" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_DEATHISLAND
+            TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_DEATHISLAND
+        end
+    elseif map_name == "gephyrophobia" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_GEPHYROPHOBIA
+            TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_GEPHYROPHOBIA
+        end
+    elseif map_name == "hangemhigh" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_HANGEMHIGH
+            TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_HANGEMHIGH
+        end
+    elseif map_name == "icefields" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_ICEFIELDS
+            TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_ICEFIELDS
+        end
+    elseif map_name == "infinity" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_INFINITY
+            TableToUse2 = MAP_WEAPON_TABLE_INFINITY
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_INFINITY
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_INFINITY
+        end
+    elseif map_name == "longest" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_LONGEST
+            TableToUse2 = MAP_WEAPON_TABLE_LONGEST
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_LONGEST
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_LONGEST
+        end
+    elseif map_name == "prisoner" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_PRISONER
+            TableToUse2 = MAP_WEAPON_TABLE_PRISONER
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_PRISONER
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_PRISONER
+        end
+    elseif map_name == "putput" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_PUTPUT
+            TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_PUTPUT
+        end
+    elseif map_name == "ratrace" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_RATRACE
+            TableToUse2 = MAP_WEAPON_TABLE_RATRACE
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_RATRACE
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_RATRACE
+        end
+    elseif map_name == "sidewinder" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_SIDEWINDER
+            TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_SIDEWINDER
+        end
+    elseif map_name == "timberland" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_TIMBERLAND
+            TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_TIMBERLAND
+        end
+    elseif map_name == "wizard" then
+        if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            TableToUse1 = MAP_EQ_TABLE_WIZARD
+            TableToUse2 = MAP_WEAPON_TABLE_WIZARD
+        elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            TableToUse2 = MAP_WEAPON_TABLE_WIZARD
+        elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            TableToUse1 = MAP_EQ_TABLE_WIZARD
+        end
     end
 end
 
@@ -149,37 +322,32 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     -- victimName = retrieves victim's Name
     local victimName = tostring(get_var(victim, "$name"))
     -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak).
-
-
-    -- local kills = tonumber(get_var(killer, "$kills")) -- Disabled for testing (revert afterwards)
-    local kills = tonumber(get_var(victim, "$kills"))
-
+    local kills = tonumber(get_var(killer, "$kills"))
 
     -- >> Gets the player's object if the player is alive.
     -- >> Ref: http://halo.isimaginary.com/lua_info/#get_dynamic_player
     local player_object = get_dynamic_player(victim)
 
-    -- -- Suicide
-    -- if killer == victim then
-    -- return false
-    -- -- Killed by Vehicle
-    -- elseif (killer == 0) then
-    -- return false
-    -- -- Killed by Server
-    -- elseif (killer == -1) then
-    -- return false
-    -- -- Killer is unknown
-    -- elseif (killer == nil) then
-    -- return false
-    -- end
+    -- Suicide
+    if killer == victim then
+        return false
+        -- Killed by Vehicle
+    elseif (killer == 0) then
+        return false
+        -- Killed by Server
+    elseif (killer == -1) then
+        return false
+        -- Killer is unknown
+    elseif (killer == nil) then
+        return false
+    end
 
     if GameHasStarted then
         if NonGlobalKillsRequired == true then
             -- Check if killer and victim are valid.
             if killer and victim ~= nil then
                 -- Killed by another player.
-                -- if (killer > 0) then          -- Disabled for testing (revert afterwards)
-                if (killer == -1) then
+                if (killer > 0) then
                     -- Equal to 10 Kills.
                     if (kills == 0) then
                         -- >> Get victim Coordinates.
@@ -189,71 +357,71 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        -- Call DropTable Function.
-                        DropTable(victim, x, y, z)
+                        -- Call GameSettings Function.
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 20) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 30) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 40) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 50) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 60) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 70) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 80) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
 
                     elseif (kills == 90) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
                         -- Equal to or greater than 100 kills.
                     elseif (kills >= 100) then
                         local x, y, z = read_vector3d(player_object + 0x5C)
                         VICTIM_LOCATION[victim][1] = x
                         VICTIM_LOCATION[victim][2] = y
                         VICTIM_LOCATION[victim][3] = z
-                        DropTable(victim, x, y, z)
+                        GameSettings(victim, x, y, z)
                     end
                 end
             end
@@ -490,325 +658,162 @@ function JustWeapons(victim, x, y, z)
     spawn_object(tostring(weap), itemtoDrop, x, y, z + 0.5, rotation)
 end
 
-function DropTable(victim, x, y, z)
-    -- Based On Map --
+function GameSettings(victim, x, y, z)
     map_name = get_var(1, "$map")
     if BasedOnMap == true and BasedOnGameType == false then
-        if map_name == "bloodgulch" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+        if map_name == "beavercreek" then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "bloodgulch" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "boardingaction" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+        elseif map_name == "carousel" then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "chillout" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "damnation" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "dangercanyon" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "deathisland" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "gephyrophobia" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "hangemhigh" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "icefields" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "infinity" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "longest" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "prisoner" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "putput" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "ratrace" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "sidewinder" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-            end
-        elseif map_name == "timberland" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
-                WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
-                JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
-                JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         elseif map_name == "wizard" then
-            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+            if access == WAE then
                 WeaponsAndEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+            elseif access == JW then
                 JustWeapons(victim, x, y, z)
-                TableToUse2 = nil
-                -- still trying to figure this part out
-            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+            elseif access == JE then
                 JustEquipment(victim, x, y, z)
-                TableToUse1 = nil
-                -- still trying to figure this part out
             end
         end
     end
-    -- =======================================================================================================================--
-    -- Based on Game-Type --
+    -- Based on Map --
     if BasedOnGameType == true and BasedOnMap == false then
-        -- Check if gametype is CTF.
         if game_type == "ctf" then
             itemtoDrop = GAMETYPE_EQ_TABLE_CTF[math.random(0, #GAMETYPE_EQ_TABLE_CTF - 1)]
             local player = get_player(victim)
             local rotation = read_float(player + 0x138)
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
-            -- Check if gametype is SLAYER.
         elseif game_type == "slayer" then
             itemtoDrop = GAMETYPE_EQ_TABLE_SLAYER[math.random(0, #GAMETYPE_EQ_TABLE_SLAYER - 1)]
             local player = get_player(victim)
@@ -816,7 +821,6 @@ function DropTable(victim, x, y, z)
             spawn_object("eqip", itemtoDrop, x, y, z + 0.5, rotation)
         end
     end
-    -- =======================================================================================================================--
 end
 
 -- Do Not Touch!
@@ -851,6 +855,29 @@ end
 "weap", "weapons\\sniper rifle\\sniper rifle"
 
 ]]
+GLOBAL_EQUIPMENT_TABLE = { }
+GLOBAL_EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
+GLOBAL_EQUIPMENT_TABLE[2] = "powerups\\health pack"
+GLOBAL_EQUIPMENT_TABLE[3] = "powerups\\over shield"
+GLOBAL_EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GLOBAL_EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
+GLOBAL_EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
+GLOBAL_EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GLOBAL_EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GLOBAL_EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GLOBAL_EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+GLOBAL_WEAPON_TABLE = { }
+GLOBAL_WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
+GLOBAL_WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
+GLOBAL_WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
+GLOBAL_WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
+GLOBAL_WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
+GLOBAL_WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
+GLOBAL_WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
+GLOBAL_WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
+GLOBAL_WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
+GLOBAL_WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
+
 MAP_EQ_TABLE_BEAVERCREEK = { }
 MAP_EQ_TABLE_BEAVERCREEK[1] = "powerups\\active camouflage"
 MAP_EQ_TABLE_BEAVERCREEK[2] = "powerups\\health pack"
