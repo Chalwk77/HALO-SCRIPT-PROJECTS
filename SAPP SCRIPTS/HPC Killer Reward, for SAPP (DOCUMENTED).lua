@@ -48,7 +48,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     false = Disabled
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
@@ -58,17 +58,17 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-BasedOnMap = false
+BasedOnMap = true
 BasedOnGameType = false
 -- This must be true in order to use BasedOnMap or BasedOnGameType
-NonGlobalKillsRequired = false
+NonGlobalKillsRequired = true
 -- Global Settings do not take into account the gametype or map.
-GlobalSettings = true
-GlobalNoKills = true
+GlobalSettings = false
+GlobalNoKills = false
 -- Only one of these can be true. The other two must be false.
-WeaponsAndEquipement = true
-JustEquipment = false
-JustWeapons = false
+Weapons_And_Equipment = true
+Just_Equipment = false
+Just_Weapons = false
 
 -- Do Not Touch!
 weap = "weap"
@@ -76,285 +76,6 @@ eqip = "eqip"
 GameHasStarted = false
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
-
--- =====================================================================================================--
-
--- Global Settings --
-GLOBAL_EQUIPMENT_TABLE = { }
-GLOBAL_EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
-GLOBAL_EQUIPMENT_TABLE[2] = "powerups\\health pack"
-GLOBAL_EQUIPMENT_TABLE[3] = "powerups\\over shield"
-GLOBAL_EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-GLOBAL_EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
-GLOBAL_EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
-GLOBAL_EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-GLOBAL_EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
-GLOBAL_EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-GLOBAL_EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-GLOBAL_WEAPON_TABLE = { }
-GLOBAL_WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
-GLOBAL_WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
-GLOBAL_WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
-GLOBAL_WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
-GLOBAL_WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
-GLOBAL_WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
-GLOBAL_WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
-GLOBAL_WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
-GLOBAL_WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
-GLOBAL_WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
----------------------------------------------------------------------------------------------------------
-MAP_EQ_TABLE_BEAVERCREEK = { }
-MAP_EQ_TABLE_BEAVERCREEK[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_BEAVERCREEK[2] = "powerups\\health pack"
-MAP_EQ_TABLE_BEAVERCREEK[3] = "powerups\\over shield"
-MAP_EQ_TABLE_BEAVERCREEK[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_BEAVERCREEK[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_BEAVERCREEK[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_BEAVERCREEK[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_BEAVERCREEK[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_BEAVERCREEK[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_BEAVERCREEK[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_BLOODGULCH = { }
-MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
-MAP_EQ_TABLE_BLOODGULCH[3] = "powerups\\over shield"
-MAP_EQ_TABLE_BLOODGULCH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_BLOODGULCH[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_BLOODGULCH[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_BOARDINGACTION = { }
-MAP_EQ_TABLE_BOARDINGACTION[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_BOARDINGACTION[2] = "powerups\\health pack"
-MAP_EQ_TABLE_BOARDINGACTION[3] = "powerups\\over shield"
-MAP_EQ_TABLE_BOARDINGACTION[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_BOARDINGACTION[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_BOARDINGACTION[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_BOARDINGACTION[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_BOARDINGACTION[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_BOARDINGACTION[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_BOARDINGACTION[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_CAROUSEL = { }
-MAP_EQ_TABLE_CAROUSEL[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_CAROUSEL[2] = "powerups\\health pack"
-MAP_EQ_TABLE_CAROUSEL[3] = "powerups\\over shield"
-MAP_EQ_TABLE_CAROUSEL[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_CAROUSEL[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_CAROUSEL[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_CAROUSEL[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_CAROUSEL[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_CAROUSEL[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_CAROUSEL[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_CHILLOUT = { }
-MAP_EQ_TABLE_CHILLOUT[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_CHILLOUT[2] = "powerups\\health pack"
-MAP_EQ_TABLE_CHILLOUT[3] = "powerups\\over shield"
-MAP_EQ_TABLE_CHILLOUT[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_CHILLOUT[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_CHILLOUT[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_CHILLOUT[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_CHILLOUT[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_CHILLOUT[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_CHILLOUT[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_DAMNATION = { }
-MAP_EQ_TABLE_DAMNATION[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_DAMNATION[2] = "powerups\\health pack"
-MAP_EQ_TABLE_DAMNATION[3] = "powerups\\over shield"
-MAP_EQ_TABLE_DAMNATION[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_DAMNATION[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_DAMNATION[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_DAMNATION[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_DAMNATION[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_DAMNATION[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_DAMNATION[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_DANGERCANYON = { }
-MAP_EQ_TABLE_DANGERCANYON[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_DANGERCANYON[2] = "powerups\\health pack"
-MAP_EQ_TABLE_DANGERCANYON[3] = "powerups\\over shield"
-MAP_EQ_TABLE_DANGERCANYON[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_DANGERCANYON[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_DANGERCANYON[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_DANGERCANYON[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_DANGERCANYON[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_DANGERCANYON[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_DANGERCANYON[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_DEATHISLAND = { }
-MAP_EQ_TABLE_DEATHISLAND[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_DEATHISLAND[2] = "powerups\\health pack"
-MAP_EQ_TABLE_DEATHISLAND[3] = "powerups\\over shield"
-MAP_EQ_TABLE_DEATHISLAND[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_DEATHISLAND[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_DEATHISLAND[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_DEATHISLAND[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_DEATHISLAND[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_DEATHISLAND[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_DEATHISLAND[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_GEPHYROPHOBIA = { }
-MAP_EQ_TABLE_GEPHYROPHOBIA[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_GEPHYROPHOBIA[2] = "powerups\\health pack"
-MAP_EQ_TABLE_GEPHYROPHOBIA[3] = "powerups\\over shield"
-MAP_EQ_TABLE_GEPHYROPHOBIA[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_GEPHYROPHOBIA[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_HANGEMHIGH = { }
-MAP_EQ_TABLE_HANGEMHIGH[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_HANGEMHIGH[2] = "powerups\\health pack"
-MAP_EQ_TABLE_HANGEMHIGH[3] = "powerups\\over shield"
-MAP_EQ_TABLE_HANGEMHIGH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_HANGEMHIGH[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_HANGEMHIGH[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_HANGEMHIGH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_HANGEMHIGH[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_HANGEMHIGH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_HANGEMHIGH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_ICEFIELDS = { }
-MAP_EQ_TABLE_ICEFIELDS[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_ICEFIELDS[2] = "powerups\\health pack"
-MAP_EQ_TABLE_ICEFIELDS[3] = "powerups\\over shield"
-MAP_EQ_TABLE_ICEFIELDS[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_ICEFIELDS[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_ICEFIELDS[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_ICEFIELDS[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_ICEFIELDS[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_ICEFIELDS[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_ICEFIELDS[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_INFINITY = { }
-MAP_EQ_TABLE_INFINITY[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_INFINITY[2] = "powerups\\health pack"
-MAP_EQ_TABLE_INFINITY[3] = "powerups\\over shield"
-MAP_EQ_TABLE_INFINITY[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_INFINITY[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_INFINITY[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_INFINITY[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_INFINITY[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_INFINITY[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_INFINITY[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_LONGEST = { }
-MAP_EQ_TABLE_LONGEST[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_LONGEST[2] = "powerups\\health pack"
-MAP_EQ_TABLE_LONGEST[3] = "powerups\\over shield"
-MAP_EQ_TABLE_LONGEST[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_LONGEST[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_LONGEST[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_LONGEST[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_LONGEST[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_LONGEST[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_LONGEST[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_PRISONER = { }
-MAP_EQ_TABLE_PRISONER[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_PRISONER[2] = "powerups\\health pack"
-MAP_EQ_TABLE_PRISONER[3] = "powerups\\over shield"
-MAP_EQ_TABLE_PRISONER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_PRISONER[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_PRISONER[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_PRISONER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_PRISONER[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_PRISONER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_PRISONER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_PUTPUT = { }
-MAP_EQ_TABLE_PUTPUT[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_PUTPUT[2] = "powerups\\health pack"
-MAP_EQ_TABLE_PUTPUT[3] = "powerups\\over shield"
-MAP_EQ_TABLE_PUTPUT[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_PUTPUT[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_PUTPUT[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_PUTPUT[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_PUTPUT[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_PUTPUT[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_PUTPUT[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_RATRACE = { }
-MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
-MAP_EQ_TABLE_RATRACE[3] = "powerups\\over shield"
-MAP_EQ_TABLE_RATRACE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_RATRACE[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_RATRACE[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_SIDEWINDER = { }
-MAP_EQ_TABLE_SIDEWINDER[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_SIDEWINDER[2] = "powerups\\health pack"
-MAP_EQ_TABLE_SIDEWINDER[3] = "powerups\\over shield"
-MAP_EQ_TABLE_SIDEWINDER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_SIDEWINDER[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_SIDEWINDER[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_SIDEWINDER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_SIDEWINDER[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_SIDEWINDER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_SIDEWINDER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_TIMBERLAND = { }
-MAP_EQ_TABLE_TIMBERLAND[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_TIMBERLAND[2] = "powerups\\health pack"
-MAP_EQ_TABLE_TIMBERLAND[3] = "powerups\\over shield"
-MAP_EQ_TABLE_TIMBERLAND[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_TIMBERLAND[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_TIMBERLAND[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_TIMBERLAND[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_TIMBERLAND[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_TIMBERLAND[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_TIMBERLAND[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-MAP_EQ_TABLE_WIZARD = { }
-MAP_EQ_TABLE_WIZARD[1] = "powerups\\active camouflage"
-MAP_EQ_TABLE_WIZARD[2] = "powerups\\health pack"
-MAP_EQ_TABLE_WIZARD[3] = "powerups\\over shield"
-MAP_EQ_TABLE_WIZARD[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-MAP_EQ_TABLE_WIZARD[5] = "powerups\\needler ammo\\needler ammo"
-MAP_EQ_TABLE_WIZARD[6] = "powerups\\pistol ammo\\pistol ammo"
-MAP_EQ_TABLE_WIZARD[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-MAP_EQ_TABLE_WIZARD[8] = "powerups\\shotgun ammo\\shotgun ammo"
-MAP_EQ_TABLE_WIZARD[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-MAP_EQ_TABLE_WIZARD[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-GAMETYPE_EQ_TABLE_CTF = { }
-GAMETYPE_EQ_TABLE_CTF[1] = "powerups\\active camouflage"
-GAMETYPE_EQ_TABLE_CTF[2] = "powerups\\health pack"
-GAMETYPE_EQ_TABLE_CTF[3] = "powerups\\over shield"
-GAMETYPE_EQ_TABLE_CTF[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-GAMETYPE_EQ_TABLE_CTF[5] = "powerups\\needler ammo\\needler ammo"
-GAMETYPE_EQ_TABLE_CTF[6] = "powerups\\pistol ammo\\pistol ammo"
-GAMETYPE_EQ_TABLE_CTF[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-GAMETYPE_EQ_TABLE_CTF[8] = "powerups\\shotgun ammo\\shotgun ammo"
-GAMETYPE_EQ_TABLE_CTF[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-GAMETYPE_EQ_TABLE_CTF[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
-GAMETYPE_EQ_TABLE_SLAYER = { }
-GAMETYPE_EQ_TABLE_SLAYER[1] = "powerups\\active camouflage"
-GAMETYPE_EQ_TABLE_SLAYER[2] = "powerups\\health pack"
-GAMETYPE_EQ_TABLE_SLAYER[3] = "powerups\\over shield"
-GAMETYPE_EQ_TABLE_SLAYER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-GAMETYPE_EQ_TABLE_SLAYER[5] = "powerups\\needler ammo\\needler ammo"
-GAMETYPE_EQ_TABLE_SLAYER[6] = "powerups\\pistol ammo\\pistol ammo"
-GAMETYPE_EQ_TABLE_SLAYER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-GAMETYPE_EQ_TABLE_SLAYER[8] = "powerups\\shotgun ammo\\shotgun ammo"
-GAMETYPE_EQ_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-GAMETYPE_EQ_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
 function LoadMaps()
     if GameHasStarted then
@@ -387,7 +108,7 @@ end
 function OnScriptLoad()
     -- >> register_callback: This function registers a function that will be called every time the event is called.
     -- >> You may only have one function registered per event.
-    -- >> Callback IDs are in the cb global variable and are retrieved using cb[“EVENT_ID”].
+    -- >> Callback IDs are in the cb global variable and are retrieved using cb[â€œEVENT_IDâ€].
     -- >> Ref: http://halo.isimaginary.com/lua_info/#register_callback
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -424,33 +145,39 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     -- victimName = retrieves victim's Name
     local victimName = tostring(get_var(victim, "$name"))
     -- kills = retrieves the value of how many kills the Killer has under their belt, (so-to-speak).
-    local kills = tonumber(get_var(killer, "$kills"))
+    
+    
+    --local kills = tonumber(get_var(killer, "$kills")) -- Disabled for testing (revert afterwards)
+    local kills = tonumber(get_var(victim, "$kills"))
+    
+    
     -- >> Gets the player's object if the player is alive.
     -- >> Ref: http://halo.isimaginary.com/lua_info/#get_dynamic_player
     local player_object = get_dynamic_player(victim)
 
-    -- Suicide
-    if killer == victim then
-        return false
-        -- Killed by Vehicle
-    elseif (killer == 0) then
-        return false
-        -- Killed by Server
-    elseif (killer == -1) then
-        return false
-        -- Killer is unknown
-    elseif (killer == nil) then
-        return false
-    end
+    -- -- Suicide
+    -- if killer == victim then
+        -- return false
+        -- -- Killed by Vehicle
+    -- elseif (killer == 0) then
+        -- return false
+        -- -- Killed by Server
+    -- elseif (killer == -1) then
+        -- return false
+        -- -- Killer is unknown
+    -- elseif (killer == nil) then
+        -- return false
+    -- end
 
     if GameHasStarted then
         if NonGlobalKillsRequired == true then
             -- Check if killer and victim are valid.
             if killer and victim ~= nil then
                 -- Killed by another player.
-                if (killer > 0) then
+                --if (killer > 0) then          -- Disabled for testing (revert afterwards)
+                if (killer == -1)then
                     -- Equal to 10 Kills.
-                    if (kills == 10) then
+                    if (kills == 0) then
                         -- >> Get victim Coordinates.
                         -- >> Reads three 32-bit floats. This function retrieves three single-precision floating point numbers, or nil if failed
                         -- >> Ref: http://halo.isimaginary.com/lua_info/#read_vector3d
@@ -729,238 +456,208 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     end
 end
 
-function DropTable(victim, x, y, z)
+function WeaponsEquipement(victim, x, y, z)
+    math.randomseed(os.time())
+    local itemtoDrop1 = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
+    local itemtoDrop2 = MAP_WEAPON_TABLE_BEAVERCREEK[math.random(0, #MAP_WEAPON_TABLE_BEAVERCREEK - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    local eqTable = math.random(1, 2)
+    if (tonumber(eqTable) == 1) then
+        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+    elseif (tonumber(eqTable) == 2) then
+        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+    end
+end
 
+function WeaponsAndEquipment(victim, x, y, z)
+    math.randomseed(os.time())
+    local itemtoDrop1 = TableType1[math.random(0, #TableType1 - 1)]
+    local itemtoDrop2 = TableType1[math.random(0, #TableType1 - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    local eqTable = math.random(1, 2)
+    if (tonumber(eqTable) == 1) then
+        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
+    elseif (tonumber(eqTable) == 2) then
+        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+    end
+end
+
+function JustWeapons(victim, x, y, z)
+    math.randomseed(os.time())
+    local itemtoDrop = MAP_WEAPON_TABLE_BLOODGULCH[math.random(0, #MAP_WEAPON_TABLE_BLOODGULCH - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(weap), itemtoDrop, x, y, z + 0.5, rotation)
+end
+
+function JustEquipment(victim, x, y, z)
+    math.randomseed(os.time())
+    local itemtoDrop = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(eqip), itemtoDrop, x, y, z + 0.5, rotation)
+end
+
+
+function DropTable(victim, x, y, z)
     -- Based On Map --
+    map_name = get_var(1, "$map")
     if BasedOnMap == true and BasedOnGameType == false then
-        -- Check if mapname is beavercreek
-        if map_name == "beavercreek" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_BEAVERCREEK[math.random(0, #MAP_EQ_TABLE_BEAVERCREEK - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_BEAVERCREEK[math.random(0, #MAP_WEAPON_TABLE_BEAVERCREEK - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+        if map_name == "bloodgulch" then
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+                local TableType1 = "MAP_EQ_TABLE_BLOODGULCH"
+                local TableType2 = "MAP_WEAPON_TABLE_BLOODGULCH"
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "bloodgulch" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_BLOODGULCH[math.random(0, #MAP_EQ_TABLE_BLOODGULCH - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_BLOODGULCH[math.random(0, #MAP_WEAPON_TABLE_BLOODGULCH - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "boardingaction" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_BOARDINGACTION[math.random(0, #MAP_EQ_TABLE_BOARDINGACTION - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_BOARDINGACTION[math.random(0, #MAP_WEAPON_TABLE_BOARDINGACTION - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "carousel" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_CAROUSEL[math.random(0, #MAP_EQ_TABLE_CAROUSEL - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_CAROUSEL[math.random(0, #MAP_WEAPON_TABLE_CAROUSEL - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "chillout" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_CHILLOUT[math.random(0, #MAP_EQ_TABLE_CHILLOUT - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_CHILLOUT[math.random(0, #MAP_WEAPON_TABLE_CHILLOUT - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "damnation" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_DAMNATION[math.random(0, #MAP_EQ_TABLE_DAMNATION - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_DAMNATION[math.random(0, #MAP_WEAPON_TABLE_DAMNATION - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "dangercanyon" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_DANGERCANYON[math.random(0, #MAP_EQ_TABLE_DANGERCANYON - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_DANGERCANYON[math.random(0, #MAP_WEAPON_TABLE_DANGERCANYON - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "deathisland" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_DEATHISLAND[math.random(0, #MAP_EQ_TABLE_DEATHISLAND - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_DEATHISLAND[math.random(0, #MAP_WEAPON_TABLE_DEATHISLAND - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "gephyrophobia" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_EQ_TABLE_GEPHYROPHOBIA - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA[math.random(0, #MAP_WEAPON_TABLE_GEPHYROPHOBIA - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "hangemhigh" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_HANGEMHIGH[math.random(0, #MAP_EQ_TABLE_HANGEMHIGH - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_HANGEMHIGH[math.random(0, #MAP_WEAPON_TABLE_HANGEMHIGH - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "icefields" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_ICEFIELDS[math.random(0, #MAP_EQ_TABLE_ICEFIELDS - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_ICEFIELDS[math.random(0, #MAP_WEAPON_TABLE_ICEFIELDS - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "infinity" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_INFINITY[math.random(0, #MAP_EQ_TABLE_INFINITY - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_INFINITY[math.random(0, #MAP_WEAPON_TABLE_INFINITY - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "longest" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_LONGEST[math.random(0, #MAP_EQ_TABLE_LONGEST - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_LONGEST[math.random(0, #MAP_WEAPON_TABLE_LONGEST - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "prisoner" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_PRISONER[math.random(0, #MAP_EQ_TABLE_PRISONER - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_PRISONER[math.random(0, #MAP_WEAPON_TABLE_PRISONER - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "putput" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_PUTPUT[math.random(0, #MAP_EQ_TABLE_PUTPUT - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_PUTPUT[math.random(0, #MAP_WEAPON_TABLE_PUTPUT - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "ratrace" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_RATRACE[math.random(0, #MAP_EQ_TABLE_RATRACE - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_RATRACE[math.random(0, #MAP_WEAPON_TABLE_RATRACE - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "sidewinder" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_SIDEWINDER[math.random(0, #MAP_EQ_TABLE_SIDEWINDER - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_SIDEWINDER[math.random(0, #MAP_WEAPON_TABLE_SIDEWINDER - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "timberland" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_TIMBERLAND[math.random(0, #MAP_EQ_TABLE_TIMBERLAND - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_TIMBERLAND[math.random(0, #MAP_WEAPON_TABLE_TIMBERLAND - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         elseif map_name == "wizard" then
-            math.randomseed(os.time())
-            local itemtoDrop1 = MAP_EQ_TABLE_WIZARD[math.random(0, #MAP_EQ_TABLE_WIZARD - 1)]
-            local itemtoDrop2 = MAP_WEAPON_TABLE_WIZARD[math.random(0, #MAP_WEAPON_TABLE_WIZARD - 1)]
-            local player = get_player(victim)
-            local rotation = read_float(player + 0x138)
-            local eqTable = math.random(1, 2)
-            if (tonumber(eqTable) == 1) then
-                spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-            elseif (tonumber(eqTable) == 2) then
-                spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+            if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
+                WeaponsAndEquipment(victim, x, y, z)
+            elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
+                JustWeapons(victim, x, y, z)
+            elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
+                JustEquipment(victim, x, y, z)
             end
         end
     end
@@ -1016,3 +713,466 @@ end
 "weap", "weapons\\sniper rifle\\sniper rifle"
 
 ]]
+
+MAP_EQ_TABLE_BEAVERCREEK = { }
+MAP_EQ_TABLE_BEAVERCREEK[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_BEAVERCREEK[2] = "powerups\\health pack"
+MAP_EQ_TABLE_BEAVERCREEK[3] = "powerups\\over shield"
+MAP_EQ_TABLE_BEAVERCREEK[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_BEAVERCREEK[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_BEAVERCREEK[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_BEAVERCREEK[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_BEAVERCREEK[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_BEAVERCREEK[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_BEAVERCREEK[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_BEAVERCREEK = { }
+MAP_WEAPON_TABLE_BEAVERCREEK[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_BEAVERCREEK[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_BEAVERCREEK[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_BEAVERCREEK[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_BEAVERCREEK[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_BEAVERCREEK[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_BEAVERCREEK[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_BEAVERCREEK[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_BEAVERCREEK[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_BEAVERCREEK[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_BLOODGULCH = { }
+MAP_EQ_TABLE_BLOODGULCH[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_BLOODGULCH[2] = "powerups\\health pack"
+MAP_EQ_TABLE_BLOODGULCH[3] = "powerups\\over shield"
+MAP_EQ_TABLE_BLOODGULCH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_BLOODGULCH[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_BLOODGULCH[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_BLOODGULCH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_BLOODGULCH[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_BLOODGULCH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_BLOODGULCH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_BLOODGULCH = { }
+MAP_WEAPON_TABLE_BLOODGULCH[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_BLOODGULCH[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_BLOODGULCH[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_BLOODGULCH[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_BLOODGULCH[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_BLOODGULCH[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_BLOODGULCH[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_BLOODGULCH[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_BLOODGULCH[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_BLOODGULCH[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_BOARDINGACTION = { }
+MAP_EQ_TABLE_BOARDINGACTION[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_BOARDINGACTION[2] = "powerups\\health pack"
+MAP_EQ_TABLE_BOARDINGACTION[3] = "powerups\\over shield"
+MAP_EQ_TABLE_BOARDINGACTION[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_BOARDINGACTION[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_BOARDINGACTION[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_BOARDINGACTION[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_BOARDINGACTION[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_BOARDINGACTION[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_BOARDINGACTION[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_BOARDINGACTION = { }
+MAP_WEAPON_TABLE_BOARDINGACTION[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_BOARDINGACTION[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_BOARDINGACTION[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_BOARDINGACTION[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_BOARDINGACTION[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_BOARDINGACTION[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_BOARDINGACTION[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_BOARDINGACTION[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_BOARDINGACTION[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_BOARDINGACTION[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_CAROUSEL = { }
+MAP_EQ_TABLE_CAROUSEL[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_CAROUSEL[2] = "powerups\\health pack"
+MAP_EQ_TABLE_CAROUSEL[3] = "powerups\\over shield"
+MAP_EQ_TABLE_CAROUSEL[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_CAROUSEL[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_CAROUSEL[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_CAROUSEL[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_CAROUSEL[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_CAROUSEL[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_CAROUSEL[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_CAROUSEL = { }
+MAP_WEAPON_TABLE_CAROUSEL[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_CAROUSEL[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_CAROUSEL[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_CAROUSEL[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_CAROUSEL[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_CAROUSEL[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_CAROUSEL[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_CAROUSEL[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_CAROUSEL[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_CAROUSEL[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_CHILLOUT = { }
+MAP_EQ_TABLE_CHILLOUT[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_CHILLOUT[2] = "powerups\\health pack"
+MAP_EQ_TABLE_CHILLOUT[3] = "powerups\\over shield"
+MAP_EQ_TABLE_CHILLOUT[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_CHILLOUT[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_CHILLOUT[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_CHILLOUT[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_CHILLOUT[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_CHILLOUT[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_CHILLOUT[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_CHILLOUT = { }
+MAP_WEAPON_TABLE_CHILLOUT[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_CHILLOUT[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_CHILLOUT[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_CHILLOUT[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_CHILLOUT[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_CHILLOUT[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_CHILLOUT[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_CHILLOUT[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_CHILLOUT[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_CHILLOUT[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_DAMNATION = { }
+MAP_EQ_TABLE_DAMNATION[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_DAMNATION[2] = "powerups\\health pack"
+MAP_EQ_TABLE_DAMNATION[3] = "powerups\\over shield"
+MAP_EQ_TABLE_DAMNATION[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_DAMNATION[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_DAMNATION[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_DAMNATION[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_DAMNATION[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_DAMNATION[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_DAMNATION[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_DAMNATION = { }
+MAP_WEAPON_TABLE_DAMNATION[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_DAMNATION[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_DAMNATION[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_DAMNATION[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_DAMNATION[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_DAMNATION[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_DAMNATION[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_DAMNATION[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_DAMNATION[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_DAMNATION[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_DANGERCANYON = { }
+MAP_EQ_TABLE_DANGERCANYON[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_DANGERCANYON[2] = "powerups\\health pack"
+MAP_EQ_TABLE_DANGERCANYON[3] = "powerups\\over shield"
+MAP_EQ_TABLE_DANGERCANYON[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_DANGERCANYON[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_DANGERCANYON[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_DANGERCANYON[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_DANGERCANYON[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_DANGERCANYON[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_DANGERCANYON[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_DANGERCANYON = { }
+MAP_WEAPON_TABLE_DANGERCANYON[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_DANGERCANYON[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_DANGERCANYON[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_DANGERCANYON[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_DANGERCANYON[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_DANGERCANYON[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_DANGERCANYON[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_DANGERCANYON[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_DANGERCANYON[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_DANGERCANYON[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_DEATHISLAND = { }
+MAP_EQ_TABLE_DEATHISLAND[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_DEATHISLAND[2] = "powerups\\health pack"
+MAP_EQ_TABLE_DEATHISLAND[3] = "powerups\\over shield"
+MAP_EQ_TABLE_DEATHISLAND[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_DEATHISLAND[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_DEATHISLAND[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_DEATHISLAND[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_DEATHISLAND[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_DEATHISLAND[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_DEATHISLAND[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_DEATHISLAND = { }
+MAP_WEAPON_TABLE_DEATHISLAND[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_DEATHISLAND[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_DEATHISLAND[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_DEATHISLAND[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_DEATHISLAND[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_DEATHISLAND[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_DEATHISLAND[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_DEATHISLAND[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_DEATHISLAND[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_DEATHISLAND[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_GEPHYROPHOBIA = { }
+MAP_EQ_TABLE_GEPHYROPHOBIA[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_GEPHYROPHOBIA[2] = "powerups\\health pack"
+MAP_EQ_TABLE_GEPHYROPHOBIA[3] = "powerups\\over shield"
+MAP_EQ_TABLE_GEPHYROPHOBIA[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_GEPHYROPHOBIA[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA = { }
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_GEPHYROPHOBIA[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_HANGEMHIGH = { }
+MAP_EQ_TABLE_HANGEMHIGH[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_HANGEMHIGH[2] = "powerups\\health pack"
+MAP_EQ_TABLE_HANGEMHIGH[3] = "powerups\\over shield"
+MAP_EQ_TABLE_HANGEMHIGH[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_HANGEMHIGH[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_HANGEMHIGH[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_HANGEMHIGH[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_HANGEMHIGH[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_HANGEMHIGH[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_HANGEMHIGH[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_HANGEMHIGH = { }
+MAP_WEAPON_TABLE_HANGEMHIGH[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_HANGEMHIGH[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_HANGEMHIGH[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_HANGEMHIGH[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_HANGEMHIGH[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_HANGEMHIGH[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_HANGEMHIGH[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_HANGEMHIGH[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_HANGEMHIGH[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_HANGEMHIGH[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_ICEFIELDS = { }
+MAP_EQ_TABLE_ICEFIELDS[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_ICEFIELDS[2] = "powerups\\health pack"
+MAP_EQ_TABLE_ICEFIELDS[3] = "powerups\\over shield"
+MAP_EQ_TABLE_ICEFIELDS[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_ICEFIELDS[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_ICEFIELDS[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_ICEFIELDS[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_ICEFIELDS[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_ICEFIELDS[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_ICEFIELDS[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_ICEFIELDS = { }
+MAP_WEAPON_TABLE_ICEFIELDS[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_ICEFIELDS[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_ICEFIELDS[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_ICEFIELDS[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_ICEFIELDS[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_ICEFIELDS[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_ICEFIELDS[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_ICEFIELDS[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_ICEFIELDS[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_ICEFIELDS[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_INFINITY = { }
+MAP_EQ_TABLE_INFINITY[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_INFINITY[2] = "powerups\\health pack"
+MAP_EQ_TABLE_INFINITY[3] = "powerups\\over shield"
+MAP_EQ_TABLE_INFINITY[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_INFINITY[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_INFINITY[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_INFINITY[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_INFINITY[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_INFINITY[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_INFINITY[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_INFINITY = { }
+MAP_WEAPON_TABLE_INFINITY[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_INFINITY[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_INFINITY[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_INFINITY[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_INFINITY[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_INFINITY[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_INFINITY[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_INFINITY[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_INFINITY[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_INFINITY[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_LONGEST = { }
+MAP_EQ_TABLE_LONGEST[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_LONGEST[2] = "powerups\\health pack"
+MAP_EQ_TABLE_LONGEST[3] = "powerups\\over shield"
+MAP_EQ_TABLE_LONGEST[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_LONGEST[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_LONGEST[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_LONGEST[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_LONGEST[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_LONGEST[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_LONGEST[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_LONGEST = { }
+MAP_WEAPON_TABLE_LONGEST[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_LONGEST[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_LONGEST[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_LONGEST[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_LONGEST[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_LONGEST[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_LONGEST[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_LONGEST[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_LONGEST[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_LONGEST[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_PRISONER = { }
+MAP_EQ_TABLE_PRISONER[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_PRISONER[2] = "powerups\\health pack"
+MAP_EQ_TABLE_PRISONER[3] = "powerups\\over shield"
+MAP_EQ_TABLE_PRISONER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_PRISONER[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_PRISONER[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_PRISONER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_PRISONER[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_PRISONER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_PRISONER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_PRISONER = { }
+MAP_WEAPON_TABLE_PRISONER[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_PRISONER[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_PRISONER[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_PRISONER[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_PRISONER[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_PRISONER[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_PRISONER[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_PRISONER[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_PRISONER[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_PRISONER[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_PUTPUT = { }
+MAP_EQ_TABLE_PUTPUT[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_PUTPUT[2] = "powerups\\health pack"
+MAP_EQ_TABLE_PUTPUT[3] = "powerups\\over shield"
+MAP_EQ_TABLE_PUTPUT[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_PUTPUT[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_PUTPUT[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_PUTPUT[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_PUTPUT[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_PUTPUT[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_PUTPUT[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_PUTPUT = { }
+MAP_WEAPON_TABLE_PUTPUT[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_PUTPUT[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_PUTPUT[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_PUTPUT[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_PUTPUT[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_PUTPUT[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_PUTPUT[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_PUTPUT[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_PUTPUT[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_PUTPUT[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_RATRACE = { }
+MAP_EQ_TABLE_RATRACE[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_RATRACE[2] = "powerups\\health pack"
+MAP_EQ_TABLE_RATRACE[3] = "powerups\\over shield"
+MAP_EQ_TABLE_RATRACE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_RATRACE[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_RATRACE[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_RATRACE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_RATRACE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_RATRACE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_RATRACE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_RATRACE = { }
+MAP_WEAPON_TABLE_RATRACE[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_RATRACE[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_RATRACE[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_RATRACE[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_RATRACE[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_RATRACE[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_RATRACE[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_RATRACE[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_RATRACE[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_RATRACE[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_SIDEWINDER = { }
+MAP_EQ_TABLE_SIDEWINDER[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_SIDEWINDER[2] = "powerups\\health pack"
+MAP_EQ_TABLE_SIDEWINDER[3] = "powerups\\over shield"
+MAP_EQ_TABLE_SIDEWINDER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_SIDEWINDER[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_SIDEWINDER[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_SIDEWINDER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_SIDEWINDER[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_SIDEWINDER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_SIDEWINDER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_SIDEWINDER = { }
+MAP_WEAPON_TABLE_SIDEWINDER[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_SIDEWINDER[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_SIDEWINDER[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_SIDEWINDER[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_SIDEWINDER[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_SIDEWINDER[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_SIDEWINDER[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_SIDEWINDER[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_SIDEWINDER[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_SIDEWINDER[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_TIMBERLAND = { }
+MAP_EQ_TABLE_TIMBERLAND[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_TIMBERLAND[2] = "powerups\\health pack"
+MAP_EQ_TABLE_TIMBERLAND[3] = "powerups\\over shield"
+MAP_EQ_TABLE_TIMBERLAND[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_TIMBERLAND[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_TIMBERLAND[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_TIMBERLAND[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_TIMBERLAND[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_TIMBERLAND[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_TIMBERLAND[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_TIMBERLAND = { }
+MAP_WEAPON_TABLE_TIMBERLAND[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_TIMBERLAND[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_TIMBERLAND[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_TIMBERLAND[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_TIMBERLAND[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_TIMBERLAND[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_TIMBERLAND[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_TIMBERLAND[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_TIMBERLAND[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_TIMBERLAND[10] = "weapons\\sniper rifle\\sniper rifle"
+
+MAP_EQ_TABLE_WIZARD = { }
+MAP_EQ_TABLE_WIZARD[1] = "powerups\\active camouflage"
+MAP_EQ_TABLE_WIZARD[2] = "powerups\\health pack"
+MAP_EQ_TABLE_WIZARD[3] = "powerups\\over shield"
+MAP_EQ_TABLE_WIZARD[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+MAP_EQ_TABLE_WIZARD[5] = "powerups\\needler ammo\\needler ammo"
+MAP_EQ_TABLE_WIZARD[6] = "powerups\\pistol ammo\\pistol ammo"
+MAP_EQ_TABLE_WIZARD[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+MAP_EQ_TABLE_WIZARD[8] = "powerups\\shotgun ammo\\shotgun ammo"
+MAP_EQ_TABLE_WIZARD[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+MAP_EQ_TABLE_WIZARD[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+MAP_WEAPON_TABLE_WIZARD = { }
+MAP_WEAPON_TABLE_WIZARD[1] = "weapons\\assault rifle\\assault rifle"
+MAP_WEAPON_TABLE_WIZARD[2] = "weapons\\flamethrower\\flamethrower"
+MAP_WEAPON_TABLE_WIZARD[3] = "weapons\\needler\\mp_needler"
+MAP_WEAPON_TABLE_WIZARD[4] = "weapons\\pistol\\pistol"
+MAP_WEAPON_TABLE_WIZARD[5] = "weapons\\plasma pistol\\plasma pistol"
+MAP_WEAPON_TABLE_WIZARD[6] = "weapons\\plasma rifle\\plasma rifle"
+MAP_WEAPON_TABLE_WIZARD[7] = "weapons\\plasma_cannon\\plasma_cannon"
+MAP_WEAPON_TABLE_WIZARD[8] = "weapons\\rocket launcher\\rocket launcher"
+MAP_WEAPON_TABLE_WIZARD[9] = "weapons\\shotgun\\shotgun"
+MAP_WEAPON_TABLE_WIZARD[10] = "weapons\\sniper rifle\\sniper rifle"
+
+--================================================================================================--
+GAMETYPE_EQ_TABLE_CTF = { }
+GAMETYPE_EQ_TABLE_CTF[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_TABLE_CTF[2] = "powerups\\health pack"
+GAMETYPE_EQ_TABLE_CTF[3] = "powerups\\over shield"
+GAMETYPE_EQ_TABLE_CTF[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_TABLE_CTF[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_TABLE_CTF[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_TABLE_CTF[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_TABLE_CTF[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_TABLE_CTF[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_TABLE_CTF[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+
+GAMETYPE_EQ_TABLE_SLAYER = { }
+GAMETYPE_EQ_TABLE_SLAYER[1] = "powerups\\active camouflage"
+GAMETYPE_EQ_TABLE_SLAYER[2] = "powerups\\health pack"
+GAMETYPE_EQ_TABLE_SLAYER[3] = "powerups\\over shield"
+GAMETYPE_EQ_TABLE_SLAYER[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+GAMETYPE_EQ_TABLE_SLAYER[5] = "powerups\\needler ammo\\needler ammo"
+GAMETYPE_EQ_TABLE_SLAYER[6] = "powerups\\pistol ammo\\pistol ammo"
+GAMETYPE_EQ_TABLE_SLAYER[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+GAMETYPE_EQ_TABLE_SLAYER[8] = "powerups\\shotgun ammo\\shotgun ammo"
+GAMETYPE_EQ_TABLE_SLAYER[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+GAMETYPE_EQ_TABLE_SLAYER[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+--================================================================================================--
