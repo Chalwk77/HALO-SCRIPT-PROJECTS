@@ -3,15 +3,12 @@
 Script Name: HPC Killer Reward, for SAPP (DOCUMENTED)
     - Implementing API version: 1.11.0.0
 
-Description: This script will drop a random item from an EQUIPMENT TABLE at the victims death location.
+Description: This script will drop a random item from the respective Equipment/Weapon table at the victims death location.
 
 
 *** DOCUMENTATION ***
     - If you would prefer to view a UN-documented version of this script, please visit:
     https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Killer%20Reward%2C%20for%20SAPP%20(UNDOCUMENTED).lua
-
-
-    -- !!!!!!!!!!! DOCUMENTATION OUTDATED. PLEASE IGNORE !!!!!!!!!!! --
 
 -- Eight Settings available:
 
@@ -21,16 +18,22 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
 [4] GlobalSettings
 [5] GlobalNoKills
 
-    Currently, settings [1] and [2] cannot be used in conjunction with global settings.
+[!] These settings are used in conjunction with BasedOnMap and BasedOnGameType:
+    [6] Weapons_And_Equipment = true
+    [7] Just_Equipment = false
+    [8] Just_Weapons = false
+
+
+Currently, settings [1] and [2] cannot be used in conjunction with global settings.
     Settings [1] and [2] are used independently. This might change in a future [enhancement] update.
 
     ** IMPORTANT **
     -   In order to use global settings, you must have NonGlobalKillsRequired set to false.
     -   Global Settings do not take into account the gametype or map.
 
-    * BasedOnMap:           Script will pull random items from the MAP EQUIPMENT TABLE.
-    * BasedOnGameType:      Script will pull random items from the GAMETYPE EQUIPMENT TABLE.
-    * GlobalSettings:       Script will pull random items from the GLOBAL EQUIPMENT TABLE
+    * BasedOnMap:           Script will pull random items from the respective MAP EQUIPMENT TABLE.
+    * BasedOnGameType:      Script will pull random items from the respective GAMETYPE EQUIPMENT TABLE.
+    * GlobalSettings:       Script will pull random items from the respective GLOBAL EQUIPMENT TABLE
     * GlobalNoKills:        Toggle on\off required-kill-threshold
 
     The current configuration of this script is set up so the 'Killer' has to reach a required kill-threshold in order for his victim to
@@ -45,6 +48,7 @@ Description: This script will drop a random item from an EQUIPMENT TABLE at the 
     If 'GlobalNoKills' is set to "false", the victim will indefinitely drop an item from the GLOBAL EQUIPMENT TABLE.
     - GlobalNoKills cannot be used in conjunction with BasedOnMap, and BasedOnGameType.
 
+    
 
     true = Enabled
     false = Disabled
@@ -144,10 +148,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+            TableToUse = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+            TableToUse = MAP_EQ_TABLE_BEAVERCREEK
         end
     elseif map_name == "bloodgulch" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -156,10 +160,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_BLOODGULCH
+            TableToUse = MAP_WEAPON_TABLE_BLOODGULCH
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_BLOODGULCH
+            TableToUse = MAP_EQ_TABLE_BLOODGULCH
         end
     elseif map_name == "boardingaction" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -168,10 +172,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_BOARDINGACTION
+            TableToUse = MAP_WEAPON_TABLE_BOARDINGACTION
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_BOARDINGACTION
+            TableToUse = MAP_EQ_TABLE_BOARDINGACTION
         end
     elseif map_name == "carousel" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -180,10 +184,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_CAROUSEL
+            TableToUse = MAP_WEAPON_TABLE_CAROUSEL
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_CAROUSEL
+            TableToUse = MAP_EQ_TABLE_CAROUSEL
         end
     elseif map_name == "chillout" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -192,10 +196,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_BEAVERCREEK
+            TableToUse = MAP_WEAPON_TABLE_BEAVERCREEK
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_BEAVERCREEK
+            TableToUse = MAP_EQ_TABLE_BEAVERCREEK
         end
     elseif map_name == "damnation" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -204,10 +208,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_DAMNATION
+            TableToUse = MAP_WEAPON_TABLE_DAMNATION
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_DAMNATION
+            TableToUse = MAP_EQ_TABLE_DAMNATION
         end
     elseif map_name == "dangercanyon" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -216,10 +220,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_DANGERCANYON
+            TableToUse = MAP_WEAPON_TABLE_DANGERCANYON
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_DANGERCANYON
+            TableToUse = MAP_EQ_TABLE_DANGERCANYON
         end
     elseif map_name == "deathisland" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -228,10 +232,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_DEATHISLAND
+            TableToUse = MAP_WEAPON_TABLE_DEATHISLAND
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_DEATHISLAND
+            TableToUse = MAP_EQ_TABLE_DEATHISLAND
         end
     elseif map_name == "gephyrophobia" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -240,10 +244,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_GEPHYROPHOBIA
+            TableToUse = MAP_WEAPON_TABLE_GEPHYROPHOBIA
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_GEPHYROPHOBIA
+            TableToUse = MAP_EQ_TABLE_GEPHYROPHOBIA
         end
     elseif map_name == "hangemhigh" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -252,10 +256,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_HANGEMHIGH
+            TableToUse = MAP_WEAPON_TABLE_HANGEMHIGH
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_HANGEMHIGH
+            TableToUse = MAP_EQ_TABLE_HANGEMHIGH
         end
     elseif map_name == "icefields" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -264,10 +268,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_ICEFIELDS
+            TableToUse = MAP_WEAPON_TABLE_ICEFIELDS
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_ICEFIELDS
+            TableToUse = MAP_EQ_TABLE_ICEFIELDS
         end
     elseif map_name == "infinity" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -276,10 +280,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_INFINITY
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_INFINITY
+            TableToUse = MAP_WEAPON_TABLE_INFINITY
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_INFINITY
+            TableToUse = MAP_EQ_TABLE_INFINITY
         end
     elseif map_name == "longest" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -288,10 +292,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_LONGEST
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_LONGEST
+            TableToUse = MAP_WEAPON_TABLE_LONGEST
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_LONGEST
+            TableToUse = MAP_EQ_TABLE_LONGEST
         end
     elseif map_name == "prisoner" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -300,10 +304,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_PRISONER
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_PRISONER
+            TableToUse = MAP_WEAPON_TABLE_PRISONER
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_PRISONER
+            TableToUse = MAP_EQ_TABLE_PRISONER
         end
     elseif map_name == "putput" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -312,10 +316,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_PUTPUT
+            TableToUse = MAP_WEAPON_TABLE_PUTPUT
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_PUTPUT
+            TableToUse = MAP_EQ_TABLE_PUTPUT
         end
     elseif map_name == "ratrace" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -324,10 +328,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_RATRACE
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_RATRACE
+            TableToUse = MAP_WEAPON_TABLE_RATRACE
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_RATRACE
+            TableToUse = MAP_EQ_TABLE_RATRACE
         end
     elseif map_name == "sidewinder" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -336,10 +340,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_SIDEWINDER
+            TableToUse = MAP_WEAPON_TABLE_SIDEWINDER
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_SIDEWINDER
+            TableToUse = MAP_EQ_TABLE_SIDEWINDER
         end
     elseif map_name == "timberland" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -348,10 +352,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_TIMBERLAND
+            TableToUse = MAP_WEAPON_TABLE_TIMBERLAND
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_TIMBERLAND
+            TableToUse = MAP_EQ_TABLE_TIMBERLAND
         end
     elseif map_name == "wizard" then
         if Weapons_And_Equipment == true and Just_Equipment == false and Just_Weapons == false then
@@ -360,10 +364,10 @@ function OnNewGame()
             TableToUse2 = MAP_WEAPON_TABLE_WIZARD
         elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
             access = JW
-            TableToUse2 = MAP_WEAPON_TABLE_WIZARD
+            TableToUse = MAP_WEAPON_TABLE_WIZARD
         elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
             access = JE
-            TableToUse1 = MAP_EQ_TABLE_WIZARD
+            TableToUse = MAP_EQ_TABLE_WIZARD
         end
     end
     -- ====================================GAME TYPE MODES====================================--
@@ -376,10 +380,10 @@ function OnNewGame()
                 TableToUse2 = GAMETYPE_WEAPON_TABLE_CTF
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 access = GT_JW
-                TableToUse2 = GAMETYPE_WEAPON_TABLE_CTF
+                TableToUse = GAMETYPE_WEAPON_TABLE_CTF
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 access = GT_JE
-                TableToUse1 = GAMETYPE_EQ_TABLE_CTF
+                TableToUse = GAMETYPE_EQ_TABLE_CTF
             end
         end
     end
@@ -391,10 +395,10 @@ function OnNewGame()
                 TableToUse2 = GAMETYPE_WEAPON_TABLE_SLAYER
             elseif Just_Weapons == true and Weapons_And_Equipment == false and Just_Equipment == false then
                 access = GT_JW
-                TableToUse2 = GAMETYPE_WEAPON_TABLE_SLAYER
+                TableToUse = GAMETYPE_WEAPON_TABLE_SLAYER
             elseif Just_Equipment == true and Just_Weapons == false and Weapons_And_Equipment == false then
                 access = GT_JE
-                TableToUse1 = GAMETYPE_EQ_TABLE_SLAYER
+                TableToUse = GAMETYPE_EQ_TABLE_SLAYER
             end
         end
     end
@@ -735,7 +739,7 @@ end
 
 function JustEquipment(victim, x, y, z)
     math.randomseed(os.time())
-    local itemtoDrop = TableToUse1[math.random(0, #TableToUse1 - 1)]
+    local itemtoDrop = TableToUse[math.random(0, #TableToUse - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
     spawn_object(tostring(eqip), itemtoDrop, x, y, z + 0.5, rotation)
@@ -743,7 +747,7 @@ end
 
 function JustWeapons(victim, x, y, z)
     math.randomseed(os.time())
-    local itemtoDrop = TableToUse2[math.random(0, #TableToUse2 - 1)]
+    local itemtoDrop = TableToUse[math.random(0, #TableToUse - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
     spawn_object(tostring(weap), itemtoDrop, x, y, z + 0.5, rotation)
@@ -1414,6 +1418,7 @@ MAP_WEAPON_TABLE_WIZARD[9] = "weapons\\shotgun\\shotgun"
 MAP_WEAPON_TABLE_WIZARD[10] = "weapons\\sniper rifle\\sniper rifle"
 
 -- ================================================================================================--
+-- ================================================================================================--
 GAMETYPE_EQ_TABLE_CTF = { }
 GAMETYPE_EQ_TABLE_CTF[1] = "powerups\\active camouflage"
 GAMETYPE_EQ_TABLE_CTF[2] = "powerups\\health pack"
@@ -1459,4 +1464,3 @@ GAMETYPE_WEAPON_TABLE_SLAYER[7] = "weapons\\plasma_cannon\\plasma_cannon"
 GAMETYPE_WEAPON_TABLE_SLAYER[8] = "weapons\\rocket launcher\\rocket launcher"
 GAMETYPE_WEAPON_TABLE_SLAYER[9] = "weapons\\shotgun\\shotgun"
 GAMETYPE_WEAPON_TABLE_SLAYER[10] = "weapons\\sniper rifle\\sniper rifle"
--- ================================================================================================--
