@@ -1,5 +1,4 @@
 --[[
-    ------------------------------------
 Script Name: HPC Killer Reward, for SAPP (DOCUMENTED)
     - Implementing API version: 1.11.0.0
 
