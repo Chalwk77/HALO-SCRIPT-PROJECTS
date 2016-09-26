@@ -10,7 +10,7 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
     
     
     [!] Script is in working order. However, if the math.random function(s) on lines [372] and [373] 
-        land on an index that was previously disabled in (equipment table - line 30) and/or (weapons table - line 43)
+        land on an index that was previously disabled (false) in (equipment table - line 30) and/or (weapons table - line 43)
         then the console throws an exception.
         
     [!] I need it to go on to the next available index without errors. Not sure how to implement this.
@@ -30,25 +30,25 @@ api_version = "1.11.0.0"
 equipment = {
     ["Camouflage"] = true,
     ["HealthPack"] = true,
-    ["OverShield"] = true,
+    ["OverShield"] = false,
     ["AssaultRifleAmmo"] = true,
-    ["NeedlerAmmo"] = true,
+    ["NeedlerAmmo"] = false,
     ["PistolAmmo"] = true,
     ["RocketLauncherAmmo"] = true,
     ["ShotgunAmmo"] = true,
-    ["SniperRifleAmmo"] = true,
+    ["SniperRifleAmmo"] = false,
     ["FlameThrowerAmmo"] = true,
 }
 
 weapons = {
-    ["AssaultRifle"] = true,
+    ["AssaultRifle"] = false,
     ["FlameThrower"] = true,
     ["Needler"] = true,
     ["Pistol"] = true,
-    ["PlasmaPistol"] = true,
+    ["PlasmaPistol"] = false,
     ["PlasmaRifle"] = true,
     ["PlasmaCannon"] = true,
-    ["RocketLauncher"] = true,
+    ["RocketLauncher"] = false,
     ["Shotgun"] = true,
     ["SniperRifle"] = true,
 }
