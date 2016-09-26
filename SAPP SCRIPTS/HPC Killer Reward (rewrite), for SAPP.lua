@@ -9,12 +9,12 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
     Add nil check on disabled items, go on to next available index
     
     
-    Script is in working order. However, if the math.random function(s) on lines [372] and [373] 
-    land on an index that was previously disabled (false) in (equipment table - line 30) 
-    and/or (weapons table - line 43) then the console throws an exception.
+    [!] Script is in working order. However, if the math.random function(s) on lines [373] and [374] 
+        land on an index that was previously disabled (false) in (equipment table - line 30) and/or (weapons table - line 43)
+        then the console throws an exception.
         
-    [!] I need it to go on to the next available index without errors. Not sure how to implement it.
-
+    [!] I need it to go on to the next available index without errors. Not sure how to implement this.
+        If anyone can help with this, please email me <jericho.crosby227@gmail.com> or open an Issue on my github (see below)
 
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -368,13 +368,12 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function WeaponsAndEquipment(victim, x, y, z)
-    math.randomseed(os.time())
+    -- [!] To Do:
+    --  Add nil check on disabled items, go on to next available index
     local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
     local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    -- [!] To Do:
-    --  Add nil check on disabled items, go on to next available index
     local EqipWeapTable = math.random(1, 2)
     if (tonumber(EqipWeapTable) == 1) then
         spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
