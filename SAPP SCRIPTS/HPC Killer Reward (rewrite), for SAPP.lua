@@ -1,5 +1,5 @@
---[[
-    Script Name: HPC Killer Reward (rewrite), for SAPP
+--[[  
+   Script Name: HPC Killer Reward (rewrite), for SAPP
     - Implementing API version: 1.11.0.0
 
 
@@ -15,8 +15,6 @@
 
 api_version = "1.11.0.0"
 
--- Configuration --
--- Set 'true' to enable item drop 
 Camouflage = false
 HealthPack = true
 OverShield = true
@@ -38,7 +36,6 @@ PlasmaCannon = false
 RocketLauncher = true
 Shotgun = true
 SniperRifle = true
--- Configuration Ends --
 
 weap = "weap"
 eqip = "eqip"
@@ -76,7 +73,6 @@ end
 function OnScriptUnload() end
 
 function OnNewGame()
-
     if not Camouflage then
         local index = 1
         local ValueOf = EQUIPMENT_TABLE[index]
@@ -84,7 +80,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"Camouflage\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -101,7 +96,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"HealthPack\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -115,7 +109,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"OverShield\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -129,7 +122,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"AssaultRifleAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -143,7 +135,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"NeedlerAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -157,7 +148,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"PistolAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -171,7 +161,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"RocketLauncherAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -185,7 +174,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"ShotgunAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -199,7 +187,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"SniperRifleAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -213,7 +200,6 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            indexid = true0
             cprint("[SCRIPT] \"FlameThrowerAmmo\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
@@ -227,7 +213,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"AssaultRifle\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -241,7 +226,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"FlameThrower\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -255,7 +239,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"Needler\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -269,7 +252,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"Pistol\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -283,7 +265,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"PlasmaPistol\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -297,7 +278,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"PlasmaRifle\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -311,7 +291,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"PlasmaCannon\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -325,7 +304,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("[SCRIPT] \"RocketLauncher\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
@@ -352,7 +330,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true0
             cprint("[SCRIPT] \"SniperRifle\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
