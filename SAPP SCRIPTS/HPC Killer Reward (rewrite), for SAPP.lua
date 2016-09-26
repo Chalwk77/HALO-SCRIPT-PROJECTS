@@ -366,10 +366,10 @@ function WeaponsAndEquipment(victim, x, y, z)
     local rotation = read_float(player + 0x138)
     -- [!] To Do:
     --  Add nil check on disabled items, go on to next available index
-    local fromTable = math.random(1, 2)
-    if (tonumber(fromTable) == 1) then
+    local EqipWeapTable = math.random(1, 2)
+    if (tonumber(EqipWeapTable) == 1) then
         spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
-    elseif (tonumber(fromTable) == 2) then
+    elseif (tonumber(EqipWeapTable) == 2) then
         spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
     end
 end
