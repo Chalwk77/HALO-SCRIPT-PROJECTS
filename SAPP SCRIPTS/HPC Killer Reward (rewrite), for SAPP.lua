@@ -28,7 +28,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- Configuration --
-configuration = [[{
+configuration = {
     -- For a Future Update!
     ["BasedOnMap"] = false,
     ["BasedOnGameType"] = false,
@@ -38,7 +38,7 @@ configuration = [[{
     ["Weapons_And_Equipment"] = false,
     ["Just_Equipment"] = false,
     ["Just_Weapons"] = false,
-}]]
+}
 
 equipment = {
     ["Camouflage"] = true,
