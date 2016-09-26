@@ -10,7 +10,7 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
     
     
     [!] Script is in working order. However, if the math.random function(s) on lines [372] and [373] 
-        land on an index that was previously disabled in (equipment table - line 29) and/or (weapons table - line 42)
+        land on an index that was previously disabled in (equipment table - line 30) and/or (weapons table - line 43)
         then the console throws an exception.
         
     [!] I need it to go on to the next available index without errors. Not sure how to implement this.
