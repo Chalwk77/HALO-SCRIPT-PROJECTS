@@ -363,9 +363,9 @@ function WeaponsAndEquipment(victim, x, y, z)
     local itemtoDrop2 = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    local eqTable = math.random(1, 2)
     -- [!] To Do:
     --  Add nil check on disabled items, go on to next available index
+    local eqTable = math.random(1, 2)
     if (tonumber(eqTable) == 1) then
         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
     elseif (tonumber(eqTable) == 2) then
