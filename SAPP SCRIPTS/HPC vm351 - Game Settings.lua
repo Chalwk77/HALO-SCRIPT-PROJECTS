@@ -1,7 +1,7 @@
 --[[    
     ------------------------------------
 Script Name: HPC vm351 - Game Settings
-    - Implementing API version: 1.10.0.0
+    - Implementing API version: 1.11.0.0
     
     Only on github for safe keeping
     
