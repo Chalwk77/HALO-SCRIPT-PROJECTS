@@ -3,7 +3,7 @@
 Description: HPC OnFlagInteraction (Advanced), Phasor V2+
 Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
-* IGN: Chalwk
+* IGN (in game name): Chalwk
 * Written and Created by Jericho Crosby
 -----------------------------------
 ]]--

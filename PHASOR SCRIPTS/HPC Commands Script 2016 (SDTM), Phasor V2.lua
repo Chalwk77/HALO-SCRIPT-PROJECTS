@@ -3,7 +3,7 @@
 
 Description: HPC Commands Script 2016 (SDTM), Phasor V2+
 * Author: Jericho Crosby
-* IGN: Chalwk
+* IGN (in game name): Chalwk
 * Re-Written and heavily modified by Jericho Crosby
 
 * Credits to the original creator(s):

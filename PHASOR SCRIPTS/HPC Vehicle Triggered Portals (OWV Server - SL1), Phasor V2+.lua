@@ -3,7 +3,7 @@
 Description: HPC Vehicle Triggered Portals (OWV Server), Phasor V2+
 Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
-* IGN: Chalwk
+* IGN (in game name): Chalwk
 * Written and Created by Jericho Crosby
 Script Version: 2.5
 -----------------------------------
