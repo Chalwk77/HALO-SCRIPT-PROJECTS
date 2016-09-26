@@ -348,6 +348,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
     local player_object = get_dynamic_player(victim)
+    -- Killed by server (temporarily while testing)
     if (killer == -1) then
         local x, y, z = read_vector3d(player_object + 0x5C)
         VICTIM_LOCATION[victim][1] = x
