@@ -44,29 +44,29 @@ weap = "weap"
 eqip = "eqip"
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
-GLOBAL_EQUIPMENT_TABLE = { }
-GLOBAL_EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
-GLOBAL_EQUIPMENT_TABLE[2] = "powerups\\health pack"
-GLOBAL_EQUIPMENT_TABLE[3] = "powerups\\over shield"
-GLOBAL_EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-GLOBAL_EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
-GLOBAL_EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
-GLOBAL_EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-GLOBAL_EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
-GLOBAL_EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-GLOBAL_EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+EQUIPMENT_TABLE = { }
+EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
+EQUIPMENT_TABLE[2] = "powerups\\health pack"
+EQUIPMENT_TABLE[3] = "powerups\\over shield"
+EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
+EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
+EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
 
-GLOBAL_WEAPON_TABLE = { }
-GLOBAL_WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
-GLOBAL_WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
-GLOBAL_WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
-GLOBAL_WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
-GLOBAL_WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
-GLOBAL_WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
-GLOBAL_WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
-GLOBAL_WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
-GLOBAL_WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
-GLOBAL_WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
+WEAPON_TABLE = { }
+WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
+WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
+WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
+WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
+WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
+WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
+WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
+WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
+WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
+WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -79,10 +79,10 @@ function OnNewGame()
 
     if not Camouflage then
         local index = 1
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\active camouflage") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("Camouflage was removed!", 4 + 8)
         else
@@ -92,13 +92,13 @@ function OnNewGame()
 
     if not HealthPack then
         local index = 2
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\health pack") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("HealthPack was removed!", 4 + 8)
         else
@@ -108,10 +108,10 @@ function OnNewGame()
 
     if not OverShield then
         local index = 3
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\over shield") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("OverShield was removed!", 4 + 8)
         else
@@ -121,10 +121,10 @@ function OnNewGame()
 
     if not AssaultRifleAmmo then
         local index = 4
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\assault rifle ammo\\assault rifle ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("AssaultRifleAmmo was removed!", 4 + 8)
         else
@@ -134,10 +134,10 @@ function OnNewGame()
 
     if not NeedlerAmmo then
         local index = 5
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\needler ammo\\needler ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("NeedlerAmmo was removed!", 4 + 8)
         else
@@ -147,10 +147,10 @@ function OnNewGame()
 
     if not PistolAmmo then
         local index = 6
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\pistol ammo\\pistol ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("PistolAmmo was removed!", 4 + 8)
         else
@@ -160,10 +160,10 @@ function OnNewGame()
 
     if not RocketLauncherAmmo then
         local index = 7
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\rocket launcher ammo\\rocket launcher ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("RocketLauncherAmmo was removed!", 4 + 8)
         else
@@ -173,10 +173,10 @@ function OnNewGame()
 
     if not ShotgunAmmo then
         local index = 8
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\shotgun ammo\\shotgun ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("ShotgunAmmo was removed!", 4 + 8)
         else
@@ -186,10 +186,10 @@ function OnNewGame()
 
     if not SniperRifleAmmo then
         local index = 9
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\sniper rifle ammo\\sniper rifle ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("SniperRifleAmmo was removed!", 4 + 8)
         else
@@ -199,10 +199,10 @@ function OnNewGame()
 
     if not FlameThrowerAmmo then
         local index = 10
-        local ValueOf = GLOBAL_EQUIPMENT_TABLE[index]
+        local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\flamethrower ammo\\flamethrower ammo") then
-            GLOBAL_EQUIPMENT_TABLE[index] = GLOBAL_EQUIPMENT_TABLE[index]
-            GLOBAL_EQUIPMENT_TABLE[index] = nil
+            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+            EQUIPMENT_TABLE[index] = nil
             index = index - 1
             cprint("FlameThrowerAmmo was removed!", 4 + 8)
         else
@@ -212,10 +212,10 @@ function OnNewGame()
 
     if not AssaultRifle then
         local index = 1
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\assault rifle\\assault rifle") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("AssaultRifle was removed!", 4 + 8)
         else
@@ -225,13 +225,13 @@ function OnNewGame()
 
     if not FlameThrower then
         local index = 2
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\flamethrower\\flamethrower") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("FlameThrower was removed!", 4 + 8)
         else
@@ -241,10 +241,10 @@ function OnNewGame()
 
     if not Needler then
         local index = 3
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\needler\\mp_needler") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("Needler was removed!", 4 + 8)
         else
@@ -254,10 +254,10 @@ function OnNewGame()
 
     if not Pistol then
         local index = 4
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\pistol\\pistol") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("Pistol was removed!", 4 + 8)
         else
@@ -267,10 +267,10 @@ function OnNewGame()
 
     if not PlasmaPistol then
         local index = 5
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma pistol\\plasma pistol") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("PlasmaPistol was removed!", 4 + 8)
         else
@@ -280,10 +280,10 @@ function OnNewGame()
 
     if not PlasmaRifle then
         local index = 6
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma rifle\\plasma rifle") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("PlasmaRifle was removed!", 4 + 8)
         else
@@ -293,10 +293,10 @@ function OnNewGame()
 
     if not PlasmaCannon then
         local index = 7
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma_cannon\\plasma_cannon") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("PlasmaCannon was removed!", 4 + 8)
         else
@@ -306,10 +306,10 @@ function OnNewGame()
 
     if not RocketLauncher then
         local index = 8
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\rocket launcher\\rocket launcher") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("RocketLauncher was removed!", 4 + 8)
         else
@@ -319,10 +319,10 @@ function OnNewGame()
 
     if not Shotgun then
         local index = 9
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\shotgun\\shotgun") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("Shotgun was removed!", 4 + 8)
         else
@@ -332,10 +332,10 @@ function OnNewGame()
 
     if not SniperRifle then
         local index = 10
-        local ValueOf = GLOBAL_WEAPON_TABLE[index]
+        local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\sniper rifle\\sniper rifle") then
-            GLOBAL_WEAPON_TABLE[index] = GLOBAL_WEAPON_TABLE[index]
-            GLOBAL_WEAPON_TABLE[index] = nil
+            WEAPON_TABLE[index] = WEAPON_TABLE[index]
+            WEAPON_TABLE[index] = nil
             index = index - 1
             cprint("SniperRifle was removed!", 4 + 8)
         else
@@ -354,8 +354,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         VICTIM_LOCATION[victim][2] = y
         VICTIM_LOCATION[victim][3] = z
         math.randomseed(os.time())
-        local itemtoDrop1 = GLOBAL_EQUIPMENT_TABLE[math.random(1, #GLOBAL_EQUIPMENT_TABLE - 1)]
-        local itemtoDrop2 = GLOBAL_WEAPON_TABLE[math.random(1, #GLOBAL_WEAPON_TABLE - 1)]
+        local itemtoDrop1 = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+        local itemtoDrop2 = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
         local player = get_player(victim)
         local rotation = read_float(player + 0x138)
         local eqTable = math.random(1, 2)
