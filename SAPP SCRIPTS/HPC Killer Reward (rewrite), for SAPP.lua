@@ -9,8 +9,8 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
     Add nil check on disabled items, go on to next available index
     
     
-    [!] Script is in working order. However, if the math.random function(s) on lines [373] and [374] 
-        land on an index that was previously disabled (false) in (equipment table - line 30) and/or (weapons table - line 43)
+    [!] Script is in working order. However, if the math.random function(s) on lines [427] and [428] 
+        land on an index that was previously disabled (false) in (equipment table - line 43) and/or (weapons table - line 56)
         then the console throws an exception.
         
     [!] I need it to go on to the next available index without errors. Not sure how to implement this.
@@ -26,6 +26,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
+
+-- Configuration --
+configuration = [[{
+    -- For a Future Update!
+    ["BasedOnMap"] = false,
+    ["BasedOnGameType"] = false,
+    ["NonGlobalKillsRequired"] = false,
+    ["GlobalSettings"] = false,
+    ["GlobalNoKills"] = false,
+    ["Weapons_And_Equipment"] = false,
+    ["Just_Equipment"] = false,
+    ["Just_Weapons"] = false,
+}]]
 
 equipment = {
     ["Camouflage"] = true,
@@ -52,11 +65,15 @@ weapons = {
     ["Shotgun"] = true,
     ["SniperRifle"] = true,
 }
+-- Configuration Ends --
 
+-- Do Not Touch --
 weap = "weap"
 eqip = "eqip"
+GameHasStarted = false
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
+
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -84,11 +101,48 @@ WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    if get_var(0, "$gt") ~= "n/a" then
+        GameHasStarted = true
+        map_name = get_var(1, "$map")
+        game_type = get_var(0, "$gt")
+        LoadMaps()
+    end
 end
 
 function OnScriptUnload() end
 
+function LoadMaps()
+    if GameHasStarted then
+        mapnames = {
+            "beavercreek",
+            "bloodgulch",
+            "boardingaction",
+            "carousel",
+            "chillout",
+            "damnation",
+            "dangercanyon",
+            "deathisland",
+            "gephyrophobia",
+            "hangemhigh",
+            "icefields",
+            "infinity",
+            "longest",
+            "prisoner",
+            "putput",
+            "ratrace",
+            "sidewinder",
+            "timberland",
+            "wizard"
+        }
+        map_name = get_var(1, "$map")
+        mapnames[map_name] = mapnames[map_name] or false
+    end
+end
+
 function OnNewGame()
+    GameHasStarted = true
+    map_name = get_var(1, "$map")
+    game_type = get_var(0, "$gt")
     if equipment["Camouflage"] == false then 
         local index = 1
         local ValueOf = EQUIPMENT_TABLE[index]
@@ -380,6 +434,22 @@ function WeaponsAndEquipment(victim, x, y, z)
     elseif (tonumber(EqipWeapTable) == 2) then
         spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
     end
+end
+
+function JustEquipment(victim, x, y, z)
+    math.randomseed(os.time())
+    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
+end
+
+function JustWeapons(victim, x, y, z)
+    math.randomseed(os.time())
+    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
 end
 
 function OnError(Message)
