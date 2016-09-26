@@ -1,49 +1,68 @@
 --[[
-   Script Name: HPC Killer Reward (rewrite), for SAPP
-    - Implementing API version: 1.11.0.0
+Script Name: HPC Killer Reward (rewrite), for SAPP
+- Implementing API version: 1.11.0.0
 
 
-    [!]   **BETA**
+[!]     **BETA**
 
-    -- [!] To Do:
-    --  Add nil check on disabled items, go on to next available index
 
-    Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-    * Notice: You can use this document subject to the following conditions:
-    https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-    * IGN (in game name): Chalwk
-    * Written by Jericho Crosby
+* IGN (in game name): Chalwk
+* Written by Jericho Crosby
 ]]
 
 api_version = "1.11.0.0"
 
-Camouflage = false
-HealthPack = true
-OverShield = true
-AssaultRifleAmmo = false
-NeedlerAmmo = true
-PistolAmmo = false
-RocketLauncherAmmo = true
-ShotgunAmmo = true
-SniperRifleAmmo = false
-FlameThrowerAmmo = true
+-- Configuration --
+configuration = {
+    -- For a Future Update!
+    ["BasedOnMap"] = false,
+    ["BasedOnGameType"] = false,
+    ["NonGlobalKillsRequired"] = false,
+    ["GlobalSettings"] = false,
+    ["GlobalNoKills"] = false,
+    ["Weapons_And_Equipment"] = false,
+    ["Just_Equipment"] = false,
+    ["Just_Weapons"] = false,
+}
 
-AssaultRifle = false
-FlameThrower = true
-Needler = false
-Pistol = true
-PlasmaPistol = true
-PlasmaRifle = true
-PlasmaCannon = false
-RocketLauncher = true
-Shotgun = true
-SniperRifle = true
+equipment = {
+    ["Camouflage"] = false,
+    ["HealthPack"] = true,
+    ["OverShield"] = true,
+    ["AssaultRifleAmmo"] = true,
+    ["NeedlerAmmo"] = true,
+    ["PistolAmmo"] = true,
+    ["RocketLauncherAmmo"] = true,
+    ["ShotgunAmmo"] = true,
+    ["SniperRifleAmmo"] = true,
+    ["FlameThrowerAmmo"] = true,
+}
 
+weapons = {
+    ["AssaultRifle"] = true,
+    ["FlameThrower"] = true,
+    ["Needler"] = true,
+    ["Pistol"] = true,
+    ["PlasmaPistol"] = true,
+    ["PlasmaRifle"] = true,
+    ["PlasmaCannon"] = true,
+    ["RocketLauncher"] = true,
+    ["Shotgun"] = true,
+    ["SniperRifle"] = true,
+}
+-- Configuration Ends --
+
+-- Do Not Touch --
 weap = "weap"
 eqip = "eqip"
+GameHasStarted = false
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
+
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
 EQUIPMENT_TABLE[2] = "powerups\\health pack"
@@ -71,25 +90,62 @@ WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    if get_var(0, "$gt") ~= "n/a" then
+        GameHasStarted = true
+        map_name = get_var(1, "$map")
+        game_type = get_var(0, "$gt")
+        LoadMaps()
+    end
 end
 
 function OnScriptUnload() end
 
+function LoadMaps()
+    if GameHasStarted then
+        mapnames = {
+            "beavercreek",
+            "bloodgulch",
+            "boardingaction",
+            "carousel",
+            "chillout",
+            "damnation",
+            "dangercanyon",
+            "deathisland",
+            "gephyrophobia",
+            "hangemhigh",
+            "icefields",
+            "infinity",
+            "longest",
+            "prisoner",
+            "putput",
+            "ratrace",
+            "sidewinder",
+            "timberland",
+            "wizard"
+        }
+        map_name = get_var(1, "$map")
+        mapnames[map_name] = mapnames[map_name] or false
+    end
+end
+
 function OnNewGame()
-    if not Camouflage then
+    GameHasStarted = true
+    map_name = get_var(1, "$map")
+    game_type = get_var(0, "$gt")
+    if equipment["Camouflage"] == false then
         local index = 1
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\active camouflage") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"Camouflage\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"Camouflage[1]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not HealthPack then
+    if equipment["HealthPack"] == false then
         local index = 2
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\health pack") then
@@ -99,241 +155,241 @@ function OnNewGame()
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"HealthPack\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"HealthPack[2]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not OverShield then
+    if equipment["OverShield"] == false then
         local index = 3
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\over shield") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"OverShield\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"OverShield[3]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not AssaultRifleAmmo then
+    if equipment["AssaultRifleAmmo"] == false then
         local index = 4
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\assault rifle ammo\\assault rifle ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"AssaultRifleAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"AssaultRifleAmmo[4]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not NeedlerAmmo then
+    if equipment["NeedlerAmmo"] == false then
         local index = 5
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\needler ammo\\needler ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"NeedlerAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"NeedlerAmmo[5]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not PistolAmmo then
+    if equipment["PistolAmmo"] == false then
         local index = 6
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\pistol ammo\\pistol ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"PistolAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"PistolAmmo[6]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not RocketLauncherAmmo then
+    if equipment["RocketLauncherAmmo"] == false then
         local index = 7
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\rocket launcher ammo\\rocket launcher ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"RocketLauncherAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"RocketLauncherAmmo[7]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not ShotgunAmmo then
+    if equipment["ShotgunAmmo"] == false then
         local index = 8
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\shotgun ammo\\shotgun ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"ShotgunAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"ShotgunAmmo[8]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not SniperRifleAmmo then
+    if equipment["SniperRifleAmmo"] == false then
         local index = 9
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\sniper rifle ammo\\sniper rifle ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"SniperRifleAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"SniperRifleAmmo[9]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not FlameThrowerAmmo then
+    if equipment["FlameThrowerAmmo"] == false then
         local index = 10
         local ValueOf = EQUIPMENT_TABLE[index]
         if (ValueOf == "powerups\\flamethrower ammo\\flamethrower ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"FlameThrowerAmmo\" was removed from the equipment table", 4 + 8)
+            cprint("[SCRIPT] \"FlameThrowerAmmo[10]\" was removed from the equipment table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not AssaultRifle then
+    if weapons["AssaultRifle"] == false then
         local index = 1
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\assault rifle\\assault rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"AssaultRifle\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"AssaultRifle[1]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not FlameThrower then
+    if weapons["FlameThrower"] == false then
         local index = 2
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\flamethrower\\flamethrower") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"FlameThrower\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"FlameThrower[2]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not Needler then
+    if weapons["Needler"] == false then
         local index = 3
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\needler\\mp_needler") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"Needler\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"Needler[3]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not Pistol then
+    if weapons["Pistol"] == false then
         local index = 4
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\pistol\\pistol") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"Pistol\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"Pistol[4]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not PlasmaPistol then
+    if weapons["PlasmaPistol"] == false then
         local index = 5
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma pistol\\plasma pistol") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"PlasmaPistol\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"PlasmaPistol[5]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not PlasmaRifle then
+    if weapons["PlasmaRifle"] == false then
         local index = 6
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma rifle\\plasma rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"PlasmaRifle\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"PlasmaRifle[6]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not PlasmaCannon then
+    if weapons["PlasmaCannon"] == false then
         local index = 7
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\plasma_cannon\\plasma_cannon") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"PlasmaCannon\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"PlasmaCannon[7]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not RocketLauncher then
+    if weapons["RocketLauncher"] == false then
         local index = 8
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\rocket launcher\\rocket launcher") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"RocketLauncher\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"RocketLauncher[8]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not Shotgun then
+    if weapons["Shotgun"] == false then
         local index = 9
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\shotgun\\shotgun") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"Shotgun\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"Shotgun[9]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
     end
 
-    if not SniperRifle then
+    if weapons["SniperRifle"] == false then
         local index = 10
         local ValueOf = WEAPON_TABLE[index]
         if (ValueOf == "weapons\\sniper rifle\\sniper rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            cprint("[SCRIPT] \"SniperRifle\" was removed from the weapon table", 4 + 8)
+            cprint("[SCRIPT] \"SniperRifle[10]\" was removed from the weapon table", 4 + 8)
         else
             index = index + 1
         end
@@ -344,6 +400,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
     local player_object = get_dynamic_player(victim)
+    -- Killed by server (temporarily while testing)
     if (killer == -1) then
         local x, y, z = read_vector3d(player_object + 0x5C)
         VICTIM_LOCATION[victim][1] = x
@@ -354,19 +411,43 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function WeaponsAndEquipment(victim, x, y, z)
-    math.randomseed(os.time())
-    local itemtoDrop1 = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
-    local itemtoDrop2 = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+    if weapons == nil then
+        return false
+    end
+    if equipment == nil then
+        return false
+    end
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    local eqTable = math.random(1, 2)
-    -- [!] To Do:
-    --  Add nil check on disabled items, go on to next available index
-    if (tonumber(eqTable) == 1) then
-        spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
-    elseif (tonumber(eqTable) == 2) then
-        spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
+    local EqipWeapTable = math.random(1, 2)
+    if (tonumber(EqipWeapTable) == 1) then
+        spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
+    elseif (tonumber(EqipWeapTable) == 2) then
+        spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
     end
+end
+end
+
+function JustEquipment(victim, x, y, z)
+    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    if equipment == nil then
+        return false
+    end
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
+end
+
+function JustWeapons(victim, x, y, z)
+    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+    if weapons == nil then
+        return false
+    end
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
 end
 
 function OnError(Message)
