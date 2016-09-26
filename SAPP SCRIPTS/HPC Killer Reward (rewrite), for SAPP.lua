@@ -9,8 +9,9 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
     Add nil check on disabled items, go on to next available index
     
     
-    [!] Script is in working order. However, if the math.random function on line [377]
-        lands on an index that was previously disabled, the console throws an exception.
+    [!] Script is in working order. However, if the math.random function(s) on lines [372] and [373] 
+        land on an index that was previously disabled in (equipment table - line 29) and/or (weapons table - line 42)
+        then the console throws an exception.
         
     [!] I need it to go on to the next available index without errors. Not sure how to implement this.
         If anyone can help with this, please email me <jericho.crosby227@gmail.com> or open an Issue on my github (see below)
