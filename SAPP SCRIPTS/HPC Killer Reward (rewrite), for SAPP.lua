@@ -5,7 +5,7 @@
 
     [!]   **BETA**
 
-    Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+    Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
     * Notice: You can use this document subject to the following conditions:
     https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -39,29 +39,6 @@ RocketLauncher = false
 Shotgun = false
 SniperRifle = false
 -- Configuration Ends --
-
--- Do Not Touch --
-camouflage = { }
-healthpack = { }
-overshield = { }
-assaultrifleammo = { }
-needlerammo = { }
-pistolammo = { }
-rocketlauncherammo = { }
-shotgunammo = { }
-sniperrifleammo = { }
-flamethrowerammo = { }
-
-assaultrifle = { }
-flamethrower = { }
-needler = { }
-pistol = { }
-plasmapistol = { }
-plasmarifle = { }
-plasmacannon = { }
-rocketlauncher = { }
-shotgun = { }
-sniperrifle = { }
 
 weap = "weap"
 eqip = "eqip"
