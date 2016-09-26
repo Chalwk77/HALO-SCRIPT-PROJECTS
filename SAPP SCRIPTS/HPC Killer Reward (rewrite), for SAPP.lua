@@ -1,19 +1,27 @@
 --[[
-   Script Name: HPC Killer Reward (rewrite), for SAPP
-    - Implementing API version: 1.11.0.0
+Script Name: HPC Killer Reward (rewrite), for SAPP
+- Implementing API version: 1.11.0.0
 
 
-                        ** BETA **   
+[!]     **BETA**
 
-    -- [!] To Do:
-    --  Add nil check on disabled items, go on to next available index
+    [!] To Do:
+    Add nil check on disabled items, go on to next available index
+    
+    
+    [!] Script is in working order. However, if the math.random function on line [377]
+        lands on an index that was previously disabled, the console throws an exception.
+        
+    [!] I need it to go on to the next available index without errors. Not sure how to implement this.
+        If anyone can help with this, please email me <jericho.crosby227@gmail.com> or open an Issue on my github (see below)
 
-    Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-    * Notice: You can use this document subject to the following conditions:
-    https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+    
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-    * IGN (in game name): Chalwk
-    * Written by Jericho Crosby
+* IGN (in game name): Chalwk
+* Written by Jericho Crosby
 ]]
 
 api_version = "1.11.0.0"
