@@ -5,17 +5,6 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
 
 [!]     **BETA**
 
-    [!] To Do:
-    Add nil check on disabled items, go on to next available index
-    
-    
-    [!] Script is in working order. However, if the math.random function(s) on lines [427] and [428] 
-        land on an index that was previously disabled (false) in (equipment table - line 43) and/or (weapons table - line 56)
-        then the console throws an exception.
-        
-    [!] I need it to go on to the next available index without errors. Not sure how to implement this.
-        If anyone can help with this, please email me <jericho.crosby227@gmail.com> or open an Issue on my github (see below)
-
     
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -41,27 +30,27 @@ configuration = {
 }
 
 equipment = {
-    ["Camouflage"] = true,
+    ["Camouflage"] = false,
     ["HealthPack"] = true,
-    ["OverShield"] = false,
+    ["OverShield"] = true,
     ["AssaultRifleAmmo"] = true,
-    ["NeedlerAmmo"] = false,
+    ["NeedlerAmmo"] = true,
     ["PistolAmmo"] = true,
     ["RocketLauncherAmmo"] = true,
     ["ShotgunAmmo"] = true,
-    ["SniperRifleAmmo"] = false,
+    ["SniperRifleAmmo"] = true,
     ["FlameThrowerAmmo"] = true,
 }
 
 weapons = {
-    ["AssaultRifle"] = false,
+    ["AssaultRifle"] = true,
     ["FlameThrower"] = true,
     ["Needler"] = true,
     ["Pistol"] = true,
-    ["PlasmaPistol"] = false,
+    ["PlasmaPistol"] = true,
     ["PlasmaRifle"] = true,
     ["PlasmaCannon"] = true,
-    ["RocketLauncher"] = false,
+    ["RocketLauncher"] = true,
     ["Shotgun"] = true,
     ["SniperRifle"] = true,
 }
@@ -422,23 +411,25 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function WeaponsAndEquipment(victim, x, y, z)
-    -- [!] To Do:
-    --  Add nil check on disabled items, go on to next available index
-    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
-    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
-    local player = get_player(victim)
-    local rotation = read_float(player + 0x138)
-    local EqipWeapTable = math.random(1, 2)
-    if (tonumber(EqipWeapTable) == 1) then
-        spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
-    elseif (tonumber(EqipWeapTable) == 2) then
-        spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
+        local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+        if equipment == nil then return false end
+        if weapons == nil then return false end
+        local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+        local player = get_player(victim)
+        local rotation = read_float(player + 0x138)
+        local EqipWeapTable = math.random(1, 2)
+        if (tonumber(EqipWeapTable) == 1) then
+            spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
+        elseif (tonumber(EqipWeapTable) == 2) then
+            spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
+        end
     end
 end
 
 function JustEquipment(victim, x, y, z)
     math.randomseed(os.time())
     local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    if equipment == nil then return false end
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
     spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
@@ -447,6 +438,7 @@ end
 function JustWeapons(victim, x, y, z)
     math.randomseed(os.time())
     local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+     if weapons == nil then return false end
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
     spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
