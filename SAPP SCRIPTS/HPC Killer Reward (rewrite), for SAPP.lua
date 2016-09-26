@@ -19,25 +19,25 @@ api_version = "1.11.0.0"
 -- Set 'true' to enable item drop 
 Camouflage = true
 HealthPack = false
-OverShield = false
-AssaultRifleAmmo = false
+OverShield = true
+AssaultRifleAmmo = true
 NeedlerAmmo = true
-PistolAmmo = false
-RocketLauncherAmmo = false
-ShotgunAmmo = false
-SniperRifleAmmo = false
-FlameThrowerAmmo = false
+PistolAmmo = true
+RocketLauncherAmmo = true
+ShotgunAmmo = true
+SniperRifleAmmo = true
+FlameThrowerAmmo = true
 
-AssaultRifle = false
+AssaultRifle = true
 FlameThrower = true
-Needler = false
+Needler = true
 Pistol = false
 PlasmaPistol = true
-PlasmaRifle = false
-PlasmaCannon = false
-RocketLauncher = false
-Shotgun = false
-SniperRifle = false
+PlasmaRifle = true
+PlasmaCannon = true
+RocketLauncher = true
+Shotgun = true
+SniperRifle = true
 -- Configuration Ends --
 
 weap = "weap"
@@ -74,8 +74,6 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload() end
-
-indexid = false
 
 function OnNewGame()
 
@@ -341,7 +339,6 @@ function OnNewGame()
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
-            indexid = true
             cprint("Shotgun was removed!", 4 + 8)
         else
             index = index + 1
@@ -377,6 +374,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function WeaponsAndEquipment(victim, x, y, z)
+    cprint("function called", 4)
     math.randomseed(os.time())
     local itemtoDrop1 = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
     local itemtoDrop2 = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
@@ -384,8 +382,10 @@ function WeaponsAndEquipment(victim, x, y, z)
     local rotation = read_float(player + 0x138)
     local eqTable = math.random(1, 2)
     if (tonumber(eqTable) == 1) then
+        cprint("Number was 1", 4)
         spawn_object(tostring(eqip), itemtoDrop1, x, y, z + 0.5, rotation)
     elseif (tonumber(eqTable) == 2) then
+        cprint("Number was 2", 4)
         spawn_object(tostring(weap), itemtoDrop2, x, y, z + 0.5, rotation)
     end
 end
