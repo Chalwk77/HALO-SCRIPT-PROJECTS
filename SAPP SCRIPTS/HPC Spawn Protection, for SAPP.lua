@@ -11,7 +11,7 @@ Script Name: HPC Spawn Protection, for SAPP
             Other special Attributes?
             * Suggestions? Email me.
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -108,4 +108,8 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
     DEATHS[PlayerIndex][1] = 0
+end
+
+function OnError(Message)
+    print(debug.traceback())
 end
