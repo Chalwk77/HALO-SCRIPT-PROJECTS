@@ -5,11 +5,12 @@ Script Name: HPC Spawn Protection, for SAPP
     Description: After 5,9,14,17 and 21 consecutive deaths, your victim will spawn with an overshield and camouflage.
 
         [!] To Do:
-            Detect if Killer is camping
-            Write a DelayTimer between victim deaths
-            Punish Killer
-            Other special Attributes?
-            * Suggestions? Email me.
+            -->> Detect if Killer is camping
+            -->> DelayTimer (between deaths)
+            -->> Punish Killer
+            -->> Other editable attributes
+Suggestions?
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -67,10 +68,10 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     local victimName = tostring(get_var(PlayerIndex, "$name"))
-    local player_object = get_dynamic_player(PlayerIndex)
-    local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     local player = get_player(PlayerIndex)
     local rotation = read_float(player + 0x138)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     VICTIM_LOCATION[PlayerIndex][1] = xAxis
     VICTIM_LOCATION[PlayerIndex][2] = yAxis
     VICTIM_LOCATION[PlayerIndex][3] = zAxis
@@ -108,4 +109,8 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
     DEATHS[PlayerIndex][1] = 0
+end
+
+function OnError(Message)
+    print(debug.traceback())
 end
