@@ -2,15 +2,13 @@
 Script Name: HPC Killer Reward (rewrite), for SAPP
 - Implementing API version: 1.11.0.0
 
-
 [!]     **BETA**
-
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN (in game name): Chalwk
+* IGN: Chalwk
 * Written by Jericho Crosby
 ]]
 
@@ -32,10 +30,10 @@ configuration = {
 equipment = {
     ["Camouflage"] = false,
     ["HealthPack"] = true,
-    ["OverShield"] = true,
+    ["OverShield"] = false,
     ["AssaultRifleAmmo"] = true,
-    ["NeedlerAmmo"] = true,
-    ["PistolAmmo"] = true,
+    ["NeedlerAmmo"] = false,
+    ["PistolAmmo"] = false,
     ["RocketLauncherAmmo"] = true,
     ["ShotgunAmmo"] = true,
     ["SniperRifleAmmo"] = true,
@@ -43,13 +41,13 @@ equipment = {
 }
 
 weapons = {
-    ["AssaultRifle"] = true,
+    ["AssaultRifle"] = false,
     ["FlameThrower"] = true,
     ["Needler"] = true,
-    ["Pistol"] = true,
-    ["PlasmaPistol"] = true,
+    ["Pistol"] = false,
+    ["PlasmaPistol"] = false,
     ["PlasmaRifle"] = true,
-    ["PlasmaCannon"] = true,
+    ["PlasmaCannon"] = false,
     ["RocketLauncher"] = true,
     ["Shotgun"] = true,
     ["SniperRifle"] = true,
@@ -135,8 +133,8 @@ function OnNewGame()
     game_type = get_var(0, "$gt")
     if equipment["Camouflage"] == false then
         local index = 1
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\active camouflage") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\active camouflage") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -148,8 +146,8 @@ function OnNewGame()
 
     if equipment["HealthPack"] == false then
         local index = 2
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\health pack") then
+        local ValueOfIndexIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\health pack") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -164,8 +162,8 @@ function OnNewGame()
 
     if equipment["OverShield"] == false then
         local index = 3
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\over shield") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\over shield") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -177,8 +175,8 @@ function OnNewGame()
 
     if equipment["AssaultRifleAmmo"] == false then
         local index = 4
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\assault rifle ammo\\assault rifle ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\assault rifle ammo\\assault rifle ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -190,8 +188,8 @@ function OnNewGame()
 
     if equipment["NeedlerAmmo"] == false then
         local index = 5
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\needler ammo\\needler ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\needler ammo\\needler ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -203,8 +201,8 @@ function OnNewGame()
 
     if equipment["PistolAmmo"] == false then
         local index = 6
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\pistol ammo\\pistol ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\pistol ammo\\pistol ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -216,8 +214,8 @@ function OnNewGame()
 
     if equipment["RocketLauncherAmmo"] == false then
         local index = 7
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\rocket launcher ammo\\rocket launcher ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\rocket launcher ammo\\rocket launcher ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -229,8 +227,8 @@ function OnNewGame()
 
     if equipment["ShotgunAmmo"] == false then
         local index = 8
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\shotgun ammo\\shotgun ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\shotgun ammo\\shotgun ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -242,8 +240,8 @@ function OnNewGame()
 
     if equipment["SniperRifleAmmo"] == false then
         local index = 9
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\sniper rifle ammo\\sniper rifle ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\sniper rifle ammo\\sniper rifle ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -255,8 +253,8 @@ function OnNewGame()
 
     if equipment["FlameThrowerAmmo"] == false then
         local index = 10
-        local ValueOf = EQUIPMENT_TABLE[index]
-        if (ValueOf == "powerups\\flamethrower ammo\\flamethrower ammo") then
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
+        if (ValueOfIndex == "powerups\\flamethrower ammo\\flamethrower ammo") then
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -268,8 +266,8 @@ function OnNewGame()
 
     if weapons["AssaultRifle"] == false then
         local index = 1
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\assault rifle\\assault rifle") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\assault rifle\\assault rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -281,8 +279,8 @@ function OnNewGame()
 
     if weapons["FlameThrower"] == false then
         local index = 2
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\flamethrower\\flamethrower") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\flamethrower\\flamethrower") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -294,8 +292,8 @@ function OnNewGame()
 
     if weapons["Needler"] == false then
         local index = 3
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\needler\\mp_needler") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\needler\\mp_needler") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -307,8 +305,8 @@ function OnNewGame()
 
     if weapons["Pistol"] == false then
         local index = 4
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\pistol\\pistol") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\pistol\\pistol") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -320,8 +318,8 @@ function OnNewGame()
 
     if weapons["PlasmaPistol"] == false then
         local index = 5
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\plasma pistol\\plasma pistol") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\plasma pistol\\plasma pistol") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -333,8 +331,8 @@ function OnNewGame()
 
     if weapons["PlasmaRifle"] == false then
         local index = 6
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\plasma rifle\\plasma rifle") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\plasma rifle\\plasma rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -346,8 +344,8 @@ function OnNewGame()
 
     if weapons["PlasmaCannon"] == false then
         local index = 7
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\plasma_cannon\\plasma_cannon") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\plasma_cannon\\plasma_cannon") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -359,8 +357,8 @@ function OnNewGame()
 
     if weapons["RocketLauncher"] == false then
         local index = 8
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\rocket launcher\\rocket launcher") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\rocket launcher\\rocket launcher") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -372,8 +370,8 @@ function OnNewGame()
 
     if weapons["Shotgun"] == false then
         local index = 9
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\shotgun\\shotgun") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\shotgun\\shotgun") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
@@ -385,8 +383,8 @@ function OnNewGame()
 
     if weapons["SniperRifle"] == false then
         local index = 10
-        local ValueOf = WEAPON_TABLE[index]
-        if (ValueOf == "weapons\\sniper rifle\\sniper rifle") then
+        local ValueOfIndex = WEAPON_TABLE[index]
+        if (ValueOfIndex == "weapons\\sniper rifle\\sniper rifle") then
             WEAPON_TABLE[index] = WEAPON_TABLE[index]
             WEAPON_TABLE[index] = nil
             index = index - 1
