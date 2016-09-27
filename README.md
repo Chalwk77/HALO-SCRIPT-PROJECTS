@@ -1,6 +1,8 @@
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
-https://gist.github.com/Chalwk77
+
 # Halo Lua Scripts for Phasor V2+ and SAPP
+
+Get my scripts here: https://gist.github.com/Chalwk77
 
 ### PHASOR SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 ### SAPP SCRIPTS: [repo] (https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
