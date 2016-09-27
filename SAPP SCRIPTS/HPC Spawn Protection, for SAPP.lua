@@ -3,14 +3,14 @@ Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
     Description: After 5,9,14,17 and 21 consecutive deaths, your victim will spawn with an overshield and camouflage.
-    
+
         [!] To Do:
             Detect if Killer is camping
             Write a DelayTimer between victim deaths
             Punish Killer
             Other special Attributes?
             * Suggestions? Email me.
-            
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -31,25 +31,25 @@ function OnScriptLoad()
 end
 
 deaths = {
-    ["ProtectAfter[5]Deaths"]   = 5,
-    ["ProtectAfter[9]Deaths"]   = 9,
-    ["ProtectAfter[13]Deaths"]  = 13,
-    ["ProtectAfter[17]Deaths"]  = 17,
-    ["ProtectAfter[21]Deaths"]  = 21,
+    ["ProtectAfter[5]Deaths"] = 5,
+    ["ProtectAfter[9]Deaths"] = 9,
+    ["ProtectAfter[13]Deaths"] = 13,
+    ["ProtectAfter[17]Deaths"] = 17,
+    ["ProtectAfter[21]Deaths"] = 21,
 }
 
-DEATHS = {}
+DEATHS = { }
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
 OverShield = "powerups\\over shield"
 Camouflage = "powerups\\active camouflage"
 
 function OnPlayerJoin(PlayerIndex)
-	DEATHS[PlayerIndex] = {0}
+    DEATHS[PlayerIndex] = { 0 }
 end
 
 function OnPlayerLeave(PlayerIndex)
-	DEATHS[PlayerIndex] = {0}
+    DEATHS[PlayerIndex] = { 0 }
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -60,9 +60,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         if killer then
             if DEATHS[killer][1] ~= 0 then
                 DEATHS[killer][1] = 0
-			end
-		end
-	end
+            end
+        end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -74,8 +74,8 @@ function OnPlayerSpawn(PlayerIndex)
     VICTIM_LOCATION[PlayerIndex][1] = xAxis
     VICTIM_LOCATION[PlayerIndex][2] = yAxis
     VICTIM_LOCATION[PlayerIndex][3] = zAxis
-	if PlayerIndex then
-		if DEATHS[PlayerIndex][1] == deaths["ProtectAfter[1]Deaths"] then
+    if PlayerIndex then
+        if DEATHS[PlayerIndex][1] == deaths["ProtectAfter[1]Deaths"] then
             spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
             spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
             execute_command("msg_prefix \"\"")
