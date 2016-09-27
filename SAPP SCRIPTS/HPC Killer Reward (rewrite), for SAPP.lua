@@ -460,7 +460,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     VICTIM_LOCATION[victim][3] = zAxis
     if (killer == -1) then
         -- Global (no kills required): Weapons and Equipment
-        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"]then
+        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"] then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
         end
         -- Global (no kills required): JustEquipment
