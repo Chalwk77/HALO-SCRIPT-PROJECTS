@@ -6,7 +6,7 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
 [!]     **BETA**
 
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -22,9 +22,9 @@ configuration = {
     ["BasedOnMap"] = false,
     ["BasedOnGameType"] = false,
     ["NonGlobalKillsRequired"] = false,
-    ["GlobalSettings"] = false,
+    ["GlobalSettings"] = true,
     ["GlobalNoKills"] = false,
-    ["Weapons_And_Equipment"] = false,
+    ["WeaponsAndEquipment"] = false,
     ["Just_Equipment"] = false,
     ["Just_Weapons"] = false,
 }
@@ -55,6 +55,7 @@ weapons = {
     ["SniperRifle"] = true,
 }
 -- Configuration Ends --
+
 
 -- Do Not Touch --
 weap = "weap"
@@ -400,54 +401,28 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
     local player_object = get_dynamic_player(victim)
-    -- Killed by server (temporarily while testing)
-    if (killer == -1) then
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        VICTIM_LOCATION[victim][1] = x
-        VICTIM_LOCATION[victim][2] = y
-        VICTIM_LOCATION[victim][3] = z
-        WeaponsAndEquipment(victim, x, y, z)
+    if configuration["GlobalSettings"] == true then
+        if (killer == -1) then
+            local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
+            VICTIM_LOCATION[victim][1] = xAxis
+            VICTIM_LOCATION[victim][2] = yAxis
+            VICTIM_LOCATION[victim][3] = zAxis
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        end
     end
 end
 
-function WeaponsAndEquipment(victim, x, y, z)
-    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
-    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
-    if weapons == nil then
-        return false
-    end
-    if equipment == nil then
-        return false
-    end
+function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+    local e = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    local w = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    local EqipWeapTable = math.random(1, 2)
-    if (tonumber(EqipWeapTable) == 1) then
-        spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
-    elseif (tonumber(EqipWeapTable) == 2) then
-        spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
+    local GetRandomNumber = math.random(1, 2)
+    if (tonumber(GetRandomNumber) == 1) then
+        spawn_object(tostring(eqip), e, xAxis, yAxis, zAxis + 0.5, rotation)
+    elseif (tonumber(GetRandomNumber) == 2) then
+        spawn_object(tostring(weap), w, xAxis, yAxis, zAxis + 0.5, rotation)
     end
-end
-end
-
-function JustEquipment(victim, x, y, z)
-    local equipment = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
-    if equipment == nil then
-        return false
-    end
-    local player = get_player(victim)
-    local rotation = read_float(player + 0x138)
-    spawn_object(tostring(eqip), equipment, x, y, z + 0.5, rotation)
-end
-
-function JustWeapons(victim, x, y, z)
-    local weapons = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
-    if weapons == nil then
-        return false
-    end
-    local player = get_player(victim)
-    local rotation = read_float(player + 0x138)
-    spawn_object(tostring(weap), weapons, x, y, z + 0.5, rotation)
 end
 
 function OnError(Message)
