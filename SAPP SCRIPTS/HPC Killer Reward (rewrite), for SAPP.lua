@@ -54,10 +54,10 @@ configuration = {
     ["BasedOnMap"] = false,
     ["BasedOnGameType"] = false,
     ["NonGlobalKillsRequired"] = false,
-    ["GlobalSettings"] = false,
-    ["GlobalNoKills"] = false,
+    ["GlobalSettings"] = true,
+    ["GlobalNoKills"] = true,
     ["GlobalKillsRequired"] = false,
-    ["WeaponsAndEquipment"] = false,
+    ["WeaponsAndEquipment"] = true,
     ["JustEquipment"] = false,
     ["JustWeapons"] = false,
 }
@@ -88,8 +88,9 @@ weapons = {
     ["SniperRifle"] = true,
 }
 
+-- For a future update!
 mapsettings = {
-    ["bloodgulch"]          =   false,
+    ["bloodgulch"]          =   true,
     ["dangercanyon"] 		=   true,
     ["deathisland"] 		=   true,
     ["gephyrophobia"] 		=   true,
@@ -97,15 +98,15 @@ mapsettings = {
     ["infinity"] 			=   true,
     ["sidewinder"] 			=   true,
     ["timberland"] 			=   true,
-    ["hangemhigh"] 			=   false,
-    ["ratrace"] 			=   false,
-    ["beavercreek"] 		=   false,
-    ["damnation"] 			=   false,
-    ["boardingaction"] 		=   false,
-    ["carousel"] 			=   false,
-    ["putput"]	 			=   false,
-    ["prisoner"] 			=   false,
-    ["wizard"] 				=   false
+    ["hangemhigh"] 			=   true,
+    ["ratrace"] 			=   true,
+    ["beavercreek"] 		=   true,
+    ["damnation"] 			=   true,
+    ["boardingaction"] 		=   true,
+    ["carousel"] 			=   true,
+    ["putput"]	 			=   true,
+    ["prisoner"] 			=   true,
+    ["wizard"] 				=   true
 }
 -- Configuration Ends --
 
@@ -144,32 +145,38 @@ WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     if get_var(0, "$gt") ~= "n/a" then
         GameHasStarted = true
         map_name = get_var(1, "$map")
         game_type = get_var(0, "$gt")
-        LoadMaps()
     end
 end
 
-function OnScriptUnload() end
-
-function LoadMaps()
-    if GameHasStarted then
-        map_name = get_var(1, "$map")
-        mapsettings[map_name] = mapsettings[map_name] or false
-    end
+function OnScriptUnload() 
+    configuration = {}
+    equipment = {}
+    weapons = {}
+    mapsettings = {}
+    EQUIPMENT_TABLE = { }
+    WEAPON_TABLE = { }
 end
 
-
+function OnGameEnd()
+    configuration = {}
+    equipment = {}
+    weapons = {}
+    mapsettings = {}
+    EQUIPMENT_TABLE = { }
+    WEAPON_TABLE = { }
+end
 
 function OnNewGame()
-    
     if configuration["BasedOnMap"] == false and configuration["BasedOnGameType"] == false
         and configuration["NonGlobalKillsRequired"] == false and configuration["GlobalSettings"] == false
         and configuration["GlobalNoKills"] == false and configuration["WeaponsAndEquipment"] == false 
         and configuration["JustEquipment"] == false and configuration["JustWeapons"] == false then
-        cprint("[SCRIPT] Warning! All Configuration settings are false! One or more must be 'true'.", 4+8)
+        cprint("[SCRIPT] Warning! All Configuration settings are false! One or more must be \"true\".", 4+8)
     end
     
     GameHasStarted = true
