@@ -2,41 +2,40 @@
 Script Name: HPC Killer Reward (rewrite), for SAPP
 - Implementing API version: 1.11.0.0
 
-[!]     **BETA**
-
-    - Kills Not Required
-        [!] Weapons and Equipment:
-            - GlobalNoKills = "true"
-            - WeaponsAndEquipment = "true"
-            - JustEquipment = false
-            - JustWeapons = false
-        [!] Just Weapons:
-            - GlobalNoKills = "true"
-            - WeaponsAndEquipment = false
-            - JustEquipment = false
-            - JustWeapons = "true"
-        [!] Just Equipment:
-            - GlobalNoKills = "true"
-            - WeaponsAndEquipment = false
-            - JustEquipment = "true"
-            - JustWeapons = false
+MODES:
+    [!] Kills Not Required:
+        * Weapons and Equipment:
+            ->  GlobalNoKills = "true"
+            ->  WeaponsAndEquipment = "true"
+            ->  JustEquipment = false
+            ->  JustWeapons = false
+        * Just Weapons:
+            ->  GlobalNoKills = "true"
+            ->  WeaponsAndEquipment = false
+            ->  JustEquipment = false
+            ->  JustWeapons = "true"
+        * Just Equipment:
+            ->  GlobalNoKills = "true"
+            ->  WeaponsAndEquipment = false
+            ->  JustEquipment = "true"
+            ->  JustWeapons = false
             
-    - Kills Required
-        [!] Weapons and Equipment:
-            - GlobalKillsRequired = "true"
-            - WeaponsAndEquipment = "true"
-            - JustEquipment = false
-            - JustWeapons = false
-        [!] Just Weapons:
-            - GlobalKillsRequired = "true"
-            - WeaponsAndEquipment = false
-            - JustEquipment = false
-            - JustWeapons = "true"
-        [!] Just Equipment:
-            - GlobalKillsRequired = "true"
-            - WeaponsAndEquipment = false
-            - JustEquipment = "true"
-            - JustWeapons = false
+    [!] Kills Required:
+        * Weapons and Equipment:
+            ->  GlobalKillsRequired = "true"
+            ->  WeaponsAndEquipment = "true"
+            ->  JustEquipment = false
+            ->  JustWeapons = false
+        * Just Weapons:
+            ->  GlobalKillsRequired = "true"
+            ->  WeaponsAndEquipment = false
+            ->  JustEquipment = false
+            ->  JustWeapons = "true"
+        * Just Equipment:
+            ->  GlobalKillsRequired = "true"
+            ->  WeaponsAndEquipment = false
+            ->  JustEquipment = "true"
+            ->  JustWeapons = false
             
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
