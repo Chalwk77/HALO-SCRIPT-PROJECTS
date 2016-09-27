@@ -3,7 +3,7 @@
 Description: HPC Chalwk's Realm - Server Settings, Phasor V2
 Copyright © 2016 Jericho Crosby
 * Author: Jericho Crosby
-* IGN (in game name): Chalwk
+* IGN: Chalwk
 * Written and Created by Jericho Crosby
 -----------------------------------
 ]]--

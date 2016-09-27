@@ -3,7 +3,7 @@
 Description: HPC Zombies Stats Script, Phasor V2+
 Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
-* IGN (in game name): Chalwk
+* IGN: Chalwk
 * Version: 4.0.1 (Heavily Modified)
 * Written and Created by Jericho Crosby
 * Credits to the original creator(s): SlimJim | Kennan

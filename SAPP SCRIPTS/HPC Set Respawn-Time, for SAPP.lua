@@ -9,7 +9,7 @@ Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN (in game name): Chalwk
+* IGN: Chalwk
 * Written by Jericho Crosby
 -----------------------------------
 ]]-- 

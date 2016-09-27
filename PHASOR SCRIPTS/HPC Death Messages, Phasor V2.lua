@@ -3,7 +3,7 @@
 Description: HPC Death Messages, Phasor V2
 Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
-* IGN (in game name): Chalwk
+* IGN: Chalwk
 * Written and Created by Jericho Crosby
 -----------------------------------
 ]]--
