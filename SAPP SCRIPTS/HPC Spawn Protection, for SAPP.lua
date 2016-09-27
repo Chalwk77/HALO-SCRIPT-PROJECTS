@@ -5,12 +5,12 @@ Script Name: HPC Spawn Protection, for SAPP
     Description: After 5,9,14,17 and 21 consecutive deaths, your victim will spawn with an overshield and camouflage.
 
         [!] To Do:
-            Detect if Killer is camping
-            Write a DelayTimer between victim deaths
-            Punish Killer
-            Other special Attributes?
-            * Suggestions? Email me.
-To Do list: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
+            -->> Detect if Killer is camping
+            -->> DelayTimer (between deaths)
+            -->> Punish Killer
+            -->> Other editable attributes
+Suggestions?
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
