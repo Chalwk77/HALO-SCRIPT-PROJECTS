@@ -48,64 +48,63 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- Configuration --
-configuration = {
+gamesettings = {
     -- For a Future Update!
-    ["BasedOnMap"] = false,
-    ["BasedOnGameType"] = false,
-    ["NonGlobalKillsRequired"] = false,
-    ["GlobalSettings"] = true,
-    ["GlobalNoKills"] = true,
+    ["BasedOnMap"]          = false,
+    ["BasedOnGameType"]     = false,
+    ["GlobalSettings"]      = true,
+    ["GlobalNoKills"]       = true,
     ["GlobalKillsRequired"] = false,
     ["WeaponsAndEquipment"] = true,
-    ["JustEquipment"] = false,
-    ["JustWeapons"] = false,
-}
-
-equipment = {
-    ["Camouflage"] = true,
-    ["HealthPack"] = true,
-    ["OverShield"] = true,
-    ["AssaultRifleAmmo"] = true,
-    ["NeedlerAmmo"] = true,
-    ["PistolAmmo"] = true,
-    ["RocketLauncherAmmo"] = true,
-    ["ShotgunAmmo"] = true,
-    ["SniperRifleAmmo"] = true,
-    ["FlameThrowerAmmo"] = true,
+    ["JustEquipment"]       = false,
+    ["JustWeapons"]         = false,
 }
 
 weapons = {
-    ["AssaultRifle"] = true,
-    ["FlameThrower"] = true,
-    ["Needler"] = true,
-    ["Pistol"] = true,
-    ["PlasmaPistol"] = true,
-    ["PlasmaRifle"] = true,
-    ["PlasmaCannon"] = true,
-    ["RocketLauncher"] = true,
-    ["Shotgun"] = true,
-    ["SniperRifle"] = true,
+    ["AssaultRifle"]    = true,
+    ["FlameThrower"]    = true,
+    ["Needler"]         = true,
+    ["Pistol"]          = true,
+    ["PlasmaPistol"]    = true,
+    ["PlasmaRifle"]     = true,
+    ["PlasmaCannon"]    = true,
+    ["RocketLauncher"]  = true,
+    ["Shotgun"]         = true,
+    ["SniperRifle"]     = true,
+}
+
+equipment = {
+    ["Camouflage"]          = true,
+    ["HealthPack"]          = true,
+    ["OverShield"]          = true,
+    ["AssaultRifleAmmo"]    = true,
+    ["NeedlerAmmo"]         = true,
+    ["PistolAmmo"]          = true,
+    ["RocketLauncherAmmo"]  = true,
+    ["ShotgunAmmo"]         = true,
+    ["SniperRifleAmmo"]     = true,
+    ["FlameThrowerAmmo"]    = true,
 }
 
 -- For a future update!
 mapsettings = {
-    ["bloodgulch"]          =   true,
-    ["dangercanyon"] 		=   true,
-    ["deathisland"] 		=   true,
-    ["gephyrophobia"] 		=   true,
-    ["icefields"] 			=   true,
-    ["infinity"] 			=   true,
-    ["sidewinder"] 			=   true,
-    ["timberland"] 			=   true,
-    ["hangemhigh"] 			=   true,
-    ["ratrace"] 			=   true,
-    ["beavercreek"] 		=   true,
-    ["damnation"] 			=   true,
-    ["boardingaction"] 		=   true,
-    ["carousel"] 			=   true,
-    ["putput"]	 			=   true,
-    ["prisoner"] 			=   true,
-    ["wizard"] 				=   true
+    ["bloodgulch"]      = true,
+    ["dangercanyon"]    = true,
+    ["deathisland"]     = true,
+    ["gephyrophobia"]   = true,
+    ["icefields"]       = true,
+    ["infinity"]        = true,
+    ["sidewinder"]      = true,
+    ["timberland"]      = true,
+    ["hangemhigh"]      = true,
+    ["ratrace"]         = true,
+    ["beavercreek"]     = true,
+    ["damnation"]       = true,
+    ["boardingaction"]  = true,
+    ["carousel"]        = true,
+    ["putput"]          = true,
+    ["prisoner"]        = true,
+    ["wizard"]          = true
 }
 -- Configuration Ends --
 
@@ -153,7 +152,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload() 
-    configuration = {}
+    gamesettings = {}
     equipment = {}
     weapons = {}
     mapsettings = {}
@@ -162,7 +161,7 @@ function OnScriptUnload()
 end
 
 function OnGameEnd()
-    configuration = {}
+    gamesettings = {}
     equipment = {}
     weapons = {}
     mapsettings = {}
@@ -171,11 +170,11 @@ function OnGameEnd()
 end
 
 function OnNewGame()
-    if configuration["BasedOnMap"] == false and configuration["BasedOnGameType"] == false
-        and configuration["NonGlobalKillsRequired"] == false and configuration["GlobalSettings"] == false
-        and configuration["GlobalNoKills"] == false and configuration["WeaponsAndEquipment"] == false 
-        and configuration["JustEquipment"] == false and configuration["JustWeapons"] == false then
-        cprint("[SCRIPT] Warning! All Configuration settings are false! One or more must be \"true\".", 4+8)
+    if gamesettings["BasedOnMap"] == false and gamesettings["BasedOnGameType"] == false
+        and gamesettings["GlobalSettings"] == false and gamesettings["GlobalNoKills"] == false
+        and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false 
+        and gamesettings["JustWeapons"] == false then
+        cprint("[SCRIPT] Warning! All gamesettings settings are false! One or more must be \"true\".", 4+8)
     end
     
     GameHasStarted = true
@@ -452,16 +451,16 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     VICTIM_LOCATION[victim][2] = yAxis
     VICTIM_LOCATION[victim][3] = zAxis
     if (killer == -1) then
-        if configuration["GlobalSettings"] and configuration["GlobalNoKills"] and configuration["WeaponsAndEquipment"]then
+        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"]then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
         end
-        if configuration["GlobalSettings"] and configuration["GlobalNoKills"] and configuration["JustEquipment"] then
+        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustEquipment"] then
             JustEquipment(victim, xAxis, yAxis, zAxis)
         end
-        if configuration["GlobalSettings"] and configuration["GlobalNoKills"] and configuration["JustWeapons"] then
+        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustWeapons"] then
             JustWeapons(victim, xAxis, yAxis, zAxis)
         end
-        elseif configuration["GlobalSettings"] and configuration["GlobalKillsRequired"] and configuration["WeaponsAndEquipment"] then
+        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
             if (kills == 10) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
             elseif (kills == 20) then
@@ -483,7 +482,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             elseif (kills >= 100) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
             end
-        elseif configuration["GlobalSettings"] and configuration["GlobalKillsRequired"] and configuration["JustEquipment"] then
+        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
             if (kills == 10) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
             elseif (kills == 20) then
@@ -504,7 +503,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 JustEquipment(victim, xAxis, yAxis, zAxis)
             elseif (kills >= 100) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif configuration["GlobalSettings"] and configuration["GlobalKillsRequired"] and configuration["JustWeapons"] then
+        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
             if (kills == 10) then
                 JustWeapons(victim, xAxis, yAxis, zAxis)
             elseif (kills == 20) then
