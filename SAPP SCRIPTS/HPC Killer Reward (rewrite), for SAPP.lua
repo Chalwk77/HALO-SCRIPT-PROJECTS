@@ -2,6 +2,8 @@
 Script Name: HPC Killer Reward (rewrite), for SAPP
 - Implementing API version: 1.11.0.0
 
+    Description: This script will drop 1-20 (configurable) random items at your victims death location.
+            
 MODES:
     [!] Kills Not Required:
         * Weapons and Equipment:
@@ -36,6 +38,9 @@ MODES:
             ->  WeaponsAndEquipment = false
             ->  JustEquipment = "true"
             ->  JustWeapons = false
+            
+            Kill-Threshold: Increments of 10.
+            For every 10 kills you get, your victim will drop an item.
             
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -452,15 +457,19 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     VICTIM_LOCATION[victim][2] = yAxis
     VICTIM_LOCATION[victim][3] = zAxis
     if (killer == -1) then
+        -- Global (no kills required): Weapons and Equipment
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"]then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
         end
+        -- Global (no kills required): JustEquipment
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustEquipment"] then
             JustEquipment(victim, xAxis, yAxis, zAxis)
         end
+        -- Global (no kills required): JustWeapons
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustWeapons"] then
             JustWeapons(victim, xAxis, yAxis, zAxis)
         end
+        -- Global (kills required): Weapons and Equipment
         elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
             if (kills == 10) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
@@ -483,6 +492,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             elseif (kills >= 100) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
             end
+        -- Global (kills required): JustEquipment
         elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
             if (kills == 10) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
@@ -504,6 +514,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
                 JustEquipment(victim, xAxis, yAxis, zAxis)
             elseif (kills >= 100) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
+        -- Global (kills required): JustWeapons
         elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
             if (kills == 10) then
                 JustWeapons(victim, xAxis, yAxis, zAxis)
