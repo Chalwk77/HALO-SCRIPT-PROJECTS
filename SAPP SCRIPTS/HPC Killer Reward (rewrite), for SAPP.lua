@@ -174,6 +174,7 @@ function OnGameEnd()
     mapsettings = {}
     EQUIPMENT_TABLE = { }
     WEAPON_TABLE = { }
+    GameHasStarted = false
 end
 
 function OnNewGame()
