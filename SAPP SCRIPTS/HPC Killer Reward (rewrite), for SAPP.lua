@@ -9,16 +9,19 @@ MODES:
     [!] Kills Not Required:
         * Weapons and Equipment:
             ->  GlobalNoKills = "true"
+            ->  GlobalSettings = "true"
             ->  WeaponsAndEquipment = "true"
             ->  JustEquipment = false
             ->  JustWeapons = false
         * Just Weapons:
             ->  GlobalNoKills = "true"
+            ->  GlobalSettings = "true"
             ->  WeaponsAndEquipment = false
             ->  JustEquipment = false
             ->  JustWeapons = "true"
         * Just Equipment:
             ->  GlobalNoKills = "true"
+            ->  GlobalSettings = "true"
             ->  WeaponsAndEquipment = false
             ->  JustEquipment = "true"
             ->  JustWeapons = false
@@ -178,6 +181,7 @@ function OnGameEnd()
 end
 
 function OnNewGame()
+    GameHasStarted = true
     if gamesettings["BasedOnMap"] == false and gamesettings["BasedOnGameType"] == false
         and gamesettings["GlobalSettings"] == false and gamesettings["GlobalNoKills"] == false
         and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false 
@@ -185,7 +189,6 @@ function OnNewGame()
         cprint("[SCRIPT] Warning! All Game Settings are false! One or more must be \"true\".", 4+8)
     end
     
-    GameHasStarted = true
     if equipment["Camouflage"] == false then
         local index = 1
         local ValueOfIndex = EQUIPMENT_TABLE[index]
@@ -201,11 +204,8 @@ function OnNewGame()
 
     if equipment["HealthPack"] == false then
         local index = 2
-        local ValueOfIndexIndex = EQUIPMENT_TABLE[index]
+        local ValueOfIndex = EQUIPMENT_TABLE[index]
         if (ValueOfIndex == "powerups\\health pack") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
             EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
             EQUIPMENT_TABLE[index] = nil
             index = index - 1
@@ -453,12 +453,13 @@ end
 function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
+    local victimName = tostring(get_var(victim, "$name"))
     local player_object = get_dynamic_player(victim)
     local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     VICTIM_LOCATION[victim][1] = xAxis
     VICTIM_LOCATION[victim][2] = yAxis
     VICTIM_LOCATION[victim][3] = zAxis
-    if (killer > 0) then
+    if (killer == -1) then
         -- Global (no kills required): Weapons and Equipment
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"] then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
@@ -471,74 +472,74 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustWeapons"] then
             JustWeapons(victim, xAxis, yAxis, zAxis)
         end
-        -- Global (kills required): Weapons and Equipment
-        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
-            if (kills == 10) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 20) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 30) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 40) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 50) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 60) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 70) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 80) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 90) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills >= 100) then
-                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            end
-        -- Global (kills required): JustEquipment
-        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
-            if (kills == 10) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 20) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 30) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 40) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 50) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 60) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 70) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 80) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 90) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-            elseif (kills >= 100) then
-                JustEquipment(victim, xAxis, yAxis, zAxis)
-        -- Global (kills required): JustWeapons
-        elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
-            if (kills == 10) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 20) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 30) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 40) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 50) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 60) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 70) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 80) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills == 90) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            elseif (kills >= 100) then
-                JustWeapons(victim, xAxis, yAxis, zAxis)
-            end
+    -- Global (kills required): Weapons and Equipment
+    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
+        if (kills == 5) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 10) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 15) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 20) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 25) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 30) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 35) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 40) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 45) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills >= 50) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+        end
+    -- Global (kills required): JustEquipment
+    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
+        if (kills == 5) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 10) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 15) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 20) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 25) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 30) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 35) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 40) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 45) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        elseif (kills >= 50) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+        end
+    -- Global (kills required): JustWeapons
+    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
+        if (kills == 5) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 10) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 15) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 20) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 25) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 30) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 35) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 40) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills == 45) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        elseif (kills >= 50) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
         end
     end
 end
