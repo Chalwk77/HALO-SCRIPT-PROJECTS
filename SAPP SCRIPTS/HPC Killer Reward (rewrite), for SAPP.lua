@@ -175,7 +175,7 @@ function OnNewGame()
         and gamesettings["GlobalSettings"] == false and gamesettings["GlobalNoKills"] == false
         and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false 
         and gamesettings["JustWeapons"] == false then
-        cprint("[SCRIPT] Warning! All gamesettings settings are false! One or more must be \"true\".", 4+8)
+        cprint("[SCRIPT] Warning! All Game Settings are false! One or more must be \"true\".", 4+8)
     end
     
     GameHasStarted = true
