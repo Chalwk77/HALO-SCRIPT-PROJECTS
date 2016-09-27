@@ -46,10 +46,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-
--- Configuration --
+--==============================================--
+-- >> Configuration << --
+-- Notice: "BasedOnMap" and "BasedOnGameType" are for a future update.
 gamesettings = {
-    -- For a Future Update!
     ["BasedOnMap"]          = false,
     ["BasedOnGameType"]     = false,
     ["GlobalSettings"]      = true,
@@ -86,7 +86,7 @@ equipment = {
     ["FlameThrowerAmmo"]    = true,
 }
 
--- For a future update!
+-- Notice: "mapsettings" are for a future update.
 mapsettings = {
     ["bloodgulch"]      = true,
     ["dangercanyon"]    = true,
@@ -106,7 +106,8 @@ mapsettings = {
     ["prisoner"]        = true,
     ["wizard"]          = true
 }
--- Configuration Ends --
+-- >> Configuration Ends << --
+--==============================================--
 
 
 -- Do Not Touch --
