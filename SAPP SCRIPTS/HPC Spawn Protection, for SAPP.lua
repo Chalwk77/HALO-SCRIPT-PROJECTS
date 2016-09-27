@@ -10,6 +10,7 @@ Script Name: HPC Spawn Protection, for SAPP
             Punish Killer
             Other special Attributes?
             * Suggestions? Email me.
+To Do list: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
