@@ -2,7 +2,7 @@
 Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: After 5,9,14,17 and 21 consecutive deaths, your victim will spawn with an overshield and camouflage.
+    Description: For every 7 consecutive deaths, your victim will spawn with an overshield and camouflage.
 
         [!] To Do:
             -->> Detect if Killer is camping
