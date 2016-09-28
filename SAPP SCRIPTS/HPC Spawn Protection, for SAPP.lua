@@ -31,13 +31,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
-deaths = {
-    ["ProtectAfter[5]Deaths"] = 5,
-    ["ProtectAfter[9]Deaths"] = 9,
-    ["ProtectAfter[13]Deaths"] = 13,
-    ["ProtectAfter[17]Deaths"] = 17,
-    ["ProtectAfter[21]Deaths"] = 21,
-}
+ConsecutiveDeaths = 7
 
 DEATHS = { }
 VICTIM_LOCATION = { }
@@ -76,39 +70,15 @@ function OnPlayerSpawn(PlayerIndex)
     VICTIM_LOCATION[PlayerIndex][2] = yAxis
     VICTIM_LOCATION[PlayerIndex][3] = zAxis
     if PlayerIndex then
-        if DEATHS[PlayerIndex][1] == deaths["ProtectAfter[1]Deaths"] then
+        if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
             spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
             spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
             execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.", false)
+            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
             execute_command("msg_prefix \"** SAPP ** \"")
-        elseif DEATHS[PlayerIndex][1] == deaths["ProtectAfter[2]Deaths"] then
-            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
-            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.", false)
-            execute_command("msg_prefix \"** SAPP ** \"")
-        elseif DEATHS[PlayerIndex][1] == deaths["ProtectAfter[3]Deaths"] then
-            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
-            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.", false)
-            execute_command("msg_prefix \"** SAPP ** \"")
-        elseif DEATHS[PlayerIndex][1] == deaths["ProtectAfter[4]Deaths"] then
-            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
-            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.", false)
-            execute_command("msg_prefix \"** SAPP ** \"")
-        elseif DEATHS[PlayerIndex][1] == deaths["ProtectAfter[5]Deaths"] then
-            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
-            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.", false)
-            execute_command("msg_prefix \"** SAPP ** \"")
+            DEATHS[PlayerIndex][1] = 0
         end
     end
-    DEATHS[PlayerIndex][1] = 0
 end
 
 function OnError(Message)
