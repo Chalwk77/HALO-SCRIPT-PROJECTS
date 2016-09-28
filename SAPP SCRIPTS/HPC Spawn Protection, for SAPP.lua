@@ -61,9 +61,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    local victimName = tostring(get_var(PlayerIndex, "$name"))
-    local player = get_player(PlayerIndex)
-    local rotation = read_float(player + 0x138)
     local player_object = get_dynamic_player(PlayerIndex)
     local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     VICTIM_LOCATION[PlayerIndex][1] = xAxis
@@ -71,8 +68,8 @@ function OnPlayerSpawn(PlayerIndex)
     VICTIM_LOCATION[PlayerIndex][3] = zAxis
     if PlayerIndex then
         if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
-            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5, rotation)
-            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5, rotation)
+            spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
+            spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
             execute_command("msg_prefix \"** SAPP ** \"")
