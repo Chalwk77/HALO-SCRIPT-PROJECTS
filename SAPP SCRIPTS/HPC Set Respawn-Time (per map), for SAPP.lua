@@ -49,99 +49,99 @@ function OnScriptUnload()
     map_respawn_settings = { }
 end
 
-function OnPlayerKill(player_index)
+function OnPlayerKill(PlayerIndex)
     if map_name == "beavercreek" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, beavercreek_time * 33)
     end
 
     if map_name == "bloodgulch" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, bloodgulch_time * 33)
     end
 
     if map_name == "boardingaction" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, boardingaction_time * 33)
     end
 
     if map_name == "carousel" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, carousel_time * 33)
     end
 
     if map_name == "chillout" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, chillout_time * 33)
     end
 
     if map_name == "damnation" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, damnation_time * 33)
     end
 
     if map_name == "dangercanyon" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, dangercanyon_time * 33)
     end
 
     if map_name == "deathisland" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, deathisland_time * 33)
     end
 
     if map_name == "gephyrophobia" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, gephyrophobia_time * 33)
     end
 
     if map_name == "hangemhigh" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, hangemhigh_time * 33)
     end
 
     if map_name == "icefields" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, icefields_time * 33)
     end
 
     if map_name == "infinity" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, infinity_time * 33)
     end
 
     if map_name == "longest" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, longest_time * 33)
     end
 
     if map_name == "prisoner" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, prisoner_time * 33)
     end
 
     if map_name == "putput" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, putput_time * 33)
     end
 
     if map_name == "ratrace" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, ratrace_time * 33)
     end
 
     if map_name == "sidewinder" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, sidewinder_time * 33)
     end
 
     if map_name == "timberland" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, timberland_time * 33)
     end
 
     if map_name == "wizard" then
-        local player = get_player(player_index)
+        local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, wizard_time * 33)
     end
 end	
