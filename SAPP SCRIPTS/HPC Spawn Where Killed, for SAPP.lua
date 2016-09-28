@@ -13,9 +13,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-DEATH_LOCATION = {}
-
-for i = 1,16 do DEATH_LOCATION[i] = {} end
+DEATH_LOCATION = { }
+for i = 1,16 do DEATH_LOCATION[i] = { } end
 function OnScriptUnload() end
 
 function OnScriptLoad()
@@ -39,7 +38,7 @@ end
 function OnPlayerPrespawn(VictimIndex)
     local victim = tonumber(VictimIndex)
     if VictimIndex then
-        if DEATH_LOCATION[victim][1] ~= nil and DEATH_LOCATION[victim][2] ~= nil and DEATH_LOCATION[victim][3] then
+        if DEATH_LOCATION[victim][1] ~= nil then
             write_vector3d(get_dynamic_player(victim) + 0x5C, DEATH_LOCATION[victim][1], DEATH_LOCATION[victim][2], DEATH_LOCATION[victim][3])
             for i = 1,3 do
 				DEATH_LOCATION[victim][i] = nil
