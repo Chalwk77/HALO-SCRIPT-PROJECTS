@@ -16,6 +16,8 @@ Script Name: HPC Spawn Protection, for SAPP
             
             The second mode uses a method based on a Death Counter in increments of 5.
             If this mode is enabled, by default you will receive special attributes for every 5 deaths.
+            
+    Default configuration is listed at the bottom of this script.
         
 Suggestions?
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
@@ -211,3 +213,33 @@ end
 function OnError(Message)
     print(debug.traceback())
 end
+
+
+--[[
+    
+    ** default confuguration**
+
+    
+    UseConsecutiveDeaths = true
+    UseBasedOnDeathCount = false
+    UseInvulnerability = true
+    UseSpeedBoost = true
+    ConsecutiveDeaths = 7
+
+    ResetSpeedTo = 1.0
+    SpeedBoost = 2.5
+    SpeedDuration = 5
+    Invulnerable = 5
+    
+    _5_Deaths = 5
+    _10_Deaths = 10
+    _15_Deaths = 15
+    _20_Deaths = 20
+    _25_Deaths = 25
+    _30_Deaths = 30
+    _35_Deaths = 35
+    _40_Deaths = 40
+    _45_Deaths = 45
+    _50_Deaths = 50
+
+]]
