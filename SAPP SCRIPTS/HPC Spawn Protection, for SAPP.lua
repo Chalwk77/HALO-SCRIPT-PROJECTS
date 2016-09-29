@@ -205,6 +205,14 @@ function OnPlayerSpawn(PlayerIndex)
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
                 MessagePlayer(PlayerIndex)
+                if UseSpeedBoost then 
+                    GiveSpeedBoost(PlayerIndex)
+                    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
+                end
+                if UseInvulnerability then
+                    Invulnerability(PlayerIndex)
+                    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
+                end
             end
         end
     end
