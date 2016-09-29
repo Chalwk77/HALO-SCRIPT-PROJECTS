@@ -2,7 +2,9 @@
 Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: 
+    Description: By default, you will spawn with a Camouflage and OverShield after 7 Consecutive Deaths.
+                 - You will also receive temporary godmode, and a speed boost. (optional)
+                 - Speedboost and godmode last for 5 seconds by default. (editable) 
     
     This script will allow you to:
         - optionally turn on temporary 'godmode' or (invulnerability)
@@ -28,6 +30,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
+-- Configuration--
 UseConsecutiveDeaths = true
 UseBasedOnDeathCount = false
 UseInvulnerability = true
@@ -42,7 +45,9 @@ SpeedBoost = 2.5
 SpeedDuration = 5
 -- Godmode activation time (in seconds)
 Invulnerable = 5
+-- Configuration Ends --
 
+-- Only edit these values if you know what you're doing!
 _5_Deaths = 5
 _10_Deaths = 10
 _15_Deaths = 15
