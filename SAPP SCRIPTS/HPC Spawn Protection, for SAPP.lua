@@ -7,7 +7,7 @@ Script Name: HPC Spawn Protection, for SAPP
                  - Speedboost and godmode last for 5 seconds by default. (editable) 
     
     This script will allow you to:
-        - optionally turn on temporary 'godmode' or (invulnerability)
+        - optionally turn on temporary 'godmode' (invulnerability)
         - optionally turn on temporary speed boost.
         
         There are two modes to this script.
