@@ -27,14 +27,15 @@ function OnScriptUnload()
 end 
 
 function OnNewGame(map)
---  About 700 - 800 milliseconds.
+    --  About 700 - 800 milliseconds.
     registertimer(Live_On_Three * 2100, "LiveOnThree")
     registertimer(Live_On_Two * 2100, "LiveOnTwo")
     registertimer(Live_On_One * 2100, "LiveOnOne")
 end
 
 function OnGameEnd(stage)
-    if stage == 1 then -- Post game Carnage report
+    if stage == 1 then
+        -- Post game Carnage report
         removetimer(Live_On_Three)
         removetimer(Live_On_Two)
         removetimer(Live_On_One)
@@ -44,8 +45,9 @@ end
 function LiveOnThree(id, count)
     for player = 0, 15 do
         local m_player = getplayer(player)
-        if game_started then 
-            return false -- Ends the loop on game end.
+        if game_started then
+            return false
+            -- Ends the loop on game end.
         end
         if Live_On_Three == 07 then
             -- In (seconds)
@@ -57,16 +59,19 @@ function LiveOnThree(id, count)
             return false
         end
     end
-    return false -- Ends the loop
+    return false
+    -- Ends the loop
 end	
 
 function LiveOnTwo(id, count)
     for player = 0, 15 do
         local m_player = getplayer(player)
-        if game_started then 
-            return false -- Ends the loop on game end.
+        if game_started then
+            return false
+            -- Ends the loop on game end.
         end
-        if Live_On_Two == 08 then -- In (seconds)
+        if Live_On_Two == 08 then
+            -- In (seconds)
             if m_player == nil then
                 return 0
             end
@@ -75,16 +80,19 @@ function LiveOnTwo(id, count)
             return false
         end
     end
-    return false -- Ends the loop
+    return false
+    -- Ends the loop
 end
 
 function LiveOnOne(id, count)
     for player = 0, 15 do
         local m_player = getplayer(player)
-        if game_started then 
-            return false -- Ends the loop on game end.
+        if game_started then
+            return false
+            -- Ends the loop on game end.
         end
-        if Live_On_One == 09 then -- In (seconds)
+        if Live_On_One == 09 then
+            -- In (seconds)
             if m_player == nil then
                 return 0
             end
@@ -93,5 +101,6 @@ function LiveOnOne(id, count)
             return false
         end
     end
-    return false -- Ends the loop
+    return false
+    -- Ends the loop
 end

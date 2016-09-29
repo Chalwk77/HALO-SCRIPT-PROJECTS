@@ -1,11 +1,11 @@
---[[    
+--[[
 --------------------------------------------------------------------------
 Script Name: HPC Chat Logging, for Phasorv2
-    
+
 Description: This script will log player chat to halo/logs/Server Chat.txt
 
 * Notes at the bottom of the script.
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -14,9 +14,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby
 --------------------------------------------------------------------------
 ]]-- 
-function GetRequiredVersion() 
-    return 
-    200 
+function GetRequiredVersion()
+    return
+    200
 end
 
 function OnScriptLoad(processid, game, persistent)
@@ -29,7 +29,7 @@ function OnScriptLoad(processid, game, persistent)
     GetGameAddresses(GAME)
     gametype = readbyte(gametype_base + 0x30)
     Game_Mode = readstring(gametype_base, 0x2C)
-    map_name = readstring(0x698F21)	
+    map_name = readstring(0x698F21)
     if game == "PC" then
         gametype_base = 0x671340
     elseif game == "CE" then
@@ -37,24 +37,24 @@ function OnScriptLoad(processid, game, persistent)
     end
 end
 
-function OnScriptUnload() 
+function OnScriptUnload()
 
 end
 
 Write_To_File = true
 
 function OnServerChat(player, chattype, message)
---[[ 
+    --[[
 
 	Type:
 	0 All chat
 	1 Team chat
     2 Vehicle chat
     3 Server message
-    4 Private server message 
-    
-]]	
-	
+    4 Private server message
+
+]]
+
     local type = nil
     if chattype == 0 then
         type = "GLOBAL"
@@ -63,17 +63,17 @@ function OnServerChat(player, chattype, message)
     elseif chattype == 2 then
         type = "VEHICLE"
     end
-        
-    if string.lower(tostring(message)) == "/pl" or string.lower(tostring(message)) == "\\pl" then 
-        return false 
+
+    if string.lower(tostring(message)) == "/pl" or string.lower(tostring(message)) == "\\pl" then
+        return false
     end
-        
+
     if player ~= nil and type ~= nil then
         local name = getname(player)
         local id = resolveplayer(player)
-        hprintf("[CHAT] " ..name.. " [" ..id.. "] " ..type.. ": " .. "\""..message.."\"")
-        WriteLog(profilepath .. "\\logs\\Server Chat.txt", name.. " [" ..id.. "] " ..type.. ": " .. "\""..message.."\"")
-    end     
+        hprintf("[CHAT] " .. name .. " [" .. id .. "] " .. type .. ": " .. "\"" .. message .. "\"")
+        WriteLog(profilepath .. "\\logs\\Server Chat.txt", name .. " [" .. id .. "] " .. type .. ": " .. "\"" .. message .. "\"")
+    end
 end   
 
 function WriteLog(filename, value)
@@ -95,9 +95,9 @@ function NewLine(filename, value)
             local timestamp = os.date("%H:%M:%S  -  %d/%m/%Y")
             local Line0 = string.format("%s\t%s\n", timestamp, tostring(value))
             Line0 = "\n"
-            Line1 = (timestamp)
+            Line1 =(timestamp)
             Line2 = "\n---------------------------------------------------------------------------------------------------\n"
-            Line3 = "New Game, Map: " ..map_name.. ", Mode: " ..Game_Mode.."\n"
+            Line3 = "New Game, Map: " .. map_name .. ", Mode: " .. Game_Mode .. "\n"
             Line4 = "\n"
             file:write(Line0, Line1, Line2, Line3, Line4)
             file:close()
@@ -115,20 +115,20 @@ end
 -- Displays: Name, Index ID, Port, IP, Hash and 'quit time'.
 function OnPlayerLeave(player)
 
-    local timestamp = os.date ("%H:%M:%S, %d/%m/%Y:")
+    local timestamp = os.date("%H:%M:%S, %d/%m/%Y:")
     local name = getname(player)
     local id = resolveplayer(player)
     local port = getport(player)
     local ip = getip(player)
     local hash = gethash(player)
-			
+
     hprintf("---------------------------------------------------------------------------------------------------")
-    hprintf(name.. " quit the game! - IndexID [" ..id.. "] [" ..port.. "]")
-    hprintf("CD Hash: <" ..hash.. ">")
-    hprintf("Time: " ..timestamp)
-    hprintf("IP Address: [" ..ip.. "]")
+    hprintf(name .. " quit the game! - IndexID [" .. id .. "] [" .. port .. "]")
+    hprintf("CD Hash: <" .. hash .. ">")
+    hprintf("Time: " .. timestamp)
+    hprintf("IP Address: [" .. ip .. "]")
     hprintf("---------------------------------------------------------------------------------------------------")
-    
+
 end
 
 function GetGameAddresses(GAME)

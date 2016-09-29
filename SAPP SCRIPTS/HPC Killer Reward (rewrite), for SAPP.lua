@@ -4,7 +4,7 @@ Script Name: HPC Killer Reward (rewrite), for SAPP
 
     Description: This script will drop 1-20 (configurable) random items at your victims death location.
     TO DO LIST: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/4
-            
+
 MODES:
     [!] Kills Not Required:
         * Weapons and Equipment:
@@ -25,7 +25,7 @@ MODES:
             ->  WeaponsAndEquipment = false
             ->  JustEquipment = "true"
             ->  JustWeapons = false
-            
+
     [!] Kills Required:
         * Weapons and Equipment:
             ->  GlobalKillsRequired = "true"
@@ -42,10 +42,10 @@ MODES:
             ->  WeaponsAndEquipment = false
             ->  JustEquipment = "true"
             ->  JustWeapons = false
-            
+
             Kill-Threshold: Increments of 10.
             For every 10 kills you get, your victim will drop an item.
-            
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -55,68 +55,68 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
---==============================================--
+-- ==============================================--
 -- >> Configuration << --
 -- Notice: "BasedOnMap" and "BasedOnGameType" are for a future update.
 gamesettings = {
-    ["BasedOnMap"]          = false,
-    ["BasedOnGameType"]     = false,
-    ["GlobalSettings"]      = true,
-    ["GlobalNoKills"]       = true,
+    ["BasedOnMap"] = false,
+    ["BasedOnGameType"] = false,
+    ["GlobalSettings"] = true,
+    ["GlobalNoKills"] = true,
     ["GlobalKillsRequired"] = false,
     ["WeaponsAndEquipment"] = true,
-    ["JustEquipment"]       = false,
-    ["JustWeapons"]         = false,
+    ["JustEquipment"] = false,
+    ["JustWeapons"] = false,
 }
 
 weapons = {
-    ["AssaultRifle"]    = true,
-    ["FlameThrower"]    = true,
-    ["Needler"]         = true,
-    ["Pistol"]          = true,
-    ["PlasmaPistol"]    = true,
-    ["PlasmaRifle"]     = true,
-    ["PlasmaCannon"]    = true,
-    ["RocketLauncher"]  = true,
-    ["Shotgun"]         = true,
-    ["SniperRifle"]     = true,
+    ["AssaultRifle"] = true,
+    ["FlameThrower"] = true,
+    ["Needler"] = true,
+    ["Pistol"] = true,
+    ["PlasmaPistol"] = true,
+    ["PlasmaRifle"] = true,
+    ["PlasmaCannon"] = true,
+    ["RocketLauncher"] = true,
+    ["Shotgun"] = true,
+    ["SniperRifle"] = true,
 }
 
 equipment = {
-    ["Camouflage"]          = true,
-    ["HealthPack"]          = true,
-    ["OverShield"]          = true,
-    ["AssaultRifleAmmo"]    = true,
-    ["NeedlerAmmo"]         = true,
-    ["PistolAmmo"]          = true,
-    ["RocketLauncherAmmo"]  = true,
-    ["ShotgunAmmo"]         = true,
-    ["SniperRifleAmmo"]     = true,
-    ["FlameThrowerAmmo"]    = true,
+    ["Camouflage"] = true,
+    ["HealthPack"] = true,
+    ["OverShield"] = true,
+    ["AssaultRifleAmmo"] = true,
+    ["NeedlerAmmo"] = true,
+    ["PistolAmmo"] = true,
+    ["RocketLauncherAmmo"] = true,
+    ["ShotgunAmmo"] = true,
+    ["SniperRifleAmmo"] = true,
+    ["FlameThrowerAmmo"] = true,
 }
 
 -- Notice: "mapsettings" are for a future update.
 mapsettings = {
-    ["bloodgulch"]      = true,
-    ["dangercanyon"]    = true,
-    ["deathisland"]     = true,
-    ["gephyrophobia"]   = true,
-    ["icefields"]       = true,
-    ["infinity"]        = true,
-    ["sidewinder"]      = true,
-    ["timberland"]      = true,
-    ["hangemhigh"]      = true,
-    ["ratrace"]         = true,
-    ["beavercreek"]     = true,
-    ["damnation"]       = true,
-    ["boardingaction"]  = true,
-    ["carousel"]        = true,
-    ["putput"]          = true,
-    ["prisoner"]        = true,
-    ["wizard"]          = true
+    ["bloodgulch"] = true,
+    ["dangercanyon"] = true,
+    ["deathisland"] = true,
+    ["gephyrophobia"] = true,
+    ["icefields"] = true,
+    ["infinity"] = true,
+    ["sidewinder"] = true,
+    ["timberland"] = true,
+    ["hangemhigh"] = true,
+    ["ratrace"] = true,
+    ["beavercreek"] = true,
+    ["damnation"] = true,
+    ["boardingaction"] = true,
+    ["carousel"] = true,
+    ["putput"] = true,
+    ["prisoner"] = true,
+    ["wizard"] = true
 }
 -- >> Configuration Ends << --
---==============================================--
+-- ==============================================--
 
 
 -- Do Not Touch --
@@ -161,20 +161,20 @@ function OnScriptLoad()
     end
 end
 
-function OnScriptUnload() 
-    gamesettings = {}
-    equipment = {}
-    weapons = {}
-    mapsettings = {}
+function OnScriptUnload()
+    gamesettings = { }
+    equipment = { }
+    weapons = { }
+    mapsettings = { }
     EQUIPMENT_TABLE = { }
     WEAPON_TABLE = { }
 end
 
 function OnGameEnd()
-    gamesettings = {}
-    equipment = {}
-    weapons = {}
-    mapsettings = {}
+    gamesettings = { }
+    equipment = { }
+    weapons = { }
+    mapsettings = { }
     EQUIPMENT_TABLE = { }
     WEAPON_TABLE = { }
     GameHasStarted = false
@@ -184,11 +184,11 @@ function OnNewGame()
     GameHasStarted = true
     if gamesettings["BasedOnMap"] == false and gamesettings["BasedOnGameType"] == false
         and gamesettings["GlobalSettings"] == false and gamesettings["GlobalNoKills"] == false
-        and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false 
+        and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false
         and gamesettings["JustWeapons"] == false then
-        cprint("[SCRIPT] Warning! All Game Settings are false! One or more must be \"true\".", 4+8)
+        cprint("[SCRIPT] Warning! All Game Settings are false! One or more must be \"true\".", 4 + 8)
     end
-    
+
     if equipment["Camouflage"] == false then
         local index = 1
         local ValueOfIndex = EQUIPMENT_TABLE[index]
@@ -472,7 +472,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustWeapons"] then
             JustWeapons(victim, xAxis, yAxis, zAxis)
         end
-    -- Global (kills required): Weapons and Equipment
+        -- Global (kills required): Weapons and Equipment
     elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
         if (kills == 5) then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
@@ -495,7 +495,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         elseif (kills >= 50) then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
         end
-    -- Global (kills required): JustEquipment
+        -- Global (kills required): JustEquipment
     elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
         if (kills == 5) then
             JustEquipment(victim, xAxis, yAxis, zAxis)
@@ -518,7 +518,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         elseif (kills >= 50) then
             JustEquipment(victim, xAxis, yAxis, zAxis)
         end
-    -- Global (kills required): JustWeapons
+        -- Global (kills required): JustWeapons
     elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
         if (kills == 5) then
             JustWeapons(victim, xAxis, yAxis, zAxis)

@@ -1,4 +1,4 @@
---[[    
+--[[
 ------------------------------------
 Description: HPC SetRunningSpeed, Phasor V2+
 Copyright © 2016-2017 Jericho Crosby
@@ -13,5 +13,5 @@ function GetRequiredVersion() return 200 end
 function OnScriptLoad(processid, game, persistent) end
 function OnScriptUnload() end
 function OnPlayerSpawnEnd(player, m_objectId)
-	if getplayer(player) then setspeed(player, RunningSpeed) end
+    if getplayer(player) then setspeed(player, RunningSpeed) end
 end	

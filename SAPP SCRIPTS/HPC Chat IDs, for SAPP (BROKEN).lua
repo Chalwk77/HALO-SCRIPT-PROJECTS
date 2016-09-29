@@ -7,9 +7,9 @@ Description:  This script will modify your players message chat format
               by adding an IndexID in front of their name in square brackets.
 eg. Chalwk [1]: This is a test message.
 
-    ** COMPATIBILITY** 
+    ** COMPATIBILITY**
     - This script is not currently compatible with SAPP.
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -30,10 +30,10 @@ end
 function OnChatMessage(PlayerIndex, Message)
 
     local id = get_var(PlayerIndex, "$n")
-    local chatFormat = string.format(" [" .. tonumber(id) .. "]: " ..tostring(Message))
-        if player_present(PlayerIndex) ~= nil then
-            return true, chatFormat
-        else
+    local chatFormat = string.format(" [" .. tonumber(id) .. "]: " .. tostring(Message))
+    if player_present(PlayerIndex) ~= nil then
+        return true, chatFormat
+    else
         return true, chatFormat
     end
 end
