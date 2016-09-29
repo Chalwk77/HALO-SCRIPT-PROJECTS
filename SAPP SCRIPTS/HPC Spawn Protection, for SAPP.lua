@@ -70,11 +70,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     if (killer > 0) then
         DEATHS[victim][1] = DEATHS[victim][1] + 1
-        if killer then
-            if DEATHS[killer][1] ~= 0 then
-                DEATHS[killer][1] = 0
-            end
-        end
     end
 end
 
