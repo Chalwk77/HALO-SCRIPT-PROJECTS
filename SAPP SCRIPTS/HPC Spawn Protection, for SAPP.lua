@@ -38,7 +38,7 @@ UseSpeedBoost = true
 ConsecutiveDeaths = 7
 
 -- Normal running speed
-NormalSpeed = 1.0
+ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 2.5
 -- Speedboost activation time (in seconds)
@@ -111,7 +111,7 @@ function ResetPlayerSpeed(PlayerIndex)
     local victim = get_player(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        write_float(victim + 0x6C, NormalSpeed)
+        write_float(victim + 0x6C, ResetSpeedTo)
     end
 end
 
