@@ -2,8 +2,19 @@
 Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: For every 7 consecutive deaths, your victim will spawn with an overshield and camouflage.
-
+    Description: 
+    
+    This script will allow you to:
+        - optionally turn on temporary 'godmode' or (invulnerability)
+        - optionally turn on temporary speed boost.
+        
+        There are two modes to this script.
+            The First mode uses a method based on 'consecutive deaths'. 
+            If this setting is enabled, for every 7 consecutive deaths you have, you will spawn with special attributes.
+            
+            The second mode uses a method based on a Death Counter in increments of 5.
+            If this mode is enabled, by default you will receive special attributes for every 5 deaths.
+        
 Suggestions?
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
@@ -23,9 +34,13 @@ UseInvulnerability = true
 UseSpeedBoost = true
 ConsecutiveDeaths = 7
 
+-- Normal running speed
 NormalSpeed = 1.0
+-- Amount to boost by
 SpeedBoost = 2.5
+-- Speedboost activation time (in seconds)
 SpeedDuration = 5
+-- Godmode activation time (in seconds)
 Invulnerable = 5
 
 _5_Deaths = 5
