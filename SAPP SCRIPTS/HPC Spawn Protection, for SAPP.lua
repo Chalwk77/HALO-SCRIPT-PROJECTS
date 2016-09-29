@@ -2,7 +2,7 @@
 Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with a Camouflage and OverShield after 7 Consecutive Deaths.
+    Description: By default, you will spawn with a Camouflage and OverShield for every 7 Consecutive Deaths.
                  - You will also receive temporary godmode, and a speed boost. (optional)
                  - Speedboost and godmode last for 5 seconds by default. (editable) 
     
