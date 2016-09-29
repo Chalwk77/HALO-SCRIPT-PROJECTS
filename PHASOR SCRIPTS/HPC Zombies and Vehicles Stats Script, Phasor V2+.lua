@@ -1,28 +1,18 @@
 --[[
---===================================================================--
-Description: HPC Zombies and Vehicles Stats Script, Phasor V2+
-Copyright © 2016-2017 Jericho Crosby
-* Author: Jericho Crosby
-* IGN: Chalwk
-* Version: 4.0.1 (Heavily Modified)
-* Written and Created by Jericho Crosby
+------------------------------------
+Script Name: HPC Zombies and Vehicles Stats Script, for PhasorV2+
+
+Heavily Modified version by Jericho Crosby
 * Credits to the original creator(s): SlimJim | Kennan
 
-    You can optionally define game mode settings in:
-        Default Game Mode = 'Zombies_Stats'
-        * function SetVehicleSettings()
-    You can optionally define game mode settings in:
-        Default Game Mode = 'ZAV'
-			* function SetVehicleSettings()
-			* function SpawnVehicles()
-			* function DetermineVehiclesForPlayer
-		+ + WARNING + +
-		If your GameMode isn't SetUp properly, the server will terminate.
-		In Halo, go to Multi Player >> EDIT GAMETYPES >> And name your game mode "ZAV" - making sure it is CTF!
-		This script is currently only set up to run on CTF type game modes.
-		Support for Team Slayer, and Slayer game modes will be added later .
---]]
--- =====================================================================================================================--
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* IGN: Chalwk
+* Written by Jericho Crosby
+-----------------------------------
+]]--
 -- STRINGS --
 HUMAN_MESSAGE = "YOU ARE A HUMAN - KILL THE ZOMBIES!"
 ZOMBIE_MESSAGE = "YOU ARE A ZOMBIE - INFECT THE HUMANS!"

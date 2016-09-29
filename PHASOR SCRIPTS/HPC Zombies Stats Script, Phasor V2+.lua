@@ -1,17 +1,17 @@
 --[[
---===================================================================--
-Description: HPC Zombies Stats Script, Phasor V2+
-Copyright © 2016-2017 Jericho Crosby
-* Author: Jericho Crosby
-* IGN: Chalwk
-* Version: 4.0.1 (Heavily Modified)
-* Written and Created by Jericho Crosby
+------------------------------------
+Script Name: HPC Zombies Stats Script, for PhasorV2+
+
+Heavily Modified version by Jericho Crosby
 * Credits to the original creator(s): SlimJim | Kennan
 
--- 		You can optionally define game mode settings in:
---		Default Game Mode = 'Zombies_Stats'
---			* function SetVehicleSettings()
---===================================================================--
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* IGN: Chalwk
+* Written by Jericho Crosby
+-----------------------------------
 ]]--
 
 -- STRINGS --

@@ -1,11 +1,14 @@
 --[[
-------------------------------------
-Description: HPC Welcome Message, Phasor V2
-Copyright © 2016-2017 Jericho Crosby
-* Author: Jericho Crosby
+------------------------------------------------------------------------
+Script Name: HPC Welcome Messages, for PhasorV2+
+
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
 * IGN: Chalwk
-* Written and Created by Jericho Crosby
------------------------------------
+* Written by Jericho Crosby
+------------------------------------------------------------------------
 ]]--
 
 Welcome_Message = "Welcome Message Here"

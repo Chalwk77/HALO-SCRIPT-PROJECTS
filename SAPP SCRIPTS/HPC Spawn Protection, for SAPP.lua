@@ -4,11 +4,6 @@ Script Name: HPC Spawn Protection, for SAPP
 
     Description: For every 7 consecutive deaths, your victim will spawn with an overshield and camouflage.
 
-        [!] To Do:
-            -->> Detect if Killer is camping
-            -->> DelayTimer (between deaths) for another future update
-            -->> Punish Killer?
-            -->> Other editable attributes?
 Suggestions?
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
@@ -24,13 +19,15 @@ api_version = "1.11.0.0"
 
 UseConsecutiveDeaths = true
 UseBasedOnDeathCount = false
--- For every 7 consecutive deaths, your victim will spawn with an overshield and camouflage.
--- Kill Count resets every 7 deaths.
+UseInvulnerability = true
+UseSpeedBoost = true
 ConsecutiveDeaths = 7
 
--- Deaths are in increments of 5
--- After exactly 5 Deaths, your victim will spawn with an overshield and camouflage
--- After exactly 10 Deaths, your victim will spawn with an overshield and camouflage, and so on.
+NormalSpeed = 1.0
+SpeedBoost = 2.5
+SpeedDuration = 5
+Invulnerable = 5
+
 _5_Deaths = 5
 _10_Deaths = 10
 _15_Deaths = 15
@@ -73,6 +70,64 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     end
 end
 
+function Invulnerability(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        write_float(player_object + 0xE0, 999999)
+    end
+end
+
+function GiveSpeedBoost(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
+    local victim = get_player(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        write_float(victim + 0x6C, SpeedBoost)
+    end
+end
+
+function ResetPlayerSpeed(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
+    local victim = get_player(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        write_float(victim + 0x6C, NormalSpeed)
+    end
+end
+
+function ResetInvulnerability(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        write_float(player_object + 0xE0, 1)
+        write_float(player_object + 0xE4, 1)
+    end
+end
+
+function MessagePlayer(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
+        rprint(PlayerIndex, "|c**Spawn Protection**")
+        rprint(PlayerIndex, "|cYou have received an OverShield and Camouflage.")
+        if UseInvulnerability then 
+            rprint(PlayerIndex, "|cYou are invulnerable for " ..Invulnerable.. " seconds.")
+        end
+        if UseSpeedBoost then 
+            rprint(PlayerIndex, "|cYou have speed boost for " ..SpeedDuration.. " seconds.")
+        end
+        rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+    end
+end
+
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
@@ -84,73 +139,50 @@ function OnPlayerSpawn(PlayerIndex)
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
                 DEATHS[PlayerIndex][1] = 0
+                if UseSpeedBoost then 
+                    GiveSpeedBoost(PlayerIndex)
+                    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
+                end
+                if UseInvulnerability then
+                    Invulnerability(PlayerIndex)
+                    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
+                end
+                MessagePlayer(PlayerIndex)
             end
         end
         if UseBasedOnDeathCount and not UseConsecutiveDeaths then
             if DEATHS[PlayerIndex][1] == _5_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _10_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _15_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _20_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _25_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _30_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _35_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _40_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _45_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
             elseif DEATHS[PlayerIndex][1] == _50_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[!] Spawn Protection: You have been given an OverShield and Camouflage.")
-                execute_command("msg_prefix \"** SAPP ** \"")
+                MessagePlayer(PlayerIndex)
             end
         end
     end
