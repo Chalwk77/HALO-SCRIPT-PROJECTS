@@ -206,7 +206,6 @@ function OnPlayerSpawn(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _50_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                MessagePlayer(PlayerIndex)
                 if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
                     timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
@@ -216,6 +215,7 @@ function OnPlayerSpawn(PlayerIndex)
                     timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
             end
+            MessagePlayer(PlayerIndex)
         end
     end
 end
