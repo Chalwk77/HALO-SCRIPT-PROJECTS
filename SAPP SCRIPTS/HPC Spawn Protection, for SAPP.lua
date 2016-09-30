@@ -33,16 +33,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- Configuration--
-UseConsecutiveDeaths = true
-UseBasedOnDeathCount = false
-UseInvulnerability = true
-UseSpeedBoost = true
+local settings = {
+    ["UseConsecutiveDeaths"] = true,
+    ["UseBasedOnDeathCount"] = false,
+    ["UseInvulnerability"] = true,
+    ["UseSpeedBoost"] = true,
+}
+
 ConsecutiveDeaths = 7
 
 -- Normal running speed
 ResetSpeedTo = 1.0
 -- Amount to boost by
-SpeedBoost = 2.5
+SpeedBoost = 1.5
 -- Speedboost activation time (in seconds)
 SpeedDuration = 5
 -- Godmode activation time (in seconds)
@@ -96,7 +99,7 @@ function Invulnerability(PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        write_float(player_object + 0xE0, 999999)
+        write_float(player_object + 0xE0, 9999999999)
     end
 end
 
@@ -111,7 +114,6 @@ end
 function ResetPlayerSpeed(PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local victim = get_player(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
         write_float(victim + 0x6C, ResetSpeedTo)
     end
@@ -132,10 +134,10 @@ function MessagePlayer(PlayerIndex)
         rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
         rprint(PlayerIndex, "|c**Spawn Protection**")
         rprint(PlayerIndex, "|cYou have received an OverShield and Camouflage.")
-        if UseInvulnerability then 
+        if settings["UseInvulnerability"] then 
             rprint(PlayerIndex, "|cYou are invulnerable for " ..Invulnerable.. " seconds.")
         end
-        if UseSpeedBoost then 
+        if settings["UseSpeedBoost"] then 
             rprint(PlayerIndex, "|cYou have speed boost for " ..SpeedDuration.. " seconds.")
         end
         rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
@@ -157,23 +159,23 @@ function OnPlayerSpawn(PlayerIndex)
     LOCATION[PlayerIndex][2] = yAxis
     LOCATION[PlayerIndex][3] = zAxis
     if PlayerIndex then
-        if UseConsecutiveDeaths and not UseBasedOnKills then
+        if settings["UseConsecutiveDeaths"] and not settings["UseBasedOnKills"] then
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
                 DEATHS[PlayerIndex][1] = 0
-                if UseSpeedBoost then 
+                if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
                     timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
                 end
-                if UseInvulnerability then
+                if settings["UseInvulnerability"] then
                     Invulnerability(PlayerIndex)
                     timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
                 MessagePlayer(PlayerIndex)
             end
         end
-        if UseBasedOnDeathCount and not UseConsecutiveDeaths then
+        if settings["UseBasedOnDeathCount"] and not settings["UseConsecutiveDeaths"] then
             if DEATHS[PlayerIndex][1] == _5_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
@@ -205,11 +207,11 @@ function OnPlayerSpawn(PlayerIndex)
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
                 MessagePlayer(PlayerIndex)
-                if UseSpeedBoost then 
+                if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
                     timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
                 end
-                if UseInvulnerability then
+                if settings["UseInvulnerability"] then
                     Invulnerability(PlayerIndex)
                     timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
