@@ -11,7 +11,7 @@ Description: This script will log player chat to <sapp server>/Server Chat.txt
     [3] Seems legit.
     [4] Enjoy.
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright ?2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -24,7 +24,7 @@ api_version = "1.11.0.0"
 local dir = 'sapp\\Server Chat.txt'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
@@ -46,18 +46,29 @@ end
 function WriteData(dir, value)
     local file = io.open(dir, "a+")
     if file ~= nil then
-        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]    ")
+        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
+function OnChatMessage(PlayerIndex, Message, type)
+    local message = tostring(Message)
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
-    local GetChatFormat = string.format("[" .. tonumber(id) .. "]: " ..(tostring(Message)))
-    WriteData(dir, name .. " " .. GetChatFormat)
+    if type == 0 then 
+        Type = "[GLOBAL]"
+    elseif type == 1 then 
+        Type = "[TEAM]"
+    elseif type == 2 then 
+        Type = "[VEHICLE]"
+    end
+    if player_present(PlayerIndex) ~= nil then
+        WriteData(dir, Type .." " .. name .. " [" .. id .. "]: " .. tostring(message))
+        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
+    end
+    return true
 end
 
 function OnError(Message)
