@@ -9,7 +9,7 @@ Description: This script will log player chat to <sapp server>/Server Chat.txt
     6-Oct-2016
         - Updated to guard against modulo operator's throwing an error
         
-Copyright ?2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
