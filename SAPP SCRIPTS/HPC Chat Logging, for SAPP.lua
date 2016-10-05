@@ -6,11 +6,9 @@ Script Name: HPC Chat Logger V2, for SAPP
 Description: This script will log player chat to <sapp server>/Server Chat.txt
 
 * Change log:
-    [1] I had to rewrite this script. It was driving me crazy.
-    [2] Does the same thing. Just more efficient and clean.
-    [3] Seems legit.
-    [4] Enjoy.
-
+    6-Oct-2016
+        - Updated to guard against modulo operator's throwing an error
+        
 Copyright ?2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
