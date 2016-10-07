@@ -2,7 +2,7 @@
 Script Name: HPC Spawn Protection (version 2), for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with an active Camouflage & Godmode for 3 seconds for every 7 consecutive deaths.
+    Description: By default, you will spawn with an active Camouflage & Godmode for 5 seconds for every 10 consecutive deaths.
     
     This script will allow you to:
         - optionally turn on temporary 'godmode' (invulnerability)
@@ -10,7 +10,7 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
         
         There are two modes:
             Mode 1 uses a method based on 'consecutive deaths'. 
-            If this setting is enabled, for every 7 consecutive deaths you have, you will spawn with special attributes.
+            If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with special attributes.
             
             Mode 2 uses a similar method based on a Death Counter in increments of every 5.
             If this mode is enabled, by default you will receive special attributes for every 5 deaths.
@@ -38,18 +38,18 @@ local settings = {
     ["UseSpeedBoost"] = true,
 }
 
-ConsecutiveDeaths = 7
+ConsecutiveDeaths = 10
 
 -- Normal running speed
 ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
-SpeedDuration = 3
+SpeedDuration = 5
 -- Godmode activation time (in seconds)
-Invulnerable = 3
+Invulnerable = 5
 -- Camo activation time (in seconds)
-CamoTime = 3
+CamoTime = 5
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
