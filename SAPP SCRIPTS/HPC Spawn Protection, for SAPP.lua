@@ -2,8 +2,23 @@
 Script Name: HPC Spawn Protection, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: For every 7 consecutive deaths, your victim will spawn with an overshield and camouflage.
-
+    Description: By default, you will spawn with a Camouflage and OverShield for every 7 Consecutive Deaths.
+                 - You will also receive temporary godmode, and a speed boost. (optional)
+                 - Speedboost and godmode last for 5 seconds by default. (editable) 
+    
+    This script will allow you to:
+        - optionally turn on temporary 'godmode' (invulnerability)
+        - optionally turn on temporary speed boost.
+        
+        There are two modes to this script.
+            The First mode uses a method based on 'consecutive deaths'. 
+            If this setting is enabled, for every 7 consecutive deaths you have, you will spawn with special attributes.
+            
+            The second mode uses a method based on a Death Counter in increments of 5.
+            If this mode is enabled, by default you will receive special attributes for every 5 deaths.
+            
+    Default configuration is listed at the bottom of this script.
+        
 Suggestions?
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
@@ -17,17 +32,27 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-UseConsecutiveDeaths = true
-UseBasedOnDeathCount = false
-UseInvulnerability = true
-UseSpeedBoost = true
+-- Configuration--
+local settings = {
+    ["UseConsecutiveDeaths"] = true,
+    ["UseBasedOnDeathCount"] = false,
+    ["UseInvulnerability"] = true,
+    ["UseSpeedBoost"] = true,
+}
+
 ConsecutiveDeaths = 7
 
-NormalSpeed = 1.0
-SpeedBoost = 2.5
-SpeedDuration = 5
-Invulnerable = 5
+-- Normal running speed
+ResetSpeedTo = 1.0
+-- Amount to boost by
+SpeedBoost = 1.3
+-- Speedboost activation time (in seconds)
+SpeedDuration = 3
+-- Godmode activation time (in seconds)
+Invulnerable = 3
+-- Configuration Ends --
 
+-- Only edit these values if you know what you're doing!
 _5_Deaths = 5
 _10_Deaths = 10
 _15_Deaths = 15
@@ -74,7 +99,7 @@ function Invulnerability(PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        write_float(player_object + 0xE0, 999999)
+        write_float(player_object + 0xE0, 9999999999)
     end
 end
 
@@ -89,9 +114,8 @@ end
 function ResetPlayerSpeed(PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local victim = get_player(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        write_float(victim + 0x6C, NormalSpeed)
+        write_float(victim + 0x6C, ResetSpeedTo)
     end
 end
 
@@ -107,24 +131,7 @@ end
 function MessagePlayer(PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
-        rprint(PlayerIndex, "|c**Spawn Protection**")
-        rprint(PlayerIndex, "|cYou have received an OverShield and Camouflage.")
-        if UseInvulnerability then 
-            rprint(PlayerIndex, "|cYou are invulnerable for " ..Invulnerable.. " seconds.")
-        end
-        if UseSpeedBoost then 
-            rprint(PlayerIndex, "|cYou have speed boost for " ..SpeedDuration.. " seconds.")
-        end
-        rprint(PlayerIndex, "|c>-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
-        rprint(PlayerIndex, "|n")
+        say(PlayerIndex, "You have received Spawn Protection!")
     end
 end
 
@@ -135,23 +142,23 @@ function OnPlayerSpawn(PlayerIndex)
     LOCATION[PlayerIndex][2] = yAxis
     LOCATION[PlayerIndex][3] = zAxis
     if PlayerIndex then
-        if UseConsecutiveDeaths and not UseBasedOnKills then
+        if settings["UseConsecutiveDeaths"] and not settings["UseBasedOnKills"] then
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
                 DEATHS[PlayerIndex][1] = 0
-                if UseSpeedBoost then 
+                if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
                     timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
                 end
-                if UseInvulnerability then
+                if settings["UseInvulnerability"] then
                     Invulnerability(PlayerIndex)
                     timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
                 MessagePlayer(PlayerIndex)
             end
         end
-        if UseBasedOnDeathCount and not UseConsecutiveDeaths then
+        if settings["UseBasedOnDeathCount"] and not settings["UseConsecutiveDeaths"] then
             if DEATHS[PlayerIndex][1] == _5_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
@@ -182,8 +189,16 @@ function OnPlayerSpawn(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _50_Deaths then
                 spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
                 spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
-                MessagePlayer(PlayerIndex)
+                if settings["UseSpeedBoost"] then 
+                    GiveSpeedBoost(PlayerIndex)
+                    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
+                end
+                if settings["UseInvulnerability"] then
+                    Invulnerability(PlayerIndex)
+                    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
+                end
             end
+            MessagePlayer(PlayerIndex)
         end
     end
 end
@@ -191,3 +206,33 @@ end
 function OnError(Message)
     print(debug.traceback())
 end
+
+
+--[[
+    
+    ** default confuguration**
+
+    
+    UseConsecutiveDeaths = true
+    UseBasedOnDeathCount = false
+    UseInvulnerability = true
+    UseSpeedBoost = true
+    ConsecutiveDeaths = 7
+
+    ResetSpeedTo = 1.0
+    SpeedBoost = 2.5
+    SpeedDuration = 5
+    Invulnerable = 5
+    
+    _5_Deaths = 5
+    _10_Deaths = 10
+    _15_Deaths = 15
+    _20_Deaths = 20
+    _25_Deaths = 25
+    _30_Deaths = 30
+    _35_Deaths = 35
+    _40_Deaths = 40
+    _45_Deaths = 45
+    _50_Deaths = 50
+
+]]

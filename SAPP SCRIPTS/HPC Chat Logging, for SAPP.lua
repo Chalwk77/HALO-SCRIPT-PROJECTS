@@ -6,12 +6,10 @@ Script Name: HPC Chat Logger V2, for SAPP
 Description: This script will log player chat to <sapp server>/Server Chat.txt
 
 * Change log:
-    [1] I had to rewrite this script. It was driving me crazy.
-    [2] Does the same thing. Just more efficient and clean.
-    [3] Seems legit.
-    [4] Enjoy.
-
-Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+    6-Oct-2016
+        - Updated to guard against modulo operator's throwing an error
+        
+Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -24,8 +22,10 @@ api_version = "1.11.0.0"
 local dir = 'sapp\\Server Chat.txt'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
 function OnScriptUnload() end
@@ -46,18 +46,49 @@ end
 function WriteData(dir, value)
     local file = io.open(dir, "a+")
     if file ~= nil then
-        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]    ")
+        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
+function OnChatMessage(PlayerIndex, Message, type)
+    local message = tostring(Message)
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
-    local GetChatFormat = string.format("[" .. tonumber(id) .. "]: " ..(tostring(Message)))
-    WriteData(dir, name .. " " .. GetChatFormat)
+    if type == 0 then 
+        Type = "[GLOBAL]"
+    elseif type == 1 then 
+        Type = "[TEAM]"
+    elseif type == 2 then 
+        Type = "[VEHICLE]"
+    end
+    if player_present(PlayerIndex) ~= nil then
+        WriteData(dir, Type .." " .. name .. " [" .. id .. "]: " .. tostring(message))
+        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
+    end
+    return true
+end
+
+function OnPlayerJoin(PlayerIndex)
+    local file = io.open(dir, "a+")
+        if file ~= nil then
+        local name = get_var(PlayerIndex, "$name")
+        local playerjoin = name .. " joined the server!\n"
+        file:write("[CONNECT] " ..playerjoin)
+        file:close()
+    end
+end
+
+function OnPlayerLeave(PlayerIndex)
+    local file = io.open(dir, "a+")
+        if file ~= nil then
+        local name = get_var(PlayerIndex, "$name")
+        local playerquit = name .. " quit the server!\n"
+        file:write("[DISCONNECT] " ..playerquit)
+        file:close()
+    end
 end
 
 function OnError(Message)
