@@ -31,9 +31,10 @@ function OnNewGame()
     logo = nil
 end
 
-function OnGameEnd()
+function OnGameEnd(PlayerIndex)
     logo = nil
     cprint("The game is ending...", 4+8)
+    rprint(PlayerIndex, "Well done everyone. Good Game!")
 end
 
 function OnPlayerPrejoin(PlayerIndex)
@@ -59,6 +60,8 @@ function OnPlayerJoin(PlayerIndex)
     cprint("Join Time: " ..timestamp)
     cprint("Status: connected successfully.")
     cprint("---------------------------------------------------------------------------------------------------")
+    rprint(PlayerIndex, "|c-- CTF --")
+    rprint(PlayerIndex, "|c5 Captures to Win")
 end
 
 function WelcomeDelay(PlayerIndex)
