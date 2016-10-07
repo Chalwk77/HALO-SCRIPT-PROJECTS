@@ -20,7 +20,7 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
 Suggestions?
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â© 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -86,7 +86,7 @@ end
 function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
-    if (killer == -1) then
+    if (killer > 0) then
         DEATHS[victim][1] = DEATHS[victim][1] + 1
     end
 end
