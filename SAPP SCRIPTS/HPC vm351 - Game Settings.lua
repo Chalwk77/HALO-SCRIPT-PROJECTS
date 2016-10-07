@@ -19,7 +19,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'],"OnServerCommand")
-    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+	if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 end
 
@@ -31,16 +31,17 @@ function OnNewGame()
     logo = nil
 end
 
-function OnGameEnd()
+function OnGameEnd(PlayerIndex)
     logo = nil
     cprint("The game is ending...", 4+8)
+    rprint(PlayerIndex, "Well done everyone. Good Game!")
 end
 
 function OnPlayerPrejoin(PlayerIndex)
     os.execute("echo \7")
-    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-    local name = read_widestring(client_network_struct, 12)
+	local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+	local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
+	local name = read_widestring(client_network_struct, 12)
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
@@ -59,6 +60,8 @@ function OnPlayerJoin(PlayerIndex)
     cprint("Join Time: " ..timestamp)
     cprint("Status: connected successfully.")
     cprint("---------------------------------------------------------------------------------------------------")
+    rprint(PlayerIndex, "|c-- CTF --")
+    rprint(PlayerIndex, "|c5 Captures to Win")
 end
 
 function WelcomeDelay(PlayerIndex)
@@ -144,11 +147,11 @@ end
 
 function consoleLogo()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    servername = read_widestring(network_struct + 0x8, 0x42)
+	servername = read_widestring(network_struct + 0x8, 0x42)
     local timestamp = os.date("%A, %d %B %Y - %X")
     cprint("===================================================================================================", 2+8)
-    cprint(timestamp, 6)
-    cprint("")
+	cprint(timestamp, 6)
+	cprint("")
     cprint("                  '||'                  ||     ..|'''.|                   .'|.   .", 4+8)
     cprint("                   ||    ....  ... ..  ...   .|'     '  ... ..   ....   .||.   .||.", 4+8)
     cprint("                   ||  .|...||  ||' ''  ||   ||          ||' '' '' .||   ||     ||", 4+8)
@@ -157,25 +160,25 @@ function consoleLogo()
     cprint("                '''", 4+8)
     cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
     cprint("                                         Chalwk's Realm")
-    cprint("                                  " .. servername)
-    cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-    cprint("")
+	cprint("                                  " .. servername)
+	cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+	cprint("")
     cprint("===================================================================================================", 2+8)
 end
 
 function OnServerCommand(PlayerIndex, Command)
-    Command = string.lower(Command)
-    if(Command == "history") then
-        rprint(PlayerIndex, "{JC}-7 was formally known as {OZ}-4 Snipers Dream Team Mod.")
-        rprint(PlayerIndex, "This server is proudly hosted and maintained by author and creator, Chalwk.")
-        rprint(PlayerIndex, "Featuring:")
+	Command = string.lower(Command)
+	if(Command == "history") then
+		rprint(PlayerIndex, "{JC}-7 was formally known as {OZ}-4 Snipers Dream Team Mod.")
+		rprint(PlayerIndex, "This server is proudly hosted and maintained by author and creator, Chalwk.")
+		rprint(PlayerIndex, "Featuring:")
         rprint(PlayerIndex, " ")
         rprint(PlayerIndex, "| An arsenal of fantastic gameplay, original weapon mechanics & game settings.")
         rprint(PlayerIndex, "| Smart-Spawn-System, High-explosive sniper rounds w/splash Damage.")
-        rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
-        rprint(PlayerIndex, "and a clever coordination of portals designed to give either team")
-        rprint(PlayerIndex, "an advantage or disadvantage from different points on the map + more!")
-        rprint(PlayerIndex, "You can discover everything else in your own time.")
+		rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
+		rprint(PlayerIndex, "and a clever coordination of portals designed to give either team")
+		rprint(PlayerIndex, "an advantage or disadvantage from different points on the map + more!")
+		rprint(PlayerIndex, "You can discover everything else in your own time.")
         rprint(PlayerIndex, " ")
         rprint(PlayerIndex, "Join us as we continue our journey through the depths that is")
         rprint(PlayerIndex, "the Premier & most Respected S.D.T.M server on Halo PC since 2009.")
@@ -183,38 +186,38 @@ function OnServerCommand(PlayerIndex, Command)
         rprint(PlayerIndex, "to say thank you to the community for supporting this server over the years.")
         rprint(PlayerIndex, "Now get out there and kill something! No Mercy.")
         rprint(PlayerIndex, "~ Chalwk.")
-        return false
-    else
-        return true
+		return false
+        else
+		return true
     end
 end
 
 function OnPlayerChat(PlayerIndex, Message)
-    local Message = string.lower(Message)
-    if (Message == "/about") 
-    or (Message == "/about ") 
-    or (Message == "/info") 
-    or (Message == "/info ")
-    or (Message == "@about") 
-    or (Message == "@about ") 
-    or (Message == "@info") 
-    or (Message == "@info ") then
+	local Message = string.lower(Message)
+	if (Message == "/about") 
+        or (Message == "/about ") 
+        or (Message == "/info") 
+        or (Message == "/info ")
+        or (Message == "@about") 
+        or (Message == "@about ") 
+        or (Message == "@info") 
+        or (Message == "@info ") then
         return false
     end
-    if (Message == "/notices") then
+	if (Message == "/notices") then
         MissedNoticeHandler(PlayerIndex)
         return false
     end
 end
 
 function read_widestring(address, length)
-    local count = 0
-    local byte_table = {}
-    for i = 1,length do
-        if read_byte(address + count) ~= 0 then
-            byte_table[i] = string.char(read_byte(address + count))
+	local count = 0
+	local byte_table = {}
+	for i = 1,length do
+		if read_byte(address + count) ~= 0 then
+			byte_table[i] = string.char(read_byte(address + count))
         end
-        count = count + 2
+		count = count + 2
     end
-    return table.concat(byte_table)
+	return table.concat(byte_table)
 end
