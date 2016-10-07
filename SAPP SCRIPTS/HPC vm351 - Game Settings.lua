@@ -109,24 +109,7 @@ function MissedNoticeHandler(PlayerIndex)
     say(PlayerIndex, "NOTICE - 1/3")
     say(PlayerIndex, "Type /history to learn about the legacy of this server.")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(delay, "MissedNoticeHandler2", PlayerIndex)
-end
-
-function MissedNoticeHandler2(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "NOTICE 2/3")
-    say(PlayerIndex, "Hold Crouch(ctrl) + Action(e) at the same time to display your stats!")
-    execute_command("msg_prefix \"** SERVER ** \"")
-    timer(delay, "MissedNoticeHandler3", PlayerIndex)
-end
-
-function MissedNoticeHandler3(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "NOTICE 3/3")
-    say(PlayerIndex, "Check our GameTracker page for scores & statistics monitoring:")
-    say(PlayerIndex, "www.gametracker.com/server_info/66.55.137.220:2302")
-    execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*5, "IfMissed", PlayerIndex)
+    timer(delay, "StatsMessage", PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
