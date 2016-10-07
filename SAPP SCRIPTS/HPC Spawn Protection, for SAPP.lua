@@ -40,16 +40,16 @@ local settings = {
     ["UseSpeedBoost"] = true,
 }
 
-ConsecutiveDeaths = 7
+ConsecutiveDeaths = 10
 
 -- Normal running speed
 ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
-SpeedDuration = 3
+SpeedDuration = 5
 -- Godmode activation time (in seconds)
-Invulnerable = 3
+Invulnerable = 5
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
@@ -96,6 +96,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Invulnerability(PlayerIndex)
+    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
@@ -104,6 +105,7 @@ function Invulnerability(PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
+    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local victim = get_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
@@ -128,77 +130,60 @@ function ResetInvulnerability(PlayerIndex)
     end
 end
 
-function MessagePlayer(PlayerIndex)
-    local PlayerIndex = tonumber(PlayerIndex)
-    if (player_present(PlayerIndex)) then
-        say(PlayerIndex, "You have received Spawn Protection!")
-    end
-end
-
-function OnPlayerSpawn(PlayerIndex)
+function SpawnObjects(PlayerIndex, xAxis, yAxis, zAxis)
     local player_object = get_dynamic_player(PlayerIndex)
     local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     LOCATION[PlayerIndex][1] = xAxis
     LOCATION[PlayerIndex][2] = yAxis
     LOCATION[PlayerIndex][3] = zAxis
+    spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
+    spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+end
+
+function OnPlayerSpawn(PlayerIndex)
     if PlayerIndex then
         if settings["UseConsecutiveDeaths"] and not settings["UseBasedOnKills"] then
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex, xAxis, yAxis, zAxis)
                 DEATHS[PlayerIndex][1] = 0
                 if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
-                    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
                 end
                 if settings["UseInvulnerability"] then
                     Invulnerability(PlayerIndex)
-                    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
-                MessagePlayer(PlayerIndex)
+                say(PlayerIndex, "You have received Spawn Protection!")
             end
         end
         if settings["UseBasedOnDeathCount"] and not settings["UseConsecutiveDeaths"] then
             if DEATHS[PlayerIndex][1] == _5_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _10_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _15_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _20_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _25_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _30_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _35_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _40_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _45_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _50_Deaths then
-                spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-                spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+                SpawnObjects(PlayerIndex)
                 if settings["UseSpeedBoost"] then 
                     GiveSpeedBoost(PlayerIndex)
-                    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
                 end
                 if settings["UseInvulnerability"] then
                     Invulnerability(PlayerIndex)
-                    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
                 end
             end
-            MessagePlayer(PlayerIndex)
+            say(PlayerIndex, "You have received Spawn Protection!")
         end
     end
 end
