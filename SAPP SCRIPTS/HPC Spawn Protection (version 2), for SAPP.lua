@@ -10,14 +10,13 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
             * temporary speed boost
             * temporary invisibility
         
-        There are two modes:
-            Mode 1 uses a method based on 'consecutive deaths'. 
-            If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with the defined attributes.
+    There are two modes:
+        Mode 1 uses a method based on 'consecutive deaths'. 
+        If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with the defined attributes.
             
-            Mode 2 uses a similar method based on a Death Counter in increments of 5.
-            If this mode is enabled, by default you will receive the defined attributes for every 5 deaths.
+        Mode 2 uses a similar method based on a Death Counter in increments of 5.
+        If this mode is enabled, by default you will receive the defined attributes for every 5 deaths.
             
-    Default configuration is listed at the bottom of this script.
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
