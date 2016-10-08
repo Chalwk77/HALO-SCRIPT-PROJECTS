@@ -7,7 +7,7 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
     This script will allow you to:
         - optionally turn on:
             * temporary godmode (invulnerability)
-            * temporary speed boost
+            * temporary speed boost + define about to boost by, (1.3 by default)
             * temporary invisibility
         
     There are two modes:
