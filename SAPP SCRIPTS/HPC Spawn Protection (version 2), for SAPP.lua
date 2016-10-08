@@ -2,8 +2,8 @@
 Script Name: HPC Spawn Protection (version 2), for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with invisibility/Godmode/speedboost for 5 seconds for every 10 consecutive deaths.
-    
+    Description: By default, you will spawn with invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
+
     This script will allow you to:
         - optionally turn on:
             * temporary godmode (invulnerability)
@@ -14,9 +14,13 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
         Mode 1 uses a method based on 'consecutive deaths'. 
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with the defined attributes.
             
-        Mode 2 uses a similar method based on a Death Counter in increments of 5.
+        Mode 2 uses a similar method based on a Death Counter in increments of 5 through 50.
         If this mode is enabled, by default you will receive the defined attributes for every 5 deaths.
             
+    TO DO:
+        - Detect if Killer is camping
+        - Punish Killer
+        * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -37,6 +41,7 @@ local settings = {
     ["UseSpeedBoost"] = true,
 }
 
+-- attributes given every 10 deaths, (victim)
 ConsecutiveDeaths = 10
 
 -- Normal running speed
@@ -44,11 +49,11 @@ ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
-SpeedDuration = 5
+SpeedDuration = 7
 -- Godmode activation time (in seconds)
-Invulnerable = 5
+Invulnerable = 7
 -- Camo activation time (in seconds)
-CamoTime = 5
+CamoTime = 7
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
