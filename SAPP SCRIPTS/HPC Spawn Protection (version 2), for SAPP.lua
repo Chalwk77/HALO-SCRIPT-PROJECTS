@@ -144,8 +144,8 @@ function OnPlayerSpawn(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
                 say(PlayerIndex, "You have received Spawn Protection!")
                 if settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false then
-                local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any settings enabled for UseConsecutiveDeaths!")
-                cprint("[SCRIPT ERROR] Spawn Protection - You don't have any settings enabled for UseConsecutiveDeaths!", 4+8)
+                local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!")
+                cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!", 4+8)
                 execute_command("log_note \""..note.."\"")
                 return false
                 end
@@ -181,8 +181,8 @@ function OnPlayerSpawn(PlayerIndex)
             end
             say(PlayerIndex, "You have received Spawn Protection!")
             if settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false then
-            local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any settings enabled for UseBasedOnDeathCount!")
-            cprint("[SCRIPT ERROR] Spawn Protection - You don't have any settings enabled for UseBasedOnDeathCount!", 4+8)
+            local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!")
+            cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!", 4+8)
             execute_command("log_note \""..note.."\"")
             return false
             end
