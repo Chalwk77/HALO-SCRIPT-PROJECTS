@@ -15,7 +15,7 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with the defined attributes.
             
         Mode 2 uses a similar method based on a Death Counter in increments of 5 through 50.
-        If this mode is enabled, by default you will receive the defined attributes for every 5 deaths.
+        If this mode is enabled, by default you will receive the defined attributes after 5 deaths, 10 deaths, 15 deaths and so on.
             
     TO DO:
         - Detect if Killer is camping
@@ -49,11 +49,11 @@ ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
-SpeedDuration = 7
+SpeedDuration = 7.0
 -- Godmode activation time (in seconds)
-Invulnerable = 7
+Invulnerable = 7.0
 -- Camo activation time (in seconds)
-CamoTime = 7
+CamoTime = 7.0
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
@@ -96,16 +96,16 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function ApplyCamo(PlayerIndex)
-    execute_command("camo me " ..CamoTime, PlayerIndex)
+    execute_command("camo me " .. CamoTime, PlayerIndex)
 end
 
 function Invulnerability(PlayerIndex)
     timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
-    execute_command_sequence("god me;s me 1.75;hp me +2", PlayerIndex)
+    execute_command("god me", PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
-    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
+    timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
     local PlayerIndex = tonumber(PlayerIndex)
     local victim = get_player(PlayerIndex)
     if (player_present(PlayerIndex)) then
@@ -122,11 +122,6 @@ function ResetPlayerSpeed(PlayerIndex)
 end
 
 function ResetInvulnerability(PlayerIndex)
-	execute_command("ungod me", PlayerIndex)
-	return false
-end
-
-function InvulnerableRemove(PlayerIndex)
 	execute_command("ungod me", PlayerIndex)
 	return false
 end
