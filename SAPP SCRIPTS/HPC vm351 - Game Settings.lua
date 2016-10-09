@@ -19,12 +19,24 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'],"OnServerCommand")
+    -- register_callback(cb['EVENT_CAMP'],"OnPlayerCamp")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 end
 
 function OnScriptUnload()
     logo = nil
+end
+
+function OnPlayerCamp(PlayerIndex, CampKills)
+    local CampKills = get_var(PlayerIndex, "$campkills")
+    for i=1,16 do
+        if(player_alive(i)) then
+            if (CampKills == 2) then
+            -- do something
+            end
+        end
+    end
 end
 
 function OnNewGame()
@@ -70,15 +82,21 @@ function WelcomeDelay(PlayerIndex)
     say(PlayerIndex, "The original Premier & most Respected S.D.T.M server.")
     say(PlayerIndex, "Enjoy!")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*10, "InfoMessage", PlayerIndex)
+    timer(1000*10, "InformationBoard", PlayerIndex)
 end
 
-function InfoMessage(PlayerIndex)
+function InformationBoard(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "For information and announcements, please type /notices")
+    execute_command("msg_prefix \"** SERVER ** \"")
+end
+
+function InfoBoardHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "NOTICE - 1/3")
     say(PlayerIndex, "Type /history to learn about the legacy of this server.")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*7, "StatsMessage", PlayerIndex)
+    timer(delay, "StatsMessage", PlayerIndex)
 end
 
 function StatsMessage(PlayerIndex)
@@ -95,21 +113,13 @@ function GameTracker(PlayerIndex)
     say(PlayerIndex, "Check our GameTracker page for scores & statistics monitoring:")
     say(PlayerIndex, "www.gametracker.com/server_info/66.55.137.220:2302")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*5, "IfMissed", PlayerIndex)
+    timer(1000*7, "IfMissed", PlayerIndex)
 end
 
 function IfMissed(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "If you missed these announcements, type /notices to view them again.")
     execute_command("msg_prefix \"** SERVER ** \"")
-end
-
-function MissedNoticeHandler(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "NOTICE - 1/3")
-    say(PlayerIndex, "Type /history to learn about the legacy of this server.")
-    execute_command("msg_prefix \"** SERVER ** \"")
-    timer(delay, "StatsMessage", PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -159,8 +169,9 @@ function OnServerCommand(PlayerIndex, Command)
         rprint(PlayerIndex, "| An arsenal of fantastic gameplay, original weapon mechanics & game settings.")
         rprint(PlayerIndex, "| Smart-Spawn-System, High-explosive sniper rounds w/splash Damage.")
         rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
-        rprint(PlayerIndex, "and a clever coordination of portals designed to give either team")
-        rprint(PlayerIndex, "an advantage or disadvantage from different points on the map + more!")
+        rprint(PlayerIndex, "and a clever coordination of strategically placed portals")
+        rprint(PlayerIndex, "designed to give either team an advantage or disadvantage")
+        rprint(PlayerIndex, "from various locations on the map + more!")
         rprint(PlayerIndex, "You can discover everything else in your own time.")
         rprint(PlayerIndex, " ")
         rprint(PlayerIndex, "Join us as we continue our journey through the depths that is")
@@ -188,7 +199,7 @@ function OnPlayerChat(PlayerIndex, Message)
         return false
     end
     if (Message == "/notices") then
-        MissedNoticeHandler(PlayerIndex)
+        InfoBoardHandler(PlayerIndex)
         return false
     end
 end
