@@ -193,32 +193,32 @@ function CheckSettings(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    if PlayerIndex then
+    if (player_present(PlayerIndex)) then
         if settings["Mode1"] and not settings["Mode2"] then
-            if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
+            if (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
                 CheckSettings(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
             end
         end
         if settings["Mode2"] and not settings["Mode1"] then
-            if DEATHS[PlayerIndex][1] == nil then DEATHS[PlayerIndex][1] = 0 
-            elseif DEATHS[PlayerIndex][1] == _10_Deaths then
+            if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
+            elseif (DEATHS[PlayerIndex][1] == _10_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _20_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _20_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _30_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _30_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _45_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _45_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _60_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _60_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _75_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _75_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _95_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _95_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _115_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _115_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _135_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _135_Deaths) then
                 CheckSettings(PlayerIndex)
             end
         end
@@ -228,33 +228,28 @@ end
 function OnNewGame()
     if logging then
         if settings["Mode1"] and settings["Mode2"] then
-            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
-            cprint(note, 4+8)
-            execute_command("log_note \""..note.."\"")
-            execute_command("lua_unload " .. scriptname)
-            cprint(scriptname .. " was unloaded!", 4+8)
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
+            unload()
         end
         if not settings["Mode1"] and not settings["Mode2"] then
-            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
-            cprint(note, 4+8)
-            execute_command("log_note \""..note.."\"")
-            execute_command("lua_unload " .. scriptname)
-            cprint(scriptname .. " was unloaded!", 4+8)
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
+            unload()
         end
         if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
-            cprint(note, 4+8)
-            execute_command("log_note \""..note.."\"")
-            execute_command("lua_unload " .. scriptname)
-            cprint(scriptname .. " was unloaded!", 4+8)
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
+            unload()
         elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
-            cprint(note, 4+8)
-            execute_command("log_note \""..note.."\"")
-            execute_command("lua_unload " .. scriptname)
-            cprint(scriptname .. " was unloaded!", 4+8)
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
+            unload()
         end
     end
+end
+
+function unload()
+    cprint(note, 4+8)
+    execute_command("log_note \""..note.."\"")
+    execute_command("lua_unload " .. scriptname)
+    cprint(scriptname .. " was unloaded!", 4+8)
 end
 
 function OnError(Message)
