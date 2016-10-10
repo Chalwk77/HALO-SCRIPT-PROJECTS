@@ -105,8 +105,9 @@ end
 function ApplyCamo(PlayerIndex)
     if player_alive(PlayerIndex) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
+    else 
+        return false
     end
-    return false
 end
 
 function ApplyOvershield(PlayerIndex)
@@ -143,6 +144,9 @@ function ResetPlayerSpeed(PlayerIndex)
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
+        execute_command("msg_prefix \"\"")
+        rprint(PlayerIndex, "|cSpeed Boost deactivated!")
+        execute_command("msg_prefix \"**SERVER** \"")
     else 
         return false
     end
@@ -151,6 +155,9 @@ end
 function ResetInvulnerability(PlayerIndex)
     if player_alive(PlayerIndex) then
         execute_command("ungod me", PlayerIndex)
+        execute_command("msg_prefix \"\"")
+        rprint(PlayerIndex, "|cGod Mode deactivated!")
+        execute_command("msg_prefix \"**SERVER** \"")
     else 
         return false
     end
@@ -158,21 +165,34 @@ end
 
 function CheckSettings(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        execute_command("msg_prefix \"\"")
-        say(PlayerIndex, "You have received Spawn Protection!")
-        execute_command("msg_prefix \"**SERVER** \"")
-        if settings["UseCamo"] then
-            timer(0, "ApplyCamo", PlayerIndex)
+        if player_alive(PlayerIndex) then
+            execute_command("msg_prefix \"\"")
+            local name = get_var(PlayerIndex,"$name")
+            cprint(name .. " received Spawn Protection!", 2+8)
+            rprint(PlayerIndex, "|cYou have received Spawn Protection!")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            execute_command("msg_prefix \"**SERVER** \"")
+            if settings["UseCamo"] then
+                timer(0, "ApplyCamo", PlayerIndex)
+            end
+            if settings["UseSpeedBoost"] then 
+                GiveSpeedBoost(PlayerIndex)
+            end
+            if settings["UseInvulnerability"] then
+                Invulnerability(PlayerIndex)
+            end
+            if settings["UseOvershield"] then
+                timer(0, "ApplyOvershield", PlayerIndex)
+            end
+        else 
+            return false
         end
-        if settings["UseSpeedBoost"] then 
-            GiveSpeedBoost(PlayerIndex)
-        end
-        if settings["UseInvulnerability"] then
-            Invulnerability(PlayerIndex)
-        end
-        if settings["UseOvershield"] then
-            timer(0, "ApplyOvershield", PlayerIndex)
-        end
+    else 
+        return false
     end
 end
 
