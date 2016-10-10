@@ -96,11 +96,13 @@ end
 
 function ApplyCamo(PlayerIndex)
     execute_command("camo me " .. CamoTime, PlayerIndex)
+    return false
 end
 
 function Invulnerability(PlayerIndex)
     timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
     execute_command("god me", PlayerIndex)
+    return false
 end
 
 function GiveSpeedBoost(PlayerIndex)
