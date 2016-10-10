@@ -3,8 +3,7 @@
 Script Name: HPC OnVehicleEntry Messages, SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will print Vehicle Name and Seat positions (to console)
-when a player enters a vehicle.
+Description: This script will print your Vehicle Name and Seat position - (see optional settings on line 36)
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -33,6 +32,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --      Seat 1 - 5 = Passengers Seat
 
 api_version = "1.11.0.0"
+
+settings = {
+    ["LogToServerConsole"] = true,
+    ["ShowInGameConsole"] = true,
+    ["ShowInGameChat"] = false,
+    ["SappLog"] = true,
+}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
@@ -97,7 +103,21 @@ function OnVehicleEnter(PlayerIndex, Seat)
             Seat_Position = "Drivers Seat"
         end
     end
-    cprint(name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name))
+    if settings["LogToServerConsole"] then
+        cprint(name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name), 2+8)
+    end
+    if settings["ShowInGameChat"] then
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, tostring(Vehicle_Name) .. " - " .. tostring(Seat_Position))
+        execute_command("msg_prefix \"**SERVER** \"")
+    end
+    if settings["ShowInGameConsole"] then
+        rprint(PlayerIndex, "|c" .. tostring(Vehicle_Name) .. " - " .. tostring(Seat_Position))
+    end
+    if settings["SappLog"] then
+        local Log = string.format("\n[VEHICLE ENTRY]: " .. name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name) .. "\n")
+        execute_command("log_note \""..Log.."\"")
+    end
 end
 
 function OnError(Message)

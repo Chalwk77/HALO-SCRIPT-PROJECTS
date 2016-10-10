@@ -182,13 +182,6 @@ end
 
 function OnNewGame()
     GameHasStarted = true
-    if gamesettings["BasedOnMap"] == false and gamesettings["BasedOnGameType"] == false
-        and gamesettings["GlobalSettings"] == false and gamesettings["GlobalNoKills"] == false
-        and gamesettings["WeaponsAndEquipment"] == false and gamesettings["JustEquipment"] == false
-        and gamesettings["JustWeapons"] == false then
-        cprint("[SCRIPT] Warning! All Game Settings are false! One or more must be \"true\".", 4 + 8)
-    end
-
     if equipment["Camouflage"] == false then
         local index = 1
         local ValueOfIndex = EQUIPMENT_TABLE[index]
@@ -459,7 +452,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     VICTIM_LOCATION[victim][1] = xAxis
     VICTIM_LOCATION[victim][2] = yAxis
     VICTIM_LOCATION[victim][3] = zAxis
-    if (killer == -1) then
+    if (killer > 0) then
         -- Global (no kills required): Weapons and Equipment
         if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"] then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)

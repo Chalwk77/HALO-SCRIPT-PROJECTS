@@ -1,26 +1,26 @@
 --[[
-Script Name: HPC Spawn Protection, for SAPP
+Script Name: HPC Spawn Protection (version 2), for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with a Camouflage and OverShield for every 7 Consecutive Deaths.
-                 - You will also receive temporary godmode, and a speed boost. (optional)
-                 - Speedboost and godmode last for 5 seconds by default. (editable) 
-    
+    Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
+
     This script will allow you to:
-        - optionally turn on temporary 'godmode' (invulnerability)
-        - optionally turn on temporary speed boost.
+        - optionally toggle:
+            * godmode (invulnerability)
+            * speed boost + define amount to boost by, (1.3 by default)
+            * invisibility
+            * overshield
         
-        There are two modes to this script.
-            The First mode uses a method based on 'consecutive deaths'. 
-            If this setting is enabled, for every 7 consecutive deaths you have, you will spawn with special attributes.
+    There are two modes:
+        Mode1: 'consecutive deaths' (editable)
+        If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with protection.
             
-            The second mode uses a method based on a Death Counter in increments of 5.
-            If this mode is enabled, by default you will receive special attributes for every 5 deaths.
+        Mode2: Receive protection when you reach a specific amount of deaths (editable)
             
-    Default configuration is listed at the bottom of this script.
-        
-Suggestions?
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
+    TO DO:
+        - Detect if Killer is camping
+        - Punish Killer
+        * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -31,15 +31,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-
+-- Mode 1 = consecutive deaths (editable)
+-- Mode 2 = Specific amout of Deaths (editable)
 -- Configuration--
 local settings = {
-    ["UseConsecutiveDeaths"] = true,
-    ["UseBasedOnDeathCount"] = false,
-    ["UseInvulnerability"] = true,
+    ["Mode1"] = true,
+    ["Mode2"] = false,
+    ["UseCamo"] = true,
+    ["UseOvershield"] = true,
     ["UseSpeedBoost"] = true,
+    ["UseInvulnerability"] = true,
 }
 
+-- attributes given every 10 deaths, (victim)
 ConsecutiveDeaths = 10
 
 -- Normal running speed
@@ -47,42 +51,42 @@ ResetSpeedTo = 1.0
 -- Amount to boost by
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
-SpeedDuration = 5
+SpeedDuration = 7.0
 -- Godmode activation time (in seconds)
-Invulnerable = 5
+Invulnerable = 7.0
+-- Camo activation time (in seconds)
+CamoTime = 7.0
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
-_5_Deaths = 5
+-- If Victim has exactly this many deaths, he will spawn with protection.
 _10_Deaths = 10
-_15_Deaths = 15
 _20_Deaths = 20
-_25_Deaths = 25
 _30_Deaths = 30
-_35_Deaths = 35
-_40_Deaths = 40
 _45_Deaths = 45
-_50_Deaths = 50
+_60_Deaths = 60
+_75_Deaths = 75
+_75_Deaths = 95
+_75_Deaths = 115
+_75_Deaths = 135
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
 function OnScriptUnload() end
 
 DEATHS = { }
-LOCATION = { }
-for i = 1, 16 do LOCATION[i] = { } end
-OverShield = "powerups\\over shield"
-Camouflage = "powerups\\active camouflage"
+scriptname = 'protection.lua'
 
 function OnPlayerJoin(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
 end
-
+    
 function OnPlayerLeave(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
 end
@@ -95,129 +99,135 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     end
 end
 
+function ApplyCamo(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        execute_command("camo me " .. CamoTime, PlayerIndex)
+    end
+    return false
+end
+
+function ApplyOvershield(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        local ObjectID = spawn_object("eqip", "powerups\\over shield")	
+        powerup_interact(ObjectID, PlayerIndex)
+    else 
+        return false
+    end
+end	
+
 function Invulnerability(PlayerIndex)
-    timer(Invulnerable*1000, "ResetInvulnerability", PlayerIndex)
-    local PlayerIndex = tonumber(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_present(PlayerIndex)) then
-        write_float(player_object + 0xE0, 9999999999)
+    if player_alive(PlayerIndex) then
+        timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
+        execute_command("god me", PlayerIndex)
+    else 
+        return false
     end
 end
 
 function GiveSpeedBoost(PlayerIndex)
-    timer(SpeedDuration*1000, "ResetPlayerSpeed", PlayerIndex)
-    local PlayerIndex = tonumber(PlayerIndex)
-    local victim = get_player(PlayerIndex)
-    if (player_present(PlayerIndex)) then
+    if player_alive(PlayerIndex) then
+        local PlayerIndex = tonumber(PlayerIndex)
+        local victim = get_player(PlayerIndex)
+        timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
         write_float(victim + 0x6C, SpeedBoost)
+    else 
+        return false
     end
 end
 
 function ResetPlayerSpeed(PlayerIndex)
-    local PlayerIndex = tonumber(PlayerIndex)
-    local victim = get_player(PlayerIndex)
-    if (player_present(PlayerIndex)) then
+    if player_alive(PlayerIndex) then
+        local PlayerIndex = tonumber(PlayerIndex)
+        local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
+    else 
+        return false
     end
 end
 
 function ResetInvulnerability(PlayerIndex)
-    local PlayerIndex = tonumber(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_present(PlayerIndex)) then
-        write_float(player_object + 0xE0, 1)
-        write_float(player_object + 0xE4, 1)
+    if player_alive(PlayerIndex) then
+        execute_command("ungod me", PlayerIndex)
+    else 
+        return false
     end
 end
 
-function SpawnObjects(PlayerIndex, xAxis, yAxis, zAxis)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
-    LOCATION[PlayerIndex][1] = xAxis
-    LOCATION[PlayerIndex][2] = yAxis
-    LOCATION[PlayerIndex][3] = zAxis
-    spawn_object("eqip", OverShield, xAxis, yAxis, zAxis + 0.5)
-    spawn_object("eqip", Camouflage, xAxis, yAxis, zAxis + 0.5)
+function CheckSettings(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "You have received Spawn Protection!")
+        execute_command("msg_prefix \"**SERVER** \"")
+        if settings["UseCamo"] then
+            timer(0, "ApplyCamo", PlayerIndex)
+        end
+        if settings["UseSpeedBoost"] then 
+            GiveSpeedBoost(PlayerIndex)
+        end
+        if settings["UseInvulnerability"] then
+            Invulnerability(PlayerIndex)
+        end
+        if settings["UseOvershield"] then
+            timer(0, "ApplyOvershield", PlayerIndex)
+        end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
     if PlayerIndex then
-        if settings["UseConsecutiveDeaths"] and not settings["UseBasedOnKills"] then
+        if settings["Mode1"] and not settings["Mode2"] then
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
-                SpawnObjects(PlayerIndex, xAxis, yAxis, zAxis)
+                CheckSettings(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
-                if settings["UseSpeedBoost"] then 
-                    GiveSpeedBoost(PlayerIndex)
-                end
-                if settings["UseInvulnerability"] then
-                    Invulnerability(PlayerIndex)
-                end
-                say(PlayerIndex, "You have received Spawn Protection!")
             end
         end
-        if settings["UseBasedOnDeathCount"] and not settings["UseConsecutiveDeaths"] then
-            if DEATHS[PlayerIndex][1] == _5_Deaths then
-                SpawnObjects(PlayerIndex)
+        if settings["Mode2"] and not settings["Mode1"] then
+            if DEATHS[PlayerIndex][1] == nil then DEATHS[PlayerIndex][1] = 0 
             elseif DEATHS[PlayerIndex][1] == _10_Deaths then
-                SpawnObjects(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _15_Deaths then
-                SpawnObjects(PlayerIndex)
+                CheckSettings(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _20_Deaths then
-                SpawnObjects(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _25_Deaths then
-                SpawnObjects(PlayerIndex)
+                CheckSettings(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _30_Deaths then
-                SpawnObjects(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _35_Deaths then
-                SpawnObjects(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _40_Deaths then
-                SpawnObjects(PlayerIndex)
+                CheckSettings(PlayerIndex)
             elseif DEATHS[PlayerIndex][1] == _45_Deaths then
-                SpawnObjects(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _50_Deaths then
-                SpawnObjects(PlayerIndex)
-                if settings["UseSpeedBoost"] then 
-                    GiveSpeedBoost(PlayerIndex)
-                end
-                if settings["UseInvulnerability"] then
-                    Invulnerability(PlayerIndex)
-                end
+                CheckSettings(PlayerIndex)
+            elseif DEATHS[PlayerIndex][1] == _60_Deaths then
+                CheckSettings(PlayerIndex)
+            elseif DEATHS[PlayerIndex][1] == _75_Deaths then
+                CheckSettings(PlayerIndex)
+            elseif DEATHS[PlayerIndex][1] == _95_Deaths then
+                CheckSettings(PlayerIndex)
+            elseif DEATHS[PlayerIndex][1] == _115_Deaths then
+                CheckSettings(PlayerIndex)
+            elseif DEATHS[PlayerIndex][1] == _135_Deaths then
+                CheckSettings(PlayerIndex)
             end
-            say(PlayerIndex, "You have received Spawn Protection!")
         end
+    end
+end
+
+function OnNewGame()
+    if settings["Mode1"] and settings["Mode2"] then
+        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
+        cprint(note, 4+8)
+        execute_command("log_note \""..note.."\"")
+    end
+    if not settings["Mode1"] and not settings["Mode2"] then
+        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
+        cprint(note, 4+8)
+        execute_command("log_note \""..note.."\"")
+    end
+    if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
+        cprint(note, 4+8)
+        execute_command("log_note \""..note.."\"")
+    elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
+        cprint(note, 4+8)
+        execute_command("log_note \""..note.."\"")
     end
 end
 
 function OnError(Message)
     print(debug.traceback())
 end
-
-
---[[
-    
-    ** default confuguration**
-
-    
-    UseConsecutiveDeaths = true
-    UseBasedOnDeathCount = false
-    UseInvulnerability = true
-    UseSpeedBoost = true
-    ConsecutiveDeaths = 7
-
-    ResetSpeedTo = 1.0
-    SpeedBoost = 2.5
-    SpeedDuration = 5
-    Invulnerable = 5
-    
-    _5_Deaths = 5
-    _10_Deaths = 10
-    _15_Deaths = 15
-    _20_Deaths = 20
-    _25_Deaths = 25
-    _30_Deaths = 30
-    _35_Deaths = 35
-    _40_Deaths = 40
-    _45_Deaths = 45
-    _50_Deaths = 50
-
-]]
