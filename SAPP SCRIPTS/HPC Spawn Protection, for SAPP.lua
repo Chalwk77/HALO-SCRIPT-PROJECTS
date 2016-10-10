@@ -68,9 +68,9 @@ _30_Deaths = 30
 _45_Deaths = 45
 _60_Deaths = 60
 _75_Deaths = 75
-_75_Deaths = 95
-_75_Deaths = 115
-_75_Deaths = 135
+_95_Deaths = 95
+_115_Deaths = 115
+_135_Deaths = 135
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
