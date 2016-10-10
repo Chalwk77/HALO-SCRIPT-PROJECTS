@@ -18,12 +18,12 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with protection.
             
         Mode2: Receive protection when you reach a specific amount of deaths (editable threshold)
-            
+    
     TO DO:
         - Detect if Killer is camping
         - Punish Killer
         * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
-
+        
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -244,6 +244,7 @@ function OnNewGame()
     end
 end
 
+-- Assuming you name this document 'protection.lua', the unload() function will work.
 function unload()
     cprint(note, 4+8)
     execute_command("log_note \""..note.."\"")
