@@ -60,7 +60,7 @@ CamoTime = 7.0
 
 -- Only edit these values if you know what you're doing!
 -- If Victim has exactly this many deaths, he will spawn with protection.
-_10_Deaths = 1
+_10_Deaths = 10
 _20_Deaths = 20
 _30_Deaths = 30
 _45_Deaths = 45
@@ -116,7 +116,7 @@ end
 function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
-    if (killer == -1) then
+    if (killer > 0) then
         DEATHS[victim][1] = DEATHS[victim][1] + 1
     end
 end
