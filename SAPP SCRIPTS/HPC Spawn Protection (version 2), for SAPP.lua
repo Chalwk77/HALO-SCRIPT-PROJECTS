@@ -100,23 +100,23 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function ApplyCamo(PlayerIndex)
-	if player_alive(PlayerIndex) then
+    if player_alive(PlayerIndex) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
     end
     return false
 end
 
 function ApplyOvershield(PlayerIndex)
-	if player_alive(PlayerIndex) then
-		local ObjectID = spawn_object("eqip", "powerups\\over shield")	
-		powerup_interact(ObjectID, PlayerIndex)
+    if player_alive(PlayerIndex) then
+        local ObjectID = spawn_object("eqip", "powerups\\over shield")	
+        powerup_interact(ObjectID, PlayerIndex)
     else 
         return false
     end
 end	
 
 function Invulnerability(PlayerIndex)
-	if player_alive(PlayerIndex) then
+    if player_alive(PlayerIndex) then
         timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
         execute_command("god me", PlayerIndex)
     else 
@@ -125,7 +125,7 @@ function Invulnerability(PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
-	if player_alive(PlayerIndex) then
+    if player_alive(PlayerIndex) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
@@ -136,7 +136,7 @@ function GiveSpeedBoost(PlayerIndex)
 end
 
 function ResetPlayerSpeed(PlayerIndex)
-	if player_alive(PlayerIndex) then
+    if player_alive(PlayerIndex) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
@@ -146,7 +146,7 @@ function ResetPlayerSpeed(PlayerIndex)
 end
 
 function ResetInvulnerability(PlayerIndex)
-	if player_alive(PlayerIndex) then
+    if player_alive(PlayerIndex) then
         execute_command("ungod me", PlayerIndex)
     else 
         return false
@@ -183,29 +183,29 @@ function OnPlayerSpawn(PlayerIndex)
                     local note = string.format("[SCRIPT ERROR] Spawn Protection: No sub-settings enabled for Mode1")
                     cprint("[SCRIPT ERROR] Spawn Protection: No sub-settings enabled for Mode1", 4+8)
                     execute_command("log_note \""..note.."\"")
-                return false
+                    return false
                 end
             end
         end
         if settings["Mode2"] and not settings["Mode1"] then
             if DEATHS[PlayerIndex][1] == nil then DEATHS[PlayerIndex][1] = 0 
-                elseif DEATHS[PlayerIndex][1] == _10_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _10_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _20_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _20_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _30_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _30_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _45_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _45_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _60_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _60_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _75_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _75_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _95_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _95_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _115_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _115_Deaths then
                 CheckSettings(PlayerIndex)
-                elseif DEATHS[PlayerIndex][1] == _135_Deaths then
+            elseif DEATHS[PlayerIndex][1] == _135_Deaths then
                 CheckSettings(PlayerIndex)
             end
         end
