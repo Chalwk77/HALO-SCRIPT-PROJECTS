@@ -104,14 +104,14 @@ function OnVehicleEnter(PlayerIndex, Seat)
 
     if MetaIndex == 0xE54003CC then
         Vehicle_Name = "Banshee"
-        if Seat == "0" then
-            Seat_Position = "Drivers Seat"
+        if Seat == "0" then -- Drivers Seat
+            Seat_Position = "Pilots Seat"
         end
     end
     
     if MetaIndex == 0xE86906F5 then
         Vehicle_Name = "Turret"
-        if Seat == "0" then
+        if Seat == "0" then -- Drivers Seat
             Seat_Position = "Gunners Seat"
         end
     end
