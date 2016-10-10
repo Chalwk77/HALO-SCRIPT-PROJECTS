@@ -7,18 +7,17 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     
-    This script will allow you to:
-        - optionally toggle:
+    This script will allow you to optionally toggle:
         * godmode (invulnerability)
-            * speed boost + define amount to boost by, (1.3 by default)
-            * invisibility
-            * overshield
+        * speed boost + define amount to boost by, (1.3 by default)
+        * invisibility
+        * overshield
         
     There are two modes:
         Mode1: 'consecutive deaths' (editable)
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with protection.
             
-        Mode2: Receive protection when you reach a specific amount of deaths (editable)
+        Mode2: Receive protection when you reach a specific amount of deaths (editable threshold)
             
     TO DO:
         - Detect if Killer is camping
