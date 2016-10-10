@@ -252,8 +252,8 @@ function OnNewGame()
             cprint(note, 4+8)
             execute_command("log_note \""..note.."\"")
         end
-        execute_command("lua_unload " ..scriptname)
-        cprint(scriptname " was unloaded!", 4+8)
+        execute_command("lua_unload " .. scriptname)
+        cprint(scriptname .. " was unloaded!", 4+8)
     end
 end
 
