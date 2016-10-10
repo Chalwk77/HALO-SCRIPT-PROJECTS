@@ -146,7 +146,7 @@ function ResetPlayerSpeed(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
         execute_command("msg_prefix \"\"")
         rprint(PlayerIndex, "|cSpeed Boost deactivated!")
-        execute_command("msg_prefix \"**SERVER** \"")
+        execute_command("msg_prefix \"** SAPP ** \"")
     else 
         return false
     end
@@ -157,7 +157,7 @@ function ResetInvulnerability(PlayerIndex)
         execute_command("ungod me", PlayerIndex)
         execute_command("msg_prefix \"\"")
         rprint(PlayerIndex, "|cGod Mode deactivated!")
-        execute_command("msg_prefix \"**SERVER** \"")
+        execute_command("msg_prefix \"** SAPP ** \"")
     else 
         return false
     end
@@ -175,7 +175,7 @@ function CheckSettings(PlayerIndex)
             rprint(PlayerIndex, "|n")
             rprint(PlayerIndex, "|n")
             rprint(PlayerIndex, "|n")
-            execute_command("msg_prefix \"**SERVER** \"")
+            execute_command("msg_prefix \"** SAPP ** \"")
             if settings["UseCamo"] then
                 timer(0, "ApplyCamo", PlayerIndex)
             end
