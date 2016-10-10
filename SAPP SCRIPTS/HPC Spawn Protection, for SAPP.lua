@@ -44,7 +44,7 @@ local settings = {
     ["UseOvershield"] = true,
     ["UseSpeedBoost"] = true,
     ["UseInvulnerability"] = true,
-}
+    }
 
 -- attributes given every 10 deaths, (victim)
 ConsecutiveDeaths = 10
