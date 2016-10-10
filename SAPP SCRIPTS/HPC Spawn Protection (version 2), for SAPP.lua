@@ -14,8 +14,7 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
         Mode 1 uses a method based on 'consecutive deaths'. 
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with the defined attributes.
             
-        Mode 2 uses a similar method based on a Death Counter in increments of 5 through 50.
-        If this mode is enabled, by default you will receive the defined attributes after 5 deaths, 10 deaths, 15 deaths and so on.
+        Mode 2 uses a similar method based on a Death Counter in increments of 10, 15 and 20 through 135+.
             
     TO DO:
         - Detect if Killer is camping
@@ -34,11 +33,11 @@ api_version = "1.11.0.0"
 
 -- Configuration--
 local settings = {
-    ["UseConsecutiveDeaths"] = true,
     ["UseBasedOnDeathCount"] = false,
+    ["UseConsecutiveDeaths"] = true,
     ["UseCamo"] = true,
-    ["UseInvulnerability"] = true,
     ["UseSpeedBoost"] = true,
+    ["UseInvulnerability"] = true,
 }
 
 -- attributes given every 10 deaths, (victim)
@@ -57,16 +56,16 @@ CamoTime = 7.0
 -- Configuration Ends --
 
 -- Only edit these values if you know what you're doing!
-_5_Deaths = 5
+-- If Victim has exactly this many deaths, he will spawn with protection.
 _10_Deaths = 10
-_15_Deaths = 15
 _20_Deaths = 20
-_25_Deaths = 25
 _30_Deaths = 30
-_35_Deaths = 35
-_40_Deaths = 40
 _45_Deaths = 45
-_50_Deaths = 50
+_60_Deaths = 60
+_75_Deaths = 75
+_75_Deaths = 95
+_75_Deaths = 115
+_75_Deaths = 135
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -126,64 +125,62 @@ function ResetInvulnerability(PlayerIndex)
 	return false
 end
 
+function CheckSettings(PlayerIndex)
+    if (player_present(PlayerIndex)) then
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "You have received Spawn Protection!")
+        execute_command("msg_prefix \"**SERVER** \"")
+        if settings["UseCamo"] then
+            timer(0, "ApplyCamo", PlayerIndex)
+        end
+        if settings["UseSpeedBoost"] then 
+            GiveSpeedBoost(PlayerIndex)
+        end
+        if settings["UseInvulnerability"] then
+            Invulnerability(PlayerIndex)
+        end
+    end
+end
+
+
 function OnPlayerSpawn(PlayerIndex)
     if PlayerIndex then
         if settings["UseConsecutiveDeaths"] and not settings["UseBasedOnDeathCount"] then
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
-                if settings["UseCamo"] then
-                -- Using a timer here beacuse the player cannot pick up an active camouflage before or after 'CamoTime' has deactivated
-                -- if you call ApplyCamo immediately after they spawn. There has to be some delay for whatever reason.
-                    timer(0, "ApplyCamo", PlayerIndex)
-                end
-                if settings["UseSpeedBoost"] then 
-                    GiveSpeedBoost(PlayerIndex)
-                end
-                if settings["UseInvulnerability"] then
-                    Invulnerability(PlayerIndex)
-                end
+                CheckSettings(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
-                say(PlayerIndex, "You have received Spawn Protection!")
                 if settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false then
-                local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!")
-                cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!", 4+8)
-                execute_command("log_note \""..note.."\"")
+                    local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!")
+                    cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseConsecutiveDeaths!", 4+8)
+                    execute_command("log_note \""..note.."\"")
                 return false
                 end
             end
         end
         if settings["UseBasedOnDeathCount"] and not settings["UseConsecutiveDeaths"] then
-            if DEATHS[PlayerIndex][1] == _5_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _10_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _15_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _20_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _25_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _30_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _35_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _40_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _45_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-            elseif DEATHS[PlayerIndex][1] == _50_Deaths then
-                if settings["UseCamo"] then timer(0, "ApplyCamo", PlayerIndex) end
-                if settings["UseSpeedBoost"] then 
-                    GiveSpeedBoost(PlayerIndex)
-                end
-                if settings["UseInvulnerability"] then
-                    Invulnerability(PlayerIndex)
-                end
+            if DEATHS[PlayerIndex][1] == _10_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _20_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _30_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _45_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _60_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _75_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _95_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _115_Deaths then
+                CheckSettings(PlayerIndex)
+                elseif DEATHS[PlayerIndex][1] == _135_Deaths then
+                CheckSettings(PlayerIndex)
             end
-            say(PlayerIndex, "You have received Spawn Protection!")
             if settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false then
-            local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!")
-            cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!", 4+8)
-            execute_command("log_note \""..note.."\"")
+                local note = string.format("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!")
+                cprint("[SCRIPT ERROR] Spawn Protection - You don't have any sub-settings enabled for UseBasedOnDeathCount!", 4+8)
+                execute_command("log_note \""..note.."\"")
             return false
             end
         end
