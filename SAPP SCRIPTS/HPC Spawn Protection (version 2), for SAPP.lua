@@ -2,7 +2,7 @@
 Script Name: HPC Spawn Protection (version 2), for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
+    Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
 
     This script will allow you to:
         - optionally toggle:
@@ -179,12 +179,6 @@ function OnPlayerSpawn(PlayerIndex)
             if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
                 CheckSettings(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
-                if settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-                    local note = string.format("[SCRIPT ERROR] Spawn Protection: No sub-settings enabled for Mode1")
-                    cprint("[SCRIPT ERROR] Spawn Protection: No sub-settings enabled for Mode1", 4+8)
-                    execute_command("log_note \""..note.."\"")
-                    return false
-                end
             end
         end
         if settings["Mode2"] and not settings["Mode1"] then
