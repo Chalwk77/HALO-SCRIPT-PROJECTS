@@ -1,5 +1,6 @@
 --[[
 Script Name: HPC Spawn Protection (version 2), for SAPP
+
 - Implementing API version: 1.11.0.0
 
     Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
@@ -82,6 +83,7 @@ function OnScriptUnload() end
 
 DEATHS = { }
 scriptname = 'protection.lua'
+error_logging = true
 
 function OnPlayerJoin(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
@@ -207,24 +209,28 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnNewGame()
-    if settings["Mode1"] and settings["Mode2"] then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    end
-    if not settings["Mode1"] and not settings["Mode2"] then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    end
-    if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
+    if error_logging then 
+        if settings["Mode1"] and settings["Mode2"] then
+            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
+            cprint(note, 4+8)
+            execute_command("log_note \""..note.."\"")
+        end
+        if not settings["Mode1"] and not settings["Mode2"] then
+            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
+            cprint(note, 4+8)
+            execute_command("log_note \""..note.."\"")
+        end
+        if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
+            cprint(note, 4+8)
+            execute_command("log_note \""..note.."\"")
+        elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+            local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
+            cprint(note, 4+8)
+            execute_command("log_note \""..note.."\"")
+        end
+        execute_command_sequence("lua_unload " ..scriptname)
+        cprint(scriptname.. " was unloaded!")
     end
 end
 
