@@ -146,9 +146,7 @@ function ResetPlayerSpeed(PlayerIndex)
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
-        execute_command("msg_prefix \"\"")
         rprint(PlayerIndex, "|cSpeed Boost deactivated!")
-        execute_command("msg_prefix \"** SERVER ** \"")
     else 
         return false
     end
@@ -157,9 +155,7 @@ end
 function ResetInvulnerability(PlayerIndex)
     if player_alive(PlayerIndex) then
         execute_command("ungod me", PlayerIndex)
-        execute_command("msg_prefix \"\"")
         rprint(PlayerIndex, "|cGod Mode deactivated!")
-        execute_command("msg_prefix \"** SERVER ** \"")
     else 
         return false
     end
@@ -168,7 +164,6 @@ end
 function CheckSettings(PlayerIndex)
     if (player_present(PlayerIndex)) then
         if player_alive(PlayerIndex) then
-            execute_command("msg_prefix \"\"")
             local name = get_var(PlayerIndex,"$name")
             cprint(name .. " received Spawn Protection!", 2+8)
             rprint(PlayerIndex, "|cYou have received Spawn Protection!")
@@ -177,7 +172,6 @@ function CheckSettings(PlayerIndex)
             rprint(PlayerIndex, "|n")
             rprint(PlayerIndex, "|n")
             rprint(PlayerIndex, "|n")
-            execute_command("msg_prefix \"** SERVER ** \"")
             if settings["UseCamo"] then
                 timer(0, "ApplyCamo", PlayerIndex)
             end
