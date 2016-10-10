@@ -1,9 +1,12 @@
 --[[
 Script Name: HPC Spawn Where Killed, for SAPP
-- Implementing API version: 1.11.0.0
+    - Implementing API version: 1.11.0.0
 
     Description: You will spawn where you died...
 
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+    
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE

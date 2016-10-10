@@ -1,12 +1,15 @@
 --[[
 Script Name: HPC Spawn Protection (version 2), for SAPP
-- Implementing API version: 1.11.0.0
+    - Implementing API version: 1.11.0.0
 
     Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
 
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+    
     This script will allow you to:
         - optionally toggle:
-            * godmode (invulnerability)
+        * godmode (invulnerability)
             * speed boost + define amount to boost by, (1.3 by default)
             * invisibility
             * overshield

@@ -1,9 +1,12 @@
 --[[
 Script Name: HPC Killer Reward (rewrite), for SAPP
-- Implementing API version: 1.11.0.0
+    - Implementing API version: 1.11.0.0
 
     Description: This script will drop 1-20 (configurable) random items at your victims death location.
     TO DO LIST: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/4
+    
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 MODES:
     [!] Kills Not Required:

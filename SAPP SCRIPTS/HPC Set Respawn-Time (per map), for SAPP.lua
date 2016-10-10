@@ -1,10 +1,12 @@
 --[[
 ------------------------------------
 Script Name: HPC Set Respawn-Time (per map), for SAPP
-- Implementing API version: 1.11.0.0
-- Script Version: v2
+    - Implementing API version: 1.11.0.0
 
-Description:    This script will allow you to set player respawn time (in seconds) on a per map basis.
+Description: This script will allow you to set player respawn time (in seconds) on a per map basis.
+
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

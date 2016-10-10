@@ -5,6 +5,9 @@ Script Name: HPC Chat Logger V2, for SAPP
 
 Description: This script will log player chat to <sapp server>/Server Chat.txt
 
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+
 * Change log:
     6-Oct-2016
         - Updated to guard against modulo operator's throwing an error
