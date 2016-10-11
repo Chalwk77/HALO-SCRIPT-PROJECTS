@@ -114,6 +114,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         Vehicle_Name = "Turret"
         if Seat == "0" then -- Drivers Seat 
     -- It's weird to me to say that PlayerX entered the 'drivers' seat of a turret - It's not something you drive.
+    -- 'Operators Seat' could also pass, but not drivers seat - that's just weird!
             Seat_Position = "Gunners Seat"
         end
     end
