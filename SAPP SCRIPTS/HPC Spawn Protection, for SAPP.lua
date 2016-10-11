@@ -83,9 +83,6 @@ end
 function OnScriptUnload() end
 
 DEATHS = { }
-scriptname = 'protection.lua'
--- If there's a script configuration error, log it.
-logging = true
 
 function OnPlayerJoin(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
@@ -227,29 +224,26 @@ end
 function OnNewGame()
     if logging then
         if settings["Mode1"] and settings["Mode2"] then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nMode 1 and Mode 2 are both enabled!\nYou can only enable one at a time!\n")
+            lognote()
         end
         if not settings["Mode1"] and not settings["Mode2"] then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nMode 1 and Mode 2 are both disabled!\nYou must enable one of them.\n")
+            lognote()
         end
         if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nNo sub-settings enabled for Mode 1\n")
+            lognote()
         elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nNo sub-settings enabled for Mode 2\n")
+            lognote()
         end
     end
 end
 
--- Assuming you name this document 'protection.lua', the unload() function will work.
-function unload()
+function lognote()
     cprint(note, 4+8)
     execute_command("log_note \""..note.."\"")
-    execute_command("lua_unload " .. scriptname)
-    cprint(scriptname .. " was unloaded!", 4+8)
 end
 
 function OnError(Message)
