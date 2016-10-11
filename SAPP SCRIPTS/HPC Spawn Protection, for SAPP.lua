@@ -78,6 +78,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnScriptUnload() end
@@ -92,6 +93,10 @@ function OnPlayerLeave(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
 end
 
+function OnGameEnd(PlayerIndex)
+    DEATHS[PlayerIndex] = { 0 }
+end
+
 function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
@@ -101,7 +106,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function ApplyCamo(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
     else 
         return false
@@ -109,7 +114,7 @@ function ApplyCamo(PlayerIndex)
 end
 
 function ApplyOvershield(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local ObjectID = spawn_object("eqip", "powerups\\over shield")	
         powerup_interact(ObjectID, PlayerIndex)
     else 
@@ -118,7 +123,7 @@ function ApplyOvershield(PlayerIndex)
 end	
 
 function Invulnerability(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
         execute_command("god me", PlayerIndex)
     else 
@@ -127,7 +132,7 @@ function Invulnerability(PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
@@ -138,7 +143,7 @@ function GiveSpeedBoost(PlayerIndex)
 end
 
 function ResetPlayerSpeed(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
@@ -149,7 +154,7 @@ function ResetPlayerSpeed(PlayerIndex)
 end
 
 function ResetInvulnerability(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         execute_command("ungod me", PlayerIndex)
         rprint(PlayerIndex, "|cGod Mode deactivated!")
     else 
@@ -159,7 +164,7 @@ end
 
 function CheckSettings(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        if player_alive(PlayerIndex) then
+        if (player_alive(PlayerIndex)) then
             local name = get_var(PlayerIndex,"$name")
             cprint(name .. " received Spawn Protection!", 2+8)
             rprint(PlayerIndex, "|cYou have received Spawn Protection!")
@@ -191,11 +196,12 @@ end
 function OnPlayerSpawn(PlayerIndex)
     if (player_present(PlayerIndex)) then
         if settings["Mode1"] and not settings["Mode2"] then
-            if (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
-                CheckSettings(PlayerIndex)
-                DEATHS[PlayerIndex][1] = 0
+            if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
+                elseif (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
+                    CheckSettings(PlayerIndex)
+                    DEATHS[PlayerIndex][1] = 0
+                end
             end
-        end
         if settings["Mode2"] and not settings["Mode1"] then
             if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
             elseif (DEATHS[PlayerIndex][1] == _10_Deaths) then
