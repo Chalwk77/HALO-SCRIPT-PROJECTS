@@ -3,7 +3,7 @@
 Script Name: HPC OnVehicleEntry Messages, SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will print your Vehicle Name and Seat position - (see optional settings on line 36)
+Description: This script will print your Vehicle Name and Seat position - (see optional settings on line 42)
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -105,13 +105,15 @@ function OnVehicleEnter(PlayerIndex, Seat)
     if MetaIndex == 0xE54003CC then
         Vehicle_Name = "Banshee"
         if Seat == "0" then -- Drivers Seat
+    -- You don't drive a banshee, you fly it.
             Seat_Position = "Pilots Seat"
         end
     end
     
     if MetaIndex == 0xE86906F5 then
         Vehicle_Name = "Turret"
-        if Seat == "0" then -- Drivers Seat
+        if Seat == "0" then -- Drivers Seat 
+    -- It's weird to me to say that PlayerX entered the 'drivers' seat of a turret - It's not something you drive.
             Seat_Position = "Gunners Seat"
         end
     end
