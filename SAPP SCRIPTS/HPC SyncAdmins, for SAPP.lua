@@ -22,7 +22,7 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad() SyncAdmins() end
 -- Change this url accordingly.
-url = "http://example.com/files"
+url = 'http://example.com/files/'
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
 prefix = "[SCRIPT] - SyncAdmins.lua|n"
@@ -36,7 +36,7 @@ function SyncAdmins()
             cprint(prefix .. "Error: " .. url .. "admins.txt does not exist or the remote server is offline.", 4+8)
         else
             proceed = true
-            if string.find(admin_page, "%s*") == nil then
+            if string.find(admin_page, "[A-Za-z0-9]:[1-4]") == nil then
                 proceed = false
                 cprint(prefix .. "Error: Failed to read from admins.txt on remote server.", 4+8)
             end
@@ -57,7 +57,7 @@ function SyncAdmins()
             cprint(prefix .. "Error: " .. url .. "users.txt does not exist or the remote server is offline.", 4+8)
         else
             proceed = true
-            if string.find(users_page, "%s*") == nil then
+            if string.find(users_page, "[A-Za-z0-9]:[1-4]:") == nil then
                 proceed = false
                 cprint(prefix .. "Error: Failed to read from users.txt on remote server.", 4+8)
             end
