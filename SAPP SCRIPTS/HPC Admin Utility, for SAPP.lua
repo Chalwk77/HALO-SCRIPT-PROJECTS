@@ -1,5 +1,5 @@
 --[[
-Script Name: HPC Admin Add-Yourself, for SAPP
+Script Name: HPC Admin Utility, for SAPP
 - Implementing API version: 1.11.0.0
 
     Description: Type the key 'phrase' in chat to add yourself as an admin. 
