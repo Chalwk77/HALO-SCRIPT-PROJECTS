@@ -37,6 +37,7 @@ function SyncAdmins()
             cprint(prefix .. "Remote hash does not exist!", 4+8)
         end
         if proceed then
+            -- This will overwirte your currect admins.txt ('w'), and insert the data 'from' the remote file 'to' your server's admin.txt file.
             local file = io.open(dir, "w")
             local line = tokenizestring(page, ";")
             for i = 1, #line do
