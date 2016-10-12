@@ -11,7 +11,7 @@ SAPP Lua API: [link] (http://halo.isimaginary.com/lua_info/)
 Phasor Lua API: [link] (http://69.162.101.202/~phasor/docs/200/group___phasor_a_p_i.html)
 * Phasor Forums: [weblink] (http://phasor.proboards.com/)
 
-Contributors: [CONTRIBUTING.md](https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/CONTRIBUTING.md)
+Contributors: 
 Contributors are those whom have contributed code to my projects in some way. Sometimes I will use functions written by other people. In which case, their names will be credited in the relevant scripts (at the top) and their names will be listen in the CONTRIBUTING.md file.
 
 
