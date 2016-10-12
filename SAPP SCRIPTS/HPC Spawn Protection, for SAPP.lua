@@ -85,9 +85,12 @@ function OnScriptUnload() end
 
 DEATHS = { }
 scriptname = 'protection.lua'
+-- If there's a script configuration error, log it.
+logging = true
 
 function OnPlayerJoin(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
+    name = get_var(PlayerIndex,"$name")
 end
     
 function OnPlayerLeave(PlayerIndex)
@@ -105,8 +108,9 @@ end
 function ApplyCamo(PlayerIndex)
     if player_alive(PlayerIndex) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
+    else 
+        return false
     end
-    return false
 end
 
 function ApplyOvershield(PlayerIndex)
@@ -143,6 +147,7 @@ function ResetPlayerSpeed(PlayerIndex)
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
+        rprint(PlayerIndex, "|cSpeed Boost deactivated!")
     else 
         return false
     end
@@ -151,6 +156,7 @@ end
 function ResetInvulnerability(PlayerIndex)
     if player_alive(PlayerIndex) then
         execute_command("ungod me", PlayerIndex)
+        rprint(PlayerIndex, "|cGod Mode deactivated!")
     else 
         return false
     end
@@ -158,51 +164,61 @@ end
 
 function CheckSettings(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        execute_command("msg_prefix \"\"")
-        say(PlayerIndex, "You have received Spawn Protection!")
-        execute_command("msg_prefix \"**SERVER** \"")
-        if settings["UseCamo"] then
-            timer(0, "ApplyCamo", PlayerIndex)
+        if player_alive(PlayerIndex) then
+            cprint(name .. " received Spawn Protection!", 2+8)
+            rprint(PlayerIndex, "|cYou have received Spawn Protection!")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            rprint(PlayerIndex, "|n")
+            if settings["UseCamo"] then
+                timer(0, "ApplyCamo", PlayerIndex)
+            end
+            if settings["UseSpeedBoost"] then 
+                GiveSpeedBoost(PlayerIndex)
+            end
+            if settings["UseInvulnerability"] then
+                Invulnerability(PlayerIndex)
+            end
+            if settings["UseOvershield"] then
+                timer(0, "ApplyOvershield", PlayerIndex)
+            end
+        else 
+            return false
         end
-        if settings["UseSpeedBoost"] then 
-            GiveSpeedBoost(PlayerIndex)
-        end
-        if settings["UseInvulnerability"] then
-            Invulnerability(PlayerIndex)
-        end
-        if settings["UseOvershield"] then
-            timer(0, "ApplyOvershield", PlayerIndex)
-        end
+    else 
+        return false
     end
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    if PlayerIndex then
+    if (player_present(PlayerIndex)) then
         if settings["Mode1"] and not settings["Mode2"] then
-            if DEATHS[PlayerIndex][1] == ConsecutiveDeaths then
+            if (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
                 CheckSettings(PlayerIndex)
                 DEATHS[PlayerIndex][1] = 0
             end
         end
         if settings["Mode2"] and not settings["Mode1"] then
-            if DEATHS[PlayerIndex][1] == nil then DEATHS[PlayerIndex][1] = 0 
-            elseif DEATHS[PlayerIndex][1] == _10_Deaths then
+            if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
+            elseif (DEATHS[PlayerIndex][1] == _10_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _20_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _20_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _30_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _30_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _45_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _45_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _60_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _60_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _75_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _75_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _95_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _95_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _115_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _115_Deaths) then
                 CheckSettings(PlayerIndex)
-            elseif DEATHS[PlayerIndex][1] == _135_Deaths then
+            elseif (DEATHS[PlayerIndex][1] == _135_Deaths) then
                 CheckSettings(PlayerIndex)
             end
         end
@@ -210,25 +226,30 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnNewGame()
-    if settings["Mode1"] and settings["Mode2"] then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
+    if logging then
+        if settings["Mode1"] and settings["Mode2"] then
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
+            unload()
+        end
+        if not settings["Mode1"] and not settings["Mode2"] then
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
+            unload()
+        end
+        if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
+            unload()
+        elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
+            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
+            unload()
+        end
     end
-    if not settings["Mode1"] and not settings["Mode2"] then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    end
-    if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-        local note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
-        cprint(note, 4+8)
-        execute_command("log_note \""..note.."\"")
-    end
+end
+
+function unload()
+    cprint(note, 4+8)
+    execute_command("log_note \""..note.."\"")
+    execute_command("lua_unload " .. scriptname)
+    cprint(scriptname .. " was unloaded!", 4+8)
 end
 
 function OnError(Message)

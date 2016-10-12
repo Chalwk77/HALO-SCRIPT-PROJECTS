@@ -1,12 +1,12 @@
 --[[    
-------------------------------------
-Script Name: HPC vm351 - Game Settings
-
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-
-* IGN: Chalwk
-* Written by Jericho Crosby
------------------------------------
+    ------------------------------------
+    Script Name: HPC vm351 - Game Settings
+    
+    Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+    
+    * IGN: Chalwk
+    * Written by Jericho Crosby
+    -----------------------------------
 ]]-- 
 api_version = "1.11.0.0"
 delay = 1000*7
@@ -19,24 +19,12 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'],"OnServerCommand")
-    -- register_callback(cb['EVENT_CAMP'],"OnPlayerCamp")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 end
 
 function OnScriptUnload()
     logo = nil
-end
-
-function OnPlayerCamp(PlayerIndex, CampKills)
-    local CampKills = get_var(PlayerIndex, "$campkills")
-    for i=1,16 do
-        if(player_alive(i)) then
-            if (CampKills == 2) then
-            -- do something
-            end
-        end
-    end
 end
 
 function OnNewGame()
@@ -72,8 +60,6 @@ function OnPlayerJoin(PlayerIndex)
     cprint("Join Time: " ..timestamp)
     cprint("Status: connected successfully.")
     cprint("---------------------------------------------------------------------------------------------------")
-    rprint(PlayerIndex, "|c-- CTF --")
-    rprint(PlayerIndex, "|c5 Captures to Win")
 end
 
 function WelcomeDelay(PlayerIndex)

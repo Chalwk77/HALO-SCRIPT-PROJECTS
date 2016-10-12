@@ -8,6 +8,9 @@ Description: This script will print your Vehicle Name and Seat position - (see o
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
+[!] Change Log:
+    - Added Turret 
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -50,7 +53,6 @@ end
 function OnScriptUnload() end
 
 function OnVehicleEnter(PlayerIndex, Seat)
-
     local PlayerObj = get_dynamic_player(PlayerIndex)
     local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
     local MetaIndex = read_dword(VehicleObj)
@@ -102,8 +104,15 @@ function OnVehicleEnter(PlayerIndex, Seat)
 
     if MetaIndex == 0xE54003CC then
         Vehicle_Name = "Banshee"
-        if Seat == "0" then
-            Seat_Position = "Drivers Seat"
+        if Seat == "0" then -- Drivers Seat
+            Seat_Position = "Pilots Seat"
+        end
+    end
+    
+    if MetaIndex == 0xE86906F5 then
+        Vehicle_Name = "Turret"
+        if Seat == "0" then -- Drivers Seat
+            Seat_Position = "Gunners Seat"
         end
     end
     if settings["LogToServerConsole"] then
