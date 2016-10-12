@@ -6,6 +6,11 @@ Script Name: HPC SyncAdmins, for SAPP
 Description: This script will sync your admins.txt file with a remote server
 Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
+To do:
+. Command to sync admins.
+. File encoding
+. GoToBackup (function)
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
