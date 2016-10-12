@@ -25,3 +25,8 @@ Contributors to [code]
 
   * sendconsoletext overload
         - http://pastebin.com/1dtn0DiM
+        
+* **[002](https://github.com/Halogen002)**
+
+  * http client
+        - https://github.com/Halogen002/SAPP-HTTP-Client
