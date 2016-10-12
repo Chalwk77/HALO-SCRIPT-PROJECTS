@@ -49,15 +49,15 @@ function OnChatMessage(PlayerIndex, Message, type)
     hash = get_var(PlayerIndex,"$hash")
     id = get_var(PlayerIndex, "$n")
     local mlen = #Message
-    local spcount = 0
+    local count = 0
     for i=1, #Message do
         local c = string.sub(Message, i,i)
         if c == ' ' then
-            spcount = spcount+1
+            count = count+1
         end
     end
-    if mlen == spcount then
-        spcount = 0
+    if mlen == count then
+        count = 0
         return 0
     end
     local t = tokenizestring(Message, " ")
@@ -80,6 +80,7 @@ function OnChatMessage(PlayerIndex, Message, type)
         end
         return false
     end
+    return 0
 end
 
 function tokenizestring(inputstr, sep)
