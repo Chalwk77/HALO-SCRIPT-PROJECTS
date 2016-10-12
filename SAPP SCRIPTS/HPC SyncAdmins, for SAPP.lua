@@ -22,32 +22,55 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad() SyncAdmins() end
 -- Change this url accordingly.
-url = "http://example.com/files/admins.txt"
-dir = 'sapp\\admins.txt'
+url = "http://example.com/files"
+admins = 'sapp\\admins.txt'
+users = 'sapp\\users.txt'
 prefix = "[SCRIPT] - SyncAdmins.lua|n"
+Sync_Admins = true
+Sync_Users = true
 function SyncAdmins()
-    local page = GetPage(tostring(url))
-    if page == nil then cprint(prefix .. "Error: URL does not exist or the remote server is offline.", 4+8)
-    else
-        proceed = true
-        -- Insert your own hash here:
-        -- Your hash is a keyword of sorts. 
-        -- If found it will proceed to sync the admins.txt file.
-        if string.find(page, "1cc8f0c306a0106b4904b12110185edd") == nil then
-            proceed = false
-            cprint(prefix .. "Error: Remote hash does not exist!", 4+8)
-        end
-        if proceed then
-            -- This will overwirte your currect admins.txt ('w'), 
-            -- and insert the data 'from' the remote file 'to' your server's admin.txt file.
-            local file = io.open(dir, "w")
-            local line = tokenizestring(page, ";")
-            for i = 1, #line do
-                file:write(line[i])
-                cprint("Syncing Admins...|n" .. line[i], 2+8)
+    admin_page = GetPage(tostring(url) .. "admins.txt")
+    users_page = GetPage(tostring(url) .. "users.txt")
+    if Sync_Admins then
+        if admin_page == nil then 
+            cprint(prefix .. "Error: " .. url .. "admins.txt does not exist or the remote server is offline.", 4+8)
+        else
+            proceed = true
+            if string.find(admin_page, "%s*") == nil then
+                proceed = false
+                cprint(prefix .. "Error: Failed to read from admins.txt on remote server.", 4+8)
             end
-            file:close()
-            cprint("Admin list successfully Synced!", 2+8)
+            if proceed then
+                local file = io.open(admins, "w")
+                local line = tokenizestring(admin_page, "*")
+                for i = 1, #line do
+                    file:write(line[i])
+                    cprint("Syncing Admins...|n" .. line[i], 2+8)
+                end
+                file:close()
+                cprint("admins.txt successfully Synced!|n", 2+8)
+            end
+        end
+    end
+    if Sync_Users then
+        if users_page == nil then 
+            cprint(prefix .. "Error: " .. url .. "users.txt does not exist or the remote server is offline.", 4+8)
+        else
+            proceed = true
+            if string.find(users_page, "%s*") == nil then
+                proceed = false
+                cprint(prefix .. "Error: Failed to read from users.txt on remote server.", 4+8)
+            end
+            if proceed then
+                local file = io.open(users, "w")
+                local line = tokenizestring(users_page, "*")
+                for i = 1, #line do
+                    file:write(line[i])
+                    cprint("Syncing Users...|n" .. line[i], 2+8)
+                end
+                file:close()
+                cprint("users.txt successfully Synced!|n", 2+8)
+            end
         end
     end
 end
