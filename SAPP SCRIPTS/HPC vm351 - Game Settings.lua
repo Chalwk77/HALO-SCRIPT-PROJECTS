@@ -5,7 +5,7 @@
     Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
     
     * IGN: Chalwk
-    * Written by Jericho Crosby
+    * Written by Jericho Crosby (Chalwk)
     -----------------------------------
 ]]-- 
 api_version = "1.11.0.0"

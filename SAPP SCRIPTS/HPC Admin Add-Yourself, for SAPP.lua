@@ -1,8 +1,9 @@
 --[[
-Script Name: HPC Admin Security, for SAPP
+Script Name: HPC Admin Add-Yourself, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: Type the key 'phrase' in chat to add yourself as an admin. This was particuarly useful to me when testing other scripts.
+    Description: Type the key 'phrase' in chat to add yourself as an admin. 
+                 This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
                     
     Your IGN and Hash must be listed in the name/hash tables. 
@@ -15,7 +16,7 @@ Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby
+* Written by Jericho Crosby (Chalwk) (Chalwk)
 ]]
 
 api_version = "1.11.0.0"
