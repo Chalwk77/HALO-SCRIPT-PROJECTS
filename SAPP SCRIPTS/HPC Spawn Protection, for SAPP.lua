@@ -7,24 +7,23 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     
-    This script will allow you to:
-        - optionally toggle:
+    This script will allow you to optionally toggle:
         * godmode (invulnerability)
-            * speed boost + define amount to boost by, (1.3 by default)
-            * invisibility
-            * overshield
+        * speed boost + define amount to boost by, (1.3 by default)
+        * invisibility
+        * overshield
         
     There are two modes:
         Mode1: 'consecutive deaths' (editable)
         If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with protection.
             
-        Mode2: Receive protection when you reach a specific amount of deaths (editable)
-            
+        Mode2: Receive protection when you reach a specific amount of deaths (editable threshold)
+    
     TO DO:
         - Detect if Killer is camping
         - Punish Killer
         * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
-
+        
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -44,7 +43,7 @@ local settings = {
     ["UseOvershield"] = true,
     ["UseSpeedBoost"] = true,
     ["UseInvulnerability"] = true,
-}
+    }
 
 -- attributes given every 10 deaths, (victim)
 ConsecutiveDeaths = 10
@@ -69,9 +68,9 @@ _30_Deaths = 30
 _45_Deaths = 45
 _60_Deaths = 60
 _75_Deaths = 75
-_75_Deaths = 95
-_75_Deaths = 115
-_75_Deaths = 135
+_95_Deaths = 95
+_115_Deaths = 115
+_135_Deaths = 135
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -79,21 +78,22 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnScriptUnload() end
 
 DEATHS = { }
-scriptname = 'protection.lua'
--- If there's a script configuration error, log it.
-logging = true
 
 function OnPlayerJoin(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
-    name = get_var(PlayerIndex,"$name")
 end
     
 function OnPlayerLeave(PlayerIndex)
+    DEATHS[PlayerIndex] = { 0 }
+end
+
+function OnGameEnd(PlayerIndex)
     DEATHS[PlayerIndex] = { 0 }
 end
 
@@ -106,7 +106,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function ApplyCamo(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
     else 
         return false
@@ -114,7 +114,7 @@ function ApplyCamo(PlayerIndex)
 end
 
 function ApplyOvershield(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local ObjectID = spawn_object("eqip", "powerups\\over shield")	
         powerup_interact(ObjectID, PlayerIndex)
     else 
@@ -123,7 +123,7 @@ function ApplyOvershield(PlayerIndex)
 end	
 
 function Invulnerability(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)	
         execute_command("god me", PlayerIndex)
     else 
@@ -132,7 +132,7 @@ function Invulnerability(PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
@@ -143,7 +143,7 @@ function GiveSpeedBoost(PlayerIndex)
 end
 
 function ResetPlayerSpeed(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
@@ -154,7 +154,7 @@ function ResetPlayerSpeed(PlayerIndex)
 end
 
 function ResetInvulnerability(PlayerIndex)
-    if player_alive(PlayerIndex) then
+    if (player_alive(PlayerIndex)) then
         execute_command("ungod me", PlayerIndex)
         rprint(PlayerIndex, "|cGod Mode deactivated!")
     else 
@@ -164,7 +164,8 @@ end
 
 function CheckSettings(PlayerIndex)
     if (player_present(PlayerIndex)) then
-        if player_alive(PlayerIndex) then
+        if (player_alive(PlayerIndex)) then
+            local name = get_var(PlayerIndex,"$name")
             cprint(name .. " received Spawn Protection!", 2+8)
             rprint(PlayerIndex, "|cYou have received Spawn Protection!")
             rprint(PlayerIndex, "|n")
@@ -195,11 +196,12 @@ end
 function OnPlayerSpawn(PlayerIndex)
     if (player_present(PlayerIndex)) then
         if settings["Mode1"] and not settings["Mode2"] then
-            if (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
-                CheckSettings(PlayerIndex)
-                DEATHS[PlayerIndex][1] = 0
+            if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
+                elseif (DEATHS[PlayerIndex][1] == ConsecutiveDeaths) then
+                    CheckSettings(PlayerIndex)
+                    DEATHS[PlayerIndex][1] = 0
+                end
             end
-        end
         if settings["Mode2"] and not settings["Mode1"] then
             if (DEATHS[PlayerIndex][1] == nil) then DEATHS[PlayerIndex][1] = 0 
             elseif (DEATHS[PlayerIndex][1] == _10_Deaths) then
@@ -228,28 +230,26 @@ end
 function OnNewGame()
     if logging then
         if settings["Mode1"] and settings["Mode2"] then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both enabled!\nYou can only enable one at a time!\n\n")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nMode 1 and Mode 2 are both enabled!\nYou can only enable one at a time!\n")
+            lognote()
         end
         if not settings["Mode1"] and not settings["Mode2"] then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nMode [1] and Mode [2] are both disabled!\nYou must enable one of the two settings.\n\n")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nMode 1 and Mode 2 are both disabled!\nYou must enable one of them.\n")
+            lognote()
         end
         if settings["Mode1"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [1]")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nNo sub-settings enabled for Mode 1\n")
+            lognote()
         elseif settings["Mode2"] and settings["UseCamo"] == false and settings["UseSpeedBoost"] == false and settings["UseInvulnerability"] == false and settings["UseOvershield"] == false then
-            note = string.format("\n\n[SCRIPT ERROR] - " ..scriptname.. "\nNo sub-settings enabled for Mode [2]")
-            unload()
+            note = string.format("\n[SCRIPT CONFIGURATION ERROR] - Spawn Protection:\nNo sub-settings enabled for Mode 2\n")
+            lognote()
         end
     end
 end
 
-function unload()
+function lognote()
     cprint(note, 4+8)
     execute_command("log_note \""..note.."\"")
-    execute_command("lua_unload " .. scriptname)
-    cprint(scriptname .. " was unloaded!", 4+8)
 end
 
 function OnError(Message)
