@@ -31,13 +31,15 @@ function SyncAdmins()
     else
         proceed = true
         -- Insert your own hash here:
-        -- Your hash is a keyword of sorts. If found it will proceed to sync the admins.txt file.
+        -- Your hash is a keyword of sorts. 
+        -- If found it will proceed to sync the admins.txt file.
         if string.find(page, "1cc8f0c306a0106b4904b12110185edd") == nil then
             proceed = false
             cprint(prefix .. "Remote hash does not exist!", 4+8)
         end
         if proceed then
-            -- This will overwirte your currect admins.txt ('w'), and insert the data 'from' the remote file 'to' your server's admin.txt file.
+            -- This will overwirte your currect admins.txt ('w'), 
+            -- and insert the data 'from' the remote file 'to' your server's admin.txt file.
             local file = io.open(dir, "w")
             local line = tokenizestring(page, ";")
             for i = 1, #line do
