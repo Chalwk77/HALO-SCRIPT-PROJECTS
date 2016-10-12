@@ -24,7 +24,7 @@ function OnScriptLoad() SyncAdmins() end
 -- Change this url accordingly.
 url = "http://example.com/files/admins.txt"
 dir = 'sapp\\admins.txt'
-prefix = "[SCRIPT] - SyncAdmins.lua: "
+prefix = "[SCRIPT] - SyncAdmins.lua|n"
 function SyncAdmins()
     local page = GetPage(tostring(url))
     if page == nil then cprint(prefix .. "URL does not exist!", 4+8)
@@ -34,17 +34,17 @@ function SyncAdmins()
         -- Your hash is a keyword of sorts. If found it will proceed to sync the admins.txt file.
         if string.find(page, "1cc8f0c306a0106b4904b12110185edd") == nil then
             proceed = false
-            cprint(prefix .. "remote hash does not exist!", 4+8)
+            cprint(prefix .. "Remote hash does not exist!", 4+8)
         end
         if proceed then
             local file = io.open(dir, "w")
             local line = tokenizestring(page, ";")
             for i = 1, #line do
                 file:write(line[i])
-                cprint("[SCRIPT] - SyncAdmins:|n" .. line[i] .. " added to admins.txt", 2+8)
+                cprint("Syncing Admins...|n" .. line[i], 2+8)
             end
             file:close()
-            cprint("Admin List Synced!", 2+8)
+            cprint("Admin list successfully Synced!", 2+8)
         end
     end
 end
