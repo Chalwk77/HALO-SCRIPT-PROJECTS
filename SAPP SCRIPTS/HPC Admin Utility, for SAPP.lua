@@ -19,13 +19,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 ]]
 
+-- Admin level
+level = "4"
+
 api_version = "1.11.0.0"
 function OnScriptLoad( )
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
     LoadTables( )
 end
-
-level = "4"
 
 function LoadTables( )
     namelist = {
