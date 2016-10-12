@@ -2,7 +2,8 @@
 Script Name: HPC Admin Add-Yourself, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: Type the key 'phrase' in chat to add yourself as an admin. This was particuarly useful to me when testing other scripts.
+    Description: Type the key 'phrase' in chat to add yourself as an admin. 
+                 This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
                     
     Your IGN and Hash must be listed in the name/hash tables. 
