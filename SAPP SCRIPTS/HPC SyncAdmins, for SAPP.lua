@@ -27,7 +27,7 @@ dir = 'sapp\\admins.txt'
 prefix = "[SCRIPT] - SyncAdmins.lua|n"
 function SyncAdmins()
     local page = GetPage(tostring(url))
-    if page == nil then cprint(prefix .. "URL does not exist!", 4+8)
+    if page == nil then cprint(prefix .. "Error: URL does not exist or the remote server is offline.", 4+8)
     else
         proceed = true
         -- Insert your own hash here:
@@ -35,7 +35,7 @@ function SyncAdmins()
         -- If found it will proceed to sync the admins.txt file.
         if string.find(page, "1cc8f0c306a0106b4904b12110185edd") == nil then
             proceed = false
-            cprint(prefix .. "Remote hash does not exist!", 4+8)
+            cprint(prefix .. "Error: Remote hash does not exist!", 4+8)
         end
         if proceed then
             -- This will overwirte your currect admins.txt ('w'), 
