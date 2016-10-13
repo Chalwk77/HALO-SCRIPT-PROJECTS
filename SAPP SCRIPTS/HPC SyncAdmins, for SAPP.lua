@@ -26,14 +26,35 @@ api_version = "1.11.0.0"
 function OnScriptLoad() 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     SyncAdmins() 
+    admin_table = {}
+    users_table = {}
 end
 -- Change this url accordingly.
-url = 'http://example.com/files'
+url = 'http://example.com/files/'
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
 prefix = "[SCRIPT] - SyncAdmins.lua|n"
 Sync_Admins = true
 Sync_Users = true
+-- Backup Solution. 
+admin_table = {
+--      <username(1-11)>:<hash>:<admin level(0-4)
+        "PlayerName1:a4fe9d916197f408e3af0033f1ee78fe:4", 
+        "PlayerName2:a4fe9d916197f408e3af0033f1ee78fe:4", 
+        "PlayerName3:a4fe9d916197f408e3af0033f1ee78fe:4", 
+        "PlayerName4:a4fe9d916197f408e3af0033f1ee78fe:4", 
+        "PlayerName5:a4fe9d916197f408e3af0033f1ee78fe:4", 
+        "PlayerName6:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    }
+users_table = {
+--      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
+        "PlayerName1:0:6c8f0bc306e0108b4904812110185edd:4:",
+        "PlayerName2:1:6c8f0bc306e0108b4904812110185edd:4:",
+        "PlayerName3:2:6c8f0bc306e0108b4904812110185edd:4:",
+        "PlayerName4:3:6c8f0bc306e0108b4904812110185edd:4:",
+        "PlayerName5:4:6c8f0bc306e0108b4904812110185edd:4:",
+        "PlayerName5:5:6c8f0bc306e0108b4904812110185edd:4:",
+    }
 function SyncAdmins(executor, Command, PlayerIndex, count)
     admin_page = GetPage(tostring(url) .. "admins.txt")
     users_page = GetPage(tostring(url) .. "users.txt")
@@ -41,7 +62,9 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
     response = nil
     if Sync_Admins then
         if admin_page == nil then 
-        respond(prefix .. 'Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
+            respond('Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
+            BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+            response = false
         else
             response = true
             if string.find(admin_page, "[A-Za-z0-9]:[1-4]") == nil then
@@ -56,13 +79,15 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
                     respond('Syncing Admins...|n' .. line[i], PlayerIndex)
                 end
                 file:close()
-                respond('admins.txt successfully Synced!|n', PlayerIndex, Message)
+                respond('admins.txt successfully Synced!|n', PlayerIndex)
             end
         end
     end
     if Sync_Users then
         if users_page == nil then 
-            respond(prefix .. 'Error: ' .. url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
+            respond('Error: ' .. url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
+            BackupSolutionUsers(executor, Command, PlayerIndex, count)
+            response = false
         else
             response = true
             if string.find(users_page, "[A-Za-z0-9]:[1-4]:") == nil then
@@ -77,7 +102,7 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
                     respond('Syncing Users...|n' .. line[i], PlayerIndex)
                 end
                 file:close()
-                respond('users.txt successfully Synced!|n', PlayerIndex, Message)
+                respond('users.txt successfully Synced!|n', PlayerIndex)
             end
         end
     end
@@ -104,8 +129,33 @@ end
 
 function OnScriptUnload() end
 
+function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+    respond('Going to backup solution...', PlayerIndex)
+    if Sync_Admins then
+        local file = io.open(admins, "w")
+        for i = 2, #admin_table do
+            file:write(admin_table[i], "\n")
+            respond(admin_table[i], PlayerIndex)
+        end
+        file:close()
+        respond('admins.txt successfully Synced!|n', PlayerIndex)
+    end
+end
+
+function BackupSolutionUsers(executor, Command, PlayerIndex, count)
+    respond('Going to backup solution...', PlayerIndex)
+    if Sync_Users then
+        local file = io.open(users, "w")
+        for i = 2, #users_table do
+            file:write(users_table[i], "\n")
+            respond(users_table[i], PlayerIndex)
+        end
+        file:close()
+        respond('users.txt successfully Synced!|n', PlayerIndex)
+    end
+end
+
 function OnServerCommand(PlayerIndex, Command)
-	local response = nil
 	local isadmin = nil
 	if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
@@ -120,7 +170,7 @@ function OnServerCommand(PlayerIndex, Command)
         else 
             respond("You do not have permission to execute \"" .. Command .. "\"", PlayerIndex)
         end
-        return response
+    return false
     end
 end
 
