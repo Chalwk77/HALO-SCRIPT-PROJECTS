@@ -11,7 +11,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 TO DO:
 . File Encoding
-. GoToBackup (function)
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
