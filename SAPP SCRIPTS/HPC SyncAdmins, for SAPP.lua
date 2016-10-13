@@ -11,8 +11,9 @@ Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
-TO DO:
+TO DO LIST:
 . File Encoding
+. Minor Tweaking
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
