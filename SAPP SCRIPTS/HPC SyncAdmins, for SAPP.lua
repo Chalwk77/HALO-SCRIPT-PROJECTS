@@ -15,7 +15,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 TO DO LIST:
 [!] This script does not function properly due to SAPP encoding the admin/users.txt files in UCS-2 LE BOM.
     I am working on a solution!
-    It does however, work perfectly fine if the files in ANSI/UTF-8 format.
+    It does however, work perfectly fine if the files are in ANSI/UTF-8 format.
     
 . File Encoding
 . Minor Tweaking
