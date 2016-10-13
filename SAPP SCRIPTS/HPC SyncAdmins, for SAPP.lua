@@ -21,6 +21,9 @@ TO DO LIST:
 . Minor Tweaking
 -------------------------------
 
+Issue Tracker: 
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/6
+
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -35,6 +38,12 @@ api_version = "1.11.0.0"
 function OnScriptLoad() 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     SyncAdmins() 
+    admin_table = {}
+    users_table = {}
+end
+
+function OnScriptUnload() 
+    settings = {}
     admin_table = {}
     users_table = {}
 end
@@ -156,8 +165,6 @@ function respond(Message, PlayerIndex)
         end
     end
 end
-
-function OnScriptUnload() end
 
 function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
