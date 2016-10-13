@@ -11,9 +11,14 @@ Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
+-------------------------------
 TO DO LIST:
-. File Encoding -- Currently, this script does not work with SAPP due to file encoding of admins/users.txt. Works fine for other txt files.
+[!] This script does not function properly due to SAPP encoding the admin/users.txt files in UCS-2 LE BOM.
+    I am working on a solution!
+    
+. File Encoding
 . Minor Tweaking
+-------------------------------
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
