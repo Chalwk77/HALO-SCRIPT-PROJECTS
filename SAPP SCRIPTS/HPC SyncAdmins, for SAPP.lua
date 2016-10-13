@@ -42,22 +42,22 @@ Sync_Users = true
 -- Backup Solution. 
 admin_table = {
 --      <username(1-11)>:<hash>:<admin level(0-4)
-        "PlayerName1:a4fe9d916197f408e3af0033f1ee78fe:4", 
-        "PlayerName2:a4fe9d916197f408e3af0033f1ee78fe:4", 
-        "PlayerName3:a4fe9d916197f408e3af0033f1ee78fe:4", 
-        "PlayerName4:a4fe9d916197f408e3af0033f1ee78fe:4", 
-        "PlayerName5:a4fe9d916197f408e3af0033f1ee78fe:4", 
-        "PlayerName6:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    }
+    "PlayerName1:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName2:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName3:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName4:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName5:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName6:a4fe9d916197f408e3af0033f1ee78fe:4", 
+}
 users_table = {
 --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
-        "PlayerName1:0:6c8f0bc306e0108b4904812110185edd:4:",
-        "PlayerName2:1:6c8f0bc306e0108b4904812110185edd:4:",
-        "PlayerName3:2:6c8f0bc306e0108b4904812110185edd:4:",
-        "PlayerName4:3:6c8f0bc306e0108b4904812110185edd:4:",
-        "PlayerName5:4:6c8f0bc306e0108b4904812110185edd:4:",
-        "PlayerName5:5:6c8f0bc306e0108b4904812110185edd:4:",
-    }
+    "PlayerName1:0:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName2:1:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName3:2:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName4:3:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName5:4:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName5:5:6c8f0bc306e0108b4904812110185edd:4:",
+}
 function SyncAdmins(executor, Command, PlayerIndex, count)
     admin_page = GetPage(tostring(url) .. "admins.txt")
     users_page = GetPage(tostring(url) .. "users.txt")
@@ -115,21 +115,21 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
 end
 
 function respond(Message, PlayerIndex)
-	if Message then
-		if Message == "" then 
-			return 
-		elseif type(Message) == "table" then
-			Message = Message[1]
-		end
-		PlayerIndex = tonumber(PlayerIndex)
-		if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
+    if Message then
+        if Message == "" then 
+            return 
+            elseif type(Message) == "table" then
+            Message = Message[1]
+        end
+        PlayerIndex = tonumber(PlayerIndex)
+        if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
             cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4+8)
             cprint(Message, 2+8)
             rprint(PlayerIndex, Message)
-		else
-			cprint(Message, 2+8)
-		end
-	end
+        else
+            cprint(Message, 2+8)
+        end
+    end
 end
 
 function OnScriptUnload() end
@@ -161,21 +161,21 @@ function BackupSolutionUsers(executor, Command, PlayerIndex, count)
 end
 
 function OnServerCommand(PlayerIndex, Command)
-	local isadmin = nil
-	if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+    local isadmin = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
         isadmin = false 
     end
-	local t = tokenizestring(Command)
-	local count = #t
-	if t[1] == "sync" or t[1] == "sv_sync_admins" then
+    local t = tokenizestring(Command)
+    local count = #t
+    if t[1] == "sync" or t[1] == "sv_sync_admins" then
         if isadmin then
             SyncAdmins(PlayerIndex, t[1], count)
         else 
             respond("You do not have permission to execute \"" .. Command .. "\"", PlayerIndex)
         end
-    return false
+        return false
     end
 end
 
