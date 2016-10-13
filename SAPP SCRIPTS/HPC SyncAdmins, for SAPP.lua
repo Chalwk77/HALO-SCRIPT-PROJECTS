@@ -12,7 +12,7 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 TO DO LIST:
-. File Encoding
+. File Encoding -- Currently, this script does not work with SAPP due to file encoding of admins/users.txt. Works fine for other txt files.
 . Minor Tweaking
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
