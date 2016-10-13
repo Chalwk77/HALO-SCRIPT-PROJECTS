@@ -32,15 +32,22 @@ function OnScriptLoad()
     admin_table = {}
     users_table = {}
 end
+
+-- Configuration --
 -- Change this url accordingly.
 url = 'http://example.com/files/'
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
-prefix = "[SCRIPT] - SyncAdmins.lua|n"
-Sync_Admins = true
-Sync_Users = true
+
+settings = {
+    ["Sync_Admins"] = true,
+    ["Sync_Users"] = true,
+    ["BackupMethod"] = true,
+    }
+    
 -- Backup Solution. 
 admin_table = {
+-- Usernames can only have 11 characters!
 --      <username(1-11)>:<hash>:<admin level(0-4)
     "PlayerName1:f443106bd82fd6f3c22ba2df7c5e4094:4", 
     "PlayerName2:c702226e783ea7e091c0bb44c2d0ec64:1", 
@@ -50,6 +57,7 @@ admin_table = {
     "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:3", 
 }
 users_table = {
+-- Usernames can only have 11 characters!
 --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
     "PlayerName1:0:f443106bd82fd6f3c22ba2df7c5e4094:4:",
     "PlayerName2:1:c702226e783ea7e091c0bb44c2d0ec64:1:",
@@ -58,20 +66,26 @@ users_table = {
     "PlayerName5:4:3d5cd27b3fa487b040043273fa00f51b:3:",
     "PlayerName6:5:b661a51d4ccf44f5da2869b0055563cb:3:",
 }
+-- Configuration Ends --
+
 function SyncAdmins(executor, Command, PlayerIndex, count)
     admin_url = GetPage(tostring(url) .. "admins.txt")
     users_url = GetPage(tostring(url) .. "users.txt")
     response = nil
-    if Sync_Admins then
+    if settings["Sync_Admins"] then
         if admin_url == nil then 
             respond('Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
-            BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+            if settings["BackupMethod"] then 
+                BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+                end
             response = false
         else
             response = true
             if string.find(admin_url, "[A-Za-z0-9]:[1-4]") == nil then
                 respond('Error: Failed to read from admins.txt on remote server.', PlayerIndex)
-                BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+                if settings["BackupMethod"] then 
+                    BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+                end
                 response = false
             end
             if response then
@@ -87,16 +101,20 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
             end
         end
     end
-    if Sync_Users then
+    if settings["Sync_Users"] then
         if users_url == nil then 
             respond('Error: ' .. url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
-            BackupSolutionUsers(executor, Command, PlayerIndex, count)
+            if settings["BackupMethod"] then 
+                BackupSolutionUsers(executor, Command, PlayerIndex, count)
+            end
             response = false
         else
             response = true
             if string.find(users_url, "[A-Za-z0-9]:[1-4]:") == nil then
                 respond('Error: Failed to read from users.txt on remote server.', PlayerIndex)
-                BackupSolutionUsers(executor, Command, PlayerIndex, count)
+                if settings["BackupMethod"] then 
+                    BackupSolutionUsers(executor, Command, PlayerIndex, count)
+                end
                 response = false
             end
             if response then
@@ -137,7 +155,7 @@ function OnScriptUnload() end
 
 function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
-    if Sync_Admins then
+    if settings["Sync_Admins"] then
         local file = io.open(admins, "w")
         for i = 1, #admin_table do
             file:write(admin_table[i], "\n")
@@ -150,7 +168,7 @@ end
 
 function BackupSolutionUsers(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
-    if Sync_Users then
+    if settings["Sync_Users"] then
         local file = io.open(users, "w")
         for i = 1, #users_table do
             file:write(users_table[i], "\n")
@@ -170,7 +188,7 @@ function OnServerCommand(PlayerIndex, Command)
     end
     local t = tokenizestring(Command)
     local count = #t
-    if t[1] == "sync" or t[1] == "sv_sync_admins" then
+    if t[1] == "sync" or t[1] == "sv_sync" then
         if isadmin then
             SyncAdmins(PlayerIndex, t[1], count)
         else 
