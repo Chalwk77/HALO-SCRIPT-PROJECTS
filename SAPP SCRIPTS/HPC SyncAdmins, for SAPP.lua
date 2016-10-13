@@ -3,7 +3,8 @@
 Script Name: HPC SyncAdmins, for SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will sync your admins.txt file with a remote server
+Description: This script will sync your admins.txt/users.txt files with a remote server
+             (and backup solution if the host is offline/unavailable)
 Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
