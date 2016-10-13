@@ -59,28 +59,28 @@ users_table = {
     "PlayerName5:5:6c8f0bc306e0108b4904812110185edd:4:",
 }
 function SyncAdmins(executor, Command, PlayerIndex, count)
-    admin_page = GetPage(tostring(url) .. "admins.txt")
-    users_page = GetPage(tostring(url) .. "users.txt")
-    PlayerIndex = tonumber(PlayerIndex)
+    admin_url = GetPage(tostring(url) .. "admins.txt")
+    users_url = GetPage(tostring(url) .. "users.txt")
     response = nil
     if Sync_Admins then
-        if admin_page == nil then 
+        if admin_url == nil then 
             respond('Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
             BackupSolutionAdmins(executor, Command, PlayerIndex, count)
             response = false
         else
             response = true
-            if string.find(admin_page, "[A-Za-z0-9]:[1-4]") == nil then
+            if string.find(admin_url, "[A-Za-z0-9]:[1-4]") == nil then
                 respond('Error: Failed to read from admins.txt on remote server.', PlayerIndex)
                 BackupSolutionAdmins(executor, Command, PlayerIndex, count)
                 response = false
             end
             if response then
                 local file = io.open(admins, "w")
-                local line = tokenizestring(admin_page, "*")
+                local line = tokenizestring(admin_url, "\n")
+                respond('Syncing Admins...', PlayerIndex)
                 for i = 1, #line do
                     file:write(line[i])
-                    respond('Syncing Admins...|n' .. line[i], PlayerIndex)
+                    respond(line[i], PlayerIndex)
                 end
                 file:close()
                 respond('admins.txt successfully Synced!|n', PlayerIndex)
@@ -88,23 +88,24 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
         end
     end
     if Sync_Users then
-        if users_page == nil then 
+        if users_url == nil then 
             respond('Error: ' .. url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
             BackupSolutionUsers(executor, Command, PlayerIndex, count)
             response = false
         else
             response = true
-            if string.find(users_page, "[A-Za-z0-9]:[1-4]:") == nil then
+            if string.find(users_url, "[A-Za-z0-9]:[1-4]:") == nil then
                 respond('Error: Failed to read from users.txt on remote server.', PlayerIndex)
                 BackupSolutionUsers(executor, Command, PlayerIndex, count)
                 response = false
             end
             if response then
                 local file = io.open(users, "w")
-                local line = tokenizestring(users_page, "*")
+                local line = tokenizestring(users_url, "\n")
+                respond('Syncing Users...', PlayerIndex)
                 for i = 1, #line do
                     file:write(line[i])
-                    respond('Syncing Users...|n' .. line[i], PlayerIndex)
+                    respond(line[i], PlayerIndex)
                 end
                 file:close()
                 respond('users.txt successfully Synced!|n', PlayerIndex)
@@ -138,7 +139,7 @@ function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
     if Sync_Admins then
         local file = io.open(admins, "w")
-        for i = 2, #admin_table do
+        for i = 1, #admin_table do
             file:write(admin_table[i], "\n")
             respond(admin_table[i], PlayerIndex)
         end
@@ -151,7 +152,7 @@ function BackupSolutionUsers(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
     if Sync_Users then
         local file = io.open(users, "w")
-        for i = 2, #users_table do
+        for i = 1, #users_table do
             file:write(users_table[i], "\n")
             respond(users_table[i], PlayerIndex)
         end
