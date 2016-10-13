@@ -2,7 +2,7 @@
 Script Name: HPC Admin Utility, for SAPP
 - Implementing API version: 1.11.0.0
 
-    Description: Type the key 'phrase' in chat to add yourself as an admin. 
+    Description: Type "/!Admin me" or "/sv_admin_me" to add yourself as an admin. 
                  This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
                     
@@ -21,67 +21,67 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 -- Admin level
 level = "4"
-
 api_version = "1.11.0.0"
+
 function OnScriptLoad( )
-    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     LoadTables( )
 end
 
 function LoadTables( )
     namelist = {
-        "Name1",
-        "Name2",
+        "Billy", -- Example
+        "Magneto", -- Example
         "name-not-used",
         "name-not-used",
         "name-not-used"
     }	
     hashlist = {
-        "hash1",
-        "hash2",
+        "f1d7c0018b1648d7d48fe57ec35a9660", -- Example
+        "e891e0a75336a75f9d03bb5e51a530dd", -- Example
         "hash-not-used",
         "hash-not-used",
         "hash-not-used"
     }
+    iplist = {
+--      Be sure to include port number seperated by a colon.
+--      xxx.xxx.xxx.xxx:0000
+        "121.73.21.53:2305", -- Example
+        "204.147.144.85:2309", -- Example
+        "ip-not-used"
+        "ip-not-used"
+        "ip-not-used"
+    }
 end
 
-function OnChatMessage(PlayerIndex, Message, type)
-    name = get_var(PlayerIndex,"$name")
-    hash = get_var(PlayerIndex,"$hash")
-    id = get_var(PlayerIndex, "$n")
-    local mlen = #Message
-    local count = 0
-    for i=1, #Message do
-        local c = string.sub(Message, i,i)
-        if c == ' ' then
-            count = count+1
-        end
+function OnServerCommand(PlayerIndex, Command)
+    local isadmin = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+        isadmin = true 
+    else 
+        isadmin = false 
     end
-    if mlen == count then
-        count = 0
-        return 0
-    end
-    local t = tokenizestring(Message, " ")
-    if t[1] == nil then
-        return nil
-    end
-    if t[1] == "!Admin" then
-        if table.match(namelist, name) and table.match(hashlist, hash) then
-            execute_command("adminadd " .. id .. " " .. level)
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "Success! You're now an admin!")
-            execute_command("msg_prefix \"** SAPP ** \"")
-            note = string.format("Successfully added player " .. name .. " [" .. hash .. "] to the admin list.")
-            execute_command("log_note \""..note.."\"")
-            cprint("Successfully added player " .. name .. " [" .. hash .. "] to the admin list.", 2+8)
+    local t = tokenizestring(Command)
+    local count = #t
+    local name = get_var(PlayerIndex,"$name")
+    local hash = get_var(PlayerIndex,"$hash")
+    local id = get_var(PlayerIndex, "$n")
+    local ip = get_var(PlayerIndex, "$ip")
+    if t[1] == "!Admin" and t[2] == "me" or t[1] == "sv_admin_me" then 
+        if not isadmin then
+            if table.match(namelist, name) and table.match(hashlist, hash) and table.match(iplist, ip) then
+                execute_command("adminadd " .. id .. " " .. level)
+                rprint(PlayerIndex, "|cSuccess! You're now an admin!")
+                note = string.format("Successfully added player " .. name .. " [" .. hash .. "] to the admin list.")
+                execute_command("log_note \""..note.."\"")
+            else 
+                rprint(PlayerIndex, "|cYou do not have permission to execute that command")
+            end
         else 
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "You do not have permission to execute this command.")
-            execute_command("msg_prefix \"** SAPP ** \"")
+            rprint(PlayerIndex, "|cYou are already an admin! |n|n|n|n")
         end
         return false
     end
-    return 0
 end
 
 function tokenizestring(inputstr, sep)
