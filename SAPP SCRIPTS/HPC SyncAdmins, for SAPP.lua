@@ -15,14 +15,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 TO DO LIST:
 [!] This script does not function properly due to SAPP encoding the admin/users.txt files in UCS-2 LE BOM.
     I am working on a solution!
-    It does however, work perfectly fine if the files are in ANSI/UTF-8 format.
+    It does however, work perfectly fine if the files in ANSI/UTF-8 format.
     
 . File Encoding
 . Minor Tweaking
 -------------------------------
-
-Issue Tracker: 
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/6
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -38,12 +35,6 @@ api_version = "1.11.0.0"
 function OnScriptLoad() 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     SyncAdmins() 
-    admin_table = {}
-    users_table = {}
-end
-
-function OnScriptUnload() 
-    settings = {}
     admin_table = {}
     users_table = {}
 end
@@ -166,6 +157,8 @@ function respond(Message, PlayerIndex)
     end
 end
 
+function OnScriptUnload() end
+
 function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
     respond('Going to backup solution...', PlayerIndex)
     if settings["Sync_Admins"] then
@@ -223,6 +216,10 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+function OnError(Message)
+    print(debug.traceback())
 end
 
 -- 002's Code
