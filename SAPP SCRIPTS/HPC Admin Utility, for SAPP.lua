@@ -5,9 +5,7 @@ Script Name: HPC Admin Utility, for SAPP
     Description: Type "/!Admin me" or "/sv_admin_me" to add yourself as an admin. 
                  This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
-                    
-    Your IGN and Hash must be listed in the name/hash tables. 
-    
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     
