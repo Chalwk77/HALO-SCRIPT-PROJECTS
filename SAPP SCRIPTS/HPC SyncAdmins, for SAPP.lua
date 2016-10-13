@@ -45,7 +45,7 @@ function SyncAdmins()
             end
             if proceed then
                 local file = io.open(admins, "w")
-                local line = tokenizestring(admin_page, "*')
+                local line = tokenizestring(admin_page, "*")
                 for i = 1, #line do
                     file:write(line[i])
                     respond('Syncing Admins...|n" .. line[i]')
