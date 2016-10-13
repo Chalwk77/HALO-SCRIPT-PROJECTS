@@ -48,7 +48,7 @@ function SyncAdmins()
                 local line = tokenizestring(admin_page, "*")
                 for i = 1, #line do
                     file:write(line[i])
-                    respond('Syncing Admins...|n" .. line[i]')
+                    respond('Syncing Admins...|n' .. line[i])
                 end
                 file:close()
                 respond('admins.txt successfully Synced!|n')
