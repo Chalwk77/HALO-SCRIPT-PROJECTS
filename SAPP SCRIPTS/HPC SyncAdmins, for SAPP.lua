@@ -72,6 +72,7 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
             response = true
             if string.find(admin_page, "[A-Za-z0-9]:[1-4]") == nil then
                 respond('Error: Failed to read from admins.txt on remote server.', PlayerIndex)
+                BackupSolutionAdmins(executor, Command, PlayerIndex, count)
                 response = false
             end
             if response then
@@ -95,6 +96,7 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
             response = true
             if string.find(users_page, "[A-Za-z0-9]:[1-4]:") == nil then
                 respond('Error: Failed to read from users.txt on remote server.', PlayerIndex)
+                BackupSolutionUsers(executor, Command, PlayerIndex, count)
                 response = false
             end
             if response then
