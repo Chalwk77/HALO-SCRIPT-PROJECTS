@@ -77,7 +77,7 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
             respond('Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
             if settings["BackupMethod"] then 
                 BackupSolutionAdmins(executor, Command, PlayerIndex, count)
-                end
+            end
             response = false
         else
             response = true
