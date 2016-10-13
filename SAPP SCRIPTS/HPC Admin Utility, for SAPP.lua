@@ -103,3 +103,7 @@ function table.match(table, value)
         end
     end
 end
+
+function OnError(Message)
+    print(debug.traceback())
+end
