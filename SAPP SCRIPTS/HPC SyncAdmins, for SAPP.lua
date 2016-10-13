@@ -42,21 +42,21 @@ Sync_Users = true
 -- Backup Solution. 
 admin_table = {
 --      <username(1-11)>:<hash>:<admin level(0-4)
-    "PlayerName1:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    "PlayerName2:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    "PlayerName3:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    "PlayerName4:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    "PlayerName5:a4fe9d916197f408e3af0033f1ee78fe:4", 
-    "PlayerName6:a4fe9d916197f408e3af0033f1ee78fe:4", 
+    "PlayerName1:f443106bd82fd6f3c22ba2df7c5e4094:4", 
+    "PlayerName2:c702226e783ea7e091c0bb44c2d0ec64:4", 
+    "PlayerName3:d72b3f33bfb7266a8d0f13b37c62fddb:4", 
+    "PlayerName4:55d368354b5021e7dd5d3d1525a4ab82:4", 
+    "PlayerName5:3d5cd27b3fa487b040043273fa00f51b:4", 
+    "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:4", 
 }
 users_table = {
 --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
-    "PlayerName1:0:6c8f0bc306e0108b4904812110185edd:4:",
-    "PlayerName2:1:6c8f0bc306e0108b4904812110185edd:4:",
-    "PlayerName3:2:6c8f0bc306e0108b4904812110185edd:4:",
-    "PlayerName4:3:6c8f0bc306e0108b4904812110185edd:4:",
-    "PlayerName5:4:6c8f0bc306e0108b4904812110185edd:4:",
-    "PlayerName5:5:6c8f0bc306e0108b4904812110185edd:4:",
+    "PlayerName1:0:f443106bd82fd6f3c22ba2df7c5e4094:4:",
+    "PlayerName2:1:c702226e783ea7e091c0bb44c2d0ec64:4:",
+    "PlayerName3:2:d72b3f33bfb7266a8d0f13b37c62fddb:4:",
+    "PlayerName4:3:55d368354b5021e7dd5d3d1525a4ab82:4:",
+    "PlayerName5:4:3d5cd27b3fa487b040043273fa00f51b:4:",
+    "PlayerName5:5:b661a51d4ccf44f5da2869b0055563cb:4:",
 }
 function SyncAdmins(executor, Command, PlayerIndex, count)
     admin_url = GetPage(tostring(url) .. "admins.txt")
