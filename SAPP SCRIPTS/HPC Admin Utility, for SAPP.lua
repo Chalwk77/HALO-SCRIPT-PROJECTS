@@ -26,6 +26,8 @@ function OnScriptLoad( )
     LoadTables( )
 end
 
+function OnScriptUnload() end
+
 function LoadTables( )
     namelist = {
         "Billy", -- Example
@@ -76,7 +78,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "|cYou do not have permission to execute that command")
             end
         else 
-            rprint(PlayerIndex, "|cYou are already an admin! |n|n|n|n")
+            rprint(PlayerIndex, "|cYou are already an admin!")
         end
         return false
     end
