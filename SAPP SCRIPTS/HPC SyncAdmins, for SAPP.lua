@@ -3,8 +3,9 @@
 Script Name: HPC SyncAdmins, for SAPP
     - Implementing API version: 1.11.0.0
 
-Description: This script will sync your admins.txt/users.txt files with a remote server
-             (and backup solution if the host is offline/unavailable)
+Description: This script will sync your admins.txt and users.txt files with a remote server.
+             An automatic backup solution will kick in if the host is offline/unavailable.
+             
 Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
@@ -69,8 +70,8 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
         else
             response = true
             if string.find(admin_page, "[A-Za-z0-9]:[1-4]") == nil then
-                response = false
                 respond('Error: Failed to read from admins.txt on remote server.', PlayerIndex)
+                response = false
             end
             if response then
                 local file = io.open(admins, "w")
@@ -92,8 +93,8 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
         else
             response = true
             if string.find(users_page, "[A-Za-z0-9]:[1-4]:") == nil then
-                response = false
                 respond('Error: Failed to read from users.txt on remote server.', PlayerIndex)
+                response = false
             end
             if response then
                 local file = io.open(users, "w")
