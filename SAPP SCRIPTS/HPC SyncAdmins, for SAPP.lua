@@ -79,7 +79,6 @@ local admin_table = {
 -- Configuration Ends --
 
 function OnServerCommand(PlayerIndex, Command)
-    
     local isadmin = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
