@@ -34,8 +34,8 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad() 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    SyncAdmins(Message, PlayerIndex)
-    SyncUsers(Message, PlayerIndex)
+    SyncAdmins()
+    SyncUsers()
     admin_table = {}
     users_table = {}
 end
