@@ -22,12 +22,14 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 -------------------------------
 TO DO LIST:
-[!] This script does not function properly due to SAPP encoding the admin/users.txt files in UCS-2 LE BOM.
+
+[!] This script cannot read from a file that is encoded in UCS-2 LE BOM.
 I am working on a solution!
-It does however, work perfectly fine if the files are in ANSI/UTF-8 format.
 
 . File Encoding
 . Minor Tweaking
+
+This code will work fine if you are importing data from a file that is encoded in UTF-8 or ANSI.
 -------------------------------
 
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -149,6 +151,7 @@ function SyncAdmins(Message, PlayerIndex)
                     respond('Script Error: [BackupMethod] disabled - Unable to sync admins.txt', PlayerIndex)
                 end
                 --  file is empty on remote server, or script was unable to find 'keyword, go to backup solution.
+                --  [!] NOTE: This script cannot read from a file that is encoded in UCS-2 LE BOM (I am working on a solution)
                 response = false
             end
             -- file found on remote server, keyword varified, initiate sync.
@@ -196,6 +199,7 @@ function SyncUsers(Message, PlayerIndex)
                     respond('Script Error: [BackupMethod] disabled - Unable to sync users.txt', PlayerIndex)
                 end
                 --  file is empty on remote server, or script was unable to find 'keyword, go to backup solution.
+                --  [!] NOTE: This script cannot read from a file that is encoded in UCS-2 LE BOM (I am working on a solution)
                 response = false
             end
             -- file found on remote server, keyword varified, initiate sync.
