@@ -1,5 +1,5 @@
 --[[
-Script Name: HPC Admin Utility, for SAPP
+Script Name: HPC Admin Utility, for SAPP - (updated 14-10-16)
 - Implementing API version: 1.11.0.0
 
     Description: Type "/!Admin me" or "/sv_admin_me" to add yourself as an admin. 
@@ -22,7 +22,7 @@ level = "4"
 api_version = "1.11.0.0"
 
 function OnScriptLoad( )
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_CHAT'], "OnChatCommand")
     LoadTables( )
 end
 
@@ -54,32 +54,43 @@ function LoadTables( )
     }
 end
 
-function OnServerCommand(PlayerIndex, Command)
+function AdminUtility(PlayerIndex, Command)
+    
+    local name = get_var(PlayerIndex,"$name")
+    local hash = get_var(PlayerIndex,"$hash")
+    local id = get_var(PlayerIndex, "$n")
+    local ip = get_var(PlayerIndex, "$ip")
+    
     local isadmin = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
         isadmin = false 
     end
-    local t = tokenizestring(Command)
-    local count = #t
-    local name = get_var(PlayerIndex,"$name")
-    local hash = get_var(PlayerIndex,"$hash")
-    local id = get_var(PlayerIndex, "$n")
-    local ip = get_var(PlayerIndex, "$ip")
-    if t[1] == "!Admin" and t[2] == "me" or t[1] == "sv_admin_me" then 
-        if not isadmin then
-            if table.match(namelist, name) and table.match(hashlist, hash) and table.match(iplist, ip) then
-                execute_command("adminadd " .. id .. " " .. level)
-                rprint(PlayerIndex, "|cSuccess! You're now an admin!")
-                note = string.format("Successfully added player " .. name .. " [" .. hash .. "] to the admin list.")
-                execute_command("log_note \""..note.."\"")
-            else 
-                rprint(PlayerIndex, "|cYou do not have permission to execute that command")
-            end
+    
+    if not isadmin then
+        if table.match(namelist, name) and table.match(hashlist, hash) and table.match(iplist, ip) then
+            execute_command("adminadd " .. id .. " " .. level)
+            respond("Success! You're now an admin!", PlayerIndex)
         else 
-            rprint(PlayerIndex, "|cYou are already an admin!")
+            respond("You do not have permission to execute " .. Command, PlayerIndex)
         end
+    else
+        if isadmin == true then
+            if not table.match(namelist, name) and not table.match(namelist, name) and not table.match(hashlist, hash) and not table.match(iplist, ip) then
+                respond("You are already an admin...", PlayerIndex)
+                respond("But your credentials do not match the database, Access Denied!", PlayerIndex)
+            else
+                respond("You are already an admin!", PlayerIndex)
+            end
+        end
+    end
+end
+
+function OnChatCommand(PlayerIndex, Command)
+    local t = tokenizestring(Command)
+    if t[1] == "!Admin" or t[1] == "!admin" and t[2] == "me" or t[2] == "Me" then
+        AdminUtility(PlayerIndex, Command)
         return false
     end
 end
@@ -100,6 +111,26 @@ function table.match(table, value)
     for k,v in pairs(table) do
         if v == value then
             return k
+        end
+    end
+end
+
+function respond(Command, PlayerIndex)
+    if Command then
+        if Command == "" then 
+            return 
+            elseif type(Command) == "table" then
+            Command = Command[1]
+        end
+        PlayerIndex = tonumber(PlayerIndex)
+        if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
+            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4+8)
+            cprint(Command, 2+8)
+            rprint(PlayerIndex, Command)
+            note = string.format('[AdminUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ": " .. Command)
+            execute_command("log_note \""..note.."\"")
+        else
+            cprint(Command, 2+8)
         end
     end
 end
