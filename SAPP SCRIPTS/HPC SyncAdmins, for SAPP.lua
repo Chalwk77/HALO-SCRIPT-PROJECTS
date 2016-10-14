@@ -90,30 +90,20 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     count = #t
     error = "You do not have permission to execute /" .. Command
-    
     if t[1] == "sync" then
     response = false
-        if t[2] == "admins" then
-            if isadmin then 
+        if isadmin then 
+            if t[2] == "admins" then
                 SyncAdmins(Message, PlayerIndex)
-            else 
-                respond(error, PlayerIndex)
-            end
-        elseif t[2] == "users" then
-            if isadmin then 
+            elseif t[2] == "users" then
                 SyncUsers(Message, PlayerIndex)
-            else 
-                respond(error, PlayerIndex)
-            end
-        elseif t[2] == "all" then
-            if isadmin then 
+            elseif t[2] == "all" then
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
-            else 
-                respond(error, PlayerIndex)
+            else  
+                respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
             end
-        else  
-            respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
+           else respond(error, PlayerIndex)
         end
         return response
     end
