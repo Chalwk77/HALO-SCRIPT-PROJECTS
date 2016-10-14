@@ -58,7 +58,7 @@ function OnScriptUnload() end
 --=================================================--
 -- Change this url accordingly. 
 url = 'http://example.com/files/'
--- Do not reference a direct path to the files.
+-- Do not reference a direct url
 -- Bad: example.com/files/users.txt/
 -- Good: example.com/files/
 --=================================================--
