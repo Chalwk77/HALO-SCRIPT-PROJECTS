@@ -86,18 +86,23 @@ function OnServerCommand(PlayerIndex, Command)
         isadmin = false 
     end
     local t = tokenizestring(Command)
+    error = "You do not have permission to execute /" .. Command
     if t[1] == "sync" and t[2] == "admins" then
-        if isadmin then
-            SyncAdmins(Message, PlayerIndex)
+        if isadmin then SyncAdmins()
         else 
-            respond("You do not have permission to execute " .. Command, PlayerIndex)
+            respond(error, PlayerIndex)
         end
         return false
     elseif t[1] == "sync" and t[2] == "users" then
-        if isadmin then
-            SyncUsers(Message, PlayerIndex)
+        if isadmin then SyncUsers()
         else 
-            respond("You do not have permission to execute " .. Command, PlayerIndex)
+            respond(error, PlayerIndex)
+        end
+        return false
+    elseif t[1] == "sync" and t[2] == "all" then
+        if isadmin then SyncUsers() SyncAdmins()
+        else 
+            respond(error, PlayerIndex)
         end
         return false
     end
