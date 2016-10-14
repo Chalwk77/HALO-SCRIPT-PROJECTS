@@ -23,9 +23,9 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 -------------------------------
 TO DO LIST:
 
-[!] This script cannot read from a file that is encoded in UCS-2 LE BOM
-Which at this point basically renders its intended purpose completely useless.
-I am working on a solution!
+[!] Currently, this script cannot read from a file that is encoded in UCS-2 LE BOM. 
+    Which renders its intended purpose completely useless.
+    I am working on a solution!
 
 . File Encoding
 . Minor Tweaking
