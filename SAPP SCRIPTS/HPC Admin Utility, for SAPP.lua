@@ -2,7 +2,7 @@
 Script Name: HPC Admin Utility, for SAPP - (updated 14-10-16)
 - Implementing API version: 1.11.0.0
 
-    Description: Type "/!Admin me" or "/sv_admin_me" to add yourself as an admin. 
+    Description: Type "!admin me" in chat to add yourself as an admin - (level 4 by default)
                  This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
 
