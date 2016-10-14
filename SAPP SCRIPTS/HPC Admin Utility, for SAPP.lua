@@ -2,7 +2,7 @@
 Script Name: HPC Admin Utility, for SAPP - (updated 14-10-16)
 - Implementing API version: 1.11.0.0
 
-    Description: Type "!Admin me" in chat to add yourself as an admin - (level 4 by default)
+    Description: Type "/admin me" in chat to add yourself as an admin - (level 4 by default)
                  This was particuarly useful to me when testing other scripts.
                  I'm sure you can think of some creative reasons to use this.
 
@@ -22,7 +22,7 @@ level = "4"
 api_version = "1.11.0.0"
 
 function OnScriptLoad( )
-    register_callback(cb['EVENT_CHAT'], "OnChatCommand")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     LoadTables( )
 end
 
@@ -54,6 +54,18 @@ function LoadTables( )
     }
 end
 
+function OnServerCommand(PlayerIndex, Command)
+    local t = tokenizestring(Command)
+    count = #t
+    if t[1] == "admin" then
+        if t[2] == "me" then
+            AdminUtility(PlayerIndex, Command)
+        else  
+            respond("Invalid Syntax: /admin me", PlayerIndex)
+        end
+    end
+end
+
 function AdminUtility(PlayerIndex, Command)
     
     local name = get_var(PlayerIndex,"$name")
@@ -72,7 +84,7 @@ function AdminUtility(PlayerIndex, Command)
         if table.match(namelist, name) and table.match(hashlist, hash) and table.match(iplist, ip) then
             execute_command("adminadd " .. id .. " " .. level)
             respond("Success! You're now an admin!", PlayerIndex)
-            OnSuccess = string.format('[AdminUtility] -->> Successfully added ' .. name .. ' [' .. hash .. '] [' .. ip .. '] to the admin list.')
+            OnSuccess = string.format('[AdminUtility] - Successfully added ' .. name .. ' [' .. hash .. '] [' .. ip .. '] to the admin list.')
             execute_command("log_note \""..OnSuccess.."\"")
         else
             respond("You do not have permission to execute " .. Command, PlayerIndex)
@@ -88,16 +100,6 @@ function AdminUtility(PlayerIndex, Command)
                 respond("You are already an admin!", PlayerIndex)
             end
         end
-    end
-end
-
-function OnChatCommand(PlayerIndex, Command)
-    local t = tokenizestring(Command)
-    if t[1] == "!Admin" and t[2] == "me" then
-        AdminUtility(PlayerIndex, Command)
-        return false
-    else
-        return true
     end
 end
 
