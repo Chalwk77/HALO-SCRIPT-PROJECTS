@@ -88,7 +88,6 @@ local users_table = {
     "PlayerName5:4:3d5cd27b3fa487b040043273fa00f51b:3:",
     "PlayerName6:5:b661a51d4ccf44f5da2869b0055563cb:3:"
 }
-
 -- Configuration Ends --
 
 function OnServerCommand(PlayerIndex, Command)
