@@ -1,11 +1,11 @@
 --[[
 ------------------------------------
 Script Name: HPC SyncAdmins, for SAPP
-    - Implementing API version: 1.11.0.0
+- Implementing API version: 1.11.0.0
 
 Description: This script will sync your admins.txt and users.txt files with a remote server.
-             An automatic backup solution will kick in if the host is offline/unavailable.
-             
+An automatic backup solution will kick in if the host is offline/unavailable.
+
 Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
@@ -14,9 +14,9 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 -------------------------------
 TO DO LIST:
 [!] This script does not function properly due to SAPP encoding the admin/users.txt files in UCS-2 LE BOM.
-    I am working on a solution!
-    It does however, work perfectly fine if the files are in ANSI/UTF-8 format.
-    
+I am working on a solution!
+It does however, work perfectly fine if the files are in ANSI/UTF-8 format.
+
 . File Encoding
 . Minor Tweaking
 -------------------------------
@@ -34,10 +34,13 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad() 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    SyncAdmins() 
+    SyncAdmins(Message, PlayerIndex)
+    SyncUsers(Message, PlayerIndex)
     admin_table = {}
     users_table = {}
 end
+
+function OnScriptUnload() end
 
 -- Configuration --
 -- Change this url accordingly.
@@ -48,49 +51,79 @@ users = 'sapp\\users.txt'
 settings = {
     ["Sync_Admins"] = true,
     ["Sync_Users"] = true,
-    ["BackupMethod"] = true,
-    }
-    
--- Backup Solution. 
-admin_table = {
--- Usernames can only have 11 characters!
---      <username(1-11)>:<hash>:<admin level(0-4)
-    "PlayerName1:f443106bd82fd6f3c22ba2df7c5e4094:4", 
-    "PlayerName2:c702226e783ea7e091c0bb44c2d0ec64:1", 
-    "PlayerName3:d72b3f33bfb7266a8d0f13b37c62fddb:2", 
-    "PlayerName4:55d368354b5021e7dd5d3d1525a4ab82:1", 
-    "PlayerName5:3d5cd27b3fa487b040043273fa00f51b:3", 
-    "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:3", 
+    ["BackupMethod"] = true
 }
-users_table = {
--- Usernames can only have 11 characters!
---      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
+
+local users_table = {
+    -- Usernames can only have 11 characters!
+    --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
     "PlayerName1:0:f443106bd82fd6f3c22ba2df7c5e4094:4:",
     "PlayerName2:1:c702226e783ea7e091c0bb44c2d0ec64:1:",
     "PlayerName3:2:d72b3f33bfb7266a8d0f13b37c62fddb:2:",
     "PlayerName4:3:55d368354b5021e7dd5d3d1525a4ab82:1:",
     "PlayerName5:4:3d5cd27b3fa487b040043273fa00f51b:3:",
-    "PlayerName6:5:b661a51d4ccf44f5da2869b0055563cb:3:",
+    "PlayerName6:5:b661a51d4ccf44f5da2869b0055563cb:3:"
+}
+
+-- Backup Solution. 
+local admin_table = {
+    -- Usernames can only have 11 characters!
+    --      <username(1-11)>:<hash>:<admin level(0-4)
+    "PlayerName1:f443106bd82fd6f3c22ba2df7c5e4094:4", 
+    "PlayerName2:c702226e783ea7e091c0bb44c2d0ec64:1", 
+    "PlayerName3:d72b3f33bfb7266a8d0f13b37c62fddb:2", 
+    "PlayerName4:55d368354b5021e7dd5d3d1525a4ab82:1", 
+    "PlayerName5:3d5cd27b3fa487b040043273fa00f51b:3", 
+    "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:3"
 }
 -- Configuration Ends --
 
-function SyncAdmins(executor, Command, PlayerIndex, count)
+function OnServerCommand(PlayerIndex, Command)
+    local isadmin = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+        isadmin = true 
+    else 
+        isadmin = false 
+    end
+    local t = tokenizestring(Command)
+    if t[1] == "sync" and t[2] == "admins" then
+        if isadmin then
+            SyncAdmins(Message, PlayerIndex)
+        else 
+            respond("You do not have permission to execute " .. Command, PlayerIndex)
+        end
+        return false
+    elseif t[1] == "sync" and t[2] == "users" then
+        if isadmin then
+            SyncUsers(Message, PlayerIndex)
+        else 
+            respond("You do not have permission to execute " .. Command, PlayerIndex)
+        end
+        return false
+    end
+end
+
+function SyncAdmins(Message, PlayerIndex)
     admin_url = GetPage(tostring(url) .. "admins.txt")
-    users_url = GetPage(tostring(url) .. "users.txt")
     response = nil
     if settings["Sync_Admins"] then
         if admin_url == nil then 
-            respond('Error: ' .. url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
+            respond('Script Error:', PlayerIndex)
+            respond(url .. 'admins.txt does not exist or the remote server is offline.', PlayerIndex)
             if settings["BackupMethod"] then 
-                BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+                BackupSolutionAdmins(Message, PlayerIndex)
+            else
+                respond('Script Error: [BackupMethod] disabled - Unable to sync admins.txt', PlayerIndex)
             end
             response = false
         else
             response = true
             if string.find(admin_url, "[A-Za-z0-9]:[1-4]") == nil then
-                respond('Error: Failed to read from admins.txt on remote server.', PlayerIndex)
+                respond('Script Error: Failed to read from admins.txt on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then 
-                    BackupSolutionAdmins(executor, Command, PlayerIndex, count)
+                    BackupSolutionAdmins(Message, PlayerIndex)
+                else
+                    respond('Script Error: [BackupMethod] disabled - Unable to sync admins.txt', PlayerIndex)
                 end
                 response = false
             end
@@ -103,23 +136,36 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                respond('admins.txt successfully Synced!|n', PlayerIndex)
+                respond('admins.txt successfully Synced|n', PlayerIndex)
             end
         end
+    else
+        respond('Script Error: [Sync_Admins] setting disabled - Please enable it first.', PlayerIndex)
     end
+    return response
+end
+
+function SyncUsers(Message, PlayerIndex)
+    users_url = GetPage(tostring(url) .. "users.txt")
+    response = nil
     if settings["Sync_Users"] then
         if users_url == nil then 
-            respond('Error: ' .. url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
+            respond('Script Error:', PlayerIndex)
+            respond(url .. 'users.txt does not exist or the remote server is offline.', PlayerIndex)
             if settings["BackupMethod"] then 
-                BackupSolutionUsers(executor, Command, PlayerIndex, count)
+                BackupSolutionUsers(Message, PlayerIndex)
+            else
+                respond('Script Error: [BackupMethod] disabled - Unable to sync users.txt', PlayerIndex)
             end
             response = false
         else
             response = true
             if string.find(users_url, "[A-Za-z0-9]:[1-4]:") == nil then
-                respond('Error: Failed to read from users.txt on remote server.', PlayerIndex)
-                if settings["BackupMethod"] then 
-                    BackupSolutionUsers(executor, Command, PlayerIndex, count)
+                respond('Script Error: Failed to read from users.txt on remote server.', PlayerIndex)
+                if settings["BackupMethod"] then
+                    BackupSolutionUsers(Message, PlayerIndex)
+                else
+                    respond('Script Error: [BackupMethod] disabled - Unable to sync users.txt', PlayerIndex)
                 end
                 response = false
             end
@@ -132,11 +178,35 @@ function SyncAdmins(executor, Command, PlayerIndex, count)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                respond('users.txt successfully Synced!|n', PlayerIndex)
+                respond('users.txt successfully Synced|n', PlayerIndex)
             end
         end
+    else
+        respond('Script Error: [Sync_Users] setting disabled - Please enable it first.', PlayerIndex)
     end
     return response
+end
+
+function BackupSolutionAdmins(Message, PlayerIndex)
+    respond('Going to backup solution...', PlayerIndex)
+    local file = io.open(admins, "w")
+    for i = 1, #admin_table do
+        file:write(admin_table[i], "\n")
+        respond(admin_table[i], PlayerIndex)
+    end
+    file:close()
+    respond('admins.txt successfully Synced.', PlayerIndex)
+end
+
+function BackupSolutionUsers(Message, PlayerIndex)
+    respond('Going to backup solution...', PlayerIndex)
+    local file = io.open(users, "w")
+    for i = 1, #users_table do
+        file:write(users_table[i], "\n")
+        respond(users_table[i], PlayerIndex)
+    end
+    file:close()
+    respond('users.txt successfully Synced.', PlayerIndex)
 end
 
 function respond(Message, PlayerIndex)
@@ -148,59 +218,15 @@ function respond(Message, PlayerIndex)
         end
         PlayerIndex = tonumber(PlayerIndex)
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4+8)
             cprint(Message, 2+8)
             rprint(PlayerIndex, Message)
+            note = string.format('[SyncAdminsUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
+            execute_command("log_note \""..note.."\"")
         else
             cprint(Message, 2+8)
+            v1note = string.format('[SyncAdminsUtility]: ' .. Message)
+            execute_command("log_note \""..v1note.."\"")
         end
-    end
-end
-
-function OnScriptUnload() end
-
-function BackupSolutionAdmins(executor, Command, PlayerIndex, count)
-    respond('Going to backup solution...', PlayerIndex)
-    if settings["Sync_Admins"] then
-        local file = io.open(admins, "w")
-        for i = 1, #admin_table do
-            file:write(admin_table[i], "\n")
-            respond(admin_table[i], PlayerIndex)
-        end
-        file:close()
-        respond('admins.txt successfully Synced!|n', PlayerIndex)
-    end
-end
-
-function BackupSolutionUsers(executor, Command, PlayerIndex, count)
-    respond('Going to backup solution...', PlayerIndex)
-    if settings["Sync_Users"] then
-        local file = io.open(users, "w")
-        for i = 1, #users_table do
-            file:write(users_table[i], "\n")
-            respond(users_table[i], PlayerIndex)
-        end
-        file:close()
-        respond('users.txt successfully Synced!|n', PlayerIndex)
-    end
-end
-
-function OnServerCommand(PlayerIndex, Command)
-    local isadmin = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
-        isadmin = true 
-    else 
-        isadmin = false 
-    end
-    local t = tokenizestring(Command)
-    local count = #t
-    if t[1] == "sync" or t[1] == "sv_sync" then
-        if isadmin then
-            SyncAdmins(PlayerIndex, t[1], count)
-        else 
-            respond("You do not have permission to execute \"" .. Command .. "\"", PlayerIndex)
-        end
-        return false
     end
 end
 
