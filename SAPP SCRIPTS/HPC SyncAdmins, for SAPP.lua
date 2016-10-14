@@ -54,6 +54,7 @@ settings = {
     ["BackupMethod"] = true
 }
 
+-- Backup Solution. 
 local users_table = {
     -- Usernames can only have 11 characters!
     --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
@@ -65,7 +66,6 @@ local users_table = {
     "PlayerName6:5:b661a51d4ccf44f5da2869b0055563cb:3:"
 }
 
--- Backup Solution. 
 local admin_table = {
     -- Usernames can only have 11 characters!
     --      <username(1-11)>:<hash>:<admin level(0-4)
@@ -77,6 +77,7 @@ local admin_table = {
     "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:3"
 }
 -- Configuration Ends --
+
 function OnServerCommand(PlayerIndex, Command)
     
     local isadmin = nil
