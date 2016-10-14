@@ -12,7 +12,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     6-Oct-2016
         - Updated to guard against modulo operator's throwing an error
         
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -68,8 +68,8 @@ function OnChatMessage(PlayerIndex, Message, type)
         Type = "[VEHICLE]"
     end
     if player_present(PlayerIndex) ~= nil then
-        WriteData(dir, Type .." " .. name .. " [" .. id .. "]: " .. tostring(message))
-        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
+        WriteData(dir, Type .. " " .. name .. " [" .. id .. "]: " .. tostring(message))
+        cprint(Type .. " " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
     end
     return true
 end
@@ -79,7 +79,7 @@ function OnPlayerJoin(PlayerIndex)
         if file ~= nil then
         local name = get_var(PlayerIndex, "$name")
         local playerjoin = name .. " joined the server!\n"
-        file:write("[CONNECT] " ..playerjoin)
+        file:write("[CONNECT] " .. playerjoin)
         file:close()
     end
 end
@@ -89,7 +89,7 @@ function OnPlayerLeave(PlayerIndex)
         if file ~= nil then
         local name = get_var(PlayerIndex, "$name")
         local playerquit = name .. " quit the server!\n"
-        file:write("[DISCONNECT] " ..playerquit)
+        file:write("[DISCONNECT] " .. playerquit)
         file:close()
     end
 end
