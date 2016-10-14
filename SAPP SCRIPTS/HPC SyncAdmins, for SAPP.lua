@@ -77,34 +77,45 @@ local admin_table = {
     "PlayerName6:b661a51d4ccf44f5da2869b0055563cb:3"
 }
 -- Configuration Ends --
-
 function OnServerCommand(PlayerIndex, Command)
+    
     local isadmin = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
         isadmin = false 
     end
+    
+    local response = nil
     local t = tokenizestring(Command)
+    count = #t
     error = "You do not have permission to execute /" .. Command
-    if t[1] == "sync" and t[2] == "admins" then
-        if isadmin then SyncAdmins()
-        else 
-            respond(error, PlayerIndex)
+    
+    if t[1] == "sync" then
+    response = false
+        if t[2] == "admins" then
+            if isadmin then 
+                SyncAdmins(Message, PlayerIndex)
+            else 
+                respond(error, PlayerIndex)
+            end
+        elseif t[2] == "users" then
+            if isadmin then 
+                SyncUsers(Message, PlayerIndex)
+            else 
+                respond(error, PlayerIndex)
+            end
+        elseif t[2] == "all" then
+            if isadmin then 
+                SyncAdmins(Message, PlayerIndex)
+                SyncUsers(Message, PlayerIndex)
+            else 
+                respond(error, PlayerIndex)
+            end
+        else  
+            respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
         end
-        return false
-    elseif t[1] == "sync" and t[2] == "users" then
-        if isadmin then SyncUsers()
-        else 
-            respond(error, PlayerIndex)
-        end
-        return false
-    elseif t[1] == "sync" and t[2] == "all" then
-        if isadmin then SyncUsers() SyncAdmins()
-        else 
-            respond(error, PlayerIndex)
-        end
-        return false
+        return response
     end
 end
 
