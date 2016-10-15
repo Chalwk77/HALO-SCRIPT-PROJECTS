@@ -72,7 +72,7 @@ settings = {
 --  Toggle on|off syncing admins.
     ["Sync_Admins"] = true,
 --  Toggle on|off syncing users.
-    ["Sync_Users"] = true,
+    ["Sync_Users"] = false,
 --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true
 }
@@ -109,52 +109,48 @@ function OnServerCommand(PlayerIndex, Command)
     else 
         isadmin = false 
     end
-    
-    if not settings["Sync_Admins"] then 
-        notify = false 
-    else
-        notify = true 
-        send_all(PlayerIndex) 
-    end
-
-    if not settings["Sync_Users"] then 
-        notify = false
-    else
-        notify = true 
-        send_all(PlayerIndex) 
-    end
-    
+   
     local t = tokenizestring(Command)
     count = #t
     -- Syntax: /sync admins|users|all
     if t[1] == "sync" then
+        notify = false
         if isadmin then 
             if t[2] == "admins" then
                 -- Call [function] SyncAdmins()
+                notify = true
                 SyncAdmins(Message, PlayerIndex)
             elseif t[2] == "users" then
                 -- Call [function] SyncUsers()
+                notify = true
                 SyncUsers(Message, PlayerIndex)
             elseif t[2] == "all" then
                 -- Call both functions
+                notify = true
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
                 else
+                notify = false
                 -- Command invalid.
                 respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
             end
         else 
+            notify = false
             -- Player is not an admin - deny access.
             respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
+        if not settings["Sync_Admins"] then notify = false else notify = true end
+        if not settings["Sync_Users"] then notify = false else notify = true end
+        if notify then send_all(PlayerIndex) end
         return false
     end
-    return notify
+    -- return notify
 end
 
 -- >>> ----
 -- Credits to skylace for this function
 function send_all(PlayerIndex)
+    cprint("Calling send_all()", 4+8)
 	for i = 1,16 do
 		if player_present(i) then
 			if i ~= PlayerIndex then
