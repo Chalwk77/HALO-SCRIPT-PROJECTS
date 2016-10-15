@@ -327,10 +327,15 @@ function respond(Message, PlayerIndex)
                 -- Player is not an admin, deny access to /sync command
                 if player_present(PlayerIndex) then
                     rprint(PlayerIndex, "You do not have permission to execute /" ..command)
+                    deny = false
                 end
                 --- <<< ------ 
-                if settings["DisplayConsoleOutput"] then
+                if deny == false then 
+                    return false
+                else
+                    if settings["DisplayConsoleOutput"] then
                     cprint(Message, 2+8)
+                    end
                 end
                 v1note = string.format('[SyncAdminsUtility]: ' .. Message)
                 execute_command("log_note \""..v1note.."\"")
