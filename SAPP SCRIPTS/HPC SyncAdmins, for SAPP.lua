@@ -109,6 +109,21 @@ function OnServerCommand(PlayerIndex, Command)
     else 
         isadmin = false 
     end
+    
+    if not settings["Sync_Admins"] then 
+        notify = false 
+    else
+        notify = true 
+        send_all(PlayerIndex) 
+    end
+
+    if not settings["Sync_Users"] then 
+        notify = false
+    else
+        notify = true 
+        send_all(PlayerIndex) 
+    end
+    
     local t = tokenizestring(Command)
     count = #t
     -- Syntax: /sync admins|users|all
@@ -117,16 +132,13 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] == "admins" then
                 -- Call [function] SyncAdmins()
                 SyncAdmins(Message, PlayerIndex)
-                if not settings["Sync_Admins"] then notify = false else notify = true send_all(PlayerIndex) end
             elseif t[2] == "users" then
                 -- Call [function] SyncUsers()
                 SyncUsers(Message, PlayerIndex)
-                if not settings["Sync_Users"] then notify = false else notify = true send_all(PlayerIndex) end
             elseif t[2] == "all" then
                 -- Call both functions
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
-                if not settings["Sync_Admins"] and not settings["Sync_Users"] then notify = false else notify = true send_all(PlayerIndex) end
                 else
                 -- Command invalid.
                 respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
@@ -137,6 +149,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     end
+    return notify
 end
 
 -- >>> ----
