@@ -83,8 +83,8 @@ local backup_table = {
     "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
     "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
     "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
-    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--"
-    "~ Chalwk"
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--" -- Don't put a comma on the last line.
 }
 -- Configuration Ends --
 
