@@ -191,7 +191,7 @@ end
 function BackupSolution(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
     --- >>> ------ 
-    -- Read data from admin_table and write to sapp\\<filename>.<ext>
+    -- Read data from backup_table and write to sapp\\<filename>.<ext>
     local file = io.open(sapp_dir, "w")
     for i = 1, #backup_table do
         file:write(backup_table[i], "\n")
