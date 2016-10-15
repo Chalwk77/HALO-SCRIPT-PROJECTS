@@ -180,7 +180,7 @@ function SyncAdmins(Message, PlayerIndex)
         else
             -- file exists on remote server, varify data.
             response = true
-            if string.match(admin_url, ":(%d+%w+)(:)[0-4]") == nil then
+            if string.match(admin_url, "(:)(%d+%w+)(:)[0-4]") == nil then
                 respond('Script Error: Failed to read from admins.txt on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then 
                     BackupSolutionAdmins(Message, PlayerIndex)
@@ -233,7 +233,7 @@ function SyncUsers(Message, PlayerIndex)
         else
             -- file exists on remote server, varify data.
             response = true
-            if string.match(users_url, "(%d):(%d+%w+)(:)[0-4](:)") == nil then
+            if string.match(users_url, "(%d)(:)(%d+%w+)(:)[0-4](:)") == nil then
                 respond('Script Error: Failed to read from users.txt on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then
                     BackupSolutionUsers(Message, PlayerIndex)
