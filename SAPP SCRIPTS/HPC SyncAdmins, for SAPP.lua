@@ -121,7 +121,7 @@ function OnServerCommand(PlayerIndex, Command)
                 -- Call both functions
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
-            else
+                else
                 -- Command invalid.
                 respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
             end
