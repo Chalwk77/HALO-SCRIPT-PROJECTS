@@ -17,16 +17,18 @@ Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby
 -----------------------------------
 ]]--
 
 api_version = "1.11.0.0"
 local dir = 'sapp\\Server Chat.txt'
+local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
@@ -46,10 +48,38 @@ function OnNewGame()
     end
 end
 
+function OnGameEnd()
+    local file = io.open(dir, "a+")
+    if file ~= nil then
+        local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+        file:write(data)
+        file:close()
+    end
+end
+
+function OnPlayerJoin(PlayerIndex)
+    local file = io.open(dir, "a+")
+        if file ~= nil then
+        name = get_var(PlayerIndex, "$name")
+        id = get_var(PlayerIndex, "$n")
+        ip = get_var(PlayerIndex, "$ip")
+        hash = get_var(PlayerIndex, "$hash")
+        file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+        file:close()
+    end
+end
+
+function OnPlayerLeave(PlayerIndex)
+    local file = io.open(dir, "a+")
+        if file ~= nil then
+        file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+        file:close()
+    end
+end
+
 function WriteData(dir, value)
     local file = io.open(dir, "a+")
     if file ~= nil then
-        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
@@ -58,8 +88,6 @@ end
 
 function OnChatMessage(PlayerIndex, Message, type)
     local message = tostring(Message)
-    local name = get_var(PlayerIndex, "$name")
-    local id = get_var(PlayerIndex, "$n")
     if type == 0 then 
         Type = "[GLOBAL]"
     elseif type == 1 then 
@@ -68,30 +96,10 @@ function OnChatMessage(PlayerIndex, Message, type)
         Type = "[VEHICLE]"
     end
     if player_present(PlayerIndex) ~= nil then
-        WriteData(dir, Type .. " " .. name .. " [" .. id .. "]: " .. tostring(message))
-        cprint(Type .. " " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
+        WriteData(dir, Type .." " .. name .. " [" .. id .. "]: " .. tostring(message))
+        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
     end
     return true
-end
-
-function OnPlayerJoin(PlayerIndex)
-    local file = io.open(dir, "a+")
-        if file ~= nil then
-        local name = get_var(PlayerIndex, "$name")
-        local playerjoin = name .. " joined the server!\n"
-        file:write("[CONNECT] " .. playerjoin)
-        file:close()
-    end
-end
-
-function OnPlayerLeave(PlayerIndex)
-    local file = io.open(dir, "a+")
-        if file ~= nil then
-        local name = get_var(PlayerIndex, "$name")
-        local playerquit = name .. " quit the server!\n"
-        file:write("[DISCONNECT] " .. playerquit)
-        file:close()
-    end
 end
 
 function OnError(Message)
