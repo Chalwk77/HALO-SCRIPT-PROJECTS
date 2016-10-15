@@ -77,9 +77,13 @@ settings = {
 
 -- Backup Solution. 
 local backup_table = {
-    "Thank you for downloading my script!", 
-    "If you have trouble with this plugin, please contact me on github:", 
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS", 
+    "The contents of this table should be identical to the contents of the remote file.",
+    "If the remote file is empty or unavailable, the script will initialize the backup solution.",
+    "The backup function will read the data from this backup_table and write it to your local file.",
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--",
+    "--<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>-- Example Text --<<>><<>>--"
     "~ Chalwk"
 }
 -- Configuration Ends --
