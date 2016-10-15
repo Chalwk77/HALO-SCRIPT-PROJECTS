@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]-- 
 
 api_version = "1.11.0.0"
-RespawnTime = 2.5 -- 1.5 seconds
+RespawnTime = 2.5 -- 2.5 seconds
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
