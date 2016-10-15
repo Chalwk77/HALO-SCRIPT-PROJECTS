@@ -12,6 +12,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [+] Added Command Logging
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
+        [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
