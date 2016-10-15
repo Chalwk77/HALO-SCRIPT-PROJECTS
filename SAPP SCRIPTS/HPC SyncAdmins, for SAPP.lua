@@ -103,7 +103,7 @@ local users_table = {
 
 function OnServerCommand(PlayerIndex, Command)
     local isadmin = nil
-    local notify = nil
+    notify = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
@@ -112,23 +112,25 @@ function OnServerCommand(PlayerIndex, Command)
    
     local t = tokenizestring(Command)
     count = #t
+   
     -- Syntax: /sync admins|users|all
+    if not settings["Sync_Admins"] then notify = false else notify = true end
+    if not settings["Sync_Users"] then notify = false else notify = true end
     if t[1] == "sync" then
-        notify = false
         if isadmin then 
             if t[2] == "admins" then
                 -- Call [function] SyncAdmins()
-                notify = true
                 SyncAdmins(Message, PlayerIndex)
+                if not settings["Sync_Admins"] then notify = false else notify = true end
             elseif t[2] == "users" then
                 -- Call [function] SyncUsers()
-                notify = true
                 SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] then notify = false else notify = true end
             elseif t[2] == "all" then
                 -- Call both functions
-                notify = true
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
                 else
                 notify = false
                 -- Command invalid.
@@ -139,12 +141,9 @@ function OnServerCommand(PlayerIndex, Command)
             -- Player is not an admin - deny access.
             respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
-        if not settings["Sync_Admins"] then notify = false else notify = true end
-        if not settings["Sync_Users"] then notify = false else notify = true end
         if notify then send_all(PlayerIndex) end
         return false
     end
-    -- return notify
 end
 
 -- >>> ----
