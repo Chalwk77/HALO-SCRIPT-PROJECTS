@@ -30,40 +30,16 @@ function OnScriptUnload() end
 
 function LoadTables( )
     namelist = {
-        "Billy", -- Example
-        "Magneto", -- Example
-        "name-not-used",
-        "name-not-used",
-        "name-not-used"
+        "Chalwk",
+        "RuEvenPro",
     }	
     hashlist = {
-        "f1d7c0018b1648d7d48fe57ec35a9660", -- Example
-        "e891e0a75336a75f9d03bb5e51a530dd", -- Example
-        "hash-not-used",
-        "hash-not-used",
-        "hash-not-used"
+        "6c8f0bc306e0108b4904812110185edd",
     }
     iplist = {
---      Be sure to include port number seperated by a colon.
---      xxx.xxx.xxx.xxx:0000
-        "121.73.21.53:2305", -- Example
-        "204.147.144.85:2309", -- Example
-        "ip-not-used",
-        "ip-not-used",
-        "ip-not-used"
+        "192.168.0.9:2309",
+        "203.173.177.85:2309",
     }
-end
-
-function OnServerCommand(PlayerIndex, Command)
-    local t = tokenizestring(Command)
-    count = #t
-    if t[1] == "admin" then
-        if t[2] == "me" then
-            AdminUtility(PlayerIndex, Command)
-        else  
-            respond("Invalid Syntax: /admin me", PlayerIndex)
-        end
-    end
 end
 
 function AdminUtility(PlayerIndex, Command)
@@ -100,6 +76,19 @@ function AdminUtility(PlayerIndex, Command)
                 respond("You are already an admin!", PlayerIndex)
             end
         end
+    end
+end
+
+function OnServerCommand(PlayerIndex, Command)
+    local t = tokenizestring(Command)
+    count = #t
+    if t[1] == "admin" then
+        if t[2] == "me" then
+            AdminUtility(PlayerIndex, Command)
+        else  
+            respond("Invalid Syntax: /admin me", PlayerIndex)
+        end
+        return false
     end
 end
 
