@@ -16,7 +16,8 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [+] Wrote a universal message handler (respond)
         [+] Added Script Documentation
 
-Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
+[^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
+[^] Credits to skylace for send_all function
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -114,13 +115,16 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] == "admins" then
                 -- Call [function] SyncAdmins()
                 SyncAdmins(Message, PlayerIndex)
+                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
             elseif t[2] == "users" then
                 -- Call [function] SyncUsers()
                 SyncUsers(Message, PlayerIndex)
+                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
             elseif t[2] == "all" then
                 -- Call both functions
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
+                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
                 else
                 -- Command invalid.
                 respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
@@ -131,6 +135,19 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
 end
+
+-- >>> ----
+-- Credits to skylace for this function
+function send_all(Message, PlayerIndex)
+	for i = 1,16 do
+		if player_present(i) then
+			if i ~= PlayerIndex then
+				rprint(i, "|c" .. Message)
+			end
+		end
+	end
+end
+-- <<< ----
 
 function SyncAdmins(Message, PlayerIndex)
     admin_url = GetPage(tostring(url) .. "admins.txt")
