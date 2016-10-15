@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HPC SyncYourFiles, for SAPP
+Script Name: HPC SyncYourFiles (v2), for SAPP
 - Script Type: Utility
 - Implementing API version: 1.11.0.0
 
