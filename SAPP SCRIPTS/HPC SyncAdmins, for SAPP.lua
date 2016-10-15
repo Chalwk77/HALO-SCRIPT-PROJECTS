@@ -111,12 +111,12 @@ local users_table = {
 function OnServerCommand(PlayerIndex, Command)
     local notify = nil
     local t = tokenizestring(Command)
-    -- global command variable handeled from respond() [function]
     command = string.lower(Command)
     count = #t
     if PlayerIndex == nil then
         server_name = 'Server'
     end
+-- Command access handler is managed in respond() [function]
 -- Syntax: /sync admins|users|all
     if t[1] == "sync" then
         if t[2] == "admins" then
