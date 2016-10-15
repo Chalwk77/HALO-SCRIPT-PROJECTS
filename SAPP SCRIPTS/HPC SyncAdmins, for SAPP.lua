@@ -173,8 +173,8 @@ function SyncAdmins(Message, PlayerIndex)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                respond('admins.txt successfully Synced|n', PlayerIndex)
                 -- <<< ------
+                respond('admins.txt successfully Synced|n', PlayerIndex)
             end
         end
     else
@@ -224,8 +224,8 @@ function SyncUsers(Message, PlayerIndex)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                respond('users.txt successfully Synced|n', PlayerIndex)
                 -- <<< ------
+                respond('users.txt successfully Synced|n', PlayerIndex)
             end
         end
     else
@@ -236,25 +236,29 @@ end
 
 function BackupSolutionAdmins(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
+    --- >>> ------ 
+    -- Read data from users_table and write to sapp\\admins.txt
     local file = io.open(admins, "w")
     for i = 1, #admin_table do
-        -- Read data from users_table and write to sapp\\admins.txt
         file:write(admin_table[i], "\n")
         respond(admin_table[i], PlayerIndex)
     end
     file:close()
+    -- <<< ------
     respond('admins.txt successfully Synced.', PlayerIndex)
 end
 
 function BackupSolutionUsers(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
+    --- >>> ------ 
+    -- Read data from users_table and write to sapp\\users.txt
     local file = io.open(users, "w")
     for i = 1, #users_table do
-        -- Read data from users_table and write to sapp\\users.txt
         file:write(users_table[i], "\n")
         respond(users_table[i], PlayerIndex)
     end
     file:close()
+    -- <<< ------
     respond('users.txt successfully Synced.', PlayerIndex)
 end
 
