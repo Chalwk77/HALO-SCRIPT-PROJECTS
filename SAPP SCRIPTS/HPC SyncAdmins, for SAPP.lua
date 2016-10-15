@@ -114,6 +114,9 @@ function OnServerCommand(PlayerIndex, Command)
     -- global command variable handeled from respond() [function]
     command = string.lower(Command)
     count = #t
+    if PlayerIndex == nil then
+        server_name = 'Server'
+    end
 -- Syntax: /sync admins|users|all
     if t[1] == "sync" then
         if t[2] == "admins" then
@@ -135,6 +138,12 @@ function OnServerCommand(PlayerIndex, Command)
             respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
         end
         if notify then send_all(PlayerIndex) end
+        if player_present(PlayerIndex) then
+            user = get_var(PlayerIndex, "$name")
+        else
+            user = "Console"
+        end
+        cprint("* Executing command: \"" .. command .. "\" from " .. user)
         return false
     end
 end
@@ -300,12 +309,12 @@ function respond(Message, PlayerIndex)
         end
         PlayerIndex = tonumber(PlayerIndex)
         local isadmin = nil
-        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
-            isadmin = true 
-        else 
-            isadmin = false 
-        end
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+                isadmin = true 
+            else 
+                isadmin = false 
+            end
             if isadmin then
                 if settings["DisplayConsoleOutput"] then
                     cprint(Message, 2+8)
