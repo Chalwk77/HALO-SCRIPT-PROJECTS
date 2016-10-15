@@ -1,6 +1,7 @@
 --[[
 ------------------------------------
-Script Name: HPC SyncAdmins (utility), for SAPP
+Script Name: HPC SyncAdmins, for SAPP
+-- Script Type: Utility
 - Implementing API version: 1.11.0.0
 
 Description: This script will sync your admins.txt and users.txt files with a remote server.
@@ -61,9 +62,9 @@ function OnScriptUnload() end
 --=================================================--
 -- Change this url accordingly. 
 url = 'http://example.com/files/'
--- Do not reference a direct url
--- Bad: example.com/files/users.txt/
--- Good: example.com/files/
+-- Do not reference a direct url path to your files
+-->>    Bad: example.com/files/users.txt/
+-->>    Good: example.com/files/
 --=================================================--
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
