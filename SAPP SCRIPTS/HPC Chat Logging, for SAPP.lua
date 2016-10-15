@@ -22,6 +22,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]--
 
+--[[
+    
+Set color of console (0-255). Setting to 0 is white over black. !
+0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
+5 - Magenta, 6 - Gold, 7 - White. !
+Add 8 to make text bold. !
+Add 16 x Color to set background color.
+    
+]]
+
+CommandOutputColor = 5+8 -- Magenta
+ChatOutputColor = 3+8 -- Cyan
+
 api_version = "1.11.0.0"
 local dir = 'sapp\\Server Chat.txt'
 local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
@@ -94,23 +107,45 @@ function OnChatMessage(PlayerIndex, Message, type)
     local t = tokenizestring(Message)
     count = #t
     local Message = tostring(Message)
+    iscommand = nil
     if type == 0 then -- T
+        if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+            iscommand = true
+            else 
+            iscommand = false
+        end
         Type = "[GLOBAL]  "
     elseif type == 1 then -- Y
+        if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+            iscommand = true
+            else 
+            iscommand = false
+        end
         Type = "[TEAM]    "
     elseif type == 2 then -- H
+        if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+            iscommand = true
+            else 
+            iscommand = false
+        end
         Type = "[VEHICLE] "
     end
     
     if type == 0 or type == 1 or type == 2 then
-        if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then
-            Type = "[COMMAND] " 
+        if iscommand then
+            command = "[COMMAND] " 
+            WriteData(dir, "   " .. command .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), CommandOutputColor)
+            return true
         end
     end
     
     if player_present(PlayerIndex) ~= nil then
+        if iscommand then 
+        else
         WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), 3+8)
+        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+        end
     end
     return true
 end
