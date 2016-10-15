@@ -15,6 +15,7 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [*] Seperated Backup functions - (BackupSolutionAdmins, BackupSolutionUsers)
         [+] Wrote a universal message handler (respond)
         [+] Added Script Documentation
+        [+] Added a function to notify all present players of potential lag while syncing.
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 [^] Credits to skylace for send_all function
@@ -102,6 +103,7 @@ local users_table = {
 
 function OnServerCommand(PlayerIndex, Command)
     local isadmin = nil
+    local notify = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
@@ -115,16 +117,16 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] == "admins" then
                 -- Call [function] SyncAdmins()
                 SyncAdmins(Message, PlayerIndex)
-                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
+                if not settings["Sync_Admins"] then notify = false else notify = true send_all(PlayerIndex) end
             elseif t[2] == "users" then
                 -- Call [function] SyncUsers()
                 SyncUsers(Message, PlayerIndex)
-                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
+                if not settings["Sync_Users"] then notify = false else notify = true send_all(PlayerIndex) end
             elseif t[2] == "all" then
                 -- Call both functions
                 SyncAdmins(Message, PlayerIndex)
                 SyncUsers(Message, PlayerIndex)
-                send_all(PlayerIndex, '[Server Process] - Temporary Lag Warning!')
+                if not settings["Sync_Admins"] and not settings["Sync_Users"] then notify = false else notify = true send_all(PlayerIndex) end
                 else
                 -- Command invalid.
                 respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
@@ -133,16 +135,18 @@ function OnServerCommand(PlayerIndex, Command)
             -- Player is not an admin - deny access.
             respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
+        return false
     end
 end
 
 -- >>> ----
 -- Credits to skylace for this function
-function send_all(Message, PlayerIndex)
+function send_all(PlayerIndex)
 	for i = 1,16 do
 		if player_present(i) then
 			if i ~= PlayerIndex then
-				rprint(i, "|c" .. Message)
+--              Notify all players of temporary lag while the server syncs the files.
+				rprint(i, "[Server Process] - Temporary Lag Warning!")
 			end
 		end
 	end
