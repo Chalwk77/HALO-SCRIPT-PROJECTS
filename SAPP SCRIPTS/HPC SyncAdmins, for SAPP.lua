@@ -67,18 +67,9 @@ url = 'http://example.com/files/'
 -->> Good: www.example.com/files/
 --===<<<===<<<===<<<===<<<===<<<===<<<===<<<===<<<===<<<===
 
-
 -- sapp file directory
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
-
--- For security and to help varify that your file exists or isn't empty on the remote server, the script will search for a 'keyword'
--- If found, it will proceed to sync with that file. 
--- Otherwise it will initialize the backup solution and insert the data from the backup tables instead.
--- Enter that keyword here...
--- Supports Regex expressions!
-users_keyword = "[A-Za-z0-9]:[1-4]:"
-admins_keyword = "[A-Za-z0-9]:[1-4]"
 
 settings = {
 --  Toggle on|off syncing admins.
@@ -87,8 +78,6 @@ settings = {
     ["Sync_Users"] = true,
 --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true,
---  Toggle ingame command on|off
-    ["Sync_Command"] = false,
 -- Toggle on|off console output
     ["DisplayFileOutput"] = false,
     ["DisplayConsoleOutput"] = true
@@ -128,39 +117,33 @@ function OnServerCommand(PlayerIndex, Command)
     local notify = nil
     local t = tokenizestring(Command)
     count = #t
-    if settings["Sync_Command"] then
-    -- Syntax: /sync admins|users|all
-        if t[1] == "sync" then
-            if isadmin then 
-                if t[2] == "admins" then
-                    -- Call [function] SyncAdmins()
-                    SyncAdmins(Message, PlayerIndex)
-                    if not settings["Sync_Admins"] then notify = false else notify = true end
-                elseif t[2] == "users" then
-                    -- Call [function] SyncUsers()
-                    SyncUsers(Message, PlayerIndex)
-                    if not settings["Sync_Users"] then notify = false else notify = true end
-                elseif t[2] == "all" then
-                    -- Call both functions
-                    SyncAdmins(Message, PlayerIndex)
-                    SyncUsers(Message, PlayerIndex)
-                    if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
-                    else
-                    notify = false
-                    -- Command invalid.
-                    respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
-                end
-            else 
+-- Syntax: /sync admins|users|all
+    if t[1] == "sync" then
+        if isadmin then 
+            if t[2] == "admins" then
+                -- Call [function] SyncAdmins()
+                SyncAdmins(Message, PlayerIndex)
+                if not settings["Sync_Admins"] then notify = false else notify = true end
+            elseif t[2] == "users" then
+                -- Call [function] SyncUsers()
+                SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] then notify = false else notify = true end
+            elseif t[2] == "all" then
+                -- Call both functions
+                SyncAdmins(Message, PlayerIndex)
+                SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
+                else
                 notify = false
-                -- Player is not an admin - deny access.
-                respond("You do not have permission to execute /" .. Command, PlayerIndex)
+                -- Command invalid.
+                respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
             end
-            if notify then send_all(PlayerIndex) end
-            return false
+        else 
+            notify = false
+            -- Player is not an admin - deny access.
+            respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
-    else 
-        -- Command is disabled 
-        respond("Sorry, that command is disabled!", PlayerIndex)
+        if notify then send_all(PlayerIndex) end
         return false
     end
 end
@@ -197,7 +180,7 @@ function SyncAdmins(Message, PlayerIndex)
         else
             -- file exists on remote server, varify data.
             response = true
-            if string.find(admin_url, admins_keyword) == nil then
+            if string.match(admin_url, ":(%d+%w+)(:)[0-4]") == nil then
                 respond('Script Error: Failed to read from admins.txt on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then 
                     BackupSolutionAdmins(Message, PlayerIndex)
@@ -250,7 +233,7 @@ function SyncUsers(Message, PlayerIndex)
         else
             -- file exists on remote server, varify data.
             response = true
-            if string.find(users_url, users_keyword) == nil then
+            if string.match(users_url, "(%d):(%d+%w+)(:)[0-4](:)") == nil then
                 respond('Script Error: Failed to read from users.txt on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then
                     BackupSolutionUsers(Message, PlayerIndex)
