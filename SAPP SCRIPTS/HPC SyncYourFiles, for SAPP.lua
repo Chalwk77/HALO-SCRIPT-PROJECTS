@@ -57,11 +57,10 @@ filename = 'test' .. ext
 -- SAPP file directory
 sapp_dir = "sapp\\" .. filename .. ""
 
--- For security and to help varify that your file exists or isn't empty on the remote server, the script will search for a 'keyword'
--- If found, it will proceed to sync with that file. 
+-- For security and to help varify that your file exists or isn't empty on the remote server, the script will search for a 'keyword' in the remote file.
+-- If found, the script will proceed to sync with that file. 
 -- Otherwise it will initialize the backup solution and insert the data from the "backup_table" instead.
 -- Enter that keyword here...
--- Supports Regex expressions!
 
 keyword = "your_keyword"
 
