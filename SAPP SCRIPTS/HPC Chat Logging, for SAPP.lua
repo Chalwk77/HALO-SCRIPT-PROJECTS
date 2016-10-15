@@ -33,6 +33,7 @@ Add 16 x Color to set background color.
     
 ]]
 
+-- Console only -- 
 CommandOutputColor = 5+8 -- Magenta
 ChatOutputColor = 3+8 -- Cyan
 
