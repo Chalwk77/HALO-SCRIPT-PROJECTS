@@ -8,9 +8,10 @@ Description: This script will log player chat to <sapp server>/Server Chat.txt
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
-* Change log:
-    6-Oct-2016
-        - Updated to guard against modulo operator's throwing an error
+    Change Log:
+        [+] Added Command Logging
+        [+] Added Quit/Join logging
+        [*] Reformatted file output so all the text aligns properly.
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -77,6 +78,43 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
+end
+
+function OnChatMessage(PlayerIndex, Message, type)
+    local t = tokenizestring(Message)
+    count = #t
+    local Message = tostring(Message)
+    if type == 0 then -- T
+        Type = "[GLOBAL]  "
+    elseif type == 1 then -- Y
+        Type = "[TEAM]    "
+    elseif type == 2 then -- H
+        Type = "[VEHICLE] "
+    end
+    
+    if type == 0 or type == 1 or type == 2 then
+        if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then
+            Type = "[COMMAND] " 
+        end
+    end
+    
+    if player_present(PlayerIndex) ~= nil then
+        WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), 3+8)
+    end
+    return true
+end
+
 function WriteData(dir, value)
     local file = io.open(dir, "a+")
     if file ~= nil then
@@ -84,22 +122,6 @@ function WriteData(dir, value)
         file:write(chatValue)
         file:close()
     end
-end
-
-function OnChatMessage(PlayerIndex, Message, type)
-    local message = tostring(Message)
-    if type == 0 then 
-        Type = "[GLOBAL]"
-    elseif type == 1 then 
-        Type = "[TEAM]"
-    elseif type == 2 then 
-        Type = "[VEHICLE]"
-    end
-    if player_present(PlayerIndex) ~= nil then
-        WriteData(dir, Type .." " .. name .. " [" .. id .. "]: " .. tostring(message))
-        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(message), 3+8)
-    end
-    return true
 end
 
 function OnError(Message)
