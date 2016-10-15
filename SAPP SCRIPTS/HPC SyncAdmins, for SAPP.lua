@@ -14,6 +14,7 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [*] Moved SyncAdmins and SyncUsers to seperate functions
         [*] Seperated Backup functions - (BackupSolutionAdmins, BackupSolutionUsers)
         [+] Wrote a universal message handler (respond)
+        [+] Added Script Documentation
 
 Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
