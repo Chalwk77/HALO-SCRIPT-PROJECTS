@@ -30,15 +30,27 @@ function OnScriptUnload() end
 
 function LoadTables( )
     namelist = {
-        "Chalwk",
-        "RuEvenPro",
+        "Billy",
+        "Magneto",
+        "name-not-used",
+        "name-not-used",
+        "name-not-used"
     }	
     hashlist = {
-        "6c8f0bc306e0108b4904812110185edd",
+        "hash-not-used",
+        "f1d7c0018b1648d7d48fe57ec35a9660",
+        "6891e0a75336a75f9d03bb5e51a530dd",
+        "hash-not-used",
+        "hash-not-used",
+        "hash-not-used"
     }
     iplist = {
-        "192.168.0.9:2309",
-        "203.173.177.85:2309",
+        "xxx.xxx.xxx.xxx:0000",
+        "121.74.21.53:2305",
+        "204.147.144.85:2309",
+        "ip-not-used"
+        "ip-not-used"
+        "ip-not-used"
     }
 end
 
