@@ -163,16 +163,18 @@ function SyncAdmins(Message, PlayerIndex)
             end
             -- file found on remote server, data varified, initiate sync.
             if response then
+                --- >>> ------ 
+                -- Read data from remote file and write to sapp\\admins.txt
                 local file = io.open(admins, "w")
                 local line = tokenizestring(admin_url, "\n")
                 respond('Syncing Admins...', PlayerIndex)
                 for i = 1, #line do
-                    -- Write data from remote file to sapp\\admins.txt
                     file:write(line[i])
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
                 respond('admins.txt successfully Synced|n', PlayerIndex)
+                -- <<< ------
             end
         end
     else
@@ -212,16 +214,18 @@ function SyncUsers(Message, PlayerIndex)
             end
             -- file found on remote server, data varified, initiate sync.
             if response then
+                --- >>> ------ 
+                -- Read data from remote file and write to sapp\\users.txt
                 local file = io.open(users, "w")
                 local line = tokenizestring(users_url, "\n")
                 respond('Syncing Users...', PlayerIndex)
                 for i = 1, #line do
-                    -- Write data from remote file to sapp\\users.txt
                     file:write(line[i])
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
                 respond('users.txt successfully Synced|n', PlayerIndex)
+                -- <<< ------
             end
         end
     else
@@ -234,7 +238,7 @@ function BackupSolutionAdmins(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
     local file = io.open(admins, "w")
     for i = 1, #admin_table do
-        -- Write data from users_table to sapp\\admins.txt
+        -- Read data from users_table and write to sapp\\admins.txt
         file:write(admin_table[i], "\n")
         respond(admin_table[i], PlayerIndex)
     end
@@ -246,7 +250,7 @@ function BackupSolutionUsers(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
     local file = io.open(users, "w")
     for i = 1, #users_table do
-        -- Write data from users_table to sapp\\users.txt
+        -- Read data from users_table and write to sapp\\users.txt
         file:write(users_table[i], "\n")
         respond(users_table[i], PlayerIndex)
     end
