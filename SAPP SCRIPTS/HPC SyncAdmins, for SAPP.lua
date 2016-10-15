@@ -145,14 +145,14 @@ end
 -- >>> ----
 -- Credits to skylace for this function
 function send_all(PlayerIndex)
-	for i = 1,16 do
+    for i = 1,16 do
         if player_present(i) then
             if i ~= PlayerIndex then
 --              Notify all players of temporary lag while the server syncs the files.
-				rprint(i, "[Server Process] - Temporary Lag Warning!")
-			end
-		end
-	end
+                rprint(i, "[Server Process] - Temporary Lag Warning!")
+            end
+        end
+    end
 end
 -- <<< ----
 
