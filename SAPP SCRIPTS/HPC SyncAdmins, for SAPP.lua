@@ -334,7 +334,7 @@ function respond(Message, PlayerIndex)
                     return false
                 else
                     if settings["DisplayConsoleOutput"] then
-                    cprint(Message, 2+8)
+                        cprint(Message, 2+8)
                     end
                 end
                 v1note = string.format('[SyncAdminsUtility]: ' .. Message)
