@@ -44,7 +44,7 @@ function OnScriptUnload() end
 -- Configuration --
 --===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===
 -- Change this url accordingly. 
-url = 'http://files.enjin.com/1096950/'
+url = 'www.example.com/files/'
 -- Do not reference a direct url path to your file
 -->> Bad: www.example.com/files/myfilename.txt/
 -->> Good: www.example.com/files/
@@ -70,7 +70,7 @@ settings = {
 --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true,
 -- Toggle on|off script message output
-    ["DisplayFileOutput"] = true,
+    ["DisplayFileOutput"] = false,
     ["DisplayConsoleOutput"] = true
 }
 
