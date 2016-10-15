@@ -16,7 +16,7 @@ Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby
 -----------------------------------
 ]]--
 
@@ -38,6 +38,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --      Seat 1 - 5 = Passengers Seat
 
 api_version = "1.11.0.0"
+
+--[[
+    
+Set color of console (0-255). Setting to 0 is white over black. !
+0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
+5 - Magenta, 6 - Gold, 7 - White. !
+Add 8 to make text bold. !
+Add 16 x Color to set background color.
+    
+]]
+
+-- Console only -- 
+OutputColor = 2+8 -- Blue
 
 settings = {
     ["LogToServerConsole"] = true,
@@ -119,7 +132,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
     if settings["LogToServerConsole"] then
-        cprint(name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name), 2+8)
+        cprint(name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name), OutputColor)
     end
     if settings["ShowInGameChat"] then
         execute_command("msg_prefix \"\"")
