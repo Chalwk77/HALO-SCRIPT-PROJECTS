@@ -50,7 +50,7 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
-OutputColor = 2+8 -- Blue
+OutputColor = 2+8 -- Bright Green
 
 settings = {
     ["LogToServerConsole"] = true,
