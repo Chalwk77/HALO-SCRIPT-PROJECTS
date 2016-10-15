@@ -17,6 +17,7 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [+] Wrote a universal message handler (respond)
         [+] Added Script Documentation
         [+] Added a function to notify all present players of potential lag while syncing.
+        [+] Added console command support and moved admin detection handlers to respond() [function]
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 [^] Credits to skylace for send_all function
@@ -108,40 +109,30 @@ local users_table = {
 -- Configuration Ends --
 
 function OnServerCommand(PlayerIndex, Command)
-    local isadmin = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
-        isadmin = true 
-    else 
-        isadmin = false 
-    end
     local notify = nil
     local t = tokenizestring(Command)
+    -- global command variable handeled from respond() [function]
+    command = string.lower(Command)
     count = #t
 -- Syntax: /sync admins|users|all
     if t[1] == "sync" then
-        if isadmin then 
-            if t[2] == "admins" then
-                -- Call [function] SyncAdmins()
-                SyncAdmins(Message, PlayerIndex)
-                if not settings["Sync_Admins"] then notify = false else notify = true end
-            elseif t[2] == "users" then
-                -- Call [function] SyncUsers()
-                SyncUsers(Message, PlayerIndex)
-                if not settings["Sync_Users"] then notify = false else notify = true end
-            elseif t[2] == "all" then
-                -- Call both functions
-                SyncAdmins(Message, PlayerIndex)
-                SyncUsers(Message, PlayerIndex)
-                if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
-                else
-                notify = false
-                -- Command invalid.
-                respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
-            end
-        else 
+        if t[2] == "admins" then
+            -- Call [function] SyncAdmins()
+            SyncAdmins(Message, PlayerIndex)
+            if not settings["Sync_Admins"] then notify = false else notify = true end
+        elseif t[2] == "users" then
+            -- Call [function] SyncUsers()
+            SyncUsers(Message, PlayerIndex)
+            if not settings["Sync_Users"] then notify = false else notify = true end
+        elseif t[2] == "all" then
+            -- Call both functions
+            SyncAdmins(Message, PlayerIndex)
+            SyncUsers(Message, PlayerIndex)
+            if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
+            else
             notify = false
-            -- Player is not an admin - deny access.
-            respond("You do not have permission to execute /" .. Command, PlayerIndex)
+            -- Command invalid.
+            respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
         end
         if notify then send_all(PlayerIndex) end
         return false
@@ -308,19 +299,30 @@ function respond(Message, PlayerIndex)
             Message = Message[1]
         end
         PlayerIndex = tonumber(PlayerIndex)
+        local isadmin = nil
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+            isadmin = true 
+        else 
+            isadmin = false 
+        end
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            if settings["DisplayConsoleOutput"] then
-                cprint(Message, 2+8)
+            if isadmin then
+                if settings["DisplayConsoleOutput"] then
+                    cprint(Message, 2+8)
+                end
+                rprint(PlayerIndex, Message)
+                note = string.format('[SyncAdminsUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
+                execute_command("log_note \""..note.."\"")
+            else
+                if player_present(PlayerIndex) then
+                    rprint(PlayerIndex, "You do not have permission to execute /" ..command)
+                end
+                if settings["DisplayConsoleOutput"] then
+                    cprint(Message, 2+8)
+                end
+                v1note = string.format('[SyncAdminsUtility]: ' .. Message)
+                execute_command("log_note \""..v1note.."\"")
             end
-            rprint(PlayerIndex, Message)
-            note = string.format('[SyncAdminsUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
-            execute_command("log_note \""..note.."\"")
-        else
-            if settings["DisplayConsoleOutput"] then
-                cprint(Message, 2+8)
-            end
-            v1note = string.format('[SyncAdminsUtility]: ' .. Message)
-            execute_command("log_note \""..v1note.."\"")
         end
     end
 end
