@@ -110,7 +110,7 @@ function OnChatMessage(PlayerIndex, Message, type)
     iscommand = nil
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
-        chattype = "[COMMAND] " 
+        cmdtpye = "[COMMAND] " 
     else 
         iscommand = false
     end
@@ -120,18 +120,14 @@ function OnChatMessage(PlayerIndex, Message, type)
         Type = "[TEAM]    "
     elseif type == 2 then -- H
         Type = "[VEHICLE] "
-    end
-    if type == 0 or type == 1 or type == 2 then
-        if iscommand then
-            WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            cprint(chattype .." " .. name .. " [" .. id .. "]: " .. tostring(Message), CommandOutputColor)
-            return true
-        end
-    end
+    end    
     if player_present(PlayerIndex) ~= nil then
-        if not iscommand then 
-        WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-        cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+        if iscommand then 
+            WriteData(dir, "   " .. cmdtpye .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            cprint(cmdtpye .." " .. name .. " [" .. id .. "]: " .. tostring(Message), CommandOutputColor)
+        else
+            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
         end
     end
     return true
