@@ -23,7 +23,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 -------------------------------
 TO DO LIST:
 
-[!] Currently, this script cannot read from a file that is encoded in UCS-2 LE BOM. 
+[!] Currently, this script cannot decode a file that is encoded in UCS-2 LE BOM. 
     Which renders its intended purpose completely useless.
     I am working on a solution!
 
@@ -144,7 +144,7 @@ function SyncAdmins(Message, PlayerIndex)
             else
                 respond('Script Error: [BackupMethod] disabled - Unable to sync admins.txt', PlayerIndex)
             end
-            -- files does not exist on remote server or server is offline. Go to backup solution.
+            -- file does not exist or remote server is offline - go to backup solution.
             response = false
         else
             -- file exists on remote server, varify data.
@@ -156,16 +156,17 @@ function SyncAdmins(Message, PlayerIndex)
                 else
                     respond('Script Error: [BackupMethod] disabled - Unable to sync admins.txt', PlayerIndex)
                 end
-                --  file is empty on remote server, or script was unable to find 'keyword, go to backup solution.
-                --  [!] NOTE: This script cannot read from a file that is encoded in UCS-2 LE BOM (I am working on a solution)
+                --  file is empty on remote server, or unable to varify data, go to backup solution.
+                --  [!] NOTE: Currently, this script cannot decode a file that is encoded in UCS-2 LE BOM.
                 response = false
             end
-            -- file found on remote server, keyword varified, initiate sync.
+            -- file found on remote server, data varified, initiate sync.
             if response then
                 local file = io.open(admins, "w")
                 local line = tokenizestring(admin_url, "\n")
                 respond('Syncing Admins...', PlayerIndex)
                 for i = 1, #line do
+                    -- Write data from remote file to sapp\\admins.txt
                     file:write(line[i])
                     respond(line[i], PlayerIndex)
                 end
@@ -192,7 +193,7 @@ function SyncUsers(Message, PlayerIndex)
             else
                 respond('Script Error: [BackupMethod] disabled - Unable to sync users.txt', PlayerIndex)
             end
-            -- files does not exist on remote server or server is offline. Go to backup solution.
+            -- file does not exist or remote server is offline - go to backup solution.
             response = false
         else
             -- file exists on remote server, varify data.
@@ -204,16 +205,17 @@ function SyncUsers(Message, PlayerIndex)
                 else
                     respond('Script Error: [BackupMethod] disabled - Unable to sync users.txt', PlayerIndex)
                 end
-                --  file is empty on remote server, or script was unable to find 'keyword, go to backup solution.
-                --  [!] NOTE: This script cannot read from a file that is encoded in UCS-2 LE BOM (I am working on a solution)
+                --  file is empty on remote server, or unable to varify data, go to backup solution.
+                --  [!] NOTE: Currently, this script cannot decode a file that is encoded in UCS-2 LE BOM.
                 response = false
             end
-            -- file found on remote server, keyword varified, initiate sync.
+            -- file found on remote server, data varified, initiate sync.
             if response then
                 local file = io.open(users, "w")
                 local line = tokenizestring(users_url, "\n")
                 respond('Syncing Users...', PlayerIndex)
                 for i = 1, #line do
+                    -- Write data from remote file to sapp\\users.txt
                     file:write(line[i])
                     respond(line[i], PlayerIndex)
                 end
@@ -231,6 +233,7 @@ function BackupSolutionAdmins(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
     local file = io.open(admins, "w")
     for i = 1, #admin_table do
+        -- Write data from users_table to sapp\\admins.txt
         file:write(admin_table[i], "\n")
         respond(admin_table[i], PlayerIndex)
     end
@@ -242,6 +245,7 @@ function BackupSolutionUsers(Message, PlayerIndex)
     respond('Going to backup solution...', PlayerIndex)
     local file = io.open(users, "w")
     for i = 1, #users_table do
+        -- Write data from users_table to sapp\\users.txt
         file:write(users_table[i], "\n")
         respond(users_table[i], PlayerIndex)
     end
