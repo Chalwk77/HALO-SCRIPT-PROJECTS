@@ -314,9 +314,12 @@ function respond(Message, PlayerIndex)
                 note = string.format('[SyncAdminsUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
                 execute_command("log_note \""..note.."\"")
             else
+                --- >>> ------ 
+                -- Player is not an admin, deny access to /sync command
                 if player_present(PlayerIndex) then
                     rprint(PlayerIndex, "You do not have permission to execute /" ..command)
                 end
+                --- <<< ------ 
                 if settings["DisplayConsoleOutput"] then
                     cprint(Message, 2+8)
                 end
