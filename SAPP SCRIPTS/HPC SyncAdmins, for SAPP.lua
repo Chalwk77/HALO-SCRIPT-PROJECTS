@@ -72,7 +72,7 @@ settings = {
 --  Toggle on|off syncing admins.
     ["Sync_Admins"] = true,
 --  Toggle on|off syncing users.
-    ["Sync_Users"] = false,
+    ["Sync_Users"] = true,
 --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true
 }
@@ -103,19 +103,15 @@ local users_table = {
 
 function OnServerCommand(PlayerIndex, Command)
     local isadmin = nil
-    notify = nil
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
         isadmin = true 
     else 
         isadmin = false 
     end
-   
+    local notify = nil
     local t = tokenizestring(Command)
     count = #t
-   
     -- Syntax: /sync admins|users|all
-    if not settings["Sync_Admins"] then notify = false else notify = true end
-    if not settings["Sync_Users"] then notify = false else notify = true end
     if t[1] == "sync" then
         if isadmin then 
             if t[2] == "admins" then
@@ -149,10 +145,9 @@ end
 -- >>> ----
 -- Credits to skylace for this function
 function send_all(PlayerIndex)
-    cprint("Calling send_all()", 4+8)
 	for i = 1,16 do
-		if player_present(i) then
-			if i ~= PlayerIndex then
+        if player_present(i) then
+            if i ~= PlayerIndex then
 --              Notify all players of temporary lag while the server syncs the files.
 				rprint(i, "[Server Process] - Temporary Lag Warning!")
 			end
