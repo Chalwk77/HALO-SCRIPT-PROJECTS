@@ -44,7 +44,7 @@ function OnScriptUnload() end
 -- Configuration --
 --===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===
 -- Change this url accordingly. 
-url = 'www.example.com/files/'
+url = 'http://files.enjin.com/1096950/'
 -- Do not reference a direct url path to your file
 -->> Bad: www.example.com/files/myfilename.txt/
 -->> Good: www.example.com/files/
@@ -52,7 +52,7 @@ url = 'www.example.com/files/'
 
 -- File name
 ext = '.txt'
-filename = 'myfilename' .. ext
+filename = 'test' .. ext
 -- File extension
 -- SAPP file directory
 sapp_dir = "sapp\\" .. filename .. ""
@@ -62,16 +62,15 @@ sapp_dir = "sapp\\" .. filename .. ""
 -- Otherwise it will initialize the backup solution and insert the data from the "backup_table" instead.
 -- Enter that keyword here...
 -- Supports Regex expressions!
-keyword = "[A-Za-z0-9]:[1-4]:"
+
+keyword = "your_keyword"
 
 settings = {
     ["Sync_Files"] = true,
---  Toggle ingame command on|off
-    ["Sync_Command"] = true,
 --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true,
 -- Toggle on|off script message output
-    ["DisplayFileOutput"] = false,
+    ["DisplayFileOutput"] = true,
     ["DisplayConsoleOutput"] = true
 }
 
@@ -98,30 +97,24 @@ function OnServerCommand(PlayerIndex, Command)
     local notify = nil
     local t = tokenizestring(Command)
     count = #t
-    if settings["Sync_Command"] then
-        -- Syntax: /sync files
-        if t[1] == "sync" then
-            if isadmin then 
-                if t[2] == "files" then
-                    -- Call [function] SyncFiles()
-                    SyncFiles(Message, PlayerIndex)
-                    if not settings["Sync_Files"] then notify = false else notify = true end
-                    else
-                    notify = false
-                    -- Command invalid.
-                    respond("Invalid Syntax: /sync files", PlayerIndex)
-                end
-            else 
+    -- Syntax: /sync files
+    if t[1] == "sync" then
+        if isadmin then 
+            if t[2] == "files" then
+                -- Call [function] SyncFiles()
+                SyncFiles(Message, PlayerIndex)
+                if not settings["Sync_Files"] then notify = false else notify = true end
+                else
                 notify = false
-                -- Player is not an admin - deny access.
-                respond("You do not have permission to execute /" .. Command, PlayerIndex)
+                -- Command invalid.
+                respond("Invalid Syntax: /sync files", PlayerIndex)
             end
-            if notify then send_all(PlayerIndex) end
-            return false
+        else 
+            notify = false
+            -- Player is not an admin - deny access.
+            respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
-    else 
-        -- Command is disabled 
-        respond("Sorry, that command is disabled!", PlayerIndex)
+        if notify then send_all(PlayerIndex) end
         return false
     end
 end
@@ -158,7 +151,7 @@ function SyncFiles(Message, PlayerIndex)
         else
             -- file exists on remote server, varify data.
             response = true
-            if string.find(file_url, keyword) == nil then
+            if string.match(file_url, keyword) == nil then
                 respond('Script Error: Failed to read from ' .. filename .. ' on remote server.', PlayerIndex)
                 if settings["BackupMethod"] then 
                     BackupSolution(Message, PlayerIndex)
