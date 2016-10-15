@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: HPC SyncAdmins, for SAPP
--- Script Type: Utility
+- Script Type: Utility
 - Implementing API version: 1.11.0.0
 
 Description: This script will sync your admins.txt and users.txt files with a remote server.
@@ -59,13 +59,15 @@ end
 function OnScriptUnload() end
 
 -- Configuration --
---=================================================--
+--===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===
 -- Change this url accordingly. 
 url = 'http://example.com/files/'
 -- Do not reference a direct url path to your files
--->>    Bad: example.com/files/users.txt/
--->>    Good: example.com/files/
---=================================================--
+-->> Bad: www.example.com/files/users.txt/
+-->> Good: www.example.com/files/
+--===<<<===<<<===<<<===<<<===<<<===<<<===<<<===<<<===<<<===
+
+-- sapp files
 admins = 'sapp\\admins.txt'
 users = 'sapp\\users.txt'
 
@@ -81,7 +83,7 @@ settings = {
 -- Backup Solution. 
 local admin_table = {
     -- Usernames can only have 11 characters!
-    --      <username(1-11)>:<hash>:<admin level(0-4)
+    -- <username(1-11)>:<hash>:<admin level(0-4)
     "PlayerName1:f443106bd82fd6f3c22ba2df7c5e4094:4", 
     "PlayerName2:c702226e783ea7e091c0bb44c2d0ec64:1", 
     "PlayerName3:d72b3f33bfb7266a8d0f13b37c62fddb:2", 
@@ -92,7 +94,7 @@ local admin_table = {
 
 local users_table = {
     -- Usernames can only have 11 characters!
-    --      <username(1-11)>:[index#]:<hash>:<admin level(0-4):
+    -- <username(1-11)>:[index#]:<hash>:<admin level(0-4):
     "PlayerName1:0:f443106bd82fd6f3c22ba2df7c5e4094:4:",
     "PlayerName2:1:c702226e783ea7e091c0bb44c2d0ec64:1:",
     "PlayerName3:2:d72b3f33bfb7266a8d0f13b37c62fddb:2:",
@@ -143,7 +145,7 @@ function OnServerCommand(PlayerIndex, Command)
     end
 end
 
--- >>> ----
+--- >>> ------
 -- Credits to skylace for this function
 function send_all(PlayerIndex)
     for i = 1,16 do
@@ -155,7 +157,7 @@ function send_all(PlayerIndex)
         end
     end
 end
--- <<< ----
+--- <<< ------
 
 function SyncAdmins(Message, PlayerIndex)
     admin_url = GetPage(tostring(url) .. "admins.txt")
@@ -188,7 +190,7 @@ function SyncAdmins(Message, PlayerIndex)
             end
             -- file found on remote server, data varified, initiate sync.
             if response then
-                --- >>> ------ 
+                --- >>> ------
                 -- Read data from remote file and write to sapp\\admins.txt
                 local file = io.open(admins, "w")
                 local line = tokenizestring(admin_url, "\n")
@@ -198,7 +200,7 @@ function SyncAdmins(Message, PlayerIndex)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                -- <<< ------
+                --- <<< ------
                 respond('admins.txt successfully Synced|n', PlayerIndex)
             end
         end
@@ -249,7 +251,7 @@ function SyncUsers(Message, PlayerIndex)
                     respond(line[i], PlayerIndex)
                 end
                 file:close()
-                -- <<< ------
+                --- <<< ------
                 respond('users.txt successfully Synced|n', PlayerIndex)
             end
         end
@@ -269,7 +271,7 @@ function BackupSolutionAdmins(Message, PlayerIndex)
         respond(admin_table[i], PlayerIndex)
     end
     file:close()
-    -- <<< ------
+    --- <<< ------
     respond('admins.txt successfully Synced.', PlayerIndex)
 end
 
@@ -283,7 +285,7 @@ function BackupSolutionUsers(Message, PlayerIndex)
         respond(users_table[i], PlayerIndex)
     end
     file:close()
-    -- <<< ------
+    --- <<< ------
     respond('users.txt successfully Synced.', PlayerIndex)
 end
 
