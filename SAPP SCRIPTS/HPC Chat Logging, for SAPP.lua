@@ -13,6 +13,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
         [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
+        [+] Added CommandSpy feature
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -34,7 +35,7 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
-CommandOutputColor = 5+8 -- Magenta
+CommandOutputColor = 4+8 -- Magenta
 ChatOutputColor = 3+8 -- Cyan
 
 api_version = "1.11.0.0"
@@ -106,13 +107,18 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnChatMessage(PlayerIndex, Message, type)
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then 
+        player = true 
+    else 
+        player = false
+    end
     local t = tokenizestring(Message)
     count = #t
     local Message = tostring(Message)
     iscommand = nil
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
-        cmdtpye = "[COMMAND] " 
+        chattype = "[COMMAND] "
     else 
         iscommand = false
     end
@@ -123,16 +129,34 @@ function OnChatMessage(PlayerIndex, Message, type)
     elseif type == 2 then -- H
         Type = "[VEHICLE] "
     end    
-    if player_present(PlayerIndex) ~= nil then
-        if iscommand then 
-            WriteData(dir, "   " .. cmdtpye .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            cprint(cmdtpye .." " .. name .. " [" .. id .. "]: " .. tostring(Message), CommandOutputColor)
-        else
-            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+   
+        if player_present(PlayerIndex) ~= nil then
+            if iscommand then 
+                WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+                if player then
+                    output("* Executing Command: \"" .. Message .. "\" from " .. name)
+                    CommandSpy("SPY: " .. name .. ": " .. Message, PlayerIndex)
+                end
+            else
+                WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+                cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+            end
+        end
+    return true
+end
+
+function CommandSpy(Message, PlayerIndex)
+    admin = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
+        admin = true 
+    else 
+        admin = false 
+    end
+    for i = 1,16 do
+        if i ~= admin then
+            rprint(i, Message)
         end
     end
-    return true
 end
 
 function WriteData(dir, value)
@@ -141,6 +165,15 @@ function WriteData(dir, value)
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
+    end
+end
+
+function output(Message, PlayerIndex)
+    if Message then
+        if Message == "" then
+            return
+        end
+        cprint(Message, CommandOutputColor)
     end
 end
 
