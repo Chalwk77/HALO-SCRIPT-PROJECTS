@@ -23,6 +23,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]--
 
+--[[
+    
+Set color of console (0-255). Setting to 0 is white over black. !
+0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
+5 - Magenta, 6 - Gold, 7 - White. !
+Add 8 to make text bold. !
+Add 16 x Color to set background color.
+    
+]]
+
+-- Console only -- 
+CommandOutputColor = 4+8 -- Magenta
+
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
@@ -39,6 +52,7 @@ function OnChatMessage(PlayerIndex, Message)
     iscommand = nil
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
+        output("* Executing Command: \"" .. Message .. "\" from " .. get_var(PlayerIndex, "$name"))
     else 
         iscommand = false
     end
@@ -59,6 +73,15 @@ function CommandSpy(Message, AdminIndex)
         if i ~= RegularPlayer then
             rprint(i, Message)
         end
+    end
+end
+
+function output(Message, PlayerIndex)
+    if Message then
+        if Message == "" then
+            return
+        end
+        cprint(Message, CommandOutputColor)
     end
 end
 
