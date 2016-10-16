@@ -7,6 +7,7 @@ Description: Admin Chat! Chat privately with other admins.
              Command: /achat on|off
     
     ~ B E T A ~
+    In Development
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
