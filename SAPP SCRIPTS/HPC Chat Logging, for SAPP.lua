@@ -13,6 +13,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
         [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
+        [+] Added CommandSpy feature: 
+            - Spy on your players commands!
+            - CommandSpy will show commands typed by non-admins (to admins). 
+            - Admins wont see their own commands (:
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
