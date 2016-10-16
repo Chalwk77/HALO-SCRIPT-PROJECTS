@@ -17,7 +17,7 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [+] Wrote a universal message handler (respond)
         [+] Added Script Documentation
         [+] Added a function to notify all present players of potential lag while syncing.
-        [+] Added console command support and moved admin detection handlers to respond() [function]
+        [-] Revert previous commit + bug fixes
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 [^] Credits to skylace for send_all function
@@ -109,33 +109,41 @@ local users_table = {
 -- Configuration Ends --
 
 function OnServerCommand(PlayerIndex, Command)
+    local isadmin = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
+        isadmin = true 
+    else 
+        isadmin = false 
+    end
     local notify = nil
     local t = tokenizestring(Command)
-    command = string.lower(Command)
+    local command = string.lower(Command)
     count = #t
-    if PlayerIndex == nil then
-        server_name = 'Server'
-    end
--- Command access handler is managed in respond() [function]
 -- Syntax: /sync admins|users|all
     if t[1] == "sync" then
-        if t[2] == "admins" then
-            -- Call [function] SyncAdmins()
-            SyncAdmins(Message, PlayerIndex)
-            if not settings["Sync_Admins"] then notify = false else notify = true end
-        elseif t[2] == "users" then
-            -- Call [function] SyncUsers()
-            SyncUsers(Message, PlayerIndex)
-            if not settings["Sync_Users"] then notify = false else notify = true end
-        elseif t[2] == "all" then
-            -- Call both functions
-            SyncAdmins(Message, PlayerIndex)
-            SyncUsers(Message, PlayerIndex)
-            if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
-            else
+        if isadmin then 
+            if t[2] == "admins" then
+                -- Call [function] SyncAdmins()
+                SyncAdmins(Message, PlayerIndex)
+                if not settings["Sync_Admins"] then notify = false else notify = true end
+            elseif t[2] == "users" then
+                -- Call [function] SyncUsers()
+                SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] then notify = false else notify = true end
+            elseif t[2] == "all" then
+                -- Call both functions
+                SyncAdmins(Message, PlayerIndex)
+                SyncUsers(Message, PlayerIndex)
+                if not settings["Sync_Users"] and not settings["Sync_Admins"] then notify = false else notify = true end
+                else
+                notify = false
+                -- Command invalid.
+                respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
+            end
+        else 
             notify = false
-            -- Command invalid.
-            respond("Invalid Syntax: /sync admins | users | all", PlayerIndex)
+            -- Player is not an admin - deny access.
+            respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
         if notify then send_all(PlayerIndex) end
         if player_present(PlayerIndex) then
@@ -143,9 +151,22 @@ function OnServerCommand(PlayerIndex, Command)
         else
             user = "Console"
         end
-        cprint("* Executing command: \"" .. command .. "\" from " .. user)
+        output("* Executing command: \"" .. command .. "\" from " .. user)
         return false
     end
+end
+
+ConsoleOutputColor = 4+8
+
+function output(Message, PlayerIndex)
+    if Message then
+        if Message == "" then
+        return
+        end
+        cprint(Message, ConsoleOutputColor)
+    end
+    outputnote = string.format('[SyncAdminsUtility]: ' .. Message)
+    execute_command("log_note \""..outputnote.."\"")
 end
 
 --- >>> ------
@@ -308,38 +329,24 @@ function respond(Message, PlayerIndex)
             Message = Message[1]
         end
         PlayerIndex = tonumber(PlayerIndex)
-        local isadmin = nil
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
-                isadmin = true 
-            else 
-                isadmin = false 
+            if settings["DisplayConsoleOutput"] then
+                cprint(Message, 2+8)
             end
-            if isadmin then
-                if settings["DisplayConsoleOutput"] then
-                    cprint(Message, 2+8)
-                end
-                rprint(PlayerIndex, Message)
+            rprint(PlayerIndex, Message)
+                if player_present(PlayerIndex) then
                 note = string.format('[SyncAdminsUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
                 execute_command("log_note \""..note.."\"")
-            else
-                --- >>> ------ 
-                -- Player is not an admin, deny access to /sync command
-                if player_present(PlayerIndex) then
-                    rprint(PlayerIndex, "You do not have permission to execute /" ..command)
-                    deny = false
-                end
-                --- <<< ------ 
-                if deny == false then 
-                    return false
                 else
-                    if settings["DisplayConsoleOutput"] then
-                        cprint(Message, 2+8)
-                    end
-                end
-                v1note = string.format('[SyncAdminsUtility]: ' .. Message)
-                execute_command("log_note \""..v1note.."\"")
+                note = string.format('[SyncAdminsUtility]: ' .. Message)
+                execute_command("log_note \""..note.."\"")
             end
+        else
+            if settings["DisplayConsoleOutput"] then
+                cprint(Message, 2+8)
+            end
+            v1note = string.format('[SyncAdminsUtility]: ' .. Message)
+            execute_command("log_note \""..v1note.."\"")
         end
     end
 end
