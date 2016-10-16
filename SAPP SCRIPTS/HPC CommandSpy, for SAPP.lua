@@ -4,9 +4,15 @@ Script Name: HPC CommandSpy, for SAPP
     - Implementing API version: 1.11.0.0
 
 Description: Spy on your players commands!
+             This script will show commands typed by non-admins (to admins). 
+             Admins wont see their own commands (:
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+
+    Change Log:
+        [^] Initial Upload
+        [*] Fixed a rather terrible bug.
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -23,11 +29,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
 end
 
-function OnChatMessage(PlayerIndex, Message, type)
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then 
-        player = true 
-    else 
-        player = false
+function OnChatMessage(PlayerIndex, Message)
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+        AdminIndex = tonumber(PlayerIndex)
     end
     local t = tokenizestring(Message)
     count = #t
@@ -38,25 +42,21 @@ function OnChatMessage(PlayerIndex, Message, type)
     else 
         iscommand = false
     end
-    if player_present(PlayerIndex) ~= nil then
-        if iscommand then 
-            if player then
-                CommandSpy("SPY: " .. name .. ": " .. Message, PlayerIndex)
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+        RegularPlayer = tonumber(PlayerIndex)
+        if player_present(RegularPlayer) ~= nil then
+            if iscommand then 
+                if RegularPlayer then
+                    CommandSpy("SPY:    " .. get_var(PlayerIndex, "$name") .. ":    " .. Message, AdminIndex)
+                end
             end
         end
     end
-    return true
 end
 
-function CommandSpy(Message, PlayerIndex)
-    admin = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
-        admin = true 
-    else 
-        admin = false 
-    end
+function CommandSpy(Message, AdminIndex) 
     for i = 1,16 do
-        if i ~= admin then
+        if i ~= RegularPlayer then
             rprint(i, Message)
         end
     end
