@@ -13,7 +13,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
         [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
-        [+] Added CommandSpy feature
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -107,14 +106,13 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnChatMessage(PlayerIndex, Message, type)
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then 
-        player = true 
-    else 
-        player = false
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+        AdminIndex = tonumber(PlayerIndex)
     end
     local t = tokenizestring(Message)
-    count = #t
     local Message = tostring(Message)
+    local name = get_var(PlayerIndex, "$name")
+    count = #t
     iscommand = nil
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
@@ -129,31 +127,31 @@ function OnChatMessage(PlayerIndex, Message, type)
     elseif type == 2 then -- H
         Type = "[VEHICLE] "
     end    
-   
         if player_present(PlayerIndex) ~= nil then
             if iscommand then 
                 WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-                if player then
-                    output("* Executing Command: \"" .. Message .. "\" from " .. name)
-                    CommandSpy("SPY: " .. name .. ": " .. Message, PlayerIndex)
-                end
+                output("* Executing Command: \"" .. Message .. "\" from " .. name)
             else
                 WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
                 cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+            end
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+                RegularPlayer = tonumber(PlayerIndex)
+                if player_present(RegularPlayer) ~= nil then
+                    if iscommand then 
+                        if RegularPlayer then
+                            CommandSpy("SPY:    " .. name .. ":    " .. Message, AdminIndex)
+                        end
+                    end
+                end
             end
         end
     return true
 end
 
-function CommandSpy(Message, PlayerIndex)
-    admin = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
-        admin = true 
-    else 
-        admin = false 
-    end
+function CommandSpy(Message, AdminIndex) 
     for i = 1,16 do
-        if i ~= admin then
+        if i ~= RegularPlayer then
             rprint(i, Message)
         end
     end
