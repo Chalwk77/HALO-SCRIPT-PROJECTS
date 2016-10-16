@@ -121,6 +121,7 @@ function OnChatMessage(PlayerIndex, Message, type)
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
         chattype = "[COMMAND] "
+        output("* Executing Command: \"" .. Message .. "\" from " .. name)
     else 
         iscommand = false
     end
@@ -134,7 +135,6 @@ function OnChatMessage(PlayerIndex, Message, type)
         if player_present(PlayerIndex) ~= nil then
             if iscommand then 
                 WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-                output("* Executing Command: \"" .. Message .. "\" from " .. name)
             else
                 WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
                 cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
