@@ -27,47 +27,50 @@ end
 
 api_version = "1.11.0.0"
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnAdminChat")
-end
-
 function OnAdminChat(PlayerIndex, Message)
     name = get_var(PlayerIndex, "$name")
-    local t = tokenizestring(Message)
-    count = #t
+    local token = tokenizestring(Message)
+    count = #token
     local Message = tostring(Message)
-    local words = tokenizestring(Message)
-    if #words == 0 then
+    local adminchat = tokenizestring(Message)
+    if #adminchat == 0 then
         return nil
     end
-    achattoggle = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >0 then
+    AdminChatToggle = nil
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
         Admin = tonumber(PlayerIndex)
-        if Admin then
-            if string.sub(t[1], 1, 1) == "/" then
-                cmd = t[1]:gsub("\\", "/")
-                if cmd == "/achat" then
-                    if t[2] == "on" then
-                        rprint(PlayerIndex, "Admin Chat Toggled on!")
-                        admincaht = true
-                        goto achat
-                    elseif t[2] == "off" then
-                        admincaht = false
-                        rprint(PlayerIndex, "Admin Chat Toggled off!")
-                        goto achatoff 
-                    elseif t[2] == nil then
-                        admincaht = false
-                        rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
-                    end
+        Admin = true 
+    else 
+        Admin = false 
+        RegularPlayer = tonumber(PlayerIndex)
+    end    
+    if Admin then
+        if string.sub(token[1], 1, 1) == "/" then
+            cmd = token[1]:gsub("\\", "/")
+            if cmd == "/achat" then
+                if token[2] == "on" then
+                    rprint(PlayerIndex, "Admin Chat Toggled on!")
+                    AdminChatToggle = true
+                    goto achat
+                elseif token[2] == "off" then
+                    AdminChatToggle = false
+                    rprint(PlayerIndex, "Admin Chat Toggled off!")
+                    goto achatoff 
+                elseif token[2] == nil then
+                    AdminChatToggle = false
+                    rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
                 end
+                return false
             end
         end
+    else 
+        say(PlayerIndex, "You do not have permission to execute that command!")
     end
     ::achat::
-    if admincaht == true then
-        for i = 0, #words do
-            if words[i] then
-                if string.sub(words[1], 1, 1) == "/" or string.sub(words[1], 1, 1) == "\\" then 
+    if AdminChatToggle == true then
+        for i = 0, #adminchat do
+            if adminchat[i] then
+                if string.sub(adminchat[1], 1, 1) == "/" or string.sub(adminchat[1], 1, 1) == "\\" then 
                     return true
                 else 
                     AdminChat(Message, Admin) 
@@ -77,9 +80,9 @@ function OnAdminChat(PlayerIndex, Message)
         end
     end
     ::achatoff::
-    if admincaht == false then
-        for i = 0, #words do
-            if words[i] then
+    if AdminChatToggle == false then
+        for i = 0, #adminchat do
+            if adminchat[i] then
                 return
             end
         end
@@ -88,9 +91,9 @@ end
 
 function AdminChat(Message, Admin) 
     for i = 1,16 do
-        --if i ~= Admin then
+        if Admin then
             rprint(i, "[ADMIN CHAT]  " .. name.. ":      " .. Message)
-        --end
+        end
     end
 end
 
