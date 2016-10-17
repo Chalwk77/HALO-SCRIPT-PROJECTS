@@ -13,6 +13,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     Change Log:
         [^] Initial Upload
         [*] Fixed a rather terrible bug.
+
+To Do List:
+    - Toggle CommandSpy on|off
+    - Exclude Players (table)
+    - Spy on Admins + Exclude Admins (table)
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
