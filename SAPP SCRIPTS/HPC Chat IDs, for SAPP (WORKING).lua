@@ -8,7 +8,8 @@ Description:  This script will modify your players message chat format
 eg. Chalwk [1]: This is a test message.
     
     Change Log:
-       [!] Fixed!!
+       [!] Fixed inital bugs!
+       [+] Added command support
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -30,22 +31,35 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
 end
 
-function OnChatMessage(PlayerIndex, Message)
-    local words = tokenizestring(Message, " ")
-    if #words == 0 then
+function OnChatMessage(PlayerIndex, Message, type)
+    local text = tokenizestring(Message, " ")
+    if #text == 0 then
         return nil
     end
-    for i = 0, #words do
-        if words[i] then
+    if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then 
+        output(Message, PlayerIndex)
+        command = true
+        return true
+    end
+    for i = 0, #text do
+        if text[i] and not command then
             local id = get_var(PlayerIndex, "$n")
             local name = get_var(PlayerIndex, "$name")
             local ChatFormat = string.format(name .. " [" .. tonumber(id) .. "]: " .. tostring(Message))
             execute_command("msg_prefix \"\"")
-            say_all(ChatFormat) 
+            say_all(ChatFormat)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
     return false
+end
+
+function output(Message, PlayerIndex)
+    if Message then
+        if Message == "" then
+            return true
+        end
+    end
 end
 
 function OnError(Message)
