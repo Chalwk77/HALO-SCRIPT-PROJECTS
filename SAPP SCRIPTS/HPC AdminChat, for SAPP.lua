@@ -44,36 +44,37 @@ function OnAdminChat(PlayerIndex, Message)
     local t = tokenizestring(Message)
     count = #t
     local Message = tostring(Message)
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
+        isadmin = true 
         AdminIndex = tonumber(PlayerIndex)
-        isadmin = true
-    end
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+    else 
+        isadmin = false 
         RegularPlayer = tonumber(PlayerIndex)
-        isadmin = false
-    end
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >0 then
-        AdminIndex = tonumber(PlayerIndex)
-        if isadmin then
-            for i = 1,1 do
-                if string.sub(t[1], 1, 1) == "/" then
-                    cmd = t[1]:gsub("\\", "/")
-                    if cmd == "/achat" then
-                        if t[2] == "on" or t[2] == "1" then
-                            rprint(AdminIndex, "Admin Chat Toggled on!")
-                            AdminChatToggle = true
-                            goto achaton
-                        elseif t[2] == "off" or t[2] == "0" then
-                            AdminChatToggle = false
-                            rprint(AdminIndex, "Admin Chat Toggled off!")
-                            goto achatoff 
-                        elseif t[20] == nil then
-                            AdminChatToggle = false
-                            rprint(AdminIndex, "Invalid Syntax! Type /achat on|off")
-                            return false
-                        end
+    end    
+    if string.sub(t[1], 1, 1) == "/" then
+        cmd = t[1]:gsub("\\", "/")
+        for i = 1,1 do
+            if cmd == "/achat" then
+                if isadmin then
+                    if t[2] == "on" or t[2] == "1" or t[2] == "true" then
+                        rprint(AdminIndex, "Admin Chat Toggled on!")
+                        AdminChatToggle = true
+                        goto achaton
+                        return false
+                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
+                        AdminChatToggle = false
+                        rprint(AdminIndex, "Admin Chat Toggled off!")
+                        goto achatoff 
+                        return false
+                    else
+                        AdminChatToggle = false
+                        rprint(AdminIndex, "Invalid Syntax! Type /achat on|off")
+                        return false
                     end
+                else 
+                    rprint(PlayerIndex, "You do not have permission to execute that command!")
                 end
+                return false
             end
         end
     end
