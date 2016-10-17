@@ -1,12 +1,12 @@
 --[[    
-    ------------------------------------
-    Script Name: HPC vm351 - Game Settings
-    
-    Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-    
-    * IGN: Chalwk
-    * Written by Jericho Crosby (Chalwk)
-    -----------------------------------
+------------------------------------
+Script Name: HPC vm351 - Game Settings
+
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+
+* IGN: Chalwk
+* Written by Jericho Crosby (Chalwk)
+-----------------------------------
 ]]-- 
 api_version = "1.11.0.0"
 delay = 1000*7
