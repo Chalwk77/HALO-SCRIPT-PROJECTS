@@ -14,12 +14,23 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [^] Initial Upload
         [*] Fixed a rather terrible bug.
         
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+    [!] Script functions just fine right now as it is. Features from the to do list will come when I have time.
+        
+    To Do List:
+        - Toggle commandspy on|off
+        - Permission Based
+        - Hide specific commands
+        - Global Spy
+        - Team Spy
+        - Vehicle Spy
+        - Exclude from specific players
+        
+Copyright Â©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby
 -----------------------------------
 ]]--
 
@@ -34,7 +45,32 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
+-- Console output: * Executing Command: "/boost" from Chalwk
 CommandOutputColor = 4+8 -- Magenta
+
+--=========================================================--
+-- NOT COMPLETED!
+-- Exclude from spy -- 
+name_exclude = {
+    "Player1",
+    "Player2"
+}
+-- Exclude from spy -- 
+hash_exclude = {
+    "c702226e783ea7e091c0bb44c2d0ec64",
+    "3d5cd27b3fa487b040043273fa00f51b"
+}
+    
+-- Commands to Hide --
+hidden = {
+    "afk",
+    "some other command",
+    "some other command",
+    "some other command",
+    "some other command",
+    "some other command"
+}
+--=========================================================--
 
 api_version = "1.11.0.0"
 
@@ -61,7 +97,7 @@ function OnChatMessage(PlayerIndex, Message)
         if player_present(RegularPlayer) ~= nil then
             if iscommand then 
                 if RegularPlayer then
-                    CommandSpy("SPY:    " .. get_var(PlayerIndex, "$name") .. ":    " .. Message, AdminIndex)
+                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
                 end
             end
         end
@@ -76,6 +112,7 @@ function CommandSpy(Message, AdminIndex)
     end
 end
 
+-- Console output: * Executing Command: "/boost" from Chalwk
 function output(Message, PlayerIndex)
     if Message then
         if Message == "" then
