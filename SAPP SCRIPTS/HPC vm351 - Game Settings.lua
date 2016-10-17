@@ -3,9 +3,10 @@
     Script Name: HPC vm351 - Game Settings
     
     Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+    You do not have permission to use this script.
     
     * IGN: Chalwk
-    * Written by Jericho Crosby (Chalwk)
+    * Written by Jericho Crosby
     -----------------------------------
 ]]-- 
 api_version = "1.11.0.0"
@@ -67,6 +68,16 @@ function WelcomeDelay(PlayerIndex)
     say(PlayerIndex, "Welcome to {JC}-7 Snipers Dream Team Mod")
     say(PlayerIndex, "The original Premier & most Respected S.D.T.M server.")
     say(PlayerIndex, "Enjoy!")
+    execute_command("msg_prefix \"** SERVER ** \"")
+    timer(1000*10, "PublicScripts", PlayerIndex)
+end
+
+function PublicScripts(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "For Chalwk's public SAPP and PHASOR script releases, please visit:")
+    say(PlayerIndex, "www.github.com/Chalwk77")
+    say(PlayerIndex, "Look for HALO-SCRIPT-PROJECTS repository.")
+    say(PlayerIndex, "If you have a problem with one of these scripts, please open a support ticket.")
     execute_command("msg_prefix \"** SERVER ** \"")
     timer(1000*10, "InformationBoard", PlayerIndex)
 end
