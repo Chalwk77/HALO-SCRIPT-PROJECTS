@@ -10,6 +10,7 @@ eg. Chalwk [1]: This is a test message.
     Change Log:
        [!] Fixed inital bugs!
        [+] Added command support
+       [*] Fixed a bug where chat messages would not appear after typing a command
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -38,14 +39,17 @@ function OnChatMessage(PlayerIndex, Message, type)
     end
     if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then 
         output(Message, PlayerIndex)
-        command = true
         return true
     end
     for i = 0, #text do
-        if text[i] and not command then
+        if text[i] then
             local id = get_var(PlayerIndex, "$n")
             local name = get_var(PlayerIndex, "$name")
-            local ChatFormat = string.format(name .. " [" .. tonumber(id) .. "]: " .. tostring(Message))
+            if type == 0 or type == 2 then 
+                ChatFormat = string.format(name .. " [" .. tonumber(id) .. "]: " .. tostring(Message))
+            elseif type == 1 then
+                ChatFormat = string.format("[" .. name .. "] [" .. tonumber(id) .. "]: " .. tostring(Message))
+            end
             execute_command("msg_prefix \"\"")
             say_all(ChatFormat)
             execute_command("msg_prefix \"** SERVER ** \"")
