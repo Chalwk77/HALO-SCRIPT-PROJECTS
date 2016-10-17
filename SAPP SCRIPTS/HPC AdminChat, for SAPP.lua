@@ -6,8 +6,15 @@ Script Name: HPC AdminChat, for SAPP
 Description: Admin Chat! Chat privately with other admins. 
              Command: /achat on|off
     
-    This script is still in development and does not function! 
+    This script is still in development!
     Please do not download until an (Updated [date]) tag appears in the file name.
+    
+    To Do List:
+        Fix Toggle Command so that AdminChat only toggles for the player executing the command.
+        
+        Known Bugs: When AdminX types "/achat on", admin-chat turns on for all admins currently in the server.
+        I'll fix this when I get time. 
+           
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -37,10 +44,6 @@ function OnAdminChat(PlayerIndex, Message)
     local t = tokenizestring(Message)
     count = #t
     local Message = tostring(Message)
-    local words = tokenizestring(Message)
-    if #words == 0 then
-        return nil
-    end
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
         isadmin = true
@@ -58,7 +61,7 @@ function OnAdminChat(PlayerIndex, Message)
                     if t[2] == "on" or t[2] == "1" then
                         rprint(AdminIndex, "Admin Chat Toggled on!")
                         AdminChatToggle = true
-                        goto achat
+                        goto achaton
                     elseif t[2] == "off" or t[2] == "0" then
                         AdminChatToggle = false
                         rprint(AdminIndex, "Admin Chat Toggled off!")
@@ -72,7 +75,7 @@ function OnAdminChat(PlayerIndex, Message)
             end
         end
     end
-    ::achat::
+    ::achaton::
     if AdminChatToggle == true then
         for i = 0, #words do
             if words[i] then
