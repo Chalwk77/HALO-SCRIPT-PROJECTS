@@ -3,6 +3,9 @@
 Script Name: HPC vm351 - Game Settings
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+All rights reserved.
+You do not have permission to use this script.
+
 
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
