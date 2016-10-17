@@ -79,7 +79,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     local file = io.open(dir, "a+")
-        if file ~= nil then
+    if file ~= nil then
         name = get_var(PlayerIndex, "$name")
         id = get_var(PlayerIndex, "$n")
         ip = get_var(PlayerIndex, "$ip")
@@ -91,7 +91,7 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     local file = io.open(dir, "a+")
-        if file ~= nil then
+    if file ~= nil then
         file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
         file:close()
     end
@@ -132,24 +132,24 @@ function OnChatMessage(PlayerIndex, Message, type)
     elseif type == 2 then -- H
         Type = "[VEHICLE] "
     end    
-        if player_present(PlayerIndex) ~= nil then
-            if iscommand then 
-                WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            else
-                WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-                cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
-            end
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-                RegularPlayer = tonumber(PlayerIndex)
-                if player_present(RegularPlayer) ~= nil then
-                    if iscommand then 
-                        if RegularPlayer then
-                            CommandSpy("SPY:    " .. name .. ":    " .. Message, AdminIndex)
-                        end
+    if player_present(PlayerIndex) ~= nil then
+        if iscommand then 
+            WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+        else
+            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+        end
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+            RegularPlayer = tonumber(PlayerIndex)
+            if player_present(RegularPlayer) ~= nil then
+                if iscommand then 
+                    if RegularPlayer then
+                        CommandSpy("SPY:    " .. name .. ":    " .. Message, AdminIndex)
                     end
                 end
             end
         end
+    end
     return true
 end
 
