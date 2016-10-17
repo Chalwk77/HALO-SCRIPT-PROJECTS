@@ -62,10 +62,10 @@ hash_exclude = {
 -- Commands to Hide --
 hidden = {
     "afk",
-    "some other command"
-    "some other command"
-    "some other command"
-    "some other command"
+    "some other command",
+    "some other command",
+    "some other command",
+    "some other command",
     "some other command"
     }
 --=========================================================--
