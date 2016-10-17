@@ -6,6 +6,9 @@ Description:  This script will modify your players message chat format
               by adding an IndexID in front of their name in square brackets.
     
 eg. Chalwk [1]: This is a test message.
+    
+    Change Log:
+       [!] Fixed!!
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -28,16 +31,35 @@ function OnScriptLoad()
 end
 
 function OnChatMessage(PlayerIndex, Message)
-
-    local id = get_var(PlayerIndex, "$n")
-    local chatFormat = string.format(" [" .. tonumber(id) .. "]: " .. tostring(Message))
-    if player_present(PlayerIndex) ~= nil then
-        return true, chatFormat
-    else
-        return true, chatFormat
+    local words = tokenizestring(Message, " ")
+    if #words == 0 then
+        return nil
     end
+    for i = 0, #words do
+        if words[i] then
+            local id = get_var(PlayerIndex, "$n")
+            local name = get_var(PlayerIndex, "$name")
+            local ChatFormat = string.format(name .. " [" .. tonumber(id) .. "]: " .. tostring(Message))
+            execute_command("msg_prefix \"\"")
+            say_all(ChatFormat) 
+            execute_command("msg_prefix \"** SERVER ** \"")
+        end
+    end
+    return false
 end
 
 function OnError(Message)
     print(debug.traceback())
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
