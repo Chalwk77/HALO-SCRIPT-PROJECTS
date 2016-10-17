@@ -54,12 +54,12 @@ CommandOutputColor = 4+8 -- Magenta
 name_exclude = {
     "Player1",
     "Player2"
-    }
+}
 -- Exclude from spy -- 
 hash_exclude = {
     "c702226e783ea7e091c0bb44c2d0ec64",
     "3d5cd27b3fa487b040043273fa00f51b"
-    }
+}
     
 -- Commands to Hide --
 hidden = {
@@ -69,7 +69,7 @@ hidden = {
     "some other command",
     "some other command",
     "some other command"
-    }
+}
 --=========================================================--
 
 api_version = "1.11.0.0"
