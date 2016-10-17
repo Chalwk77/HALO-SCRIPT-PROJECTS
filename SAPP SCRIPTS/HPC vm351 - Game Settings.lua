@@ -3,9 +3,8 @@
 Script Name: HPC vm351 - Game Settings
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-All rights reserved.
+All Rights Reserved.
 You do not have permission to use this script.
-
 
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
@@ -24,6 +23,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'],"OnServerCommand")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+	if get_var(0, "$gt") ~= "n/a" then end		
 end
 
 function OnScriptUnload()
@@ -58,18 +58,56 @@ function OnPlayerPrejoin(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    timer(delay, "WelcomeDelay", PlayerIndex)
+    local game_mode = get_var(0, "$mode")
+    if (game_mode == "jc-c") then
+        -- Snipers Dream Team Mod
+        timer(delay, "WelcomeDelay", PlayerIndex)
+    else
+        -- [PGA] Pro Gamers Arena
+        timer(delay, "WelcomeDelay2", PlayerIndex)
+    end
     local timestamp = os.date("%A %d %B %Y - %X")
     cprint("Join Time: " ..timestamp)
     cprint("Status: connected successfully.")
     cprint("---------------------------------------------------------------------------------------------------")
 end
 
+-- Snipers Dream Team Mod
 function WelcomeDelay(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to {JC}-7 Snipers Dream Team Mod")
     say(PlayerIndex, "The original Premier & most Respected S.D.T.M server.")
     say(PlayerIndex, "Enjoy!")
+    execute_command("msg_prefix \"** SERVER ** \"")
+    timer(1000*10, "PublicScripts", PlayerIndex)
+end
+
+-- [PGA] Pro Gamers Arena
+function WelcomeDelay2(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "Welcome to [PGA] Pro Gamers Arena")
+    say(PlayerIndex, "Enjoy!")
+    execute_command("msg_prefix \"** SERVER ** \"")
+    timer(1000*10, "PublicScripts2", PlayerIndex)
+end
+
+-- [PGA] Pro Gamers Arena
+function PublicScripts2(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "For Chalwk's public SAPP and PHASOR script releases, please visit:")
+    say(PlayerIndex, "www.github.com/Chalwk77")
+    say(PlayerIndex, "Look for HALO-SCRIPT-PROJECTS repository.")
+    say(PlayerIndex, "If you have a problem with one of these scripts, please open a support ticket.")
+    execute_command("msg_prefix \"** SERVER ** \"")
+end
+
+-- Snipers Dream Team Mod
+function PublicScripts(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "For Chalwk's public SAPP and PHASOR script releases, please visit:")
+    say(PlayerIndex, "www.github.com/Chalwk77")
+    say(PlayerIndex, "Look for HALO-SCRIPT-PROJECTS repository.")
+    say(PlayerIndex, "If you have a problem with one of these scripts, please open a support ticket.")
     execute_command("msg_prefix \"** SERVER ** \"")
     timer(1000*10, "InformationBoard", PlayerIndex)
 end
@@ -150,28 +188,31 @@ end
 
 function OnServerCommand(PlayerIndex, Command)
     Command = string.lower(Command)
-    if(Command == "history") then
-        rprint(PlayerIndex, "{JC}-7 was formally known as {OZ}-4 Snipers Dream Team Mod.")
-        rprint(PlayerIndex, "This server is proudly hosted and maintained by author and creator, Chalwk.")
-        rprint(PlayerIndex, "Featuring:")
-        rprint(PlayerIndex, " ")
-        rprint(PlayerIndex, "| An arsenal of fantastic gameplay, original weapon mechanics & game settings.")
-        rprint(PlayerIndex, "| Smart-Spawn-System, High-explosive sniper rounds w/splash Damage.")
-        rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
-        rprint(PlayerIndex, "and a clever coordination of strategically placed portals")
-        rprint(PlayerIndex, "designed to give either team an advantage or disadvantage")
-        rprint(PlayerIndex, "from various locations on the map + more!")
-        rprint(PlayerIndex, "You can discover everything else in your own time.")
-        rprint(PlayerIndex, " ")
-        rprint(PlayerIndex, "Join us as we continue our journey through the depths that is")
-        rprint(PlayerIndex, "the Premier & most Respected S.D.T.M server on Halo PC since 2009.")
-        rprint(PlayerIndex, "A legacy that I would like to hold in high esteem an opportunity")
-        rprint(PlayerIndex, "to say thank you to the community for supporting this server over the years.")
-        rprint(PlayerIndex, "Now get out there and kill something! No Mercy.")
-        rprint(PlayerIndex, "~ Chalwk.")
-        return false
-    else
-        return true
+    local game_mode = get_var(0, "$mode")
+    if (game_mode == "jc-c") then
+        if(Command == "history") then
+            rprint(PlayerIndex, "{JC}-7 was formally known as {OZ}-4 Snipers Dream Team Mod.")
+            rprint(PlayerIndex, "This server is proudly hosted and maintained by author and creator, Chalwk.")
+            rprint(PlayerIndex, "Featuring:")
+            rprint(PlayerIndex, " ")
+            rprint(PlayerIndex, "| An arsenal of fantastic gameplay, original weapon mechanics & game settings.")
+            rprint(PlayerIndex, "| Smart-Spawn-System, High-explosive sniper rounds w/splash Damage.")
+            rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
+            rprint(PlayerIndex, "and a clever coordination of strategically placed portals")
+            rprint(PlayerIndex, "designed to give either team an advantage or disadvantage")
+            rprint(PlayerIndex, "from various locations on the map + more!")
+            rprint(PlayerIndex, "You can discover everything else in your own time.")
+            rprint(PlayerIndex, " ")
+            rprint(PlayerIndex, "Join us as we continue our journey through the depths that is")
+            rprint(PlayerIndex, "the Premier & most Respected S.D.T.M server on Halo PC since 2009.")
+            rprint(PlayerIndex, "A legacy that I would like to hold in high esteem an opportunity")
+            rprint(PlayerIndex, "to say thank you to the community for supporting this server over the years.")
+            rprint(PlayerIndex, "Now get out there and kill something! No Mercy.")
+            rprint(PlayerIndex, "~ Chalwk.")
+            return false
+        else
+            return true
+        end
     end
 end
 
@@ -187,9 +228,14 @@ function OnPlayerChat(PlayerIndex, Message)
     or (Message == "@info ") then
         return false
     end
-    if (Message == "/notices") then
-        InfoBoardHandler(PlayerIndex)
-        return false
+    local game_mode = get_var(0, "$mode")
+    if (game_mode == "jc-c") then
+        if (Message == "/notices") then
+            InfoBoardHandler(PlayerIndex)
+            return false
+        end
+    else
+        return true
     end
 end
 
