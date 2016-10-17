@@ -14,6 +14,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [^] Initial Upload
         [*] Fixed a rather terrible bug.
         
+    [!] Script functions just fine right now as it is. Features from the to do list will come when I have time.
+        
     To Do List:
         - Toggle commandspy on|off
         - Permission Based
