@@ -43,6 +43,7 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
+-- Console output: * Executing Command: "/boost" from Chalwk
 CommandOutputColor = 4+8 -- Magenta
 
 --=========================================================--
@@ -109,6 +110,7 @@ function CommandSpy(Message, AdminIndex)
     end
 end
 
+-- Console output: * Executing Command: "/boost" from Chalwk
 function output(Message, PlayerIndex)
     if Message then
         if Message == "" then
