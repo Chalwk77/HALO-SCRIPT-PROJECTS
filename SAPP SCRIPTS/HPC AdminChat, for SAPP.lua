@@ -92,7 +92,7 @@ end
 function AdminChat(Message, Admin) 
     for i = 1,16 do
         if Admin then
-            rprint(i, "[ADMIN CHAT]  " .. name.. ":      " .. Message)
+            rprint(i, "[ADMIN CHAT]  " .. name.. ":      " .. Message, Admin)
         end
     end
 end
