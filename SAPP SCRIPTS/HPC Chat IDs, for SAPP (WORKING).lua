@@ -38,7 +38,6 @@ function OnChatMessage(PlayerIndex, Message, type)
         return nil
     end
     if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then 
-        output(Message, PlayerIndex)
         return true
     end
     for i = 0, #text do
@@ -56,14 +55,6 @@ function OnChatMessage(PlayerIndex, Message, type)
         end
     end
     return false
-end
-
-function output(Message, PlayerIndex)
-    if Message then
-        if Message == "" then
-            return true
-        end
-    end
 end
 
 function OnError(Message)
