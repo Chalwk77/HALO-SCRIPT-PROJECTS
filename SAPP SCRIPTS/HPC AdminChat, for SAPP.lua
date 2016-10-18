@@ -7,15 +7,8 @@ Description: Admin Chat! Chat privately with other admins.
              Command: /achat on|off
     
     This script is still in development!
-    Please do not download until an (Updated [date]) tag appears in the file name.
+    Please do not download until an "Updated [date]" tag appears in the file name - e,g "HPC AdminChat, for SAPP - updated [xx-10-16]"
     
-    To Do List:
-        Fix Toggle Command so that AdminChat only toggles for the player executing the command.
-        
-        Known Bugs: When AdminX types "/achat on", admin-chat turns on for all admins currently in the server.
-        I'll fix this when I get time. 
-           
-
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         
@@ -58,7 +51,6 @@ function OnAdminChat(PlayerIndex, Message)
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(AdminIndex, "Admin Chat Toggled on!")
                     AdminChatToggle = true
-                    return false
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
                     AdminChatToggle = false
                     rprint(AdminIndex, "Admin Chat Toggled off!")
@@ -79,13 +71,13 @@ function OnAdminChat(PlayerIndex, Message)
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then 
                     return true
-                else 
+                else
                     for i = 1,16 do
                         if (tonumber(get_var(i,"$lvl"))) >= 0 then
                             admin = tonumber(i)
                             if isadmin then
                                 rprint(admin, "[ADMIN CHAT]  " .. get_var(AdminIndex, "$name") .. ":  " .. Message)
-                                else
+                            else
                                 return true
                             end
                         end
