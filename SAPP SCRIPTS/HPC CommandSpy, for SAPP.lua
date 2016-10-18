@@ -13,16 +13,14 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     Change Log:
         [^] Initial Upload
         [*] Fixed a rather terrible bug.
+        [+] Added an option to hide specific commands.
         
     [!] Script functions just fine right now as it is. Features from the to do list will come when I have time.
         
     To Do List:
         - Toggle commandspy on|off
         - Permission Based
-        - Hide specific commands
-        - Global Spy
-        - Team Spy
-        - Vehicle Spy
+        - [done] - Hide specific commands
         - Exclude from specific players
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -44,31 +42,20 @@ Add 16 x Color to set background color.
     
 ]]
 
--- Console only -- 
--- Console output: * Executing Command: "/boost" from Chalwk
-CommandOutputColor = 4+8 -- Magenta
+settings = {
+    ["HideCommands"] = true,
+}
 
 --=========================================================--
--- NOT COMPLETED!
--- Exclude from spy -- 
-name_exclude = {
-    "Player1",
-    "Player2"
-}
--- Exclude from spy -- 
-hash_exclude = {
-    "c702226e783ea7e091c0bb44c2d0ec64",
-    "3d5cd27b3fa487b040043273fa00f51b"
-}
-    
--- Commands to Hide --
-hidden = {
-    "afk",
-    "some other command",
-    "some other command",
-    "some other command",
-    "some other command",
-    "some other command"
+commands_to_hide = {
+    "/command1",
+    "/command2",
+    "/command3",
+    "/command4",
+    "/command5",
+    "/command6",
+    "/command7",
+    -- repeat the structure to add more commands
 }
 --=========================================================--
 
@@ -76,28 +63,53 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+end
+
+function OnNewGame()
+    game_started = true
+end
+
+function OnGameEnd()
+    game_started = false
 end
 
 function OnChatMessage(PlayerIndex, Message)
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
     end
-    local t = tokenizestring(Message)
-    count = #t
     local Message = tostring(Message)
+    local command = tokenizestring(Message, " ")
+    local count = #command
     iscommand = nil
-    if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+    if string.sub(command[1], 1, 1) == "/" then
+        cmd = command[1]:gsub("\\", "/")
         iscommand = true
-        output("* Executing Command: \"" .. Message .. "\" from " .. get_var(PlayerIndex, "$name"))
     else 
         iscommand = false
     end
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-        RegularPlayer = tonumber(PlayerIndex)
-        if player_present(RegularPlayer) ~= nil then
-            if iscommand then 
-                if RegularPlayer then
-                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+    for k, v in pairs(commands_to_hide) do
+        if cmd == v then
+            hidden = true
+            break
+        end
+    end
+    if game_started then
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+            RegularPlayer = tonumber(PlayerIndex)
+            if player_present(RegularPlayer) ~= nil then
+                if iscommand then 
+                    if RegularPlayer then
+                        if settings["HideCommands"] then 
+                            if not hidden then 
+                                CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+                            else
+                                return false
+                            end
+                        else
+                        CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+                    end
                 end
             end
         end
@@ -109,16 +121,6 @@ function CommandSpy(Message, AdminIndex)
         if i ~= RegularPlayer then
             rprint(i, Message)
         end
-    end
-end
-
--- Console output: * Executing Command: "/boost" from Chalwk
-function output(Message, PlayerIndex)
-    if Message then
-        if Message == "" then
-            return
-        end
-        cprint(Message, CommandOutputColor)
     end
 end
 
