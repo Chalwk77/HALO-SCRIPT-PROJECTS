@@ -73,17 +73,19 @@ function OnAdminChat(PlayerIndex, Message)
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then 
                     return true
                 else
---=========================================================================================================================--
-                    for i = 1,16 do                                         ---
-                        if (tonumber(get_var(i,"$lvl"))) >= 0 then          ---
-                            admin = tonumber(i)                             ---
--------------------------------------------------------------------------------
+                -- TO DO:
+                -- Only toggle on adminchat for the player executing the command, but still send their future messages to all admins.
+                -- Other admins will be required to also type "/achat on" in order to respond.
+--==========================================================================---
+                    for i = 1,16 do                                         --- FIX
+                        if (tonumber(get_var(i,"$lvl"))) >= 0 then          --- FIX
+                            admin = tonumber(i)                             --- FIX
+--==========================================================================---
                             if isadmin then
                                 rprint(admin, "[ADMIN CHAT]  " .. get_var(AdminIndex, "$name") .. ":  " .. Message)
                             else
                                 return true
                             end
---=========================================================================================================================--
                         end
                     end
                     return false
