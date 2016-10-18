@@ -94,8 +94,7 @@ function OnChatMessage(PlayerIndex, Message)
             hidden = true
             break
         end
-    end
-    if game_started then
+    end    
         if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
             RegularPlayer = tonumber(PlayerIndex)
             if player_present(RegularPlayer) ~= nil then
