@@ -58,16 +58,10 @@ function OnAdminChat(PlayerIndex, Message)
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(AdminIndex, "Admin Chat Toggled on!")
                     AdminChatToggle = true
-                    for i = 1,1 do
-                        goto achaton
-                    end
                     return false
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
                     AdminChatToggle = false
                     rprint(AdminIndex, "Admin Chat Toggled off!")
-                    for i = 1,1 do
-                        goto achatoff 
-                    end
                     return false
                 else
                     AdminChatToggle = false
@@ -80,7 +74,6 @@ function OnAdminChat(PlayerIndex, Message)
             return false
         end
     end
-    ::achaton::
     if AdminChatToggle == true then
         for i = 0, #message do
             if message[i] then
@@ -102,7 +95,6 @@ function OnAdminChat(PlayerIndex, Message)
             end
         end
     end
-    ::achatoff::
     if AdminChatToggle == false then
         for i = 0, #message do
             if message[i] then
