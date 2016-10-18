@@ -51,6 +51,7 @@ function OnAdminChat(PlayerIndex, Message)
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(AdminIndex, "Admin Chat Toggled on!")
                     AdminChatToggle = true
+                    cprint("Toggled!", 2+8)
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
                     AdminChatToggle = false
                     rprint(AdminIndex, "Admin Chat Toggled off!")
@@ -72,14 +73,17 @@ function OnAdminChat(PlayerIndex, Message)
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then 
                     return true
                 else
-                    for i = 1,16 do
-                        if (tonumber(get_var(i,"$lvl"))) >= 0 then
-                            admin = tonumber(i)
+--=========================================================================================================================--
+                    for i = 1,16 do                                         ---
+                        if (tonumber(get_var(i,"$lvl"))) >= 0 then          ---
+                            admin = tonumber(i)                             ---
+-------------------------------------------------------------------------------
                             if isadmin then
                                 rprint(admin, "[ADMIN CHAT]  " .. get_var(AdminIndex, "$name") .. ":  " .. Message)
                             else
                                 return true
                             end
+--=========================================================================================================================--
                         end
                     end
                     return false
