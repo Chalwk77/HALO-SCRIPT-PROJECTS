@@ -6,11 +6,21 @@ Description:  This script will modify your players message chat format
               by adding an IndexID in front of their name in square brackets.
     
 eg. Chalwk [1]: This is a test message.
+
+    [!] *WARNING* This script does not respect SAPP's mute system.
+                  If you mute a player while using this script, they can still talk in chat!
     
     Change Log:
-       [!] Fixed inital bugs!
+       [*] Fixed inital bugs
        [+] Added command support
        [*] Fixed a bug where chat messages would not appear after typing a command
+       
+    Future update features:
+        Make it so only admins can see chat id's (optional)
+        Regular players see default chat.
+        
+        To Do List:
+            Protect against potential issues when using a Private Messaging Script (void)
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -33,7 +43,7 @@ function OnScriptLoad()
 end
 
 function OnChatMessage(PlayerIndex, Message, type)
-    local text = tokenizestring(Message, " ")
+    local text = tokenizestring(Message)
     if #text == 0 then
         return nil
     end
