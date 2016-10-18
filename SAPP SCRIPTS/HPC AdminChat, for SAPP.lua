@@ -53,29 +53,31 @@ function OnAdminChat(PlayerIndex, Message)
     end    
     if string.sub(t[1], 1, 1) == "/" then
         cmd = t[1]:gsub("\\", "/")
-        for i = 1,1 do
-            if cmd == "/achat" then
-                if isadmin then
-                    if t[2] == "on" or t[2] == "1" or t[2] == "true" then
-                        rprint(AdminIndex, "Admin Chat Toggled on!")
-                        AdminChatToggle = true
+        if cmd == "/achat" then
+            if isadmin then
+                if t[2] == "on" or t[2] == "1" or t[2] == "true" then
+                    rprint(AdminIndex, "Admin Chat Toggled on!")
+                    AdminChatToggle = true
+                    for i = 1,1 do
                         goto achaton
-                        return false
-                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
-                        AdminChatToggle = false
-                        rprint(AdminIndex, "Admin Chat Toggled off!")
-                        goto achatoff 
-                        return false
-                    else
-                        AdminChatToggle = false
-                        rprint(AdminIndex, "Invalid Syntax! Type /achat on|off")
-                        return false
                     end
-                else 
-                    rprint(PlayerIndex, "You do not have permission to execute that command!")
+                    return false
+                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
+                    AdminChatToggle = false
+                    rprint(AdminIndex, "Admin Chat Toggled off!")
+                    for i = 1,1 do
+                        goto achatoff 
+                    end
+                    return false
+                else
+                    AdminChatToggle = false
+                    rprint(AdminIndex, "Invalid Syntax! Type /achat on|off")
+                    return false
                 end
-                return false
+            else 
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
+            return false
         end
     end
     ::achaton::
