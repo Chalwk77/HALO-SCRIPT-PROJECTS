@@ -12,6 +12,7 @@ You do not have permission to use this script.
 ]]-- 
 api_version = "1.11.0.0"
 delay = 1000*7
+
 function OnScriptLoad()
     logo = timer(50, "consoleLogo")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -37,7 +38,12 @@ end
 function OnGameEnd(PlayerIndex)
     logo = nil
     cprint("The game is ending...", 4+8)
-    rprint(PlayerIndex, "Well done everyone. Good Game!")
+    execute_command("msg_prefix \"\"")
+    say_all("<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>")
+    say_all("Well done everyone. Good Game!")
+    say_all("Coming up next... you decide!")
+    say_all("<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>")
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function OnPlayerPrejoin(PlayerIndex)
@@ -49,8 +55,8 @@ function OnPlayerPrejoin(PlayerIndex)
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
     cprint("---------------------------------------------------------------------------------------------------")
-    cprint("            - - |   P L A Y E R   A T T E M P T I N G   T O   J O I N   | - -")
-    cprint("                 - - - - - - - - - - - - - - - - - - - - - - - - - - - -                    ")
+    cprint("              - - |   P L A Y E R   J O I N   | - -")
+    cprint("     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
     cprint("Player: " ..name, 2+8)
     cprint("CD Hash: " ..hash)
     cprint("IP Address: " ..ip)
@@ -60,11 +66,11 @@ end
 function OnPlayerJoin(PlayerIndex)
     local game_mode = get_var(0, "$mode")
     if (game_mode == "jc-c") then
-        -- Snipers Dream Team Mod
-        timer(delay, "WelcomeDelay", PlayerIndex)
+        -- {JC}-7 Snipers Dream Team Mod
+        timer(delay, "SDTM_WELCOME", PlayerIndex)
     else
-        -- [PGA] Pro Gamers Arena
-        timer(delay, "WelcomeDelay2", PlayerIndex)
+        -- vm315 [PGA] Pro Gamers Arena
+        timer(delay, "PGA_WELCOME", PlayerIndex)
     end
     local timestamp = os.date("%A %d %B %Y - %X")
     cprint("Join Time: " ..timestamp)
@@ -72,44 +78,23 @@ function OnPlayerJoin(PlayerIndex)
     cprint("---------------------------------------------------------------------------------------------------")
 end
 
--- Snipers Dream Team Mod
-function WelcomeDelay(PlayerIndex)
+-- {JC}-7 Snipers Dream Team Mod
+function SDTM_WELCOME(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to {JC}-7 Snipers Dream Team Mod")
     say(PlayerIndex, "The original Premier & most Respected S.D.T.M server.")
     say(PlayerIndex, "Enjoy!")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*10, "PublicScripts", PlayerIndex)
+    timer(1000*10, "InformationBoard", PlayerIndex)
 end
 
--- [PGA] Pro Gamers Arena
-function WelcomeDelay2(PlayerIndex)
+-- vm315 [PGA] Pro Gamers Arena
+function PGA_WELCOME(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to [PGA] Pro Gamers Arena")
+    say(PlayerIndex, "An environment for the avid tactical gamer!")
     say(PlayerIndex, "Enjoy!")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*10, "PublicScripts2", PlayerIndex)
-end
-
--- [PGA] Pro Gamers Arena
-function PublicScripts2(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "For Chalwk's public SAPP and PHASOR script releases, please visit:")
-    say(PlayerIndex, "www.github.com/Chalwk77")
-    say(PlayerIndex, "Look for HALO-SCRIPT-PROJECTS repository.")
-    say(PlayerIndex, "If you have a problem with one of these scripts, please open a support ticket.")
-    execute_command("msg_prefix \"** SERVER ** \"")
-end
-
--- Snipers Dream Team Mod
-function PublicScripts(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "For Chalwk's public SAPP and PHASOR script releases, please visit:")
-    say(PlayerIndex, "www.github.com/Chalwk77")
-    say(PlayerIndex, "Look for HALO-SCRIPT-PROJECTS repository.")
-    say(PlayerIndex, "If you have a problem with one of these scripts, please open a support ticket.")
-    execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*10, "InformationBoard", PlayerIndex)
 end
 
 function InformationBoard(PlayerIndex)
@@ -169,6 +154,7 @@ function consoleLogo()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
     local timestamp = os.date("%A, %d %B %Y - %X")
+    -- Logo: ascii: 'kban'
     cprint("===================================================================================================", 2+8)
     cprint(timestamp, 6)
     cprint("")
@@ -216,7 +202,7 @@ function OnServerCommand(PlayerIndex, Command)
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
+function OnPlayerChat(PlayerIndex, Message, type)
     local Message = string.lower(Message)
     if (Message == "/about") 
     or (Message == "/about ") 
@@ -226,6 +212,7 @@ function OnPlayerChat(PlayerIndex, Message)
     or (Message == "@about ") 
     or (Message == "@info") 
     or (Message == "@info ") then
+        say(PlayerIndex, "Sorry, that's private information!")
         return false
     end
     local game_mode = get_var(0, "$mode")
@@ -234,8 +221,6 @@ function OnPlayerChat(PlayerIndex, Message)
             InfoBoardHandler(PlayerIndex)
             return false
         end
-    else
-        return true
     end
 end
 
@@ -249,4 +234,16 @@ function read_widestring(address, length)
         count = count + 2
     end
     return table.concat(byte_table)
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
