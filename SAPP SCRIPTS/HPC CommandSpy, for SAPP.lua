@@ -27,9 +27,11 @@ settings = {
 --=========================================================--
 commands_to_hide = {
     -- Add your command here to hide it!
-    "/command1", 
-    "/command2", 
-    "/command3"
+    "/command1",
+    "/command2",
+    "/command3",
+    "/command4",
+    "/command5"
     -- Repeat the structure to add more commands.
     }
 --=========================================================--
@@ -64,13 +66,11 @@ function OnChatMessage(PlayerIndex, Message)
         iscommand = false
     end
     for k, v in pairs(commands_to_hide) do
-        if cmd == v then
+        if (cmd == v) then
             hidden = true
             break
-        end
-        if cmd ~= v then
+        else
             hidden = false
-            break
         end
     end    
     if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
@@ -78,8 +78,8 @@ function OnChatMessage(PlayerIndex, Message)
         if player_present(RegularPlayer) ~= nil then
             if (iscommand and RegularPlayer) then
                 if (settings["HideCommands"] == true and hidden == true) then
-                    return false
-                elseif (settings["HideCommands"] and hidden == false) or (settings["HideCommands"] == false) then
+                    return nil
+                elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
                     CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
                     return true
                 end
