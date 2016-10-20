@@ -10,18 +10,6 @@ Description: Spy on your players commands!
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
-    Change Log:
-        [^] Initial Upload
-        [*] Fixed a rather terrible bug.
-        [+] Added an option to hide specific commands.
-        
-    [!] Script functions just fine right now as it is. Features from the to do list will come when I have time.
-        
-    To Do List:
-        - Toggle commandspy on|off
-        - Permission Based
-        - [done] - Hide specific commands
-        - Exclude from specific players
         
 Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -31,16 +19,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby
 -----------------------------------
 ]]--
-
---[[
-    
-Set color of console (0-255). Setting to 0 is white over black. !
-0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
-5 - Magenta, 6 - Gold, 7 - White. !
-Add 8 to make text bold. !
-Add 16 x Color to set background color.
-    
-]]
 
 settings = {
     ["HideCommands"] = true,
