@@ -78,10 +78,10 @@ function OnChatMessage(PlayerIndex, Message)
         if player_present(RegularPlayer) ~= nil then
             if (iscommand and RegularPlayer) then
                 if (settings["HideCommands"] == true and hidden == true) then
-                elseif (settings["HideCommands"] and hidden == false) then
+                    return false
+                elseif (settings["HideCommands"] and hidden == false) or (settings["HideCommands"] == false) then
                     CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
-                elseif (settings["HideCommands"] == false) then
-                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+                    return true
                 end
             end
         end
