@@ -13,17 +13,13 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
         [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
-        [+] Added CommandSpy feature: 
-            - Spy on your players commands!
-            - CommandSpy will show commands typed by non-admins (to admins). 
-            - Admins wont see their own commands (:
         
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby
 -----------------------------------
 ]]--
 
@@ -38,7 +34,6 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
-CommandOutputColor = 4+8 -- Magenta
 ChatOutputColor = 3+8 -- Cyan
 
 api_version = "1.11.0.0"
@@ -69,6 +64,7 @@ function OnNewGame()
 end
 
 function OnGameEnd()
+    id = get_var(PlayerIndex, "$n")
     local file = io.open(dir, "a+")
     if file ~= nil then
         local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
@@ -79,7 +75,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     local file = io.open(dir, "a+")
-        if file ~= nil then
+    if file ~= nil then
         name = get_var(PlayerIndex, "$name")
         id = get_var(PlayerIndex, "$n")
         ip = get_var(PlayerIndex, "$ip")
@@ -91,22 +87,10 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     local file = io.open(dir, "a+")
-        if file ~= nil then
+    if file ~= nil then
         file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
         file:close()
     end
-end
-
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
 
 function OnChatMessage(PlayerIndex, Message, type)
@@ -121,7 +105,6 @@ function OnChatMessage(PlayerIndex, Message, type)
     if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
         iscommand = true
         chattype = "[COMMAND] "
-        output("* Executing Command: \"" .. Message .. "\" from " .. name)
     else 
         iscommand = false
     end
@@ -132,33 +115,27 @@ function OnChatMessage(PlayerIndex, Message, type)
     elseif type == 2 then -- H
         Type = "[VEHICLE] "
     end    
-        if player_present(PlayerIndex) ~= nil then
-            if iscommand then 
-                WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            else
-                WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-                cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
-            end
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-                RegularPlayer = tonumber(PlayerIndex)
-                if player_present(RegularPlayer) ~= nil then
-                    if iscommand then 
-                        if RegularPlayer then
-                            CommandSpy("SPY:    " .. name .. ":    " .. Message, AdminIndex)
-                        end
-                    end
-                end
-            end
+    if player_present(PlayerIndex) ~= nil then
+        if iscommand then 
+            WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+        else
+            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
         end
+    end
     return true
 end
 
-function CommandSpy(Message, AdminIndex) 
-    for i = 1,16 do
-        if i ~= RegularPlayer then
-            rprint(i, Message)
-        end
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
     end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function WriteData(dir, value)
@@ -167,15 +144,6 @@ function WriteData(dir, value)
         local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
         file:write(chatValue)
         file:close()
-    end
-end
-
-function output(Message, PlayerIndex)
-    if Message then
-        if Message == "" then
-            return
-        end
-        cprint(Message, CommandOutputColor)
     end
 end
 
