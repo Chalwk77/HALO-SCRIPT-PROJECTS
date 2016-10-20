@@ -48,15 +48,12 @@ settings = {
 
 --=========================================================--
 commands_to_hide = {
-    "/command1",
-    "/command2",
-    "/command3",
-    "/command4",
-    "/command5",
-    "/command6",
-    "/command7",
-    -- repeat the structure to add more commands
-}
+    -- Add your command here to hide it!
+    "/command1", 
+    "/command2", 
+    "/command3"
+    -- Repeat the structure to add more commands.
+    }
 --=========================================================--
 
 api_version = "1.11.0.0"
@@ -79,10 +76,9 @@ function OnChatMessage(PlayerIndex, Message)
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
     end
-    local Message = tostring(Message)
-    local command = tokenizestring(Message, " ")
-    local count = #command
     iscommand = nil
+    local Message = tostring(Message)
+    local command = tokenizestring(Message)
     if string.sub(command[1], 1, 1) == "/" then
         cmd = command[1]:gsub("\\", "/")
         iscommand = true
@@ -94,21 +90,20 @@ function OnChatMessage(PlayerIndex, Message)
             hidden = true
             break
         end
+        if cmd ~= v then
+            hidden = false
+            break
+        end
     end    
-        if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-            RegularPlayer = tonumber(PlayerIndex)
-            if player_present(RegularPlayer) ~= nil then
-                if iscommand then 
-                    if RegularPlayer then
-                        if settings["HideCommands"] then 
-                            if not hidden then 
-                                CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
-                            else
-                                return false
-                            end
-                        else
-                        CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
-                    end
+    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+        RegularPlayer = tonumber(PlayerIndex)
+        if player_present(RegularPlayer) ~= nil then
+            if (iscommand and RegularPlayer) then
+                if (settings["HideCommands"] == true and hidden == true) then
+                elseif (settings["HideCommands"] and hidden == false) then
+                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+                elseif (settings["HideCommands"] == false) then
+                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
                 end
             end
         end
