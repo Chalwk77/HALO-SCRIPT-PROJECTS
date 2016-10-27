@@ -19,22 +19,10 @@ Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby
+* Written by Jericho Crosby (Chalwk)
 -----------------------------------
 ]]--
 
---[[
-    
-Set color of console (0-255). Setting to 0 is white over black. !
-0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
-5 - Magenta, 6 - Gold, 7 - White. !
-Add 8 to make text bold. !
-Add 16 x Color to set background color.
-    
-]]
-
--- Console only -- 
-ChatOutputColor = 3+8 -- Cyan
 
 api_version = "1.11.0.0"
 local dir = 'sapp\\Server Chat.txt'
@@ -64,7 +52,6 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    id = get_var(PlayerIndex, "$n")
     local file = io.open(dir, "a+")
     if file ~= nil then
         local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
@@ -74,12 +61,12 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
+    name = get_var(PlayerIndex, "$name")
+    id = get_var(PlayerIndex, "$n")
+    ip = get_var(PlayerIndex, "$ip")
+    hash = get_var(PlayerIndex, "$hash")
     local file = io.open(dir, "a+")
     if file ~= nil then
-        name = get_var(PlayerIndex, "$name")
-        id = get_var(PlayerIndex, "$n")
-        ip = get_var(PlayerIndex, "$ip")
-        hash = get_var(PlayerIndex, "$hash")
         file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
         file:close()
     end
@@ -94,33 +81,29 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnChatMessage(PlayerIndex, Message, type)
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
-        AdminIndex = tonumber(PlayerIndex)
-    end
-    local t = tokenizestring(Message)
     local Message = tostring(Message)
+    local Command = tokenizestring(Message)
     local name = get_var(PlayerIndex, "$name")
-    count = #t
     iscommand = nil
-    if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
         iscommand = true
         chattype = "[COMMAND] "
     else 
         iscommand = false
     end
-    if type == 0 then -- T
+    if type == 0 then
         Type = "[GLOBAL]  "
-    elseif type == 1 then -- Y
+    elseif type == 1 then
         Type = "[TEAM]    "
-    elseif type == 2 then -- H
+    elseif type == 2 then
         Type = "[VEHICLE] "
     end    
-    if player_present(PlayerIndex) ~= nil then
+    if (player_present(PlayerIndex) ~= nil) then
         if iscommand then 
-            WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
+            WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. Message)
         else
-            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. tostring(Message))
-            cprint(Type .." " .. name .. " [" .. id .. "]: " .. tostring(Message), ChatOutputColor)
+            WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. Message)
+            cprint(Type .." " .. name .. " [" .. id .. "]: " .. Message, 3+8)
         end
     end
     return true
