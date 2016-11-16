@@ -20,7 +20,6 @@ An automatic backup solution will kick in if the host is offline/unavailable.
         [-] Revert previous commit + bug fixes
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
-[^] Credits to skylace for send_all function
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -38,7 +37,7 @@ TO DO LIST:
 This code will work fine if you are importing data from a file that is encoded in UTF-8 or ANSI.
 -------------------------------
 
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright Â©2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -167,7 +166,6 @@ function output(Message, PlayerIndex)
 end
 
 --- >>> ------
--- Credits to skylace for this function
 function send_all(PlayerIndex)
     for i = 1,16 do
         if player_present(i) then
