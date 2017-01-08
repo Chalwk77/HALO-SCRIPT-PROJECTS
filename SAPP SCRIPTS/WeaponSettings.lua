@@ -17,7 +17,7 @@ weapons = { }
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"
--- Untested.
+-- For a future update.
 weapons[4] = "weapons\\plasma_cannon\\plasma_cannon"
 
 weapon = { }
@@ -52,7 +52,7 @@ function OnScriptLoad()
 		GetMetaIDs()
 	end	
 	--register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-	register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+	--register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 	--hud_item_messages = {}
 	--setup_hud_item_messages()
 	--flag_id = nil	
