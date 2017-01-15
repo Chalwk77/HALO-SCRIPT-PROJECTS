@@ -2,7 +2,7 @@ Complete list of commands (and command aliases for Bumpercarz)
 Type "/help <command name>" and it will show information about that command. 
 
 
-rconadd (aliases: "NEW_COMMAND_HERE")
+rconadd (aliases: "addrcon")
 adminadd (aliases: "a", "addadmin")
 admindel (aliases: "deladmin", "revoke", "a del", "adminrevoke", "revokeadmin")
 setafk (aliases: "afk")
