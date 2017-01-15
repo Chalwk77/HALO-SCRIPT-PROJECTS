@@ -1,5 +1,5 @@
 -- Complete list of commands (and command aliases for Bumpercarz)
--- Type "/help <command name>" and it will show information about that command. 
+-- Type "/help <command name>" and it will show information about that command.
 
 
 rconadd (aliases: "addrcon")
