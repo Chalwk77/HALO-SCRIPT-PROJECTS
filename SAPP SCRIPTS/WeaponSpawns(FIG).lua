@@ -91,7 +91,7 @@ function OnTick()
 --                  You can spawn with up to 4 weapons
 
                 -- [start][ Repeat the structure to add more gametypes and maps:
-                if (game_type == "INSERT_game_type_HERE") then
+                if (game_type == "INSERT_GAME_TYPE_HERE") then
                     if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
 --      [INFO]          Remove the comment(s) (--) to use these entries. 
