@@ -112,6 +112,30 @@ function OnTick()
                     --  ][finish]
                     end
                 end
+                
+                -- Clean Example.
+                if (game_mode == "fig_slayer") then
+                    if (mapname == "bloodgulch") then
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
+                        weapon[i] = 1
+                    elseif (mapname == "ratrace") then
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                        weapon[i] = 1
+                    end
+                    elseif (mapname == "boardingaction") then
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i)
+                        weapon[i] = 1
+                    end
+                end
             end
         end
     end
