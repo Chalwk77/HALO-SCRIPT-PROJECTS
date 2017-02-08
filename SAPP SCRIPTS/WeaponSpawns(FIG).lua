@@ -31,7 +31,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
         GetMetaIDs()
-        game_mode = get_var(0, "$mode")
+        game_type = get_var(0, "$mode")
         mapname = get_var(0, "$map")
     end
 end
@@ -45,7 +45,7 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnNewGame()
-    game_mode = get_var(0, "$mode")
+    game_type = get_var(0, "$mode")
     mapname = get_var(0, "$map")
 end
 
@@ -57,7 +57,7 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- SLAYER
-                if (game_mode == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
+                if (game_type == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i) -- M16
@@ -68,7 +68,7 @@ function OnTick()
                 
                 
                 -- CTF
-                if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
+                if (game_type == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "h2_momentum") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Assault Rifle
@@ -91,7 +91,7 @@ function OnTick()
 --                  You can spawn with up to 4 weapons
 
                 -- [start][ Repeat the structure to add more gametypes and maps:
-                if (game_mode == "INSERT_GAME_MODE_HERE") then
+                if (game_type == "INSERT_game_type_HERE") then
                     if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
 --      [INFO]          Remove the comment(s) (--) to use these entries. 
@@ -114,7 +114,7 @@ function OnTick()
                 end
                 
                 -- Clean Example: SLAYER
-                if (game_mode == "fig_slayer") then
+                if (game_type == "fig_slayer") then
                     if (mapname == "bloodgulch") then
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i)
@@ -141,7 +141,7 @@ function OnTick()
                         weapon[i] = 1
                     end
                 -- Clean Example: CTF
-                elseif(game_mode == "fig_CTF") then
+                elseif(game_type == "fig_CTF") then
                     if (mapname == "gephyrophobia") then
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
