@@ -3,7 +3,7 @@
 Script Name: Halo CE: Custom Weapons, for SAPP
 ]]--
 
-api_version = "1.11.0.0"
+api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
 
@@ -26,7 +26,6 @@ weapons[11] = "weapons\\shotgun\\shotgun"
 -- Custom Weapons:
 weapons[12] = "weapons\\m16\\m16" -- Dustbeta
 
-
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
@@ -47,20 +46,23 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- *** [ SLAYER ] *** --
-                if (game_mode == "game_mode_here") then -- Insert GAMEMODE here, i.e, fig_slayer
+                if (game_mode == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i) -- M16
-                        weapon[i] = 1
-                    elseif (mapname == "h2_momentum") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
-                        weapon[i] = 1
-                    end
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                    assign_weapon(spawn_object("weap", weapons[12], x, y, z), i) -- M16
+                    weapon[i] = 1
                 end
                 -- *** [ CAPTURE THE FLAG ] *** --
-                if (game_mode == "game_mode_here") then -- Insert GAMEMODE here, i.e, fig_ctf
+                if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Change weapons[#] (number) to the corrosponding table# (number) at the top. (WEAPON TABLE)
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- index #1 = pistol
+--                      Change weapons[#] (number) to the corrosponding table# (number) at the top. (WEAPON TABLE)
+--                      You can spawn with up to 4 weapons
+
+--     UN-COMMENT       un-comment to use these entries...
+--                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
+--                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
+--                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
