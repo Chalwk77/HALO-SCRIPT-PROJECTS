@@ -7,6 +7,8 @@ api_version = "1.11.0.0"
 weapon = { }
 weapons = { }
 
+
+-- WEAPON TABLE:
 -- Default Weapons
 -----------------------------------------------------------------
 weapons[1] = "weapons\\pistol\\pistol"
@@ -45,7 +47,7 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- *** [ SLAYER ] *** --
-                if (game_mode == "game_mode_here") then -- Insert Gamemode here, i.e, fig_slayer
+                if (game_mode == "game_mode_here") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i) -- M16
@@ -56,9 +58,9 @@ function OnTick()
                     end
                 end
                 -- *** [ CAPTURE THE FLAG ] *** --
-                if (game_mode == "game_mode_here") then -- Insert Gamemode here, i.e, fig_ctf
+                if (game_mode == "game_mode_here") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Change weapons[#] (number) to the corrosponding table# at the top
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Change weapons[#] (number) to the corrosponding table# (number) at the top. (WEAPON TABLE)
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
