@@ -108,9 +108,15 @@ function OnPlayerPrespawn(PlayerIndex)
                 end
             end
         end
-        if not team_play then
-            local global_coordinates = SelectGlobalSpawnCoord()
-            if global_coordinates then
+    end 
+    if not team_play then
+        global_coordinates = SelectGlobalSpawnCoord()
+        if global_coordinates then
+            cprint("Index number: " .. global_coordinates, 2+8)
+            local index_num = 1
+            if (coord == global_spawn_point[index_num]) then
+                SelectGlobalSpawnCoord()
+            else
                 write_vector3d(player_object + 0x5C, global_spawn_point[global_coordinates][1], global_spawn_point[global_coordinates][2], global_spawn_point[global_coordinates][3])
                 write_dword(get_player(PlayerIndex) + 0xF0, 0)
                 write_dword(get_player(PlayerIndex) + 0x164, 0)
@@ -134,7 +140,8 @@ end
 function SelectGlobalSpawnCoord()
     if #global_spawn_point > 0 then
         local index = rand(1, #global_spawn_point + 1)
-        local coord = global_spawn_point[index]
+        coord = global_spawn_point[index]
+        cprint("CHOSEN: " .. index, 2+8)
         if (CheckForDuplicateSpawn(coord) == false) then
             return index
         end
@@ -181,7 +188,7 @@ end
 function DistanceFormula(x1, y1, z1, x2, y2, z2)
     return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2) + math.pow(z1 - z2, 2))
 end
-            
+        
 function Load_Tables()
     -- Do not touch --
     red_spawn_coord = { }
@@ -191,24 +198,26 @@ function Load_Tables()
     blue_rotation = { }
     global_rotation = { }
     -- ^^^ do not Touch ^^^ --
-
     --  CAPTURE THE FLAG
-    if game_type == "GAME_TYPE_HERE" then
-        if map_name == "MAP_NAME_HERE" then
+    if (game_type == "jc-c") then
+        if (map_name == "ratrace") then
             -- ROTATION
-            red_rotation[1] = { PASTE_COORDINATES_HERE }
-            blue_rotation[1] = { PASTE_COORDINATES_HERE }
+            red_rotation[1] = { 60.987, -121.606, 0.274 }
+            blue_rotation[1] = { 60.987, -121.606, 0.274 }
             -- RED COORDINATES
             red_spawn_coord[1] = { PASTE_COORDINATES_HERE }
             red_spawn_coord[2] = { PASTE_COORDINATES_HERE }
+            red_spawn_coord[3] = { PASTE_COORDINATES_HERE }
+            red_spawn_coord[4] = { PASTE_COORDINATES_HERE }
+            red_spawn_coord[5] = { PASTE_COORDINATES_HERE }
             -- BLUE COORDINATES
             blu_spawn_coord[1] = { PASTE_COORDINATES_HERE }
             blu_spawn_coord[2] = { PASTE_COORDINATES_HERE }
             
         elseif map_name == "MAP_NAME_HERE" then
             -- ROTATION
-            red_rotation[1] = { PASTE_COORDINATES_HERE }
-            blue_rotation[1] = { PASTE_COORDINATES_HERE }
+            red_rotation[1] = { 60.987, -121.606, 0.274 }
+            blue_rotation[1] = { 60.987, -121.606, 0.274 }
             -- RED COORDINATES
             red_spawn_coord[1] = { PASTE_COORDINATES_HERE }
             red_spawn_coord[2] = { PASTE_COORDINATES_HERE }
@@ -218,12 +227,19 @@ function Load_Tables()
             -- Repeat the structure in ascending numerical order, to add more maps.
             -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>|<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<--
         end
-        --  SLAYER
-    elseif game_type == "slayer" then
-        if map_name == "MAP_NAME_HERE" then
+    end
+    --  SLAYER
+    if (game_type == "slayer") then
+        if (map_name == "ratrace") then
             -- ROTATION
-            global_rotation[1] = { PASTE_COORDINATES_HERE }
+            global_rotation[1] = { 60.987, -121.606, 0.274 }
+
+            -- Index ID #1 is blocked!, see line 116
             global_spawn_point[1] = { PASTE_COORDINATES_HERE }
+            global_spawn_point[2] = { PASTE_COORDINATES_HERE }
+            global_spawn_point[3] = { PASTE_COORDINATES_HERE }
+            global_spawn_point[4] = { PASTE_COORDINATES_HERE }
+            global_spawn_point[5] = { PASTE_COORDINATES_HERE }
         elseif map_name == "MAP_NAME_HERE" then
             -- ROTATION
             global_rotation[1] = { PASTE_COORDINATES_HERE }
@@ -231,12 +247,13 @@ function Load_Tables()
             -- Repeat the structure in ascending numerical order, to add more maps.
             -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>|<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<--
         end
-        --  OTHER
-    elseif game_type == "GAME_TYPE_HERE" then
+    end
+    --  OTHER
+    if game_type == "GAME_TYPE_HERE" then
         if map_name == "MAP_NAME_HERE" then
             -- ROTATION
-            red_rotation[1] = { PASTE_COORDINATES_HERE }
-            blue_rotation[1] = { PASTE_COORDINATES_HERE }
+            red_rotation[1] = { 60.987, -121.606, 0.274 }
+            blue_rotation[1] = { 60.987, -121.606, 0.274 }
             -- RED COORDINATES
             red_spawn_coord[1] = { PASTE_COORDINATES_HERE }
             red_spawn_coord[2] = { PASTE_COORDINATES_HERE }
