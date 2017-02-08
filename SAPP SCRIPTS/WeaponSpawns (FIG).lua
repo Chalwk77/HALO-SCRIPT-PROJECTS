@@ -68,6 +68,7 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         weapon[i] = 1
                         -- repeat the structure to add more maps
+                        end
                     end
                 end
             end
