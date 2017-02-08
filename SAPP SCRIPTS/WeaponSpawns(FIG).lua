@@ -113,7 +113,7 @@ function OnTick()
                     end
                 end
                 
-                -- Clean Example.
+                -- Clean Example: SLAYER
                 if (game_mode == "fig_slayer") then
                     if (mapname == "bloodgulch") then
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
@@ -138,6 +138,33 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
+                        weapon[i] = 1
+                    end
+                -- Clean Example: CTF
+                elseif(game_mode == "fig_CTF") then
+                    if (mapname == "gephyrophobia") then
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
+                        weapon[i] = 1
+                    elseif (mapname == "infinity") then
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i)
+                        weapon[i] = 1
+                    elseif (mapname == "prisoner") then
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
+                        weapon[i] = 1
+                    elseif(mapname == "putput") then
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
                         weapon[i] = 1
                     end
                 end
