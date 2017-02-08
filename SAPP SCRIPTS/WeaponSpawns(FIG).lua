@@ -7,13 +7,6 @@ api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
 
--- Information:
---  For "assign_weapon":
---      Change weapons[#] (number) to the corrosponding table# (number) at the top. 
---      See Weapon Table below
---      You can spawn with up to 4 weapons
-
-
 -- WEAPON TABLE:
 -- Default Weapons
 -----------------------------------------------------------------
@@ -63,6 +56,9 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
+                
+
+                
                 -- SLAYER
                 if (game_mode == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
@@ -71,16 +67,51 @@ function OnTick()
                         weapon[i] = 1
                     end
                 end
+                
+
+                
                 -- CTF
                 if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "h2_momentum") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Assault Rifle
                         weapon[i] = 1
+                    -- [ Repeat the structure to add more maps:
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
+                    -------------------------------------------------------------------------------
+                    --  ]
+                    end
+                end
+                
+
+--              For "assign_weapon":
+--                  Change weapons[#] (number) to the corrosponding table# (number) at the top. 
+--                  See Weapon Table below
+--                  You can spawn with up to 4 weapons
+
+                -- [ Repeat the structure to add more gametypes and maps:
+                if (game_mode == "INSERT_GAME_MODE_HERE") then
+                    if (mapname == "MAP_NAME_HERE") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+--      [INFO]          Remove the comment(s) (--) to use these entries. 
+--      [INFO]          You can spawn with up to 4 weapons.
+                        --assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) Plasma Cannon
+                        --assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) Rocket Launcher
+                        --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
+                        weapon[i] = 1
+                    elseif (mapname == "MAP_NAME_HERE") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+--      [INFO]          Remove the comment(s) (--) to use these entries. 
+--      [INFO]          You can spawn with up to 4 weapons.
+                        --assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) Plasma Cannon
+                        --assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) Rocket Launcher
+                        --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
+                        weapon[i] = 1
+                    -------------------------------------------------------------------------------
+                    --  ]
                     end
                 end
             end
