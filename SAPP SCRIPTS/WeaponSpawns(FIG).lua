@@ -89,7 +89,7 @@ function OnTick()
 
 --              For "assign_weapon":
 --                  Change weapons[#] (number) to the corrosponding table# (number) at the top. 
---                  See Weapon Table below
+--                  See Weapon Table at the top of the script, (lines 13 through 23).
 --                  You can spawn with up to 4 weapons
 
                 -- [ Repeat the structure to add more gametypes and maps:
