@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: Halo CE, Weapon Settings, for SAPP
---           For FIG community
+-- For Fig Community
 ]]--
 
 api_version = "1.10.0.0"
@@ -80,8 +80,8 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
                     -------------------------------------------------------------------------------
-                    --  ][finish]
                     end
+                    --  ][finish]
                 end
                 
                 
@@ -110,9 +110,11 @@ function OnTick()
                         --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
                         weapon[i] = 1
                     -------------------------------------------------------------------------------
-                    --  ][finish]
                     end
                 end
+                --  ][finish]
+
+                
                 
                 -- Clean Example: SLAYER
                 if (game_type == "fig_slayer") then
