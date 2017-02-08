@@ -63,7 +63,7 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
-                -- *** [ SLAYER ] *** --
+                -- SLAYER
                 if (game_mode == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
@@ -71,17 +71,15 @@ function OnTick()
                         weapon[i] = 1
                     end
                 end
-                -- *** [ CAPTURE THE FLAG ] *** --
+                -- CTF
                 if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "h2_momentum") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- index #1 = pistol
---                      Remove the comment (--) to use these entries...
---                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
---                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
---                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Assault Rifle
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
                     end
                 end
