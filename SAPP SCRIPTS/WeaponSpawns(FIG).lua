@@ -56,9 +56,6 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
-                
-
-                
                 -- SLAYER
                 if (game_mode == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
                     if (mapname == "dustbeta") then
@@ -68,7 +65,7 @@ function OnTick()
                     end
                 end
                 
-
+                
                 
                 -- CTF
                 if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
@@ -76,23 +73,24 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Assault Rifle
                         weapon[i] = 1
-                    -- [ Repeat the structure to add more maps:
+                    -- [start][ Repeat the structure to add more maps:
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
                     -------------------------------------------------------------------------------
-                    --  ]
+                    --  ][finish]
                     end
                 end
                 
-
+                
+                
 --              For "assign_weapon":
 --                  Change weapons[#] (number) to the corrosponding table# (number) at the top. 
 --                  See Weapon Table at the top of the script, (lines 13 through 23).
 --                  You can spawn with up to 4 weapons
 
-                -- [ Repeat the structure to add more gametypes and maps:
+                -- [start][ Repeat the structure to add more gametypes and maps:
                 if (game_mode == "INSERT_GAME_MODE_HERE") then
                     if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
@@ -111,7 +109,7 @@ function OnTick()
                         --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
                         weapon[i] = 1
                     -------------------------------------------------------------------------------
-                    --  ]
+                    --  ][finish]
                     end
                 end
             end
