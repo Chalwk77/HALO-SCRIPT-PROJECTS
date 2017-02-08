@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: Halo CE: Custom Weapons, for SAPP
+Script Name: Halo CE, Weapon Settings, for SAPP
 ]]--
 
 api_version = "1.10.0.0"
@@ -75,7 +75,7 @@ function OnTick()
                 if (game_mode == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "h2_momentum") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- index #1 = pistol
---                      Remove the commend (--) to use these entries...
+--                      Remove the comment (--) to use these entries...
 --                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
 --                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
 --                      assign_weapon(spawn_object("weap", weapons[#], x, y, z), i)
