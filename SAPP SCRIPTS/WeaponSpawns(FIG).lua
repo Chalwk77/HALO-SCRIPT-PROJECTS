@@ -1,6 +1,7 @@
 --[[
 ------------------------------------
 Script Name: Halo CE, Weapon Settings, for SAPP
+--           For FIG community
 ]]--
 
 api_version = "1.10.0.0"
