@@ -141,7 +141,7 @@ function OnTick()
                         weapon[i] = 1
                     end
                 -- Clean Example: CTF
-                elseif(game_type == "fig_CTF") then
+                elseif(game_type == "fig_ctf") then
                     if (mapname == "gephyrophobia") then
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
