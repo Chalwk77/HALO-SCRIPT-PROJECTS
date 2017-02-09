@@ -58,7 +58,7 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- SLAYER
-                if (game_type == "fig_slayer") then -- Insert GAMEMODE here, i.e, fig_slayer
+                if (game_type == "example_slayer") then -- Insert GAMEMODE here, i.e, example_slayer
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i) -- M16
@@ -66,99 +66,23 @@ function OnTick()
                     end
                 end
                 -- CTF
-                if (game_type == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
+                if (game_type == "example_ctf") then -- Insert GAMEMODE here, i.e, example_ctf
                     if (mapname == "h2_momentum") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Assault Rifle
                         weapon[i] = 1
-                    -- [start][ Repeat the structure to add more maps:
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
-                    -------------------------------------------------------------------------------
                     end
-                    --  ][finish]
                 end
---              For "assign_weapon":
---                  Change weapons[#] (number) to the corrosponding table# (number) at the top. 
---                  See Weapon Table at the top of the script, (lines 13 through 23).
---                  You can spawn with up to 4 weapons
-
-                -- [start][ Repeat the structure to add more gametypes and maps:
                 if (game_type == "INSERT_GAME_TYPE_HERE") then
                     if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
---      [INFO]          Remove the comment(s) (--) to use these entries. 
---      [INFO]          You can spawn with up to 4 weapons.
-                        --assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) Plasma Cannon
-                        --assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) Rocket Launcher
-                        --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
---      [INFO]          Remove the comment(s) (--) to use these entries. 
---      [INFO]          You can spawn with up to 4 weapons.
-                        --assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) Plasma Cannon
-                        --assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) Rocket Launcher
-                        --assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) Sniper Rifle
-                        weapon[i] = 1
-                    -------------------------------------------------------------------------------
-                    end
-                end
-                --  ][finish]
-                -- Clean Example: SLAYER
-                if (game_type == "fig_slayer") then
-                    if (mapname == "bloodgulch") then
-                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "ratrace") then
-                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "boardingaction") then
-                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "dangercanyon") then
-                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
-                        weapon[i] = 1
-                    end
-                -- Clean Example: CTF
-                elseif(game_type == "fig_ctf") then
-                    if (mapname == "gephyrophobia") then
-                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "infinity") then
-                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "prisoner") then
-                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
-                        weapon[i] = 1
-                    elseif(mapname == "putput") then
-                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) 
-                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i)
                         weapon[i] = 1
                     end
                 end
