@@ -31,7 +31,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
-        GetMetaIDs()
         game_type = get_var(0, "$mode")
         mapname = get_var(0, "$map")
     end
@@ -65,7 +64,7 @@ function OnTick()
                         weapon[i] = 1
                     end
                 end
-                -- CTF
+                -- CTF --
                 if (game_type == "example_ctf") then -- Insert GAMEMODE here, i.e, example_ctf
                     if (mapname == "h2_momentum") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- pistol
@@ -85,7 +84,17 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         weapon[i] = 1
                     end
+                elseif (game_type == "INSERT_GAME_TYPE_HERE") then
+                    if (mapname == "MAP_NAME_HERE") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                        weapon[i] = 1
+                    elseif (mapname == "MAP_NAME_HERE") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                        weapon[i] = 1
+                    end
                 end
+                
+                
             end
         end
     end
