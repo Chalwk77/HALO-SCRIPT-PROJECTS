@@ -65,9 +65,6 @@ function OnTick()
                         weapon[i] = 1
                     end
                 end
-                
-                
-                
                 -- CTF
                 if (game_type == "fig_ctf") then -- Insert GAMEMODE here, i.e, fig_ctf
                     if (mapname == "h2_momentum") then
@@ -83,9 +80,6 @@ function OnTick()
                     end
                     --  ][finish]
                 end
-                
-                
-                
 --              For "assign_weapon":
 --                  Change weapons[#] (number) to the corrosponding table# (number) at the top. 
 --                  See Weapon Table at the top of the script, (lines 13 through 23).
@@ -113,9 +107,6 @@ function OnTick()
                     end
                 end
                 --  ][finish]
-
-                
-                
                 -- Clean Example: SLAYER
                 if (game_type == "fig_slayer") then
                     if (mapname == "bloodgulch") then
