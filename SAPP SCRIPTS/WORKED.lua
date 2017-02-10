@@ -1,17 +1,21 @@
 api_version = "1.10.0.0"
 
 BrokenCoords = {
+    -- Example Map 1
     51.9,- 76.42,0.08,
     37.43,- 68.11,0.26,
+    -- Example Map 2
     105.49,- 157.45,0.2,
     29.6,- 76.35,0.3,
+    -- Example Map 3
     102.86,- 154.92,- 0.01,
     92.48,- 169.56,0.13,
+    -- Example Map 4
     29.31,- 81.41,0.17,
     42.91,- 67.76,0.52,
+    -- Example Map 5
     36.9,- 90.21,0.07,
-    84.9,- 161.71,0.11,
-    52.06,- 82.22,0.12
+    84.9,- 161.71,0.11
 }	
 
 function OnScriptLoad()
@@ -24,6 +28,7 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     local CurrentCoords = GetPlayerCoords(PlayerIndex)
+    -- If your current location upon spawning matches the coordinates in the BrokenCoords Table, then do something...
     if table.match(BrokenCoords, CurrentCoords) then
         cprint("YES", 2 + 8)
     end
