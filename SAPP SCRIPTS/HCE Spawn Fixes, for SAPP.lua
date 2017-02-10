@@ -1,13 +1,20 @@
 --[[
 ------------------------------------
 Script Name: HCE Spawn Fix
-- For FIG Community
---  MAPS THIS SCRIPT FIXES
-    --      emt_inverno (DONE)
-    --      dioptase (pending)
-    --      deadend (pending)
-    --      municipality (pending)
+Written for FIG Community
 
+--  MAPS THIS SCRIPT FIXES
+    emt_inverno (DONE)
+    dioptase (pending)
+    deadend (pending)
+    municipality (pending)
+
+Description: 
+    The maps listed above each have 1 or more broken spawn points.
+    For example, the map emt_inverno has one known spawn point that spawns you on the side of a cliff - you slide down and die from fall damage.
+    This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
+    This script will take into account the gametype.
+    
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 All Rights Reserved.
 
