@@ -39,20 +39,20 @@ function OnNewGame()
 end
 
 function getteamplay()
-    if get_var(0,"$ffa") == "0" then
+    if get_var(0, "$ffa") == "0" then
         return true
-	else
+    else
         return false
-	end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     local coord = SelectNewCoord()
-    local Team = get_var(PlayerIndex,"$team")
-	local team_play = getteamplay()
+    local Team = get_var(PlayerIndex, "$team")
+    local team_play = getteamplay()
     if (player_object ~= 0) then
---      emt_inverno      --
+        --      emt_inverno      --
         if (mapname == "emt_inverno") then
             if not team_play then
                 local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
@@ -77,7 +77,7 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
         end
---      dioptase      --
+        --      dioptase      --
         if (mapname == "dioptase") then
             if not team_play then
                 local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
@@ -102,7 +102,7 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
         end
---      deadend      --
+        --      deadend      --
         if (mapname == "deadend") then
             if not team_play then
                 local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
@@ -131,8 +131,8 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function SelectNewCoord()
-	local team_play = getteamplay()
-    local Team = get_var(PlayerIndex,"$team")
+    local team_play = getteamplay()
+    local Team = get_var(PlayerIndex, "$team")
     if (mapname == "emt_inverno") then
         if not team_play then
             if #emt_inverno_SlayerCoords > 0 then
@@ -219,31 +219,31 @@ end
 
 function LoadTables()
     -- emt_inverno --
-    emt_inverno_RedCoords = {}
-    emt_inverno_BlueCoords = {}
-    emt_inverno_SlayerCoords = {}
+    emt_inverno_RedCoords = { }
+    emt_inverno_BlueCoords = { }
+    emt_inverno_SlayerCoords = { }
 
-    emt_inverno_RedCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    emt_inverno_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    emt_inverno_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    emt_inverno_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    emt_inverno_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    emt_inverno_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
 
     -- dioptase --
-    dioptase_RedCoords = {}
-    dioptase_BlueCoords = {}
-    dioptase_SlayerCoords = {}
+    dioptase_RedCoords = { }
+    dioptase_BlueCoords = { }
+    dioptase_SlayerCoords = { }
 
-    dioptase_RedCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    dioptase_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    dioptase_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    dioptase_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    dioptase_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    dioptase_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
 
     -- deadend --
-    deadend_RedCoords = {}
-    deadend_BlueCoords = {}
-    deadend_SlayerCoords = {}
+    deadend_RedCoords = { }
+    deadend_BlueCoords = { }
+    deadend_SlayerCoords = { }
 
-    deadend_RedCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    deadend_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    deadend_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    deadend_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    deadend_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    deadend_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
 end
 
 function OnError(Message)
