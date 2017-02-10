@@ -6,6 +6,7 @@ Script Name: HCE Spawn Fix
 --      emt_inverno
 --      dioptase
 --      deadend
+--      municipality
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 All Rights Reserved.
@@ -127,6 +128,31 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
         end
+        --      municipality      --
+        if (mapname == "municipality") then
+            if not team_play then
+                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
+                if (Teleport_Coordinates == true) then
+                    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                    moveobject(player_obj_id, municipality_SlayerCoords[coord][1], municipality_SlayerCoords[coord][2], municipality_SlayerCoords[coord][3] + 0.15)
+                end
+            end
+            if team_play then
+                if (Team == "red") then
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
+                    if (Teleport_Coordinates == true) then
+                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                        moveobject(player_obj_id, municipality_RedCoords[coord][1], municipality_RedCoords[coord][2], municipality_RedCoords[coord][3] + 0.15)
+                    end
+                elseif (Team == "blue") then
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
+                    if (Teleport_Coordinates == true) then
+                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                        moveobject(player_obj_id, municipality_BlueCoords[coord][1], municipality_BlueCoords[coord][2], municipality_BlueCoords[coord][3] + 0.15)
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -183,6 +209,24 @@ function SelectNewCoord()
             elseif (Team == "blue") then
                 if #deadend_BlueCoords > 0 then
                     return rand(1, #deadend_BlueCoords + 1)
+                end
+            end
+        end
+    end
+    if (mapname == "municipality") then
+        if not team_play then
+            if #municipality_SlayerCoords > 0 then
+                return rand(1, #municipality_SlayerCoords + 1)
+            end
+        end
+        if team_play then
+            if (Team == "Red") then
+                if #municipality_RedCoords > 0 then
+                    return rand(1, #municipality_RedCoords + 1)
+                end
+            elseif (Team == "blue") then
+                if #municipality_BlueCoords > 0 then
+                    return rand(1, #municipality_BlueCoords + 1)
                 end
             end
         end
@@ -244,6 +288,15 @@ function LoadTables()
     deadend_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
     deadend_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
     deadend_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    
+    -- municipality --
+    municipality_RedCoords = { }
+    municipality_BlueCoords = { }
+    municipality_SlayerCoords = { }
+
+    municipality_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    municipality_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    municipality_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
 end
 
 function OnError(Message)
