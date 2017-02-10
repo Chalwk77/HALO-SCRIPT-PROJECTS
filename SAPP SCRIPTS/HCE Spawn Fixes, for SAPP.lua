@@ -80,7 +80,7 @@ function OnPlayerSpawn(PlayerIndex)
         --      dioptase      --
         if (mapname == "dioptase") then
             if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                 if (Teleport_Coordinates == true) then
                     local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                     moveobject(player_obj_id, dioptase_SlayerCoords[coord][1], dioptase_SlayerCoords[coord][2], dioptase_SlayerCoords[coord][3] + 0.15)
@@ -88,13 +88,13 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if team_play then
                 if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, dioptase_RedCoords[coord][1], dioptase_RedCoords[coord][2], dioptase_RedCoords[coord][3] + 0.15)
                     end
                 elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, dioptase_BlueCoords[coord][1], dioptase_BlueCoords[coord][2], dioptase_BlueCoords[coord][3] + 0.15)
@@ -105,7 +105,7 @@ function OnPlayerSpawn(PlayerIndex)
         --      deadend      --
         if (mapname == "deadend") then
             if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                 if (Teleport_Coordinates == true) then
                     local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                     moveobject(player_obj_id, deadend_SlayerCoords[coord][1], deadend_SlayerCoords[coord][2], deadend_SlayerCoords[coord][3] + 0.15)
@@ -113,13 +113,13 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if team_play then
                 if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
                     end
                 elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
+                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, deadend_BlueCoords[coord][1], deadend_BlueCoords[coord][2], deadend_BlueCoords[coord][3] + 0.15)
@@ -223,9 +223,9 @@ function LoadTables()
     emt_inverno_BlueCoords = { }
     emt_inverno_SlayerCoords = { }
 
-    emt_inverno_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    emt_inverno_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    emt_inverno_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    emt_inverno_RedCoords[1] = { -102.66, -36.76, -5.89 }
+    emt_inverno_BlueCoords[1] = { 12.78, -54.08, 4.4 }
+    emt_inverno_SlayerCoords[1] = { 18.57, -34.5, 4.23 }
 
     -- dioptase --
     dioptase_RedCoords = { }
