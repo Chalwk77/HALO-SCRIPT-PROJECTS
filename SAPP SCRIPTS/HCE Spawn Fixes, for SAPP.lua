@@ -44,7 +44,7 @@ function OnPlayerSpawn(PlayerIndex)
             local Teleport3 = Sphere(PlayerIndex, 97.29, -163.54, 1.7, 1.5)
             local Teleport4 = Sphere(PlayerIndex, 99.34, -161.35, 1.7, 1.5)
             local Teleport5 = Sphere(PlayerIndex, 96.82, -156.99, 1.7, 1.5)
-            if (Teleport1 == true) or(Teleport2 == true) or(Teleport3 == true) or(Teleport4 == true) or(Teleport5 == true) then
+            if (Teleport1 == true) or (Teleport2 == true) or (Teleport3 == true) or (Teleport4 == true) or (Teleport5 == true) then
                 local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                 moveobject(player_obj_id, NewCoords[coord][1], NewCoords[coord][2], NewCoords[coord][3] + 0.15)
                 cprint("Moving player to new coordinates!", 2 + 8)
