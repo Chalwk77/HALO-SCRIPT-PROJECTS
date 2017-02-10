@@ -17,6 +17,24 @@ All Rights Reserved.
 ]]-- 
 api_version = "1.10.0.0"
 
+BrokenCoords = {
+    -- Example Map 1
+    51.9,- 76.42,0.08,
+    37.43,- 68.11,0.26,
+    -- Example Map 2
+    105.49,- 157.45,0.2,
+    29.6,- 76.35,0.3,
+    -- Example Map 3
+    102.86,- 154.92,- 0.01,
+    92.48,- 169.56,0.13,
+    -- Example Map 4
+    29.31,- 81.41,0.17,
+    42.91,- 67.76,0.52,
+    -- Example Map 5
+    36.9,- 90.21,0.07,
+    84.9,- 161.71,0.11
+}	
+
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
@@ -48,106 +66,47 @@ function getteamplay()
 end
 
 function OnPlayerSpawn(PlayerIndex)
+    local CurrentCoords = GetPlayerCoords(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     local coord = SelectNewCoord()
     local Team = get_var(PlayerIndex, "$team")
     local team_play = getteamplay()
+    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
     if (player_object ~= 0) then
-        --      emt_inverno      --
-        if (mapname == "emt_inverno") then
-            if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
-                if (Teleport_Coordinates == true) then
-                    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+        if coordinates.match(BrokenCoords, CurrentCoords) then
+            if team_play == false then
+                if (mapname == "emt_inverno") then
                     moveobject(player_obj_id, emt_inverno_SlayerCoords[coord][1], emt_inverno_SlayerCoords[coord][2], emt_inverno_SlayerCoords[coord][3] + 0.15)
-                end
-            end
-            if team_play then
-                if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
-                    end
-                elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, emt_inverno_BlueCoords[coord][1], emt_inverno_BlueCoords[coord][2], emt_inverno_BlueCoords[coord][3] + 0.15)
-                    end
-                end
-            end
-        end
-        --      dioptase      --
-        if (mapname == "dioptase") then
-            if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                if (Teleport_Coordinates == true) then
-                    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                elseif (mapname == "dioptase") then
                     moveobject(player_obj_id, dioptase_SlayerCoords[coord][1], dioptase_SlayerCoords[coord][2], dioptase_SlayerCoords[coord][3] + 0.15)
-                end
-            end
-            if team_play then
-                if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, dioptase_RedCoords[coord][1], dioptase_RedCoords[coord][2], dioptase_RedCoords[coord][3] + 0.15)
-                    end
-                elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, dioptase_BlueCoords[coord][1], dioptase_BlueCoords[coord][2], dioptase_BlueCoords[coord][3] + 0.15)
-                    end
-                end
-            end
-        end
-        --      deadend      --
-        if (mapname == "deadend") then
-            if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                if (Teleport_Coordinates == true) then
-                    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                elseif (mapname == "deadend") then
                     moveobject(player_obj_id, deadend_SlayerCoords[coord][1], deadend_SlayerCoords[coord][2], deadend_SlayerCoords[coord][3] + 0.15)
-                end
-            end
-            if team_play then
-                if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
-                    end
-                elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, deadend_BlueCoords[coord][1], deadend_BlueCoords[coord][2], deadend_BlueCoords[coord][3] + 0.15)
-                    end
-                end
-            end
-        end
-        --      municipality      --
-        if (mapname == "municipality") then
-            if not team_play then
-                local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                if (Teleport_Coordinates == true) then
-                    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                elseif (mapname == "municipality") then
                     moveobject(player_obj_id, municipality_SlayerCoords[coord][1], municipality_SlayerCoords[coord][2], municipality_SlayerCoords[coord][3] + 0.15)
                 end
-            end
-            if team_play then
-                if (Team == "red") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, municipality_RedCoords[coord][1], municipality_RedCoords[coord][2], municipality_RedCoords[coord][3] + 0.15)
+            if team_play == true then
+                if (mapname == "emt_inverno") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
+                        moveobject(player_obj_id, emt_inverno_BlueCoords[coord][1], emt_inverno_BlueCoords[coord][2], emt_inverno_BlueCoords[coord][3] + 0.15)
                     end
-                elseif (Team == "blue") then
-                    local Teleport_Coordinates = Sphere(PlayerIndex, XXXXXXXXXXXXXXXXXXXXX, 2.5)
-                    if (Teleport_Coordinates == true) then
-                        local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+                elseif (mapname == "dioptase") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, dioptase_RedCoords[coord][1], dioptase_RedCoords[coord][2], dioptase_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
+                        moveobject(player_obj_id, dioptase_BlueCoords[coord][1], dioptase_BlueCoords[coord][2], dioptase_BlueCoords[coord][3] + 0.15)
+                    end
+                elseif (mapname == "deadend") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
+                        moveobject(player_obj_id, deadend_BlueCoords[coord][1], deadend_BlueCoords[coord][2], deadend_BlueCoords[coord][3] + 0.15)
+                    end
+                elseif (mapname == "municipality") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, municipality_RedCoords[coord][1], municipality_RedCoords[coord][2], municipality_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
                         moveobject(player_obj_id, municipality_BlueCoords[coord][1], municipality_BlueCoords[coord][2], municipality_BlueCoords[coord][3] + 0.15)
                     end
                 end
@@ -259,6 +218,14 @@ end
 
 function math.round(num, idp)
     return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+end
+
+function coordinates.match(table, value)
+    for k, v in pairs(table) do
+        if v == value then
+            return k
+        end
+    end
 end
 
 function LoadTables()
