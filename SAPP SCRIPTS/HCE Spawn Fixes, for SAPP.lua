@@ -179,7 +179,6 @@ function moveobject(ObjectID, x, y, z)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
         write_vector3d((object) + 0x5C, x, y, z)
-        cprint("Teleporting player to new coordiantes", 2+8)
     end
 end
 
