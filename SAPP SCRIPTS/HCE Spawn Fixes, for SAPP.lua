@@ -24,15 +24,17 @@ All Rights Reserved.
 ]]-- 
 api_version = "1.10.0.0"
 
+-- Known broken spawn points
 BrokenCoords = {
     -- emt_inverno
-    -86.68, -16.49, 11.92,
+    -86.68, -16.49, 11.92, -- Side of cliff
     -- dioptase
-    -6.34, 8.5, 1.2,
+    -6.34, 8.5, 1.2, -- Under ground
     -- deadend
-    xxxxxxxxxxxxxxxxxxxx,
+    2.49, -4.95, -0.31, -- Spawn in the ground
+    6.67, 2.11, 3.71, -- Spawn in fire
     -- municipality
-    -31.99, 35.35, -0.96
+    -31.99, 35.35, -0.96 -- Under ground
 }	
 
 function OnScriptLoad()
@@ -252,9 +254,9 @@ function LoadTables()
     deadend_BlueCoords = { }
     deadend_SlayerCoords = { }
 
-    deadend_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    deadend_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    deadend_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    deadend_RedCoords[1] = { 10.15, 0.45, -0.32 }
+    deadend_BlueCoords[1] = { 1.98, 14.94, -0.31 }
+    deadend_SlayerCoords[1] = { 10.15, 0.45, -0.32 }
     
     -- municipality --
     municipality_RedCoords = { }
