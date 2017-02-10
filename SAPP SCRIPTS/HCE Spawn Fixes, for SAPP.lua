@@ -9,15 +9,15 @@ Written for FIG Community
     deadend
     municipality
 
-Description: 
+Description:
     The maps listed above each have 1 or more broken spawn points.
     For example, the map emt_inverno has one known spawn point that spawns you on the side of a cliff - you slide down and die from fall damage.
     This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
     This script will also take into account the gametype, i.e, Slayer, CTF, Team Slayer, etc.
-    
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -29,15 +29,15 @@ api_version = "1.10.0.0"
 
 -- Known broken spawn points
 BrokenCoords = {
-    -- emt_inverno
-    -86.68, -16.49, 11.92, -- Side of cliff
-    -- dioptase
-    -6.34, 8.5, 1.2, -- Under ground
-    -- deadend
-    2.49, -4.95, -0.31, -- Spawn in the ground
-    6.67, 2.11, 3.71, -- Spawn in fire
-    -- municipality
-    -31.99, 35.35, -0.96 -- Under ground
+    -- emt_inverno --
+    - 86.68,- 16.49,11.92,      -- Side of cliff
+    -- dioptase --
+    - 6.34,8.5,1.2,             -- Under ground
+    -- deadend --
+    2.49,- 4.95,- 0.31,         -- Spawn in the ground
+    6.67,2.11,3.71,             -- Spawn in fire
+    -- municipality --
+    - 31.99,35.35,- 0.96        -- Under ground
 }	
 
 function OnScriptLoad()
@@ -155,7 +155,7 @@ function SelectNewCoord(PlayerIndex)
                 if #deadend_RedCoords > 0 then
                     return rand(deadend_RedCoords)
                 end
-        elseif (Team == "blue") then
+            elseif (Team == "blue") then
                 if #deadend_BlueCoords > 0 then
                     return rand(1, #deadend_BlueCoords + 1)
                 end
@@ -171,7 +171,7 @@ function SelectNewCoord(PlayerIndex)
                 end
             end
         end
-    end       
+    end
     return nil
 end
 
@@ -217,36 +217,36 @@ function LoadTables()
     emt_inverno_BlueCoords = { }
     emt_inverno_SlayerCoords = { }
 
-    emt_inverno_RedCoords[1] = { -102.66, -36.76, -5.89 }
-    emt_inverno_BlueCoords[1] = { 12.78, -54.08, 4.4 }
-    emt_inverno_SlayerCoords[1] = { 18.57, -34.5, 4.23 }
+    emt_inverno_RedCoords[1] = { - 102.66, - 36.76, - 5.89 }
+    emt_inverno_BlueCoords[1] = { 12.78, - 54.08, 4.4 }
+    emt_inverno_SlayerCoords[1] = { 18.57, - 34.5, 4.23 }
 
     -- dioptase --
     dioptase_RedCoords = { }
     dioptase_BlueCoords = { }
     dioptase_SlayerCoords = { }
 
-    dioptase_RedCoords[1] = { -3.89, 8.11, -0.55 }
-    dioptase_BlueCoords[1] = { -5.28, -4.55, -0.55 }
-    dioptase_SlayerCoords[1] = { -3.67, 8.87, 0.86 }
+    dioptase_RedCoords[1] = { - 3.89, 8.11, - 0.55 }
+    dioptase_BlueCoords[1] = { - 5.28, - 4.55, - 0.55 }
+    dioptase_SlayerCoords[1] = { - 3.67, 8.87, 0.86 }
 
     -- deadend --
     deadend_RedCoords = { }
     deadend_BlueCoords = { }
     deadend_SlayerCoords = { }
 
-    deadend_RedCoords[1] = { 10.15, 0.45, -0.32 }
-    deadend_BlueCoords[1] = { 1.98, 14.94, -0.31 }
-    deadend_SlayerCoords[1] = { 10.15, 0.45, -0.32 }
-    
+    deadend_RedCoords[1] = { 10.15, 0.45, - 0.32 }
+    deadend_BlueCoords[1] = { 1.98, 14.94, - 0.31 }
+    deadend_SlayerCoords[1] = { 10.15, 0.45, - 0.32 }
+
     -- municipality --
     municipality_RedCoords = { }
     municipality_BlueCoords = { }
     municipality_SlayerCoords = { }
 
-    municipality_RedCoords[1] = { -17.63, -16.97, 0.05 }
-    municipality_BlueCoords[1] = { -19.46, 25.63, 2.06 }
-    municipality_SlayerCoords[1] = { -10.35, 18.78, -0.38 }
+    municipality_RedCoords[1] = { - 17.63, - 16.97, 0.05 }
+    municipality_BlueCoords[1] = { - 19.46, 25.63, 2.06 }
+    municipality_SlayerCoords[1] = { - 10.35, 18.78, - 0.38 }
 end
 
 function OnError(Message)
