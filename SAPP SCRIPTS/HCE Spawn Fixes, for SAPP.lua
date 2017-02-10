@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HCE Spawn Fix
+Script Name: Spawn Fix PC/CE, for SAPP
 Written for FIG Community
 
 --  MAPS THIS SCRIPT FIXES
@@ -119,13 +119,27 @@ end
 
 function SelectNewCoord(PlayerIndex)
     Team = get_var(PlayerIndex, "$team")
-    if (mapname == "emt_inverno") then
-        if not team_play then
+    if not team_play then
+        if (mapname == "emt_inverno") then
             if #emt_inverno_SlayerCoords > 0 then
                 return rand(1, #emt_inverno_SlayerCoords + 1)
             end
+        elseif (mapname == "dioptase") then
+            if #dioptase_SlayerCoords > 0 then
+                return rand(1, #dioptase_SlayerCoords + 1)
+            end
+        elseif (mapname == "deadend") then
+            if #deadend_SlayerCoords > 0 then
+                return rand(1, #deadend_SlayerCoords + 1)
+            end
+        elseif (mapname == "municipality") then
+            if #municipality_SlayerCoords > 0 then
+                return rand(1, #municipality_SlayerCoords + 1)
+            end
         end
-        if team_play then
+    end
+    if team_play then
+        if (mapname == "emt_inverno")
             if (Team == "Red") then
                 if #emt_inverno_RedCoords > 0 then
                     return rand(emt_inverno_RedCoords)
@@ -135,54 +149,30 @@ function SelectNewCoord(PlayerIndex)
                     return rand(1, #emt_inverno_BlueCoords + 1)
                 end
             end
-        end
-    end
-    if (mapname == "dioptase") then
-        if not team_play then
-            if #dioptase_SlayerCoords > 0 then
-                return rand(1, #dioptase_SlayerCoords + 1)
-            end
-        end
-        if team_play then
+        elseif (mapname == "dioptase")
             if (Team == "Red") then
                 if #dioptase_RedCoords > 0 then
-                    return rand(1, #dioptase_RedCoords + 1)
+                    return rand(dioptase_RedCoords)
                 end
             elseif (Team == "blue") then
                 if #dioptase_BlueCoords > 0 then
                     return rand(1, #dioptase_BlueCoords + 1)
                 end
             end
-        end
-    end
-    if (mapname == "deadend") then
-        if not team_play then
-            if #deadend_SlayerCoords > 0 then
-                return rand(1, #deadend_SlayerCoords + 1)
-            end
-        end
-        if team_play then
+        elseif (mapname == "deadend")
             if (Team == "Red") then
                 if #deadend_RedCoords > 0 then
-                    return rand(1, #deadend_RedCoords + 1)
+                    return rand(deadend_RedCoords)
                 end
-            elseif (Team == "blue") then
+        elseif (Team == "blue") then
                 if #deadend_BlueCoords > 0 then
                     return rand(1, #deadend_BlueCoords + 1)
                 end
             end
-        end
-    end
-    if (mapname == "municipality") then
-        if not team_play then
-            if #municipality_SlayerCoords > 0 then
-                return rand(1, #municipality_SlayerCoords + 1)
-            end
-        end
-        if team_play then
+        elseif (mapname == "municipality")
             if (Team == "Red") then
                 if #municipality_RedCoords > 0 then
-                    return rand(1, #municipality_RedCoords + 1)
+                    return rand(municipality_RedCoords)
                 end
             elseif (Team == "blue") then
                 if #municipality_BlueCoords > 0 then
@@ -190,7 +180,7 @@ function SelectNewCoord(PlayerIndex)
                 end
             end
         end
-    end
+    end       
     return nil
 end
 
