@@ -4,7 +4,7 @@ Script Name: HCE Spawn Fix
 - For FIG Community
 -- MAPS THIS SCRIPT FIXES
 --      emt_inverno
---      dioptast
+--      dioptase
 --      deadend
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
@@ -22,7 +22,6 @@ function OnScriptLoad()
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
         gametype = get_var(0, "$mode")
-        Team = get_var(PlayerIndex,"$team")
         LoadTables()
         team_play = getteamplay()
     end
@@ -35,14 +34,23 @@ end
 function OnNewGame()
     mapname = get_var(0, "$map")
     gametype = get_var(0, "$mode")
-    Load_Tables()
-    Team = get_var(PlayerIndex,"$team")
+    LoadTables()
     team_play = getteamplay()
+end
+
+function getteamplay()
+    if get_var(0,"$ffa") == "0" then
+        return true
+	else
+        return false
+	end
 end
 
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     local coord = SelectNewCoord()
+    local Team = get_var(PlayerIndex,"$team")
+	local team_play = getteamplay()
     if (player_object ~= 0) then
 --      emt_inverno      --
         if (mapname == "emt_inverno") then
@@ -54,13 +62,13 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
             if team_play then
-                if Team = "red" then
+                if (Team == "red") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
                     end
-                elseif Team = "blue" then
+                elseif (Team == "blue") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
@@ -69,27 +77,27 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
         end
---      dioptast      --
-        if (mapname == "dioptast") then
+--      dioptase      --
+        if (mapname == "dioptase") then
             if not team_play then
                 local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                 if (Teleport_Coordinates == true) then
                     local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                    moveobject(player_obj_id, dioptast_SlayerCoords[coord][1], dioptast_SlayerCoords[coord][2], dioptast_SlayerCoords[coord][3] + 0.15)
+                    moveobject(player_obj_id, dioptase_SlayerCoords[coord][1], dioptase_SlayerCoords[coord][2], dioptase_SlayerCoords[coord][3] + 0.15)
                 end
             end
             if team_play then
-                if Team = "red" then
+                if (Team == "red") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, dioptast_RedCoords[coord][1], dioptast_RedCoords[coord][2], dioptast_RedCoords[coord][3] + 0.15)
+                        moveobject(player_obj_id, dioptase_RedCoords[coord][1], dioptase_RedCoords[coord][2], dioptase_RedCoords[coord][3] + 0.15)
                     end
-                elseif Team = "blue" then
+                elseif (Team == "blue") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                        moveobject(player_obj_id, dioptast_BlueCoords[coord][1], dioptast_BlueCoords[coord][2], dioptast_BlueCoords[coord][3] + 0.15)
+                        moveobject(player_obj_id, dioptase_BlueCoords[coord][1], dioptase_BlueCoords[coord][2], dioptase_BlueCoords[coord][3] + 0.15)
                     end
                 end
             end
@@ -104,13 +112,13 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
             if team_play then
-                if Team = "red" then
+                if (Team == "red") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                         moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
                     end
-                elseif Team = "blue" then
+                elseif (Team == "blue") then
                     local Teleport_Coordinates = Sphere(PlayerIndex, -86.68, -16.49, 11.92, 2.5)
                     if (Teleport_Coordinates == true) then
                         local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
@@ -123,6 +131,8 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function SelectNewCoord()
+	local team_play = getteamplay()
+    local Team = get_var(PlayerIndex,"$team")
     if (mapname == "emt_inverno") then
         if not team_play then
             if #emt_inverno_SlayerCoords > 0 then
@@ -141,20 +151,20 @@ function SelectNewCoord()
             end
         end
     end
-    if (mapname == "dioptast") then
+    if (mapname == "dioptase") then
         if not team_play then
-            if #dioptast_SlayerCoords > 0 then
-                return rand(1, #dioptast_SlayerCoords + 1)
+            if #dioptase_SlayerCoords > 0 then
+                return rand(1, #dioptase_SlayerCoords + 1)
             end
         end
         if team_play then
             if (Team == "Red") then
-                if #dioptast_RedCoords > 0 then
-                    return rand(1, #dioptast_RedCoords + 1)
+                if #dioptase_RedCoords > 0 then
+                    return rand(1, #dioptase_RedCoords + 1)
                 end
             elseif (Team == "blue") then
-                if #dioptast_BlueCoords > 0 then
-                    return rand(1, #dioptast_BlueCoords + 1)
+                if #dioptase_BlueCoords > 0 then
+                    return rand(1, #dioptase_BlueCoords + 1)
                 end
             end
         end
@@ -217,14 +227,14 @@ function LoadTables()
     emt_inverno_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
     emt_inverno_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
 
-    -- dioptast --
-    dioptast_RedCoords = {}
-    dioptast_BlueCoords = {}
-    dioptast_SlayerCoords = {}
+    -- dioptase --
+    dioptase_RedCoords = {}
+    dioptase_BlueCoords = {}
+    dioptase_SlayerCoords = {}
 
-    dioptast_RedCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    dioptast_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
-    dioptast_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    dioptase_RedCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    dioptase_BlueCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
+    dioptase_SlayerCoords[1] = {xxxxxxxxxxxxxxxxxxxx}
 
     -- deadend --
     deadend_RedCoords = {}
