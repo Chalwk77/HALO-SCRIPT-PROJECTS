@@ -15,13 +15,16 @@ Description:
     This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
     This script will also take into account the gametype, i.e, Slayer, CTF, Team Slayer, etc.
     
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+    
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-All Rights Reserved.
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
------------------------------------
-]]--
+]]
 api_version = "1.10.0.0"
 
 -- Known broken spawn points
@@ -185,7 +188,6 @@ function SelectNewCoord(PlayerIndex)
 end
 
 function moveobject(ObjectID, x, y, z)
-    cprint("MOVING PLAYER TO NEW COORDINATES!", 2+8)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
         local veh_obj = get_object_memory(read_dword(object + 0x11C))
