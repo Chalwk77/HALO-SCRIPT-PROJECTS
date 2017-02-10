@@ -13,12 +13,13 @@ All Rights Reserved.
 
 api_version = "1.10.0.0"
 
+-- replace "0000000000000000000" with your own coordinates.
 NewCoords = { }
 NewCoords[1] = { 98.09, - 184.22, 12.13 }
--- NewCoords[2] = {ENTER_NEW_COORDINATE_HERE}
--- NewCoords[3] = {ENTER_NEW_COORDINATE_HERE}
--- NewCoords[4] = {ENTER_NEW_COORDINATE_HERE}
--- NewCoords[5] = {ENTER_NEW_COORDINATE_HERE}
+NewCoords[2] = {0000000000000000000}
+NewCoords[3] = {0000000000000000000}
+NewCoords[4] = {0000000000000000000}
+NewCoords[5] = {0000000000000000000}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -38,12 +39,13 @@ function OnPlayerSpawn(PlayerIndex)
     local coord = SelectNewCoord()
     if (mapname == "bloodgulch") then
         if (player_object ~= 0) then
-            -- x,y,z,r (X, Y, Z, <radius>)
+            -- (X, Y, Z, <radius>)
+            -- replace "0000000000000000000" with your own coordinates.
             local Teleport1 = Sphere(PlayerIndex, 99.19, -146.67, 0.14, 1.5)
-            local Teleport2 = Sphere(PlayerIndex, 91.89, -157.78, 1.7, 1.5)
-            local Teleport3 = Sphere(PlayerIndex, 97.29, -163.54, 1.7, 1.5)
-            local Teleport4 = Sphere(PlayerIndex, 99.34, -161.35, 1.7, 1.5)
-            local Teleport5 = Sphere(PlayerIndex, 96.82, -156.99, 1.7, 1.5)
+            local Teleport2 = Sphere(PlayerIndex, 0000000000000000000, 1.5)
+            local Teleport3 = Sphere(PlayerIndex, 0000000000000000000, 1.5)
+            local Teleport4 = Sphere(PlayerIndex, 0000000000000000000, 1.5)
+            local Teleport5 = Sphere(PlayerIndex, 0000000000000000000, 1.5)
             if (Teleport1 == true) or (Teleport2 == true) or (Teleport3 == true) or (Teleport4 == true) or (Teleport5 == true) then
                 local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
                 moveobject(player_obj_id, NewCoords[coord][1], NewCoords[coord][2], NewCoords[coord][3] + 0.15)
