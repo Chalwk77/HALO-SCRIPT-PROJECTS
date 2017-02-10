@@ -143,7 +143,7 @@ function SelectNewCoord(PlayerIndex)
     end
     if team_play then
         if (mapname == "emt_inverno")
-            if (Team == "Red") then
+            if (Team == "red") then
                 if #emt_inverno_RedCoords > 0 then
                     return rand(emt_inverno_RedCoords)
                 end
@@ -153,7 +153,7 @@ function SelectNewCoord(PlayerIndex)
                 end
             end
         elseif (mapname == "dioptase")
-            if (Team == "Red") then
+            if (Team == "red") then
                 if #dioptase_RedCoords > 0 then
                     return rand(dioptase_RedCoords)
                 end
@@ -163,7 +163,7 @@ function SelectNewCoord(PlayerIndex)
                 end
             end
         elseif (mapname == "deadend")
-            if (Team == "Red") then
+            if (Team == "red") then
                 if #deadend_RedCoords > 0 then
                     return rand(deadend_RedCoords)
                 end
@@ -173,7 +173,7 @@ function SelectNewCoord(PlayerIndex)
                 end
             end
         elseif (mapname == "municipality")
-            if (Team == "Red") then
+            if (Team == "red") then
                 if #municipality_RedCoords > 0 then
                     return rand(municipality_RedCoords)
                 end
