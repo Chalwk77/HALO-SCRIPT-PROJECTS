@@ -78,7 +78,7 @@ function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         if table.match(BrokenCoords, CurrentCoords) then
-            if team_play == false then
+            if not team_play then
                 if (mapname == "emt_inverno") then
                     moveobject(player_obj_id, emt_inverno_SlayerCoords[coord][1], emt_inverno_SlayerCoords[coord][2], emt_inverno_SlayerCoords[coord][3] + 0.15)
                 elseif (mapname == "dioptase") then
@@ -88,8 +88,7 @@ function OnPlayerSpawn(PlayerIndex)
                 elseif (mapname == "municipality") then
                     moveobject(player_obj_id, municipality_SlayerCoords[coord][1], municipality_SlayerCoords[coord][2], municipality_SlayerCoords[coord][3] + 0.15)
                 end
-            end
-            if team_play == true then
+            elseif team_play == true then
                 if (mapname == "emt_inverno") then
                     if (Team == "red") then
                         moveobject(player_obj_id, emt_inverno_RedCoords[coord][1], emt_inverno_RedCoords[coord][2], emt_inverno_RedCoords[coord][3] + 0.15)
@@ -140,8 +139,7 @@ function SelectNewCoord(PlayerIndex)
                 return rand(1, #municipality_SlayerCoords + 1)
             end
         end
-    end
-    if team_play then
+    elseif team_play == true then
         if (mapname == "emt_inverno")
             if (Team == "red") then
                 if #emt_inverno_RedCoords > 0 then
