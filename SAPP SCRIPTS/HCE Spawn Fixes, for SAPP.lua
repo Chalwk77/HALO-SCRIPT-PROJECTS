@@ -21,7 +21,7 @@ All Rights Reserved.
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
 -----------------------------------
-]]-- 
+]]--
 api_version = "1.10.0.0"
 
 -- Known broken spawn points
@@ -57,7 +57,6 @@ function OnNewGame()
     gametype = get_var(0, "$mode")
     LoadTables()
     team_play = getteamplay()
-    Team = get_var(PlayerIndex, "$team")
 end
 
 function getteamplay()
@@ -70,7 +69,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     local CurrentCoords = GetPlayerCoords(PlayerIndex)
-    local coord = SelectNewCoord()
+    local coord = SelectNewCoord(PlayerIndex)
+    local Team = get_var(PlayerIndex, "$team")
     local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
@@ -117,7 +117,8 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
-function SelectNewCoord()
+function SelectNewCoord(PlayerIndex)
+    Team = get_var(PlayerIndex, "$team")
     if (mapname == "emt_inverno") then
         if not team_play then
             if #emt_inverno_SlayerCoords > 0 then
@@ -194,6 +195,7 @@ function SelectNewCoord()
 end
 
 function moveobject(ObjectID, x, y, z)
+    cprint("MOVING PLAYER TO NEW COORDINATES!", 2+8)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
         local veh_obj = get_object_memory(read_dword(object + 0x11C))
