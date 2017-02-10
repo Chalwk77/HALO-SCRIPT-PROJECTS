@@ -3,10 +3,10 @@
 Script Name: HCE Spawn Fix
 - For FIG Community
 --  MAPS THIS SCRIPT FIXES
-    --      emt_inverno
-    --      dioptase
-    --      deadend
-    --      municipality
+    --      emt_inverno (DONE)
+    --      dioptase (pending)
+    --      deadend (pending)
+    --      municipality (pending)
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 All Rights Reserved.
@@ -21,11 +21,11 @@ BrokenCoords = {
     -- emt_inverno
     -86.68, -16.49, 11.92,
     -- dioptase
-    105.49,- 157.45,0.2,
+    xxxxxxxxxxxxxxxxxxxx,
     -- deadend
-    102.86,- 154.92,- 0.01,
+    xxxxxxxxxxxxxxxxxxxx,
     -- municipality
-    29.31,- 81.41,0.17
+    xxxxxxxxxxxxxxxxxxxx
 }	
 
 function OnScriptLoad()
