@@ -2,11 +2,11 @@
 ------------------------------------
 Script Name: HCE Spawn Fix
 - For FIG Community
--- MAPS THIS SCRIPT FIXES
---      emt_inverno
---      dioptase
---      deadend
---      municipality
+--  MAPS THIS SCRIPT FIXES
+    --      emt_inverno
+    --      dioptase
+    --      deadend
+    --      municipality
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 All Rights Reserved.
