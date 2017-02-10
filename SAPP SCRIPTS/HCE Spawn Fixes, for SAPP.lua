@@ -130,7 +130,7 @@ function SelectNewCoord(PlayerIndex)
             end
         end
     elseif team_play == true then
-        if (mapname == "emt_inverno")
+        if (mapname == "emt_inverno") then
             if (Team == "red") then
                 if #emt_inverno_RedCoords > 0 then
                     return rand(emt_inverno_RedCoords)
@@ -140,7 +140,7 @@ function SelectNewCoord(PlayerIndex)
                     return rand(1, #emt_inverno_BlueCoords + 1)
                 end
             end
-        elseif (mapname == "dioptase")
+        elseif (mapname == "dioptase") then
             if (Team == "red") then
                 if #dioptase_RedCoords > 0 then
                     return rand(dioptase_RedCoords)
@@ -150,7 +150,7 @@ function SelectNewCoord(PlayerIndex)
                     return rand(1, #dioptase_BlueCoords + 1)
                 end
             end
-        elseif (mapname == "deadend")
+        elseif (mapname == "deadend") then
             if (Team == "red") then
                 if #deadend_RedCoords > 0 then
                     return rand(deadend_RedCoords)
@@ -160,7 +160,7 @@ function SelectNewCoord(PlayerIndex)
                     return rand(1, #deadend_BlueCoords + 1)
                 end
             end
-        elseif (mapname == "municipality")
+        elseif (mapname == "municipality") then
             if (Team == "red") then
                 if #municipality_RedCoords > 0 then
                     return rand(municipality_RedCoords)
@@ -178,8 +178,8 @@ end
 function moveobject(ObjectID, x, y, z)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
-        local veh_obj = get_object_memory(read_dword(object + 0x11C))
-        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
+        write_vector3d((object) + 0x5C, x, y, z)
+        cprint("Teleporting player to new coordiantes", 2+8)
     end
 end
 
@@ -187,14 +187,6 @@ function GetPlayerCoords(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-        local vehicle_objectid = read_dword(player_object + 0x11C)
-        local vehicle_object = get_object_memory(vehicle_objectid)
-        if (vehicle_object ~= 0 and vehicle_object ~= nil) then
-            local vx, vy, vz = read_vector3d(vehicle_object + 0x5C)
-            x = x + vx
-            y = y + vy
-            z = z + vz
-        end
         return math.round(x, 2), math.round(y, 2), math.round(z, 2)
     end
     return nil
