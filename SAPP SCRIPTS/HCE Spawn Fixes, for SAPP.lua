@@ -4,10 +4,10 @@ Script Name: HCE Spawn Fix
 Written for FIG Community
 
 --  MAPS THIS SCRIPT FIXES
-    emt_inverno (DONE)
-    dioptase (pending)
-    deadend (pending)
-    municipality (pending)
+    emt_inverno
+    dioptase
+    deadend
+    municipality
 
 Description: 
     The maps listed above each have 1 or more broken spawn points.
@@ -28,11 +28,11 @@ BrokenCoords = {
     -- emt_inverno
     -86.68, -16.49, 11.92,
     -- dioptase
-    xxxxxxxxxxxxxxxxxxxx,
+    -6.34, 8.5, 1.2,
     -- deadend
     xxxxxxxxxxxxxxxxxxxx,
     -- municipality
-    xxxxxxxxxxxxxxxxxxxx
+    -31.99, 35.35, -0.96
 }	
 
 function OnScriptLoad()
@@ -243,9 +243,9 @@ function LoadTables()
     dioptase_BlueCoords = { }
     dioptase_SlayerCoords = { }
 
-    dioptase_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    dioptase_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    dioptase_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    dioptase_RedCoords[1] = { -3.89, 8.11, -0.55 }
+    dioptase_BlueCoords[1] = { -5.28, -4.55, -0.55 }
+    dioptase_SlayerCoords[1] = { -3.67, 8.87, 0.86 }
 
     -- deadend --
     deadend_RedCoords = { }
@@ -261,9 +261,9 @@ function LoadTables()
     municipality_BlueCoords = { }
     municipality_SlayerCoords = { }
 
-    municipality_RedCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    municipality_BlueCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
-    municipality_SlayerCoords[1] = { xxxxxxxxxxxxxxxxxxxx }
+    municipality_RedCoords[1] = { -17.63, -16.97, 0.05 }
+    municipality_BlueCoords[1] = { -19.46, 25.63, 2.06 }
+    municipality_SlayerCoords[1] = { -10.35, 18.78, -0.38 }
 end
 
 function OnError(Message)
