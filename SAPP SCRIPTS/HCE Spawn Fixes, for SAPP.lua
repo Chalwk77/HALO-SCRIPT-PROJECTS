@@ -192,6 +192,23 @@ function moveobject(ObjectID, x, y, z)
     end
 end
 
+function GetPlayerCoords(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+        local vehicle_objectid = read_dword(player_object + 0x11C)
+        local vehicle_object = get_object_memory(vehicle_objectid)
+        if (vehicle_object ~= 0 and vehicle_object ~= nil) then
+            local vx, vy, vz = read_vector3d(vehicle_object + 0x5C)
+            x = x + vx
+            y = y + vy
+            z = z + vz
+        end
+        return math.round(x, 2), math.round(y, 2), math.round(z, 2)
+    end
+    return nil
+end
+
 function math.round(num, idp)
     return tonumber(string.format("%." ..(idp or 0) .. "f", num))
 end
