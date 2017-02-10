@@ -28,7 +28,7 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     local CurrentCoords = GetPlayerCoords(PlayerIndex)
-    -- If your current location upon spawning matches the coordinates in the BrokenCoords Table, then do something...
+    -- If your coordinates upon spawning match the coordinates in the BrokenCoords Table, then teleport them elsewhere.
     if table.match(BrokenCoords, CurrentCoords) then
         cprint("YES", 2 + 8)
     end
