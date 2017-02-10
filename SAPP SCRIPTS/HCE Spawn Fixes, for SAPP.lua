@@ -45,9 +45,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
-        gametype = get_var(0, "$mode")
-        LoadTables()
         team_play = getteamplay()
+        LoadTables()
     end
 end
 
@@ -57,17 +56,8 @@ end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
-    gametype = get_var(0, "$mode")
-    LoadTables()
     team_play = getteamplay()
-end
-
-function getteamplay()
-    if get_var(0, "$ffa") == "0" then
-        return true
-    else
-        return false
-    end
+    LoadTables()
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -219,6 +209,14 @@ function table.match(table, value)
         if v == value then
             return k
         end
+    end
+end
+
+function getteamplay()
+    if get_var(0, "$ffa") == "0" then
+        return true
+    else
+        return false
     end
 end
 
