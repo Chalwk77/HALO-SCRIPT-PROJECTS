@@ -27,6 +27,15 @@ function OnScriptLoad()
 	if get_var(0, "$gt") ~= "n/a" then end		
 end
 
+function getobjetinteractionid(PlayerIndex)
+	local m_player = get_player(PlayerIndex)
+	if m_player ~= 0 then
+		local ObjectId = read_dword(m_player + 0x24)
+		return ObjectId
+	end
+	return nil
+end
+
 function OnScriptUnload()
     logo = nil
 end
@@ -41,7 +50,6 @@ function OnGameEnd(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say_all("<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>")
     say_all("Well done everyone. Good Game!")
-    say_all("Coming up next... you decide!")
     say_all("<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>-<>")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
@@ -62,8 +70,13 @@ function OnPlayerPrejoin(PlayerIndex)
     cprint("IP Address: " ..ip)
     cprint("IndexID: " ..id)
 end
-
 function OnPlayerJoin(PlayerIndex)
+    -- local name = get_var(PlayerIndex, "$name")
+    -- if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+        -- execute_command("msg_prefix \"\"")
+        -- say_all("Server Admin: " .. name)
+        -- execute_command("msg_prefix \"** SERVER ** \"")
+    -- end
     local game_mode = get_var(0, "$mode")
     if (game_mode == "jc-c") then
         -- {JC}-7 Snipers Dream Team Mod
@@ -81,17 +94,31 @@ end
 -- {JC}-7 Snipers Dream Team Mod
 function SDTM_WELCOME(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to {JC}-7 Snipers Dream Team Mod")
-    say(PlayerIndex, "The original Premier & most Respected S.D.T.M server.")
-    say(PlayerIndex, "Enjoy!")
+    say(PlayerIndex, "Welcome to {ØZ}-4 Snipers Dream Team Mod")
+    say(PlayerIndex, "A tribute to Skelito's original SDTM.")
+    say(PlayerIndex, "Game On!")
     execute_command("msg_prefix \"** SERVER ** \"")
-    timer(1000*10, "InformationBoard", PlayerIndex)
+    --timer(1000*13, "Motto", PlayerIndex)
+end
+
+function Motto(PlayerIndex)
+    rprint(PlayerIndex, "|cCompetition comes dealing with victory and loss.")
+    rprint(PlayerIndex, "|cIn loss we need leadership and positive reflection to progress.")
+    rprint(PlayerIndex, "|cIn victory we need to be humble and have compassion for those we have beaten.")
+    rprint(PlayerIndex, "|cBrotherhood and unity in war - Game on!")
+end
+    
+function nuke_announcement(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "For every 15 consecutive kills, you will receive the NUKE LAUNCHER.")
+    say(PlayerIndex, "Type /stats to see how many kills you need to receive it.")
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 -- vm315 [PGA] Pro Gamers Arena
 function PGA_WELCOME(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to [PGA] Pro Gamers Arena")
+    say(PlayerIndex, "Welcome to [PGA] Pro Gamers Arena - Public Scrim Server")
     say(PlayerIndex, "An environment for the avid tactical gamer!")
     say(PlayerIndex, "Enjoy!")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -174,40 +201,45 @@ end
 
 function OnServerCommand(PlayerIndex, Command)
     Command = string.lower(Command)
-    local game_mode = get_var(0, "$mode")
-    if (game_mode == "jc-c") then
-        if(Command == "history") then
-            rprint(PlayerIndex, "{JC}-7 was formally known as {OZ}-4 Snipers Dream Team Mod.")
-            rprint(PlayerIndex, "This server is proudly hosted and maintained by author and creator, Chalwk.")
-            rprint(PlayerIndex, "Featuring:")
-            rprint(PlayerIndex, " ")
-            rprint(PlayerIndex, "| An arsenal of fantastic gameplay, original weapon mechanics & game settings.")
-            rprint(PlayerIndex, "| Smart-Spawn-System, High-explosive sniper rounds w/splash Damage.")
-            rprint(PlayerIndex, "| Modified pistols w/ability to fire blank (suppressed) bullets,")
-            rprint(PlayerIndex, "and a clever coordination of strategically placed portals")
-            rprint(PlayerIndex, "designed to give either team an advantage or disadvantage")
-            rprint(PlayerIndex, "from various locations on the map + more!")
-            rprint(PlayerIndex, "You can discover everything else in your own time.")
-            rprint(PlayerIndex, " ")
-            rprint(PlayerIndex, "Join us as we continue our journey through the depths that is")
-            rprint(PlayerIndex, "the Premier & most Respected S.D.T.M server on Halo PC since 2009.")
-            rprint(PlayerIndex, "A legacy that I would like to hold in high esteem an opportunity")
-            rprint(PlayerIndex, "to say thank you to the community for supporting this server over the years.")
-            rprint(PlayerIndex, "Now get out there and kill something! No Mercy.")
-            rprint(PlayerIndex, "~ Chalwk.")
-            return false
-        else
-            return true
-        end
-    end
+    -- nothing to see
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local Message = string.lower(Message)
+    if (Message == "/suicide") or (Message == "\\suicide") then
+        execute_command("kill ", PlayerIndex)
+        execute_command("msg_prefix \"\"")
+        say_all("[R.I.P] " .. get_var(PlayerIndex, "$name") .. " committed suicide.")
+        execute_command("msg_prefix \"** SERVER ** \"")
+        return false
+    end
+    if (Message == "/st") or (Message == "\\st") then
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then
+            execute_command("msg_prefix \"\"")
+            execute_command("st ", PlayerIndex)
+            say_all(get_var(PlayerIndex, "$name") .. " switched teams!")
+            execute_command("msg_prefix \"** SERVER ** \"")
+            return false
+        end
+    end
+    if (Message == "/refill") or (Message == "\\refill") then
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then
+            execute_command("msg_prefix \"\"")
+            execute_command("ammo me 9999 1", PlayerIndex)
+            execute_command("ammo me 9999 5", PlayerIndex)
+            say(PlayerIndex, "Refilling your ammo, " .. get_var(PlayerIndex, "$name").."!")
+            execute_command("msg_prefix \"** SERVER ** \"")
+            return false
+        end
+    end
     if (Message == "/about") 
     or (Message == "/about ") 
     or (Message == "/info") 
     or (Message == "/info ")
+    or (Message == "\\about") 
+    or (Message == "\\about ") 
+    or (Message == "\\info") 
+    or (Message == "\\info ")
     or (Message == "@about") 
     or (Message == "@about ") 
     or (Message == "@info") 
@@ -215,13 +247,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
         say(PlayerIndex, "Sorry, that's private information!")
         return false
     end
-    local game_mode = get_var(0, "$mode")
-    if (game_mode == "jc-c") then
-        if (Message == "/notices") then
-            InfoBoardHandler(PlayerIndex)
-            return false
-        end
-    end
+    -- local game_mode = get_var(0, "$mode")
+    -- if (game_mode == "jc-c") then
+        -- if (Message == "/notices") then
+            -- InfoBoardHandler(PlayerIndex)
+            -- return false
+        -- end
+    -- end
 end
 
 function read_widestring(address, length)
