@@ -1,7 +1,6 @@
 --[[
 ------------------------------------
 Script Name: Spawn Fix PC/CE, for SAPP
--- NewText
 Written for FIG Community
 
 --  MAPS THIS SCRIPT FIXES
@@ -62,7 +61,7 @@ function OnNewGame()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    local CurrentCoords = GetPlayerCoords(PlayerIndex)
+    local CurrentCoords = inSphere(PlayerIndex)
     local coord = SelectNewCoord(PlayerIndex)
     local Team = get_var(PlayerIndex, "$team")
     local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
@@ -181,6 +180,18 @@ function moveobject(ObjectID, x, y, z)
     if get_object_memory(ObjectID) ~= 0 then
         write_vector3d((object) + 0x5C, x, y, z)
     end
+end
+
+function inSphere(ObjectID, X, Y, Z, R)
+	if get_object_memory(ObjectID) ~= 0 then
+		local object = get_object_memory(ObjectID)
+		local x,y,z = read_vector3d(object + 0x5C)
+		if (X - x)^2 + (Y - y)^2 + (Z - z)^2 <= R then
+            return true
+		else
+			return false
+        end
+	end
 end
 
 function GetPlayerCoords(PlayerIndex)
