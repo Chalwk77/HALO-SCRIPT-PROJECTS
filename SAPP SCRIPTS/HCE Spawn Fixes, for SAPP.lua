@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Script Name: Spawn Fix PC/CE, for SAPP
--- Test
+-- NewText
 Written for FIG Community
 
 --  MAPS THIS SCRIPT FIXES
