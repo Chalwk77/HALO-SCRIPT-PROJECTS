@@ -50,6 +50,9 @@ function OnVehicleEntry(PlayerIndex, Seat)
                             player_obj_id = vehicleId
                             moveobject(vehicleId, 122.482, -176.335, 4.695 + 0.15)
                             timer(1000*0.50, "exitvehicle", PlayerIndex)
+                            execute_command("msg_prefix \"\"")
+                            say(PlayerIndex, "[VTP] Teleporting!")
+                            execute_command("msg_prefix \"** SERVER ** \"")
                         end
                     end
                 end
@@ -67,20 +70,6 @@ function moveobject(ObjectID, x, y, z)
     if get_object_memory(ObjectID) ~= 0 then
         local veh_obj = get_object_memory(read_dword(object + 0x11C))
         write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
-    end
-end
-
-function isinvehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if player_object ~= 0 then
-        local vehicleId = read_dword(player_object + 0x11C)
-        if vehicleId == 0xFFFFFFFF then
-            return false
-        else
-            return true
-        end
-    else
-        return false
     end
 end
 
