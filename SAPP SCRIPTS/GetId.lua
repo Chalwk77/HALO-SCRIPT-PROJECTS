@@ -17,6 +17,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 		local str = string.format("picked up a %s, MetaIndex: 0x%X Slot: %u", PlayerIndex, name, MetaIndex, WeaponIndex)
         if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
             rprint(PlayerIndex, str)
+            cprint(str)
         end
 	end
 end
