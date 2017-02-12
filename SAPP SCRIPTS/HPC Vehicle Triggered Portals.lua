@@ -18,8 +18,15 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.10.0.0"
+Exit = nil
 gamesettings = {
-    ["DestroyVehicle"] = false,
+    -- Removes the vehicle.
+    -- Note, once removed, they will not respawn!
+    ["DestroyVehicle"] = true,
+    
+    -- Will spawn a new vehicle at the location of "TeleportFrom".
+    -- Note, these spawned vehicles will not 'reset' after X seconds when moved.
+    ["CreateNewVehicle"] = true,
 }
 -- X,Y,Z,Radius (From Coordinates)
 TeleportFrom = {}
@@ -43,20 +50,33 @@ TeleportTo[10] = { 83.66, -146.55, 0.02 }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+	register_callback(cb['EVENT_GAME_START'],"OnNewGame")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
     end
 end
 
-function OnScriptUnload() end
+function OnScriptUnload() 
+    Exit = nil
+end
 
 function OnNewGame(map)
     mapname = get_var(0, "$map")
 end
 
+function OnGameEnd()
+    Exit = nil
+end
+
 function OnVehicleEntry(PlayerIndex, Seat)
     local player_object = get_dynamic_player(PlayerIndex)
+    VehicleID = read_dword(player_object + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then 
+        return false 
+    end
+    obj_id = get_object_memory(VehicleID)
+    VehX, VehY, VehZ = read_vector3d(obj_id + 0x5c)
     if (player_object ~= 0) then
         if (mapname == "bloodgulch") then
             if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
@@ -67,9 +87,6 @@ function OnVehicleEntry(PlayerIndex, Seat)
                 insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[4][1], TeleportFrom[4][2], TeleportFrom[4][3], TeleportFrom[4][4]) == true then
                 insphere = true
-            end
-            if insphere then 
-                InitiateTeleport(PlayerIndex)
             end
         end
         if (mapname == "sidewinder") then
@@ -84,9 +101,9 @@ function OnVehicleEntry(PlayerIndex, Seat)
             elseif inSphere(PlayerIndex, TeleportFrom[10][1], TeleportFrom[10][2], TeleportFrom[10][3], TeleportFrom[10][4]) == true then
                 insphere = true
             end
-            if insphere then 
-                InitiateTeleport(PlayerIndex)
-            end
+        end
+        if insphere then 
+            InitiateTeleport(PlayerIndex)
         end
     end
 end
@@ -104,7 +121,7 @@ function InitiateTeleport(PlayerIndex)
             local coordinates = SelectRandomPortal()
             if coordinates then
                 moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
-                timer(1000*0.955, "exitvehicle", PlayerIndex)
+                Exit = timer(1000*0.955, "exitvehicle", PlayerIndex)
                 execute_command("msg_prefix \"\"")
                 say(PlayerIndex, "[VTP] Teleporting!")
                 execute_command("msg_prefix \"** SERVER ** \"")
@@ -123,6 +140,9 @@ function exitvehicle(PlayerIndex)
     exit_vehicle(PlayerIndex)
     if gamesettings["DestroyVehicle"] then
         timer(1000*1, "Destroyvehicle", PlayerIndex)
+    end
+    if gamesettings["CreateNewVehicle"] then
+        spawn_object("vehi", "vehicles\\warthog\\mp_warthog", VehX, VehY, VehZ, 0.15)
     end
 end
 
