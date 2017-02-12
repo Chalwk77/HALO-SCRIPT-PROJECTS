@@ -8,6 +8,7 @@ Written for FIG Community
     dioptase
     deadend
     municipality
+    sniperbluff
 
 Description:
     The maps listed above each have 1 or more broken spawn points.
@@ -37,7 +38,9 @@ BrokenCoords = {
     2.49,- 4.95,- 0.31,         -- Spawn in the ground
     6.67,2.11,3.71,             -- Spawn in fire
     -- municipality --
-    - 31.99,35.35,- 0.96        -- Under ground
+    - 31.99,35.35,- 0.96,       -- Under ground
+    -- sniperbluff --
+    19.75, -13.17, 2.44         -- Inside a rock
 }	
 
 function OnScriptLoad()
@@ -77,6 +80,8 @@ function OnPlayerSpawn(PlayerIndex)
                     moveobject(player_obj_id, deadend_SlayerCoords[coord][1], deadend_SlayerCoords[coord][2], deadend_SlayerCoords[coord][3] + 0.15)
                 elseif (mapname == "municipality") then
                     moveobject(player_obj_id, municipality_SlayerCoords[coord][1], municipality_SlayerCoords[coord][2], municipality_SlayerCoords[coord][3] + 0.15)
+                elseif (mapname == "sniperbluff") then
+                    moveobject(player_obj_id, sniperbluff_SlayerCoords[coord][1], sniperbluff_SlayerCoords[coord][2], sniperbluff_SlayerCoords[coord][3] + 0.15)
                 end
             elseif team_play == true then
                 if (mapname == "emt_inverno") then
@@ -103,6 +108,12 @@ function OnPlayerSpawn(PlayerIndex)
                     elseif (Team == "blue") then
                         moveobject(player_obj_id, municipality_BlueCoords[coord][1], municipality_BlueCoords[coord][2], municipality_BlueCoords[coord][3] + 0.15)
                     end
+                elseif (mapname == "sniperbluff") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, sniperbluff_RedCoords[coord][1], sniperbluff_RedCoords[coord][2], sniperbluff_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
+                        moveobject(player_obj_id, sniperbluff_BlueCoords[coord][1], sniperbluff_BlueCoords[coord][2], sniperbluff_BlueCoords[coord][3] + 0.15)
+                    end
                 end
             end
         end
@@ -127,6 +138,10 @@ function SelectNewCoord(PlayerIndex)
         elseif (mapname == "municipality") then
             if #municipality_SlayerCoords > 0 then
                 return rand(1, #municipality_SlayerCoords + 1)
+            end
+        elseif (mapname == "sniperbluff") then
+            if #sniperbluff_SlayerCoords > 0 then
+                return rand(1, #sniperbluff_SlayerCoords + 1)
             end
         end
     elseif team_play == true then
@@ -168,6 +183,16 @@ function SelectNewCoord(PlayerIndex)
             elseif (Team == "blue") then
                 if #municipality_BlueCoords > 0 then
                     return rand(1, #municipality_BlueCoords + 1)
+                end
+            end
+        elseif (mapname == "sniperbluff") then
+            if (Team == "red") then
+                if #sniperbluff_RedCoords > 0 then
+                    return rand(sniperbluff_RedCoords)
+                end
+            elseif (Team == "blue") then
+                if #sniperbluff_BlueCoords > 0 then
+                    return rand(1, #sniperbluff_BlueCoords + 1)
                 end
             end
         end
@@ -247,6 +272,15 @@ function LoadTables()
     municipality_RedCoords[1] = { - 17.63, - 16.97, 0.05 }
     municipality_BlueCoords[1] = { - 19.46, 25.63, 2.06 }
     municipality_SlayerCoords[1] = { - 10.35, 18.78, - 0.38 }
+    
+    -- sniperbluff --
+    sniperbluff_RedCoords = { }
+    sniperbluff_BlueCoords = { }
+    sniperbluff_SlayerCoords = { }
+
+    sniperbluff_RedCoords[1] = { - 6.65, 18.06, 3.93 }
+    sniperbluff_BlueCoords[1] = { 11.71, - 21.86, 2.47 }
+    sniperbluff_SlayerCoords[1] = { 16.79, - 7.52, 2.32 }
 end
 
 function OnError(Message)
