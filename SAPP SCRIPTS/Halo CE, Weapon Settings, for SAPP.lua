@@ -23,8 +23,8 @@ weapons[00000] = "nil\\nil\\nil"
 -- ==================================================================================--
 -- CONFIGURATION STARTS HERE -- 
 gamesettings = {
-    ["GiveFragGrenades"] = true,
-    ["GivePlasmaGrenades"] = true,
+    ["Give_Frag_Grenades"] = true,
+    ["Give_Plasma_Grenades"] = true
 }
 
 -- Default Weapons
@@ -135,10 +135,10 @@ function OnPlayerSpawn(PlayerIndex)
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
-            if (gamesettings["GiveFragGrenades"] == true) then
+            if (gamesettings["Give_Frag_Grenades"] == true) then
                 write_word(player_object + 0x31E, frags[mapname])
             end
-            if (gamesettings["GivePlasmaGrenades"] == true) then
+            if (gamesettings["Give_Plasma_Grenades"] == true) then
                 write_word(player_object + 0x31F, plasmas[mapname])
             end
         end
