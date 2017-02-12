@@ -70,7 +70,7 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
-                -- Free for All (FAA) ------------------------------------------------
+                -- SLAYER BASED GAME (Free for All) -------------------------------------------------------------------
                 if not team_play then
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
@@ -106,12 +106,12 @@ function OnTick()
                         weapon[i] = 1
                     end
                 end
-------------------------------------------------------------------------------------------------
-                -- TEAM PLAY -------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+                -- TEAM BASED GAME -------------------------------------------------------------------
                 if team_play then
-                    if (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    if (mapname == "dustbeta") then
+                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
