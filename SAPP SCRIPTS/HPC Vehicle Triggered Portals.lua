@@ -60,24 +60,31 @@ function OnVehicleEntry(PlayerIndex, Seat)
     if (player_object ~= 0) then
         if (mapname == "bloodgulch") then
             if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[2][1], TeleportFrom[2][2], TeleportFrom[2][3], TeleportFrom[2][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[3][1], TeleportFrom[3][2], TeleportFrom[3][3], TeleportFrom[3][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[4][1], TeleportFrom[4][2], TeleportFrom[4][3], TeleportFrom[4][4]) == true then
+                insphere = true
+            end
+            if insphere then 
                 InitiateTeleport(PlayerIndex)
             end
-        elseif (mapname == "sidewinder") then
+        end
+        if (mapname == "sidewinder") then
             if inSphere(PlayerIndex, TeleportFrom[6][1], TeleportFrom[6][2], TeleportFrom[6][3], TeleportFrom[6][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[7][1], TeleportFrom[7][2], TeleportFrom[7][3], TeleportFrom[7][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[8][1], TeleportFrom[8][2], TeleportFrom[8][3], TeleportFrom[8][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[9][1], TeleportFrom[9][2], TeleportFrom[9][3], TeleportFrom[9][4]) == true then
-                InitiateTeleport(PlayerIndex)
+                insphere = true
             elseif inSphere(PlayerIndex, TeleportFrom[10][1], TeleportFrom[10][2], TeleportFrom[10][3], TeleportFrom[10][4]) == true then
+                insphere = true
+            end
+            if insphere then 
                 InitiateTeleport(PlayerIndex)
             end
         end
