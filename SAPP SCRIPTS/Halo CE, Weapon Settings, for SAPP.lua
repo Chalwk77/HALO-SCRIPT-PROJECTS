@@ -81,7 +81,7 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         weapon[i] = 1
-                        elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAPNAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         weapon[i] = 1
