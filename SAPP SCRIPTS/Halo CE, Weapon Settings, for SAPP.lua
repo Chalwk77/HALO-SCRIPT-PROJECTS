@@ -30,17 +30,16 @@ weapons[10] = "weapons\\shotgun\\shotgun"
 ----------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons:
     -- dust beta --
-weapons[11] = "weapons\p90\p90" -- dustbeta
-weapons[12] = "cod4\weapons\desert eagle\desert eagle" -- dustbeta
+weapons[11] = "weapons\p90\p90"
+weapons[12] = "cod4\weapons\desert eagle\desert eagle"
 
     -- snowdrop --
-weapons[13] = "weapons\<weapon name>\<weapon name>" -- dustbeta
-weapons[14] = "cod4\weapons\<weapon name>\<weapon name>" -- dustbeta
-
+weapons[13] = "weapons\<weapon name>\<weapon name>"
+weapons[14] = "cod4\weapons\<weapon name>\<weapon name>"
 
     -- h2_momentum --
-weapons[15] = "weapons\<weapon name>\<weapon name>" -- dustbeta
-weapons[16] = "cod4\weapons\<weapon name>\<weapon name>" -- dustbeta
+weapons[15] = "weapons\<weapon name>\<weapon name>"
+weapons[16] = "cod4\weapons\<weapon name>\<weapon name>"
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -48,7 +47,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
-        team_play = getteamplay()
     end
 end
 
@@ -62,15 +60,6 @@ end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
-    team_play = getteamplay()
-end
-
-function getteamplay()
-    if get_var(0, "$ffa") == "0" then
-        return true
-    else
-        return false
-    end
 end
 
 function OnTick()
@@ -80,40 +69,38 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
-                if not team_play then
-                    if (mapname == "dustbeta") then
-                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "snowdrop") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "h2_momentum") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                        weapon[i] = 1
-                    end
+                if (mapname == "dustbeta") then
+                    assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "snowdrop") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "h2_momentum") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "MAP_NAME_HERE") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "MAP_NAME_HERE") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "MAP_NAME_HERE") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "MAP_NAME_HERE") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
+                elseif (mapname == "MAP_NAME_HERE") then
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    weapon[i] = 1
                 end
             end
         end
