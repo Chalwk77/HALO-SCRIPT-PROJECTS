@@ -19,6 +19,11 @@ one_frag = {}
 one_plasma = {}
 plasma_count = {}
 
+gamesettings = {
+    ["GiveFragGrenades"] = true,
+    ["GivePlasmaGrenades"] = true,
+}
+
 -- Default Weapons
 ----------------------------------------------------------------------------------------------------------------------------------
 weapons[1] = "weapons\\pistol\\pistol"
@@ -65,8 +70,12 @@ function OnPlayerSpawn(PlayerIndex)
 	if player_alive(PlayerIndex) then
 		local player_object = get_dynamic_player(PlayerIndex)
 		if (player_object ~= 0) then
-            write_word(player_object + 0x31E, frags[mapname])
-            write_word(player_object + 0x31F, plasmas[mapname])
+            if (gamesettings["GiveFragGrenades"] == true) then
+                write_word(player_object + 0x31E, frags[mapname])
+            end
+            if (gamesettings["GivePlasmaGrenades"] == true) then
+                write_word(player_object + 0x31F, plasmas[mapname])
+            end
 		end
 	end
 end
@@ -122,8 +131,11 @@ function OnTick()
 end
 
 function Load_Tables()
-    --  FRAG
+    --  FRAG GRENADES
 	frags = {
+		h2_momentum     = 	2,
+		snowdrop        = 	2,
+		dustbeta        = 	2,
 		ewok			= 	2,
 		ratrace			= 	2,
 		bloodgulch		= 	4,
@@ -139,8 +151,11 @@ function Load_Tables()
 		deltaruins		= 	2,
 		garden_ce		= 	2,
 	}
-    --PLASMA
+    --  PLASMA GRENADES
 	plasmas = {
+		h2_momentum     = 	2,
+		snowdrop        = 	2,
+		dustbeta        = 	2,
 		ewok			= 	2,
 		ratrace			= 	2,
 		bloodgulch		= 	4,
