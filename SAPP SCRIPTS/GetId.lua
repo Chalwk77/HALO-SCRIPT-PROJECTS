@@ -15,6 +15,9 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 		local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
 		local MetaIndex = read_dword(WeaponObj)
 		local str = string.format("picked up a %s, MetaIndex: 0x%X Slot: %u", PlayerIndex, name, MetaIndex, WeaponIndex)
-        rprint(PlayerIndex, str)
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
+            rprint(PlayerIndex, str)
+        end
 	end
 end
+
