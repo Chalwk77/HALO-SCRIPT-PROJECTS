@@ -19,12 +19,12 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.10.0.0"
 gamesettings = {
-    ["DestroyVehicle"] = false,
+    ["DestroyVehicle"] = true,
 }
 -- X,Y,Z,Radius (From Coordinates)
 TeleportFrom = {}
 TeleportFrom[1] = { 86.79, -172.32, 0.53, 5 }   -- Chain gun Hog (beside redbase)
-TeleportFrom[2] = { 64.16, 176.91, 4.48, 5 }    -- Chain gun Hog (far right-hand corner of redbase <slope>)
+TeleportFrom[2] = { 64.16, -176.91, 4.48, 5 }   -- Chain gun Hog (far right-hand corner of redbase <slope>)
 TeleportFrom[3] = { 28.85, -90.83, 0.84, 5}     -- Chain gun Hog, Left side of Blue Base
 TeleportFrom[4] = { 46.17, -64.97, 1.64, 5}     -- Chain gun Hog, Behind Blue Base
 
@@ -56,29 +56,51 @@ function OnNewGame(map)
 end
 
 function OnVehicleEntry(PlayerIndex, Seat)
-    player_object = get_dynamic_player(PlayerIndex)
-    VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-    MetaIndex = read_dword(VehicleObj)
-    player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-    vehicleId = read_dword(player_object + 0x11C)
-    local coordinates = SelectRandomPortal()
-    if player_alive(PlayerIndex) then
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
         if (mapname == "bloodgulch") then
-            if (player_object ~= 0) then
-                if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
-                    if MetaIndex == 0xE3D40260 then
-                        if Seat == "1" then
-                            player_obj_id = vehicleId
-                            if coordinates then
-                                moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
-                                timer(1000*0.955, "exitvehicle", PlayerIndex)
-                                execute_command("msg_prefix \"\"")
-                                say(PlayerIndex, "[VTP] Teleporting!")
-                                execute_command("msg_prefix \"** SERVER ** \"")
-                            end
-                        end
-                    end
-                end
+            if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[2][1], TeleportFrom[2][2], TeleportFrom[2][3], TeleportFrom[2][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[3][1], TeleportFrom[3][2], TeleportFrom[3][3], TeleportFrom[3][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[4][1], TeleportFrom[4][2], TeleportFrom[4][3], TeleportFrom[4][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            end
+        elseif (mapname == "sidewinder") then
+            if inSphere(PlayerIndex, TeleportFrom[6][1], TeleportFrom[6][2], TeleportFrom[6][3], TeleportFrom[6][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[7][1], TeleportFrom[7][2], TeleportFrom[7][3], TeleportFrom[7][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[8][1], TeleportFrom[8][2], TeleportFrom[8][3], TeleportFrom[8][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[9][1], TeleportFrom[9][2], TeleportFrom[9][3], TeleportFrom[9][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            elseif inSphere(PlayerIndex, TeleportFrom[10][1], TeleportFrom[10][2], TeleportFrom[10][3], TeleportFrom[10][4]) == true then
+                InitiateTeleport(PlayerIndex)
+            end
+        end
+    end
+end
+
+function InitiateTeleport(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
+    local MetaIndex = read_dword(VehicleObj)
+    if MetaIndex == 0xE3D40260 then
+        local seat = read_word(player_object + 0x2F0)
+        if VehicleObj ~= 0 and seat == 1 then
+            local vehicleId = read_dword(player_object + 0x11C)
+            player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+            player_obj_id = vehicleId
+            local coordinates = SelectRandomPortal()
+            if coordinates then
+                moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
+                timer(1000*0.955, "exitvehicle", PlayerIndex)
+                execute_command("msg_prefix \"\"")
+                say(PlayerIndex, "[VTP] Teleporting!")
+                execute_command("msg_prefix \"** SERVER ** \"")
             end
         end
     end
@@ -86,7 +108,7 @@ end
 
 function Destroyvehicle(PlayerIndex, VehicleObj)
     if not PlayerInVehicle(PlayerIndex) then
-        destroy_object(vehicleId)
+        destroy_object(player_obj_id)
     end
 end
 
