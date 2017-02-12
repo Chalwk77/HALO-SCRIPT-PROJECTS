@@ -61,6 +61,14 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
+    mapname = get_var(0, "$map")
+	if player_alive(PlayerIndex) then
+		local player_object = get_dynamic_player(PlayerIndex)
+		if (player_object ~= 0) then
+            write_word(player_object + 0x31E, frags[mapname])
+            write_word(player_object + 0x31F, plasmas[mapname])
+		end
+	end
 end
 
 function OnNewGame()
@@ -76,9 +84,6 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 if (mapname == "dustbeta") then
-                    write_word(player_object + 0x31E, frags[mapname])
-                    write_word(player_object + 0x31F, plasmas[mapname])
-                    
                     assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                     assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                     weapon[i] = 1
