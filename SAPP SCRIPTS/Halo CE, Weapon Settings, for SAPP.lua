@@ -2,25 +2,25 @@
 ------------------------------------
 Script Name: Custom Weapon Spawns, for SAPP
 Written for FIG Community
-    
+
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 All Rights Reserved.
 
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
 -----------------------------------
-]]-- 
-
+]]--
+-- Do not touch --
 api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
-frags = {}
-plasmas = {}
-weapons[0000] = "nil\\nil\\nil"
+frags = { }
+plasmas = { }
+weapons[00000] = "nil\\nil\\nil"
+-- ^^ Do not touch ^^ --
 
-
---==================================================================================--
---==================================================================================--
+-- ==================================================================================--
+-- ==================================================================================--
 -- CONFIGURATION STARTS HERE -- 
 gamesettings = {
     ["GiveFragGrenades"] = true,
@@ -41,7 +41,7 @@ weapons[9] = "weapons\\needler\\mp_needler"
 weapons[10] = "weapons\\shotgun\\shotgun"
 ----------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons:
-    -- dust beta --
+-- dust beta --
 weapons[11] = "weapons\\p90\\p90"
 weapons[12] = "cod4\\weapons\\desert eagle\\desert eagle"
 weapons[13] = "weapons\\scout\\scout"
@@ -54,7 +54,7 @@ weapons[19] = "cod4\\weapons\\mp5\\mp5"
 weapons[20] = "cod4\\weapons\\m82\\m82"
 weapons[21] = "cod4\\weapons\\m16\\m16" -- Varient 2
 weapons[22] = "cod4\\weapons\\g36\\g36"
-    -- snowdrop --
+-- snowdrop --
 weapons[23] = "cmt\\weapons\\human\\ma5k\\ma5k mp"
 weapons[24] = "cmt\\weapons\\human\\shotgun\\shotgun"
 weapons[25] = "halo3\\weapons\\battle rifle\\tactical battle rifle"
@@ -64,52 +64,52 @@ weapons[28] = "weapons\\gauss sniper\\gauss sniper"
 weapons[29] = "weapons\\<weapon name>\\<weapon name>"
 weapons[30] = "cod4\\weapons\\<weapon name>\\<weapon name>"
 
-
-function Load_Tables()
+function GrenadeTable()
     --  FRAG GRENADES
-	frags = {
-		h2_momentum     = 	2,
-		snowdrop        = 	2,
-		dustbeta        = 	2,
-		ewok			= 	2,
-		ratrace			= 	2,
-		bloodgulch		= 	2,
-		beavercreek		= 	2,
-		carousel		= 	2,
-		longest			= 	2,
-		prisoner		= 	2,
-		wizard			= 	2,
-		hangemhigh		= 	2,
-		damnation		= 	2,
-		trainingday		= 	2,
-		hydroxide		= 	2,
-		deltaruins		= 	2,
-		garden_ce		= 	2,
-	}
+    frags = {
+        h2_momentum = 2,
+        snowdrop = 2,
+        dustbeta = 2,
+        ewok = 2,
+        ratrace = 2,
+        bloodgulch = 2,
+        beavercreek = 2,
+        carousel = 2,
+        longest = 2,
+        prisoner = 2,
+        wizard = 2,
+        hangemhigh = 2,
+        damnation = 2,
+        trainingday = 2,
+        hydroxide = 2,
+        deltaruins = 2,
+        garden_ce = 2,
+    }
     --  PLASMA GRENADES
-	plasmas = {
-		h2_momentum     = 	2,
-		snowdrop        = 	2,
-		dustbeta        = 	0, -- Dustbeta doesn't have plasma grenades.
-		ewok			= 	2,
-		ratrace			= 	2,
-		bloodgulch		= 	2,
-		beavercreek		= 	2,
-		carousel		= 	2,
-		longest			= 	2,
-		prisoner		= 	2,
-		wizard			= 	2,
-		hangemhigh		= 	2,
-		damnation		= 	2,
-		trainingday		= 	2,
-		hydroxide		= 	2,
-		deltaruins		= 	2,
-		garden_ce		= 	2,
-	}
+    plasmas = {
+        h2_momentum = 2,
+        snowdrop = 2,
+        dustbeta = 0,
+        -- Dustbeta doesn't have plasma grenades.
+        ewok = 2,
+        ratrace = 2,
+        bloodgulch = 2,
+        beavercreek = 2,
+        carousel = 2,
+        longest = 2,
+        prisoner = 2,
+        wizard = 2,
+        hangemhigh = 2,
+        damnation = 2,
+        trainingday = 2,
+        hydroxide = 2,
+        deltaruins = 2,
+        garden_ce = 2,
+    }
 end
 -- CONFIGURATION ENDS HERE --
---==================================================================================--
---==================================================================================--
+-- ==================================================================================--
+-- ==================================================================================--
 
 
 -- Warning: do not touch anything below unless you know what you are doing.
@@ -119,41 +119,47 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
-        Load_Tables()
+        GrenadeTable()
     end
 end
 
 function OnScriptUnload()
+    frags = { }
+    plasmas = { }
     weapon = { }
     weapons = { }
-    frags = {}
-    plasmas = {}
 end
 
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
     mapname = get_var(0, "$map")
-	if player_alive(PlayerIndex) then
-		local player_object = get_dynamic_player(PlayerIndex)
-		if (player_object ~= 0) then
+    if player_alive(PlayerIndex) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if (player_object ~= 0) then
             if (gamesettings["GiveFragGrenades"] == true) then
                 write_word(player_object + 0x31E, frags[mapname])
             end
             if (gamesettings["GivePlasmaGrenades"] == true) then
                 write_word(player_object + 0x31F, plasmas[mapname])
             end
-		end
-	end
+        end
+    end
 end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
-    Load_Tables()
+    GrenadeTable()
 end
 
--- INFORMATION:
--- To assign a weapon, change the numbers "00000" to match the corrosponding index number in the weapon table at the top of the script.
--- Note, you cannot import weapons from one map to another with this script.
+--      TO ASSIGN A WEAPON:
+--      Change the numbers "00000" to match the corrosponding index number in the weapon table at the top of the script.
+--      Note, you cannot import weapons from one map to another with this script.
+
+--      The only lines you need to edit below are:
+--          this one --->>>         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+--          this one --->>>         if (mapname == "MAP_NAME_HERE") then
+--          Change MAP_NAME_HERE to the name of the map you want to assign weapons to.
+--      Note, map names are case/character sensitive.
 
 function OnTick()
     for i = 1, 16 do
@@ -162,9 +168,9 @@ function OnTick()
             if (weapon[i] == 0) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
---                ====== INFO ======
---                Remove the comment(s) to use these additional weapon entries. 
---                A comment starts anywhere with a double hyphen ( -- ).
+                --      ====== INFO ======
+                --      Remove the comment(s) to use these additional weapon entries.
+                --      A comment starts anywhere with a double hyphen ( -- ).
                 if (mapname == "dustbeta") then
                     assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                     assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
