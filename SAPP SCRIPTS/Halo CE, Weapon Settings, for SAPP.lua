@@ -29,7 +29,8 @@ weapons[9] = "weapons\\needler\\mp_needler"
 weapons[10] = "weapons\\shotgun\\shotgun"
 ----------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons:
-weapons[11] = "weapons\\m16\\m16" -- Dustbeta
+weapons[11] = "weapons\p90\p90" -- Dustbeta
+weapons[12] = "cod4\weapons\desert eagle\desert eagle" -- Dustbeta
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -71,9 +72,9 @@ function OnTick()
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- Free for All (FAA) ------------------------------------------------
                 if not team_play then
-                    if (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                    if (mapname == "dustbeta") then
+                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         weapon[i] = 1
                     elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
