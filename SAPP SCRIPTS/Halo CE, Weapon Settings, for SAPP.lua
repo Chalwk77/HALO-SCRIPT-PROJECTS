@@ -14,10 +14,8 @@ All Rights Reserved.
 api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
-frag_count = {}
-one_frag = {}
-one_plasma = {}
-plasma_count = {}
+frags = {}
+plasmas = {}
 
 
 --==================================================================================--
@@ -113,7 +111,10 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
+    weapon = { }
     weapons = { }
+    frags = {}
+    plasmas = {}
 end
 
 function OnPlayerSpawn(PlayerIndex)
