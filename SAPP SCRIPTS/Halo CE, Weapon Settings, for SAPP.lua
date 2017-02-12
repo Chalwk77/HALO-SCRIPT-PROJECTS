@@ -19,6 +19,9 @@ one_frag = {}
 one_plasma = {}
 plasma_count = {}
 
+
+--==================================================================================--
+--==================================================================================--
 -- CONFIGURATION STARTS HERE -- 
 gamesettings = {
     ["GiveFragGrenades"] = true,
@@ -94,6 +97,8 @@ function Load_Tables()
 	}
 end
 -- CONFIGURATION ENDS HERE --
+--==================================================================================--
+--==================================================================================--
 
 
 -- Warning: do not touch anything below unless you know what you are doing.
