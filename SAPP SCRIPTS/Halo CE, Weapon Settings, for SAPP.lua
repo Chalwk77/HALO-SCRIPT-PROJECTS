@@ -19,6 +19,7 @@ one_frag = {}
 one_plasma = {}
 plasma_count = {}
 
+-- CONFIGURATION STARTS HERE -- 
 gamesettings = {
     ["GiveFragGrenades"] = true,
     ["GivePlasmaGrenades"] = true,
@@ -49,7 +50,10 @@ weapons[14] = "cod4\weapons\<weapon name>\<weapon name>"
     -- h2_momentum --
 weapons[15] = "weapons\<weapon name>\<weapon name>"
 weapons[16] = "cod4\weapons\<weapon name>\<weapon name>"
+-- CONFIGURATION ENDS HERE --
 
+
+-- Warning: do not touch anything below unless you know what you are doing.
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
