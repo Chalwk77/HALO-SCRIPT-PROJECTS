@@ -14,6 +14,10 @@ All Rights Reserved.
 api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
+frag_count = {}
+one_frag = {}
+one_plasma = {}
+plasma_count = {}
 
 -- Default Weapons
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -47,6 +51,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
+        Load_Tables()
     end
 end
 
@@ -60,6 +65,7 @@ end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
+    Load_Tables()
 end
 
 function OnTick()
@@ -70,6 +76,9 @@ function OnTick()
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 if (mapname == "dustbeta") then
+                    write_word(player_object + 0x31E, frags[mapname])
+                    write_word(player_object + 0x31F, plasmas[mapname])
+                    
                     assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                     assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                     weapon[i] = 1
@@ -105,4 +114,41 @@ function OnTick()
             end
         end
     end
+end
+
+function Load_Tables()
+    --  FRAG
+	frags = {
+		ewok			= 	2,
+		ratrace			= 	2,
+		bloodgulch		= 	4,
+		beavercreek		= 	4,
+		carousel		= 	4,
+		longest			= 	1,
+		prisoner		= 	3,
+		wizard			= 	2,
+		hangemhigh		= 	4,
+		damnation		= 	4,
+		trainingday		= 	4,
+		hydroxide		= 	2,
+		deltaruins		= 	2,
+		garden_ce		= 	2,
+	}
+    --PLASMA
+	plasmas = {
+		ewok			= 	2,
+		ratrace			= 	2,
+		bloodgulch		= 	4,
+		beavercreek		= 	4,
+		carousel		= 	4,
+		longest			= 	1,
+		prisoner		= 	3,
+		wizard			= 	2,
+		hangemhigh		= 	4,
+		damnation		= 	4,
+		trainingday		= 	4,
+		hydroxide		= 	2,
+		deltaruins		= 	2,
+		garden_ce		= 	2,
+	}
 end
