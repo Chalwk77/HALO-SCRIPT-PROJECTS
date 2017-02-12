@@ -43,14 +43,26 @@ weapons[10] = "weapons\\shotgun\\shotgun"
     -- dust beta --
 weapons[11] = "weapons\\p90\\p90"
 weapons[12] = "cod4\\weapons\\desert eagle\\desert eagle"
-
+weapons[13] = "weapons\\scout\\scout"
+weapons[14] = "weapons\\m4a1\\m4a1"
+weapons[15] = "weapons\\m249\\m249 saw"
+weapons[16] = "weapons\\m16\\m16" -- Varient 1
+weapons[17] = "weapons\\bomb\\bomb"
+weapons[18] = "weapons\\92fs\\92fs pistol"
+weapons[19] = "cod4\\weapons\\mp5\\mp5"
+weapons[20] = "cod4\\weapons\\m82\\m82"
+weapons[21] = "cod4\\weapons\\m16\\m16" -- Varient 2
+weapons[22] = "cod4\\weapons\\g36\\g36"
     -- snowdrop --
-weapons[13] = "weapons\\<weapon name>\\<weapon name>"
-weapons[14] = "cod4\\weapons\\<weapon name>\\<weapon name>"
+weapons[23] = "cmt\\weapons\\human\\ma5k\\ma5k mp"
+weapons[24] = "cmt\\weapons\\human\\shotgun\\shotgun"
+weapons[25] = "halo3\\weapons\\battle rifle\\tactical battle rifle"
+weapons[26] = "haloceripper.webs.com\\zteam\\vehicles\\h_turrent\\turrent gun"
+weapons[27] = "weapons\\cad assault rifle\\assault rifle"
+weapons[28] = "weapons\\gauss sniper\\gauss sniper"
+weapons[29] = "weapons\\<weapon name>\\<weapon name>"
+weapons[30] = "cod4\\weapons\\<weapon name>\\<weapon name>"
 
-    -- h2_momentum --
-weapons[15] = "weapons\\<weapon name>\\<weapon name>"
-weapons[16] = "cod4\\weapons\\<weapon name>\\<weapon name>"
 
 function Load_Tables()
     --  FRAG GRENADES
@@ -77,7 +89,7 @@ function Load_Tables()
 	plasmas = {
 		h2_momentum     = 	2,
 		snowdrop        = 	2,
-		dustbeta        = 	2,
+		dustbeta        = 	0, -- Dustbeta doesn't have plasma grenades.
 		ewok			= 	2,
 		ratrace			= 	2,
 		bloodgulch		= 	2,
@@ -153,7 +165,7 @@ function OnTick()
                     assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                     assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                     weapon[i] = 1
-                elseif (mapname == "h2_momentum") then
+                elseif (mapname == "MAP_NAME_HERE") then
                     assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                     assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                     weapon[i] = 1
