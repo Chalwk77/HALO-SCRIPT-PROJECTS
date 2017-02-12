@@ -89,8 +89,7 @@ function GrenadeTable()
     plasmas = {
         h2_momentum = 2,
         snowdrop = 2,
-        dustbeta = 0,
-        -- Dustbeta doesn't have plasma grenades.
+        dustbeta = 0, -- Dustbeta doesn't have plasma grenades.
         ewok = 2,
         ratrace = 2,
         bloodgulch = 2,
