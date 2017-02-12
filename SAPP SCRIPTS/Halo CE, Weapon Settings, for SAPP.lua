@@ -50,6 +50,49 @@ weapons[14] = "cod4\weapons\<weapon name>\<weapon name>"
     -- h2_momentum --
 weapons[15] = "weapons\<weapon name>\<weapon name>"
 weapons[16] = "cod4\weapons\<weapon name>\<weapon name>"
+
+function Load_Tables()
+    --  FRAG GRENADES
+	frags = {
+		h2_momentum     = 	2,
+		snowdrop        = 	2,
+		dustbeta        = 	2,
+		ewok			= 	2,
+		ratrace			= 	2,
+		bloodgulch		= 	4,
+		beavercreek		= 	4,
+		carousel		= 	4,
+		longest			= 	1,
+		prisoner		= 	3,
+		wizard			= 	2,
+		hangemhigh		= 	4,
+		damnation		= 	4,
+		trainingday		= 	4,
+		hydroxide		= 	2,
+		deltaruins		= 	2,
+		garden_ce		= 	2,
+	}
+    --  PLASMA GRENADES
+	plasmas = {
+		h2_momentum     = 	2,
+		snowdrop        = 	2,
+		dustbeta        = 	2,
+		ewok			= 	2,
+		ratrace			= 	2,
+		bloodgulch		= 	4,
+		beavercreek		= 	4,
+		carousel		= 	4,
+		longest			= 	1,
+		prisoner		= 	3,
+		wizard			= 	2,
+		hangemhigh		= 	4,
+		damnation		= 	4,
+		trainingday		= 	4,
+		hydroxide		= 	2,
+		deltaruins		= 	2,
+		garden_ce		= 	2,
+	}
+end
 -- CONFIGURATION ENDS HERE --
 
 
@@ -132,47 +175,4 @@ function OnTick()
             end
         end
     end
-end
-
-function Load_Tables()
-    --  FRAG GRENADES
-	frags = {
-		h2_momentum     = 	2,
-		snowdrop        = 	2,
-		dustbeta        = 	2,
-		ewok			= 	2,
-		ratrace			= 	2,
-		bloodgulch		= 	4,
-		beavercreek		= 	4,
-		carousel		= 	4,
-		longest			= 	1,
-		prisoner		= 	3,
-		wizard			= 	2,
-		hangemhigh		= 	4,
-		damnation		= 	4,
-		trainingday		= 	4,
-		hydroxide		= 	2,
-		deltaruins		= 	2,
-		garden_ce		= 	2,
-	}
-    --  PLASMA GRENADES
-	plasmas = {
-		h2_momentum     = 	2,
-		snowdrop        = 	2,
-		dustbeta        = 	2,
-		ewok			= 	2,
-		ratrace			= 	2,
-		bloodgulch		= 	4,
-		beavercreek		= 	4,
-		carousel		= 	4,
-		longest			= 	1,
-		prisoner		= 	3,
-		wizard			= 	2,
-		hangemhigh		= 	4,
-		damnation		= 	4,
-		trainingday		= 	4,
-		hydroxide		= 	2,
-		deltaruins		= 	2,
-		garden_ce		= 	2,
-	}
 end
