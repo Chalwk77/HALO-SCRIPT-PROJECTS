@@ -43,16 +43,16 @@ weapons[10] = "weapons\\shotgun\\shotgun"
 ----------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons:
     -- dust beta --
-weapons[11] = "weapons\p90\p90"
-weapons[12] = "cod4\weapons\desert eagle\desert eagle"
+weapons[11] = "weapons\\p90\\p90"
+weapons[12] = "cod4\\weapons\\desert eagle\\desert eagle"
 
     -- snowdrop --
-weapons[13] = "weapons\<weapon name>\<weapon name>"
-weapons[14] = "cod4\weapons\<weapon name>\<weapon name>"
+weapons[13] = "weapons\\<weapon name>\\<weapon name>"
+weapons[14] = "cod4\\weapons\\<weapon name>\\<weapon name>"
 
     -- h2_momentum --
-weapons[15] = "weapons\<weapon name>\<weapon name>"
-weapons[16] = "cod4\weapons\<weapon name>\<weapon name>"
+weapons[15] = "weapons\\<weapon name>\\<weapon name>"
+weapons[16] = "cod4\\weapons\\<weapon name>\\<weapon name>"
 
 function Load_Tables()
     --  FRAG GRENADES
