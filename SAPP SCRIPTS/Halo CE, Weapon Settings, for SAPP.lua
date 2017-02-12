@@ -15,23 +15,21 @@ api_version = "1.10.0.0"
 weapon = { }
 weapons = { }
 
--- WEAPON TABLE:
 -- Default Weapons
------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
 weapons[1] = "weapons\\pistol\\pistol"
-weapons[2] = "weapons\\plasma_cannon\\plasma_cannon"
-weapons[3] = "weapons\\rocket launcher\\rocket launcher"
-weapons[4] = "weapons\\sniper rifle\\sniper rifle"
+weapons[2] = "weapons\\sniper rifle\\sniper rifle"
+weapons[3] = "weapons\\plasma_cannon\\plasma_cannon"
+weapons[4] = "weapons\\rocket launcher\\rocket launcher"
 weapons[5] = "weapons\\plasma pistol\\plasma pistol"
 weapons[6] = "weapons\\plasma rifle\\plasma rifle"
 weapons[7] = "weapons\\assault rifle\\assault rifle"
 weapons[8] = "weapons\\flamethrower\\flamethrower"
 weapons[9] = "weapons\\needler\\mp_needler"
-weapons[10] = "weapons\\pistol\\pistol"
-weapons[11] = "weapons\\shotgun\\shotgun"
------------------------------------------------------------------
+weapons[10] = "weapons\\shotgun\\shotgun"
+----------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons:
-weapons[12] = "weapons\\m16\\m16" -- Dustbeta
+weapons[11] = "weapons\\m16\\m16" -- Dustbeta
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -73,72 +71,72 @@ function OnTick()
                 local x, y, z = read_vector3d(player + 0x5C)
                 -- Free for All (FAA) ------------------------------------------------
                 if not team_play then
-                    if (mapname == "MAPNAME_HERE") then
+                    if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
                     end
                 end
 ------------------------------------------------------------------------------------------------
                 -- TEAM PLAY -------------------------------------------------------------------
                 if team_play then
-                    if (mapname == "MAPNAME_HERE") then
+                    if (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAPNAME_HERE") then
+                    elseif (mapname == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
                         weapon[i] = 1
