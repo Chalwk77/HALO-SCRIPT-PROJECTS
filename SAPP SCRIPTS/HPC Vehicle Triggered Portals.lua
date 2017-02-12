@@ -14,10 +14,32 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
 * Written by Jericho Crosby
-------------------------------------
+-----------------------------------
 ]]--
 
 api_version = "1.10.0.0"
+gamesettings = {
+    ["DestroyVehicle"] = false,
+}
+-- X,Y,Z,Radius (From Coordinates)
+TeleportFrom = {}
+TeleportFrom[1] = { 86.79, -172.32, 0.53, 5 }   -- Chain gun Hog (beside redbase)
+TeleportFrom[2] = { 64.16, 176.91, 4.48, 5 }    -- Chain gun Hog (far right-hand corner of redbase <slope>)
+TeleportFrom[3] = { 28.85, -90.83, 0.84, 5}     -- Chain gun Hog, Left side of Blue Base
+TeleportFrom[4] = { 46.17, -64.97, 1.64, 5}     -- Chain gun Hog, Behind Blue Base
+
+-- X,Y,Z (To Coordinates)
+TeleportTo = { }
+TeleportTo[1] = { 82.05, -163.83, 0.11 }
+TeleportTo[2] = { 96.83, -150.45, 0.07 }
+TeleportTo[3] = { 83.08, -131, 0.37 }
+TeleportTo[4] = { 56.18, -133.71, 1.13 }
+TeleportTo[5] = { 58.76, -122.98, 0.28 }
+TeleportTo[6] = { 78.11, -120.07, 0.22 }
+TeleportTo[7] = { 87.22, -99.72, 1.51 }
+TeleportTo[8] = { 70.55, -137.45, 1.02 }
+TeleportTo[9] = { 91.62, -128.01, 1.02 }
+TeleportTo[10] = { 83.66, -146.55, 0.02 }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -34,25 +56,26 @@ function OnNewGame(map)
 end
 
 function OnVehicleEntry(PlayerIndex, Seat)
+    player_object = get_dynamic_player(PlayerIndex)
+    VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
+    MetaIndex = read_dword(VehicleObj)
+    player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+    vehicleId = read_dword(player_object + 0x11C)
+    local coordinates = SelectRandomPortal()
     if player_alive(PlayerIndex) then
         if (mapname == "bloodgulch") then
-            local player_object = get_dynamic_player(PlayerIndex)
             if (player_object ~= 0) then
-                if inSphere(PlayerIndex, 86.79, -172.32, 0.53, 5) == true then
-                    local PlayerObj = get_dynamic_player(PlayerIndex)
-                    local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
-                    local MetaIndex = read_dword(VehicleObj)
+                if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
                     if MetaIndex == 0xE3D40260 then
                         if Seat == "1" then
-                            local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-                            local vehicleId = read_dword(player_object + 0x11C)
-                            local m_vehicle = get_object_memory(vehicleId)
                             player_obj_id = vehicleId
-                            moveobject(vehicleId, 122.482, -176.335, 4.695 + 0.15)
-                            timer(1000*0.50, "exitvehicle", PlayerIndex)
-                            execute_command("msg_prefix \"\"")
-                            say(PlayerIndex, "[VTP] Teleporting!")
-                            execute_command("msg_prefix \"** SERVER ** \"")
+                            if coordinates then
+                                moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
+                                timer(1000*0.955, "exitvehicle", PlayerIndex)
+                                execute_command("msg_prefix \"\"")
+                                say(PlayerIndex, "[VTP] Teleporting!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                            end
                         end
                     end
                 end
@@ -61,8 +84,17 @@ function OnVehicleEntry(PlayerIndex, Seat)
     end
 end
 
+function Destroyvehicle(PlayerIndex, VehicleObj)
+    if not PlayerInVehicle(PlayerIndex) then
+        destroy_object(vehicleId)
+    end
+end
+
 function exitvehicle(PlayerIndex)
     exit_vehicle(PlayerIndex)
+    if gamesettings["DestroyVehicle"] then
+        timer(1000*1, "Destroyvehicle", PlayerIndex)
+    end
 end
 
 function moveobject(ObjectID, x, y, z)
@@ -89,3 +121,30 @@ function inSphere(PlayerIndex, x, y, z, radius)
     end
     return false
 end
+
+function SelectRandomPortal()
+    if #TeleportTo > 0 then
+        local index = rand(1, #TeleportTo + 1)
+        local coord = TeleportTo[index]
+        return index
+    end
+    return nil
+end
+
+function PlayerInVehicle(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
+
+function OnError(Message)
+    print(debug.traceback())
+end     
