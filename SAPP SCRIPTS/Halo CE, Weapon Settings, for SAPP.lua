@@ -58,11 +58,11 @@ weapons[22] = "cod4\\weapons\\g36\\g36"
 weapons[23] = "cmt\\weapons\\human\\ma5k\\ma5k mp"
 weapons[24] = "cmt\\weapons\\human\\shotgun\\shotgun"
 weapons[25] = "halo3\\weapons\\battle rifle\\tactical battle rifle"
-weapons[26] = "haloceripper.webs.com\\zteam\\vehicles\\h_turrent\\turrent gun"
+weapons[26] = "haloceripper.webs.com\\zteam\\vehicles\\h_turrent\\turrent gun" -- DOES NOT WORK (confirmed)
 weapons[27] = "weapons\\cad assault rifle\\assault rifle"
 weapons[28] = "weapons\\gauss sniper\\gauss sniper"
-weapons[29] = "weapons\\<weapon name>\\<weapon name>"
-weapons[30] = "cod4\\weapons\\<weapon name>\\<weapon name>"
+weapons[29] = "weapons\\<weapon_name>\\<weapon_name>"
+weapons[30] = "weapons\\<weapon_name>\\<weapon_name>"
 
 function GrenadeTable()
     --  FRAG GRENADES
@@ -177,8 +177,8 @@ function OnTick()
                     -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                     weapon[i] = 1
                 elseif (mapname == "snowdrop") then
-                    assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                    assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
+                    assign_weapon(spawn_object("weap", weapons[25], x, y, z), i)
                     -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                     -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                     weapon[i] = 1
