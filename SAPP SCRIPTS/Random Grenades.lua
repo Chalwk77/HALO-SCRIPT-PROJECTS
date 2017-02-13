@@ -5,7 +5,10 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
     
     Description:    You will spawn with a random number of Frag/Plasma grenades
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define how many you spawn with (on a per map basis) from line 104 onwards.
+                    you can manually define how many you spawn with (on a per map basis) from line 108 onwards.
+                    
+Do not remove comments unless you're debugging.
+A comment starts anywhere with a double hyphen ( -- ).
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -39,7 +42,8 @@ gamesettings = {
 function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     -- Debugging --
---  register_callback(cb['EVENT_DIE'], "OnPlayerKill")
+    -- Uncomment the 'EVENT_DIE' callback element for debugging.
+    --  register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
 function OnScriptUnload()
@@ -156,6 +160,7 @@ function OnPlayerSpawn(PlayerIndex)
                 write_word(player_object + 0x31F, plasmas[mapname])
             end
             -- Debugging --
+            -- Uncomment the 'cprint' element for debugging.
             -- cprint("Spawning with " .. frags[mapname] .. " frags and " .. plasmas[mapname] .. " plasmas", 2+8)
         end
     end
