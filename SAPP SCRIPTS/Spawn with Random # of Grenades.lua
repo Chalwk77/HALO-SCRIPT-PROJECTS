@@ -58,7 +58,7 @@ function OnPlayerSpawn(PlayerIndex)
                     wizard = PickRandomNum,
                     mapname = PickRandomNum,
                 }
-            elseif (gamesettings["PickRandomNumberFrags"]) == false then  -- Working
+            elseif (gamesettings["PickRandomNumberFrags"]) == false then
                 frags = {
                     beavercreek = 3,
                     bloodgulch = 4,
@@ -100,7 +100,7 @@ function OnPlayerSpawn(PlayerIndex)
                     wizard = PickRandomNum,
                     mapname = PickRandomNum,
                 }
-            elseif (gamesettings["PickRandomNumberPlasmas"]) == false then -- Working
+            elseif (gamesettings["PickRandomNumberPlasmas"]) == false then
                 plasmas = {
                     beavercreek = 1,
                     bloodgulch = 2,
