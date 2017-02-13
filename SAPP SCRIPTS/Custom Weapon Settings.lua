@@ -36,10 +36,27 @@ gamesettings = {
 function LoadMaps()
     -- mapnames table --
     mapnames = {
+--      [!] Default Maps
+        "beavercreek",
         "bloodgulch",
+        "boardingaction",
+        "carousel",
+        "dangercanyon",
+        "deathisland",
+        "gephyrophobia",
+        "icefields",
+        "infinity",
+        "sidewinder",
+        "timberland",
+        "hangemhigh",
+        "ratrace",
+        "damnation",
+        "putput",
+        "prisoner",
+        "wizard",
+--      [!] Custom Maps
         "dustbeta",
         "snowdrop",
-        "MAP_NAME_HERE",
         "MAP_NAME_HERE",
         "MAP_NAME_HERE",
         "MAP_NAME_HERE" -- Make sure the last entry in the table doesn't have a comma at the end. 
@@ -87,62 +104,82 @@ weapons[30] = "weapons\\<weapon_name>\\<weapon_name>"
 -- this script will respect that, and you will continue to spawn with infinite grenades (:
 
 function GrenadeTable()
-    -- frag grenades table --
+--  frag grenades table --
     frags = {
+--  [!] - Default Maps -    
+        beavercreek = 3,
+        bloodgulch = 4,
+        boardingaction = 1,
+        carousel = 3,
+        dangercanyon = 4,
+        deathisland = 1,
+        gephyrophobia = 3,
+        icefields = 1,
+        infinity = 2,
+        sidewinder = 3,
+        timberland = 2,
+        hangemhigh = 3,
+        ratrace = 3,
+        damnation = 1,
+        putput = 4,
+        prisoner = 2,
+        wizard = 1,
+--  [!] - Custom Maps -  
         h2_momentum = 2,
-        snowdrop = 2,
+        snowdrop = 3,
         dustbeta = 2,
-        ewok = 2,
-        ratrace = 2,
-        bloodgulch = 2,
-        beavercreek = 2,
-        carousel = 2,
-        longest = 2,
-        prisoner = 2,
-        wizard = 2,
-        hangemhigh = 2,
-        damnation = 2,
-        trainingday = 2,
+        ewok = 1,
+        trainingday = 4,
         hydroxide = 2,
-        deltaruins = 2,
-        garden_ce = 2,
+        deltaruins = 1,
+        garden_ce = 3,
 --      <map name> = <number><comma>
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
     }
-    -- plasma grenades table --
+--  plasma grenades table --
     plasmas = {
-        h2_momentum = 2,
-        snowdrop = 2,
-        dustbeta = 0, -- Dustbeta doesn't have plasma grenades.
-        ewok = 2,
-        ratrace = 2,
+--  [!] - Default Maps -    
+        beavercreek = 1,
         bloodgulch = 2,
-        beavercreek = 2,
-        carousel = 2,
-        longest = 2,
-        prisoner = 2,
+        boardingaction = 3,
+        carousel = 3,
+        dangercanyon = 4,
+        deathisland = 1,
+        gephyrophobia = 3,
+        icefields = 1,
+        infinity = 4,
+        sidewinder = 2,
+        timberland = 4,
+        hangemhigh = 3,
+        ratrace = 2,
+        damnation = 3,
+        putput = 1,
+        prisoner = 1,
         wizard = 2,
-        hangemhigh = 2,
-        damnation = 2,
-        trainingday = 2,
-        hydroxide = 2,
+--  [!] - Custom Maps -  
+        h2_momentum = 1,
+        snowdrop = 4,
+        dustbeta = 1, -- Dust Beta doesn't have Plasma Grenades
+        ewok = 2,
+        trainingday = 4,
+        hydroxide = 1,
         deltaruins = 2,
-        garden_ce = 2,
+        garden_ce = 1,
 --      <map name> = <number><comma>
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
-        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0,
     }
 end
 -- CONFIGURATION ENDS HERE --
--- ==================================================================================--
--- ==================================================================================--
+-- ==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^               
+-- ==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^
 
 
 -- [!] Warning: do not touch anything below unless you know what you are doing.
@@ -173,7 +210,7 @@ function OnPlayerSpawn(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
                 if (frags[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 98 | Unable to set frags.'
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 108 | Unable to set frags.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
                 else
@@ -182,7 +219,7 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 117 | Unable to set plasmas.'
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 144 | Unable to set plasmas.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
                 else
@@ -237,9 +274,9 @@ function OnTick()
                 if (weapon[i] == 0) then
                     execute_command("wdel " .. i)
                     local x, y, z = read_vector3d(player + 0x5C)
-                    --      ====== INFO ======
-                    --      Remove the comment(s) to use these additional weapon entries.
-                    --      A comment starts anywhere with a double hyphen ( -- ).
+--                  ====== INFO ======
+--                  Remove the comment(s) to use these additional weapon entries.
+--                  A comment starts anywhere with a double hyphen ( -- ).
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
@@ -251,42 +288,76 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[24], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                        weapon[i] = 1                    
+-----------------------------------------------------------------------------------------------------
+-- =================================== D E F A U L T   M A P S =================================== --
+                    elseif (mapname == "beavercreek") then
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) -- Plasma Cannon
                         weapon[i] = 1
                     elseif (mapname == "bloodgulch") then
-                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    elseif (mapname == "boardingaction") then
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    elseif (mapname == "carousel") then
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    elseif (mapname == "dangercanyon") then
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    elseif (mapname == "deathisland") then
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                    elseif (mapname == "gephyrophobia") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
+                        weapon[i] = 1
+                    elseif (mapname == "icefields") then
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
+                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
+                        weapon[i] = 1
+                    elseif (mapname == "infinity") then
+                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Assault Rifle
+                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
+                        weapon[i] = 1
+                    elseif (mapname == "sidewinder") then
+                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
+                        weapon[i] = 1
+                    elseif (mapname == "timberland") then
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
+                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
+                        weapon[i] = 1
+                    elseif (mapname == "hangemhigh") then
+                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
+                        weapon[i] = 1
+                    elseif (mapname == "ratrace") then
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
+                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) -- Plasma Cannon
+                        weapon[i] = 1
+                    elseif (mapname == "damnation") then
+                        assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
+                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
+                        weapon[i] = 1
+                    elseif (mapname == "putput") then
+                        assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
+                        assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
+                        weapon[i] = 1
+                    elseif (mapname == "prisoner") then
+                        assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Assault Rifle
+                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
+                        weapon[i] = 1
+                    elseif (mapname == "wizard") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
+                        assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         weapon[i] = 1
                     end
                 end
