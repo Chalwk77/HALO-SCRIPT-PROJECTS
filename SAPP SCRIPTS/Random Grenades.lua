@@ -14,7 +14,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
                     you can manually define (hard code) how many you spawn with (on a per map basis) from line 116 onwards.
 
     ** IMPORTANT **
-    If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table,
+    If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table(s),
     then the script will throw an error and you will spawn with the default amount of grenades, rather than a custom amount.
     When adding maps to the grenade tables, note that the map names themselves are character/case sensitive.
                     
