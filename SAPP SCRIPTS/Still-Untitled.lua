@@ -2,8 +2,7 @@
 Script Name: Still-Untitled, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
-    Description: 
-        Retrieve coordinates from table
+    Description: Retrieve coordinates from table. (comparison between coordinates)
     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -46,9 +45,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     local CurrentCoords = GetPlayerCoords(PlayerIndex)
-    -- If your coordinates upon spawning match the coordinates in the BrokenCoords Table, then teleport them elsewhere.
     if table.match(BrokenCoords, CurrentCoords) then
-        cprint("YES", 2 + 8)
+        cprint("Current Coordinates match!", 2 + 8)
     end
 end
     
