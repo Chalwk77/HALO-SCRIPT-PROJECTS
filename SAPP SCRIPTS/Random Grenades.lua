@@ -80,7 +80,7 @@ function OnPlayerSpawn(PlayerIndex)
                     damnation = RandomFR,
                     putput = RandomFR,
                     prisoner = RandomFR,
-                    wizard = RandomFR,
+                    wizard = RandomFR
                 }
             end
             if (gamesettings["RANDOM_PLASMAS"]) == true then
@@ -101,7 +101,7 @@ function OnPlayerSpawn(PlayerIndex)
                     damnation = RandomPL,
                     putput = RandomPL,
                     prisoner = RandomPL,
-                    wizard = RandomPL,
+                    wizard = RandomPL
                 }
             end
 --=======================================================================================--
