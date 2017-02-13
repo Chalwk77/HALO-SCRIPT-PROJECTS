@@ -12,7 +12,7 @@ frags = { }
 plasmas = { }
 
 -- Pick a random number between 1 and 4
-PickRandomNumFrags = math.random(1,4)
+PickRandomNum = math.random(1,4)
 
 gamesettings = {
     ["PickRandomNumberFrags"] = true,
@@ -20,12 +20,12 @@ gamesettings = {
 }
 
 function GrenadeTable()
-    if (gamesettings["PickRandomNumber"]) == true then
+    if (gamesettings["PickRandomNumberFrags"]) == true then
         frags = {
-            beavercreek = PickRandomNumFrags,
-            bloodgulch = PickRandomNumFrags,
+            beavercreek = PickRandomNum,
+            bloodgulch = PickRandomNum,
         }
-    elseif (gamesettings["PickRandomNumber"]) == false then
+    elseif (gamesettings["PickRandomNumberFrags"]) == false then
         frags = {
             beavercreek = 2,
             bloodgulch = 3,
@@ -33,8 +33,8 @@ function GrenadeTable()
     end
     if (gamesettings["PickRandomNumberPlasmas"]) == true then
         plasmas = {
-            beavercreek = PickRandomNumFrags,
-            bloodgulch = PickRandomNumFrags,
+            beavercreek = PickRandomNum,
+            bloodgulch = PickRandomNum,
         }
     elseif (gamesettings["PickRandomNumberPlasmas"]) == false then
         plasmas = {
