@@ -9,8 +9,8 @@ Description: This script will display 1-30 random taunting messages
              
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-             
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

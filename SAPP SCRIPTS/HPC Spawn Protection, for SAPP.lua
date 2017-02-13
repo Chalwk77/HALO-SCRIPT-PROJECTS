@@ -3,9 +3,6 @@ Script Name: HPC Spawn Protection (version 2), for SAPP
     - Implementing API version: 1.11.0.0
 
     Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
     
     This script will allow you to optionally toggle:
         * godmode (invulnerability)
@@ -24,7 +21,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
         - Punish Killer
         * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
         
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

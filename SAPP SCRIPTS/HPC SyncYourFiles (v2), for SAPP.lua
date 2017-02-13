@@ -13,15 +13,15 @@ An automatic backup solution will kick in if the host is offline/unavailable.
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 [^] Credits to skylace for send_all function
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 -------------------------------
 TO DO LIST:
 
 . Minor Tweaking
 
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

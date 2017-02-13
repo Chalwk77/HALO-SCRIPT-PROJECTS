@@ -10,58 +10,77 @@ Description: Spy on your players commands!
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
-    Change Log:
-        [^] Initial Upload
-        [*] Fixed a rather terrible bug.
-        
-Copyright ©2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby
 -----------------------------------
 ]]--
 
---[[
-    
-Set color of console (0-255). Setting to 0 is white over black. !
-0 - Black, 1 - Blue, 2 - Green, 3 - Cyan, 4 - Red
-5 - Magenta, 6 - Gold, 7 - White. !
-Add 8 to make text bold. !
-Add 16 x Color to set background color.
-    
-]]
+settings = {
+    ["HideCommands"] = true,
+}
 
--- Console only -- 
-CommandOutputColor = 4+8 -- Magenta
+--=========================================================--
+commands_to_hide = {
+    -- Add your command here to hide it!
+    "/command1",
+    "/command2",
+    "/command3",
+    "/command4",
+    "/command5"
+    -- Repeat the structure to add more commands.
+    }
+--=========================================================--
 
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnChatMessage")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+end
+
+function OnNewGame()
+    game_started = true
+end
+
+function OnGameEnd()
+    game_started = false
 end
 
 function OnChatMessage(PlayerIndex, Message)
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
     end
-    local t = tokenizestring(Message)
-    count = #t
-    local Message = tostring(Message)
     iscommand = nil
-    if string.sub(t[1], 1, 1) == "/" or string.sub(t[1], 1, 1) == "\\" then 
+    local Message = tostring(Message)
+    local command = tokenizestring(Message)
+    if string.sub(command[1], 1, 1) == "/" then
+        cmd = command[1]:gsub("\\", "/")
         iscommand = true
-        output("* Executing Command: \"" .. Message .. "\" from " .. get_var(PlayerIndex, "$name"))
     else 
         iscommand = false
     end
+    for k, v in pairs(commands_to_hide) do
+        if (cmd == v) then
+            hidden = true
+            break
+        else
+            hidden = false
+        end
+    end    
     if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
         RegularPlayer = tonumber(PlayerIndex)
         if player_present(RegularPlayer) ~= nil then
-            if iscommand then 
-                if RegularPlayer then
-                    CommandSpy("SPY:    " .. get_var(PlayerIndex, "$name") .. ":    " .. Message, AdminIndex)
+            if (iscommand and RegularPlayer) then
+                if (settings["HideCommands"] == true and hidden == true) then
+                    return nil
+                elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
+                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
+                    return true
                 end
             end
         end
@@ -73,15 +92,6 @@ function CommandSpy(Message, AdminIndex)
         if i ~= RegularPlayer then
             rprint(i, Message)
         end
-    end
-end
-
-function output(Message, PlayerIndex)
-    if Message then
-        if Message == "" then
-            return
-        end
-        cprint(Message, CommandOutputColor)
     end
 end
 
