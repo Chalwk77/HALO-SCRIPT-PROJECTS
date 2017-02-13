@@ -38,7 +38,11 @@ function LoadMaps()
     mapnames = {
         "bloodgulch",
         "dustbeta",
-        "snowdrop"
+        "snowdrop",
+        "MAP_NAME_HERE",
+        "MAP_NAME_HERE",
+        "MAP_NAME_HERE",
+        "MAP_NAME_HERE" -- Make sure the last entry in the table doesn't have a comma at the end. 
     }
 end
 
@@ -102,6 +106,12 @@ function GrenadeTable()
         hydroxide = 2,
         deltaruins = 2,
         garden_ce = 2,
+--      <map name> = <number><comma>
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
     }
     -- plasma grenades table --
     plasmas = {
@@ -122,6 +132,12 @@ function GrenadeTable()
         hydroxide = 2,
         deltaruins = 2,
         garden_ce = 2,
+--      <map name> = <number><comma>
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
+        MAP_NAME_HERE = 4,
     }
 end
 -- CONFIGURATION ENDS HERE --
@@ -157,7 +173,7 @@ function OnPlayerSpawn(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
                 if (frags[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 87 | Unable to set frags.'
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 98 | Unable to set frags.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
                 else
@@ -166,7 +182,7 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 107 | Unable to set plasmas.'
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 117 | Unable to set plasmas.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
                 else
