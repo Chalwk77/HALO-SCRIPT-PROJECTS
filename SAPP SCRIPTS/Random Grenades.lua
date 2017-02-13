@@ -8,7 +8,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
                     and this will be the number of frags/plasmas you spawn with.
                     
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define how many you spawn with (on a per map basis) from line 107 onwards.
+                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 107 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
