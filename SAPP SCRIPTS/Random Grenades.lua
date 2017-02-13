@@ -5,7 +5,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
     
     Description:    You will spawn with a random number of Frag/Plasma grenades
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define how many you spawn with (on a per map basis) from line 103 onwards.
+                    you can manually define how many you spawn with (on a per map basis) from line 104 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -26,6 +26,7 @@ plasmas = { }
 -- Configuration Starts --
 Min_Frags = 1 -- Minimum number of frag grenades to spawn with
 Max_Frags = 4 -- Maximum number of frag grenades to spawn with
+
 Min_Plasmas = 1 -- Minimum number of plasma grenades to spawn with
 Max_Plasmas = 4 -- Maximum number of plasma grenades to spawn with
 
@@ -48,8 +49,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if player_alive(PlayerIndex) then
-        local RandomFR = math.random(Min_Frags, Max_Frags)
-        local RandomPL = math.random(Min_Plasmas, Max_Plasmas)
+        local RandomFR = math.random(tonumber(Min_Frags), tonumber(Max_Frags))
+        local RandomPL = math.random(tonumber(Min_Plasmas), tonumber(Max_Plasmas))
         local player_object = get_dynamic_player(PlayerIndex)
         local mapname = get_var(0, "$map")
         if (player_object ~= 0) then
