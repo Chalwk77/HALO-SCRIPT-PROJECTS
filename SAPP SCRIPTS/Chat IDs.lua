@@ -1,7 +1,8 @@
 --[[
 ------------------------------------
-Script Name: HPC Chat IDs, for SAPP
+Script Name: ChatIDs, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
+    
 Description:  This script will modify your players message chat format
               by adding an IndexID in front of their name in square brackets.
     

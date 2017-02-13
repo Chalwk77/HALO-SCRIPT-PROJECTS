@@ -1,8 +1,7 @@
 --[[
 ------------------------------------
-Script Name: HPC SyncAdmins, for SAPP
-- Script Type: Utility
-- Implementing API version: 1.11.0.0
+Script Name: Sync-Admins (utility), for SAPP | (PC\CE)
+    - Implementing API version: 1.11.0.0
 
 Description: This script will sync your admins.txt and users.txt files with a remote server.
 An automatic backup solution will kick in if the host is offline/unavailable.

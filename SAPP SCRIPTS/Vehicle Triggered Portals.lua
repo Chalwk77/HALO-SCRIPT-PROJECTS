@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: Vehicle Triggered Portals (PC/CE), for SAPP
+Script Name: Vehicle Triggered Portals, for SAPP | (PC\CE)
     - Implementing API version: 1.10.0.0
 
 Description: Jump into the passengers seat of the warthog located at X,Y,Z and it will teleport you to X location.
@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]--
 
-api_version = "1.10.0.0"
+api_version = "1.11.0.0"
 Exit = nil
 gamesettings = {
     -- Removes the vehicle.

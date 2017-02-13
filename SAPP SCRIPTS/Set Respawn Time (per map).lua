@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HPC Set Respawn-Time (per map), for SAPP
+Script Name: Set Respawn Time (per map), for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
 Description: This script will allow you to set player respawn time (in seconds) on a per map basis.

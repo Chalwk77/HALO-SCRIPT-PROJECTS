@@ -1,7 +1,10 @@
 --[[
-Script Name: Retrieve Coords from table
-- Implementing API version: 1.11.0.0
+Script Name: Still-Untitled, for SAPP | (PC\CE)
+    - Implementing API version: 1.11.0.0
 
+    Description: 
+        Retrieve coordinates from table
+    
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -13,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 ]]
 
-api_version = "1.10.0.0"
+api_version = "1.11.0.0"
 
 BrokenCoords = {
     -- Example Map 1

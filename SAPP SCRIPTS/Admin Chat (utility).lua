@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HPC AdminChat, for SAPP
+Script Name: AdminChat (utility), for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
 Description: Admin Chat! Chat privately with other admins. 
@@ -22,14 +22,12 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.11.0.0"
-
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnAdminChat")
 end
 
 function OnScriptUnload() end
 
-api_version = "1.11.0.0"
 
 function OnAdminChat(PlayerIndex, Message)
     local message = tokenizestring(Message)

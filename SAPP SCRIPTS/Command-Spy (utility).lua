@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HPC CommandSpy, for SAPP
+Script Name: Command Spy (utility), for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
 Description: Spy on your players commands!

@@ -1,6 +1,8 @@
 --[[
 ------------------------------------
-Script Name: Spawn Fix PC/CE, for SAPP
+Script Name: Spawn Fixes, for SAPP | (PC\CE)
+    - Implementing API version: 1.11.0.0
+    
 Written for FIG Community
 
 --  MAPS THIS SCRIPT FIXES
@@ -26,7 +28,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
 ]]
-api_version = "1.10.0.0"
+api_version = "1.11.0.0"
 
 -- Known broken spawn points
 BrokenCoords = {

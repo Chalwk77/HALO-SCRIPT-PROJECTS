@@ -1,6 +1,6 @@
 --[[
-Script Name: HPC Admin Utility, for SAPP - (updated 14-10-16)
-- Implementing API version: 1.11.0.0
+Script Name: HPC Admin-Add-Me (utility), for SAPP | (PC\CE)
+    - Implementing API version: 1.11.0.0
 
     Description: Type "/admin me" in chat to add yourself as an admin - (level 4 by default)
                  This was particuarly useful to me when testing other scripts.

@@ -1,5 +1,5 @@
 --[[
-Script Name: HPC Killer Reward (rewrite), for SAPP
+Script Name: Killer Reward, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
     Description: This script will drop 1-20 (configurable) random items at your victims death location.

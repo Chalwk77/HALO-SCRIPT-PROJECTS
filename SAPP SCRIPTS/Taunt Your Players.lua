@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: HPC TauntYourPlayers, for SAPP
+Script Name: Taunt Your Players (messages), for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
 Description: This script will display 1-30 random taunting messages

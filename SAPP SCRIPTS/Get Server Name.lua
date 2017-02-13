@@ -1,6 +1,6 @@
 --[[
     ------------------------------------
-Script Name: HPC Get Server Name, for SAPP
+Script Name: Get Server Name (utility), for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.

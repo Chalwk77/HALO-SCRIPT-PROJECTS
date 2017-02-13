@@ -1,6 +1,7 @@
 --[[
 ------------------------------------
-Script Name: Custom Weapon Spawns, for SAPP
+Script Name: Custom Weapon Spawns, for SAPP | (PC\CE)
+    - Implementing API version: 1.11.0.0
 Written for FIG Community
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
@@ -15,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]--
 -- Do not touch --
-api_version = "1.10.0.0"
+api_version = "1.11.0.0"
 weapon = { }
 weapons = { }
 frags = { }

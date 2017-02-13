@@ -1,8 +1,8 @@
 --[[
-Script Name: HPC Spawn Protection (version 2), for SAPP
+Script Name: Spawn Protection, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
-    Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
+Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
     
     This script will allow you to optionally toggle:
         * godmode (invulnerability)

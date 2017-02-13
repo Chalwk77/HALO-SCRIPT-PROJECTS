@@ -1,5 +1,5 @@
 --[[
-Script Name: HPC Spawn Where Killed, for SAPP
+Script Name: Spawn Where Killed, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
     Description: You will spawn where you died...
