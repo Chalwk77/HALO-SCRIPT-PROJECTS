@@ -158,7 +158,7 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
-                    cprint("Error: " .. mapname .. " is not listed in the Plasma Grenade Table() - Line 101 | Unable to set plasmas.", 4+8)
+                    cprint("Error: " .. mapname .. " is not listed in the Plasma Grenade Table - Line 101 | Unable to set plasmas.", 4+8)
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
                 end
