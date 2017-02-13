@@ -32,6 +32,30 @@ gamesettings = {
     ["Give_Plasma_Grenades"] = true
 }
 
+function LoadMaps()
+    mapnames = {
+        "beavercreek",
+        "bloodgulch",
+        "boardingaction",
+        "carousel",
+        "chillout",
+        "damnation",
+        "dangercanyon",
+        "deathisland",
+        "gephyrophobia",
+        "hangemhigh",
+        "icefields",
+        "infinity",
+        "longest",
+        "prisoner",
+        "putput",
+        "ratrace",
+        "sidewinder",
+        "timberland",
+        "wizard"
+    }
+end
+
 -- Default Weapons
 ----------------------------------------------------------------------------------------------------------------------------------
 weapons[1] = "weapons\\pistol\\pistol"
@@ -124,6 +148,7 @@ function OnScriptLoad()
     if get_var(0, "$gt") ~= "n/a" then
         mapname = get_var(0, "$map")
         GrenadeTable()
+        LoadMaps()
     end
 end
 
@@ -132,6 +157,7 @@ function OnScriptUnload()
     plasmas = { }
     weapon = { }
     weapons = { }
+    maps = { }
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -158,9 +184,18 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+function table.match(table, value)
+    for k,v in pairs(table) do
+        if v == value then
+            return k
+        end
+    end
+end
+
 function OnNewGame()
     mapname = get_var(0, "$map")
     GrenadeTable()
+    LoadMaps()
 end
 
 --      TO ASSIGN A WEAPON:
@@ -176,7 +211,8 @@ end
 function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
-            if (mapname ~= "dustbeta") or (mapname ~= "snowdrop") then
+            if (table.match(mapnames, mapname) == nil) then 
+                -- map is not listed, spawn with default map weapons.
                 break
             else
                 local player = get_dynamic_player(i)
@@ -187,14 +223,14 @@ function OnTick()
                     --      Remove the comment(s) to use these additional weapon entries.
                     --      A comment starts anywhere with a double hyphen ( -- ).
                     if (mapname == "dustbeta") then
-                        assign_weapon(spawn_object("weap", weapons[9], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[10], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
                     elseif (mapname == "snowdrop") then
-                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                        assign_weapon(spawn_object("weap", weapons[25], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[27], x, y, z), i)
+                        assign_weapon(spawn_object("weap", weapons[24], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
