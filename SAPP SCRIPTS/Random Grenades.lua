@@ -16,7 +16,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
     ** IMPORTANT **
     If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table(s),
     then the script will throw an error and you will spawn with the default amount of grenades, rather than a custom amount.
-    When adding maps to the grenade tables, note that the map names themselves are character/case sensitive.
+    When adding maps to the grenade table(s), note that the map names themselves are character/case sensitive.
                     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -179,7 +179,7 @@ end
     -- Debugging --
 function OnPlayerKill(PlayerIndex)
     local player = get_player(PlayerIndex)
-    -- Spawn time = 0 seconds
+    -- Instantaneous spawn time - use this in conjunction with the /kill command for faster debugging.
     write_dword(player + 0x2C, 0 * 33)
 end	
 
