@@ -52,7 +52,9 @@ function LoadMaps()
         "ratrace",
         "sidewinder",
         "timberland",
-        "wizard"
+        "wizard",
+        "dustbeta",
+        "snowdrop"
     }
 end
 
