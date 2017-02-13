@@ -41,9 +41,10 @@ Max_Frags = 4 -- Maximum number of frag grenades to spawn with
 Min_Plasmas = 1 -- Minimum number of plasma grenades to spawn with
 Max_Plasmas = 4 -- Maximum number of plasma grenades to spawn with
 
+-- Toggle UseRandom (option), true|false, True = yes, False = no.
 gamesettings = {
-    ["RANDOM_FRAGS"] = true,
-    ["RANDOM_PLASMAS"] = true
+    ["RANDOM_FRAGS"] = true, -- If false, it will refer to Manual Configuration,  (line 114)
+    ["RANDOM_PLASMAS"] = true -- If false, it will refer to Manual Configuration,  (line 137)
 }
 -- Configuration Ends --
 
