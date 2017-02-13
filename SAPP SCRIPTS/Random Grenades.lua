@@ -8,7 +8,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
                     and this will be the number of frags/plasmas you spawn with.
                     
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 107 onwards.
+                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 108 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -104,6 +104,7 @@ function OnPlayerSpawn(PlayerIndex)
             -- Manually define number of frag grenades given on spawn --
             if (gamesettings["RANDOM_FRAGS"]) == false then
                 frags = {
+                    -- The number is the total value of frags that you will spawn with for a given map.
                     beavercreek = 3, -- Spawn with 3 Frags on the map beavercreek
                     bloodgulch = 4,
                     boardingaction = 1,
@@ -126,6 +127,7 @@ function OnPlayerSpawn(PlayerIndex)
             -- Manually define number of plasma grenades given on spawn --
             if (gamesettings["RANDOM_PLASMAS"]) == false then
                 plasmas = {
+                    -- The number is the total value of plasmas that you will spawn with for a given map.
                     beavercreek = 1, -- Spawn with 1 Plasma on the map beavercreek
                     bloodgulch = 2,
                     boardingaction = 3,
