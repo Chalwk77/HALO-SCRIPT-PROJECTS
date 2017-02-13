@@ -170,14 +170,14 @@ function OnPlayerSpawn(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
                 if (frags[mapname] == nil) then 
-                    cprint("Error: " .. mapname .. " is not listed in the GrenadeTable() - Line 72 | Unable to set frags.", 4+8)
+                    cprint("Error: " .. mapname .. " is not listed in the GrenadeTable() - Line 100 | Unable to set frags.", 4+8)
                 else
                     write_word(player_object + 0x31E, frags[mapname])
                 end
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
-                    cprint("Error: " .. mapname .. " is not listed in the GrenadeTable() - Line 72 | Unable to set plasmas.", 4+8)
+                    cprint("Error: " .. mapname .. " is not listed in the GrenadeTable() - Line 120 | Unable to set plasmas.", 4+8)
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
                 end
