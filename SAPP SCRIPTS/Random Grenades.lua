@@ -8,7 +8,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
                     and this will be the number of frags/plasmas you spawn with.
                     
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 108 onwards.
+                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 113 onwards.
 
 -- IMPORTANT --
 If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table,
