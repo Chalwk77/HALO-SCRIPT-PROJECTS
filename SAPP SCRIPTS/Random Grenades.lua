@@ -5,7 +5,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
     
     Description:    You will spawn with a random number of Frag/Plasma grenades
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define how many you spawn with (on a per map basis) from line 98 onwards.
+                    you can manually define how many you spawn with (on a per map basis) from line 103 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -24,8 +24,10 @@ frags = { }
 plasmas = { }
 
 -- Configuration Starts --
-Min_Grenades = 1 -- Minimum number of grenades to spawn with
-Max_Grenades = 4 -- Maximum number of grenades to spawn with
+Min_Frags = 1 -- Minimum number of frag grenades to spawn with
+Max_Frags = 4 -- Maximum number of frag grenades to spawn with
+Min_Plasmas = 1 -- Minimum number of plasma grenades to spawn with
+Max_Plasmas = 4 -- Maximum number of plasma grenades to spawn with
 
 gamesettings = {
     ["RANDOM_FRAGS"] = true,
@@ -35,6 +37,8 @@ gamesettings = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    -- Debugging --
+--  register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
 function OnScriptUnload()
@@ -44,50 +48,51 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if player_alive(PlayerIndex) then
-        local RandomNumber = math.random(Min_Grenades, Max_Grenades)
+        local RandomFR = math.random(Min_Frags, Max_Frags)
+        local RandomPL = math.random(Min_Plasmas, Max_Plasmas)
         local player_object = get_dynamic_player(PlayerIndex)
         local mapname = get_var(0, "$map")
         if (player_object ~= 0) then
             if (gamesettings["RANDOM_FRAGS"]) == true then
                 frags = {
-                    beavercreek = RandomNumber,
-                    bloodgulch = RandomNumber,
-                    boardingaction = RandomNumber,
-                    carousel = RandomNumber,
-                    dangercanyon = RandomNumber,
-                    deathisland = RandomNumber,
-                    gephyrophobia = RandomNumber,
-                    icefields = RandomNumber,
-                    infinity = RandomNumber,
-                    sidewinder = RandomNumber,
-                    timberland = RandomNumber,
-                    hangemhigh = RandomNumber,
-                    ratrace = RandomNumber,
-                    damnation = RandomNumber,
-                    putput = RandomNumber,
-                    prisoner = RandomNumber,
-                    wizard = RandomNumber,
+                    beavercreek = RandomFR,
+                    bloodgulch = RandomFR,
+                    boardingaction = RandomFR,
+                    carousel = RandomFR,
+                    dangercanyon = RandomFR,
+                    deathisland = RandomFR,
+                    gephyrophobia = RandomFR,
+                    icefields = RandomFR,
+                    infinity = RandomFR,
+                    sidewinder = RandomFR,
+                    timberland = RandomFR,
+                    hangemhigh = RandomFR,
+                    ratrace = RandomFR,
+                    damnation = RandomFR,
+                    putput = RandomFR,
+                    prisoner = RandomFR,
+                    wizard = RandomFR,
                 }
             end
             if (gamesettings["RANDOM_PLASMAS"]) == true then
                 plasmas = {
-                    beavercreek = RandomNumber,
-                    bloodgulch = RandomNumber,
-                    boardingaction = RandomNumber,
-                    carousel = RandomNumber,
-                    dangercanyon = RandomNumber,
-                    deathisland = RandomNumber,
-                    gephyrophobia = RandomNumber,
-                    icefields = RandomNumber,
-                    infinity = RandomNumber,
-                    sidewinder = RandomNumber,
-                    timberland = RandomNumber,
-                    hangemhigh = RandomNumber,
-                    ratrace = RandomNumber,
-                    damnation = RandomNumber,
-                    putput = RandomNumber,
-                    prisoner = RandomNumber,
-                    wizard = RandomNumber,
+                    beavercreek = RandomPL,
+                    bloodgulch = RandomPL,
+                    boardingaction = RandomPL,
+                    carousel = RandomPL,
+                    dangercanyon = RandomPL,
+                    deathisland = RandomPL,
+                    gephyrophobia = RandomPL,
+                    icefields = RandomPL,
+                    infinity = RandomPL,
+                    sidewinder = RandomPL,
+                    timberland = RandomPL,
+                    hangemhigh = RandomPL,
+                    ratrace = RandomPL,
+                    damnation = RandomPL,
+                    putput = RandomPL,
+                    prisoner = RandomPL,
+                    wizard = RandomPL,
                 }
             end
 --=======================================================================================--
@@ -142,6 +147,25 @@ function OnPlayerSpawn(PlayerIndex)
             write_word(player_object + 0x31E, frags[mapname])
             write_word(player_object + 0x31F, plasmas[mapname])
             -------------------------------------------------------
+            if (frags[mapname] == nil) then 
+                cprint("Frags not defined for " .. mapname) 
+            end
+            if (plasmas[mapname] == nil) then 
+                cprint("Plasmas not defined for " .. mapname) 
+            end
+            -- Debugging --
+            -- cprint("Spawning with " .. frags[mapname] .. " frags and " .. plasmas[mapname] .. " plasmas", 2+8)
         end
     end
 end
+
+    -- Debugging --
+function OnPlayerKill(PlayerIndex)
+    local player = get_player(PlayerIndex)
+    -- Spawn time = 0 seconds
+    write_dword(player + 0x2C, 0 * 33)
+end	
+
+function OnError(Message)
+    print(debug.traceback())
+end  
