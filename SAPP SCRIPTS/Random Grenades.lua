@@ -13,7 +13,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
 -- IMPORTANT --
 If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table,
 then the script will throw an error and you will spawn with the default amount of grenades, rather than a custom amount.
-When adding maps to the grenade tables, note that they are character/case sensitive.
+When adding maps to the grenade tables, note that the map names themselves they are character/case sensitive.
                     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
