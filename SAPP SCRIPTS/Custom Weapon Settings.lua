@@ -205,6 +205,7 @@ function OnTick()
                     --      ====== INFO ======
                     --      Remove the comment(s) to use these additional weapon entries.
                     --      A comment starts anywhere with a double hyphen ( -- ).
+                    --      You can spawn with up to 4 weapons.
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
