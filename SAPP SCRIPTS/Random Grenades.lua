@@ -144,14 +144,15 @@ function OnPlayerSpawn(PlayerIndex)
             end
 --===============================================================================================--
             -- DO NOT TOUCH ---------------------------------------
-            write_word(player_object + 0x31E, frags[mapname])
-            write_word(player_object + 0x31F, plasmas[mapname])
-            -------------------------------------------------------
             if (frags[mapname] == nil) then 
                 cprint("Frags not defined for " .. mapname) 
+            else
+                write_word(player_object + 0x31E, frags[mapname])
             end
             if (plasmas[mapname] == nil) then 
                 cprint("Plasmas not defined for " .. mapname) 
+            else
+                write_word(player_object + 0x31F, plasmas[mapname])
             end
             -- Debugging --
             -- cprint("Spawning with " .. frags[mapname] .. " frags and " .. plasmas[mapname] .. " plasmas", 2+8)
