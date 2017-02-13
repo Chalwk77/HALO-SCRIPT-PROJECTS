@@ -129,7 +129,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     if get_var(0, "$gt") ~= "n/a" then
-        mapname = get_var(0, "$map")
+        CurrentMap = get_var(0, "$map")
         GrenadeTable()
         LoadMaps()
     end
@@ -145,22 +145,22 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
-    mapname = get_var(0, "$map")
+    CurrentMap = get_var(0, "$map")
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
-                if (frags[mapname] == nil) then 
-                    cprint("Error: " .. mapname .. " is not listed in the Frag Grenade Table - Line 81 | Unable to set frags.", 4+8)
+                if (frags[CurrentMap] == nil) then 
+                    cprint("Error: " .. CurrentMap .. " is not listed in the Frag Grenade Table - Line 81 | Unable to set frags.", 4+8)
                 else
-                    write_word(player_object + 0x31E, frags[mapname])
+                    write_word(player_object + 0x31E, frags[CurrentMap])
                 end
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
-                if (plasmas[mapname] == nil) then 
-                    cprint("Error: " .. mapname .. " is not listed in the Plasma Grenade Table - Line 101 | Unable to set plasmas.", 4+8)
+                if (plasmas[CurrentMap] == nil) then 
+                    cprint("Error: " .. CurrentMap .. " is not listed in the Plasma Grenade Table - Line 101 | Unable to set plasmas.", 4+8)
                 else
-                    write_word(player_object + 0x31F, plasmas[mapname])
+                    write_word(player_object + 0x31F, plasmas[CurrentMap])
                 end
             end
         end
@@ -176,7 +176,7 @@ function table.match(table, value)
 end
 
 function OnNewGame()
-    mapname = get_var(0, "$map")
+    CurrentMap = get_var(0, "$map")
     GrenadeTable()
     LoadMaps()
 end
@@ -187,14 +187,14 @@ end
 
 --      The only lines you need to edit below are:
 --          this one --->>>         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
---          this one --->>>         if (mapname == "MAP_NAME_HERE") then
+--          this one --->>>         if (CurrentMap == "MAP_NAME_HERE") then
 --          Change MAP_NAME_HERE to the name of the map you want to assign weapons to.
 --      [!] Note, map names are case/character sensitive.
 
 function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
-            if (table.match(mapnames, mapname) == nil) then 
+            if (table.match(mapnames, CurrentMap) == nil) then 
                 -- map is not listed, spawn with default map weapons.
                 break
             else
@@ -206,49 +206,49 @@ function OnTick()
                     --      Remove the comment(s) to use these additional weapon entries.
                     --      A comment starts anywhere with a double hyphen ( -- ).
                     --      You can spawn with up to 4 weapons.
-                    if (mapname == "dustbeta") then
+                    if (CurrentMap == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "snowdrop") then
+                    elseif (CurrentMap == "snowdrop") then
                         assign_weapon(spawn_object("weap", weapons[27], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[24], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = 1
-                    elseif (mapname == "MAP_NAME_HERE") then
+                    elseif (CurrentMap == "MAP_NAME_HERE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
