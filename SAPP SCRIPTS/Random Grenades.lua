@@ -3,8 +3,8 @@
 Script Name: Random Grenades, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
     
-    Description:    You will spawn with a random number (between 1 & 4) of frags/plasmas.
-                    If you don't wish to spawn with a random number of grenades,
+    Description:    You will spawn with a random number of Frag/Plasma grenades
+                    If you do not wish to spawn with a random number of grenades,
                     you can manually define how many you spawn with (on a per map basis) from line 100 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
@@ -23,15 +23,15 @@ api_version = "1.11.0.0"
 frags = { }
 plasmas = { }
 
--- Configuration --
-Min_Grenades = 1
-Max_Grenades = 4
+-- Configuration Starts --
+Min_Grenades = 1 -- Minimum number of grenades to spawn with
+Max_Grenades = 4 -- Maximum number of grenades to spawn with
 
 gamesettings = {
     ["RANDOM_FRAGS"] = true,
     ["RANDOM_PLASMAS"] = true
 }
--- Configuration Ends Here --
+-- Configuration Ends --
 
 function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
