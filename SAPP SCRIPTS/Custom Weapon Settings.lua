@@ -210,6 +210,7 @@ function OnPlayerSpawn(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
                 if (frags[mapname] == nil) then 
+                    -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 108 | Unable to set frags.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
@@ -219,6 +220,7 @@ function OnPlayerSpawn(PlayerIndex)
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
+                    -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 144 | Unable to set plasmas.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
