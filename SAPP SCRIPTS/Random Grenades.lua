@@ -1,4 +1,4 @@
---[[ 
+--[[
 Document Name: Spawn with Random # of Grenades
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -12,8 +12,8 @@ frags = { }
 plasmas = { }
 
 gamesettings = {
-    ["PickRandomNumberFrags"] = true,
-    ["PickRandomNumberPlasmas"] = true,
+    ["RandomNumberberFrags"] = true,
+    ["RandomNumberberPlasmas"] = true,
 }
 
 function OnScriptLoad()
@@ -32,33 +32,33 @@ function OnNewGame()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    PickRandomNum = math.random(1 , 4)
+    RandomNumber = math.random(1, 4)
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         local mapname = get_var(0, "$map")
         if (player_object ~= 0) then
-            if (gamesettings["PickRandomNumberFrags"]) == true then
+            if (gamesettings["RandomNumberberFrags"]) == true then
                 frags = {
-                    beavercreek = PickRandomNum,
-                    bloodgulch = PickRandomNum,
-                    boardingaction = PickRandomNum,
-                    carousel = PickRandomNum,
-                    dangercanyon = PickRandomNum,
-                    deathisland = PickRandomNum,
-                    gephyrophobia = PickRandomNum,
-                    icefields = PickRandomNum,
-                    infinity = PickRandomNum,
-                    sidewinder = PickRandomNum,
-                    timberland = PickRandomNum,
-                    hangemhigh = PickRandomNum,
-                    ratrace = PickRandomNum,
-                    damnation = PickRandomNum,
-                    putput = PickRandomNum,
-                    prisoner = PickRandomNum,
-                    wizard = PickRandomNum,
-                    mapname = PickRandomNum,
+                    beavercreek = RandomNumber,
+                    bloodgulch = RandomNumber,
+                    boardingaction = RandomNumber,
+                    carousel = RandomNumber,
+                    dangercanyon = RandomNumber,
+                    deathisland = RandomNumber,
+                    gephyrophobia = RandomNumber,
+                    icefields = RandomNumber,
+                    infinity = RandomNumber,
+                    sidewinder = RandomNumber,
+                    timberland = RandomNumber,
+                    hangemhigh = RandomNumber,
+                    ratrace = RandomNumber,
+                    damnation = RandomNumber,
+                    putput = RandomNumber,
+                    prisoner = RandomNumber,
+                    wizard = RandomNumber,
+                    mapname = RandomNumber,
                 }
-            elseif (gamesettings["PickRandomNumberFrags"]) == false then
+            elseif (gamesettings["RandomNumberberFrags"]) == false then
                 frags = {
                     beavercreek = 3,
                     bloodgulch = 4,
@@ -79,28 +79,28 @@ function OnPlayerSpawn(PlayerIndex)
                     wizard = 1,
                 }
             end
-            if (gamesettings["PickRandomNumberPlasmas"]) == true then
+            if (gamesettings["RandomNumberberPlasmas"]) == true then
                 plasmas = {
-                    beavercreek = PickRandomNum,
-                    bloodgulch = PickRandomNum,
-                    boardingaction = PickRandomNum,
-                    carousel = PickRandomNum,
-                    dangercanyon = PickRandomNum,
-                    deathisland = PickRandomNum,
-                    gephyrophobia = PickRandomNum,
-                    icefields = PickRandomNum,
-                    infinity = PickRandomNum,
-                    sidewinder = PickRandomNum,
-                    timberland = PickRandomNum,
-                    hangemhigh = PickRandomNum,
-                    ratrace = PickRandomNum,
-                    damnation = PickRandomNum,
-                    putput = PickRandomNum,
-                    prisoner = PickRandomNum,
-                    wizard = PickRandomNum,
-                    mapname = PickRandomNum,
+                    beavercreek = RandomNumber,
+                    bloodgulch = RandomNumber,
+                    boardingaction = RandomNumber,
+                    carousel = RandomNumber,
+                    dangercanyon = RandomNumber,
+                    deathisland = RandomNumber,
+                    gephyrophobia = RandomNumber,
+                    icefields = RandomNumber,
+                    infinity = RandomNumber,
+                    sidewinder = RandomNumber,
+                    timberland = RandomNumber,
+                    hangemhigh = RandomNumber,
+                    ratrace = RandomNumber,
+                    damnation = RandomNumber,
+                    putput = RandomNumber,
+                    prisoner = RandomNumber,
+                    wizard = RandomNumber,
+                    mapname = RandomNumber,
                 }
-            elseif (gamesettings["PickRandomNumberPlasmas"]) == false then
+            elseif (gamesettings["RandomNumberberPlasmas"]) == false then
                 plasmas = {
                     beavercreek = 1,
                     bloodgulch = 2,
