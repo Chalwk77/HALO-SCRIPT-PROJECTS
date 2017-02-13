@@ -7,13 +7,16 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
                     between the value of Min_Frags/Max_Frags and/or Min_Plasmas/Max_Plasmas,
                     and this will be the number of frags/plasmas you spawn with.
                     
+                    In other words, it will generate a random number between 1 and 4 by default.
+                    The number it chooses will be the amount you spawn with.
+                    
                     If you do not wish to spawn with a random number of grenades,
-                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 113 onwards.
+                    you can manually define (hard code) how many you spawn with (on a per map basis) from line 116 onwards.
 
 -- IMPORTANT --
 If for example, you're using a custom map, i.e, DustBeta, and you haven't listed it in the grenade table,
 then the script will throw an error and you will spawn with the default amount of grenades, rather than a custom amount.
-When adding maps to the grenade tables, note that the map names themselves they are character/case sensitive.
+When adding maps to the grenade tables, note that the map names themselves are character/case sensitive.
                     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -80,7 +83,7 @@ function OnPlayerSpawn(PlayerIndex)
                     damnation = RandomFR,
                     putput = RandomFR,
                     prisoner = RandomFR,
-                    wizard = RandomFR
+                    wizard = RandomFR -- Make sure the last entry in the table doesn't have a comma at the end. 
                 }
             end
             if (gamesettings["RANDOM_PLASMAS"]) == true then
@@ -101,7 +104,7 @@ function OnPlayerSpawn(PlayerIndex)
                     damnation = RandomPL,
                     putput = RandomPL,
                     prisoner = RandomPL,
-                    wizard = RandomPL
+                    wizard = RandomPL -- Make sure the last entry in the table doesn't have a comma at the end. 
                 }
             end
 --=======================================================================================--
