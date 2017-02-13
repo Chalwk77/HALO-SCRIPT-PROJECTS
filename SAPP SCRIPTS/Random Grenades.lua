@@ -3,12 +3,12 @@
 Script Name: Random Grenades, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
     
-    Description:    You will spawn with a random number of Frag/Plasma grenades
-                    If you do not wish to spawn with a random number of grenades,
-                    you can manually define how many you spawn with (on a per map basis) from line 108 onwards.
+    Description:    Every time you spawn, this script will generate a random number 
+                    between the value of Min_Frags/Max_Frags and/or Min_Plasmas/Max_Plasmas,
+                    and this will be the number of frags/plasmas you spawn with.
                     
-Do not remove comments unless you're debugging.
-A comment starts anywhere with a double hyphen ( -- ).
+                    If you do not wish to spawn with a random number of grenades,
+                    you can manually define how many you spawn with (on a per map basis) from line 107 onwards.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -42,7 +42,6 @@ gamesettings = {
 function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     -- Debugging --
-    -- Uncomment the 'EVENT_DIE' callback element for debugging.
     --  register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
