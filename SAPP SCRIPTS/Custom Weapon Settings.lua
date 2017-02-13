@@ -138,7 +138,7 @@ function GrenadeTable()
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
-        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end. 
     }
 --  plasma grenades table --
     plasmas = {
@@ -174,7 +174,7 @@ function GrenadeTable()
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
-        MAP_NAME_HERE = 0,
+        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end. 
     }
 end
 -- CONFIGURATION ENDS HERE --
