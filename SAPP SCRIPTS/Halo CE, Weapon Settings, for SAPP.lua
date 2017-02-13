@@ -111,7 +111,7 @@ end
 -- ==================================================================================--
 
 
--- Warning: do not touch anything below unless you know what you are doing.
+-- [!] Warning: do not touch anything below unless you know what you are doing.
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
@@ -152,13 +152,13 @@ end
 
 --      TO ASSIGN A WEAPON:
 --      Change the numbers "00000" to match the corrosponding index number in the weapon table at the top of the script.
---      Note, you cannot import weapons from one map to another with this script.
+--      [!] Note, you cannot import weapons from one map to another with this script.
 
 --      The only lines you need to edit below are:
 --          this one --->>>         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
 --          this one --->>>         if (mapname == "MAP_NAME_HERE") then
 --          Change MAP_NAME_HERE to the name of the map you want to assign weapons to.
---      Note, map names are case/character sensitive.
+--      [!] Note, map names are case/character sensitive.
 
 function OnTick()
     for i = 1, 16 do
