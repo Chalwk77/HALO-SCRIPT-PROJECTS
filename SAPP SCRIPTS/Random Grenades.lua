@@ -5,7 +5,7 @@ Script Name: Random Grenades, for SAPP | (PC\CE)
     
     Description:    Every time you spawn, this script will generate a random number 
                     between the value of Min_Frags/Max_Frags and/or Min_Plasmas/Max_Plasmas,
-                    and this will be the number of frags/plasmas you spawn with.
+                    and this will be the number of grenades you spawn with.
                 
                     In other words, it will generate a random number between 1 and 4 by default.
                     The number it chooses will be the amount you spawn with.
