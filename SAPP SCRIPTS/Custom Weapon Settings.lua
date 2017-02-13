@@ -216,6 +216,7 @@ function OnPlayerSpawn(PlayerIndex)
                     execute_command("log_note \""..Error.."\"")
                 else
                     write_word(player_object + 0x31E, frags[mapname])
+                    -- cprint("Spawning with " ..frags[mapname].. " frags!", 2+8)
                 end
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
@@ -226,6 +227,7 @@ function OnPlayerSpawn(PlayerIndex)
                     execute_command("log_note \""..Error.."\"")
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
+                    -- cprint("Spawning with " ..plasmas[mapname].. " plasmas!", 2+8)
                 end
             end
         end
