@@ -182,7 +182,7 @@ function OnNewGame()
 end
 
 --      TO ASSIGN A WEAPON:
---      Change the numbers "00000" to match the corrosponding index number in the weapon table at the top of the script.
+--      Change the numbers "00000" to match the corresponding index number in the weapon table at the top of the script.
 --      [!] Note, you cannot import weapons from one map to another with this script.
 
 --      The only lines you need to edit below are:
