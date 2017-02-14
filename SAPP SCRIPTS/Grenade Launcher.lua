@@ -36,9 +36,7 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID) 
     if MapID == get_tag_info("proj", "weapons\\pistol\\bullet") then
-        NewProjectile = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
-        timer(0, "Change_Projectile", ParentID)
-        return false
+        timer(0, "Change_Projectile", PlayerIndex, ParentID)
     end	
 end
 
@@ -47,9 +45,9 @@ function Change_Projectile(PlayerIndex)
 end
 
 function ChangeProjectile(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local WeaponID = read_dword(player_object + 0x118)
+    local m_object = get_dynamic_player(PlayerIndex)
+    if (m_object ~= 0) then
+		local WeaponID = get_object_memory(read_dword(m_object + 0x2F8))
         local x_aim = read_float(WeaponID, 0x230)
         local y_aim = read_float(WeaponID, 0x234)
         local z_aim = read_float(WeaponID, 0x238)
@@ -59,11 +57,10 @@ function ChangeProjectile(PlayerIndex)
         local projx = x + distance * math.sin(x_aim)
         local projy = y + distance * math.sin(y_aim)
         local projz = z + distance * math.sin(z_aim) + 0.5
-        local projId = spawn_object(NewProjectile, projx, projy, projz)
+        local projId = spawn_object("proj", "weapons\\frag grenade\\frag grenade", projx, projy, projz)
         local WeaponObj = get_object_memory(projId)
         if WeaponObj then
-            cprint("WeaponObj appears to be valid", 2+8)
-            cprint("Writing projectile velocity...", 2+8)
+            cprint("WeaponObj valid", 2+8)
             write_float(WeaponObj, 0x68, tonumber(velocity) * math.sin(x_aim))
             write_float(WeaponObj, 0x6C, tonumber(velocity) * math.sin(y_aim))
             write_float(WeaponObj, 0x70, tonumber(velocity) * math.sin(z_aim))
