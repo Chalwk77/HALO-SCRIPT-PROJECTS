@@ -58,9 +58,11 @@ function ChangeProjectile(PlayerIndex)
         local ProjX = x + DISTANCE * math.sin(X_Aim)
         local ProjY = y + DISTANCE * math.sin(Y_aim)
         local ProjZ = z + DISTANCE * math.sin(Z_aim) + 0.5
+        -- Spawn projectile infront of player.
         local projId = spawn_object("proj", "weapons\\frag grenade\\frag grenade", ProjX, ProjY, ProjZ)
         local WeaponObj = get_object_memory(projId)
         if WeaponObj then
+            -- Write projectile velocity.
             write_float(WeaponObj, 0x68, tonumber(VELOCITY) * math.sin(X_Aim))
             write_float(WeaponObj, 0x6C, tonumber(VELOCITY) * math.sin(Y_aim))
             write_float(WeaponObj, 0x70, tonumber(VELOCITY) * math.sin(Z_aim))
