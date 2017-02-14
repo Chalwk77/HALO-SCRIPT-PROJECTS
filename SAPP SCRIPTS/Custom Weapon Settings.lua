@@ -125,20 +125,14 @@ function GrenadeTable()
         prisoner = 2,
         wizard = 1,
 --  [!] - Custom Maps -  
-        h2_momentum = 2,
-        snowdrop = 3,
-        dustbeta = 2,
-        ewok = 1,
-        trainingday = 4,
-        hydroxide = 2,
-        deltaruins = 1,
-        garden_ce = 3,
+        snowdrop = 4,
+        dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades. Server will crash if value is greater than 0.
 --      <map name> = <number><comma>
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
-        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end. 
+        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end.
     }
 --  plasma grenades table --
     plasmas = {
@@ -161,14 +155,8 @@ function GrenadeTable()
         prisoner = 1,
         wizard = 2,
 --  [!] - Custom Maps -  
-        h2_momentum = 1,
         snowdrop = 4,
-        dustbeta = 0, -- Dust Beta doesn't have Plasma Grenades
-        ewok = 2,
-        trainingday = 4,
-        hydroxide = 1,
-        deltaruins = 2,
-        garden_ce = 1,
+        dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades
 --      <map name> = <number><comma>
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
@@ -222,7 +210,7 @@ function OnPlayerSpawn(PlayerIndex)
             if (gamesettings["Give_Plasma_Grenades"] == true) then
                 if (plasmas[mapname] == nil) then 
                     -- Use default grenade settings instead.
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 144 | Unable to set plasmas.'
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 138 | Unable to set plasmas.'
                     cprint(Error, 4+8)
                     execute_command("log_note \""..Error.."\"")
                 else
