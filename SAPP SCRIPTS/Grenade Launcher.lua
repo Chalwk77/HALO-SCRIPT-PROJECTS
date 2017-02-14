@@ -42,27 +42,31 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     end	
 end
 
-function Change_Projectile(NewProjectile)
-    ChangeProjectile(NewProjectile)
+function Change_Projectile(PlayerIndex)
+    ChangeProjectile(PlayerIndex)
 end
 
 function ChangeProjectile(PlayerIndex)
-    local PlayerObj = get_dynamic_player(PlayerIndex)
-    local projectile = get_object_memory(read_dword(PlayerObj + 0x2F8))
-    local x_aim = read_float(projectile, 0x230)
-    local y_aim = read_float(projectile, 0x234)
-    local z_aim = read_float(projectile, 0x238)
-    local x = read_float(projectile, 0x5C)
-    local y = read_float(projectile, 0x60)
-    local z = read_float(projectile, 0x64)
-    local projx = x + distance * math.sin(x_aim)
-    local projy = y + distance * math.sin(y_aim)
-    local projz = z + distance * math.sin(z_aim) + 0.5
-    local projId = spawn_object(NewProjectile, projx, projy, projz)
-    local WeaponObj = get_object_memory(tonumber(projId))
-    if WeaponObj then
-        write_float(WeaponObj, 0x68, tonumber(velocity) * math.sin(x_aim))
-        write_float(WeaponObj, 0x6C, tonumber(velocity) * math.sin(y_aim))
-        write_float(WeaponObj, 0x70, tonumber(velocity) * math.sin(z_aim))
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local m_weaponId = read_dword(player_object + 0x118)
+        local x_aim = read_float(m_weaponId, 0x230)
+        local y_aim = read_float(m_weaponId, 0x234)
+        local z_aim = read_float(m_weaponId, 0x238)
+        local x = read_float(m_weaponId, 0x5C)
+        local y = read_float(m_weaponId, 0x60)
+        local z = read_float(m_weaponId, 0x64)
+        local projx = x + distance * math.sin(x_aim)
+        local projy = y + distance * math.sin(y_aim)
+        local projz = z + distance * math.sin(z_aim) + 0.5
+        local projId = spawn_object(m_weaponId, projx, projy, projz)
+        local WeaponObj = get_object_memory(projId)
+        if WeaponObj then
+            cprint("WeaponObj appears to be valid", 2+8)
+            cprint("Writing projectile velocity...", 2+8)
+            write_float(WeaponObj, 0x68, tonumber(velocity) * math.sin(x_aim))
+            write_float(WeaponObj, 0x6C, tonumber(velocity) * math.sin(y_aim))
+            write_float(WeaponObj, 0x70, tonumber(velocity) * math.sin(z_aim))
+        end
     end
 end
