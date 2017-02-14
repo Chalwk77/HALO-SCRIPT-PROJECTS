@@ -163,7 +163,7 @@ function GrenadeTable()
 --  [!] - Custom Maps -  
         h2_momentum = 1,
         snowdrop = 4,
-        dustbeta = 1, -- Dust Beta doesn't have Plasma Grenades
+        dustbeta = 0, -- Dust Beta doesn't have Plasma Grenades
         ewok = 2,
         trainingday = 4,
         hydroxide = 1,
@@ -364,6 +364,8 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         weapon[i] = 1
                     end
+                else 
+                    return false
                 end
             end
         end
