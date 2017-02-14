@@ -20,8 +20,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-velocity = 0.5 -- Velocity to launch projectile
-distance = 0.4 -- Distance from player to spawn projectile
+VELOCITY = 0.5 -- Velocity to launch projectile
+DISTANCE = 0.4 -- Distance from player to spawn projectile
 
 function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
@@ -36,34 +36,34 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID) 
     if MapID == get_tag_info("proj", "weapons\\pistol\\bullet") then
-        timer(0, "Change_Projectile", PlayerIndex, ParentID)
+        timer(0, "HandleProjectile", PlayerIndex, ParentID)
+        return false
     end	
 end
 
-function Change_Projectile(PlayerIndex)
+function HandleProjectile(PlayerIndex)
     ChangeProjectile(PlayerIndex)
 end
 
 function ChangeProjectile(PlayerIndex)
     local m_object = get_dynamic_player(PlayerIndex)
     if (m_object ~= 0) then
-		local WeaponID = get_object_memory(read_dword(m_object + 0x2F8))
-        local x_aim = read_float(WeaponID, 0x230)
-        local y_aim = read_float(WeaponID, 0x234)
-        local z_aim = read_float(WeaponID, 0x238)
+        local WeaponID = get_object_memory(read_dword(m_object + 0x2F8))
+        local X_Aim = read_float(WeaponID, 0x230)
+        local Y_aim = read_float(WeaponID, 0x234)
+        local Z_aim = read_float(WeaponID, 0x238)
         local x = read_float(WeaponID, 0x5C)
         local y = read_float(WeaponID, 0x60)
         local z = read_float(WeaponID, 0x64)
-        local projx = x + distance * math.sin(x_aim)
-        local projy = y + distance * math.sin(y_aim)
-        local projz = z + distance * math.sin(z_aim) + 0.5
-        local projId = spawn_object("proj", "weapons\\frag grenade\\frag grenade", projx, projy, projz)
+        local ProjX = x + DISTANCE * math.sin(X_Aim)
+        local ProjY = y + DISTANCE * math.sin(Y_aim)
+        local ProjZ = z + DISTANCE * math.sin(Z_aim) + 0.5
+        local projId = spawn_object("proj", "weapons\\frag grenade\\frag grenade", ProjX, ProjY, ProjZ)
         local WeaponObj = get_object_memory(projId)
         if WeaponObj then
-            cprint("WeaponObj valid", 2+8)
-            write_float(WeaponObj, 0x68, tonumber(velocity) * math.sin(x_aim))
-            write_float(WeaponObj, 0x6C, tonumber(velocity) * math.sin(y_aim))
-            write_float(WeaponObj, 0x70, tonumber(velocity) * math.sin(z_aim))
+            write_float(WeaponObj, 0x68, tonumber(VELOCITY) * math.sin(X_Aim))
+            write_float(WeaponObj, 0x6C, tonumber(VELOCITY) * math.sin(Y_aim))
+            write_float(WeaponObj, 0x70, tonumber(VELOCITY) * math.sin(Z_aim))
         end
     end
 end
