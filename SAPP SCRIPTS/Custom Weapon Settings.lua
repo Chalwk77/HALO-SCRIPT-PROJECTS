@@ -364,8 +364,6 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         weapon[i] = 1
                     end
-                else 
-                    return false
                 end
             end
         end
