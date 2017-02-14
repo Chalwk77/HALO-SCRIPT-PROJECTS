@@ -126,7 +126,7 @@ function GrenadeTable()
         wizard = 1,
 --  [!] - Custom Maps -  
         snowdrop = 4,
-        dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades. Server will crash if value is greater than 0.
+        dustbeta = 2,
 --      <map name> = <number><comma>
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
@@ -156,7 +156,7 @@ function GrenadeTable()
         wizard = 2,
 --  [!] - Custom Maps -  
         snowdrop = 4,
-        dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades
+        dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades.
 --      <map name> = <number><comma>
         MAP_NAME_HERE = 0,
         MAP_NAME_HERE = 0,
