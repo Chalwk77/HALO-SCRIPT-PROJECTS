@@ -20,6 +20,7 @@ api_version = "1.11.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     LoadTables()
@@ -28,6 +29,44 @@ end
 function OnScriptUnload()
     NameList = { }
     HashList = { }
+end
+
+function OnServerCommand(PlayerIndex, Command)
+    local t = tokenizestring(Command)
+    count = #t
+    if t[1] ~= nil then
+        if t[1] == "crash" or t[1] == "Crash" then
+            if t[2] ~= nil then
+                sufferer = tonumber(t[2])
+                if sufferer ~= nil and sufferer > 0 and sufferer < 17 then
+                    sufferers_name = get_var(sufferer, "$name")
+                    Index = get_var(sufferer, "$n")
+                    id = get_var(sufferer, "$name")
+                    if player_present(sufferer) then
+                        timer(0, "CrashPlayer", sufferer)
+                        say(PlayerIndex, "You crashed " .. sufferers_name .. ", index number " ..Index)
+                    else
+                        say(PlayerIndex, "Invalid player!")
+                    end
+                end
+            else
+                say(PlayerIndex, "Invalid Syntax! Syntax: " .. t[1] .. " [number 1-16]")
+            end
+        end
+        return false
+    end
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function LoadTables()
@@ -88,17 +127,17 @@ function read_widestring(address, length)
 end
 
 -- Thanks to H® Shaft for this neat little function!
-function CrashPlayer(PlayerIndex)
-    if player_present(PlayerIndex) then
-        local player_object = get_dynamic_player(PlayerIndex)
+function CrashPlayer(sufferer)
+    if player_present(sufferer) then
+        local player_object = get_dynamic_player(sufferer)
         if (player_object ~= 0) then
             local x, y, z = read_vector3d(player_object + 0x5C)
             local vehicleId = spawn_object("vehi", "vehicles\\warthog\\mp_warthog", x, y, z)
             local veh_obj = get_object_memory(vehicleId)
             if (veh_obj ~= 0) then
                 for j = 0, 20 do
-                    enter_vehicle(vehicleId, PlayerIndex, j)
-                    exit_vehicle(PlayerIndex)
+                    enter_vehicle(vehicleId, sufferer, j)
+                    exit_vehicle(sufferer)
                 end
                 destroy_object(vehicleId)
             end
