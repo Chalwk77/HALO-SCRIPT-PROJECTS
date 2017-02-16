@@ -28,8 +28,7 @@ response = {
 -- In Minutes
 BANTIME = 10
 REASON = "Impersonating"
-
--- Configuration Ends
+-- Configuration Ends --
 
 
 function OnScriptLoad( )
