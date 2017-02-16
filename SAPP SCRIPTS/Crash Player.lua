@@ -1,11 +1,12 @@
 --[[
     Script Name: Crash Player (utility), for SAPP | (PC\CE)
-- Implementing API version: 1.11.0.0
+    Implementing API version: 1.11.0.0
 
-    Description: Crash that player!
-                 Based on Name/Hash comparisons
-    Change Log:
-        Added custom /crash command. Type /crash <player id>
+    Description: Crash someone automatically when they join the server.
+                 Based on Name/Hash comparisons.
+                 
+                Added custom /crash command. Type /crash <player id>
+                Crash someone (anyone) on demand!
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
