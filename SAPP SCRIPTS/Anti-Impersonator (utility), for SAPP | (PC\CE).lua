@@ -38,17 +38,31 @@ end
 
 function LoadTables( )
     NameList = {
-        "Player1",
-        "Player2",
-        "Player3",
-        "Player4",
-        "Player5"
+    -- Make sure these names match exactly as they do ingame.
+        "FIG-Alex",
+        "FIG-Amajig",
+        "FIG-Arooooo",
+        "FIG-brent",
+        "FIG-Chuy",
+        "FIG-Mental",
+        "FIG-Mihir®",
+        "FIG-Noob001",
+        "FIG-Razor",
+        "FIG-shiNe!",
+        "FIG-SxyLady",
+        "FIG-Traxx",
     }	
     HashList = {
+    -- You can retrieve the players hash by looking it up in the sapp.log file.
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
 end
