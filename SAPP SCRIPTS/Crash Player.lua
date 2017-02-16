@@ -21,14 +21,29 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 CRASH_COMMAND = "crash"
 LEVEL = 1 -- Min admin level required to use /crash command
-
+rocket_hog = "vehicles\\rwarthog\\rwarthog"
 api_version = "1.11.0.0"
 function OnScriptLoad()
-    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
-    network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    LoadTables()
+	register_callback(cb['EVENT_GAME_START'],"OnGameStart")
+	safe_read(true)
+	if CheckMap() then
+        register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+        register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+        if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+        network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+        LoadTables()
+	end
+	safe_read(false)
+end
+
+function OnGameStart()
+	if CheckMap() then
+        register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+        register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+	else
+        unregister_callback(cb['EVENT_PREJOIN'])
+        unregister_callback(cb['EVENT_COMMAND'])
+	end
 end
 
 function OnScriptUnload()
@@ -128,6 +143,16 @@ function read_widestring(address, length)
         count = count + 2
     end
     return table.concat(byte_table)
+end
+
+function CheckMap()
+	if(lookup_tag("vehi", rocket_hog) ~= 0) then
+        cprint("Map has vehicle!", 2+8)
+		return true
+	else
+        cprint("Map does not have vehicle!", 4+8)
+		return false
+	end
 end
 
 -- Thanks to H® Shaft for this neat little function!
