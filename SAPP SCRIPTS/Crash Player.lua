@@ -4,6 +4,8 @@
 
     Description: Crash that player!
                  Based on Name/Hash comparisons
+    Change Log:
+        Added custom /crash command. Type /crash <player id>
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -15,6 +17,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
 ]]
+
+CRASH_COMMAND = "crash"
 
 api_version = "1.11.0.0"
 
@@ -35,7 +39,7 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     count = #t
     if t[1] ~= nil then
-        if t[1] == "crash" or t[1] == "Crash" then
+        if t[1] == CRASH_COMMAND or t[1] == "Crash" then
             if t[2] ~= nil then
                 sufferer = tonumber(t[2])
                 if sufferer ~= nil and sufferer > 0 and sufferer < 17 then
