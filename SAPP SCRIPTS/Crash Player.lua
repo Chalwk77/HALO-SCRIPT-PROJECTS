@@ -37,10 +37,12 @@ function OnScriptUnload()
 end
 
 function OnServerCommand(PlayerIndex, Command)
+    local response = nil
     local t = tokenizestring(Command)
     count = #t
     if t[1] ~= nil then
         if tonumber(get_var(PlayerIndex,"$lvl")) >= LEVEL and t[1] == CRASH_COMMAND or t[1] == "Crash" then
+            response = false
             if t[2] ~= nil then
                 sufferer = tonumber(t[2])
                 if sufferer ~= nil and sufferer > 0 and sufferer < 17 then
@@ -48,18 +50,16 @@ function OnServerCommand(PlayerIndex, Command)
                     if player_present(sufferer) then
                         timer(0, "CrashPlayer", sufferer)
                         say(PlayerIndex, "You crashed " .. sufferers_name .. "'s game!")
-                        return false
                     else
                         say(PlayerIndex, "Invalid player!")
-                        return false
                     end
                 end
             else
                 say(PlayerIndex, "Invalid Syntax! Syntax: " .. t[1] .. " [number 1-16]")
-                return false
             end
         end
     end
+	return response	
 end
 
 function tokenizestring(inputstr, sep)
