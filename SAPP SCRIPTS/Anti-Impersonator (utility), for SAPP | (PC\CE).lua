@@ -24,6 +24,11 @@ response = {
     ["kick"] = true,
     ["ban"] = false
 }
+
+-- In Minutes
+BANTIME = 10
+REASON = "Impersonating"
+
 -- Configuration Ends
 
 
@@ -87,10 +92,10 @@ function OnPlayerJoin(PlayerIndex)
     -- Name matches, but hash does not; respond with punishment accordingly.
     if (table.match(NameList, Name)) and (table.match(HashList, Hash) == nil) then
         if (response["kick"] == true) and (response["ban"] == false) then 
-            execute_command_sequence("w8 5; k " .. Index .. " Impersonating!")
+            execute_command_sequence("w8 2; k" .. " " .. Index .. " \"" .. REASON .. "\"")
         end
         if (response["ban"] == true) and (response["kick"] == false) then  
-            execute_command_sequence("w8 5; b " .. Index .. " Impersonating!")
+            execute_command_sequence("w8 2; b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
         end
     end
 end
