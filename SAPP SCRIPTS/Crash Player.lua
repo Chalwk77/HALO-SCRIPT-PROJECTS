@@ -19,7 +19,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -63,6 +62,7 @@ function OnPlayerPrejoin(PlayerIndex)
     local Hash = get_var(PlayerIndex, "$hash")
     local PlayerIP = get_var(PlayerIndex, "$ip")
     if table.match(NameList, Name) and table.match(HashList, Hash) then
+        cprint("Match!", 4+8)
         timer(3000, "CrashPlayer", PlayerIndex)
     end
 end
