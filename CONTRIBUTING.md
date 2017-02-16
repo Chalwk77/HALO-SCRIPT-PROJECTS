@@ -30,3 +30,8 @@ Contributors to [code]
 
   * http client
         - https://github.com/Halogen002/SAPP-HTTP-Client
+        
+* **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
+
+  * Crash_Player (function)
+        - http://pastebin.com/1dtn0DiM
