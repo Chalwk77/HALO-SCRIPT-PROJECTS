@@ -23,14 +23,11 @@ response = {
     ["kick"] = true,
     ["ban"] = false
 }
-
-kick_reason = "impersonating a player!"
-ban_reason = "impersonating a player!"
 -- Configuration Ends
 
 
 function OnScriptLoad( )
-    register_callback(cb['EVENT_JOIN'], "AntiImpersonator")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     LoadTables( )
 end
 
@@ -45,12 +42,9 @@ function LoadTables( )
         "Player2",
         "Player3",
         "Player4",
-        "Player5",
+        "Player5"
     }	
     HashList = {
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -59,32 +53,29 @@ function LoadTables( )
     }
 end
 
-function AntiImpersonator(PlayerIndex)
-    
-    local Name = get_var(PlayerIndex,"$name")
-    local Hash = get_var(PlayerIndex,"$hash")
-    if (table.match(NameList, Name) == true) and (table.match(HashList, Hash) == true) then
-        -- do nothing
-        return true
-    else
-        if (table.match(NameList, Name) ~= true) and (table.match(HashList, Hash) ~= true) then
-            if (response["kick"] == true) and (response["ban"] == false) then 
-                execute_command("k " .. PlayerIndex .. kick_reason)
-            end
-            if (response["ban"] == true) and (response["kick"] == false) then  
-                execute_command("b " .. PlayerIndex .. ban_reason)
-            end
-            if (response["ban"] == true) and (response["kick"] == true) then 
-                cprint("Script Error: AntiImpersonator.lua - Only one option should be enabled! (line 22/23)", 4+8)
-            end
-        end
-    end
-end
-
 function table.match(table, value)
     for k,v in pairs(table) do
         if v == value then
             return k
+        end
+    end
+end
+
+-- OnPlayerJoin
+function OnPlayerJoin(PlayerIndex)
+    local Name = get_var(PlayerIndex,"$name")
+    local Hash = get_var(PlayerIndex,"$hash")
+    local id = get_var(PlayerIndex, "$n")
+    
+    if (table.match(NameList, Name)) and (table.match(HashList, Hash) == nil) then
+        if (response["kick"] == true) and (response["ban"] == false) then 
+            execute_command_sequence("w8 5; k " .. id .. " Impersonating!")
+        end
+        if (response["ban"] == true) and (response["kick"] == false) then  
+            execute_command_sequence("w8 5; b " .. id .. " Impersonating!")
+        end
+        if (response["ban"] == true) and (response["kick"] == true) then 
+            cprint("Script Error: AntiImpersonator.lua - Only one option should be enabled! (line 22/23)", 4+8)
         end
     end
 end
