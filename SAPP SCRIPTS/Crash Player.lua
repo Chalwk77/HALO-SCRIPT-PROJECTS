@@ -20,9 +20,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 CRASH_COMMAND = "crash"
+LEVEL = 1 -- Min admin level required to use /crash command
 
 api_version = "1.11.0.0"
-
 function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -40,7 +40,7 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     count = #t
     if t[1] ~= nil then
-        if t[1] == CRASH_COMMAND or t[1] == "Crash" then
+        if tonumber(get_var(PlayerIndex,"$lvl")) >= LEVEL and t[1] == CRASH_COMMAND or t[1] == "Crash" then
             if t[2] ~= nil then
                 sufferer = tonumber(t[2])
                 if sufferer ~= nil and sufferer > 0 and sufferer < 17 then
@@ -50,15 +50,17 @@ function OnServerCommand(PlayerIndex, Command)
                     if player_present(sufferer) then
                         timer(0, "CrashPlayer", sufferer)
                         say(PlayerIndex, "You crashed " .. sufferers_name .. ", index number " ..Index)
+                        return false
                     else
                         say(PlayerIndex, "Invalid player!")
+                        return false
                     end
                 end
             else
                 say(PlayerIndex, "Invalid Syntax! Syntax: " .. t[1] .. " [number 1-16]")
+                return false
             end
         end
-        return false
     end
 end
 
@@ -106,7 +108,6 @@ function OnPlayerPrejoin(PlayerIndex)
     local Hash = get_var(PlayerIndex, "$hash")
     local PlayerIP = get_var(PlayerIndex, "$ip")
     if table.match(NameList, Name) and table.match(HashList, Hash) then
-        cprint("Match!", 4+8)
         timer(3000, "CrashPlayer", PlayerIndex)
     end
 end
@@ -137,7 +138,7 @@ function CrashPlayer(sufferer)
         local player_object = get_dynamic_player(sufferer)
         if (player_object ~= 0) then
             local x, y, z = read_vector3d(player_object + 0x5C)
-            local vehicleId = spawn_object("vehi", "vehicles\\warthog\\mp_warthog", x, y, z)
+            local vehicleId = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
             local veh_obj = get_object_memory(vehicleId)
             if (veh_obj ~= 0) then
                 for j = 0, 20 do
