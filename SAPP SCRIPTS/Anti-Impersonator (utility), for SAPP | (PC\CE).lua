@@ -59,7 +59,7 @@ function LoadTables( )
         "FIG-Razor",
         "FIG-shiNe!",
         "FIG-SxyLady",
-        "FIG-Traxx",
+        "FIG-Traxx"
     }	
     HashList = {
     -- You can retrieve the players hash by looking it up in the sapp.log file.
@@ -89,12 +89,12 @@ function OnPlayerJoin(PlayerIndex)
     local Hash = get_var(PlayerIndex,"$hash")
     local Index = get_var(PlayerIndex, "$n")
     -- Name matches, but hash does not; respond with punishment accordingly.
-    if (table.match(NameList, Name)) and (table.match(HashList, Hash) == nil) then
+    if (table.match(NameList, Name)) and (table.match(HashList, Hash) ~= true) then
         if (response["kick"] == true) and (response["ban"] == false) then 
-            execute_command_sequence("w8 2; k" .. " " .. Index .. " \"" .. REASON .. "\"")
+            execute_command_sequence("k" .. " " .. Index .. " \"" .. REASON .. "\"")
         end
         if (response["ban"] == true) and (response["kick"] == false) then  
-            execute_command_sequence("w8 2; b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+            execute_command_sequence("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
         end
     end
 end
