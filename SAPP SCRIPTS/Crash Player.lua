@@ -45,11 +45,9 @@ function OnServerCommand(PlayerIndex, Command)
                 sufferer = tonumber(t[2])
                 if sufferer ~= nil and sufferer > 0 and sufferer < 17 then
                     sufferers_name = get_var(sufferer, "$name")
-                    Index = get_var(sufferer, "$n")
-                    id = get_var(sufferer, "$name")
                     if player_present(sufferer) then
                         timer(0, "CrashPlayer", sufferer)
-                        say(PlayerIndex, "You crashed " .. sufferers_name .. ", index number " ..Index)
+                        say(PlayerIndex, "You crashed " .. sufferers_name .. "'s game!")
                         return false
                     else
                         say(PlayerIndex, "Invalid player!")
