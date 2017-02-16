@@ -3,6 +3,8 @@ Script Name: Anti-Impersonator (utility), for SAPP | (PC\CE)
 - Implementing API version: 1.11.0.0
 
     Description: Prevent others from impersonating fig community members.
+                 This works by comparing the impersonators name to a table of hash's.
+                 The hash-table lists the hash's of official FIG Members.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
