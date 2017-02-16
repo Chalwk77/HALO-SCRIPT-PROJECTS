@@ -3,7 +3,7 @@ Script Name: Anti-Impersonator (utility), for SAPP | (PC\CE)
 - Implementing API version: 1.11.0.0
 
     Description: Prevent others from impersonating fig community members.
-                 You need to list your members IGN's and and corrosponding hash
+                 You need to list your members IGN's and and corresponding hash on lines 43/50
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -88,6 +88,7 @@ function table.match(table, value)
         end
     end
 end
+
 function OnError(Message)
     print(debug.traceback())
 end
