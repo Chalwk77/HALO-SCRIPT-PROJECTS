@@ -76,7 +76,6 @@ function table.match(table, value)
     end
 end
 
--- OnPlayerJoin
 function OnPlayerJoin(PlayerIndex)
     local Name = get_var(PlayerIndex,"$name")
     local Hash = get_var(PlayerIndex,"$hash")
