@@ -4,7 +4,7 @@
 
     Description: Crash someone automatically when they join the server.
                  Based on Name/Hash comparisons.
-                 
+
                 Added custom /crash command. Type /crash <player id>
                 Crash someone (anyone) on demand!
 
@@ -21,29 +21,28 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 CRASH_COMMAND = "crash"
 LEVEL = 1 -- Min admin level required to use /crash command
-rocket_hog = "vehicles\\rwarthog\\rwarthog"
 api_version = "1.11.0.0"
 function OnScriptLoad()
-	register_callback(cb['EVENT_GAME_START'],"OnGameStart")
-	safe_read(true)
-	if CheckMap() then
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    safe_read(true)
+    if CheckMap() then
         register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
         register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
         if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
         network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
         LoadTables()
-	end
-	safe_read(false)
+    end
+    safe_read(false)
 end
 
 function OnGameStart()
-	if CheckMap() then
+    if CheckMap() then
         register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
         register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-	else
+    else
         unregister_callback(cb['EVENT_PREJOIN'])
         unregister_callback(cb['EVENT_COMMAND'])
-	end
+    end
 end
 
 function OnScriptUnload()
@@ -56,7 +55,7 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     count = #t
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex,"$lvl")) >= LEVEL and t[1] == CRASH_COMMAND or t[1] == "Crash" then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= LEVEL and t[1] == CRASH_COMMAND or t[1] == "Crash" then
             response = false
             if t[2] ~= nil then
                 sufferer = tonumber(t[2])
@@ -74,15 +73,15 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-	return response	
+    return response
 end
 
 function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end
@@ -145,14 +144,13 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
 
+-- Thanks to 002/aLTis for this neat little function!
 function CheckMap()
-	if(lookup_tag("vehi", rocket_hog) ~= 0) then
-        cprint("Map has vehicle!", 2+8)
-		return true
-	else
-        cprint("Map does not have vehicle!", 4+8)
-		return false
-	end
+    if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
+        return true
+    else
+        return false
+    end
 end
 
 -- Thanks to H® Shaft for this neat little function!
