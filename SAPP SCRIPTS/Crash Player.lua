@@ -144,7 +144,7 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
 
--- Thanks to 002/aLTis for this neat little function!
+-- Thanks to aLTis for this function!
 function CheckMap()
     if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
         return true
