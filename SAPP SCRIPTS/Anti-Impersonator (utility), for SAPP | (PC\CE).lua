@@ -30,6 +30,10 @@ response = {
 function OnScriptLoad( )
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     LoadTables( )
+    if (response["ban"] == true) and (response["kick"] == true) then 
+        cprint("Script Error: Anti-Impersonator.lua", 4+8)
+        cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4+8)
+    end
 end
 
 function OnScriptUnload() 
@@ -59,11 +63,11 @@ function LoadTables( )
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
 end
@@ -79,17 +83,14 @@ end
 function OnPlayerJoin(PlayerIndex)
     local Name = get_var(PlayerIndex,"$name")
     local Hash = get_var(PlayerIndex,"$hash")
-    local id = get_var(PlayerIndex, "$n")
-    
+    local Index = get_var(PlayerIndex, "$n")
+    -- Name matches, but hash does not; respond with punishment accordingly.
     if (table.match(NameList, Name)) and (table.match(HashList, Hash) == nil) then
         if (response["kick"] == true) and (response["ban"] == false) then 
-            execute_command_sequence("w8 5; k " .. id .. " Impersonating!")
+            execute_command_sequence("w8 5; k " .. Index .. " Impersonating!")
         end
         if (response["ban"] == true) and (response["kick"] == false) then  
-            execute_command_sequence("w8 5; b " .. id .. " Impersonating!")
-        end
-        if (response["ban"] == true) and (response["kick"] == true) then 
-            cprint("Script Error: AntiImpersonator.lua - Only one option should be enabled! (line 22/23)", 4+8)
+            execute_command_sequence("w8 5; b " .. Index .. " Impersonating!")
         end
     end
 end
