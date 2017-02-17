@@ -24,20 +24,23 @@ function OnScriptUnload()
     objects = { }
 end
 
+
 objects = {
-    -- bloodgulch
-    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 97.29, -163.54, 1.7 },
-    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 84.15, -160.48, 0.05 },
-    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 98.49, -157.64, 1.7 },
-    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 93.97, -161.08, 1.7 },
-    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 91.89, -157.78, 1.7 }
+    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 97.29, -163.54, 1.7, "bloodgulch" },
+    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 98.49, -157.64, 1.7, "bloodgulch" },
+    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 93.97, -161.08, 1.7, "bloodgulch" },
+    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 91.89, -157.78, 1.7, "bloodgulch" },
+    {"bipd", "characters\\cyborg_mp\\cyborg_mp", 84.15, -160.48, 0.05, "bloodgulch" }
 }
 
 function OnNewGame()
     for k, v in pairs(objects) do
+        local map = get_var(1,"$map")
         local tag = lookup_tag(v[1], v[2])
         if tag ~= 0 then
-            v[5] = spawn_object(v[1], v[2], v[3], v[4], v[5])
+            if (v[6] == map) then
+                v[6] = spawn_object(v[1], v[2], v[3], v[4], v[5])
+            end
         end
     end
 end
