@@ -5,7 +5,7 @@
     Description: Heal yourself or others
                  Minimum admin level required is 1 by default.
                  Command Syntax: /heal me, /heal [number 1-16]
-                 
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -31,10 +31,10 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     count = #t
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == COMMAND) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == COMMAND) then
             response = false
             if t[2] ~= nil then
-                if (t[2] == "me") then 
+                if (t[2] == "me") then
                     Player = tonumber(get_var(PlayerIndex, "$n"))
                 else
                     Player = tonumber(t[2])
@@ -70,7 +70,7 @@ function HealPlayer(Player, PlayerIndex)
                 if healthpack ~= nil then write_float(get_object_memory(healthpack) + 0x70, -2) end
             else
                 write_float(player_object + 0xE0, 1)
-            end            
+            end
             if tonumber(get_var(PlayerIndex, "$n")) == Player then
                 respond("You have healed yourself!", PlayerIndex)
             else
@@ -89,20 +89,20 @@ end
 
 function respond(Command, PlayerIndex)
     if Command then
-        if Command == "" then 
-            return 
+        if Command == "" then
+            return
         elseif type(Command) == "table" then
             Command = Command[1]
         end
         PlayerIndex = tonumber(PlayerIndex)
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4+8)
-            cprint(Command, 2+8)
+            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4 + 8)
+            cprint(Command, 2 + 8)
             rprint(PlayerIndex, Command)
             note = string.format('[COMMAND-HEAL] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Command)
-            execute_command("log_note \""..note.."\"")
+            execute_command("log_note \"" .. note .. "\"")
         else
-            cprint(Command, 2+8)
+            cprint(Command, 2 + 8)
         end
     end
 end
