@@ -30,7 +30,7 @@ function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == COMMAND) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == tostring(COMMAND)) then
             response = false
             if t[2] ~= nil then
                 if (t[2] == "me") then
