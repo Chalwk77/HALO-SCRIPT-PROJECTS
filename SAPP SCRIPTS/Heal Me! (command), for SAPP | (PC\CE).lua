@@ -67,7 +67,9 @@ function HealPlayer(Player, PlayerIndex)
             if vehicleId == nil then
                 local x, y, z = GetPlayerCoords(player_object)
                 local healthpack = spawn_object("eqip", "powerups\\health pack", x, y, z + 0.5)
-                if healthpack ~= nil then write_float(get_object_memory(healthpack) + 0x70, -2) end
+                if healthpack ~= nil then 
+                    write_float(get_object_memory(healthpack) + 0x70, -2)
+                end
             else
                 write_float(player_object + 0xE0, 1)
             end
