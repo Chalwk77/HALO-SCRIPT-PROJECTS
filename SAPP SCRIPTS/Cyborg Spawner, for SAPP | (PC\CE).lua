@@ -136,17 +136,18 @@ objects = {
 }
 
 function OnNewGame()
-    for key, value in pairs(objects) do
+    for k, v in pairs(objects) do
         local map = get_var(1, "$map")
-        local tag = lookup_tag(value[1], value[2])
-        if value[1] == "bipd" and value[2] == "characters\\cyborg_mp\\cyborg_mp" then
+        local tag = lookup_tag(v[1], v[2])
+        if v[1] == "bipd" and v[2] == "characters\\cyborg_mp\\cyborg_mp" then
             object = "Cyborg"
         end
         if tag ~= 0 then
-            if (value[6] == map) then
-                value[6] = spawn_object(value[1], value[2], value[3], value[4], value[5])
-                cprint("[".. key .."] Spawning " .. object .. " at " .. value[3] .. ", " .. value[4] .. ", " .. value[5], 2+8)
-                if (value[6] == nil) then 
+            if (v[6] == map) then
+                -- v1 = class, v2 = tagname, v3 = X, v4 = Y, v5 = Z
+                v[6] = spawn_object(v[1], v[2], v[3], v[4], v[5])
+                cprint("[".. k .."] Spawning " .. object .. " at " .. v[3] .. ", " .. v[4] .. ", " .. v[5], 2+8)
+                if (v[6] == nil) then 
                     cprint("Object Creation failed. Number: " .. k) 
                 end
             end
