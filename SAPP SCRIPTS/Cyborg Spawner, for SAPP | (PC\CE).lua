@@ -33,7 +33,7 @@ objects = {
     {"bipd", "characters\\cyborg_mp\\cyborg_mp", 91.89, -157.78, 1.7 }
 }
 
-function OnNewGame(TagID)
+function OnNewGame()
     for k, v in pairs(objects) do
         local tag = lookup_tag(v[1], v[2])
         if tag ~= 0 then
