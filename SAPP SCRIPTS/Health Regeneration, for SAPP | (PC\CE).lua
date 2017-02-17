@@ -2,7 +2,7 @@
     Script Name: Health Regeneration, for SAPP | (PC\CE)
     Implementing API version: 1.11.0.0
 
-    Description: Continuously regenerate your health.
+    Description: continuously regenerate your health.
     
     Credits to H® Shaft for the original "Continuous Health Regeneration" script.
     Converted to SAPP by Jericho Crosby (Chalwk).
@@ -13,8 +13,8 @@
 
 api_version = "1.11.0.0"
 
-Time = 10
-increment = 0.1116
+Time = 10 -- time (in seconds) between each incremental increase in health
+increment = 0.1116 -- amount of health regenerated. (1 is full health)
 
 function OnScriptLoad( )
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
