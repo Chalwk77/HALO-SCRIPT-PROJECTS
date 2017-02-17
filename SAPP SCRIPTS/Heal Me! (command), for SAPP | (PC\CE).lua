@@ -29,7 +29,6 @@ function OnScriptUnload() end
 function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
-    count = #t
     if t[1] ~= nil then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == COMMAND) then
             response = false
