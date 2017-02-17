@@ -143,12 +143,13 @@ function OnNewGame()
             object = "Cyborg"
         end
         if tag ~= 0 then
-            if (v[6] == map) then
-                -- v1 = class, v2 = tagname, v3 = X, v4 = Y, v5 = Z
-                v[6] = spawn_object(v[1], v[2], v[3], v[4], v[5])
-                cprint("[".. k .."] Spawning " .. object .. " at " .. v[3] .. ", " .. v[4] .. ", " .. v[5], 2+8)
-                if (v[6] == nil) then 
-                    cprint("Object Creation failed. Number: " .. k) 
+            if (v[6] == nil) then 
+                cprint("Object Creation failed. Number: " .. k) 
+            else
+                if (v[6] == map) then
+                    -- v1 = class, v2 = tagname, v3 = X, v4 = Y, v5 = Z
+                    v[6] = spawn_object(v[1], v[2], v[3], v[4], v[5])
+                    cprint("[".. k .."] Spawning " .. object .. " at " .. v[3] .. ", " .. v[4] .. ", " .. v[5], 2+8)
                 end
             end
         end
