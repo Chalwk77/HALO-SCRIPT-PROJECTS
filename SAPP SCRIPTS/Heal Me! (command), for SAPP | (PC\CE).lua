@@ -50,7 +50,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond("Invalid Syntax! Syntax: " .. t[1] .. " [number 1-16]", PlayerIndex)
+                respond("Invalid Syntax! Syntax: /" .. t[1] .. " [number 1-16]", PlayerIndex)
             end
         end
     end
