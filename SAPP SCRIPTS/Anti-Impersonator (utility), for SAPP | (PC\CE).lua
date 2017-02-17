@@ -91,10 +91,10 @@ function OnPlayerJoin(PlayerIndex)
     -- Name matches, but hash does not; respond with punishment accordingly.
     if (table.match(NameList, Name)) and (table.match(HashList, Hash) ~= true) then
         if (response["kick"] == true) and (response["ban"] == false) then 
-            execute_command_sequence("k" .. " " .. Index .. " \"" .. REASON .. "\"")
+            execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
         end
         if (response["ban"] == true) and (response["kick"] == false) then  
-            execute_command_sequence("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+            execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
         end
     end
 end
