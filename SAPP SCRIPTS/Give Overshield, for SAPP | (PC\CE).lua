@@ -72,13 +72,19 @@ function GiveOvershield(index, PlayerIndex)
                     write_float(get_object_memory(overshield) + 0x70, -2)
                 end
             else
-                writefloat(player_object + 0xE4, 3)
+                write_float(player_object + 0xE4, 3)
             end
             if tonumber(get_var(PlayerIndex, "$n")) == index then
                 respond("You have given yourself an overshield", PlayerIndex)
+                local obj_shields = read_float(player_object + 0xE4)
+                local obj_max_shields = read_float(player_object + 0xDC)
+                obj_shields = round(obj_shields * 100)
+                obj_max_shields = round(obj_shields * obj_max_shields)
+                respond("Shields: " .. obj_shields .. "% (" .. obj_max_shields .. ")", PlayerIndex)
             else
                 respond("You given " .. receiver .. " an Over-Shield", PlayerIndex)
                 respond(executor .. " has given you an Over-Shield", index)
+                respond("Shields: " .. obj_shields .. "% (" .. obj_max_shields .. ")", index)
             end
         else
             if tonumber(get_var(PlayerIndex, "$n")) == index then
@@ -87,6 +93,14 @@ function GiveOvershield(index, PlayerIndex)
                 respond(receiver .. " already has an Over-Shield", PlayerIndex)
             end
         end
+    end
+end
+            
+function round(val, decimal)
+    if (decimal) then
+        return math.floor((val * 10 ^ decimal) + 0.5) /(10 ^ decimal)
+    else
+        return math.floor(val + 0.5)
     end
 end
 
