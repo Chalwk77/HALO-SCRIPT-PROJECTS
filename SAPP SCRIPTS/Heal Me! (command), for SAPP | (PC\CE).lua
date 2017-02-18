@@ -52,11 +52,15 @@ function OnServerCommand(PlayerIndex, Command)
                     index = tonumber(t[2])
                 end
                 if t[3] ~= nil then
-                    value = tonumber(t[3])
-                    if (value > 0.001 and value < 1000) then
-                        ValueWasDefined = true
+                    if string.match(t[3], "[A-Za-z]") then 
+                        containsString = true
                     else
-                        ValueWasDefined = false
+                        value = tonumber(t[3])
+                        if (value > 0.001 and value < 1000) then
+                            ValueWasDefined = true
+                        else
+                            ValueWasDefined = false
+                        end
                     end
                 end
                 if index ~= nil and index > 16 and index < 99999 then
@@ -65,7 +69,12 @@ function OnServerCommand(PlayerIndex, Command)
                     name = get_var(index, "$name")
                     Executor = get_var(PlayerIndex, "$name")
                     if player_present(index) then
-                        HealPlayer(index, PlayerIndex)
+                        if (containsString == true) then
+                            respond("Invalid index! Please enter a number, not letter(s).", PlayerIndex)
+                            containsString = false
+                        else
+                            HealPlayer(index, PlayerIndex)
+                        end
                     else
                         respond("Invalid Player Index!", PlayerIndex)
                     end
