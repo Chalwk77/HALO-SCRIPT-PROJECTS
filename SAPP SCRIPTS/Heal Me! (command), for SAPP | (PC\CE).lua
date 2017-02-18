@@ -6,9 +6,9 @@
                  Minimum admin level required is 1 by default.
                  
                  Command Syntax: 
-                                    /heal [player# 1-16] [1-100]
+                                    /heal [player# 1-16] [0.001-1000]
                                     /heal [player# 1-16]
-                                    /heal me [1-100]
+                                    /heal me [0.001-1000]
                                     /heal me
                                     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
