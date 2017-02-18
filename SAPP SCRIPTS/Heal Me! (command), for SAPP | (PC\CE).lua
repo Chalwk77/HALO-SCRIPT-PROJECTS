@@ -25,6 +25,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 ADMIN_LEVEL = 1
 COMMAND = "heal"
+
+settings = {
+-- Toggle on|off console output
+    ["DisplayConsoleOutput"] = false,
+-- Log to file (sapp.log)
+    ["LogToFile"] = false
+}
+
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
@@ -35,7 +43,7 @@ function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == tostring(COMMAND)) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower(COMMAND)) then
             response = false
             if t[2] ~= nil then
                 if (t[2] == "me") then
@@ -59,11 +67,16 @@ function OnServerCommand(PlayerIndex, Command)
                     if player_present(index) then
                         HealPlayer(index, PlayerIndex)
                     else
-                        respond("Invalid index!", PlayerIndex)
+                        respond("Invalid Player Index!", PlayerIndex)
                     end
                 end
             else
-                respond("Invalid Syntax! Syntax: /" .. t[1] .. " [number 1-16]", PlayerIndex)
+                respond("--- Invalid Syntax ---", PlayerIndex)
+                respond("Available Commands:", PlayerIndex)
+                respond("/heal [player# 1-16] [0.001-1000]", PlayerIndex)
+                respond("/heal [player# 1-16]", PlayerIndex)
+                respond("/heal me [0.001-1000]", PlayerIndex)
+                respond("/heal me", PlayerIndex)
             end
         end
     end
@@ -111,13 +124,17 @@ function respond(Command, PlayerIndex)
         end
         PlayerIndex = tonumber(PlayerIndex)
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4 + 8)
-            cprint(Command, 2 + 8)
+            if settings["DisplayConsoleOutput"] then
+                cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4 + 8)
+                cprint(Command, 2 + 8)
+            end
             rprint(PlayerIndex, Command)
-            note = string.format('[COMMAND-HEAL] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Command)
-            execute_command("log_note \"" .. note .. "\"")
+            if settings["LogToFile"] then
+                note = string.format('[COMMAND-HEAL] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Command)
+                execute_command("log_note \"" .. note .. "\"")
+            end
         else
-            cprint(Command, 2 + 8)
+            if settings["DisplayConsoleOutput"] then cprint(Command, 2 + 8) end
         end
     end
 end
