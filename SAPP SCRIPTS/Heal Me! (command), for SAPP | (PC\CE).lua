@@ -97,7 +97,6 @@ function HealPlayer(index, PlayerIndex)
                 end
             else
                 if ValueWasDefined then value = value else value = 1 end
-                say(PlayerIndex, "healing by " ..value.. " units of health")
                 write_float(player_object + 0xE0, value)
             end
             if tonumber(get_var(PlayerIndex, "$n")) == index then
