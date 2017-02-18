@@ -54,8 +54,8 @@ function OnServerCommand(PlayerIndex, Command)
                 if index ~= nil and index > 16 and index < 99999 then
                     respond("Invalid index! Please enter a number between 1-16", PlayerIndex)
                 elseif index ~= nil and index > 0 and index < 17 then
-                    name = get_var(index, "$name")
-                    Executor = get_var(PlayerIndex, "$name")
+                    receiver = get_var(index, "$name")
+                    executor = get_var(PlayerIndex, "$name")
                     if player_present(index) then
                         if (containsString == true) then
                             respond("Invalid index! Please enter a number, not letter(s).", PlayerIndex)
@@ -88,13 +88,13 @@ function HurtPlayer(index, PlayerIndex)
             if tonumber(get_var(PlayerIndex, "$n")) == index then
                 respond("Ouch!", PlayerIndex)
             else
-                respond(Executor .. " hurt you plenty!", index)
+                respond(executor .. " hurt you plenty!", index)
             end
         else
             if tonumber(get_var(PlayerIndex, "$n")) == index then
                 respond("Unable to hurt youself.", index)
             else
-                respond(name .. " has been though enough. Have some compassion!", PlayerIndex)
+                respond(receiver .. " has been though enough. Have some compassion!", PlayerIndex)
             end
         end
     end
