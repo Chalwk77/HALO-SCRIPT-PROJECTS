@@ -4,7 +4,7 @@
 
     Description: continuously regenerate your health.
     
-    Credits to H® Shaft for the original "Continuous Health Regeneration" script.
+    Credits to HÂ® Shaft for the original "Continuous Health Regeneration" script.
     Converted to SAPP by Jericho Crosby (Chalwk).
     
 * IGN: Chalwk

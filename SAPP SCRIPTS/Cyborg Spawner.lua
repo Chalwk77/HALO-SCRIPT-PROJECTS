@@ -139,7 +139,9 @@ function OnNewGame()
     for k, v in pairs(objects) do
         local map = get_var(1, "$map")
         local tag = lookup_tag(v[1], v[2])
-        if v[1] == "bipd" and v[2] == "characters\\cyborg_mp\\cyborg_mp" then object = "Cyborg" end
+        if v[1] == "bipd" and v[2] == "characters\\cyborg_mp\\cyborg_mp" then
+            object = "Cyborg"
+        end
         if tag ~= 0 then
             if (v[6] == nil) then 
                 cprint("Object Creation failed. Number: " .. k) 

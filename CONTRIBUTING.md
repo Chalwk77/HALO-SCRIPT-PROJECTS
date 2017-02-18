@@ -15,7 +15,7 @@ Contributors to [code]
 
   * Creator of commands script (4.2)
         - http://pastebin.com/gHiz0A51
-
+  
 * **[Benjamin Auquite](https://github.com/th3w1zard1)**
 
   * Co-Creator of commands script (4.2)
@@ -25,18 +25,13 @@ Contributors to [code]
 
   * sendconsoletext overload
         - http://pastebin.com/1dtn0DiM
-
+        
 * **[002](https://github.com/Halogen002)**
 
   * http client
         - https://github.com/Halogen002/SAPP-HTTP-Client
-
+        
 * **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
 
   * Crash_Player (function)
         - http://pastebin.com/1dtn0DiM
-
-        * **[vm315](test)**
-
-          * Chalwk
-                - vm315

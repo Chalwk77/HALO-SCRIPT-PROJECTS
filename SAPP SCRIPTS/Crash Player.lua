@@ -154,7 +154,7 @@ function CheckMap()
     end
 end
 
--- Thanks to H® Shaft for this neat little function!
+-- Thanks to HÂ® Shaft for this neat little function!
 function CrashPlayer(sufferer)
     if player_present(sufferer) then
         local player_object = get_dynamic_player(sufferer)
