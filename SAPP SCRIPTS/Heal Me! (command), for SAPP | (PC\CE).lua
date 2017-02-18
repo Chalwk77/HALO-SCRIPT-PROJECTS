@@ -4,13 +4,13 @@
 
     Description: Heal yourself or others
                  Minimum admin level required is 1 by default.
-                 
-                 Command Syntax: 
+
+                 Command Syntax:
                                     /heal [player# 1-16] [0.001-1000]
                                     /heal [player# 1-16]
                                     /heal me [0.001-1000]
                                     /heal me
-                                    
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -27,9 +27,9 @@ ADMIN_LEVEL = 1
 COMMAND = "heal"
 
 settings = {
--- Toggle on|off console output
+    -- Toggle on|off console output
     ["DisplayConsoleOutput"] = false,
--- Log to file (sapp.log)
+    -- Log to file (sapp.log)
     ["LogToFile"] = false
 }
 
@@ -52,7 +52,7 @@ function OnServerCommand(PlayerIndex, Command)
                     index = tonumber(t[2])
                 end
                 if t[3] ~= nil then
-                    if string.match(t[3], "[A-Za-z]") then 
+                    if string.match(t[3], "[A-Za-z]") then
                         containsString = true
                     else
                         value = tonumber(t[3])
