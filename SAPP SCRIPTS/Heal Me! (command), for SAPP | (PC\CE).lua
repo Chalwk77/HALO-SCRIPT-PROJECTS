@@ -4,8 +4,13 @@
 
     Description: Heal yourself or others
                  Minimum admin level required is 1 by default.
-                 Command Syntax: /heal me, /heal [number 1-16]
-
+                 
+                 Command Syntax: 
+                                    /heal [player# 1-16] [1-100]
+                                    /heal [player# 1-16]
+                                    /heal me [1-100]
+                                    /heal me
+                                    
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -38,6 +43,14 @@ function OnServerCommand(PlayerIndex, Command)
                 else
                     index = tonumber(t[2])
                 end
+                if t[3] ~= nil then
+                    value = tonumber(t[3])
+                    if (value > 0.001 and value < 1000) then
+                        ValueWasDefined = true
+                    else
+                        ValueWasDefined = false
+                    end
+                end
                 if index ~= nil and index > 16 and index < 99999 then
                     respond("Invalid index! Please enter a number between 1-16", PlayerIndex)
                 elseif index ~= nil and index > 0 and index < 17 then
@@ -66,11 +79,12 @@ function HealPlayer(index, PlayerIndex)
             if vehicleId == nil then
                 local x, y, z = GetPlayerCoords(player_object)
                 local healthpack = spawn_object("eqip", "powerups\\health pack", x, y, z + 0.5)
-                if healthpack ~= nil then 
+                if healthpack ~= nil then
                     write_float(get_object_memory(healthpack) + 0x70, -2)
                 end
             else
-                write_float(player_object + 0xE0, 1)
+                if ValueWasDefined then value = value else value = 1 end
+                write_float(player_object + 0xE0, value)
             end
             if tonumber(get_var(PlayerIndex, "$n")) == index then
                 respond("You have healed yourself!", PlayerIndex)
