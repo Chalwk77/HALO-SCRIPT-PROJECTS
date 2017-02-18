@@ -52,7 +52,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond("Invalid Syntax: /os me | [player# 1-16]", PlayerIndex)
+                respond("Invalid Syntax: /" .. COMMAND .. " me | [player# 1-16]", PlayerIndex)
             end
         end
     end
