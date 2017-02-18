@@ -119,3 +119,7 @@ function tokenizestring(inputstr, sep)
     end
     return t
 end
+
+function OnError(Message)
+    print(debug.traceback())
+end
