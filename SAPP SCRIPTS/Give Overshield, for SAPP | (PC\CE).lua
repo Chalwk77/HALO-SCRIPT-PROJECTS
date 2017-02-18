@@ -82,7 +82,7 @@ function GiveOvershield(index, PlayerIndex)
                 obj_max_shields = round(obj_shields * obj_max_shields)
                 respond("Shields: " .. obj_shields .. "% (" .. obj_max_shields .. ")", PlayerIndex)
             else
-                respond("You given " .. receiver .. " an Over-Shield", PlayerIndex)
+                respond("You have given " .. receiver .. " an Over-Shield", PlayerIndex)
                 respond(executor .. " has given you an Over-Shield", index)
                 respond("Shields: " .. obj_shields .. "% (" .. obj_max_shields .. ")", index)
             end
