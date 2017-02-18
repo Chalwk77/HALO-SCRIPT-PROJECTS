@@ -82,7 +82,7 @@ function HurtPlayer(index, PlayerIndex)
     if (player_object ~= 0) then
         local health = read_float(player_object + 0xE0)
         local shields = read_float(player_object + 0xE4)
-        if health >= 1 then
+        if health >= 1 and shields == 1 or shields == 3 then
             write_float(player_object + 0xE0, 0.001)
             write_float(player_object + 0xE4, 0)
             if tonumber(get_var(PlayerIndex, "$n")) == index then
@@ -99,7 +99,7 @@ function HurtPlayer(index, PlayerIndex)
         end
     end
 end
-
+           
 function respond(Command, PlayerIndex)
     if Command then
         if Command == "" then
