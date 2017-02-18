@@ -22,11 +22,11 @@ Exit = nil
 gamesettings = {
     -- Removes the vehicle.
     -- Note, once removed, they will not respawn!
-    ["DestroyVehicle"] = true,
+    ["DestroyVehicle"] = false,
     
     -- Will spawn a new vehicle at the location of "TeleportFrom".
     -- Note, these spawned vehicles will not 'reset' after X seconds when moved.
-    ["CreateNewVehicle"] = true,
+    ["CreateNewVehicle"] = false,
 }
 -- X,Y,Z,Radius (From Coordinates)
 TeleportFrom = {}
