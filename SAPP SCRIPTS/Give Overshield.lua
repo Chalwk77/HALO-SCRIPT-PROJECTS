@@ -41,7 +41,7 @@ function OnServerCommand(PlayerIndex, Command)
                     index = tonumber(get_var(PlayerIndex, "$n"))
                 else
                     index = tonumber(t[2])
-                end                
+                end
                 if index ~= nil and index > 0 and index < 17 then
                     receiver = get_var(index, "$name")
                     executor = get_var(PlayerIndex, "$name")
@@ -95,7 +95,7 @@ function GiveOvershield(index, PlayerIndex)
         end
     end
 end
-            
+
 function round(val, decimal)
     if (decimal) then
         return math.floor((val * 10 ^ decimal) + 0.5) /(10 ^ decimal)
