@@ -2,52 +2,14 @@
 Script Name: Killer Reward, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
-    Description: This script will drop 1-20 (configurable) random items at your victims death location.
-    TO DO LIST: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/4
+    Description: This script will drop 1 of 20 (configurable) random items at your victims death location.
     
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+    MODES:
+    Kills Not Required:
+        Your victim will drop 1 random "weapon" or "equipment" item (indefinitely), by default.
 
-MODES:
-    [!] Kills Not Required:
-        * Weapons and Equipment:
-            ->  GlobalNoKills = "true"
-            ->  GlobalSettings = "true"
-            ->  WeaponsAndEquipment = "true"
-            ->  JustEquipment = false
-            ->  JustWeapons = false
-        * Just Weapons:
-            ->  GlobalNoKills = "true"
-            ->  GlobalSettings = "true"
-            ->  WeaponsAndEquipment = false
-            ->  JustEquipment = false
-            ->  JustWeapons = "true"
-        * Just Equipment:
-            ->  GlobalNoKills = "true"
-            ->  GlobalSettings = "true"
-            ->  WeaponsAndEquipment = false
-            ->  JustEquipment = "true"
-            ->  JustWeapons = false
-
-    [!] Kills Required:
-        * Weapons and Equipment:
-            ->  GlobalKillsRequired = "true"
-            ->  WeaponsAndEquipment = "true"
-            ->  JustEquipment = false
-            ->  JustWeapons = false
-        * Just Weapons:
-            ->  GlobalKillsRequired = "true"
-            ->  WeaponsAndEquipment = false
-            ->  JustEquipment = false
-            ->  JustWeapons = "true"
-        * Just Equipment:
-            ->  GlobalKillsRequired = "true"
-            ->  WeaponsAndEquipment = false
-            ->  JustEquipment = "true"
-            ->  JustWeapons = false
-
-            Kill-Threshold: Increments of 10.
-            For every 10 kills you get, your victim will drop an item.
+    Kills Required:
+        Your victim will drop 1 random "weapon" or "equipment" item when you reach a specific kill threashold.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -63,67 +25,51 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 -- ==============================================--
 -- >> Configuration << --
--- Notice: "BasedOnMap" and "BasedOnGameType" are for a future update.
 gamesettings = {
-    ["BasedOnMap"] = false,
-    ["BasedOnGameType"] = false,
-    ["GlobalSettings"] = true,
-    ["GlobalNoKills"] = true,
-    ["GlobalKillsRequired"] = false,
+--  You can toggle these settings ON|OFF. (true/false). 
+--  Only one option can be "true" at a time.
     ["WeaponsAndEquipment"] = true,
     ["JustEquipment"] = false,
     ["JustWeapons"] = false,
+
+    
+-- Toggle these modes modes ON|OFF (true/false)
+--  Only one option can be "true" at a time.
+    -- No Kills Kequired
+    ["NO_KILLS_REQUIRED"] = true,
+    -- Kills Are Required
+    ["KILLS_REQUIRED"] = false,
 }
+
+-- To disable a specific item, change the 'true' value to "false".
 
 weapons = {
-    ["AssaultRifle"] = true,
-    ["FlameThrower"] = true,
-    ["Needler"] = true,
-    ["Pistol"] = true,
-    ["PlasmaPistol"] = true,
-    ["PlasmaRifle"] = true,
-    ["PlasmaCannon"] = true,
-    ["RocketLauncher"] = true,
-    ["Shotgun"] = true,
-    ["SniperRifle"] = true,
+    { "weap", "weapons\\assault rifle\\assault rifle", true},
+    { "weap", "weapons\\flamethrower\\flamethrower", true},
+    { "weap", "weapons\\needler\\mp_needler", true},
+    { "weap", "weapons\\pistol\\pistol", true},
+    { "weap", "weapons\\plasma pistol\\plasma pistol", true},
+    { "weap", "weapons\\plasma rifle\\plasma rifle", true},
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon", true},
+    { "weap", "weapons\\rocket launcher\\rocket launcher", true},
+    { "weap", "weapons\\shotgun\\shotgun", true},
+    { "weap", "weapons\\sniper rifle\\sniper rifle", true}
 }
 
-equipment = {
-    ["Camouflage"] = true,
-    ["HealthPack"] = true,
-    ["OverShield"] = true,
-    ["AssaultRifleAmmo"] = true,
-    ["NeedlerAmmo"] = true,
-    ["PistolAmmo"] = true,
-    ["RocketLauncherAmmo"] = true,
-    ["ShotgunAmmo"] = true,
-    ["SniperRifleAmmo"] = true,
-    ["FlameThrowerAmmo"] = true,
-}
-
--- Notice: "mapsettings" are for a future update.
-mapsettings = {
-    ["bloodgulch"] = true,
-    ["dangercanyon"] = true,
-    ["deathisland"] = true,
-    ["gephyrophobia"] = true,
-    ["icefields"] = true,
-    ["infinity"] = true,
-    ["sidewinder"] = true,
-    ["timberland"] = true,
-    ["hangemhigh"] = true,
-    ["ratrace"] = true,
-    ["beavercreek"] = true,
-    ["damnation"] = true,
-    ["boardingaction"] = true,
-    ["carousel"] = true,
-    ["putput"] = true,
-    ["prisoner"] = true,
-    ["wizard"] = true
+equipment = { 
+    { "eqip", "powerups\\active camouflage", true},
+    { "eqip", "powerups\\health pack", true},
+    { "eqip", "powerups\\over shield", true},
+    { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo", true},
+    { "eqip", "powerups\\needler ammo\\needler ammo", true},
+    { "eqip", "powerups\\pistol ammo\\pistol ammo", true},
+    { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo", true},
+    { "eqip", "powerups\\shotgun ammo\\shotgun ammo", true},
+    { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo", true},
+    { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo", true}
 }
 -- >> Configuration Ends << --
 -- ==============================================--
-
 
 -- Do Not Touch --
 weap = "weap"
@@ -131,6 +77,166 @@ eqip = "eqip"
 GameHasStarted = false
 VICTIM_LOCATION = { }
 for i = 1, 16 do VICTIM_LOCATION[i] = { } end
+
+function OnScriptLoad()
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    if get_var(0, "$gt") ~= "n/a" then
+        GameHasStarted = true
+        map_name = get_var(1, "$map")
+        game_type = get_var(0, "$gt")
+    end
+end
+
+function OnScriptUnload()
+    gamesettings = { }
+    equipment = { }
+    weapons = { }
+    EQUIPMENT_TABLE = { }
+    WEAPON_TABLE = { }
+end
+
+function OnGameEnd()
+    gamesettings = { }
+    equipment = { }
+    weapons = { }
+    EQUIPMENT_TABLE = { }
+    WEAPON_TABLE = { }
+    GameHasStarted = false
+end
+
+function OnNewGame()
+    for k, v in pairs(equipment) do
+        local tag = lookup_tag(v[1], v[2])
+        if tag ~= 0 then
+            local index = k
+            local ValueOfIndex = EQUIPMENT_TABLE[index]
+            if (v[3] == false) then
+                EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
+                EQUIPMENT_TABLE[index] = nil
+                index = index - k
+                -- cprint("[EQUIPMENT] Removing index #" ..k.. " from the EQUIPMENT_TABLE", 2+8)
+            else
+                index = index + k
+            end
+        end
+    end
+    for k, v in pairs(weapons) do
+        local tag = lookup_tag(v[1], v[2])
+        if tag ~= 0 then
+            local index = k
+            local ValueOfIndex = WEAPON_TABLE[index]
+            if (v[3] == false) then
+                WEAPON_TABLE[index] = WEAPON_TABLE[index]
+                WEAPON_TABLE[index] = nil
+                index = index - k
+                -- cprint("[WEAPONS] Removing index #" ..k.. " from the WEAPON_TABLE", 2+8)
+            else
+                index = index + k
+            end
+        end
+    end
+end
+
+function OnPlayerDeath(VictimIndex, KillerIndex)
+    local victim = tonumber(VictimIndex)
+    local killer = tonumber(KillerIndex)
+    local kills = tonumber(get_var(killer, "$kills"))
+    local victimName = tostring(get_var(victim, "$name"))
+    local player_object = get_dynamic_player(victim)
+    local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
+    VICTIM_LOCATION[victim][1] = xAxis
+    VICTIM_LOCATION[victim][2] = yAxis
+    VICTIM_LOCATION[victim][3] = zAxis
+    if (killer > 0) then
+    
+        -- NO KILLS REQUIRED -- 
+        -- Weapons and Equipment
+        if (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["WeaponsAndEquipment"] == true) then
+            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            
+        -- Global (no kills required): JustEquipment (indefinitely spawn an item)
+        elseif (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["JustEquipment"] == true) then
+            JustEquipment(victim, xAxis, yAxis, zAxis)
+            
+        -- Global (no kills required): JustWeapons (indefinitely spawn an item)
+        elseif (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["JustWeapons"] == true) then
+            JustWeapons(victim, xAxis, yAxis, zAxis)
+        
+        -- KILLS REQUIRED -- 
+        -- Weapons and Equipment
+        elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["WeaponsAndEquipment"] == true) then
+            if (kills == 5) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 10) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 15) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 20) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 25) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 30) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 35) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 40) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 45) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills >= 50) then
+                WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+            end
+        -- JustEquipment --
+        elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["JustEquipment"] == true) then
+            if (kills == 5) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 10) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 15) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 20) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 25) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 30) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 35) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 40) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 45) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            elseif (kills >= 50) then
+                JustEquipment(victim, xAxis, yAxis, zAxis)
+            end
+        -- JustWeapons --
+        elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["JustWeapons"] == true) then
+            if (kills == 5) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 10) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 15) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 20) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 25) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 30) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 35) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 40) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills == 45) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            elseif (kills >= 50) then
+                JustWeapons(victim, xAxis, yAxis, zAxis)
+            end
+        end
+    end
+end
 
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
@@ -155,393 +261,6 @@ WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
 WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
 WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
 WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
-
-function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    if get_var(0, "$gt") ~= "n/a" then
-        GameHasStarted = true
-        map_name = get_var(1, "$map")
-        game_type = get_var(0, "$gt")
-    end
-end
-
-function OnScriptUnload()
-    gamesettings = { }
-    equipment = { }
-    weapons = { }
-    mapsettings = { }
-    EQUIPMENT_TABLE = { }
-    WEAPON_TABLE = { }
-end
-
-function OnGameEnd()
-    gamesettings = { }
-    equipment = { }
-    weapons = { }
-    mapsettings = { }
-    EQUIPMENT_TABLE = { }
-    WEAPON_TABLE = { }
-    GameHasStarted = false
-end
-
-function OnNewGame()
-    GameHasStarted = true
-    if equipment["Camouflage"] == false then
-        local index = 1
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\active camouflage") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"Camouflage[1]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["HealthPack"] == false then
-        local index = 2
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\health pack") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"HealthPack[2]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["OverShield"] == false then
-        local index = 3
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\over shield") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"OverShield[3]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["AssaultRifleAmmo"] == false then
-        local index = 4
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\assault rifle ammo\\assault rifle ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"AssaultRifleAmmo[4]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["NeedlerAmmo"] == false then
-        local index = 5
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\needler ammo\\needler ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"NeedlerAmmo[5]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["PistolAmmo"] == false then
-        local index = 6
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\pistol ammo\\pistol ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"PistolAmmo[6]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["RocketLauncherAmmo"] == false then
-        local index = 7
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\rocket launcher ammo\\rocket launcher ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"RocketLauncherAmmo[7]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["ShotgunAmmo"] == false then
-        local index = 8
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\shotgun ammo\\shotgun ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"ShotgunAmmo[8]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["SniperRifleAmmo"] == false then
-        local index = 9
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\sniper rifle ammo\\sniper rifle ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"SniperRifleAmmo[9]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if equipment["FlameThrowerAmmo"] == false then
-        local index = 10
-        local ValueOfIndex = EQUIPMENT_TABLE[index]
-        if (ValueOfIndex == "powerups\\flamethrower ammo\\flamethrower ammo") then
-            EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
-            EQUIPMENT_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"FlameThrowerAmmo[10]\" was removed from the equipment table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["AssaultRifle"] == false then
-        local index = 1
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\assault rifle\\assault rifle") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"AssaultRifle[1]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["FlameThrower"] == false then
-        local index = 2
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\flamethrower\\flamethrower") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"FlameThrower[2]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["Needler"] == false then
-        local index = 3
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\needler\\mp_needler") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"Needler[3]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["Pistol"] == false then
-        local index = 4
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\pistol\\pistol") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"Pistol[4]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["PlasmaPistol"] == false then
-        local index = 5
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\plasma pistol\\plasma pistol") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"PlasmaPistol[5]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["PlasmaRifle"] == false then
-        local index = 6
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\plasma rifle\\plasma rifle") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"PlasmaRifle[6]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["PlasmaCannon"] == false then
-        local index = 7
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\plasma_cannon\\plasma_cannon") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"PlasmaCannon[7]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["RocketLauncher"] == false then
-        local index = 8
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\rocket launcher\\rocket launcher") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"RocketLauncher[8]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["Shotgun"] == false then
-        local index = 9
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\shotgun\\shotgun") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"Shotgun[9]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-
-    if weapons["SniperRifle"] == false then
-        local index = 10
-        local ValueOfIndex = WEAPON_TABLE[index]
-        if (ValueOfIndex == "weapons\\sniper rifle\\sniper rifle") then
-            WEAPON_TABLE[index] = WEAPON_TABLE[index]
-            WEAPON_TABLE[index] = nil
-            index = index - 1
-            cprint("[SCRIPT] \"SniperRifle[10]\" was removed from the weapon table", 4 + 8)
-        else
-            index = index + 1
-        end
-    end
-end
-
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    local victim = tonumber(VictimIndex)
-    local killer = tonumber(KillerIndex)
-    local victimName = tostring(get_var(victim, "$name"))
-    local player_object = get_dynamic_player(victim)
-    local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
-    VICTIM_LOCATION[victim][1] = xAxis
-    VICTIM_LOCATION[victim][2] = yAxis
-    VICTIM_LOCATION[victim][3] = zAxis
-    if (killer > 0) then
-        -- Global (no kills required): Weapons and Equipment
-        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["WeaponsAndEquipment"] then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        end
-        -- Global (no kills required): JustEquipment
-        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustEquipment"] then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        end
-        -- Global (no kills required): JustWeapons
-        if gamesettings["GlobalSettings"] and gamesettings["GlobalNoKills"] and gamesettings["JustWeapons"] then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        end
-        -- Global (kills required): Weapons and Equipment
-    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["WeaponsAndEquipment"] then
-        if (kills == 5) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 10) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 15) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 20) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 25) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 30) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 35) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 40) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 45) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills >= 50) then
-            WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-        end
-        -- Global (kills required): JustEquipment
-    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustEquipment"] then
-        if (kills == 5) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 10) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 15) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 20) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 25) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 30) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 35) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 40) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 45) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        elseif (kills >= 50) then
-            JustEquipment(victim, xAxis, yAxis, zAxis)
-        end
-        -- Global (kills required): JustWeapons
-    elseif gamesettings["GlobalSettings"] and gamesettings["GlobalKillsRequired"] and gamesettings["JustWeapons"] then
-        if (kills == 5) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 10) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 15) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 20) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 25) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 30) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 35) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 40) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills == 45) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        elseif (kills >= 50) then
-            JustWeapons(victim, xAxis, yAxis, zAxis)
-        end
-    end
-end
 
 function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
     math.randomseed(os.time())
