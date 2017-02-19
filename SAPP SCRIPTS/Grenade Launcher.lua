@@ -41,7 +41,7 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     end	
 end
 
-function Thread_ChangeProjectile(id, count, PlayerIndex)
+function Thread_ChangeProjectile(ID1, ID2, PlayerIndex)
     ChangeProjectile(PlayerIndex)
     return false
 end
@@ -49,7 +49,7 @@ end
 function ChangeProjectile(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= nil then
-        local m_objectId --[[something]]--
+        local m_objectId = --[[something]]--
         local X_Aim = read_float(m_objectId, 0x230)
         local Y_aim = read_float(m_objectId, 0x234)
         local Z_aim = read_float(m_objectId, 0x238)
