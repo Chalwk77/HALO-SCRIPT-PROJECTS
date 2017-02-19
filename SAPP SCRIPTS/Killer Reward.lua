@@ -38,7 +38,7 @@ gamesettings = {
     -- No Kills Kequired
     ["NO_KILLS_REQUIRED"] = true,
     -- Kills Are Required
-    ["KILLS_REQUIRED"] = false,
+    ["KILLS_REQUIRED"] = false
 }
 
 -- To disable a specific item, change the 'true' value to "false".
