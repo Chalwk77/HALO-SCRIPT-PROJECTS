@@ -10,6 +10,7 @@ Script Name: Killer Reward, for SAPP | (PC\CE)
 
     Kills Required:
         Your victim will drop 1 random "weapon" or "equipment" item when you reach a specific kill threashold.
+        For every 5 (non-consecutive) kills, your victim will drop an item.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -32,8 +33,7 @@ gamesettings = {
     ["JustEquipment"] = false,
     ["JustWeapons"] = false,
 
-    
--- Toggle these modes modes ON|OFF (true/false)
+-- Toggle these modes ON|OFF (true/false)
 --  Only one option can be "true" at a time.
     -- No Kills Kequired
     ["NO_KILLS_REQUIRED"] = true,
@@ -42,7 +42,6 @@ gamesettings = {
 }
 
 -- To disable a specific item, change the 'true' value to "false".
-
 weapons = {
     { "weap", "weapons\\assault rifle\\assault rifle", true},
     { "weap", "weapons\\flamethrower\\flamethrower", true},
