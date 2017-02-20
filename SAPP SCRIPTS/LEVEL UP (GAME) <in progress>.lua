@@ -661,6 +661,16 @@ function AssignWeapons(PlayerIndex)
             -- -- Sync Ammo?
         -- end
     -- end
+    
+    -- 		 Write Nades
+    -- local nades_tbl = Level[players[player][1]][5]
+    -- if nades_tbl then
+        -- -- 		Frags	
+        -- writebyte(m_object, 0x31E, nades_tbl[2])
+        -- -- 	Nades		
+        -- writebyte(m_object, 0x31F, nades_tbl[1])
+    -- end
+    
      -- Write Nades
     if HandleNades then
         --  frags
