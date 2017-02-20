@@ -1,11 +1,8 @@
 --[[
     ------------------------------------
-Script Name: Get Server Name (utility), for SAPP | (PC\CE)
+Script Name: Get Server Name [function], for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-    
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -21,15 +18,27 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 end
 
 function OnScriptUnload() end
 
-function OnNewGame(map)
+function OnPlayerJoin(PlayerIndex)
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
-    -- Do something here.
-    -- I'm just going to output the name of the server to console on game start.
-    cprint(servername)
+    say(PlayerIndex, "Welcome to " ..servername)
+end
+
+function read_widestring(address, length)
+    local count = 0
+    local byte_table = {}
+    for i = 1,length do
+        if read_byte(address + count) ~= 0 then
+            byte_table[i] = string.char(read_byte(address + count))
+        end
+        count = count + 2
+    end
+    return table.concat(byte_table)
 end
