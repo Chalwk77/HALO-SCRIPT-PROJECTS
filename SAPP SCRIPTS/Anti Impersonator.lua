@@ -34,9 +34,11 @@ function OnScriptLoad( )
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     LoadTables( )
-    if (response["ban"] == true) and (response["kick"] == true) then 
-        cprint("Script Error: Anti-Impersonator.lua", 4+8)
+    if (response["ban"] == true) and (response["kick"] == true) then
+        cprint("Script Error: AntiImpersonator.lua", 4+8)
         cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4+8)
+        unregister_callback(cb['OnPlayerJoin'])
+        unregister_callback(cb['OnGameEnd'])
     end
 end
 
@@ -96,14 +98,16 @@ function OnPlayerJoin(PlayerIndex)
     local Index = get_var(PlayerIndex, "$n")
     -- Name matches, but hash does not; respond with punishment accordingly.
     if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
+        -- Kick
         if (response["kick"] == true) and (response["ban"] == false) then 
             execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
-        else
-            if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
-                execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
-            elseif (BANTIME == 0) then
-                execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
-            end
+        end
+        -- Ban X Amount of time.
+        if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
+            execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+        -- Ban permanently
+        elseif (BANTIME == 0) then
+            execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
         end
     end
 end
