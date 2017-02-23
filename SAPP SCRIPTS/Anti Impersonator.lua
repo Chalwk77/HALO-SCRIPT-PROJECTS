@@ -39,7 +39,6 @@ function OnScriptLoad( )
         cprint("Script Error: Anti-Impersonator.lua", 4+8)
         cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4+8)
     end
-    cprint("loading script...", 2+8)
 end
 
 function OnGameEnd()
