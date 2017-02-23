@@ -26,10 +26,9 @@ response = {
 }
 
 -- In Minutes
-BANTIME = 10
+BANTIME = 10 -- (In Minutes) -- Set to zero to ban permanently
 REASON = "Impersonating"
 -- Configuration Ends --
-
 
 function OnScriptLoad( )
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -100,8 +99,10 @@ function OnPlayerJoin(PlayerIndex)
         if (response["kick"] == true) and (response["ban"] == false) then 
             execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
         else
-            if (response["ban"] == true) and (response["kick"] == false) then  
+            if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
                 execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+            elseif (BANTIME == 0) then
+                execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
             end
         end
     end
