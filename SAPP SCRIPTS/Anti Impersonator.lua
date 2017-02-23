@@ -33,16 +33,23 @@ REASON = "Impersonating"
 
 function OnScriptLoad( )
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     LoadTables( )
     if (response["ban"] == true) and (response["kick"] == true) then 
         cprint("Script Error: Anti-Impersonator.lua", 4+8)
         cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4+8)
     end
+    cprint("loading script...", 2+8)
+end
+
+function OnGameEnd()
+    NameList = { }
+    HashList = { }
 end
 
 function OnScriptUnload() 
-   NameList = { } 
-   HashList = { } 
+    NameList = { }
+    HashList = { }
 end
 
 function LoadTables( )
