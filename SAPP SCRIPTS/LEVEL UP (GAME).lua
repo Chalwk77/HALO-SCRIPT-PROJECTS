@@ -226,15 +226,6 @@ function OnNewGame()
         Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
         Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
         Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
-        for k, v in pairs(Level) do
-            if string.find(v[1], "vehicles") then
-                v[11] = v[1]
-                v[12] = 1
-            else
-                v[11] = v[1]
-                v[12] = 0
-            end
-        end
     elseif map_name == "beavercreek" or map_name == "boardingaction" or map_name == "carousel"
         or map_name == "chillout" or map_name == "damnation" or map_name == "gephyrophobia"
         or map_name == "hangemhigh" or map_name == "longest" or map_name == "prisoner"
@@ -249,11 +240,19 @@ function OnNewGame()
         Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
         for k, v in pairs(Level) do
             if string.find(v[1], "weapons") then
-                v[7] = v[1]
-                v[8] = 1
+                if (LargeConfiguration == true) then
+                    v[7] = v[1]
+                    v[8] = 1
+                else
+                    v[7] = v[1]
+                    v[8] = 0
+                end
+            elseif (LargeConfiguration == false) then
+                v[11] = v[1]
+                v[12] = 1
             else
-                v[7] = v[1]
-                v[8] = 0
+                v[11] = v[1]
+                v[12] = 0
             end
         end
     end
