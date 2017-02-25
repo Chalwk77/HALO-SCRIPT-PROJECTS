@@ -1,10 +1,10 @@
 --[[
-    Script Name: LEVEL UP (beta v1.0), for SAPP | (PC\CE)
-    Implementing API version: 1.11.0.0
+Script Name: LEVEL UP (beta v1.0), for SAPP | (PC\CE)
+Implementing API version: 1.11.0.0
 
     Acknowledgments
     Credits to "Giraffe" for his AutoVehicle-Flip functions.
-    
+    Credits to 002 for his get_tag_info function (return metaid)
     
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -125,9 +125,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-	register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-    register_callback(cb['EVENT_TICK'],"OnTick")
-    --register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_TICK'], "OnTick")
+    -- register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     local ctf_globals_pointer = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
@@ -135,8 +135,8 @@ function OnScriptLoad()
     CTF_GLOBALS = read_dword(ctf_globals_pointer)
     LoadItems()
     map_name = get_var(1, "$map")
-    gametype = get_var(0, "$gt")
     -- Check if valid GameType
+    gametype = get_var(0, "$gt")
     CheckType()
     -- set score limit --
     execute_command("scorelimit 256")
@@ -161,14 +161,15 @@ function OnScriptLoad()
             last_damage[i] = 0
         end
     end
-    if (halo_type == "CE") then -- Giraffe's
+     -- Giraffe's --
+    if (halo_type == "CE") then
         rider_ejection = read_byte(0x59A34C)
         write_byte(0x59A34C, 0)
     else
         rider_ejection = read_byte(0x6163EC)
         write_byte(0x6163EC, 0)
     end
---=========================================--
+    -- =========================================--
 end
 
 function OnScriptUnload()
@@ -183,12 +184,12 @@ function OnScriptUnload()
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
-    if( halo_type == "CE") then -- Giraffe's
+    if (halo_type == "CE") then -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
         write_byte(0x6163EC, rider_ejection)
     end
---========================================--
+    -- ========================================--
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -255,25 +256,25 @@ end
 
 function OnTick()
     -- Giraffe's Fucntion --
-    if(PLAYER_VEHICLES_ONLY) then
-        for i=1,16 do
-            if(player_alive(i)) then
-                 local player = get_dynamic_player(i)
-                 local player_vehicle_id = read_dword(player + 0x11C)
-                 if(player_vehicle_id ~= 0xFFFFFFFF) then
-                     local vehicle = get_object_memory(player_vehicle_id)
-                     flip_vehicle(vehicle)
-                 end
+    if (PLAYER_VEHICLES_ONLY) then
+        for i = 1, 16 do
+            if (player_alive(i)) then
+                local player = get_dynamic_player(i)
+                local player_vehicle_id = read_dword(player + 0x11C)
+                if (player_vehicle_id ~= 0xFFFFFFFF) then
+                    local vehicle = get_object_memory(player_vehicle_id)
+                    flip_vehicle(vehicle)
+                end
             end
         end
     else
         local object_table = read_dword(read_dword(object_table_ptr + 2))
         local object_count = read_word(object_table + 0x2E)
         local first_object = read_dword(object_table + 0x34)
-        for i=0,object_count-1 do
+        for i = 0, object_count - 1 do
             local object = read_dword(first_object + i * 0xC + 0x8)
-            if(object ~= 0 and object ~= 0xFFFFFFFF) then
-                if(read_word(object + 0xB4) == 1) then
+            if (object ~= 0 and object ~= 0xFFFFFFFF) then
+                if (read_word(object + 0xB4) == 1) then
                     flip_vehicle(object)
                 end
             end
@@ -283,8 +284,8 @@ end
 
 function flip_vehicle(Object)
     -- Giraffe's Fucntion --
-    if(read_bit(Object + 0x8B, 7) == 1) then
-        if(WAIT_FOR_IMPACT and read_bit(Object + 0x10, 1) == 0) then
+    if (read_bit(Object + 0x8B, 7) == 1) then
+        if (WAIT_FOR_IMPACT and read_bit(Object + 0x10, 1) == 0) then
             return
         end
         write_vector3d(Object + 0x80, 0, 0, 1)
@@ -294,10 +295,10 @@ end
 function WriteNavs(killer)
     for i = 1, 16 do
         if getplayer(i) then
-                local m_player = getplayer(i)
-                if m_player then
-                    local slayer_target = read_word(m_player, 0x88)
-                    if slayer_target < 16 and slayer_target > -1 then
+            local m_player = getplayer(i)
+            if m_player then
+                local slayer_target = read_word(m_player, 0x88)
+                if slayer_target < 16 and slayer_target > -1 then
                     write_word(m_player, 0x88, killer)
                 end
             end
@@ -452,8 +453,10 @@ function OnPlayerSpawn(PlayerIndex)
         WeaponHandler(PlayerIndex)
         --  Setup Invulnerable Timer --
         if Spawn_Invunrable_Time ~= nil and Spawn_Invunrable_Time > 0 then
-            write_float(PlayerIndex + 0xE0, 99999999) -- Health. (0 to 1) (Normal = 1)
-            write_float(PlayerIndex + 0xE4, 99999999) -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+            write_float(PlayerIndex + 0xE0, 99999999)
+            -- Health. (0 to 1) (Normal = 1)
+            write_float(PlayerIndex + 0xE4, 99999999)
+            -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
         end
         rprint(PlayerIndex, "Your Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
@@ -465,7 +468,8 @@ function objectidtoplayer(ObjectID)
     -- returns PlayerIndex from an ObjectID
     local object = get_object_memory(ObjectID)
     if object ~= 0 then
-        local playerId = read_word(object + 0xC0) -- Full DWORD ID of player.
+        local playerId = read_word(object + 0xC0)
+        -- Full DWORD ID of player.
         return to_player_index(playerId) ~= 0 and playerId or nil
     end
 end
@@ -483,21 +487,21 @@ function OnWeaponDrop(Current_FlagHolder)
 end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-	if tonumber(Type) == 1 then
-		if get_var(0, "$gt") ~= "n/a" then
-			flag_id = read_dword(read_dword(read_dword(lookup_tag("matg","globals\\globals") + 0x14) + 0x164 + 4) + 0x0 + 0xC)		
-			local player_object = get_dynamic_player(PlayerIndex)
-			local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
-			local MetaID = read_dword(weapon_object)
-			if (MetaID ~= nil) then
-				if (MetaID == flag_id) then
+    if tonumber(Type) == 1 then
+        if get_var(0, "$gt") ~= "n/a" then
+            flag_id = read_dword(read_dword(read_dword(lookup_tag("matg", "globals\\globals") + 0x14) + 0x164 + 4) + 0x0 + 0xC)
+            local player_object = get_dynamic_player(PlayerIndex)
+            local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
+            local MetaID = read_dword(weapon_object)
+            if (MetaID ~= nil) then
+                if (MetaID == flag_id) then
                     Current_FlagHolder = PlayerIndex
                     timer(Check_Time, "MonitorLocation", PlayerIndex)
-					rprint(Current_FlagHolder, "|cReturn the flag to a base to gain an instant level!")
-					rprint(Current_FlagHolder, "|c")
-					rprint(Current_FlagHolder, "|c")
-					rprint(Current_FlagHolder, "|c")
-					rprint(Current_FlagHolder, "|c")
+                    rprint(Current_FlagHolder, "|cReturn the flag to a base to gain an instant level!")
+                    rprint(Current_FlagHolder, "|c")
+                    rprint(Current_FlagHolder, "|c")
+                    rprint(Current_FlagHolder, "|c")
+                    rprint(Current_FlagHolder, "|c")
                     SayToAll(get_var(PlayerIndex, "$name") .. " has the flag!", PlayerIndex)
                     -- Prevent them from dropping the flag
                     for i = 1, 16 do
@@ -505,10 +509,10 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                             write_word(player_object + 0x88, PlayerIndex)
                         end
                     end
-				end
-			end
-		end
-	end
+                end
+            end
+        end
+    end
 end
 
 -- Monitor flag holders location.
@@ -535,17 +539,17 @@ function MonitorLocation(PlayerIndex)
 end
 
 function SayToAll(Message, PlayerIndex)
-	for i = 1,16 do
-		if player_present(i) then
-			if i ~= PlayerIndex then
-				rprint(i, "|c" .. Message)
-				rprint(i, "|c")
-				rprint(i, "|c")
-				rprint(i, "|c")
-				rprint(i, "|c")
-			end
-		end
-	end
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                rprint(i, "|c" .. Message)
+                rprint(i, "|c")
+                rprint(i, "|c")
+                rprint(i, "|c")
+                rprint(i, "|c")
+            end
+        end
+    end
 end
 
 function inSphere(PlayerIndex, x, y, z, radius)
@@ -592,8 +596,10 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function RemoveSpawnProtect(PlayerIndex)
-    write_float(PlayerIndex + 0xE0, 1) -- Health. (0 to 1) (Normal = 1)
-    write_float(PlayerIndex + 0xE4, 1) -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+    -- Health. (0 to 1) (Normal = 1)
+    write_float(PlayerIndex + 0xE0, 1)
+    -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+    write_float(PlayerIndex + 0xE4, 1)
     return 0
 end
 
@@ -624,9 +630,11 @@ function OnServerCommand(PlayerIndex, Command)
             response = false
             if t[2] ~= nil then
                 if t[2] == "up" then
-                    cycle_level(PlayerIndex, true, true) -- update, advance
+                    -- update, advance 
+                    cycle_level(PlayerIndex, true, true)
                 elseif t[2] == "down" then
-                    cycle_level(PlayerIndex, true) -- update
+                    -- update
+                    cycle_level(PlayerIndex, true)
                 else
                     rprint(PlayerIndex, "Action not defined - up or down")
                 end
@@ -663,9 +671,9 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
-        
+
         end
-        if current_Level == (#Level + 1) then
+        if current_Level ==(#Level + 1) then
             game_over = true
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-----------------------")
@@ -702,17 +710,6 @@ function cycle_level(PlayerIndex, update, advance)
     if not game_over then
         players[PlayerIndex][2] = 0
     end
-end
-
--- Check if player has the flag
-function PlayerHasTheFlag(PlayerIndex)
-    local dynamic_player = get_dynamic_player(PlayerIndex)
-    local flag = read_dword(CTF_GLOBALS + 0x8)
-    for k = 0, 3 do
-        local oid = read_dword(dynamic_player + 0x2F8 + 4 * k)
-        if (oid == flag) then return true end
-    end
-    return false
 end
 
 -- Check if player is in a Vehicle. Returns boolean --
@@ -802,8 +799,10 @@ function WeaponHandler(PlayerIndex)
         if nades_tbl then
             safe_write(true)
             local PLAYER = get_dynamic_player(PlayerIndex)
-            write_word(PLAYER + 0x31E, tonumber(nades_tbl[1])) -- Frags
-            write_word(PLAYER + 0x31F, tonumber(nades_tbl[2])) -- Plasmas
+            -- Frags
+            write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+            -- Plasmas
+            write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
             safe_write(false)
         end
     end
@@ -832,7 +831,7 @@ function setscore(PlayerIndex, score)
             end
         elseif get_var(0, "$gt") == "slayer" then
             if score >= 0x7FFF then
-                execute_command("score " .. PlayerIndex .. " +1")   
+                execute_command("score " .. PlayerIndex .. " +1")
             elseif score <= -0x7FFF then
                 execute_command("score " .. PlayerIndex .. " -1")
             else
@@ -843,10 +842,10 @@ function setscore(PlayerIndex, score)
 end
 
 function CheckType()
-    type_is_koth = get_var(1,"$gt") == "koth"
-    type_is_oddball = get_var(1,"$gt") == "oddball"
-    if (type_is_koth) or (type_is_oddball) then 
-        cprint("Warning: This script doesn't support ODDBALL or KOTH", 4+8)
+    type_is_koth = get_var(1, "$gt") == "koth"
+    type_is_oddball = get_var(1, "$gt") == "oddball"
+    if (type_is_koth) or(type_is_oddball) then
+        cprint("Warning: This script doesn't support ODDBALL or KOTH", 4 + 8)
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -903,7 +902,8 @@ function JustWeapons(victim, xAxis, yAxis, zAxis)
     spawn_object(tostring(weap), w, xAxis, yAxis, zAxis + 0.5, rotation)
 end
 
-function get_tag_info(tagclass, tagname) -- Credits to 002 for this function. Return metaid
+function get_tag_info(tagclass, tagname)
+    -- Credits to 002 for this function. Return metaid
     local tagarray = read_dword(0x40440000)
     for i = 0, read_word(0x4044000C) -1 do
         local tag = tagarray + i * 0x20
