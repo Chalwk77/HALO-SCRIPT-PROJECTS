@@ -36,19 +36,6 @@ PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip v
 WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 -----------------------------------------------------------------------------------------------------------
 
--- Level = { }
--- -- Level[ number ] = {"weapon given","Description", "Instructions", Number of Kills required to advance, Nades{frag,plasmas}, Ammo multiplier) Internal stuff - (mapID of tagname[10], vehicle bool[11])
--- Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
--- Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 120 }
--- Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 12 }
--- Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
--- Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
--- Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
--- Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
--- Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
--- Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
--- Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
-
 -- Objects to drop when someone dies
 EQUIPMENT_TABLE = { }
 EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
@@ -111,6 +98,49 @@ FLAG["sidewinder"] = { { - 32.038200378418, - 42.066699981689, - 3.7000000476837
 FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }, { - 16.329900741577, 52.360000610352, - 17.741399765015 }, { 1.2504668235779, - 1.4873152971268, - 21.264007568359 } }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
 
+function LoadLarge()
+    Level = { }
+    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
+    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 120 }
+    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 12 }
+    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
+    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
+    Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
+    Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
+    Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
+    Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
+    for k, v in pairs(Level) do
+        if string.find(v[1], "vehicles") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
+end
+
+function LoadSmall()
+    Level = { }
+    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
+    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 120 }
+    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 12 }
+    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
+    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
+    for k, v in pairs(Level) do
+        if string.find(v[1], "weapons") then
+            v[7] = v[1]
+            v[8] = 1
+        else
+            v[7] = v[1]
+            v[8] = 0
+        end
+    end
+end  
+     
+
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
@@ -168,7 +198,6 @@ end
 
 function OnScriptUnload()
     FLAG = { }
-    Level = { }
     players = { }
     last_damage = { }
     WEAPON_TABLE = { }
@@ -206,56 +235,11 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
-    LoadItems()
+    game_over = false
     CheckType()
+    LoadItems()
     map_name = get_var(1, "$map")
     gametype = get_var(0, "$gt")
-    map_name = get_var(1, "$map")
-    if map_name == "bloodgulch" or map_name == "timberland"
-        or map_name == "sidewinder" or map_name == "dangercanyon" or map_name == "deathisland"
-        or map_name == "icefields" or map_name == "infinity" then
-        LargeConfiguration = true
-        Level = { }
-        Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
-        Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 120 }
-        Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 12 }
-        Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
-        Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
-        Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
-        Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
-        Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
-        Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
-        Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
-    elseif map_name == "beavercreek" or map_name == "boardingaction" or map_name == "carousel"
-        or map_name == "chillout" or map_name == "damnation" or map_name == "gephyrophobia"
-        or map_name == "hangemhigh" or map_name == "longest" or map_name == "prisoner"
-        or map_name == "putput" or map_name == "ratrace" or map_name == "wizard" then
-        LargeConfiguration = false
-        Level = { }
-        Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
-        Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 120 }
-        Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 12 }
-        Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
-        Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
-        Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
-        for k, v in pairs(Level) do
-            if string.find(v[1], "weapons") then
-                if (LargeConfiguration == true) then
-                    v[7] = v[1]
-                    v[8] = 1
-                else
-                    v[7] = v[1]
-                    v[8] = 0
-                end
-            elseif (LargeConfiguration == false) then
-                v[11] = v[1]
-                v[12] = 1
-            else
-                v[11] = v[1]
-                v[12] = 0
-            end
-        end
-    end
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
@@ -263,10 +247,24 @@ function OnNewGame()
     end
     if CTF_ENABLED == true then SPAWN_FLAG() end
     GameHasStarted = true
+    if map_name == "bloodgulch" or map_name == "timberland"
+        or map_name == "sidewinder" or map_name == "dangercanyon" or map_name == "deathisland"
+        or map_name == "icefields" or map_name == "infinity" then
+        LargeConfiguration = true
+        LoadLarge()
+    end
+    if map_name == "beavercreek" or map_name == "boardingaction" or map_name == "carousel"
+        or map_name == "chillout" or map_name == "damnation" or map_name == "gephyrophobia"
+        or map_name == "hangemhigh" or map_name == "longest" or map_name == "prisoner"
+        or map_name == "putput" or map_name == "ratrace" or map_name == "wizard" then
+        LargeConfiguration = false
+        LoadSmall()
+    end
 end
 
 function OnGameEnd()
     last_damage = { }
+    Level = { }
     rider_ejection = nil
     object_table_ptr = nil
     FlagHolder = nil
@@ -500,7 +498,7 @@ function OnPlayerSpawn(PlayerIndex)
         --  assign weapons or vehicle according to level --
         if (LargeConfiguration == true) then 
             WeaponHandler(PlayerIndex)
-        else
+        elseif (LargeConfiguration == false) then
             WeaponHandlerAlternate(PlayerIndex)
         end
         --  Setup Invulnerable Timer --
@@ -676,7 +674,7 @@ function delay_weaps(PlayerIndex)
     --  assign weapons or vehicle according to level --
     if (LargeConfiguration == true) then 
         WeaponHandler(PlayerIndex)
-    else
+    elseif (LargeConfiguration == false) then
         WeaponHandlerAlternate(PlayerIndex)
     end
     return 0
@@ -806,8 +804,10 @@ function cycle_level(PlayerIndex, update, advance)
     --  assign weapons or vehicle according to level --
     if not game_over then
         if (LargeConfiguration == true) then 
+            cprint("ONE", 2+8)
             WeaponHandler(PlayerIndex)
-        else
+        elseif (LargeConfiguration == false) then
+            cprint("TWO", 2+8)
             WeaponHandlerAlternate(PlayerIndex)
         end
         -- Reset Kills --
@@ -1079,7 +1079,7 @@ function LoadItems()
         pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
     end
 end
-
+        
 function OnError(Message)
     print(debug.traceback())
 end
