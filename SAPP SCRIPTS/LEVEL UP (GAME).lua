@@ -18,7 +18,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-
 Starting_Level = 1 -- Must match beginning of level[#]
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 Speed_Powerup = 2 -- in seconds
@@ -27,13 +26,15 @@ Spawn_Where_Killed = false -- Spawn at the same location as player died
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
 CTF_ENABLED = true
-PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
-WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 Check_Radius = 1.5 -- Radius determining if player is in scoring area
 Check_Time = 500 -- Mili-seconds to check if player in scoring area
 FLAG_SPEED = 2.0 -- Flag-Holder running speed
 CAMO_TIME = 15 -- Flag-Holder invisibility time
 ADMIN_LEVEL = 1 -- Default admin level required to use chat commandss
+-- Giraffe's --
+PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
+WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
+-----------------------------------------------------------------------------------------------------------
 
 Level = { }
 -- Level[ number ] = {"weapon given","Description", "Instructions", Number of Kills required to advance, Nades{frag,plasmas}, Ammo multiplier) Internal stuff - (mapID of tagname[10], vehicle bool[11])
@@ -60,7 +61,7 @@ EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
 EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
 EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
 EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
-
+-- Objects to drop when someone dies
 WEAPON_TABLE = { }
 WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
 WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
@@ -72,26 +73,23 @@ WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
 WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
 WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
 WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
+-- Choose what to drop when someone dies.
 PowerUpSettings = {
     ["WeaponsAndEquipment"] = false,
     ["JustEquipment"] = false,
     ["JustWeapons"] = false
 }
-
-Exit = nil
-CTF_GLOBALS = nil
 rider_ejection = nil
 object_table_ptr = nil
 Current_FlagHolder = nil
 FLAG = { }
 players = { }
-FLAGGERS = { }
 last_damage = { }
+flagball_weap = { }
+Stored_Levels = { }
+Equipment_Tags = { }
 DEATH_LOCATION = { }
 for i = 1, 16 do DEATH_LOCATION[i] = { } end
-Stored_Levels = { }
-flagball_weap = { }
-Equipment_Tags = { }
 vehi_type_id = "vehi"
 weap_type_id = "weap"
 FLAG["bloodgulch"] = { { 95.687797546387, - 159.44900512695, - 0.10000000149012 }, { 40.240600585938, - 79.123199462891, - 0.10000000149012 }, { 65.749893188477, - 120.40949249268, 0.11860413849354 } }
@@ -130,9 +128,6 @@ function OnScriptLoad()
     -- register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
-    local ctf_globals_pointer = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
-    if (ctf_globals_pointer == 3) then return end
-    CTF_GLOBALS = read_dword(ctf_globals_pointer)
     LoadItems()
     map_name = get_var(1, "$map")
     -- Check if valid GameType
@@ -176,7 +171,6 @@ function OnScriptUnload()
     FLAG = { }
     Level = { }
     players = { }
-    FLAGGERS = { }
     last_damage = { }
     WEAPON_TABLE = { }
     Stored_Levels = { }
@@ -184,6 +178,9 @@ function OnScriptUnload()
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
+    rider_ejection = nil
+    object_table_ptr = nil
+    Current_FlagHolder = nil
     if (halo_type == "CE") then -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
@@ -234,13 +231,16 @@ function OnGameEnd()
     FLAG = { }
     Level = { }
     players = { }
-    FLAGGERS = { }
+    last_damage = { }
     WEAPON_TABLE = { }
     Stored_Levels = { }
     flagball_weap = { }
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
+    rider_ejection = nil
+    object_table_ptr = nil
+    Current_FlagHolder = nil
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
