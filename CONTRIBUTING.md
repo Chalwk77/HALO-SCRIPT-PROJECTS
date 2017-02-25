@@ -35,3 +35,8 @@ Contributors to [code]
 
   * Crash_Player (function)
         - http://pastebin.com/1dtn0DiM
+        
+* **[giraffe](https://opencarnage.net/index.php?/profile/1463-giraffe/)**
+
+  * Auto-Vehicle Flip (script)
+        - https://opencarnage.net/index.php?/topic/6251-auto-vehicle-flip/
