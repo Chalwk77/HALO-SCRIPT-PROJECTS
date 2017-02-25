@@ -93,11 +93,11 @@ FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
 
 function OnScriptLoad()
-    --register_callback(cb['EVENT_TICK'],"OnTick")
+    -- register_callback(cb['EVENT_TICK'],"OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-	register_callback(cb["EVENT_GAME_END"], "OnGameEnd")	
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
@@ -118,7 +118,7 @@ function OnScriptLoad()
     -- set score limit --
     write_byte(gametype_base, 0x58, 256)
     -- disable vehicle entry --
-	execute_command("disable_all_vehicles 0 1")
+    execute_command("disable_all_vehicles 0 1")
     -- disable weapon pickups --
     execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
     execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
@@ -133,7 +133,7 @@ function OnScriptLoad()
     -- disable grenade pickups --
     execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
-    for i=1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
         end
@@ -146,7 +146,7 @@ function OnScriptUnload()
     players = { }
     FLAGGERS = { }
     last_damage = { }
-    WEAPON_TABLE = { } 
+    WEAPON_TABLE = { }
     Stored_Levels = { }
     flagball_weap = { }
     DEATH_LOCATION = { }
@@ -182,30 +182,30 @@ function OnNewGame()
             v[12] = 0
         end
     end
-    if CTF_ENABLED == true then SPAWN_FLAG() end	
-	for i = 1 , 16 do
-		if player_present(i) then	
-			last_damage[i] = 0
-		end
-	end		
+    if CTF_ENABLED == true then SPAWN_FLAG() end
+    for i = 1, 16 do
+        if player_present(i) then
+            last_damage[i] = 0
+        end
+    end
 end
 
-function OnGameEnd() 
+function OnGameEnd()
     FLAG = { }
     Level = { }
     players = { }
     FLAGGERS = { }
-    WEAPON_TABLE = { } 
+    WEAPON_TABLE = { }
     Stored_Levels = { }
     flagball_weap = { }
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
-	for i=1,16 do
-		if player_present(i) then		
-			last_damage[i] = 0
-		end
-	end	
+    for i = 1, 16 do
+        if player_present(i) then
+            last_damage[i] = 0
+        end
+    end
 end
 
 function SPAWN_FLAG()
@@ -218,9 +218,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- PVP --
-    if (killer > 0) and (victim ~= killer) and get_var(victim, "$team") ~= get_var(killer, "$team") then
+    if (killer > 0) and(victim ~= killer) and get_var(victim, "$team") ~= get_var(killer, "$team") then
         add_kill(killer)
-        if last_damage[PlayerIndex] == assault_melee or 
+        if last_damage[PlayerIndex] == assault_melee or
             last_damage[PlayerIndex] == ball_melee or
             last_damage[PlayerIndex] == flag_melee or
             last_damage[PlayerIndex] == flame_melee or
@@ -243,7 +243,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DEATH_LOCATION[victim][3] = zAxis
             if (PowerUpSettings["WeaponsAndEquipment"] == true) then
                 WeaponsAndEquipment(xAxis, yAxis, zAxis)
-            elseif(PowerUpSettings["JustEquipment"] == true) then
+            elseif (PowerUpSettings["JustEquipment"] == true) then
                 JustEquipment(xAxis, yAxis, zAxis)
             elseif (PowerUpSettings["JustWeapons"] == true) then
                 JustWeapons(xAxis, yAxis, zAxis)
@@ -261,7 +261,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DEATH_LOCATION[victim][3] = zAxis
             if (PowerUpSettings["WeaponsAndEquipment"] == true) then
                 WeaponsAndEquipment(xAxis, yAxis, zAxis)
-            elseif(PowerUpSettings["JustEquipment"] == true) then
+            elseif (PowerUpSettings["JustEquipment"] == true) then
                 JustEquipment(xAxis, yAxis, zAxis)
             elseif (PowerUpSettings["JustWeapons"] == true) then
                 JustWeapons(xAxis, yAxis, zAxis)
@@ -310,9 +310,9 @@ end
 function OnPlayerJoin(PlayerIndex)
     -- set level
     players[PlayerIndex] = { Starting_Level, 0 }
-    
+
     local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
-    -- Check for Previous Statistics -- 
+    -- Check for Previous Statistics --
     for k, v in pairs(Stored_Levels) do
         if tostring(k) == tostring(saved_data) then
             players[PlayerIndex][1] = Stored_Levels[saved_data][1]
@@ -330,7 +330,7 @@ function OnPlayerLeave(PlayerIndex)
     last_damage[PlayerIndex] = nil
     local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
     -- Create Table Key for Player --
-	Stored_Levels[saved_data] = {players[PlayerIndex][1], players[PlayerIndex][2]}
+    Stored_Levels[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
         -- reset death location --
@@ -340,7 +340,7 @@ end
 
 function OnPlayerPrespawn(PlayerIndex)
     -- reset last damage --
-	last_damage[PlayerIndex] = 0
+    last_damage[PlayerIndex] = 0
     local victim = tonumber(PlayerIndex)
     if PlayerIndex then
         if DEATH_LOCATION[victim][1] ~= nil then
@@ -354,12 +354,12 @@ function OnPlayerPrespawn(PlayerIndex)
     end
 end
 
-function OnPlayerSpawn(PlayerIndex)	
+function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
         --  assign weapons or vehicle according to level --
         WeaponHandler(PlayerIndex)
+        --  Setup Invulnerable Timer --
         if Spawn_Invunrable_Time ~= nil and Spawn_Invunrable_Time > 0 then
-            --  Setup Invulnerable Timer --
             write_float(PlayerIndex + 0xE0, 99999999) -- Health. (0 to 1) (Normal = 1)
             write_float(PlayerIndex + 0xE4, 99999999) -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
@@ -369,32 +369,34 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
-function objectidtoplayer(ObjectID) -- returns PlayerIndex from an ObjectID
+function objectidtoplayer(ObjectID)
+    -- returns PlayerIndex from an ObjectID
     local object = get_object_memory(ObjectID)
     if object ~= 0 then
-    local playerId = read_word(object + 0xC0) -- Full DWORD ID of player.
-    return to_player_index(playerId) ~= 0 and playerId or nil end
+        local playerId = read_word(object + 0xC0) -- Full DWORD ID of player.
+        return to_player_index(playerId) ~= 0 and playerId or nil
+    end
 end
 
 function takenavsaway()
-	for i = 1,16 do
-		if player_present(i) then
-			local m_player = getplayer(i)
-			local player = to_real_index(i)
-			if m_player ~= 0 then
-				write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
+    for i = 1, 16 do
+        if player_present(i) then
+            local m_player = getplayer(i)
+            local player = to_real_index(i)
+            if m_player ~= 0 then
+                write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
             end
         end
     end
 end
 
 function setnavesto(Player)
-	for i = 1,16 do
-		if player_present(i) then
-			local m_player = get_player(i)
-			local player = to_real_index(Player)
-			if m_player ~= 0 then
-				write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
+    for i = 1, 16 do
+        if player_present(i) then
+            local m_player = get_player(i)
+            local player = to_real_index(Player)
+            if m_player ~= 0 then
+                write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
             end
         end
     end
@@ -417,8 +419,8 @@ end
 function inSphere(PlayerIndex, x, y, z, radius)
     if PlayerIndex then
         local player_static = get_player(PlayerIndex)
-        local obj_x = read_float(player_static + 0xF8)  -- Player X Coord
-        local obj_y = read_float(player_static + 0xFC)  -- Player Y Coord
+        local obj_x = read_float(player_static + 0xF8) -- Player X Coord
+        local obj_y = read_float(player_static + 0xFC) -- Player Y Coord
         local obj_z = read_float(player_static + 0x100) -- Player Z Coord
         local x_diff = x - obj_x
         local y_diff = y - obj_y
@@ -454,7 +456,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         return true, Damage * Melee_Multiplier
     else
         return true, Damage * Normal_Damage
-	end
+    end
 end
 
 function RemoveSpawnProtect(PlayerIndex)
@@ -486,11 +488,11 @@ function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower("level")) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
             response = false
             if t[2] ~= nil then
                 if t[2] == "up" then
-                    cycle_level(PlayerIndex, true, true) -- update, advance 
+                    cycle_level(PlayerIndex, true, true) -- update, advance
                 elseif t[2] == "down" then
                     cycle_level(PlayerIndex, true) -- update
                 else
@@ -506,7 +508,7 @@ function cycle_level(PlayerIndex, update, advance)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
-        if cur == (#Level + 1) then
+        if cur ==(#Level + 1) then
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-----------------------")
             rprint(PlayerIndex, "|c ")
@@ -522,7 +524,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "Your Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         end
-        if current_Level == (#Level + 1) then
+        if current_Level ==(#Level + 1) then
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-----------------------")
             rprint(PlayerIndex, "|c ")
@@ -532,7 +534,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             execute_command("map_next")
         end
-        else
+    else
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
@@ -558,8 +560,8 @@ function OnObjectInteraction(PlayerIndex, objId, mapId)
                 timer(500, "delaydestroyobject", objId)
                 if mapId == doublespeed_id then
                     applyspeed(PlayerIndex)
-                    else
-                    
+                else
+
                 end
                 return 0
             end
@@ -586,17 +588,17 @@ function PlayerHasTheFlag(PlayerIndex)
     local dynamic_player = get_dynamic_player(PlayerIndex)
     local flag_red_objectid = read_dword(CTF_GLOBALS + 0x8)
     local flag_blue_objectid = read_dword(CTF_GLOBALS + 0xC)
-    for k=0,3 do
+    for k = 0, 3 do
         local oid = read_dword(dynamic_player + 0x2F8 + 4 * k)
-        if(oid == flag_blue_objectid or oid == flag_red_objectid) then return true end
+        if (oid == flag_blue_objectid or oid == flag_red_objectid) then return true end
     end
-    
+
     return false
 end
 
 function OnTick()
-    if(get_var(1,"$gt") ~= "ctf") then return end
-    for i = 1,16 do
+    if (get_var(1, "$gt") ~= "ctf") then return end
+    for i = 1, 16 do
         if player_alive(i) then
             if FLAGGERS[i] and PlayerHasTheFlag(i) == false then
                 execute_command("s " .. i .. " 1")
@@ -604,7 +606,7 @@ function OnTick()
                 Current_FlagHolder = nil
             elseif PlayerHasTheFlag(i) and FLAGGERS[i] == nil then
                 -- Timer for Flag Captures
-                --timer(Check_Time, "check_loc", i)
+                -- timer(Check_Time, "check_loc", i)
                 FLAGGERS[i] = true
                 execute_command("s " .. i .. " :" .. FLAG_SPEED)
                 execute_command("camo " .. i .. " " .. CAMO_TIME)
@@ -631,7 +633,7 @@ function PlayerInVehicle(PlayerIndex)
     end
 end
 
--- Destroy old vehicle --
+-- destroy old vehicle --
 function DestroyVehicle(old_vehicle_id)
     if old_vehicle_id then
         destroy_object(old_vehicle_id)
@@ -646,7 +648,7 @@ function WeaponHandler(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         vbool = true
         if player_object ~= 0 then
-            -- remove old vehicle --
+            -- destroy old vehicle --
             vehicle_Id = read_dword(player_object + 0x11C)
             obj_id = get_object_memory(vehicle_Id)
             exit_vehicle(PlayerIndex)
@@ -661,7 +663,7 @@ function WeaponHandler(PlayerIndex)
                 local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
                 destroy_object(m_weapon)
             end
-        end        
+        end
         if vbool == true then
             if (tonumber(players[PlayerIndex][1]) == 8) then
                 -- Spawn in Rocket Hog as Gunner/Driver --
@@ -694,8 +696,8 @@ function WeaponHandler(PlayerIndex)
         local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
         local wait_time = 1
         if tonumber(Level[players[PlayerIndex][1]][6]) then
-            execute_command_sequence("w8 "..wait_time.."; ammo " .. PlayerIndex .. " "..Level[players[PlayerIndex][1]][6])
-            execute_command_sequence("w8 "..wait_time.."; mag " .. PlayerIndex .. " "..Level[players[PlayerIndex][1]][6])
+            execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+            execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
         end
         -- write nades --
         local nades_tbl = Level[players[PlayerIndex][1]][5]
@@ -710,13 +712,13 @@ function WeaponHandler(PlayerIndex)
 end
 
 function getplayer(PlayerIndex)
-	if tonumber(PlayerIndex) then
-		if tonumber(PlayerIndex) ~= 0 then
-			local m_player = get_player(PlayerIndex)
-			if m_player ~= 0 then return m_player end
+    if tonumber(PlayerIndex) then
+        if tonumber(PlayerIndex) ~= 0 then
+            local m_player = get_player(PlayerIndex)
+            if m_player ~= 0 then return m_player end
         end
     end
-	return nil
+    return nil
 end
 
 function setscore(PlayerIndex, score)
@@ -756,16 +758,16 @@ function tokenizestring(inputstr, sep)
 end
 
 function SayToAll(Message, Player1, Player2)
-	for i = 1 , 16 do
-		if player_present(i) and (Message ~= nil) then
-			if (Player1 ~= i) and (Player2 ~= i) then
+    for i = 1, 16 do
+        if player_present(i) and(Message ~= nil) then
+            if (Player1 ~= i) and(Player2 ~= i) then
                 execute_command("msg_prefix \"\"")
-				say(i, Message)
+                say(i, Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
-				break
-			end
-		end	
-	end
+                break
+            end
+        end
+    end
 end
 
 function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
@@ -798,11 +800,11 @@ function JustWeapons(victim, xAxis, yAxis, zAxis)
     spawn_object(tostring(weap), w, xAxis, yAxis, zAxis + 0.5, rotation)
 end
 
-function get_tag_info(tagclass,tagname) -- Credits to 002 for this function. Return metaid
+function get_tag_info(tagclass, tagname) -- Credits to 002 for this function. Return metaid
     local tagarray = read_dword(0x40440000)
-    for i=0,read_word(0x4044000C)-1 do
+    for i = 0, read_word(0x4044000C) -1 do
         local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag),1,4))
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
         if (class == tagclass) then
             if (read_string(read_dword(tag + 0x10)) == tagname) then
                 return read_dword(tag + 0xC)
@@ -812,7 +814,7 @@ function get_tag_info(tagclass,tagname) -- Credits to 002 for this function. Ret
     return nil
 end
 
-function LoadItems()	
+function LoadItems()
     if get_var(0, "$gt") ~= "n/a" then
         assault_melee = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
         ball_melee = get_tag_info("jpt!", "weapons\\ball\\melee")
@@ -826,7 +828,7 @@ function LoadItems()
         shotgun_melee = get_tag_info("jpt!", "weapons\\shotgun\\melee")
         sniper_melee = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
         pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-	end	
+    end
 end
 
 function OnError(Message)
