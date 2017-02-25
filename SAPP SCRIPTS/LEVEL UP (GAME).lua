@@ -7,8 +7,8 @@ Speed_Powerup_duration = 20 -- in seconds
 Spawn_Where_Killed = false -- Spawn at the same location as player died
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
-CTF_ENABLED = false
-Check_Radius = 1 -- Radius determining if player is in scoring area
+CTF_ENABLED = true
+Check_Radius = 1.5 -- Radius determining if player is in scoring area
 Check_Time = 500 -- Mili-seconds to check if player in scoring area
 FLAG_SPEED = 2.0 -- Flag-Holder running speed
 CAMO_TIME = 15 -- Flag-Holder invisibility time
@@ -93,7 +93,6 @@ FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
 
 function OnScriptLoad()
-    -- register_callback(cb['EVENT_TICK'],"OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -104,6 +103,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+	register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    --register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     local ctf_globals_pointer = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if (ctf_globals_pointer == 3) then return end
     CTF_GLOBALS = read_dword(ctf_globals_pointer)
@@ -153,7 +154,7 @@ end
 
 function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to Level UP (beta v.10")
+    say(PlayerIndex, "Welcome to Level UP (beta v.10)")
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats for your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -213,12 +214,27 @@ function SPAWN_FLAG()
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
 end
 
+function WriteNavs(killer)
+    for i = 1, 16 do
+        if getplayer(i) then
+                local m_player = getplayer(i)
+                if m_player then
+                    local slayer_target = read_word(m_player, 0x88)
+                    if slayer_target < 16 and slayer_target > -1 then
+                    write_word(m_player, 0x88, killer)
+                end
+            end
+        end
+    end
+end
+
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- PVP --
     if (killer > 0) and(victim ~= killer) and get_var(victim, "$team") ~= get_var(killer, "$team") then
         add_kill(killer)
+        WriteNavs(killer)
         if last_damage[PlayerIndex] == assault_melee or
             last_damage[PlayerIndex] == ball_melee or
             last_damage[PlayerIndex] == flag_melee or
@@ -377,26 +393,80 @@ function objectidtoplayer(ObjectID)
     end
 end
 
-function check_loc(PlayerIndex)
-    if PlayerIndex ~= nil then
-        local PlayerIndex = objectidtoplayer(PlayerIndex)
-        if Current_FlagHolder then
-            if tonumber(PlayerIndex) == tonumber(Current_FlagHolder) and inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
-                ctf_score(PlayerIndex)
+function OnWeaponDrop(Current_FlagHolder)
+    if Current_FlagHolder ~= nil then
+        if player_alive(Current_FlagHolder) then
+            if Current_FlagHolder then
+                Dropped = true
+            else
+                Dropped = false
             end
         end
-    else
-        return 0
     end
-    return 1
+end
+
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+	if tonumber(Type) == 1 then
+		if get_var(0, "$gt") ~= "n/a" then
+			flag_id = read_dword(read_dword(read_dword(lookup_tag("matg","globals\\globals") + 0x14) + 0x164 + 4) + 0x0 + 0xC)		
+			local player_object = get_dynamic_player(PlayerIndex)
+			local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+			local MetaID = read_dword(weapon_object)
+			if (MetaID ~= nil) then
+				if (MetaID == flag_id) then
+                    Current_FlagHolder = PlayerIndex
+                    timer(Check_Time, "MonitorLocation", PlayerIndex)
+					rprint(Current_FlagHolder, "|cReturn the flag to a base to gain an instant level!")
+					rprint(Current_FlagHolder, "|c")
+					rprint(Current_FlagHolder, "|c")
+					rprint(Current_FlagHolder, "|c")
+					rprint(Current_FlagHolder, "|c")
+                    execute_command("msg_prefix \"\"")
+                    say_all(get_var(PlayerIndex, "$name") .. " has the flag!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                    -- Prevent them from dropping the flag
+                    for i = 1, 16 do
+                        if get_player(i) then
+                            write_word(player_object + 0x88, PlayerIndex)
+                        end
+                    end
+				end
+			end
+		end
+	end
+end
+
+-- Monitor flag holders location.
+function MonitorLocation(PlayerIndex)
+    local Player = tonumber(Current_FlagHolder)
+    if Current_FlagHolder ~= nil then
+        if player_alive(Current_FlagHolder) then
+            if Current_FlagHolder then
+                if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
+                    ctf_score(Player)
+                    execute_command("msg_prefix \"\"")
+                    say_all(get_var(PlayerIndex, "$name") .. " scored a flag!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                end
+                -- Monitor flag holders location. (loop until flag is captured or flag holder dies)
+                timer(Check_Time, "MonitorLocation", PlayerIndex)
+            end
+        else
+            -- Reset --
+            Current_FlagHolder = nil
+        end
+    else
+        -- Reset --
+        Current_FlagHolder = nil
+    end
 end
 
 function inSphere(PlayerIndex, x, y, z, radius)
     if PlayerIndex then
         local player_static = get_player(PlayerIndex)
-        local obj_x = read_float(player_static + 0xF8) -- Player X Coord
-        local obj_y = read_float(player_static + 0xFC) -- Player Y Coord
-        local obj_z = read_float(player_static + 0x100) -- Player Z Coord
+        local obj_x = read_float(player_static + 0xF8)
+        local obj_y = read_float(player_static + 0xFC)
+        local obj_z = read_float(player_static + 0x100)
         local x_diff = x - obj_x
         local y_diff = y - obj_y
         local z_diff = z - obj_z
@@ -408,9 +478,9 @@ function inSphere(PlayerIndex, x, y, z, radius)
     return false
 end
 
-function ctf_score(PlayerIndex)
+function ctf_score(Player)
     Current_FlagHolder = nil
-    cycle_level(PlayerIndex, true, true)
+    cycle_level(Player, true, true)
     SPAWN_FLAG()
 end
 
@@ -485,7 +555,7 @@ function cycle_level(PlayerIndex, update, advance)
         local cur = current_Level + 1
         if cur ==(#Level + 1) then
             rprint(PlayerIndex, "|cYOU WIN!")
-            rprint(PlayerIndex, "|c-----------------------")
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -496,8 +566,16 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
-            rprint(PlayerIndex, "Your Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
-            rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|cLEVEL UP")
+            rprint(PlayerIndex, "|cCurrent Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+        
         end
         if current_Level ==(#Level + 1) then
             rprint(PlayerIndex, "|cYOU WIN!")
@@ -513,9 +591,15 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
-            rprint(PlayerIndex, "LEVEL DOWN!")
-            rprint(PlayerIndex, "Your Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
-            rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|cLEVEL DOWN!")
+            rprint(PlayerIndex, "|cCurrent Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
         end
     end
     if update == true then
@@ -528,69 +612,15 @@ function cycle_level(PlayerIndex, update, advance)
     players[PlayerIndex][2] = 0
 end
 
-function OnObjectInteraction(PlayerIndex, objId, mapId)
-    for i = 0, #Equipment_Tags do
-        if mapId == Equipment_Tags[i] then
-            if mapId == doublespeed_id or mapId == full_spec_id then
-                timer(500, "delaydestroyobject", objId)
-                if mapId == doublespeed_id then
-                    applyspeed(PlayerIndex)
-                else
-
-                end
-                return 0
-            end
-            return 1
-        end
-    end
-    if objId == flag_objId then
-        Current_FlagHolder = PlayerIndex
-        flagball_weap[PlayerIndex] = weapid
-        for i = 1, 16 do
-            if getplayer(i) then
-                write_word(getplayer(PlayerIndex) + 0x88, Current_FlagHolder)
-            end
-        end
-        rprint(Current_FlagHolder, "Return the Flag to a base to gain a Level!")
-        if getplayer(PlayerIndex) == nil then return false end
-        say("{" .. tostring(PlayerIndex) .. "}  has the Flag! Kill him!", false)
-        return 1
-    end
-end
-
 -- Check if player has the flag
 function PlayerHasTheFlag(PlayerIndex)
     local dynamic_player = get_dynamic_player(PlayerIndex)
-    local flag_red_objectid = read_dword(CTF_GLOBALS + 0x8)
-    local flag_blue_objectid = read_dword(CTF_GLOBALS + 0xC)
+    local flag = read_dword(CTF_GLOBALS + 0x8)
     for k = 0, 3 do
         local oid = read_dword(dynamic_player + 0x2F8 + 4 * k)
-        if (oid == flag_blue_objectid or oid == flag_red_objectid) then return true end
+        if (oid == flag) then return true end
     end
-
     return false
-end
-
-function OnTick()
-    if (get_var(1, "$gt") ~= "ctf") then return end
-    for i = 1, 16 do
-        if player_alive(i) then
-            if FLAGGERS[i] and PlayerHasTheFlag(i) == false then
-                execute_command("s " .. i .. " 1")
-                FLAGGERS[i] = nil
-                Current_FlagHolder = nil
-            elseif PlayerHasTheFlag(i) and FLAGGERS[i] == nil then
-                -- Timer for Flag Captures
-                -- timer(Check_Time, "check_loc", i)
-                FLAGGERS[i] = true
-                execute_command("s " .. i .. " :" .. FLAG_SPEED)
-                execute_command("camo " .. i .. " " .. CAMO_TIME)
-                Current_FlagHolder = i
-                rprint(i, "Return the Flag to your base to gain a Level!")
-                SayToAll(get_var(i, "$name") .. " picked up the flag!", i)
-            end
-        end
-    end
 end
 
 -- Check if player is in a Vehicle. Returns boolean --
@@ -749,19 +779,6 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
-end
-
-function SayToAll(Message, Player1, Player2)
-    for i = 1, 16 do
-        if player_present(i) and(Message ~= nil) then
-            if (Player1 ~= i) and(Player2 ~= i) then
-                execute_command("msg_prefix \"\"")
-                say(i, Message)
-                execute_command("msg_prefix \"** SERVER ** \"")
-                break
-            end
-        end
-    end
 end
 
 function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
