@@ -197,9 +197,11 @@ end
 
 function InfoHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Kill players to gain a Level.")
-    say(PlayerIndex, "Being meeled will result in moving down a Level.")
-    say(PlayerIndex, "There is a Flag somewhere on the map. Return it to a base to gain an instant Level!")
+    rprint(PlayerIndex, "Kill players to gain a Level.")
+    rprint(PlayerIndex, "Being meeled will result in moving down a Level.")
+    rprint(PlayerIndex, " ")
+    rprint(PlayerIndex, "There is a Flag somewhere on the map.")
+    rprint(PlayerIndex, "Return it to a base to gain a Level.")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
@@ -301,10 +303,13 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    -- PVP --
+    -- local player = get_player(PlayerIndex)
+    -- write_dword(player + 0x2C, 1 * 33)
+    ------------------------------------------
+    -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
         add_kill(killer)
-        WriteNavs(killer)
+        --WriteNavs(killer)
         if last_damage[PlayerIndex] == assault_melee or
             last_damage[PlayerIndex] == ball_melee or
             last_damage[PlayerIndex] == flag_melee or
@@ -334,7 +339,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 JustWeapons(xAxis, yAxis, zAxis)
             end
         end
-        -- Suicide --
+    -- SUICIDE --
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
         -- Player Committed Suicide, move them down a level
         cycle_level(victim, true) -- update, level down
@@ -385,8 +390,10 @@ function add_kill(killer)
     if players[killer][2] == Level[players[killer][1]][4] then
         if FlagHolder then 
             drop_weapon(killer)
+            -- Player Melee'd someone while holding the flag - delay scoring to avoid deleting the flag object on Level UP.
             timer(1, "delay_cycle", killer)
         else
+            -- PvP, level up (update, advance)
             cycle_level(killer, true, true)
         end
     end
@@ -468,16 +475,6 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
-    end
-end
-
-function objectidtoplayer(ObjectID)
-    -- returns PlayerIndex from an ObjectID
-    local object = get_object_memory(ObjectID)
-    if object ~= 0 then
-        local playerId = read_word(object + 0xC0)
-        -- Full DWORD ID of player.
-        return to_player_index(playerId) ~= 0 and playerId or nil
     end
 end
 
@@ -625,10 +622,12 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function RemoveSpawnProtect(PlayerIndex)
-    -- Health. (0 to 1) (Normal = 1)
-    write_float(PlayerIndex + 0xE0, 1)
-    -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
-    write_float(PlayerIndex + 0xE4, 1)
+    if (player_alive(PlayerIndex)) then
+        -- Health. (0 to 1) (Normal = 1)
+        write_float(PlayerIndex + 0xE0, 1)
+        -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+        write_float(PlayerIndex + 0xE4, 1)
+    end
     return 0
 end
 
@@ -639,9 +638,11 @@ function delay_weaps(PlayerIndex)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
+    local response = nil
     local Message = string.lower(Message)
     if (Message == "@info") then
         timer(0, "InfoHandler", PlayerIndex)
+        response = false
         return false
     end
     if (Message == "@stats") then
@@ -658,8 +659,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
             rprint(PlayerIndex, "Plasmas: ".. tostring(nades_tbl[2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         end
-        return false
+        response = false
     end
+    return response
 end
 
 function OnServerCommand(PlayerIndex, Command)
@@ -788,20 +790,48 @@ function DestroyVehicle(old_vehicle_id)
 end
 
 function WeaponHandler(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    -- If already in vehicle when they level up, destroy the old one
-    vbool = false
-    if PlayerInVehicle(PlayerIndex) then
-        vbool = true
-        if player_object ~= 0 then
-            -- destroy old vehicle --
-            vehicle_Id = read_dword(player_object + 0x11C)
-            obj_id = get_object_memory(vehicle_Id)
-            exit_vehicle(PlayerIndex)
-            timer(0, "DestroyVehicle", vehicle_Id)
+    if (player_alive(PlayerIndex)) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        -- If already in vehicle when they level up, destroy the old one
+        vbool = false
+        if PlayerInVehicle(PlayerIndex) then
+            vbool = true
+            if player_object ~= 0 then
+                -- destroy old vehicle --
+                vehicle_Id = read_dword(player_object + 0x11C)
+                obj_id = get_object_memory(vehicle_Id)
+                exit_vehicle(PlayerIndex)
+                timer(0, "DestroyVehicle", vehicle_Id)
+            end
         end
-    end
-    if (Level[players[PlayerIndex][1]][12]) == 1 then
+        if (Level[players[PlayerIndex][1]][12]) == 1 then
+            -- remove weapon --
+            local weaponId = read_dword(player_object + 0x118)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
+                end
+            end
+            if vbool == true then
+                if (tonumber(players[PlayerIndex][1]) == 8) then
+                    -- Spawn in Rocket Hog as Gunner/Driver --
+                    local x, y, z = read_vector3d(obj_id + 0x5c)
+                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                    enter_vehicle(vehicleId, PlayerIndex, 2)
+                else
+                    -- handle other vehicle spawns --
+                    local x, y, z = read_vector3d(obj_id + 0x5c)
+                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                end
+            else
+                local x, y, z = read_vector3d(player_object + 0x5c)
+                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                enter_vehicle(vehicleId, PlayerIndex, 0)
+            end
+        else
         -- remove weapon --
         local weaponId = read_dword(player_object + 0x118)
         if weaponId ~= 0 then
@@ -810,52 +840,26 @@ function WeaponHandler(PlayerIndex)
                 destroy_object(m_weapon)
             end
         end
-        if vbool == true then
-            if (tonumber(players[PlayerIndex][1]) == 8) then
-                -- Spawn in Rocket Hog as Gunner/Driver --
-                local x, y, z = read_vector3d(obj_id + 0x5c)
-                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
-                enter_vehicle(vehicleId, PlayerIndex, 0)
-                enter_vehicle(vehicleId, PlayerIndex, 2)
-            else
-                -- handle other vehicle spawns --
-                local x, y, z = read_vector3d(obj_id + 0x5c)
-                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
-                enter_vehicle(vehicleId, PlayerIndex, 0)
+            -- assign weapon --
+            local x, y, z = read_vector3d(player_object + 0x5C)
+            local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
+            local wait_time = 1
+            -- Sync Ammo --
+            if tonumber(Level[players[PlayerIndex][1]][6]) then
+                execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
             end
-        else
-            local x, y, z = read_vector3d(player_object + 0x5c)
-            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
-            enter_vehicle(vehicleId, PlayerIndex, 0)
-        end
-    else
-    -- remove weapon --
-    local weaponId = read_dword(player_object + 0x118)
-    if weaponId ~= 0 then
-        for j = 0, 3 do
-            local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-            destroy_object(m_weapon)
-        end
-    end
-        -- assign weapon --
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
-        local wait_time = 1
-        -- Sync Ammo --
-        if tonumber(Level[players[PlayerIndex][1]][6]) then
-            execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
-            execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
-        end
-        -- write nades --
-        local nades_tbl = Level[players[PlayerIndex][1]][5]
-        if nades_tbl then
-            safe_write(true)
-            local PLAYER = get_dynamic_player(PlayerIndex)
-            -- Frags
-            write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
-            -- Plasmas
-            write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
-            safe_write(false)
+            -- write nades --
+            local nades_tbl = Level[players[PlayerIndex][1]][5]
+            if nades_tbl then
+                safe_write(true)
+                local PLAYER = get_dynamic_player(PlayerIndex)
+                -- Frags
+                write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+                -- Plasmas
+                write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
+                safe_write(false)
+            end
         end
     end
 end
