@@ -695,6 +695,7 @@ function WeaponHandler(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
         local wait_time = 1
+        -- Sync Ammo --
         if tonumber(Level[players[PlayerIndex][1]][6]) then
             execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
             execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
