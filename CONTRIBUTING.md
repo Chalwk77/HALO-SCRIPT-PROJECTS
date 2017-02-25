@@ -30,6 +30,8 @@ Contributors to [code]
 
   * http client
         - https://github.com/Halogen002/SAPP-HTTP-Client
+  * GetTagInfo
+        - get_tag_info (function)
         
 * **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
 
