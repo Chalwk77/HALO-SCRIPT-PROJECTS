@@ -531,7 +531,7 @@ function MonitorLocation(PlayerIndex)
                     say_all(get_var(Player, "$name") .. " scored a flag!")
                     execute_command("msg_prefix \"** SERVER ** \"")
                 end
-                -- Monitor flag holders location. (loop until flag is captured or flag holder dies)
+                -- Monitor flag holders location. (loop until flag is captured, flag is dropped, or flag holder dies)
                 timer(Check_Time, "MonitorLocation", PlayerIndex)
             end
         else
