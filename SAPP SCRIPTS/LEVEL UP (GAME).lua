@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-Starting_Level = 10 -- Must match beginning of level[#]
+Starting_Level = 1 -- Must match beginning of level[#]
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_duration = 20 -- in seconds
