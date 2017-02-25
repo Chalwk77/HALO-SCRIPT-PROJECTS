@@ -1,3 +1,22 @@
+--[[
+    Script Name: LEVEL UP (beta v1.0), for SAPP | (PC\CE)
+    Implementing API version: 1.11.0.0
+
+    Acknowledgments
+    Credits to "Giraffe" for his AutoVehicle-Flip functions.
+    
+    
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* IGN: Chalwk
+* Written by Jericho Crosby (Chalwk)
+]]
+
 api_version = "1.11.0.0"
 
 Starting_Level = 1 -- Must match beginning of level[#]
@@ -8,6 +27,8 @@ Spawn_Where_Killed = false -- Spawn at the same location as player died
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
 CTF_ENABLED = true
+PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
+WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 Check_Radius = 1.5 -- Radius determining if player is in scoring area
 Check_Time = 500 -- Mili-seconds to check if player in scoring area
 FLAG_SPEED = 2.0 -- Flag-Holder running speed
@@ -57,9 +78,11 @@ PowerUpSettings = {
     ["JustWeapons"] = false
 }
 
--- Messages --
-CTF_GLOBALS = nil
 Exit = nil
+CTF_GLOBALS = nil
+rider_ejection = nil
+object_table_ptr = nil
+Current_FlagHolder = nil
 FLAG = { }
 players = { }
 FLAGGERS = { }
@@ -69,7 +92,6 @@ for i = 1, 16 do DEATH_LOCATION[i] = { } end
 Stored_Levels = { }
 flagball_weap = { }
 Equipment_Tags = { }
-Current_FlagHolder = nil
 vehi_type_id = "vehi"
 weap_type_id = "weap"
 FLAG["bloodgulch"] = { { 95.687797546387, - 159.44900512695, - 0.10000000149012 }, { 40.240600585938, - 79.123199462891, - 0.10000000149012 }, { 65.749893188477, - 120.40949249268, 0.11860413849354 } }
@@ -104,7 +126,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 	register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_TICK'],"OnTick")
     --register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    -- Giraffe's object_table_ptr --
+    object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     local ctf_globals_pointer = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if (ctf_globals_pointer == 3) then return end
     CTF_GLOBALS = read_dword(ctf_globals_pointer)
@@ -136,6 +161,14 @@ function OnScriptLoad()
             last_damage[i] = 0
         end
     end
+    if (halo_type == "CE") then -- Giraffe's
+        rider_ejection = read_byte(0x59A34C)
+        write_byte(0x59A34C, 0)
+    else
+        rider_ejection = read_byte(0x6163EC)
+        write_byte(0x6163EC, 0)
+    end
+--=========================================--
 end
 
 function OnScriptUnload()
@@ -150,6 +183,12 @@ function OnScriptUnload()
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
+    if( halo_type == "CE") then -- Giraffe's
+        write_byte(0x59A34C, rider_ejection)
+    else
+        write_byte(0x6163EC, rider_ejection)
+    end
+--========================================--
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -212,6 +251,44 @@ function SPAWN_FLAG()
     local t = FLAG[map_name][3]
     -- Spawn flag at x,y,z
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
+end
+
+function OnTick()
+    -- Giraffe's Fucntion --
+    if(PLAYER_VEHICLES_ONLY) then
+        for i=1,16 do
+            if(player_alive(i)) then
+                 local player = get_dynamic_player(i)
+                 local player_vehicle_id = read_dword(player + 0x11C)
+                 if(player_vehicle_id ~= 0xFFFFFFFF) then
+                     local vehicle = get_object_memory(player_vehicle_id)
+                     flip_vehicle(vehicle)
+                 end
+            end
+        end
+    else
+        local object_table = read_dword(read_dword(object_table_ptr + 2))
+        local object_count = read_word(object_table + 0x2E)
+        local first_object = read_dword(object_table + 0x34)
+        for i=0,object_count-1 do
+            local object = read_dword(first_object + i * 0xC + 0x8)
+            if(object ~= 0 and object ~= 0xFFFFFFFF) then
+                if(read_word(object + 0xB4) == 1) then
+                    flip_vehicle(object)
+                end
+            end
+        end
+    end
+end
+
+function flip_vehicle(Object)
+    -- Giraffe's Fucntion --
+    if(read_bit(Object + 0x8B, 7) == 1) then
+        if(WAIT_FOR_IMPACT and read_bit(Object + 0x10, 1) == 0) then
+            return
+        end
+        write_vector3d(Object + 0x80, 0, 0, 1)
+    end
 end
 
 function WriteNavs(killer)
@@ -421,9 +498,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 					rprint(Current_FlagHolder, "|c")
 					rprint(Current_FlagHolder, "|c")
 					rprint(Current_FlagHolder, "|c")
-                    execute_command("msg_prefix \"\"")
-                    say_all(get_var(PlayerIndex, "$name") .. " has the flag!")
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                    SayToAll(get_var(PlayerIndex, "$name") .. " has the flag!", PlayerIndex)
                     -- Prevent them from dropping the flag
                     for i = 1, 16 do
                         if get_player(i) then
@@ -444,9 +519,7 @@ function MonitorLocation(PlayerIndex)
             if Current_FlagHolder then
                 if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
                     ctf_score(Player)
-                    execute_command("msg_prefix \"\"")
-                    say_all(get_var(PlayerIndex, "$name") .. " scored a flag!")
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                    SayToAll(get_var(PlayerIndex, "$name") .. " scored a flag!", PlayerIndex)
                 end
                 -- Monitor flag holders location. (loop until flag is captured or flag holder dies)
                 timer(Check_Time, "MonitorLocation", PlayerIndex)
@@ -459,6 +532,20 @@ function MonitorLocation(PlayerIndex)
         -- Reset --
         Current_FlagHolder = nil
     end
+end
+
+function SayToAll(Message, PlayerIndex)
+	for i = 1,16 do
+		if player_present(i) then
+			if i ~= PlayerIndex then
+				rprint(i, "|c" .. Message)
+				rprint(i, "|c")
+				rprint(i, "|c")
+				rprint(i, "|c")
+				rprint(i, "|c")
+			end
+		end
+	end
 end
 
 function inSphere(PlayerIndex, x, y, z, radius)
@@ -554,6 +641,7 @@ function cycle_level(PlayerIndex, update, advance)
     if advance == true then
         local cur = current_Level + 1
         if cur ==(#Level + 1) then
+            game_over = true
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|c ")
@@ -577,7 +665,8 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
         
         end
-        if current_Level ==(#Level + 1) then
+        if current_Level == (#Level + 1) then
+            game_over = true
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-----------------------")
             rprint(PlayerIndex, "|c ")
@@ -602,14 +691,17 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
         end
     end
-    if update == true then
-        local name = get_var(PlayerIndex, "$name")
+    if (update == true) and not game_over then
         setscore(PlayerIndex, players[PlayerIndex][1])
     end
     --  assign weapons or vehicle according to level --
-    WeaponHandler(PlayerIndex)
+    if not game_over then
+        WeaponHandler(PlayerIndex)
+    end
     -- Reset Kills --
-    players[PlayerIndex][2] = 0
+    if not game_over then
+        players[PlayerIndex][2] = 0
+    end
 end
 
 -- Check if player has the flag
