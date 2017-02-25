@@ -108,15 +108,12 @@ function OnScriptLoad()
     if (ctf_globals_pointer == 3) then return end
     CTF_GLOBALS = read_dword(ctf_globals_pointer)
     LoadItems()
-    if (halo_type == "PC") then
-        gametype_base = 0x671340
-        slayer_globals = 0x63A0E8
-    else
-        gametype_base = 0x5F5498
-        slayer_globals = 0x5BE108
-    end
+    map_name = get_var(1, "$map")
+    gametype = get_var(0, "$gt")
+    -- Check if valid GameType
+    CheckType()
     -- set score limit --
-    write_byte(gametype_base, 0x58, 256)
+    execute_command("scorelimit 256")
     -- disable vehicle entry --
     execute_command("disable_all_vehicles 0 1")
     -- disable weapon pickups --
@@ -156,7 +153,7 @@ end
 
 function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to Level Up!")
+    say(PlayerIndex, "Welcome to Level UP (beta v.10")
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats for your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -166,13 +163,15 @@ function InfoHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Kill players to gain a Level.")
     say(PlayerIndex, "Being meeled will result in moving down a Level.")
-    say(PlayerIndex, "There is a Flag somewhere on the map. Return it to a base to gain a Level!")
+    say(PlayerIndex, "There is a Flag somewhere on the map. Return it to a base to gain an instant Level!")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function OnNewGame()
     LoadItems()
+    CheckType()
     map_name = get_var(1, "$map")
+    gametype = get_var(0, "$gt")
     for k, v in pairs(Level) do
         if string.find(v[1], "vehicles") then
             v[11] = v[1]
@@ -375,30 +374,6 @@ function objectidtoplayer(ObjectID)
     if object ~= 0 then
         local playerId = read_word(object + 0xC0) -- Full DWORD ID of player.
         return to_player_index(playerId) ~= 0 and playerId or nil
-    end
-end
-
-function takenavsaway()
-    for i = 1, 16 do
-        if player_present(i) then
-            local m_player = getplayer(i)
-            local player = to_real_index(i)
-            if m_player ~= 0 then
-                write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
-            end
-        end
-    end
-end
-
-function setnavesto(Player)
-    for i = 1, 16 do
-        if player_present(i) then
-            local m_player = get_player(i)
-            local player = to_real_index(Player)
-            if m_player ~= 0 then
-                write_word(m_player + 0x88, player) -- NAV Marker. Slayer Target Player
-            end
-        end
     end
 end
 
@@ -734,15 +709,33 @@ function setscore(PlayerIndex, score)
                 write_word(m_player + 0xC8, score)
             end
         elseif get_var(0, "$gt") == "slayer" then
-            local m_player = getplayer(PlayerIndex)
-            if score >= 0x7FFFFFFF then
-                execute_command("score " .. PlayerIndex .. " +1")
-            elseif score <= -0x7FFFFFFF then
+            if score >= 0x7FFF then
+                execute_command("score " .. PlayerIndex .. " +1")   
+            elseif score <= -0x7FFF then
                 execute_command("score " .. PlayerIndex .. " -1")
             else
-                execute_command("score " .. PlayerIndex .. " +1")
+                execute_command("score " .. PlayerIndex .. " " .. score)
             end
         end
+    end
+end
+
+function CheckType()
+    type_is_koth = get_var(1,"$gt") == "koth"
+    type_is_oddball = get_var(1,"$gt") == "oddball"
+    if (type_is_koth) or (type_is_oddball) then 
+        cprint("Warning: This script doesn't support ODDBALL or KOTH", 4+8)
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb['EVENT_CHAT'])
+        unregister_callback(cb["EVENT_GAME_END"])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_GAME_START"])
+        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_PRESPAWN'])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
     end
 end
 
