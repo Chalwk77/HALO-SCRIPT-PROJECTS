@@ -26,8 +26,8 @@ Spawn_Where_Killed = false -- Spawn at the same location as player died
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
 CTF_ENABLED = true
-Check_Radius = 1.5 -- Radius determining if player is in scoring area
-Check_Time = 500 -- Mili-seconds to check if player in scoring area
+Check_Radius = 1 -- Radius determining if player is in scoring area
+Check_Time = 0 -- Mili-seconds to check if player in scoring area
 FLAG_SPEED = 2.0 -- Flag-Holder running speed
 CAMO_TIME = 15 -- Flag-Holder invisibility time
 ADMIN_LEVEL = 1 -- Default admin level required to use chat commandss
@@ -46,7 +46,7 @@ Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Bl
 Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
 Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
 Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
-Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Blow people up!", 9, { 0, 0 }, 0 }
+Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
 Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
 
 -- Objects to drop when someone dies
@@ -81,7 +81,7 @@ PowerUpSettings = {
 }
 rider_ejection = nil
 object_table_ptr = nil
-Current_FlagHolder = nil
+FlagHolder = nil
 FLAG = { }
 players = { }
 last_damage = { }
@@ -133,7 +133,7 @@ function OnScriptLoad()
     gametype = get_var(0, "$gt")
     CheckType()
     -- set score limit --
-    execute_command("scorelimit 256")
+    execute_command("scorelimit 250")
     -- disable vehicle entry --
     execute_command("disable_all_vehicles 0 1")
     -- disable weapon pickups --
@@ -178,7 +178,7 @@ function OnScriptUnload()
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
-    Current_FlagHolder = nil
+    FlagHolder = nil
     if (halo_type == "CE") then -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
@@ -230,7 +230,7 @@ function OnGameEnd()
     last_damage = { }
     rider_ejection = nil
     object_table_ptr = nil
-    Current_FlagHolder = nil
+    FlagHolder = nil
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
@@ -302,7 +302,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- PVP --
-    if (killer > 0) and(victim ~= killer) and get_var(victim, "$team") ~= get_var(killer, "$team") then
+    if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
         add_kill(killer)
         WriteNavs(killer)
         if last_damage[PlayerIndex] == assault_melee or
@@ -383,8 +383,18 @@ function add_kill(killer)
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        cycle_level(killer, true, true)
+        if FlagHolder then 
+            drop_weapon(killer)
+            timer(1, "delay_cycle", killer)
+        else
+            cycle_level(killer, true, true)
+        end
     end
+end
+
+function delay_cycle(killer)
+    local Player = tonumber(killer)
+    cycle_level(Player, true, true)
 end
 
 function DropPowerup(x, y, z)
@@ -468,18 +478,6 @@ function objectidtoplayer(ObjectID)
     end
 end
 
-function OnWeaponDrop(Current_FlagHolder)
-    if Current_FlagHolder ~= nil then
-        if player_alive(Current_FlagHolder) then
-            if Current_FlagHolder then
-                Dropped = true
-            else
-                Dropped = false
-            end
-        end
-    end
-end
-
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if tonumber(Type) == 1 then
         if get_var(0, "$gt") ~= "n/a" then
@@ -489,13 +487,14 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
             local MetaID = read_dword(weapon_object)
             if (MetaID ~= nil) then
                 if (MetaID == flag_id) then
-                    Current_FlagHolder = PlayerIndex
-                    timer(Check_Time, "MonitorLocation", PlayerIndex)
-                    rprint(Current_FlagHolder, "|cReturn the flag to a base to gain an instant level!")
-                    rprint(Current_FlagHolder, "|c")
-                    rprint(Current_FlagHolder, "|c")
-                    rprint(Current_FlagHolder, "|c")
-                    rprint(Current_FlagHolder, "|c")
+                    dropped = false
+                    FlagHolder = PlayerIndex
+                    MonitorLocation(PlayerIndex)
+                    rprint(FlagHolder, "|cReturn the flag to a base to gain an instant level!")
+                    rprint(FlagHolder, "|c")
+                    rprint(FlagHolder, "|c")
+                    rprint(FlagHolder, "|c")
+                    rprint(FlagHolder, "|c")
                     SayToAll(get_var(PlayerIndex, "$name") .. " has the flag!", PlayerIndex)
                     -- Prevent them from dropping the flag
                     for i = 1, 16 do
@@ -509,26 +508,46 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     end
 end
 
+function OnWeaponDrop(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        dropped = true
+        FlagHolder = nil
+    end
+end
+
 -- Monitor flag holders location.
 function MonitorLocation(PlayerIndex)
-    local Player = tonumber(Current_FlagHolder)
-    if Current_FlagHolder ~= nil then
-        if player_alive(Current_FlagHolder) then
-            if Current_FlagHolder then
+    local Player = tonumber(FlagHolder)
+    if (FlagHolder ~= nil) then
+        if player_alive(FlagHolder) then
+            if (FlagHolder) and not (dropped) then
+                execute_command("s " .. Player .. " :" .. FLAG_SPEED)
+                execute_command("camo " .. Player .. " " .. CAMO_TIME)
                 if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
                     ctf_score(Player)
-                    SayToAll(get_var(PlayerIndex, "$name") .. " scored a flag!", PlayerIndex)
+                    ResetSpeed(PlayerIndex)
+                    FlagHolder = nil
                 end
                 -- Monitor flag holders location. (loop until flag is captured or flag holder dies)
                 timer(Check_Time, "MonitorLocation", PlayerIndex)
             end
         else
             -- Reset --
-            Current_FlagHolder = nil
+            FlagHolder = nil
         end
     else
         -- Reset --
-        Current_FlagHolder = nil
+        FlagHolder = nil
+        -- No longer FlagHolder, reset their speed.
+        ResetSpeed(PlayerIndex)
+    end
+end
+
+function ResetSpeed(PlayerIndex)
+    if (player_alive(PlayerIndex)) then
+        execute_command("s " .. PlayerIndex .. " 1")
+    else 
+        return false
     end
 end
 
@@ -574,9 +593,10 @@ function inSphere(PlayerIndex, x, y, z, radius)
 end
 
 function ctf_score(Player)
-    Current_FlagHolder = nil
+    FlagHolder = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
+    SayToAll(get_var(Player, "$name") .. " scored a flag!", PlayerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -685,7 +705,6 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
-
         end
         if current_Level ==(#Level + 1) then
             game_over = true
@@ -729,9 +748,7 @@ function cycle_level(PlayerIndex, update, advance)
     --  assign weapons or vehicle according to level --
     if not game_over then
         WeaponHandler(PlayerIndex)
-    end
-    -- Reset Kills --
-    if not game_over then
+        -- Reset Kills --
         players[PlayerIndex][2] = 0
     end
 end
@@ -801,14 +818,14 @@ function WeaponHandler(PlayerIndex)
             enter_vehicle(vehicleId, PlayerIndex, 0)
         end
     else
-        -- remove weapon --
-        local weaponId = read_dword(player_object + 0x118)
-        if weaponId ~= 0 then
-            for j = 0, 3 do
-                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-                destroy_object(m_weapon)
-            end
+    -- remove weapon --
+    local weaponId = read_dword(player_object + 0x118)
+    if weaponId ~= 0 then
+        for j = 0, 3 do
+            local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+            destroy_object(m_weapon)
         end
+    end
         -- assign weapon --
         local x, y, z = read_vector3d(player_object + 0x5C)
         local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
