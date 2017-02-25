@@ -130,8 +130,8 @@ function OnScriptLoad()
     LoadItems()
     map_name = get_var(1, "$map")
     -- Check if valid GameType
-    gametype = get_var(0, "$gt")
     CheckType()
+    gametype = get_var(0, "$gt")
     -- set score limit --
     execute_command("scorelimit 250")
     -- disable vehicle entry --
@@ -900,8 +900,9 @@ end
 function CheckType()
     type_is_koth = get_var(1, "$gt") == "koth"
     type_is_oddball = get_var(1, "$gt") == "oddball"
-    if (type_is_koth) or(type_is_oddball) then
-        cprint("Warning: This script doesn't support ODDBALL or KOTH", 4 + 8)
+    type_is_race = get_var(1, "$gt") == "race"
+    if (type_is_koth) or (type_is_oddball) or (type_is_race) then
+        cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
