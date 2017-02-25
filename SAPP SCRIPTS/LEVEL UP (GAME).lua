@@ -463,10 +463,11 @@ function OnPlayerSpawn(PlayerIndex)
             -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
         end
-        rprint(PlayerIndex, "|rLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-        rprint(PlayerIndex, "|rKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
-        rprint(PlayerIndex, "|rYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
-        rprint(PlayerIndex, "|rYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+        rprint(PlayerIndex, "Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+        rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+        rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        rprint(PlayerIndex, " ")
     end
 end
 
