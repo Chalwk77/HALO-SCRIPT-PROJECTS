@@ -189,7 +189,7 @@ end
 
 function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to level up! (beta v1.0)")
+    say(PlayerIndex, "Welcome to vm315 - LEVEL UP (beta v1.0)")
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats for your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -416,7 +416,7 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
     -- Assign Weapons, Frags, and Ammo --
-    timer(0, "WelcomeHandler", PlayerIndex)
+    timer(1000*6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
     setscore(PlayerIndex, players[PlayerIndex][1]) -- First initial score is equal to Level 1 (score point 1)
 end
@@ -463,8 +463,10 @@ function OnPlayerSpawn(PlayerIndex)
             -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
         end
-        rprint(PlayerIndex, "Your Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
-        rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        rprint(PlayerIndex, "|rLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+        rprint(PlayerIndex, "|rKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+        rprint(PlayerIndex, "|rYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+        rprint(PlayerIndex, "|rYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
     end
 end
 
@@ -527,6 +529,9 @@ function MonitorLocation(PlayerIndex)
                     ctf_score(Player)
                     ResetSpeed(PlayerIndex)
                     FlagHolder = nil
+                    execute_command("msg_prefix \"\"")
+                    say_all(get_var(Player, "$name") .. " scored a flag!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
                 end
                 -- Monitor flag holders location. (loop until flag is captured or flag holder dies)
                 timer(Check_Time, "MonitorLocation", PlayerIndex)
@@ -596,7 +601,6 @@ function ctf_score(Player)
     FlagHolder = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
-    SayToAll(get_var(Player, "$name") .. " scored a flag!", PlayerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -640,8 +644,19 @@ function OnPlayerChat(PlayerIndex, Message, type)
         return false
     end
     if (Message == "@stats") then
-        rprint(PlayerIndex, "Current Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " | Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
-        rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        if tonumber(players[PlayerIndex][1]) >= 7 then
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        else
+            local nades_tbl = Level[players[PlayerIndex][1]][5]
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
+            rprint(PlayerIndex, "Frags: " ..tostring(nades_tbl[1]))
+            rprint(PlayerIndex, "Plasmas: ".. tostring(nades_tbl[2]))
+            rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        end
         return false
     end
 end
@@ -681,12 +696,10 @@ function cycle_level(PlayerIndex, update, advance)
             OnWin(" ", PlayerIndex)
             OnWin(" ", PlayerIndex)
             OnWin(" ", PlayerIndex)
-            OnWin(" ", PlayerIndex)
             -------------------------------------------------------------------------
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
-            rprint(PlayerIndex, "|c ")
-            rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -696,12 +709,11 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
-            rprint(PlayerIndex, "|cLEVEL UP")
-            rprint(PlayerIndex, "|cCurrent Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|c****** LEVEL UP ******")
+            rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+            rprint(PlayerIndex, "|cKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            rprint(PlayerIndex, "|c ")
-            rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -717,10 +729,9 @@ function cycle_level(PlayerIndex, update, advance)
             OnWin(" ", PlayerIndex)
             OnWin(" ", PlayerIndex)
             -------------------------------------------------------------------------
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|cYOU WIN!")
-            rprint(PlayerIndex, "|c-----------------------")
-            rprint(PlayerIndex, "|c ")
-            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -731,12 +742,11 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
-            rprint(PlayerIndex, "|cLEVEL DOWN!")
-            rprint(PlayerIndex, "|cCurrent Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
+            rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+            rprint(PlayerIndex, "|cKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            rprint(PlayerIndex, "|c ")
-            rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
