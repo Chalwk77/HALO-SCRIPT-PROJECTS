@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-Starting_Level = 1 -- Must match beginning of level[#]
+Starting_Level = 10 -- Must match beginning of level[#]
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_duration = 20 -- in seconds
@@ -85,7 +85,6 @@ Current_FlagHolder = nil
 FLAG = { }
 players = { }
 last_damage = { }
-flagball_weap = { }
 Stored_Levels = { }
 Equipment_Tags = { }
 DEATH_LOCATION = { }
@@ -113,6 +112,7 @@ FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -121,11 +121,10 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-    register_callback(cb['EVENT_TICK'], "OnTick")
-    -- register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     LoadItems()
@@ -174,7 +173,6 @@ function OnScriptUnload()
     last_damage = { }
     WEAPON_TABLE = { }
     Stored_Levels = { }
-    flagball_weap = { }
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
@@ -191,7 +189,7 @@ end
 
 function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to Level UP (beta v.10)")
+    say(PlayerIndex, "Welcome to level up! (beta v1.0)")
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats for your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -219,25 +217,17 @@ function OnNewGame()
             v[12] = 0
         end
     end
-    if CTF_ENABLED == true then SPAWN_FLAG() end
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
         end
     end
+    if CTF_ENABLED == true then SPAWN_FLAG() end
+    GameHasStarted = true
 end
 
 function OnGameEnd()
-    FLAG = { }
-    Level = { }
-    players = { }
     last_damage = { }
-    WEAPON_TABLE = { }
-    Stored_Levels = { }
-    flagball_weap = { }
-    DEATH_LOCATION = { }
-    Equipment_Tags = { }
-    EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
     Current_FlagHolder = nil
@@ -246,9 +236,11 @@ function OnGameEnd()
             last_damage[i] = 0
         end
     end
+    GameHasStarted = false
 end
 
 function SPAWN_FLAG()
+    map_name = get_var(1, "$map")
     local t = FLAG[map_name][3]
     -- Spawn flag at x,y,z
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
@@ -434,14 +426,16 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     -- reset last damage --
     last_damage[PlayerIndex] = 0
-    local victim = tonumber(PlayerIndex)
-    if PlayerIndex then
-        if DEATH_LOCATION[victim][1] ~= nil then
-            -- spawn at death location --
-            write_vector3d(get_dynamic_player(victim) + 0x5C, DEATH_LOCATION[victim][1], DEATH_LOCATION[victim][2], DEATH_LOCATION[victim][3])
-            for i = 1, 3 do
-                -- reset death location --
-                DEATH_LOCATION[victim][i] = nil
+    if spawn_where_killed == true then
+        local victim = tonumber(PlayerIndex)
+        if PlayerIndex then
+            if DEATH_LOCATION[victim][1] ~= nil then
+                -- spawn at death location --
+                write_vector3d(get_dynamic_player(victim) + 0x5C, DEATH_LOCATION[victim][1], DEATH_LOCATION[victim][2], DEATH_LOCATION[victim][3])
+                for i = 1, 3 do
+                    -- reset death location --
+                    DEATH_LOCATION[victim][i] = nil
+                end
             end
         end
     end
@@ -552,6 +546,16 @@ function SayToAll(Message, PlayerIndex)
     end
 end
 
+function OnWin(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                rprint(i, "|c" .. Message)
+            end
+        end
+    end
+end
+
 function inSphere(PlayerIndex, x, y, z, radius)
     if PlayerIndex then
         local player_static = get_player(PlayerIndex)
@@ -650,6 +654,15 @@ function cycle_level(PlayerIndex, update, advance)
         local cur = current_Level + 1
         if cur ==(#Level + 1) then
             game_over = true
+            -- ON WIN --
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            -------------------------------------------------------------------------
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
             rprint(PlayerIndex, "|c ")
@@ -658,6 +671,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             execute_command("map_next")
+            execute_command("mapvote_begin")
         end
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
@@ -675,6 +689,15 @@ function cycle_level(PlayerIndex, update, advance)
         end
         if current_Level ==(#Level + 1) then
             game_over = true
+            -- ON WIN --
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            -------------------------------------------------------------------------
             rprint(PlayerIndex, "|cYOU WIN!")
             rprint(PlayerIndex, "|c-----------------------")
             rprint(PlayerIndex, "|c ")
@@ -683,6 +706,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             execute_command("map_next")
+            execute_command("mapvote_begin")
         end
     else
         if current_Level > Starting_Level then
