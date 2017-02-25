@@ -804,10 +804,8 @@ function cycle_level(PlayerIndex, update, advance)
     --  assign weapons or vehicle according to level --
     if not game_over then
         if (LargeConfiguration == true) then 
-            cprint("ONE", 2+8)
             WeaponHandler(PlayerIndex)
         elseif (LargeConfiguration == false) then
-            cprint("TWO", 2+8)
             WeaponHandlerAlternate(PlayerIndex)
         end
         -- Reset Kills --
