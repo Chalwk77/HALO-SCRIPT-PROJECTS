@@ -222,17 +222,15 @@ function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to vm315 - LEVEL UP (beta v1.0)")
     say(PlayerIndex, "Type @info if you don't know How to Play")
-    say(PlayerIndex, "Type @stats for your current stats.")
+    say(PlayerIndex, "Type @stats to view your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function InfoHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    rprint(PlayerIndex, "Kill players to gain a Level.")
-    rprint(PlayerIndex, "Being meeled will result in moving down a Level.")
-    rprint(PlayerIndex, " ")
-    rprint(PlayerIndex, "There is a Flag somewhere on the map.")
-    rprint(PlayerIndex, "Return it to a base to gain a Level.")
+    say(PlayerIndex, "Kill players to gain a Level.")
+    say(PlayerIndex, "Being meeled or committing suicide will result in moving down a Level.")
+    say(PlayerIndex, "There is a Flag somewhere on the map - Return it to a base to gain a Level.")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
@@ -822,15 +820,15 @@ function OnServerCommand(PlayerIndex, Command)
                 end
             end
             elseif tonumber(get_var(PlayerIndex, "$lvl")) >= 0 and (t[1] == string.lower("enter")) then
+                response = false
                 if PlayerInVehicle(PlayerIndex) then
                     rprint(PlayerIndex, "You're already in a vehicle!")
                 else
-                    response = false
                     if t[2] ~= nil then
                         if t[2] == "me" then
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
-                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.3)
+                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             if (CURRENT_LEVEL <= 6) then 
                                 rprint(PlayerIndex, "You're not allowed to enter a vehicle. You're only level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                                 rprint(PlayerIndex, "You must be level 8 or higher!")
