@@ -324,13 +324,16 @@ function flip_vehicle(Object)
 end
 
 function OnVehicleExit(PlayerIndex)
-    timer(1000*1, "Assign", PlayerIndex)
-end
-
-function Assign(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    local x, y, z = read_vector3d(player_object + 0x5C)
-    local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
+    if player_object ~= 0 then
+        vehicle_Id = read_dword(player_object + 0x11C)
+        obj_id = get_object_memory(vehicle_Id)
+        exit_vehicle(PlayerIndex)
+        timer(1000*2, "DestroyVehicle", vehicle_Id)
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, 'Type "/enter me" to enter your previous vehicle.')
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
 end
 
 function WriteNavs(killer)
@@ -543,6 +546,7 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
+        CURRENT_LEVEL = tonumber(players[PlayerIndex][1])
     end
 end
 
@@ -736,6 +740,9 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     last_damage[PlayerIndex] = MetaID
+    if MetaID == ghost_bolt then
+        return true, Damage * 2
+    end
     if MetaID == assault_melee or
         MetaID == ball_melee or
         MetaID == flag_melee or
@@ -749,8 +756,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         MetaID == shotgun_melee or
         MetaID == sniper_melee then
         return true, Damage * Melee_Multiplier
-    else
-        return true, Damage * Normal_Damage
     end
 end
 
@@ -803,7 +808,7 @@ function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower("level")) then
             response = false
             if t[2] ~= nil then
                 if t[2] == "up" then
@@ -816,8 +821,37 @@ function OnServerCommand(PlayerIndex, Command)
                     rprint(PlayerIndex, "Action not defined - up or down")
                 end
             end
+            elseif tonumber(get_var(PlayerIndex, "$lvl")) >= 0 and (t[1] == string.lower("enter")) then
+                if PlayerInVehicle(PlayerIndex) then
+                    rprint(PlayerIndex, "You're already in a vehicle!")
+                else
+                    response = false
+                    if t[2] ~= nil then
+                        if t[2] == "me" then
+                            local player_object = get_dynamic_player(PlayerIndex)
+                            local x, y, z = read_vector3d(player_object + 0x5c)
+                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.3)
+                            if (CURRENT_LEVEL <= 6) then 
+                                rprint(PlayerIndex, "You're not allowed to enter a vehicle. You're only level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+                                rprint(PlayerIndex, "You must be level 8 or higher!")
+                            elseif (CURRENT_LEVEL == 8) then
+                                -- Rocket Hog (Gunner & Drivers Seat)
+                                enter_vehicle(vehicleId, PlayerIndex, 0)
+                                enter_vehicle(vehicleId, PlayerIndex, 2)
+                                enter_vehicle(vehicleId, PlayerIndex, 2)
+                            else
+                                -- All other vehicles.
+                                enter_vehicle(vehicleId, PlayerIndex, 0)
+                            end
+                        else
+                            rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
+                    end
+                end
+            end
         end
-    end
     return response
 end
 
@@ -934,8 +968,7 @@ function DestroyVehicle(old_vehicle_id)
     return 0
 end
 
-function WeaponHandler(PlayerIndex, ThisPlayer)
-    ThisPlayer = tonumber(players[PlayerIndex][1])
+function WeaponHandler(PlayerIndex)
     if (player_alive(PlayerIndex)) then
         local player_object = get_dynamic_player(PlayerIndex)
         -- If already in vehicle when they level up, destroy the old one
@@ -950,6 +983,9 @@ function WeaponHandler(PlayerIndex, ThisPlayer)
                 timer(0, "DestroyVehicle", vehicle_Id)
             end
         end        
+        -- For Vehicle Exits
+        APPROPRIATE_ID = Level[players[PlayerIndex][1]][11]
+        
         if (Level[players[PlayerIndex][1]][12]) == 1 then
             -- remove weapon --
             local weaponId = read_dword(player_object + 0x118)
@@ -1185,6 +1221,7 @@ function LoadItems()
         shotgun_melee = get_tag_info("jpt!", "weapons\\shotgun\\melee")
         sniper_melee = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
         pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+        ghost_bolt = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
     end
 end
         
