@@ -660,9 +660,8 @@ function ctf_score(Player)
     timer(300, "delay_move", PlayerIndex)
 end
 
--- Player is ranking up do a Vehicle Level. If they score on a map where the flag is located 'inside' a building, 
--- move them outside the building upon leveling up. Otherwise they will get stuck inside the walls of the building.
-
+-- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building, 
+-- move them outside the building upon leveling up. Otherwise they might get stuck inside the walls of the building.
 function delay_move(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
