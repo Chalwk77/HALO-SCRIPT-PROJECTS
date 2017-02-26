@@ -944,6 +944,8 @@ function WeaponHandler(PlayerIndex)
                 if (tonumber(players[PlayerIndex][1]) == 8) then
                     -- Spawn in Rocket Hog as Gunner/Driver --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    --  Can't be higher than 0.3 otherwise players get stuck in walls.
                     added_height = 0.3
                     local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
@@ -951,12 +953,16 @@ function WeaponHandler(PlayerIndex)
                 else
                     -- handle other vehicle spawns --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    --  Can't be higher than 0.3 otherwise players get stuck in walls.
                     added_height = 0.3
                     local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
             else
                 local x, y, z = read_vector3d(player_object + 0x5c)
+                -- added_height (important for moving vehicle objects on scoring)
+                --  Can't be higher than 0.3 otherwise players get stuck in walls.
                 added_height = 0.3
                 local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                 enter_vehicle(vehicleId, PlayerIndex, 0)
