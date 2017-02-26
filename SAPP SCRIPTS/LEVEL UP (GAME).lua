@@ -673,57 +673,42 @@ function delay_move(PlayerIndex)
             player_obj_id = vehicleId
             if (map_name == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
-                    -- Outside Red Base
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + 0.50)
                 else
                     moveobject(vehicleId, 35.87, -70.73, 0.02 + 0.50)
                 end
-            end
-            if (map_name == "deathisland") then
-                    -- Outside Red Base
+            elseif (map_name == "deathisland") then
                 if inSphere(PlayerIndex, - 26.576030731201, - 6.9761986732483, 9.6631727218628, 3) == true then
                     moveobject(vehicleId, -30.59, -1.81, 9.43 + 0.50)
                 else
-                        -- Outside Blue Base
                     moveobject(vehicleId, 33.06, 11.04, 8.05 + 0.50)
                 end
-                if (map_name == "icefields") then
-                    -- Outside Red Base
-                    if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
-                        moveobject(vehicleId, 33.98, -25.61, 0.84 + 0.50)
-                    else
-                        -- Outside Blue Base
-                        moveobject(vehicleId, -86.37, 83.64, 0.87 + 0.50)
-                    end
+            elseif (map_name == "icefields") then
+                if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
+                    moveobject(vehicleId, 33.98, -25.61, 0.84 + 0.50)
+                else
+                    moveobject(vehicleId, -86.37, 83.64, 0.87 + 0.50)
                 end
-                if (map_name == "infinity") then
-                    -- Outside Red Base
-                    if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
-                        moveobject(vehicleId, 6.54, -160, 13.76 + 0.50)
-                    else
-                        -- Outside Blue Base
-                        moveobject(vehicleId, -6.23, 41.98, 10.48 + 0.50)
-                    end
+            elseif (map_name == "infinity") then
+                if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
+                    moveobject(vehicleId, 6.54, -160, 13.76 + 0.50)
+                else
+                    moveobject(vehicleId, -6.23, 41.98, 10.48 + 0.50)
                 end
-                if (map_name == "sidewinder") then
-                    -- Outside Red Base
-                    if inSphere(PlayerIndex, - 32.038200378418, - 42.066699981689, - 3.7000000476837, 3) == true then
-                        moveobject(vehicleId, -37.74, -28.78, -3.71 + 0.50)
-                    else
-                        -- Outside Blue Base
-                        moveobject(vehicleId, 323.67, -30.39, -3.68 + 0.50)
-                    end
+            elseif (map_name == "sidewinder") then
+                if inSphere(PlayerIndex, - 32.038200378418, - 42.066699981689, - 3.7000000476837, 3) == true then
+                    moveobject(vehicleId, -37.74, -28.78, -3.71 + 0.50)
+                else
+                    moveobject(vehicleId, 323.67, -30.39, -3.68 + 0.50)
                 end
-                if (map_name == "timberland") then
-                    -- Outside Red Base
-                    if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
-                        moveobject(vehicleId, 16.93, -43.98, -18.16 + 0.50)
-                    else
-                        -- Outside Blue Base
-                        moveobject(vehicleId, 3-15.02, 45.36, -18 + 0.50)
-                    end
+            elseif (map_name == "timberland") then
+                if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
+                    moveobject(vehicleId, 16.93, -43.98, -18.16 + 0.50)
+                else
+                    moveobject(vehicleId, 3-15.02, 45.36, -18 + 0.50)
                 end
             end
+            say(PlayerIndex, "Teleporting...")
         end
     end
 end
