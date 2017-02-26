@@ -78,24 +78,26 @@ DEATH_LOCATION = { }
 for i = 1, 16 do DEATH_LOCATION[i] = { } end
 vehi_type_id = "vehi"
 weap_type_id = "weap"
+-- Base 1 X,Y,Z, Base 2 X,Y,Z, Flag Location X,Y,Z
 FLAG["bloodgulch"] = { { 95.687797546387, - 159.44900512695, - 0.10000000149012 }, { 40.240600585938, - 79.123199462891, - 0.10000000149012 }, { 65.749893188477, - 120.40949249268, 0.11860413849354 } }
+FLAG["deathisland"] = { { - 26.576030731201, - 6.9761986732483, 9.6631727218628 }, { 29.843469619751, 15.971487045288, 8.2952880859375 }, { - 30.282138824463, 31.312761306763, 16.601940155029 } }
+FLAG["icefields"] = { { 24.85000038147, - 22.110000610352, 2.1110000610352 }, { - 77.860000610352, 86.550003051758, 2.1110000610352 }, { - 26.032163619995, 32.365093231201, 9.0070295333862 } }
+FLAG["infinity"] = { { 0.67973816394806, - 164.56719970703, 15.039022445679 }, { - 1.8581243753433, 47.779975891113, 11.791272163391 }, { 9.6316251754761, - 64.030670166016, 7.7762198448181 } }
+FLAG["sidewinder"] = { { - 32.038200378418, - 42.066699981689, - 3.7000000476837 }, { 30.351499557495, - 46.108001708984, - 3.7000000476837 }, { 2.0510597229004, 55.220195770264, - 2.8019363880157 } }
+FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }, { - 16.329900741577, 52.360000610352, - 17.741399765015 }, { 1.2504668235779, - 1.4873152971268, - 21.264007568359 } }
+
+FLAG["dangercanyon"] = { { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 }, { 12.007399559021, - 3.4513700008392, - 2.2418999671936 }, { - 0.47723594307899, 55.331966400146, 0.23940123617649 } }
 FLAG["beavercreek"] = { { 29.055599212646, 13.732000350952, - 0.10000000149012 }, { - 0.86037802696228, 13.764800071716, - 0.0099999997764826 }, { 14.01514339447, 14.238339424133, - 0.91193699836731 } }
 FLAG["boardingaction"] = { { 1.723109960556, 0.4781160056591, 0.60000002384186 }, { 18.204000473022, - 0.53684097528458, 0.60000002384186 }, { 4.3749675750732, - 12.832932472229, 7.2201852798462 } }
 FLAG["carousel"] = { { 5.6063799858093, - 13.548299789429, - 3.2000000476837 }, { - 5.7499198913574, 13.886699676514, - 3.2000000476837 }, { 0.033261407166719, 0.0034416019916534, - 0.85620224475861 } }
 FLAG["chillout"] = { { 7.4876899719238, - 4.49059009552, 2.5 }, { - 7.5086002349854, 9.750340461731, 0.10000000149012 }, { 1.392117857933, 4.7001452445984, 3.108856678009 } }
 FLAG["damnation"] = { { 9.6933002471924, - 13.340399742126, 6.8000001907349 }, { - 12.17884349823, 14.982703208923, - 0.20000000298023 }, { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 } }
-FLAG["dangercanyon"] = { { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 }, { 12.007399559021, - 3.4513700008392, - 2.2418999671936 }, { - 0.47723594307899, 55.331966400146, 0.23940123617649 } }
-FLAG["deathisland"] = { { - 26.576030731201, - 6.9761986732483, 9.6631727218628 }, { 29.843469619751, 15.971487045288, 8.2952880859375 }, { - 30.282138824463, 31.312761306763, 16.601940155029 } }
 FLAG["gephyrophobia"] = { { 26.884338378906, - 144.71551513672, - 16.049139022827 }, { 26.727857589722, 0.16621616482735, - 16.048349380493 }, { 63.513668060303, - 74.088592529297, - 1.0624552965164 } }
 FLAG["hangemhigh"] = { { 13.047902107239, 9.0331249237061, - 3.3619771003723 }, { 32.655700683594, - 16.497299194336, - 1.7000000476837 }, { 21.020147323608, - 4.6323413848877, - 4.2290902137756 } }
-FLAG["icefields"] = { { 24.85000038147, - 22.110000610352, 2.1110000610352 }, { - 77.860000610352, 86.550003051758, 2.1110000610352 }, { - 26.032163619995, 32.365093231201, 9.0070295333862 } }
-FLAG["infinity"] = { { 0.67973816394806, - 164.56719970703, 15.039022445679 }, { - 1.8581243753433, 47.779975891113, 11.791272163391 }, { 9.6316251754761, - 64.030670166016, 7.7762198448181 } }
 FLAG["longest"] = { { - 12.791899681091, - 21.6422996521, - 0.40000000596046 }, { 11.034700393677, - 7.5875601768494, - 0.40000000596046 }, { - 0.80207985639572, - 14.566205024719, 0.16665624082088 } }
 FLAG["prisoner"] = { { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 }, { 9.3676500320435, 5.1193399429321, 5.6999998092651 }, { 0.90271377563477, 0.088873945176601, 1.392499089241 } }
 FLAG["putput"] = { { - 18.89049911499, - 20.186100006104, 1.1000000238419 }, { 34.865299224854, - 28.194700241089, 0.10000000149012 }, { - 2.3500289916992, - 21.121452331543, 0.90232092142105 } }
 FLAG["ratrace"] = { { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 }, { 18.613000869751, - 22.652599334717, - 3.4000000953674 }, { 8.6629104614258, - 11.159770965576, 0.2217468470335 } }
-FLAG["sidewinder"] = { { - 32.038200378418, - 42.066699981689, - 3.7000000476837 }, { 30.351499557495, - 46.108001708984, - 3.7000000476837 }, { 2.0510597229004, 55.220195770264, - 2.8019363880157 } }
-FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }, { - 16.329900741577, 52.360000610352, - 17.741399765015 }, { 1.2504668235779, - 1.4873152971268, - 21.264007568359 } }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
 
 function LoadLarge()
@@ -341,6 +343,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- local player = get_player(PlayerIndex)
     -- write_dword(player + 0x2C, 1 * 33)
     ------------------------------------------
+    -- If victim was in a vehicle, destroy it...
+    local player_object = get_dynamic_player(victim)
+    if PlayerInVehicle(victim) then
+        if player_object ~= 0 then
+            vehicle_Id = read_dword(player_object + 0x11C)
+            timer(0, "DestroyVehicle", vehicle_Id)
+        end
+    end
     -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
         add_kill(killer)
@@ -634,10 +644,88 @@ function inSphere(PlayerIndex, x, y, z, radius)
     return false
 end
 
+function moveobject(ObjectID, x, y, z)
+    local object = get_object_memory(ObjectID)
+    if get_object_memory(ObjectID) ~= 0 then
+        local veh_obj = get_object_memory(read_dword(object + 0x11C))
+        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
+    end
+end
+
 function ctf_score(Player)
+    PlayerIndex = Player
     FlagHolder = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
+    timer(500, "delay_move", PlayerIndex)
+end
+
+-- Player is ranking up do a Vehicle Level. If they score on a map where the flag is located 'inside' a building, 
+-- move them outside the building upon leveling up. Otherwise they will get stuck inside the walls of the building.
+function delay_move(PlayerIndex)
+    if PlayerInVehicle(PlayerIndex) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
+        local seat = read_word(player_object + 0x2F0)
+        if (VehicleObj ~= 0) and (seat == 0) or (seat == 1) or (seat == 2) or (seat == 3) or (seat == 4) or (seat == 5) then
+            local vehicleId = read_dword(player_object + 0x11C)
+            player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+            player_obj_id = vehicleId
+            if (map_name == "bloodgulch") then
+                if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
+                    -- Outside Red Base
+                    moveobject(vehicleId, 95.01, -150.62, 0.07 + 0.50)
+                else
+                    moveobject(vehicleId, 35.87, -70.73, 0.02 + 0.50)
+                end
+            end
+            if (map_name == "deathisland") then
+                    -- Outside Red Base
+                if inSphere(PlayerIndex, - 26.576030731201, - 6.9761986732483, 9.6631727218628, 3) == true then
+                    moveobject(vehicleId, -30.59, -1.81, 9.43 + 0.50)
+                else
+                        -- Outside Blue Base
+                    moveobject(vehicleId, 33.06, 11.04, 8.05 + 0.50)
+                end
+                if (map_name == "icefields") then
+                    -- Outside Red Base
+                    if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
+                        moveobject(vehicleId, 33.98, -25.61, 0.84 + 0.50)
+                    else
+                        -- Outside Blue Base
+                        moveobject(vehicleId, -86.37, 83.64, 0.87 + 0.50)
+                    end
+                end
+                if (map_name == "infinity") then
+                    -- Outside Red Base
+                    if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
+                        moveobject(vehicleId, 6.54, -160, 13.76 + 0.50)
+                    else
+                        -- Outside Blue Base
+                        moveobject(vehicleId, -6.23, 41.98, 10.48 + 0.50)
+                    end
+                end
+                if (map_name == "sidewinder") then
+                    -- Outside Red Base
+                    if inSphere(PlayerIndex, - 32.038200378418, - 42.066699981689, - 3.7000000476837, 3) == true then
+                        moveobject(vehicleId, -37.74, -28.78, -3.71 + 0.50)
+                    else
+                        -- Outside Blue Base
+                        moveobject(vehicleId, 323.67, -30.39, -3.68 + 0.50)
+                    end
+                end
+                if (map_name == "timberland") then
+                    -- Outside Red Base
+                    if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
+                        moveobject(vehicleId, 16.93, -43.98, -18.16 + 0.50)
+                    else
+                        -- Outside Blue Base
+                        moveobject(vehicleId, 3-15.02, 45.36, -18 + 0.50)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
