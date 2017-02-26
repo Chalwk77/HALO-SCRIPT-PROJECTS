@@ -78,7 +78,7 @@ DEATH_LOCATION = { }
 for i = 1, 16 do DEATH_LOCATION[i] = { } end
 vehi_type_id = "vehi"
 weap_type_id = "weap"
--- Base 1 X,Y,Z, Base 2 X,Y,Z, Flag Location X,Y,Z
+-- Red Base, Blue Base, Flag Location
 FLAG["bloodgulch"] = { { 95.687797546387, - 159.44900512695, - 0.10000000149012 }, { 40.240600585938, - 79.123199462891, - 0.10000000149012 }, { 65.749893188477, - 120.40949249268, 0.11860413849354 } }
 FLAG["deathisland"] = { { - 26.576030731201, - 6.9761986732483, 9.6631727218628 }, { 29.843469619751, 15.971487045288, 8.2952880859375 }, { - 30.282138824463, 31.312761306763, 16.601940155029 } }
 FLAG["icefields"] = { { 24.85000038147, - 22.110000610352, 2.1110000610352 }, { - 77.860000610352, 86.550003051758, 2.1110000610352 }, { - 26.032163619995, 32.365093231201, 9.0070295333862 } }
@@ -155,6 +155,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+    register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
@@ -321,6 +322,16 @@ function flip_vehicle(Object)
         end
         write_vector3d(Object + 0x80, 0, 0, 1)
     end
+end
+
+function OnVehicleExit(PlayerIndex)
+    timer(1000*1, "Assign", PlayerIndex)
+end
+
+function Assign(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local x, y, z = read_vector3d(player_object + 0x5C)
+    local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
 end
 
 function WriteNavs(killer)
@@ -679,6 +690,9 @@ function delay_move(PlayerIndex)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
             local added_height = 0.3
+            
+            -- [!] -- Red Base, Blue Base
+            -- inSphere Red, else inSphere Blue base. 
             if (map_name == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
@@ -703,12 +717,16 @@ function delay_move(PlayerIndex)
                 else
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
+                
             elseif (map_name == "sidewinder") then
-                if inSphere(PlayerIndex, - 32.038200378418, - 42.066699981689, - 3.7000000476837, 3) == true then
-                    moveobject(vehicleId, -37.74, -28.78, -3.71 + added_height)
-                else
-                    moveobject(vehicleId, 323.67, -30.39, -3.68 + added_height)
+                -- RED BASE
+                if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
+                    moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
+                -- BLUE BASE
+                elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
+                    moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
+                
             elseif (map_name == "timberland") then
                 if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
                     moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
@@ -750,14 +768,12 @@ function RemoveSpawnProtect(PlayerIndex)
     return 0
 end
 
-function delay_weaps(PlayerIndex)
-    --  assign weapons or vehicle according to level --
+function delay_weapons(PlayerIndex)
     if (LargeMapConfiguration == true) then 
         WeaponHandler(PlayerIndex)
     elseif (LargeMapConfiguration == false) then
         WeaponHandlerAlternate(PlayerIndex)
     end
-    return 0
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -916,7 +932,8 @@ function DestroyVehicle(old_vehicle_id)
     return 0
 end
 
-function WeaponHandler(PlayerIndex)
+function WeaponHandler(PlayerIndex, ThisPlayer)
+    ThisPlayer = tonumber(players[PlayerIndex][1])
     if (player_alive(PlayerIndex)) then
         local player_object = get_dynamic_player(PlayerIndex)
         -- If already in vehicle when they level up, destroy the old one
@@ -949,6 +966,8 @@ function WeaponHandler(PlayerIndex)
                     added_height = 0.3
                     local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
+                    -- Creating two instances here because the player doesn't always spawn in the gunners seat. This seems to do the trick.
+                    enter_vehicle(vehicleId, PlayerIndex, 2)
                     enter_vehicle(vehicleId, PlayerIndex, 2)
                 else
                     -- handle other vehicle spawns --
