@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]
 
 api_version = "1.11.0.0"
-Starting_Level = 1 -- Must match beginning of level[#]
+Starting_Level = 6 -- Must match beginning of level[#]
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_duration = 20 -- in seconds
@@ -574,7 +574,7 @@ function MonitorLocation(PlayerIndex)
                 execute_command("camo " .. Player .. " " .. CAMO_TIME)
                 if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
                     ctf_score(Player)
-                    ResetSpeed(PlayerIndex)
+                    --ResetSpeed(PlayerIndex)
                     FlagHolder = nil
                     execute_command("msg_prefix \"\"")
                     say_all(get_var(Player, "$name") .. " scored a flag!")
@@ -591,7 +591,7 @@ function MonitorLocation(PlayerIndex)
         -- Reset --
         FlagHolder = nil
         -- No longer FlagHolder, reset their speed.
-        ResetSpeed(PlayerIndex)
+        --ResetSpeed(PlayerIndex)
     end
 end
 
@@ -657,11 +657,12 @@ function ctf_score(Player)
     FlagHolder = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
-    timer(500, "delay_move", PlayerIndex)
+    timer(300, "delay_move", PlayerIndex)
 end
 
 -- Player is ranking up do a Vehicle Level. If they score on a map where the flag is located 'inside' a building, 
 -- move them outside the building upon leveling up. Otherwise they will get stuck inside the walls of the building.
+
 function delay_move(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -671,44 +672,44 @@ function delay_move(PlayerIndex)
             local vehicleId = read_dword(player_object + 0x11C)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
+            local added_height = 0.3
             if (map_name == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
-                    moveobject(vehicleId, 95.01, -150.62, 0.07 + 0.50)
+                    moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
                 else
-                    moveobject(vehicleId, 35.87, -70.73, 0.02 + 0.50)
+                    moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
                 end
             elseif (map_name == "deathisland") then
                 if inSphere(PlayerIndex, - 26.576030731201, - 6.9761986732483, 9.6631727218628, 3) == true then
-                    moveobject(vehicleId, -30.59, -1.81, 9.43 + 0.50)
+                    moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
                 else
-                    moveobject(vehicleId, 33.06, 11.04, 8.05 + 0.50)
+                    moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
                 end
             elseif (map_name == "icefields") then
                 if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
-                    moveobject(vehicleId, 33.98, -25.61, 0.84 + 0.50)
+                    moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
                 else
-                    moveobject(vehicleId, -86.37, 83.64, 0.87 + 0.50)
+                    moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
                 end
             elseif (map_name == "infinity") then
                 if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
-                    moveobject(vehicleId, 6.54, -160, 13.76 + 0.50)
+                    moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
                 else
-                    moveobject(vehicleId, -6.23, 41.98, 10.48 + 0.50)
+                    moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
             elseif (map_name == "sidewinder") then
                 if inSphere(PlayerIndex, - 32.038200378418, - 42.066699981689, - 3.7000000476837, 3) == true then
-                    moveobject(vehicleId, -37.74, -28.78, -3.71 + 0.50)
+                    moveobject(vehicleId, -37.74, -28.78, -3.71 + added_height)
                 else
-                    moveobject(vehicleId, 323.67, -30.39, -3.68 + 0.50)
+                    moveobject(vehicleId, 323.67, -30.39, -3.68 + added_height)
                 end
             elseif (map_name == "timberland") then
                 if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
-                    moveobject(vehicleId, 16.93, -43.98, -18.16 + 0.50)
+                    moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
                 else
-                    moveobject(vehicleId, 3-15.02, 45.36, -18 + 0.50)
+                    moveobject(vehicleId, 3-15.02, 45.36, -18 + added_height)
                 end
             end
-            say(PlayerIndex, "Teleporting...")
         end
     end
 end
@@ -937,18 +938,21 @@ function WeaponHandler(PlayerIndex)
                 if (tonumber(players[PlayerIndex][1]) == 8) then
                     -- Spawn in Rocket Hog as Gunner/Driver --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
-                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                    added_height = 0.3
+                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     enter_vehicle(vehicleId, PlayerIndex, 2)
                 else
                     -- handle other vehicle spawns --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
-                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                    added_height = 0.3
+                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
             else
                 local x, y, z = read_vector3d(player_object + 0x5c)
-                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 1.5)
+                added_height = 0.3
+                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                 enter_vehicle(vehicleId, PlayerIndex, 0)
             end
         else
