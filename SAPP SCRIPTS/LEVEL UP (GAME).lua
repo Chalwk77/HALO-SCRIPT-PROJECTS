@@ -376,8 +376,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             last_damage[PlayerIndex] == rocket_melee or
             last_damage[PlayerIndex] == shotgun_melee or
             last_damage[PlayerIndex] == sniper_melee then
-            VICTIM_WAS_MELEED = true
             -- Player was melee'd, move them down a level
+            VICTIM_MELEE = tonumber(PlayerIndex)
+            VICTIM_WAS_MELEED = true
             cycle_level(victim, true) -- update, level down
         end
         -- Add kill to Killer | Check if victim was Flag Holder.
@@ -398,6 +399,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     -- SUICIDE --
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        VICTIM_SUICIDE = tonumber(PlayerIndex)
         -- Player Committed Suicide, move them down a level
         cycle_level(victim, true) -- update, level down
         if Spawn_Where_Killed == true then
@@ -433,16 +435,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function add_kill(killer, victim)
+    -- If the Flag Holder (victim) is killed, respawn the flag, but only if they died from being melee'd.
+    if (victim == CURRENT_FLAGGER) and (VICTIM_WAS_MELEED == true) then 
+        SPAWN_FLAG()
+        -- Reset -- 
+        VICTIM_WAS_MELEED = false
+    end
     -- add on a kill
     local kills = players[killer][2]
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        -- If the Flag Holder is killed, respawn the flag, but only if they died from being melee'd.
-        if (victim == CURRENT_FLAGGER) and (VICTIM_WAS_MELEED == true) then SPAWN_FLAG() end
-        -- Reset -- 
-        VICTIM_WAS_MELEED = false
-        if killer == CURRENT_FLAGGER then 
+        if (killer == CURRENT_FLAGGER) then 
             drop_weapon(killer)
             -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
@@ -829,7 +833,9 @@ function cycle_level(PlayerIndex, update, advance)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
-        if cur ==(#Level + 1) then
+        kills_remaining = tostring(Level[players[PlayerIndex][1]][4]) - 1
+        cprint(kills_remaining .. "/"..tostring(Level[players[PlayerIndex][1]][4]), 2+8)
+        if cur == (#Level + 1) then
             game_over = true
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -860,7 +866,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
         end
-        if current_Level ==(#Level + 1) then
+        if current_Level == (#Level + 1) then
             game_over = true
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -884,7 +890,13 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
-            rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
+            if (VICTIM_SUICIDE) then 
+                rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
+            elseif (VICTIM_MELEE) then
+                rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")            
+            else
+                rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
+            end
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
