@@ -962,7 +962,7 @@ function WeaponHandler(PlayerIndex, ThisPlayer)
                     -- Spawn in Rocket Hog as Gunner/Driver --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
-                    --  Can't be higher than 0.3 otherwise players get stuck in walls.
+                    --  Can't be higher than 0.3 otherwise players get stuck in walls on large maps when flag capturing and leveling up to a Vehicle Level.
                     added_height = 0.3
                     local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
