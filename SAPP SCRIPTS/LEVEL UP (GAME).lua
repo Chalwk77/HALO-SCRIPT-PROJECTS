@@ -252,14 +252,14 @@ function OnNewGame()
     if map_name == "bloodgulch" or map_name == "timberland"
         or map_name == "sidewinder" or map_name == "dangercanyon" or map_name == "deathisland"
         or map_name == "icefields" or map_name == "infinity" then
-        LargeConfiguration = true
+        LargeMapConfiguration = true
         LoadLarge()
     end
     if map_name == "beavercreek" or map_name == "boardingaction" or map_name == "carousel"
         or map_name == "chillout" or map_name == "damnation" or map_name == "gephyrophobia"
         or map_name == "hangemhigh" or map_name == "longest" or map_name == "prisoner"
         or map_name == "putput" or map_name == "ratrace" or map_name == "wizard" then
-        LargeConfiguration = false
+        LargeMapConfiguration = false
         LoadSmall()
     end
 end
@@ -353,8 +353,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
-        add_kill(killer)
-        --WriteNavs(killer)
         if last_damage[PlayerIndex] == assault_melee or
             last_damage[PlayerIndex] == ball_melee or
             last_damage[PlayerIndex] == flag_melee or
@@ -367,9 +365,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             last_damage[PlayerIndex] == rocket_melee or
             last_damage[PlayerIndex] == shotgun_melee or
             last_damage[PlayerIndex] == sniper_melee then
+            VICTIM_WAS_MELEED = true
             -- Player was melee'd, move them down a level
             cycle_level(victim, true) -- update, level down
         end
+        -- Add kill to Killer | Check if victim was Flag Holder.
+        add_kill(killer, victim)
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
@@ -420,28 +421,32 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     last_damage[PlayerIndex] = 0
 end
 
-function delay_score(id, count, PlayerIndex)
-    if PlayerIndex then
-        setscore(PlayerIndex, players[PlayerIndex][1])
-    end
-    return 0
-end
-
-function add_kill(killer)
+function add_kill(killer, victim)
     -- add on a kill
     local kills = players[killer][2]
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        if FlagHolder then 
+        -- If the Flag Holder is killed, respawn the flag, but only if they died from being melee'd.
+        if (victim == CURRENT_FLAGGER) and (VICTIM_WAS_MELEED == true) then SPAWN_FLAG() end
+        -- Reset -- 
+        VICTIM_WAS_MELEED = false
+        if killer == CURRENT_FLAGGER then 
             drop_weapon(killer)
-            -- Player Melee'd someone while holding the flag - delay scoring to avoid deleting the flag object on Level UP.
+            -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
         else
             -- PvP, level up (update, advance)
             cycle_level(killer, true, true)
         end
     end
+end
+
+function delay_score(id, count, PlayerIndex)
+    if PlayerIndex then
+        setscore(PlayerIndex, players[PlayerIndex][1])
+    end
+    return 0
 end
 
 function delay_cycle(killer)
@@ -505,10 +510,11 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
+        execute_command("s me 1")
         --  assign weapons or vehicle according to level --
-        if (LargeConfiguration == true) then 
+        if (LargeMapConfiguration == true) then 
             WeaponHandler(PlayerIndex)
-        elseif (LargeConfiguration == false) then
+        elseif (LargeMapConfiguration == false) then
             WeaponHandlerAlternate(PlayerIndex)
         end
         --  Setup Invulnerable Timer --
@@ -566,15 +572,16 @@ end
 
 -- Monitor flag holders location.
 function MonitorLocation(PlayerIndex)
-    local Player = tonumber(FlagHolder)
+    Player = tonumber(FlagHolder)
     if (FlagHolder ~= nil) then
         if player_alive(FlagHolder) then
             if (FlagHolder) and not (dropped) then
                 execute_command("s " .. Player .. " :" .. FLAG_SPEED)
                 execute_command("camo " .. Player .. " " .. CAMO_TIME)
+                CURRENT_FLAGGER = tonumber(FlagHolder)
                 if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
                     ctf_score(Player)
-                    --ResetSpeed(PlayerIndex)
+                    ResetSpeed(PlayerIndex)
                     FlagHolder = nil
                     execute_command("msg_prefix \"\"")
                     say_all(get_var(Player, "$name") .. " scored a flag!")
@@ -591,7 +598,7 @@ function MonitorLocation(PlayerIndex)
         -- Reset --
         FlagHolder = nil
         -- No longer FlagHolder, reset their speed.
-        --ResetSpeed(PlayerIndex)
+        ResetSpeed(PlayerIndex)
     end
 end
 
@@ -745,9 +752,9 @@ end
 
 function delay_weaps(PlayerIndex)
     --  assign weapons or vehicle according to level --
-    if (LargeConfiguration == true) then 
+    if (LargeMapConfiguration == true) then 
         WeaponHandler(PlayerIndex)
-    elseif (LargeConfiguration == false) then
+    elseif (LargeMapConfiguration == false) then
         WeaponHandlerAlternate(PlayerIndex)
     end
     return 0
@@ -876,9 +883,9 @@ function cycle_level(PlayerIndex, update, advance)
     end
     --  assign weapons or vehicle according to level --
     if not game_over then
-        if (LargeConfiguration == true) then 
+        if (LargeMapConfiguration == true) then 
             WeaponHandler(PlayerIndex)
-        elseif (LargeConfiguration == false) then
+        elseif (LargeMapConfiguration == false) then
             WeaponHandlerAlternate(PlayerIndex)
         end
         -- Reset Kills --
