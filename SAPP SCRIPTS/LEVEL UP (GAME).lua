@@ -68,7 +68,7 @@ PowerUpSettings = {
 }
 rider_ejection = nil
 object_table_ptr = nil
-FlagHolder = nil
+CURRENT_FLAG_HOLDER = nil
 FLAG = { }
 players = { }
 last_damage = { }
@@ -142,7 +142,6 @@ function LoadSmall()
     end
 end  
      
-
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
@@ -161,7 +160,7 @@ function OnScriptLoad()
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     LoadItems()
-    map_name = get_var(1, "$map")
+    MAP_NAME = get_var(1, "$map")
     -- Check if valid GameType
     CheckType()
     gametype = get_var(0, "$gt")
@@ -210,7 +209,7 @@ function OnScriptUnload()
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
-    FlagHolder = nil
+    CURRENT_FLAG_HOLDER = nil
     if (halo_type == "CE") then -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
@@ -241,7 +240,7 @@ function OnNewGame()
     game_over = false
     CheckType()
     LoadItems()
-    map_name = get_var(1, "$map")
+    MAP_NAME = get_var(1, "$map")
     gametype = get_var(0, "$gt")
     for i = 1, 16 do
         if player_present(i) then
@@ -250,16 +249,16 @@ function OnNewGame()
     end
     if CTF_ENABLED == true then SPAWN_FLAG() end
     GameHasStarted = true
-    if map_name == "bloodgulch" or map_name == "timberland"
-        or map_name == "sidewinder" or map_name == "dangercanyon" or map_name == "deathisland"
-        or map_name == "icefields" or map_name == "infinity" then
+    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland"
+        or MAP_NAME == "sidewinder" or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland"
+        or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
         LargeMapConfiguration = true
         LoadLarge()
     end
-    if map_name == "beavercreek" or map_name == "boardingaction" or map_name == "carousel"
-        or map_name == "chillout" or map_name == "damnation" or map_name == "gephyrophobia"
-        or map_name == "hangemhigh" or map_name == "longest" or map_name == "prisoner"
-        or map_name == "putput" or map_name == "ratrace" or map_name == "wizard" then
+    if MAP_NAME == "beavercreek" or MAP_NAME == "boardingaction" or MAP_NAME == "carousel"
+        or MAP_NAME == "chillout" or MAP_NAME == "damnation" or MAP_NAME == "gephyrophobia"
+        or MAP_NAME == "hangemhigh" or MAP_NAME == "longest" or MAP_NAME == "prisoner"
+        or MAP_NAME == "putput" or MAP_NAME == "ratrace" or MAP_NAME == "wizard" then
         LargeMapConfiguration = false
         LoadSmall()
     end
@@ -270,7 +269,7 @@ function OnGameEnd()
     Level = { }
     rider_ejection = nil
     object_table_ptr = nil
-    FlagHolder = nil
+    CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
@@ -280,8 +279,8 @@ function OnGameEnd()
 end
 
 function SPAWN_FLAG()
-    map_name = get_var(1, "$map")
-    local t = FLAG[map_name][3]
+    MAP_NAME = get_var(1, "$map")
+    local t = FLAG[MAP_NAME][3]
     -- Spawn flag at x,y,z
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
 end
@@ -377,8 +376,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             last_damage[PlayerIndex] == shotgun_melee or
             last_damage[PlayerIndex] == sniper_melee then
             -- Player was melee'd, move them down a level
-            VICTIM_MELEE = tonumber(PlayerIndex)
-            VICTIM_WAS_MELEED = true
+            MELEE_VICTIM = tonumber(PlayerIndex)
+            --VICTIM_WAS_MELEED = true
             cycle_level(victim, true) -- update, level down
         end
         -- Add kill to Killer | Check if victim was Flag Holder.
@@ -436,17 +435,15 @@ end
 
 function add_kill(killer, victim)
     -- If the Flag Holder (victim) is killed, respawn the flag, but only if they died from being melee'd.
-    if (victim == CURRENT_FLAGGER) and (VICTIM_WAS_MELEED == true) then 
+    if (victim == CURRENT_FLAG_HOLDER) and (victim == MELEE_VICTIM) then
         SPAWN_FLAG()
-        -- Reset -- 
-        VICTIM_WAS_MELEED = false
     end
     -- add on a kill
     local kills = players[killer][2]
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        if (killer == CURRENT_FLAGGER) then 
+        if (killer == CURRENT_FLAG_HOLDER) then 
             drop_weapon(killer)
             -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
@@ -525,7 +522,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
-        execute_command("s me 1")
+        default_speed = 1
+        execute_command("s " .. PlayerIndex .. " :" .. default_speed)
         --  assign weapons or vehicle according to level --
         if (LargeMapConfiguration == true) then 
             WeaponHandler(PlayerIndex)
@@ -557,15 +555,15 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
             local MetaID = read_dword(weapon_object)
             if (MetaID ~= nil) then
                 if (MetaID == flag_id) then
-                    dropped = false
-                    FlagHolder = PlayerIndex
+                    DROPPED = false
+                    CURRENT_FLAG_HOLDER = tonumber(PlayerIndex)
                     MonitorLocation(PlayerIndex)
-                    rprint(FlagHolder, "|cReturn the flag to a base to gain an instant level!")
-                    rprint(FlagHolder, "|c")
-                    rprint(FlagHolder, "|c")
-                    rprint(FlagHolder, "|c")
-                    rprint(FlagHolder, "|c")
-                    SayToAll(get_var(PlayerIndex, "$name") .. " has the flag!", PlayerIndex)
+                    rprint(CURRENT_FLAG_HOLDER, "|cReturn the flag to a base to gain an instant level!")
+                    rprint(CURRENT_FLAG_HOLDER, "|c")
+                    rprint(CURRENT_FLAG_HOLDER, "|c")
+                    rprint(CURRENT_FLAG_HOLDER, "|c")
+                    rprint(CURRENT_FLAG_HOLDER, "|c")
+                    SayToAll(get_var(CURRENT_FLAG_HOLDER, "$name") .. " has the flag!", PlayerIndex)
                     -- Prevent them from dropping the flag
                     for i = 1, 16 do
                         if get_player(i) then
@@ -580,39 +578,34 @@ end
 
 function OnWeaponDrop(PlayerIndex)
     if player_alive(PlayerIndex) then
-        dropped = true
-        FlagHolder = nil
+        DROPPED = true
+        CURRENT_FLAG_HOLDER = nil
     end
 end
 
 -- Monitor flag holders location.
 function MonitorLocation(PlayerIndex)
-    Player = tonumber(FlagHolder)
-    if (FlagHolder ~= nil) then
-        if player_alive(FlagHolder) then
-            if (FlagHolder) and not (dropped) then
-                execute_command("s " .. Player .. " :" .. FLAG_SPEED)
-                execute_command("camo " .. Player .. " " .. CAMO_TIME)
-                CURRENT_FLAGGER = tonumber(FlagHolder)
-                if inSphere(PlayerIndex, FLAG[map_name][1][1], FLAG[map_name][1][2], FLAG[map_name][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[map_name][2][1], FLAG[map_name][2][2], FLAG[map_name][2][3], Check_Radius) == true then
-                    ctf_score(Player)
+    if (CURRENT_FLAG_HOLDER ~= nil) then
+        if player_alive(CURRENT_FLAG_HOLDER) then
+            if not (DROPPED) then
+                execute_command("s " .. CURRENT_FLAG_HOLDER .. " :" .. FLAG_SPEED)
+                execute_command("camo " .. CURRENT_FLAG_HOLDER .. " " .. CAMO_TIME)
+                if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
+                    ctf_score(CURRENT_FLAG_HOLDER)
                     ResetSpeed(PlayerIndex)
-                    FlagHolder = nil
                     execute_command("msg_prefix \"\"")
-                    say_all(get_var(Player, "$name") .. " scored a flag!")
+                    say_all(get_var(PlayerIndex, "$name") .. " scored a flag!")
                     execute_command("msg_prefix \"** SERVER ** \"")
+                    CURRENT_FLAG_HOLDER = nil
                 end
                 -- Monitor flag holders location. (loop until flag is captured, flag is dropped, or flag holder dies)
                 timer(Check_Time, "MonitorLocation", PlayerIndex)
             end
-        else
-            -- Reset --
-            FlagHolder = nil
+        else -- Reset --
+            CURRENT_FLAG_HOLDER = nil
         end
-    else
-        -- Reset --
-        FlagHolder = nil
-        -- No longer FlagHolder, reset their speed.
+    else -- Reset --
+        CURRENT_FLAG_HOLDER = nil
         ResetSpeed(PlayerIndex)
     end
 end
@@ -676,7 +669,7 @@ end
 
 function ctf_score(Player)
     PlayerIndex = Player
-    FlagHolder = nil
+    CURRENT_FLAG_HOLDER = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
     timer(300, "delay_move", PlayerIndex)
@@ -694,35 +687,34 @@ function delay_move(PlayerIndex)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
             local added_height = 0.3
-            
             -- [!] -- Red Base, Blue Base
             -- inSphere Red, else inSphere Blue base. 
-            if (map_name == "bloodgulch") then
+            if (MAP_NAME == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
                 else
                     moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
                 end
-            elseif (map_name == "deathisland") then
+            elseif (MAP_NAME == "deathisland") then
                 if inSphere(PlayerIndex, - 26.576030731201, - 6.9761986732483, 9.6631727218628, 3) == true then
                     moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
                 else
                     moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
                 end
-            elseif (map_name == "icefields") then
+            elseif (MAP_NAME == "icefields") then
                 if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
                     moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
                 else
                     moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
                 end
-            elseif (map_name == "infinity") then
+            elseif (MAP_NAME == "infinity") then
                 if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
                     moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
                 else
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
                 
-            elseif (map_name == "sidewinder") then
+            elseif (MAP_NAME == "sidewinder") then
                 -- RED BASE
                 if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
                     moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
@@ -731,7 +723,7 @@ function delay_move(PlayerIndex)
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
                 
-            elseif (map_name == "timberland") then
+            elseif (MAP_NAME == "timberland") then
                 if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
                     moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
                 else
@@ -833,8 +825,6 @@ function cycle_level(PlayerIndex, update, advance)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
-        kills_remaining = tostring(Level[players[PlayerIndex][1]][4]) - 1
-        cprint(kills_remaining .. "/"..tostring(Level[players[PlayerIndex][1]][4]), 2+8)
         if cur == (#Level + 1) then
             game_over = true
             -- ON WIN --
@@ -890,9 +880,9 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
-            if (VICTIM_SUICIDE) then 
+            if (PlayerIndex == VICTIM_SUICIDE) then 
                 rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
-            elseif (VICTIM_MELEE) then
+            elseif (PlayerIndex == MELEE_VICTIM) then 
                 rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")            
             else
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
