@@ -414,6 +414,20 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
+    
+        -- TO DO:
+        -- Display kills remaining except for level 1, or the last kill required. 
+        -- Level one only requires 1 kill. Once you kill someone it shows the LEVEL UP message anyway.
+        -- Last kill required for any level will show the LEVEL UP message also, so ignore last kill.
+        -- Also ignore last kill on level 10 (game over)
+
+        --  Scenario: 
+        --  Assuming they're Level 5
+        --  Player kills 2 people, show the following output: 
+        --  Kills Remaining: 2/5
+        --  Ignore 5th Kill because the LEVEL UP message will be displayed.
+        --  Ignore kill number 55 (level 10 - game over)
+        
         if last_damage[PlayerIndex] == assault_melee or
             last_damage[PlayerIndex] == ball_melee or
             last_damage[PlayerIndex] == flag_melee or
