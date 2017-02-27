@@ -312,27 +312,26 @@ function CheckPlasmas(PlayerIndex)
 end
 
 function OnTick()
-    for j = 1 , 16 do
-        if (player_alive(j)) then
-            if FRAG_CHECK[j] and CheckFrags(j) == true then
-                FRAG_CHECK[j] = nil
-                execute_command("msg_prefix \"\"")
-                say(j, "Woah! You're out of frag grenades!")
-                execute_command("msg_prefix \"** SERVER ** \"")
-            elseif CheckFrags(j) and FRAG_CHECK[j] == nil then
-                FRAG_CHECK[j] = false
-            end
-            if PLASMA_CHECK[j] and CheckPlasmas(j) == false then
-                PLASMA_CHECK[j] = nil
-                execute_command("msg_prefix \"\"")
-                say(j, "Woah! You're out of plasma grenades!")
-                execute_command("msg_prefix \"** SERVER ** \"")
-            elseif CheckPlasmas(j) and PLASMA_CHECK[j] == nil then
-                PLASMA_CHECK[j] = false
-            end
-            
-        end
-    end
+    -- for j = 1 , 16 do
+        -- if (player_alive(j)) then
+            -- if FRAG_CHECK[j] and CheckFrags(j) == true then
+                -- FRAG_CHECK[j] = nil
+                -- execute_command("msg_prefix \"\"")
+                -- say(j, "Woah! You're out of frag grenades!")
+                -- execute_command("msg_prefix \"** SERVER ** \"")
+            -- elseif CheckFrags(j) and FRAG_CHECK[j] == nil then
+                -- FRAG_CHECK[j] = false
+            -- end
+            -- if PLASMA_CHECK[j] and CheckPlasmas(j) == false then
+                -- PLASMA_CHECK[j] = nil
+                -- execute_command("msg_prefix \"\"")
+                -- say(j, "Woah! You're out of plasma grenades!")
+                -- execute_command("msg_prefix \"** SERVER ** \"")
+            -- elseif CheckPlasmas(j) and PLASMA_CHECK[j] == nil then
+                -- PLASMA_CHECK[j] = false
+            -- end
+        -- end
+    -- end
     -- Giraffe's Fucntion --
     if (PLAYER_VEHICLES_ONLY) then
         for i = 1, 16 do
@@ -615,11 +614,11 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     rprint(CURRENT_FLAG_HOLDER, "|c")
                     SayToAll(get_var(CURRENT_FLAG_HOLDER, "$name") .. " has the flag!", PlayerIndex)
                     -- Prevent them from dropping the flag
-                    for i = 1, 16 do
-                        if get_player(i) then
-                            write_word(player_object + 0x88, PlayerIndex)
-                        end
-                    end
+                    -- for i = 1, 16 do
+                        -- if get_player(i) then
+                            -- write_word(player_object + 0x88, PlayerIndex)
+                        -- end
+                    -- end
                 end
             end
         end
