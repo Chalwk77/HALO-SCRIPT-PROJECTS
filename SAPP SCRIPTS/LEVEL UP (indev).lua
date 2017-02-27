@@ -383,6 +383,7 @@ function OnVehicleExit(PlayerIndex)
     end
 end
 
+-- For a future update
 function WriteNavs(killer)
     for i = 1, 16 do
         if getplayer(i) then
