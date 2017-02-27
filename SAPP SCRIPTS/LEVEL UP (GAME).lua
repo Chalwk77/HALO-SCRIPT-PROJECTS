@@ -224,6 +224,16 @@ function WelcomeHandler(PlayerIndex)
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats to view your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
+    if (LargeMapConfiguration == true) then
+        timer(1000*5, "Vehicle_Level_Info", PlayerIndex)
+    end
+end
+
+function Vehicle_Level_Info(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "If you're level 7+ and you exit the vehicle,")
+    say(PlayerIndex, '"You can type "/enter me" to enter your previous vehicle')
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function InfoHandler(PlayerIndex)
@@ -247,9 +257,8 @@ function OnNewGame()
     end
     if CTF_ENABLED == true then SPAWN_FLAG() end
     GameHasStarted = true
-    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland"
-        or MAP_NAME == "sidewinder" or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland"
-        or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
+    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder" 
+    or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
         LargeMapConfiguration = true
         LoadLarge()
     end
@@ -283,7 +292,47 @@ function SPAWN_FLAG()
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
 end
 
+FRAG_CHECK = {}
+PLASMA_CHECK = {}
+
+function CheckFrags(PlayerIndex)
+    local plasma_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    local frags = read_byte(player_object + 0x52C)
+    if tonumber(frags) == 0 then plasma_bool = true end
+    return plasma_bool
+end
+
+function CheckPlasmas(PlayerIndex)
+    local frag_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    local plasmas = read_byte(player_object + 0x52D)
+    if tonumber(plasmas) == 0 then frag_bool = true end
+    return frag_bool
+end
+
 function OnTick()
+    for j = 1 , 16 do
+        if (player_alive(j)) then
+            if FRAG_CHECK[j] and CheckFrags(j) == true then
+                FRAG_CHECK[j] = nil
+                execute_command("msg_prefix \"\"")
+                say(j, "Woah! You're out of frag grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            elseif CheckFrags(j) and FRAG_CHECK[j] == nil then
+                FRAG_CHECK[j] = false
+            end
+            if PLASMA_CHECK[j] and CheckPlasmas(j) == false then
+                PLASMA_CHECK[j] = nil
+                execute_command("msg_prefix \"\"")
+                say(j, "Woah! You're out of plasma grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            elseif CheckPlasmas(j) and PLASMA_CHECK[j] == nil then
+                PLASMA_CHECK[j] = false
+            end
+            
+        end
+    end
     -- Giraffe's Fucntion --
     if (PLAYER_VEHICLES_ONLY) then
         for i = 1, 16 do
@@ -329,7 +378,8 @@ function OnVehicleExit(PlayerIndex)
         exit_vehicle(PlayerIndex)
         timer(1000*2, "DestroyVehicle", vehicle_Id)
         execute_command("msg_prefix \"\"")
-        say(PlayerIndex, 'Type "/enter me" to enter your previous vehicle.')
+        local name = get_var(PlayerIndex, "$name")
+        say(PlayerIndex, name ..', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
@@ -523,8 +573,6 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
-        default_speed = 1
-        execute_command("s " .. PlayerIndex .. " :" .. default_speed)
         --  assign weapons or vehicle according to level --
         if (LargeMapConfiguration == true) then 
             WeaponHandler(PlayerIndex)
@@ -821,32 +869,38 @@ function OnServerCommand(PlayerIndex, Command)
             end
             elseif tonumber(get_var(PlayerIndex, "$lvl")) >= 0 and (t[1] == string.lower("enter")) then
                 response = false
-                if PlayerInVehicle(PlayerIndex) then
-                    rprint(PlayerIndex, "You're already in a vehicle!")
-                else
-                    if t[2] ~= nil then
-                        if t[2] == "me" then
-                            local player_object = get_dynamic_player(PlayerIndex)
-                            local x, y, z = read_vector3d(player_object + 0x5c)
-                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
-                            if (CURRENT_LEVEL <= 6) then 
-                                rprint(PlayerIndex, "You're not allowed to enter a vehicle. You're only level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-                                rprint(PlayerIndex, "You must be level 8 or higher!")
-                            elseif (CURRENT_LEVEL == 8) then
-                                -- Rocket Hog (Gunner & Drivers Seat)
-                                enter_vehicle(vehicleId, PlayerIndex, 0)
-                                enter_vehicle(vehicleId, PlayerIndex, 2)
-                                enter_vehicle(vehicleId, PlayerIndex, 2)
+                if (LargeMapConfiguration == true) then
+                    if PlayerInVehicle(PlayerIndex) then
+                        rprint(PlayerIndex, "You're already in a vehicle!")
+                    else
+                        if t[2] ~= nil then
+                            if t[2] == "me" then
+                                local player_object = get_dynamic_player(PlayerIndex)
+                                local x, y, z = read_vector3d(player_object + 0x5c)
+                                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                                if (CURRENT_LEVEL <= 6) then 
+                                    rprint(PlayerIndex, "You're not allowed to enter a vehicle. You're only level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+                                    rprint(PlayerIndex, "You must be level 8 or higher!")
+                                elseif (CURRENT_LEVEL == 8) then
+                                    -- Rocket Hog (Gunner & Drivers Seat)
+                                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                                    enter_vehicle(vehicleId, PlayerIndex, 2)
+                                    enter_vehicle(vehicleId, PlayerIndex, 2)
+                                    rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
+                                else
+                                    -- All other vehicles.
+                                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                                    rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
+                                end
                             else
-                                -- All other vehicles.
-                                enter_vehicle(vehicleId, PlayerIndex, 0)
+                                rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                             end
                         else
                             rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                         end
-                    else
-                        rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                     end
+                else
+                    rprint(PlayerIndex, "This map is not set up for vehicles!")
                 end
             end
         end
