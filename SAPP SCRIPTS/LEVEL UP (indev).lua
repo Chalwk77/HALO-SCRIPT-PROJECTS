@@ -416,12 +416,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
     
         -- TO DO:
-        -- Display kills remaining except for Level [1] + ignore last kill for all other levels. 
+        -- Display kill counter except for Level [1] + ignore last kill for all other levels. 
         
         --  Scenario: 
         --  Assuming they're Level 5
         --  Player kills 2 people, show the following output: 
+        --  Player kills 3 people, show the following output: 
+        --  Kills Remaining: 3/5
         --  Kills Remaining: 2/5
+        
+        --  Player hasn't killed anyone yet, show the following output: 
+        --  Kills Remaining: 5/5
+        
         --  Ignore 5th Kill because the LEVEL UP message will be displayed, and so on.
         
         if last_damage[PlayerIndex] == assault_melee or
