@@ -72,7 +72,7 @@ weap_type_id = "weap"
 eqip_type_id = "eqip"
 vehi_type_id = "vehi"
 
--- Objects to drop when someone dies
+-- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
 EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo!" }
 EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo!" }
 EQUIPMENT_TABLE[3] = { "powerups\\pistol ammo\\pistol ammo", "Pistol Ammo!" }
@@ -83,7 +83,7 @@ EQUIPMENT_TABLE[7] = { "powerups\\flamethrower ammo\\flamethrower ammo", "Flamet
 EQUIPMENT_TABLE[8] = { "powerups\\active camouflage", "Camouflage!" }
 EQUIPMENT_TABLE[9] = { "powerups\\health pack", "Health Pack!" }
 EQUIPMENT_TABLE[10] = { "powerups\\over shield", "Overshield!" }
--- Objects to drop when someone dies
+-- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
 WEAPON_TABLE[1] = { "weapons\\shotgun\\shotgun", "Shotgun!" }
 WEAPON_TABLE[2] = { "weapons\\assault rifle\\assault rifle", "Assault Rifle!" }
 WEAPON_TABLE[3] = { "weapons\\pistol\\pistol", "Pistol!" }
