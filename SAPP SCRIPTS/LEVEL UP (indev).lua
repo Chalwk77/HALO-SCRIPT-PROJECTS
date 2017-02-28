@@ -318,10 +318,6 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
-function dosomething(PlayerIndex)
-    cprint("doing something", 2+8)
-end
-
 function RewardPlayer(PlayerIndex)
     -- for a future update --
 end
