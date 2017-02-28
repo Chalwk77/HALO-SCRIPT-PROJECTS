@@ -618,7 +618,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     rprint(CURRENT_FLAG_HOLDER, "|c")
                     rprint(CURRENT_FLAG_HOLDER, "|c")
                     SayToAll(get_var(CURRENT_FLAG_HOLDER, "$name") .. " has the flag!", PlayerIndex)
-                    -- Prevent them from dropping the flag
+                    -- Prevent them from dropping the flag + add navs
                     -- for i = 1, 16 do
                         -- if get_player(i) then
                             -- write_word(player_object + 0x88, PlayerIndex)
