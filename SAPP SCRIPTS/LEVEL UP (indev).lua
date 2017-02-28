@@ -562,6 +562,7 @@ function OnPlayerLeave(PlayerIndex)
         -- reset death location --
         DEATH_LOCATION[PlayerIndex][i] = nil
     end
+    -- destroy vehicle --
     if vehicleId ~= nil then
         timer(0, "DestroyVehicle", vehicleId)
     end
