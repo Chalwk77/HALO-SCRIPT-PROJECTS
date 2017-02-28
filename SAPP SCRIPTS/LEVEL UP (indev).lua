@@ -10,7 +10,7 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of a progression based game (for Phasor V2+) by OZ Clan
+* This is my extension of a "progression based game" that was for Phasor, by OZ Clan
 * Written by Jericho Crosby (Chalwk)
 ]]
 
