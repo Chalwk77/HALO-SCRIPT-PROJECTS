@@ -735,13 +735,13 @@ function delay_move(PlayerIndex)
         local player_object = get_dynamic_player(PlayerIndex)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
         local seat = read_word(player_object + 0x2F0)
-        if (VehicleObj ~= 0) and (seat == 0) or (seat == 1) or (seat == 2) or (seat == 3) or (seat == 4) or (seat == 5) then
+        if (VehicleObj ~= 0) and (seat == 1) or (seat == 2) or (seat == 3) or (seat == 4) or (seat == 5) then
             local vehicleId = read_dword(player_object + 0x11C)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
             local added_height = 0.3
             -- [!] -- Red Base, Blue Base
-            -- inSphere Red, else inSphere Blue base. 
+            -- inSphere Red, else inSphere Blue base
             if (MAP_NAME == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
