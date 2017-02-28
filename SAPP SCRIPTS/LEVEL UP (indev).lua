@@ -563,7 +563,7 @@ function OnPlayerLeave(PlayerIndex)
         DEATH_LOCATION[PlayerIndex][i] = nil
     end
     if vehicleId ~= nil then
-        timer(1000*2, "DestroyVehicle", vehicleId)
+        timer(0, "DestroyVehicle", vehicleId)
     end
 end
 
