@@ -306,43 +306,43 @@ function SPAWN_FLAG()
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
 end
 
-function CheckFrags(PlayerIndex)
+function FragCheck(PlayerIndex)
     local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
-    local frags = read_byte(player_object + 0x52C)
-    if tonumber(frags) == 0 then plasma_bool = true end
-    return plasma_bool
+    local frags = read_byte(player_object + 0x31E)
+    if tonumber(frags) <= 0 then return true end
+    return false
 end
 
-function CheckPlasmas(PlayerIndex)
-    local frag_bool = false
+function PlasmaCheck(PlayerIndex)
+    local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
-    local plasmas = read_byte(player_object + 0x52D)
-    if tonumber(plasmas) == 0 then frag_bool = true end
-    return frag_bool
+    local plasmas = read_byte(player_object + 0x31F)
+    if tonumber(plasmas) <= 0 then return true end
+    return false
 end
 
 function OnTick()
-    -- for j = 1 , 16 do
-        -- if (player_alive(j)) then
-            -- if FRAG_CHECK[j] and CheckFrags(j) == true then
-                -- FRAG_CHECK[j] = nil
-                -- execute_command("msg_prefix \"\"")
-                -- say(j, "Woah! You're out of frag grenades!")
-                -- execute_command("msg_prefix \"** SERVER ** \"")
-            -- elseif CheckFrags(j) and FRAG_CHECK[j] == nil then
-                -- FRAG_CHECK[j] = false
-            -- end
-            -- if PLASMA_CHECK[j] and CheckPlasmas(j) == false then
-                -- PLASMA_CHECK[j] = nil
-                -- execute_command("msg_prefix \"\"")
-                -- say(j, "Woah! You're out of plasma grenades!")
-                -- execute_command("msg_prefix \"** SERVER ** \"")
-            -- elseif CheckPlasmas(j) and PLASMA_CHECK[j] == nil then
-                -- PLASMA_CHECK[j] = false
-            -- end
-        -- end
-    -- end
+    for j = 1 , 16 do
+        if (player_alive(j)) then
+            if FRAG_CHECK[j] and FragCheck(j) == false then
+                FRAG_CHECK[j] = nil
+            elseif FragCheck(j) and FRAG_CHECK[j] == nil then
+                execute_command("msg_prefix \"\"")
+                say(j, "Woah! You're out of frag grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+                FRAG_CHECK[j] = false
+            end
+            if PLASMA_CHECK[j] and PlasmaCheck(j) == false then
+                PLASMA_CHECK[j] = nil
+            elseif PlasmaCheck(j) and PLASMA_CHECK[j] == nil then
+                execute_command("msg_prefix \"\"")
+                say(j, "Woah! You're out of plasma grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+                PLASMA_CHECK[j] = false
+            end
+        end
+    end
     -- Giraffe's Fucntion --
     if (PLAYER_VEHICLES_ONLY) then
         for i = 1, 16 do
@@ -420,17 +420,6 @@ function AssignTemp(PlayerIndex)
     local x, y, z = read_vector3d(player_object + 0x5C)
     local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
     local weapid = assign_weapon(spawn_object("weap", "weapons\\shotgun\\shotgun", x, y, z + 0.5), PlayerIndex)
-    -- write nades --
-    local nades_tbl = NadeID
-    if nades_tbl then
-        safe_write(true)
-        local PLAYER = get_dynamic_player(PlayerIndex)
-        -- Frags
-        write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
-        -- Plasmas
-        write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
-        safe_write(false)
-    end
 end
         
 -- For a future update
@@ -1203,6 +1192,8 @@ function WeaponHandler(PlayerIndex)
             -- write nades --
             local nades_tbl = Level[players[PlayerIndex][1]][5]
             if nades_tbl then
+                FRAG_CHECK[PlayerIndex] = true
+                PLASMA_CHECK[PlayerIndex] = true
                 safe_write(true)
                 local PLAYER = get_dynamic_player(PlayerIndex)
                 -- Frags
@@ -1238,6 +1229,8 @@ function WeaponHandlerAlternate(PlayerIndex)
         -- write nades --
         local nades_tbl = Level[players[PlayerIndex][1]][5]
         if nades_tbl then
+            FRAG_CHECK[PlayerIndex] = true
+            PLASMA_CHECK[PlayerIndex] = true
             safe_write(true)
             local PLAYER = get_dynamic_player(PlayerIndex)
             -- Frags
