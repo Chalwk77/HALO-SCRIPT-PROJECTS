@@ -791,13 +791,16 @@ end
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     damage_applied[PlayerIndex] = MetaID
     if MetaID == VEHICLE_GHOST_BOLT then
+        -- Double Damage
         return true, Damage * 2
     end    
     if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
         if GetLevel(PlayerIndex) == 1 then
+            -- 3 times normal damage
             return true, Damage * Grenade_Multiplier
         else
-            return true, Damage * 1
+            -- Double Damage
+            return true, Damage * 2
         end
     end
     if MetaID == MELEE_ASSAULT_RIFLE or
@@ -812,6 +815,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         MetaID == MELEE_ROCKET_LAUNCHER or
         MetaID == MELEE_SHOTGUN or
         MetaID == MELEE_SNIPER_RIFLE then
+        -- 4 times normal damage
         return true, Damage * Melee_Multiplier
     end
 end
@@ -837,6 +841,8 @@ function GetLevel(PlayerIndex)
         return 9
     elseif tonumber(players[PlayerIndex][1]) == 10 then
         return 10
+    else
+        return false
     end
 end
 
