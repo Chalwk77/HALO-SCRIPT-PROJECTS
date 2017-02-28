@@ -18,6 +18,9 @@ api_version = "1.11.0.0"
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
+-- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
+allocated_time = 5 -- Time (in seconds) before player is rewarded ammo/powerup
+
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
 
@@ -50,6 +53,7 @@ PowerUpSettings = {
 rider_ejection = nil
 object_table_ptr = nil
 -----------------------
+TIMER = {}
 FLAG = { }
 players = { }
 CAPTURES = { }
@@ -241,6 +245,7 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
+    time_alive = 0
     game_over = false
     CheckType()
     LoadItems()
@@ -268,11 +273,13 @@ end
 
 function OnGameEnd()
     Level = { }
+    time_alive = 0
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
+            TIMER[PlayerIndex] = false
             DAMAGE_APPLIED[i] = 0
         end
     end
@@ -301,7 +308,37 @@ function PlasmaCheck(PlayerIndex)
     return false
 end
 
+function PlayerAlive(PlayerIndex)
+    if player_present(PlayerIndex) then
+        if (player_alive(PlayerIndex)) then
+            return true
+        else
+            return false
+        end
+    end
+end
+
+function dosomething(PlayerIndex)
+    cprint("doing something", 2+8)
+end
+
+function RewardPlayer(PlayerIndex)
+    -- for a future update --
+end
+
 function OnTick()
+    for o = 1,16 do
+        if (TIMER[o] ~= false and PlayerAlive(o) == true) then
+            time_alive = time_alive + 0.030
+            -- cprint("Time alive: " .. tonumber(time_alive))
+            if time_alive >= allocated_time then
+                TIMER[o] = false
+            end
+            if (PlayerAlive(o) == true) and (TIMER[o] == false) then
+                RewardPlayer(o)
+            end
+        end
+    end
     for i = 1 , 16 do
         if (player_alive(i)) then
             if FRAG_CHECK[i] and FragCheck(i) == false then FRAG_CHECK[i] = nil
@@ -335,7 +372,7 @@ function OnTick()
                         execute_command("msg_prefix \"\"")
                         say_all(get_var(j, "$name") .. " scored a flag!")
                         execute_command("msg_prefix \"** SERVER ** \"")
-                        execute_command("s " .. i .. " 1")
+                        execute_command("s " .. j .. " 1")
                     end
                 end
             -- player has the flag --
@@ -637,6 +674,8 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
+        TIMER[PlayerIndex] = true
+        time_alive = 0
     end
 end
 
@@ -956,6 +995,7 @@ function cycle_level(PlayerIndex, update, advance)
         local cur = current_Level + 1
         if cur == (#Level + 1) then
             game_over = true
+            time_alive = 0
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -987,6 +1027,7 @@ function cycle_level(PlayerIndex, update, advance)
         end
         if current_Level == (#Level + 1) then
             game_over = true
+            time_alive = 0
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
