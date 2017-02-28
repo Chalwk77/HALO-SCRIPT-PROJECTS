@@ -1481,8 +1481,6 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
         
-        
-        
 function OnError(Message)
     print(debug.traceback())
 end
