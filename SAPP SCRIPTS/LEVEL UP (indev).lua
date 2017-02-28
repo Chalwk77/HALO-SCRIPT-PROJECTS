@@ -646,7 +646,6 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
-        CURRENT_LEVEL = tonumber(players[PlayerIndex][1])
     end
 end
 
@@ -923,7 +922,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         return false
     end
     if (Message == "@stats") then
-        if tonumber(players[PlayerIndex][1]) >= 7 then
+        if (GetLevel(PlayerIndex) >= 7) then
             rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
@@ -968,10 +967,10 @@ function OnServerCommand(PlayerIndex, Command)
             else
                 if t[2] ~= nil then
                     if t[2] == "me" then
-                        if (CURRENT_LEVEL <= 6) then 
+                        if (GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 8 or higher.")
-                        elseif (CURRENT_LEVEL == 8) then
+                        elseif (GetLevel(PlayerIndex) <= 8) then
                             -- Rocket Hog (Gunner & Drivers Seat)
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
@@ -1000,6 +999,8 @@ function OnServerCommand(PlayerIndex, Command)
 end
 
 function cycle_level(PlayerIndex, update, advance)
+    -- clear player console --
+    cls(PlayerIndex)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
@@ -1145,7 +1146,7 @@ function WeaponHandler(PlayerIndex)
             end
             -- Core handler --
             if (vbool == true) then
-                if (tonumber(players[PlayerIndex][1]) == 8) then
+                if (GetLevel(PlayerIndex) == 8) then
                     -- Spawn in Rocket Hog as Gunner/Driver --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
@@ -1165,7 +1166,7 @@ function WeaponHandler(PlayerIndex)
                 end
             else
                 -- If scoring with the flag, make sure Level 8 recipients spawn in the gunner/drivers seat of the rocket hog.
-                if (tonumber(players[PlayerIndex][1]) == 8) then
+                if (GetLevel(PlayerIndex) == 8) then
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     added_height = 0.3
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
@@ -1311,6 +1312,12 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+function cls(PlayerIndex)
+    for clear = 1, 20 do
+        rprint(PlayerIndex," ")
+    end
 end
 
 function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
