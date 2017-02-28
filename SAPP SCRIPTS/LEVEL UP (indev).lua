@@ -275,7 +275,6 @@ function OnNewGame()
         end
     end
     if ctf_enabled == true then SPAWN_FLAG() end
-    GameHasStarted = true
     if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder" 
     or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
         LargeMapConfiguration = true
@@ -300,7 +299,6 @@ function OnGameEnd()
             DAMAGE_APPLIED[i] = 0
         end
     end
-    GameHasStarted = false
 end
 
 function SPAWN_FLAG()
