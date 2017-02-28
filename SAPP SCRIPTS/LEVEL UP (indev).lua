@@ -80,7 +80,7 @@ FLAG["chillout"] = { { 7.4876899719238, - 4.49059009552, 2.5 }, { - 7.5086002349
 FLAG["damnation"] = { { 9.6933002471924, - 13.340399742126, 6.8000001907349 }, { - 12.17884349823, 14.982703208923, - 0.20000000298023 }, { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 } }
 FLAG["gephyrophobia"] = { { 26.884338378906, - 144.71551513672, - 16.049139022827 }, { 26.727857589722, 0.16621616482735, - 16.048349380493 }, { 63.513668060303, - 74.088592529297, - 1.0624552965164 } }
 FLAG["hangemhigh"] = { { 13.047902107239, 9.0331249237061, - 3.3619771003723 }, { 32.655700683594, - 16.497299194336, - 1.7000000476837 }, { 21.020147323608, - 4.6323413848877, - 4.2290902137756 } }
-FLAG["longest"] = { { - 12.791899681091, - 21.6422996521, - 0.40000000596046 }, { 11.034700393677, - 7.5875601768494, - 0.40000000596046 }, { - 0.80207985639572, - 14.566205024719, 0.16665624082088 } }
+FLAG["longest"] = { { - 12.791899681091, - 21.6422996521, - 0.40000000596046 }, { 11.034700393677, - 7.5875601768494, - 0.40000000596046 }, { - 0.84, - 14.54, 2.41 } }
 FLAG["prisoner"] = { { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 }, { 9.3676500320435, 5.1193399429321, 5.6999998092651 }, { 0.90271377563477, 0.088873945176601, 1.392499089241 } }
 FLAG["putput"] = { { - 18.89049911499, - 20.186100006104, 1.1000000238419 }, { 34.865299224854, - 28.194700241089, 0.10000000149012 }, { - 2.3500289916992, - 21.121452331543, 0.90232092142105 } }
 FLAG["ratrace"] = { { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 }, { 18.613000869751, - 22.652599334717, - 3.4000000953674 }, { 8.6629104614258, - 11.159770965576, 0.2217468470335 } }
@@ -211,8 +211,9 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    players = { }
+    Level = { }
     FLAG = { }
+    players = { }
     FRAG_CHECK = { }
     PLASMA_CHECK = { }
     WEAPON_TABLE = { }
@@ -914,46 +915,47 @@ function OnServerCommand(PlayerIndex, Command)
                     rprint(PlayerIndex, "Action not defined - up or down")
                 end
             end
-            elseif tonumber(get_var(PlayerIndex, "$lvl")) >= 0 and (t[1] == string.lower("enter")) then
-                response = false
-                if (LargeMapConfiguration == true) then
-                    if PlayerInVehicle(PlayerIndex) then
-                        rprint(PlayerIndex, "You're already in a vehicle!")
-                    else
-                        if t[2] ~= nil then
-                            if t[2] == "me" then
-                                if (CURRENT_LEVEL <= 6) then 
-                                    rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-                                    rprint(PlayerIndex, "You must be Level 8 or higher.")
-                                elseif (CURRENT_LEVEL == 8) then
-                                    -- Rocket Hog (Gunner & Drivers Seat)
-                                    local player_object = get_dynamic_player(PlayerIndex)
-                                    local x, y, z = read_vector3d(player_object + 0x5c)
-                                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
-                                    enter_vehicle(vehicleId, PlayerIndex, 0)
-                                    enter_vehicle(vehicleId, PlayerIndex, 2)
-                                    enter_vehicle(vehicleId, PlayerIndex, 2)
-                                    rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
-                                else
-                                    -- All other vehicles.
-                                    local player_object = get_dynamic_player(PlayerIndex)
-                                    local x, y, z = read_vector3d(player_object + 0x5c)
-                                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
-                                    enter_vehicle(vehicleId, PlayerIndex, 0)
-                                    rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
-                                end
-                            else
-                                rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
-                            end
+        end
+    end
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and (t[1] == string.lower("enter")) then
+        response = false
+        if (LargeMapConfiguration == true) then
+            if PlayerInVehicle(PlayerIndex) then
+                rprint(PlayerIndex, "You're already in a vehicle!")
+            else
+                if t[2] ~= nil then
+                    if t[2] == "me" then
+                        if (CURRENT_LEVEL <= 6) then 
+                            rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+                            rprint(PlayerIndex, "You must be Level 8 or higher.")
+                        elseif (CURRENT_LEVEL == 8) then
+                            -- Rocket Hog (Gunner & Drivers Seat)
+                            local player_object = get_dynamic_player(PlayerIndex)
+                            local x, y, z = read_vector3d(player_object + 0x5c)
+                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            enter_vehicle(vehicleId, PlayerIndex, 0)
+                            enter_vehicle(vehicleId, PlayerIndex, 2)
+                            enter_vehicle(vehicleId, PlayerIndex, 2)
+                            rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                         else
-                            rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
+                            -- All other vehicles.
+                            local player_object = get_dynamic_player(PlayerIndex)
+                            local x, y, z = read_vector3d(player_object + 0x5c)
+                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            enter_vehicle(vehicleId, PlayerIndex, 0)
+                            rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                         end
+                    else
+                        rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                     end
                 else
-                    rprint(PlayerIndex, "This map is not set up for vehicles!")
+                    rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                 end
             end
+        else
+            rprint(PlayerIndex, "This map is not set up for vehicles!")
         end
+    end
     return response
 end
 
