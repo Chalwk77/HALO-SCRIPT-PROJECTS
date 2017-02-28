@@ -24,6 +24,7 @@ Speed_Powerup = 2 -- in seconds
 Speed_Powerup_duration = 20 -- in seconds
 Spawn_Where_Killed = false -- Spawn at the same location as player died
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
+Grenade_Multiplier = 3 -- Multiplier to frag damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
 CTF_ENABLED = true
 Check_Radius = 1 -- Radius determining if player is in scoring area
@@ -71,7 +72,7 @@ object_table_ptr = nil
 CURRENT_FLAG_HOLDER = nil
 FLAG = { }
 players = { }
-last_damage = { }
+damage_applied = { }
 Stored_Levels = { }
 Equipment_Tags = { }
 DEATH_LOCATION = { }
@@ -184,7 +185,7 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     for i = 1, 16 do
         if player_present(i) then
-            last_damage[i] = 0
+            damage_applied[i] = 0
         end
     end
      -- Giraffe's --
@@ -201,7 +202,8 @@ end
 function OnScriptUnload()
     FLAG = { }
     players = { }
-    last_damage = { }
+    damage_applied = { }
+    back_tap = { }
     WEAPON_TABLE = { }
     Stored_Levels = { }
     DEATH_LOCATION = { }
@@ -224,9 +226,6 @@ function WelcomeHandler(PlayerIndex)
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats to view your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
-    if (LargeMapConfiguration == true) then
-        timer(1000*5, "Vehicle_Level_Info", PlayerIndex)
-    end
 end
 
 function Vehicle_Level_Info(PlayerIndex)
@@ -242,6 +241,9 @@ function InfoHandler(PlayerIndex)
     say(PlayerIndex, "Being meeled or committing suicide will result in moving down a Level.")
     say(PlayerIndex, "There is a Flag somewhere on the map - Return it to a base to gain a Level.")
     execute_command("msg_prefix \"** SERVER ** \"")
+    if (LargeMapConfiguration == true) then
+        timer(1000*5, "Vehicle_Level_Info", PlayerIndex)
+    end
 end
 
 function OnNewGame()
@@ -252,7 +254,8 @@ function OnNewGame()
     gametype = get_var(0, "$gt")
     for i = 1, 16 do
         if player_present(i) then
-            last_damage[i] = 0
+            damage_applied[i] = 0
+            back_tap[i] = 0
         end
     end
     if CTF_ENABLED == true then SPAWN_FLAG() end
@@ -272,14 +275,14 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    last_damage = { }
     Level = { }
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
-            last_damage[i] = 0
+            damage_applied[i] = 0
+            back_tap[i] = 0
         end
     end
     GameHasStarted = false
@@ -414,34 +417,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
-    
-        -- TO DO:
-        -- Display kill counter except for Level [1] + ignore last kill for all other levels. 
-        
-        --  Scenario: 
-        --  Assuming they're Level 5
-        --  Player kills 2 people, show the following output: 
-        --  Player kills 3 people, show the following output: 
-        --  Kills Remaining: 3/5
-        --  Kills Remaining: 2/5
-        
-        --  Player hasn't killed anyone yet, show the following output: 
-        --  Kills Remaining: 5/5
-        
-        --  Ignore 5th Kill because the LEVEL UP message will be displayed, and so on.
-        
-        if last_damage[PlayerIndex] == assault_melee or
-            last_damage[PlayerIndex] == ball_melee or
-            last_damage[PlayerIndex] == flag_melee or
-            last_damage[PlayerIndex] == flame_melee or
-            last_damage[PlayerIndex] == needle_melee or
-            last_damage[PlayerIndex] == pistol_melee or
-            last_damage[PlayerIndex] == ppistol_melee or
-            last_damage[PlayerIndex] == prifle_melee or
-            last_damage[PlayerIndex] == pcannon_melee or
-            last_damage[PlayerIndex] == rocket_melee or
-            last_damage[PlayerIndex] == shotgun_melee or
-            last_damage[PlayerIndex] == sniper_melee then
+        if damage_applied[PlayerIndex] == MELEE_ASSAULT_RIFLE or
+            damage_applied[PlayerIndex] == MELEE_FLAME_THROWER or
+            damage_applied[PlayerIndex] == MELEE_NEEDLER or
+            damage_applied[PlayerIndex] == MELEE_PISTOL or
+            damage_applied[PlayerIndex] == MELEE_PLASMA_PISTOL or
+            damage_applied[PlayerIndex] == MELEE_PLASMA_RIFLE or
+            damage_applied[PlayerIndex] == MELEE_PLASMA_CANNON or
+            damage_applied[PlayerIndex] == MELEE_ROCKET_LAUNCHER or
+            damage_applied[PlayerIndex] == MELEE_SHOTGUN or
+            damage_applied[PlayerIndex] == MELEE_SNIPER_RIFLE then
+            damage_applied[PlayerIndex] == MELEE_ODDBALL or
+            damage_applied[PlayerIndex] == MELEE_FLAG or
             -- Player was melee'd, move them down a level
             MELEE_VICTIM = tonumber(PlayerIndex)
             --VICTIM_WAS_MELEED = true
@@ -497,7 +484,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer == 0) then
         return false
     end
-    last_damage[PlayerIndex] = 0
+    damage_applied[PlayerIndex] = 0
 end
 
 function add_kill(killer, victim)
@@ -558,7 +545,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    last_damage[PlayerIndex] = nil
+    damage_applied[PlayerIndex] = nil
     local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
     -- Create Table Key for Player --
     Stored_Levels[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
@@ -571,7 +558,7 @@ end
 
 function OnPlayerPrespawn(PlayerIndex)
     -- reset last damage --
-    last_damage[PlayerIndex] = 0
+    damage_applied[PlayerIndex] = 0
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
@@ -588,6 +575,7 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
+    back_tap[PlayerIndex] = false
     if getplayer(PlayerIndex) then
         --  assign weapons or vehicle according to level --
         if (LargeMapConfiguration == true) then 
@@ -604,7 +592,7 @@ function OnPlayerSpawn(PlayerIndex)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
         end
         rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-        rprint(PlayerIndex, "Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+        rprint(PlayerIndex, "Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
@@ -801,23 +789,54 @@ function delay_move(PlayerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    last_damage[PlayerIndex] = MetaID
-    if MetaID == ghost_bolt then
+    damage_applied[PlayerIndex] = MetaID
+    if MetaID == VEHICLE_GHOST_BOLT then
         return true, Damage * 2
+    end    
+    if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
+        if GetLevel(PlayerIndex) == 1 then
+            return true, Damage * Grenade_Multiplier
+        else
+            return true, Damage * 1
+        end
     end
-    if MetaID == assault_melee or
-        MetaID == ball_melee or
-        MetaID == flag_melee or
-        MetaID == flame_melee or
-        MetaID == needle_melee or
-        MetaID == pistol_melee or
-        MetaID == ppistol_melee or
-        MetaID == prifle_melee or
-        MetaID == pcannon_melee or
-        MetaID == rocket_melee or
-        MetaID == shotgun_melee or
-        MetaID == sniper_melee then
+    if MetaID == MELEE_ASSAULT_RIFLE or
+        MetaID == MELEE_ODDBALL or
+        MetaID == MELEE_FLAG or
+        MetaID == MELEE_FLAME_THROWER or
+        MetaID == MELEE_NEEDLER or
+        MetaID == MELEE_PISTOL or
+        MetaID == MELEE_PLASMA_PISTOL or
+        MetaID == MELEE_PLASMA_RIFLE or
+        MetaID == MELEE_PLASMA_CANNON or
+        MetaID == MELEE_ROCKET_LAUNCHER or
+        MetaID == MELEE_SHOTGUN or
+        MetaID == MELEE_SNIPER_RIFLE then
         return true, Damage * Melee_Multiplier
+    end
+end
+
+function GetLevel(PlayerIndex)
+    if tonumber(players[PlayerIndex][1]) == 1 then
+        return 1
+    elseif tonumber(players[PlayerIndex][1]) == 2 then
+        return 2
+    elseif tonumber(players[PlayerIndex][1]) == 3 then
+        return 3
+    elseif tonumber(players[PlayerIndex][1]) == 4 then
+        return 4
+    elseif tonumber(players[PlayerIndex][1]) == 5 then
+        return 5
+    elseif tonumber(players[PlayerIndex][1]) == 6 then
+        return 6
+    elseif tonumber(players[PlayerIndex][1]) == 7 then
+        return 7
+    elseif tonumber(players[PlayerIndex][1]) == 8 then
+        return 8
+    elseif tonumber(players[PlayerIndex][1]) == 9 then
+        return 9
+    elseif tonumber(players[PlayerIndex][1]) == 10 then
+        return 10
     end
 end
 
@@ -849,12 +868,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
     if (Message == "@stats") then
         if tonumber(players[PlayerIndex][1]) >= 7 then
-            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         else
             local nades_tbl = Level[players[PlayerIndex][1]][5]
-            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
             rprint(PlayerIndex, "Frags: " ..tostring(nades_tbl[1]))
@@ -895,8 +914,8 @@ function OnServerCommand(PlayerIndex, Command)
                                 local x, y, z = read_vector3d(player_object + 0x5c)
                                 local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                                 if (CURRENT_LEVEL <= 6) then 
-                                    rprint(PlayerIndex, "You're not allowed to enter a vehicle. You're only level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-                                    rprint(PlayerIndex, "You must be level 8 or higher!")
+                                    rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+                                    rprint(PlayerIndex, "You must be Level 8 or higher.")
                                 elseif (CURRENT_LEVEL == 8) then
                                     -- Rocket Hog (Gunner & Drivers Seat)
                                     enter_vehicle(vehicleId, PlayerIndex, 0)
@@ -951,7 +970,7 @@ function cycle_level(PlayerIndex, update, advance)
             local name = get_var(PlayerIndex, "$name")
             rprint(PlayerIndex, "|c****** LEVEL UP ******")
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-            rprint(PlayerIndex, "|cKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
             rprint(PlayerIndex, "|c ")
@@ -990,7 +1009,7 @@ function cycle_level(PlayerIndex, update, advance)
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
             end
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-            rprint(PlayerIndex, "|cKills Needed Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
             rprint(PlayerIndex, "|c ")
@@ -1093,14 +1112,14 @@ function WeaponHandler(PlayerIndex)
                 enter_vehicle(vehicleId, PlayerIndex, 0)
             end
         else
-        -- remove weapon --
-        local weaponId = read_dword(player_object + 0x118)
-        if weaponId ~= 0 then
-            for j = 0, 3 do
-                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-                destroy_object(m_weapon)
+            -- remove weapon --
+            local weaponId = read_dword(player_object + 0x118)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
+                end
             end
-        end
             -- assign weapon --
             local x, y, z = read_vector3d(player_object + 0x5C)
             local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
@@ -1277,19 +1296,25 @@ end
 
 function LoadItems()
     if get_var(0, "$gt") ~= "n/a" then
-        assault_melee = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
-        ball_melee = get_tag_info("jpt!", "weapons\\ball\\melee")
-        flag_melee = get_tag_info("jpt!", "weapons\\flag\\melee")
-        flame_melee = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
-        needle_melee = get_tag_info("jpt!", "weapons\\needler\\melee")
-        pistol_melee = get_tag_info("jpt!", "weapons\\pistol\\melee")
-        ppistol_melee = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
-        prifle_melee = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
-        rocket_melee = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
-        shotgun_melee = get_tag_info("jpt!", "weapons\\shotgun\\melee")
-        sniper_melee = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
-        pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-        ghost_bolt = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+        -- Melee
+        MELEE_ASSAULT_RIFLE = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
+        MELEE_ODDBALL = get_tag_info("jpt!", "weapons\\ball\\melee")
+        MELEE_FLAG = get_tag_info("jpt!", "weapons\\flag\\melee")
+        MELEE_FLAME_THROWER = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
+        MELEE_NEEDLER = get_tag_info("jpt!", "weapons\\needler\\melee")
+        MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
+        MELEE_PLASMA_PISTOL = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
+        MELEE_PLASMA_RIFLE = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
+        MELEE_ROCKET_LAUNCHER = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
+        MELEE_SHOTGUN = get_tag_info("jpt!", "weapons\\shotgun\\melee")
+        MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
+        MELEE_PLASMA_CANNON = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+        -- Grenades Explosion/Attached
+        GRENADE_FRAG_EXPLOSION = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
+        GRENADE_PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
+        GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
+        -- Vehicles
+        VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
     end
 end
         
