@@ -19,13 +19,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 Starting_Level = 1 -- Must match beginning of level[#]
-CTF_ENABLED = true -- Spawn the flag?
+ctf_enabled = true -- Spawn the flag?
 
 Speed_Powerup = 2 -- in seconds
-Speed_Powerup_duration = 20 -- in seconds
+Speed_Powerup_Duration = 20 -- in seconds
 
-FLAG_RUNNER_SPEED = 2.0 -- Flag-Holder running speed
-FLAG_RUNNER_CAMO_TIME = 15 -- Flag-Holder invisibility time
+Flag_Runner_Speed = 2.0 -- Flag-Holder running speed
+Flag_Runner_Camo_Duration = 15 -- Flag-Holder invisibility time
 
 Spawn_Where_Killed = false -- Spawn at the same location as player died
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
@@ -33,41 +33,16 @@ Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 Check_Time = 0 -- Mili-seconds to check if player in scoring area
 Check_Radius = 1 -- Radius determining if player is in scoring area
 
-ADMIN_LEVEL = 1 -- Default admin level required to use chat commandss
-
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Grenade_Multiplier = 3 -- Multiplier to frag damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
+
+ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 
 -- Giraffe's --
 PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
 WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 -----------------------------------------------------------------------------------------------------------
-
--- Objects to drop when someone dies
-EQUIPMENT_TABLE = { }
-EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
-EQUIPMENT_TABLE[2] = "powerups\\health pack"
-EQUIPMENT_TABLE[3] = "powerups\\over shield"
-EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
-EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
-EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
-EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
--- Objects to drop when someone dies
-WEAPON_TABLE = { }
-WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
-WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
-WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
-WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
-WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
-WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
-WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
-WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
-WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
-WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 -- Choose what to drop when someone dies.
 PowerUpSettings = {
     ["WeaponsAndEquipment"] = false,
@@ -78,12 +53,16 @@ PowerUpSettings = {
 rider_ejection = nil
 object_table_ptr = nil
 -----------------------
-FLAG = { }
 players = { }
-Stored_Levels = { }
-damage_applied = { }
-Equipment_Tags = { }
+FLAG = { }
+FRAG_CHECK = { }
+PLASMA_CHECK = { }
+WEAPON_TABLE = { }
+SCORED_LEVELS = { }
+DAMAGE_APPLIED = { }
+EQUIPMENT_TAGS = { }
 DEATH_LOCATION = { }
+EQUIPMENT_TABLE = { }
 CURRENT_FLAG_HOLDER = nil
 for i = 1, 16 do DEATH_LOCATION[i] = { } end
 vehi_type_id = "vehi"
@@ -109,6 +88,29 @@ FLAG["prisoner"] = { { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 }, 
 FLAG["putput"] = { { - 18.89049911499, - 20.186100006104, 1.1000000238419 }, { 34.865299224854, - 28.194700241089, 0.10000000149012 }, { - 2.3500289916992, - 21.121452331543, 0.90232092142105 } }
 FLAG["ratrace"] = { { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 }, { 18.613000869751, - 22.652599334717, - 3.4000000953674 }, { 8.6629104614258, - 11.159770965576, 0.2217468470335 } }
 FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
+
+-- Objects to drop when someone dies
+EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
+EQUIPMENT_TABLE[2] = "powerups\\health pack"
+EQUIPMENT_TABLE[3] = "powerups\\over shield"
+EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
+EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
+EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
+EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
+EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
+EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
+EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+-- Objects to drop when someone dies
+WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
+WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
+WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
+WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
+WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
+WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
+WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
+WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
+WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
+WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
 
 function LoadLarge()
     Level = { }
@@ -169,6 +171,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
+    -------------------------------------------------------------
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     -- Check if valid GameType
@@ -194,7 +197,7 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     for i = 1, 16 do
         if player_present(i) then
-            damage_applied[i] = 0
+            DAMAGE_APPLIED[i] = 0
         end
     end
      -- Giraffe's --
@@ -205,17 +208,19 @@ function OnScriptLoad()
         rider_ejection = read_byte(0x6163EC)
         write_byte(0x6163EC, 0)
     end
-    -- =========================================--
+    -- ======================================== --
 end
 
 function OnScriptUnload()
-    FLAG = { }
     players = { }
+    FLAG = { }
+    FRAG_CHECK = { }
+    PLASMA_CHECK = { }
     WEAPON_TABLE = { }
-    Stored_Levels = { }
-    damage_applied = { }
+    SCORED_LEVELS = { }
+    DAMAGE_APPLIED = { }
     DEATH_LOCATION = { }
-    Equipment_Tags = { }
+    EQUIPMENT_TAGS = { }
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
@@ -225,7 +230,7 @@ function OnScriptUnload()
     else
         write_byte(0x6163EC, rider_ejection)
     end
-    -- ========================================--
+    -- ======================================== --
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -262,10 +267,10 @@ function OnNewGame()
     gametype = get_var(0, "$gt")
     for i = 1, 16 do
         if player_present(i) then
-            damage_applied[i] = 0
+            DAMAGE_APPLIED[i] = 0
         end
     end
-    if CTF_ENABLED == true then SPAWN_FLAG() end
+    if ctf_enabled == true then SPAWN_FLAG() end
     GameHasStarted = true
     if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder" 
     or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
@@ -288,7 +293,7 @@ function OnGameEnd()
     CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
-            damage_applied[i] = 0
+            DAMAGE_APPLIED[i] = 0
         end
     end
     GameHasStarted = false
@@ -300,9 +305,6 @@ function SPAWN_FLAG()
     -- Spawn flag at x,y,z
     flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
 end
-
-FRAG_CHECK = {}
-PLASMA_CHECK = {}
 
 function CheckFrags(PlayerIndex)
     local plasma_bool = false
@@ -423,18 +425,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- PvP --
     if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
-        if damage_applied[PlayerIndex] == MELEE_ASSAULT_RIFLE or
-            damage_applied[PlayerIndex] == MELEE_FLAME_THROWER or
-            damage_applied[PlayerIndex] == MELEE_NEEDLER or
-            damage_applied[PlayerIndex] == MELEE_PISTOL or
-            damage_applied[PlayerIndex] == MELEE_PLASMA_PISTOL or
-            damage_applied[PlayerIndex] == MELEE_PLASMA_RIFLE or
-            damage_applied[PlayerIndex] == MELEE_PLASMA_CANNON or
-            damage_applied[PlayerIndex] == MELEE_ROCKET_LAUNCHER or
-            damage_applied[PlayerIndex] == MELEE_SHOTGUN or
-            damage_applied[PlayerIndex] == MELEE_SNIPER_RIFLE then
-            damage_applied[PlayerIndex] == MELEE_ODDBALL or
-            damage_applied[PlayerIndex] == MELEE_FLAG or
+        if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_NEEDLER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PISTOL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_PISTOL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_CANNON or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_ROCKET_LAUNCHER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_SHOTGUN or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_SNIPER_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_ODDBALL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
             -- Player was melee'd, move them down a level
             MELEE_VICTIM = tonumber(PlayerIndex)
             --VICTIM_WAS_MELEED = true
@@ -490,7 +492,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer == 0) then
         return false
     end
-    damage_applied[PlayerIndex] = 0
+    DAMAGE_APPLIED[PlayerIndex] = 0
 end
 
 function add_kill(killer, victim)
@@ -527,8 +529,8 @@ function delay_cycle(killer)
 end
 
 function DropPowerup(x, y, z)
-    local num = rand(1, #Equipment_Tags)
-    spawn_object(Equipment_Tags[num], x, y, z + 0.5)
+    local num = rand(1, #EQUIPMENT_TAGS)
+    spawn_object(EQUIPMENT_TAGS[num], x, y, z + 0.5)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -537,10 +539,10 @@ function OnPlayerJoin(PlayerIndex)
 
     local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
     -- Check for Previous Statistics --
-    for k, v in pairs(Stored_Levels) do
+    for k, v in pairs(SCORED_LEVELS) do
         if tostring(k) == tostring(saved_data) then
-            players[PlayerIndex][1] = Stored_Levels[saved_data][1]
-            players[PlayerIndex][2] = Stored_Levels[saved_data][2]
+            players[PlayerIndex][1] = SCORED_LEVELS[saved_data][1]
+            players[PlayerIndex][2] = SCORED_LEVELS[saved_data][2]
             break
         end
     end
@@ -551,10 +553,10 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    damage_applied[PlayerIndex] = nil
+    DAMAGE_APPLIED[PlayerIndex] = nil
     local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
     -- Create Table Key for Player --
-    Stored_Levels[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+    SCORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
         -- reset death location --
@@ -564,7 +566,7 @@ end
 
 function OnPlayerPrespawn(PlayerIndex)
     -- reset last damage --
-    damage_applied[PlayerIndex] = 0
+    DAMAGE_APPLIED[PlayerIndex] = 0
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
@@ -647,8 +649,8 @@ function MonitorLocation(PlayerIndex)
     if (CURRENT_FLAG_HOLDER ~= nil) then
         if player_alive(CURRENT_FLAG_HOLDER) then
             if not (DROPPED) then
-                execute_command("s " .. CURRENT_FLAG_HOLDER .. " :" .. FLAG_RUNNER_SPEED)
-                execute_command("camo " .. CURRENT_FLAG_HOLDER .. " " .. FLAG_RUNNER_CAMO_TIME)
+                execute_command("s " .. CURRENT_FLAG_HOLDER .. " :" .. Flag_Runner_Speed)
+                execute_command("camo " .. CURRENT_FLAG_HOLDER .. " " .. Flag_Runner_Camo_Duration)
                 if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
                     ctf_score(CURRENT_FLAG_HOLDER)
                     ResetSpeed(PlayerIndex)
@@ -794,7 +796,7 @@ function delay_move(PlayerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    damage_applied[PlayerIndex] = MetaID
+    DAMAGE_APPLIED[PlayerIndex] = MetaID
     if MetaID == VEHICLE_GHOST_BOLT then
         -- Double Damage
         return true, Damage * 2
