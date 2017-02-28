@@ -927,20 +927,23 @@ function OnServerCommand(PlayerIndex, Command)
                     else
                         if t[2] ~= nil then
                             if t[2] == "me" then
-                                local player_object = get_dynamic_player(PlayerIndex)
-                                local x, y, z = read_vector3d(player_object + 0x5c)
-                                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                                 if (CURRENT_LEVEL <= 6) then 
                                     rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                                     rprint(PlayerIndex, "You must be Level 8 or higher.")
                                 elseif (CURRENT_LEVEL == 8) then
                                     -- Rocket Hog (Gunner & Drivers Seat)
+                                    local player_object = get_dynamic_player(PlayerIndex)
+                                    local x, y, z = read_vector3d(player_object + 0x5c)
+                                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                                     enter_vehicle(vehicleId, PlayerIndex, 0)
                                     enter_vehicle(vehicleId, PlayerIndex, 2)
                                     enter_vehicle(vehicleId, PlayerIndex, 2)
                                     rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                                 else
                                     -- All other vehicles.
+                                    local player_object = get_dynamic_player(PlayerIndex)
+                                    local x, y, z = read_vector3d(player_object + 0x5c)
+                                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                                     enter_vehicle(vehicleId, PlayerIndex, 0)
                                     rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                                 end
