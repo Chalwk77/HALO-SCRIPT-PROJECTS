@@ -32,7 +32,7 @@ Check_Radius = 1 -- Radius determining if player is in scoring area
 
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Grenade_Multiplier = 3 -- Multiplier to frag damage. 1 = normal damage
-Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
+Normal_Damage = 1 -- Normal weapon damage multiplier. 1 = normal damage
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 
@@ -338,7 +338,7 @@ function OnTick()
                         execute_command("s " .. i .. " 1")
                     end
                 end
-            -- Player has the flag
+            -- player has the flag --
             if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then FLAG_BOOL[j] = true
                 rprint(j, "|cReturn the flag to a base to gain a level")
                 rprint(j, "|c ")
