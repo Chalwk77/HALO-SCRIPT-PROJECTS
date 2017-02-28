@@ -195,6 +195,8 @@ function OnScriptLoad()
     -- disable grenade pickups --
     execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
+    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
@@ -234,8 +236,10 @@ function OnScriptUnload()
 end
 
 function WelcomeHandler(PlayerIndex)
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    ServerName = read_widestring(network_struct + 0x8, 0x42)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to vm315 - LEVEL UP (beta v1.0)")
+    say(PlayerIndex, "Welcome to " .. ServerName)
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats to view your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
@@ -1329,6 +1333,18 @@ function LoadItems()
         -- Vehicles
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
     end
+end
+        
+function read_widestring(address, length)
+    local count = 0
+    local byte_table = {}
+    for i = 1,length do
+        if read_byte(address + count) ~= 0 then
+            byte_table[i] = string.char(read_byte(address + count))
+        end
+        count = count + 2
+    end
+    return table.concat(byte_table)
 end
         
 function OnError(Message)
