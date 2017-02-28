@@ -19,19 +19,26 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 Starting_Level = 1 -- Must match beginning of level[#]
-Spawn_Invunrable_Time = nil -- Seconds - nil disabled
+CTF_ENABLED = true -- Spawn the flag?
+
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_duration = 20 -- in seconds
+
+FLAG_RUNNER_SPEED = 2.0 -- Flag-Holder running speed
+FLAG_RUNNER_CAMO_TIME = 15 -- Flag-Holder invisibility time
+
 Spawn_Where_Killed = false -- Spawn at the same location as player died
+Spawn_Invunrable_Time = nil -- Seconds - nil disabled
+
+Check_Time = 0 -- Mili-seconds to check if player in scoring area
+Check_Radius = 1 -- Radius determining if player is in scoring area
+
+ADMIN_LEVEL = 1 -- Default admin level required to use chat commandss
+
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Grenade_Multiplier = 3 -- Multiplier to frag damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weppon damage multiplier. 1 = normal damage
-CTF_ENABLED = true
-Check_Radius = 1 -- Radius determining if player is in scoring area
-Check_Time = 0 -- Mili-seconds to check if player in scoring area
-FLAG_SPEED = 2.0 -- Flag-Holder running speed
-CAMO_TIME = 15 -- Flag-Holder invisibility time
-ADMIN_LEVEL = 1 -- Default admin level required to use chat commandss
+
 -- Giraffe's --
 PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
 WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
@@ -67,15 +74,17 @@ PowerUpSettings = {
     ["JustEquipment"] = false,
     ["JustWeapons"] = false
 }
+-- Giraffe's
 rider_ejection = nil
 object_table_ptr = nil
-CURRENT_FLAG_HOLDER = nil
+-----------------------
 FLAG = { }
 players = { }
-damage_applied = { }
 Stored_Levels = { }
+damage_applied = { }
 Equipment_Tags = { }
 DEATH_LOCATION = { }
+CURRENT_FLAG_HOLDER = nil
 for i = 1, 16 do DEATH_LOCATION[i] = { } end
 vehi_type_id = "vehi"
 weap_type_id = "weap"
@@ -202,10 +211,9 @@ end
 function OnScriptUnload()
     FLAG = { }
     players = { }
-    damage_applied = { }
-    back_tap = { }
     WEAPON_TABLE = { }
     Stored_Levels = { }
+    damage_applied = { }
     DEATH_LOCATION = { }
     Equipment_Tags = { }
     EQUIPMENT_TABLE = { }
@@ -255,7 +263,6 @@ function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
             damage_applied[i] = 0
-            back_tap[i] = 0
         end
     end
     if CTF_ENABLED == true then SPAWN_FLAG() end
@@ -282,7 +289,6 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             damage_applied[i] = 0
-            back_tap[i] = 0
         end
     end
     GameHasStarted = false
@@ -575,7 +581,6 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    back_tap[PlayerIndex] = false
     if getplayer(PlayerIndex) then
         --  assign weapons or vehicle according to level --
         if (LargeMapConfiguration == true) then 
@@ -642,8 +647,8 @@ function MonitorLocation(PlayerIndex)
     if (CURRENT_FLAG_HOLDER ~= nil) then
         if player_alive(CURRENT_FLAG_HOLDER) then
             if not (DROPPED) then
-                execute_command("s " .. CURRENT_FLAG_HOLDER .. " :" .. FLAG_SPEED)
-                execute_command("camo " .. CURRENT_FLAG_HOLDER .. " " .. CAMO_TIME)
+                execute_command("s " .. CURRENT_FLAG_HOLDER .. " :" .. FLAG_RUNNER_SPEED)
+                execute_command("camo " .. CURRENT_FLAG_HOLDER .. " " .. FLAG_RUNNER_CAMO_TIME)
                 if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
                     ctf_score(CURRENT_FLAG_HOLDER)
                     ResetSpeed(PlayerIndex)
