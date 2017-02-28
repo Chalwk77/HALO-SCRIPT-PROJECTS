@@ -15,7 +15,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 ]]
 
 api_version = "1.11.0.0"
-Starting_Level = 1 -- Must match beginning of level[#]
+Starting_Level = 7 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
 Speed_Powerup = 2 -- in seconds
@@ -117,7 +117,7 @@ function LoadLarge()
     Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 4 }
     Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 4 }
     Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
-    Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
+    Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 1, { 0, 0 }, 0 }
     Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
     Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
     Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
@@ -387,13 +387,52 @@ function OnVehicleExit(PlayerIndex)
         obj_id = get_object_memory(vehicle_Id)
         exit_vehicle(PlayerIndex)
         timer(1000*2, "DestroyVehicle", vehicle_Id)
+        local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
+        local MetaIndex = read_dword(VehicleObj)
+        -- Control temporary weapon assignment on vehicle exit.
+        -- Warthog --
+        if MetaIndex == 0xE3D40260 then
+            timer(1000*1, "AssignTemp", PlayerIndex)
+        -- Rocket Hog --
+        elseif MetaIndex == 0xE5050391 then
+            timer(1000*1, "AssignTemp", PlayerIndex)
+        -- Tank --
+        elseif MetaIndex == 0xE45702E3 then
+            timer(1000*2, "AssignTemp", PlayerIndex)
+        -- Ghost --
+        elseif MetaIndex == 0xE4B70343 then
+            timer(1000*1, "AssignTemp", PlayerIndex)
+        -- Banshee --
+        elseif MetaIndex == 0xE54003CC then
+            timer(1000*1, "AssignTemp", PlayerIndex)
+        -- Turret --
+        elseif MetaIndex == 0xE86906F5 then
+            timer(1000*1, "AssignTemp", PlayerIndex)
+        end
         execute_command("msg_prefix \"\"")
-        local name = get_var(PlayerIndex, "$name")
-        say(PlayerIndex, name ..', type "/enter me" to enter your previous vehicle.')
+        say(PlayerIndex, get_var(PlayerIndex, "$name") ..', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
+function AssignTemp(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)      
+    local x, y, z = read_vector3d(player_object + 0x5C)
+    local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
+    local weapid = assign_weapon(spawn_object("weap", "weapons\\shotgun\\shotgun", x, y, z + 0.5), PlayerIndex)
+    -- write nades --
+    local nades_tbl = NadeID
+    if nades_tbl then
+        safe_write(true)
+        local PLAYER = get_dynamic_player(PlayerIndex)
+        -- Frags
+        write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+        -- Plasmas
+        write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
+        safe_write(false)
+    end
+end
+        
 -- For a future update
 function WriteNavs(killer)
     for i = 1, 16 do
@@ -938,8 +977,7 @@ function OnServerCommand(PlayerIndex, Command)
                             local x, y, z = read_vector3d(player_object + 0x5c)
                             local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
-                            enter_vehicle(vehicleId, PlayerIndex, 2)
-                            enter_vehicle(vehicleId, PlayerIndex, 2)
+                            timer(0, "delay_gunners_seat", PlayerIndex)
                         else
                             -- All other vehicles.
                             local player_object = get_dynamic_player(PlayerIndex)
@@ -1048,6 +1086,7 @@ function cycle_level(PlayerIndex, update, advance)
         end
         -- Reset Kills --
         players[PlayerIndex][2] = 0
+        NadeID = tonumber(Level[players[PlayerIndex][1]][5])
     end
 end
 
@@ -1074,6 +1113,12 @@ function DestroyVehicle(old_vehicle_id)
     return 0
 end
 
+-- Delay entery to Gunner Seat (Rocket Hog) --
+function delay_gunners_seat(PlayerIndex)
+    -- Gunners Seat --
+    enter_vehicle(vehicleId, PlayerIndex, 2)
+end
+
 function WeaponHandler(PlayerIndex)
     if (player_alive(PlayerIndex)) then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -1098,7 +1143,8 @@ function WeaponHandler(PlayerIndex)
                     destroy_object(m_weapon)
                 end
             end
-            if vbool == true then
+            -- Core handler --
+            if (vbool == true) then
                 if (tonumber(players[PlayerIndex][1]) == 8) then
                     -- Spawn in Rocket Hog as Gunner/Driver --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
@@ -1107,9 +1153,7 @@ function WeaponHandler(PlayerIndex)
                     added_height = 0.3
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
-                    -- Creating two instances here because the player doesn't always spawn in the gunners seat. This seems to do the trick.
-                    enter_vehicle(vehicleId, PlayerIndex, 2)
-                    enter_vehicle(vehicleId, PlayerIndex, 2)
+                    timer(0, "delay_gunners_seat", PlayerIndex)
                 else
                     -- handle other vehicle spawns --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
@@ -1120,12 +1164,22 @@ function WeaponHandler(PlayerIndex)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
             else
-                local x, y, z = read_vector3d(player_object + 0x5c)
-                -- added_height (important for moving vehicle objects on scoring)
-                -- Can't be higher than 0.3 otherwise players get stuck in walls.
-                added_height = 0.3
-                vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
-                enter_vehicle(vehicleId, PlayerIndex, 0)
+                -- If scoring with the flag, make sure Level 8 recipients spawn in the gunner/drivers seat of the rocket hog.
+                if (tonumber(players[PlayerIndex][1]) == 8) then
+                    local x, y, z = read_vector3d(player_object + 0x5c)
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                    timer(0, "delay_gunners_seat", PlayerIndex)
+                -- All other vehicles
+                else
+                    local x, y, z = read_vector3d(player_object + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    -- Can't be higher than 0.3 otherwise players get stuck in walls.
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                end
             end
         else
             -- remove weapon --
