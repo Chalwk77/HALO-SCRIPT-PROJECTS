@@ -19,7 +19,7 @@ Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 5 -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
@@ -64,35 +64,36 @@ WEAPON_TABLE = { }
 SCORED_LEVELS = { }
 DAMAGE_APPLIED = { }
 EQUIPMENT_TAGS = { }
-DEATH_LOCATION = { }
+PLAYER_LOCATION = { }
 EQUIPMENT_TABLE = { }
 CURRENT_FLAG_HOLDER = nil
-for i = 1, 16 do DEATH_LOCATION[i] = { } end
-vehi_type_id = "vehi"
+for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
+eqip_type_id = "eqip"
+vehi_type_id = "vehi"
 
 -- Objects to drop when someone dies
-EQUIPMENT_TABLE[1] = "powerups\\active camouflage"
-EQUIPMENT_TABLE[2] = "powerups\\health pack"
-EQUIPMENT_TABLE[3] = "powerups\\over shield"
-EQUIPMENT_TABLE[4] = "powerups\\assault rifle ammo\\assault rifle ammo"
-EQUIPMENT_TABLE[5] = "powerups\\needler ammo\\needler ammo"
-EQUIPMENT_TABLE[6] = "powerups\\pistol ammo\\pistol ammo"
-EQUIPMENT_TABLE[7] = "powerups\\rocket launcher ammo\\rocket launcher ammo"
-EQUIPMENT_TABLE[8] = "powerups\\shotgun ammo\\shotgun ammo"
-EQUIPMENT_TABLE[9] = "powerups\\sniper rifle ammo\\sniper rifle ammo"
-EQUIPMENT_TABLE[10] = "powerups\\flamethrower ammo\\flamethrower ammo"
+EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo!" }
+EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo!" }
+EQUIPMENT_TABLE[3] = { "powerups\\pistol ammo\\pistol ammo", "Pistol Ammo!" }
+EQUIPMENT_TABLE[4] = { "powerups\\sniper rifle ammo\\sniper rifle ammo", "Sniper Rifle Ammo!" }
+EQUIPMENT_TABLE[5] = { "powerups\\rocket launcher ammo\\rocket launcher ammo", "Rocket Launcher Ammo!" }
+EQUIPMENT_TABLE[6] = { "powerups\\needler ammo\\needler ammo", "Needler Ammo!" }
+EQUIPMENT_TABLE[7] = { "powerups\\flamethrower ammo\\flamethrower ammo", "Flamethrower Ammo!" }
+EQUIPMENT_TABLE[8] = { "powerups\\active camouflage", "Camouflage!" }
+EQUIPMENT_TABLE[9] = { "powerups\\health pack", "Health Pack!" }
+EQUIPMENT_TABLE[10] = { "powerups\\over shield", "Overshield!" }
 -- Objects to drop when someone dies
-WEAPON_TABLE[1] = "weapons\\assault rifle\\assault rifle"
-WEAPON_TABLE[2] = "weapons\\flamethrower\\flamethrower"
-WEAPON_TABLE[3] = "weapons\\needler\\mp_needler"
-WEAPON_TABLE[4] = "weapons\\pistol\\pistol"
-WEAPON_TABLE[5] = "weapons\\plasma pistol\\plasma pistol"
-WEAPON_TABLE[6] = "weapons\\plasma rifle\\plasma rifle"
-WEAPON_TABLE[7] = "weapons\\plasma_cannon\\plasma_cannon"
-WEAPON_TABLE[8] = "weapons\\rocket launcher\\rocket launcher"
-WEAPON_TABLE[9] = "weapons\\shotgun\\shotgun"
-WEAPON_TABLE[10] = "weapons\\sniper rifle\\sniper rifle"
+WEAPON_TABLE[1] = { "weapons\\shotgun\\shotgun", "Shotgun!" }
+WEAPON_TABLE[2] = { "weapons\\assault rifle\\assault rifle", "Assault Rifle!" }
+WEAPON_TABLE[3] = { "weapons\\pistol\\pistol", "Pistol!" }
+WEAPON_TABLE[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle!" }
+WEAPON_TABLE[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher!" }
+WEAPON_TABLE[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon!" }
+WEAPON_TABLE[7] = { "weapons\\flamethrower\\flamethrower", "Flamethrower!" }
+WEAPON_TABLE[8] = { "weapons\\needler\\mp_needler", "Needler!" }
+WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol!" }
+WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle!" }
 
 function LoadLarge()
     Level = { }
@@ -202,7 +203,7 @@ function OnScriptUnload()
     WEAPON_TABLE = { }
     SCORED_LEVELS = { }
     DAMAGE_APPLIED = { }
-    DEATH_LOCATION = { }
+    PLAYER_LOCATION = { }
     EQUIPMENT_TAGS = { }
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
@@ -269,6 +270,24 @@ function OnNewGame()
         LargeMapConfiguration = false
         LoadSmall()
     end
+    for k, v in pairs(EQUIPMENT_TABLE) do
+        if string.find(v[1], "powerups") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
+    for k, v in pairs(WEAPON_TABLE) do
+        if string.find(v[1], "weapons") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
 end
 
 function OnGameEnd()
@@ -320,13 +339,24 @@ end
 
 function RewardPlayer(PlayerIndex)
     -- for a future update --
+    if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
+        local player_object = get_dynamic_player(PlayerIndex)
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
+        rprint(PlayerIndex, "Rewarding you with " ..tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
+        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(time_alive)) .. " minutes!")
+    end
+end
+
+function math.round(num, idp)
+    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
 end
 
 function OnTick()
     for o = 1,16 do
         if (TIMER[o] ~= false and PlayerAlive(o) == true) then
             time_alive = time_alive + 0.030
-            -- cprint("Time alive: " .. tonumber(time_alive))
+            cprint("Time Alive: " .. tonumber(time_alive))
             if time_alive >= allocated_time then
                 TIMER[o] = false
             end
@@ -507,9 +537,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
-            DEATH_LOCATION[victim][1] = xAxis
-            DEATH_LOCATION[victim][2] = yAxis
-            DEATH_LOCATION[victim][3] = zAxis
+            PLAYER_LOCATION[victim][1] = xAxis
+            PLAYER_LOCATION[victim][2] = yAxis
+            PLAYER_LOCATION[victim][3] = zAxis
             if (PowerUpSettings["WeaponsAndEquipment"] == true) then
                 WeaponsAndEquipment(xAxis, yAxis, zAxis)
             elseif (PowerUpSettings["JustEquipment"] == true) then
@@ -529,9 +559,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
-            DEATH_LOCATION[victim][1] = xAxis
-            DEATH_LOCATION[victim][2] = yAxis
-            DEATH_LOCATION[victim][3] = zAxis
+            PLAYER_LOCATION[victim][1] = xAxis
+            PLAYER_LOCATION[victim][2] = yAxis
+            PLAYER_LOCATION[victim][3] = zAxis
             if (PowerUpSettings["WeaponsAndEquipment"] == true) then
                 WeaponsAndEquipment(xAxis, yAxis, zAxis)
             elseif (PowerUpSettings["JustEquipment"] == true) then
@@ -623,7 +653,7 @@ function OnPlayerLeave(PlayerIndex)
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
         -- reset death location --
-        DEATH_LOCATION[PlayerIndex][i] = nil
+        PLAYER_LOCATION[PlayerIndex][i] = nil
     end
     -- destroy vehicle --
     if vehicleId ~= nil then
@@ -637,12 +667,12 @@ function OnPlayerPrespawn(PlayerIndex)
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
-            if DEATH_LOCATION[victim][1] ~= nil then
+            if PLAYER_LOCATION[victim][1] ~= nil then
                 -- spawn at death location --
-                write_vector3d(get_dynamic_player(victim) + 0x5C, DEATH_LOCATION[victim][1], DEATH_LOCATION[victim][2], DEATH_LOCATION[victim][3])
+                write_vector3d(get_dynamic_player(victim) + 0x5C, PLAYER_LOCATION[victim][1], PLAYER_LOCATION[victim][2], PLAYER_LOCATION[victim][3])
                 for i = 1, 3 do
                     -- reset death location --
-                    DEATH_LOCATION[victim][i] = nil
+                    PLAYER_LOCATION[victim][i] = nil
                 end
             end
         end
@@ -1319,9 +1349,9 @@ function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
     local rotation = read_float(player + 0x138)
     local GetRandomNumber = math.random(1, 2)
     if (tonumber(GetRandomNumber) == 1) then
-        spawn_object(tostring(eqip), e, xAxis, yAxis, zAxis + 0.5, rotation)
+        spawn_object(tostring(eqip_type_id), e, xAxis, yAxis, zAxis + 0.5, rotation)
     elseif (tonumber(GetRandomNumber) == 2) then
-        spawn_object(tostring(weap), w, xAxis, yAxis, zAxis + 0.5, rotation)
+        spawn_object(tostring(weap_type_id), w, xAxis, yAxis, zAxis + 0.5, rotation)
     end
 end
 
@@ -1330,7 +1360,7 @@ function JustEquipment(victim, xAxis, yAxis, zAxis)
     local e = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    spawn_object(tostring(eqip), e, xAxis, yAxis, zAxis + 0.5, rotation)
+    spawn_object(tostring(eqip_type_id), e, xAxis, yAxis, zAxis + 0.5, rotation)
 end
 
 function JustWeapons(victim, xAxis, yAxis, zAxis)
@@ -1338,7 +1368,7 @@ function JustWeapons(victim, xAxis, yAxis, zAxis)
     local w = WEAPON_TABLE[math.random(0, #WEAPON_TABLE - 1)]
     local player = get_player(victim)
     local rotation = read_float(player + 0x138)
-    spawn_object(tostring(weap), w, xAxis, yAxis, zAxis + 0.5, rotation)
+    spawn_object(tostring(weap_type_id), w, xAxis, yAxis, zAxis + 0.5, rotation)
 end
 
 function get_tag_info(tagclass, tagname)
