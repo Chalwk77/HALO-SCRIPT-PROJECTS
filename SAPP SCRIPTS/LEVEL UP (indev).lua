@@ -562,6 +562,9 @@ function OnPlayerLeave(PlayerIndex)
         -- reset death location --
         DEATH_LOCATION[PlayerIndex][i] = nil
     end
+    if vehicleId ~= nil then
+        timer(1000*2, "DestroyVehicle", vehicleId)
+    end
 end
 
 function OnPlayerPrespawn(PlayerIndex)
@@ -936,14 +939,12 @@ function OnServerCommand(PlayerIndex, Command)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
                             enter_vehicle(vehicleId, PlayerIndex, 2)
                             enter_vehicle(vehicleId, PlayerIndex, 2)
-                            rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                         else
                             -- All other vehicles.
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
                             local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
-                            rprint(PlayerIndex, "Entering " .. tostring(Level[players[PlayerIndex][1]][2]))
                         end
                     else
                         rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
@@ -1103,7 +1104,7 @@ function WeaponHandler(PlayerIndex)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls on large maps when flag capturing and leveling up to a Vehicle Level.
                     added_height = 0.3
-                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     -- Creating two instances here because the player doesn't always spawn in the gunners seat. This seems to do the trick.
                     enter_vehicle(vehicleId, PlayerIndex, 2)
@@ -1114,7 +1115,7 @@ function WeaponHandler(PlayerIndex)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls.
                     added_height = 0.3
-                    local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
             else
@@ -1122,7 +1123,7 @@ function WeaponHandler(PlayerIndex)
                 -- added_height (important for moving vehicle objects on scoring)
                 -- Can't be higher than 0.3 otherwise players get stuck in walls.
                 added_height = 0.3
-                local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                 enter_vehicle(vehicleId, PlayerIndex, 0)
             end
         else
