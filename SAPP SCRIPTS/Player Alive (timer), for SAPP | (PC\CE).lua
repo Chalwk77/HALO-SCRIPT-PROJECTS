@@ -2,7 +2,7 @@
 Script Name: Player Alive (timer), for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
 
-    Description: If playerX is alive, when the timer reaches "ALLOCATED_TIME", do something.
+    Description: If playerX is alive, when the timer reaches the elapsed "ALLOCATED_TIME", do something.
                  It's up to you to code in your "something" of choice.
                  
                     Timer for playerX will reset when:
