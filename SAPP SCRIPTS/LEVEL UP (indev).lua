@@ -339,6 +339,12 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
+-- to do:
+-- ammo drops
+-- weapon drops
+-- powerups
+-- random?
+-- WIP...
 function RewardPlayer(PlayerIndex)
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
         local player_id = get_var(PlayerIndex, "$n")
@@ -346,6 +352,8 @@ function RewardPlayer(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[player_id].time_alive)) .. " seconds!")
+    elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
+        -- WIP
     end
 end
 
@@ -362,9 +370,9 @@ function OnTick()
                 -- cprint("Time alive: " .. tonumber(players_alive[player_id].time_alive) .. " seconds")
                 if players_alive[player_id].time_alive >= allocated_time then
                     TIMER[o] = false
-                end
-                if (PlayerAlive(o) == true) and (TIMER[o] == false) then
                     -- cprint("stopping loop", 2+8)
+                end
+                if (PlayerAlive(o) == true) and (TIMER[o] == false) then 
                     RewardPlayer(o)
                 end
             end
