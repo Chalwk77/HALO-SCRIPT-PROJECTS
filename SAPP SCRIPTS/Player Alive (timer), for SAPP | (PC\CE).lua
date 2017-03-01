@@ -2,13 +2,13 @@
 Script Name: Player Alive (timer), for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
 
-    Description: If playerX is alive, when the timer reaches the elapsed "ALLOCATED_TIME", do something.
+    Description: While playerX is alive, when the timer reaches the elapsed "ALLOCATED_TIME", do something.
                  It's up to you to code in your "something" of choice.
                  
                     Timer for playerX will reset when:
                     - They quit the game (handled by OnTick)
                     - On Death (handled by PlayerAlive)
-                    - Timer reaches ALLOCATED_TIME threashold.
+                    - Timer reaches ALLOCATED_TIME threshold.
                     - Game Ends
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
