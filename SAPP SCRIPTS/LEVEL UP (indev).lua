@@ -26,7 +26,7 @@ survivor_rewards = true
 
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
@@ -64,6 +64,7 @@ rider_ejection = nil
 object_table_ptr = nil
 -----------------------
 TIMER = { }
+PROGRESSION_TIMER = { }
 FLAG = { }
 players = { }
 CAPTURES = { }
@@ -309,7 +310,8 @@ function OnGameEnd()
     CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
-            TIMER[PlayerIndex] = false
+            TIMER[i] = false
+            PROGRESSION_TIMER[i] = false
             DAMAGE_APPLIED[i] = 0
         end
     end
@@ -348,12 +350,6 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
--- to do:
--- ammo drops
--- weapon drops
--- powerups
--- random?
--- WIP...
 function RewardPlayer(PlayerIndex)
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
         local PLAYER_ID = get_var(PlayerIndex, "$n")
@@ -361,14 +357,14 @@ function RewardPlayer(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
-        rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][11]))
+        rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
     elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
         -- WIP
     end
 end
 
-function math.round(num, idp)
-    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+function math.round(number, place)
+	return math.floor(number * ( 10 ^ (place or 0) ) + 0.5) / ( 10 ^ (place or 0) )
 end
 
 -- To do:
@@ -376,30 +372,36 @@ end
 -- Additional Health
 -- Overshields
 -- Ammo Drops
+-- Weapon Drops
+-- Powerups
 -- Alternative Weapons (temporary)
 
 function OnTick()
     -- WIP
     if (survivor_rewards == true) then
         for o = 1, 16 do
-            if (TIMER[o] ~= false and PlayerAlive(o) == true) then
-                local PLAYER_ID = get_var(o, "$n")
-                -- If player has been alive for "TIME_ALIVE", then reward them.
-                PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= allocated_time then
-                    -- Reset --
-                    TIMER[o] = false
+            if player_present(o) then
+                if (TIMER[o] ~= false and PlayerAlive(o) == true) then
+                    local PLAYER_ID = get_var(o, "$n")
+                    -- Player alive for "allocated_time" (2 minutes by default). Reward them.
+                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
+                    cprint("time alive: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
+                    if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.round(allocated_time) then
+                        TIMER[o] = false
+                        RewardPlayer(o)
+                    end
                 end
-                -- If player has been alive for "levelup_timer", then cycle their level (update, advance)
-                if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= progression_timer then
-                    -- Reset --
-                    TIMER[o] = false
-                    -- Level up, (update, advance)
-                    cycle_level(o, true, true)
-                end
-                if (PlayerAlive(o) == true) and(TIMER[o] == false) then
-                    -- reward player --
-                    RewardPlayer(o)
+                -- Player alive for "progression_timer" (3 minutes by default). Level them up.
+                if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
+                    local PLAYER_ID = get_var(o, "$n")
+                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE + 0.030
+                    cprint("Progression Timer: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds!")
+                    if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.round(progression_timer) then
+                        PROGRESSION_TIMER[o] = false
+                        cycle_level(o, true, true)
+                        say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
+                        say(o, "Leveling up!")
+                    end
                 end
             end
         end
@@ -688,6 +690,7 @@ function OnPlayerJoin(PlayerIndex)
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     PLAYERS_ALIVE[PLAYER_ID] = { }
     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -747,8 +750,10 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, " ")
         -- Reset --
         TIMER[PlayerIndex] = true
+        PROGRESSION_TIMER[PlayerIndex] = true
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+        PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
     end
 end
 
