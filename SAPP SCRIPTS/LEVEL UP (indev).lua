@@ -362,6 +362,8 @@ function math.round(num, idp)
 end
 
 function OnTick()
+    
+    -- WIP
     if (survivor_rewards == true) then
         for o = 1,16 do
             if (TIMER[o] ~= false and PlayerAlive(o) == true) then
@@ -378,6 +380,8 @@ function OnTick()
             end
         end
     end
+    
+    
     for i = 1 , 16 do
         if (player_alive(i)) then
             if FRAG_CHECK[i] and FragCheck(i) == false then FRAG_CHECK[i] = nil
