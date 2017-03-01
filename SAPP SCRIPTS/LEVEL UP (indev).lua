@@ -56,15 +56,15 @@ PowerUpSettings = {
 rider_ejection = nil
 object_table_ptr = nil
 -----------------------
-TIMER = {}
+TIMER = { }
 FLAG = { }
 players = { }
-players_alive = { }
 CAPTURES = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
 PLASMA_CHECK = { }
 WEAPON_TABLE = { }
+PLAYERS_ALIVE = { }
 SCORED_LEVELS = { }
 DAMAGE_APPLIED = { }
 EQUIPMENT_TAGS = { }
@@ -187,7 +187,7 @@ function OnScriptLoad()
             DAMAGE_APPLIED[i] = 0
         end
     end
-     -- Giraffe's --
+    -- Giraffe's --
     if (halo_type == "CE") then
         rider_ejection = read_byte(0x59A34C)
         write_byte(0x59A34C, 0)
@@ -213,7 +213,8 @@ function OnScriptUnload()
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
-    if (halo_type == "CE") then -- Giraffe's
+    if (halo_type == "CE") then
+        -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
         write_byte(0x6163EC, rider_ejection)
@@ -245,7 +246,7 @@ function InfoHandler(PlayerIndex)
     say(PlayerIndex, "There is a Flag somewhere on the map - Return it to a base to gain a Level.")
     execute_command("msg_prefix \"** SERVER ** \"")
     if (LargeMapConfiguration == true) then
-        timer(1000*5, "Vehicle_Level_Info", PlayerIndex)
+        timer(1000 * 5, "Vehicle_Level_Info", PlayerIndex)
     end
 end
 
@@ -261,8 +262,8 @@ function OnNewGame()
         end
     end
     if ctf_enabled == true then SPAWN_FLAG() end
-    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder" 
-    or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
+    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder"
+        or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
         LargeMapConfiguration = true
         LoadLarge()
     end
@@ -347,11 +348,11 @@ end
 -- WIP...
 function RewardPlayer(PlayerIndex)
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
-        local player_id = get_var(PlayerIndex, "$n")
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[player_id].time_alive)) .. " seconds!")
+        rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
     elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
         -- WIP
     end
@@ -362,36 +363,40 @@ function math.round(num, idp)
 end
 
 function OnTick()
-    
+
     -- WIP
     if (survivor_rewards == true) then
-        for o = 1,16 do
+        for o = 1, 16 do
             if (TIMER[o] ~= false and PlayerAlive(o) == true) then
-                local player_id = get_var(o, "$n")
-                players_alive[player_id].time_alive = players_alive[player_id].time_alive + 0.030
-                -- cprint("Time alive: " .. tonumber(players_alive[player_id].time_alive) .. " seconds")
-                if players_alive[player_id].time_alive >= allocated_time then
+                local PLAYER_ID = get_var(o, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
+                -- cprint("Time alive: " .. tonumber(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE) .. " seconds")
+                if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= allocated_time then
                     TIMER[o] = false
                     -- cprint("stopping loop", 2+8)
                 end
-                if (PlayerAlive(o) == true) and (TIMER[o] == false) then 
+                if (PlayerAlive(o) == true) and(TIMER[o] == false) then
                     RewardPlayer(o)
                 end
             end
         end
     end
-    
-    
-    for i = 1 , 16 do
+
+
+    for i = 1, 16 do
         if (player_alive(i)) then
-            if FRAG_CHECK[i] and FragCheck(i) == false then FRAG_CHECK[i] = nil
-            elseif FragCheck(i) and FRAG_CHECK[i] == nil then FRAG_CHECK[i] = false
+            if FRAG_CHECK[i] and FragCheck(i) == false then
+                FRAG_CHECK[i] = nil
+            elseif FragCheck(i) and FRAG_CHECK[i] == nil then
+                FRAG_CHECK[i] = false
                 execute_command("msg_prefix \"\"")
                 say(i, "Woah! You're out of frag grenades!")
                 execute_command("msg_prefix \"** SERVER ** \"")
             end
-            if PLASMA_CHECK[i] and PlasmaCheck(i) == false then PLASMA_CHECK[i] = nil
-            elseif PlasmaCheck(i) and PLASMA_CHECK[i] == nil then PLASMA_CHECK[i] = false
+            if PLASMA_CHECK[i] and PlasmaCheck(i) == false then
+                PLASMA_CHECK[i] = nil
+            elseif PlasmaCheck(i) and PLASMA_CHECK[i] == nil then
+                PLASMA_CHECK[i] = false
                 execute_command("msg_prefix \"\"")
                 say(i, "Woah! You're out of plasma grenades!")
                 execute_command("msg_prefix \"** SERVER ** \"")
@@ -401,25 +406,26 @@ function OnTick()
     for j = 1, 16 do
         if (player_alive(j)) then
             if (CheckForFlag(j) == false and FLAG_BOOL[j]) then FLAG_BOOL[j] = nil end
-                if (CheckForFlag(j) == true) then
-                    -- Player is current flag holder, monitor them until they capture it, drop it, or die.
-                    CURRENT_FLAG_HOLDER = tonumber(j)
-                    -- Set player speed
-                    execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
-                    -- Blue Base
-                    if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
-                        -- Red Base
-                        or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
-                        -- level up (update, advance)
-                        ctf_score(j)
-                        execute_command("msg_prefix \"\"")
-                        say_all(get_var(j, "$name") .. " scored a flag!")
-                        execute_command("msg_prefix \"** SERVER ** \"")
-                        execute_command("s " .. j .. " 1")
-                    end
+            if (CheckForFlag(j) == true) then
+                -- Player is current flag holder, monitor them until they capture it, drop it, or die.
+                CURRENT_FLAG_HOLDER = tonumber(j)
+                -- Set player speed
+                execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
+                -- Blue Base
+                if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
+                    -- Red Base
+                    or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
+                    -- level up (update, advance)
+                    ctf_score(j)
+                    execute_command("msg_prefix \"\"")
+                    say_all(get_var(j, "$name") .. " scored a flag!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                    execute_command("s " .. j .. " 1")
                 end
+            end
             -- player has the flag --
-            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then FLAG_BOOL[j] = true
+            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
+                FLAG_BOOL[j] = true
                 rprint(j, "|cReturn the flag to a base to gain a level")
                 rprint(j, "|c ")
                 rprint(j, "|c ")
@@ -470,37 +476,37 @@ function OnVehicleExit(PlayerIndex)
         vehicle_Id = read_dword(player_object + 0x11C)
         obj_id = get_object_memory(vehicle_Id)
         exit_vehicle(PlayerIndex)
-        timer(1000*2, "DestroyVehicle", vehicle_Id)
+        timer(1000 * 2, "DestroyVehicle", vehicle_Id)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
         local MetaIndex = read_dword(VehicleObj)
         -- Control temporary weapon assignment on vehicle exit.
         -- Warthog --
         if MetaIndex == 0xE3D40260 then
-            timer(1000*1, "AssignTemp", PlayerIndex)
-        -- Rocket Hog --
+            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            -- Rocket Hog --
         elseif MetaIndex == 0xE5050391 then
-            timer(1000*1, "AssignTemp", PlayerIndex)
-        -- Tank --
+            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            -- Tank --
         elseif MetaIndex == 0xE45702E3 then
-            timer(1000*2, "AssignTemp", PlayerIndex)
-        -- Ghost --
+            timer(1000 * 2, "AssignTemp", PlayerIndex)
+            -- Ghost --
         elseif MetaIndex == 0xE4B70343 then
-            timer(1000*1, "AssignTemp", PlayerIndex)
-        -- Banshee --
+            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            -- Banshee --
         elseif MetaIndex == 0xE54003CC then
-            timer(1000*1, "AssignTemp", PlayerIndex)
-        -- Turret --
+            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            -- Turret --
         elseif MetaIndex == 0xE86906F5 then
-            timer(1000*1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1, "AssignTemp", PlayerIndex)
         end
         execute_command("msg_prefix \"\"")
-        say(PlayerIndex, get_var(PlayerIndex, "$name") ..', type "/enter me" to enter your previous vehicle.')
+        say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
 function AssignTemp(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)      
+    local player_object = get_dynamic_player(PlayerIndex)
     local x, y, z = read_vector3d(player_object + 0x5C)
     local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
     local weapid = assign_weapon(spawn_object("weap", "weapons\\shotgun\\shotgun", x, y, z + 0.5), PlayerIndex)
@@ -530,7 +536,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     -- PvP --
-    if (killer > 0) and (victim ~= killer) --[[and get_var(victim, "$team") ~= get_var(killer, "$team")]] then
+    if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
         if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_NEEDLER or
@@ -544,9 +550,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DAMAGE_APPLIED[PlayerIndex] == MELEE_ODDBALL or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
             -- Player was melee'd, move them down a level
+            -- VICTIM_WAS_MELEED = true
             MELEE_VICTIM = tonumber(PlayerIndex)
-            --VICTIM_WAS_MELEED = true
-            cycle_level(victim, true) -- update, level down
+            -- update, level down
+            cycle_level(victim, true)
         end
         -- Add kill to Killer | Check if victim was Flag Holder.
         add_kill(killer, victim)
@@ -564,14 +571,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 JustWeapons(xAxis, yAxis, zAxis)
             end
         end
-    -- SUICIDE --
+        -- SUICIDE --
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
-        if (victim == CURRENT_FLAG_HOLDER) then 
+        if (victim == CURRENT_FLAG_HOLDER) then
             SPAWN_FLAG()
         end
         VICTIM_SUICIDE = tonumber(PlayerIndex)
         -- Player Committed Suicide, move them down a level
-        cycle_level(victim, true) -- update, level down
+        cycle_level(victim, true)
+        -- update, level down
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
@@ -606,7 +614,7 @@ end
 
 function add_kill(killer, victim)
     -- If the Flag Holder (victim) is killed, respawn the flag, but only if they died from being melee'd.
-    if (victim == CURRENT_FLAG_HOLDER) and (victim == MELEE_VICTIM) then
+    if (victim == CURRENT_FLAG_HOLDER) and(victim == MELEE_VICTIM) then
         SPAWN_FLAG()
     end
     -- add on a kill
@@ -614,7 +622,7 @@ function add_kill(killer, victim)
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        if (killer == CURRENT_FLAG_HOLDER) then 
+        if (killer == CURRENT_FLAG_HOLDER) then
             drop_weapon(killer)
             -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
@@ -656,12 +664,13 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
     -- Assign Weapons, Frags, and Ammo --
-    timer(1000*6, "WelcomeHandler", PlayerIndex)
+    timer(1000 * 6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
-    setscore(PlayerIndex, players[PlayerIndex][1]) -- First initial score is equal to Level 1 (score point 1)
-    local player_id = get_var(PlayerIndex, "$n")
-    players_alive[player_id] = {}
-	players_alive[player_id].time_alive = 0
+    -- First initial score is equal to Level 1 (score point 1)
+    setscore(PlayerIndex, players[PlayerIndex][1])
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID] = { }
+    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -701,7 +710,7 @@ end
 function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
         --  assign weapons or vehicle according to level --
-        if (LargeMapConfiguration == true) then 
+        if (LargeMapConfiguration == true) then
             WeaponHandler(PlayerIndex)
         elseif (LargeMapConfiguration == false) then
             WeaponHandlerAlternate(PlayerIndex)
@@ -720,15 +729,15 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
         TIMER[PlayerIndex] = true
-        local player_id = get_var(PlayerIndex, "$n")
-        players_alive[player_id].time_alive = 0
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
     end
 end
 
 function CheckForFlag(PlayerIndex)
-	local bool = false
+    local bool = false
     local player_object = get_dynamic_player(PlayerIndex)
-    for i = 0 , 3 do
+    for i = 0, 3 do
         local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
         if (weapon_id ~= 0xFFFFFFFF) then
             local weap_object = get_object_memory(weapon_id)
@@ -736,19 +745,19 @@ function CheckForFlag(PlayerIndex)
                 local obj_type = read_byte(weap_object + 0xB4)
                 local tag_address = read_word(weap_object)
                 local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                if (read_bit(tagdata + 0x308,3) == 1) then 
-                    bool = true 
-                end		
+                if (read_bit(tagdata + 0x308, 3) == 1) then
+                    bool = true
+                end
             end
-        end		
+        end
     end
-	return bool
+    return bool
 end
 
 function ResetSpeed(PlayerIndex)
     if (player_alive(PlayerIndex)) then
         execute_command("s " .. PlayerIndex .. " 1")
-    else 
+    else
         return false
     end
 end
@@ -813,14 +822,14 @@ function ctf_score(Player)
     say(Player, "You have (" .. CAPTURES .. ") flag captures!")
 end
 
--- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building, 
+-- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building,
 -- move them outside the building upon leveling up. Otherwise they might get stuck inside the walls of the building.
 function delay_move(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
         local seat = read_word(player_object + 0x2F0)
-        if (VehicleObj ~= 0) and (seat == 1) or (seat == 2) or (seat == 3) or (seat == 4) or (seat == 5) then
+        if (VehicleObj ~= 0) and(seat == 1) or(seat == 2) or(seat == 3) or(seat == 4) or(seat == 5) then
             local vehicleId = read_dword(player_object + 0x11C)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
@@ -828,44 +837,44 @@ function delay_move(PlayerIndex)
             -- [!] -- Red Base, Blue Base
             -- inSphere Red, else inSphere Blue base
             if (MAP_NAME == "bloodgulch") then
-                if inSphere(PlayerIndex, 95.687797546387, - 159.44900512695, - 0.10000000149012, 3) == true then
+                if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, 3) == true then
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
                 else
                     moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
                 end
             elseif (MAP_NAME == "deathisland") then
-                if inSphere(PlayerIndex, - 26.576030731201, - 6.9761986732483, 9.6631727218628, 3) == true then
+                if inSphere(PlayerIndex, -26.576030731201, -6.9761986732483, 9.6631727218628, 3) == true then
                     moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
                 else
                     moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
                 end
             elseif (MAP_NAME == "icefields") then
-                if inSphere(PlayerIndex, 24.85000038147, - 22.110000610352, 2.1110000610352, 3) == true then
+                if inSphere(PlayerIndex, 24.85000038147, -22.110000610352, 2.1110000610352, 3) == true then
                     moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
                 else
                     moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
                 end
             elseif (MAP_NAME == "infinity") then
-                if inSphere(PlayerIndex, 0.67973816394806, - 164.56719970703, 15.039022445679, 3) == true then
+                if inSphere(PlayerIndex, 0.67973816394806, -164.56719970703, 15.039022445679, 3) == true then
                     moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
                 else
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
-                
+
             elseif (MAP_NAME == "sidewinder") then
                 -- RED BASE
                 if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
                     moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
-                -- BLUE BASE
+                    -- BLUE BASE
                 elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
-                
+
             elseif (MAP_NAME == "timberland") then
-                if inSphere(PlayerIndex, 17.322099685669, - 52.365001678467, - 17.751399993896, 3) == true then
+                if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, 3) == true then
                     moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
                 else
-                    moveobject(vehicleId, 3-15.02, 45.36, -18 + added_height)
+                    moveobject(vehicleId, 3 - 15.02, 45.36, -18 + added_height)
                 end
             end
         end
@@ -877,7 +886,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if MetaID == VEHICLE_GHOST_BOLT then
         -- Double Damage
         return true, Damage * 2
-    end    
+    end
     if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
         if GetLevel(PlayerIndex) == 1 then
             -- 3 times normal damage
@@ -941,7 +950,7 @@ function RemoveSpawnProtect(PlayerIndex)
 end
 
 function delay_weapons(PlayerIndex)
-    if (LargeMapConfiguration == true) then 
+    if (LargeMapConfiguration == true) then
         WeaponHandler(PlayerIndex)
     elseif (LargeMapConfiguration == false) then
         WeaponHandlerAlternate(PlayerIndex)
@@ -966,8 +975,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
-            rprint(PlayerIndex, "Frags: " ..tostring(nades_tbl[1]))
-            rprint(PlayerIndex, "Plasmas: ".. tostring(nades_tbl[2]))
+            rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]))
+            rprint(PlayerIndex, "Plasmas: " .. tostring(nades_tbl[2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         end
         response = false
@@ -979,11 +988,11 @@ function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower("level")) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
             response = false
             if t[2] ~= nil then
                 if t[2] == "up" then
-                    -- update, advance 
+                    -- update, advance
                     cycle_level(PlayerIndex, true, true)
                 elseif t[2] == "down" then
                     -- update
@@ -994,7 +1003,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and (t[1] == string.lower("enter")) then
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and(t[1] == string.lower("enter")) then
         response = false
         if (LargeMapConfiguration == true) then
             if PlayerInVehicle(PlayerIndex) then
@@ -1039,7 +1048,7 @@ function cycle_level(PlayerIndex, update, advance)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
-        if cur == (#Level + 1) then
+        if cur ==(#Level + 1) then
             game_over = true
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -1070,7 +1079,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
         end
-        if current_Level == (#Level + 1) then
+        if current_Level ==(#Level + 1) then
             game_over = true
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -1094,10 +1103,10 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             players[PlayerIndex][1] = current_Level - 1
-            if (PlayerIndex == VICTIM_SUICIDE) then 
+            if (PlayerIndex == VICTIM_SUICIDE) then
                 rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
-            elseif (PlayerIndex == MELEE_VICTIM) then 
-                rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")            
+            elseif (PlayerIndex == MELEE_VICTIM) then
+                rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")
             else
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
             end
@@ -1115,7 +1124,7 @@ function cycle_level(PlayerIndex, update, advance)
     end
     --  assign weapons or vehicle according to level --
     if not game_over then
-        if (LargeMapConfiguration == true) then 
+        if (LargeMapConfiguration == true) then
             WeaponHandler(PlayerIndex)
         elseif (LargeMapConfiguration == false) then
             WeaponHandlerAlternate(PlayerIndex)
@@ -1169,7 +1178,7 @@ function WeaponHandler(PlayerIndex)
                 exit_vehicle(PlayerIndex)
                 timer(0, "DestroyVehicle", vehicle_Id)
             end
-        end       
+        end
         if (Level[players[PlayerIndex][1]][12]) == 1 then
             -- remove weapon --
             local weaponId = read_dword(player_object + 0x118)
@@ -1207,7 +1216,7 @@ function WeaponHandler(PlayerIndex)
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     timer(0, "delay_gunners_seat", PlayerIndex)
-                -- All other vehicles
+                    -- All other vehicles
                 else
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
@@ -1254,7 +1263,7 @@ end
 
 function WeaponHandlerAlternate(PlayerIndex)
     if (player_alive(PlayerIndex)) then
-        local player_object = get_dynamic_player(PlayerIndex)      
+        local player_object = get_dynamic_player(PlayerIndex)
         -- remove weapon --
         local weaponId = read_dword(player_object + 0x118)
         if weaponId ~= 0 then
@@ -1325,7 +1334,7 @@ function CheckType()
     type_is_koth = get_var(1, "$gt") == "koth"
     type_is_oddball = get_var(1, "$gt") == "oddball"
     type_is_race = get_var(1, "$gt") == "race"
-    if (type_is_koth) or (type_is_oddball) or (type_is_race) then
+    if (type_is_koth) or(type_is_oddball) or(type_is_race) then
         cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
@@ -1355,7 +1364,7 @@ end
 
 function cls(PlayerIndex)
     for clear = 1, 20 do
-        rprint(PlayerIndex," ")
+        rprint(PlayerIndex, " ")
     end
 end
 
@@ -1431,7 +1440,7 @@ function LoadItems()
         GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
         -- Vehicles
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
-        
+
         -- configuration --
         -- Red Base x,y,z
         -- Blue Base x,y,z
@@ -1556,8 +1565,8 @@ end
         
 function read_widestring(address, length)
     local count = 0
-    local byte_table = {}
-    for i = 1,length do
+    local byte_table = { }
+    for i = 1, length do
         if read_byte(address + count) ~= 0 then
             byte_table[i] = string.char(read_byte(address + count))
         end
