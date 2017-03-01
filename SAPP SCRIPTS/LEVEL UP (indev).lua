@@ -18,6 +18,9 @@ api_version = "1.11.0.0"
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
+-- If the player survives "allocated_time" without dying, reward them with random ammo/powerups
+survivor_rewards = true
+
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
 allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
 
@@ -337,13 +340,12 @@ function PlayerAlive(PlayerIndex)
 end
 
 function RewardPlayer(PlayerIndex)
-    -- for a future update --
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
-        local hash = get_var(PlayerIndex, "$hash")
+        local player_id = get_var(PlayerIndex, "$n")
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[hash].time_alive)) .. " minutes!")
+        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[player_id].time_alive)) .. " seconds!")
     end
 end
 
@@ -352,17 +354,19 @@ function math.round(num, idp)
 end
 
 function OnTick()
-    for o = 1,16 do 
-        if (TIMER[o] ~= false and PlayerAlive(o) == true) then
-            local hash = get_var(o, "$hash")
-            players_alive[hash].time_alive = players_alive[hash].time_alive + 0.030
-            -- cprint("Time alive: " .. tonumber(players_alive[hash].time_alive) .. " seconds")
-            if players_alive[hash].time_alive >= allocated_time then
-                TIMER[o] = false
-            end
-            if (PlayerAlive(o) == true) and (TIMER[o] == false) then
-                -- cprint("stopping loop", 2+8)
-                RewardPlayer(o)
+    if (survivor_rewards == true) then
+        for o = 1,16 do
+            if (TIMER[o] ~= false and PlayerAlive(o) == true) then
+                local player_id = get_var(o, "$n")
+                players_alive[player_id].time_alive = players_alive[player_id].time_alive + 0.030
+                -- cprint("Time alive: " .. tonumber(players_alive[player_id].time_alive) .. " seconds")
+                if players_alive[player_id].time_alive >= allocated_time then
+                    TIMER[o] = false
+                end
+                if (PlayerAlive(o) == true) and (TIMER[o] == false) then
+                    -- cprint("stopping loop", 2+8)
+                    RewardPlayer(o)
+                end
             end
         end
     end
@@ -643,9 +647,9 @@ function OnPlayerJoin(PlayerIndex)
     timer(1000*6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
     setscore(PlayerIndex, players[PlayerIndex][1]) -- First initial score is equal to Level 1 (score point 1)
-    local hash = get_var(PlayerIndex, "$hash")
-    players_alive[hash] = {}
-	players_alive[hash].time_alive = 0
+    local player_id = get_var(PlayerIndex, "$n")
+    players_alive[player_id] = {}
+	players_alive[player_id].time_alive = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -704,8 +708,8 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
         TIMER[PlayerIndex] = true
-        local hash = get_var(PlayerIndex, "$hash")
-        players_alive[hash].time_alive = 0
+        local player_id = get_var(PlayerIndex, "$n")
+        players_alive[player_id].time_alive = 0
     end
 end
 
