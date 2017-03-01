@@ -267,6 +267,7 @@ function OnNewGame()
         LargeMapConfiguration = true
         LoadLarge()
     end
+    -- gephyrophobia = WIP -- 
     if MAP_NAME == "beavercreek" or MAP_NAME == "boardingaction" or MAP_NAME == "carousel"
         or MAP_NAME == "chillout" or MAP_NAME == "damnation" or MAP_NAME == "gephyrophobia"
         or MAP_NAME == "hangemhigh" or MAP_NAME == "longest" or MAP_NAME == "prisoner"
