@@ -363,7 +363,6 @@ function math.round(num, idp)
 end
 
 function OnTick()
-
     -- WIP
     if (survivor_rewards == true) then
         for o = 1, 16 do
@@ -381,22 +380,16 @@ function OnTick()
             end
         end
     end
-
-
     for i = 1, 16 do
         if (player_alive(i)) then
-            if FRAG_CHECK[i] and FragCheck(i) == false then
-                FRAG_CHECK[i] = nil
-            elseif FragCheck(i) and FRAG_CHECK[i] == nil then
-                FRAG_CHECK[i] = false
+            if FRAG_CHECK[i] and FragCheck(i) == false then FRAG_CHECK[i] = nil
+            elseif FragCheck(i) and FRAG_CHECK[i] == nil then FRAG_CHECK[i] = false
                 execute_command("msg_prefix \"\"")
                 say(i, "Woah! You're out of frag grenades!")
                 execute_command("msg_prefix \"** SERVER ** \"")
             end
-            if PLASMA_CHECK[i] and PlasmaCheck(i) == false then
-                PLASMA_CHECK[i] = nil
-            elseif PlasmaCheck(i) and PLASMA_CHECK[i] == nil then
-                PLASMA_CHECK[i] = false
+            if PLASMA_CHECK[i] and PlasmaCheck(i) == false then PLASMA_CHECK[i] = nil
+            elseif PlasmaCheck(i) and PLASMA_CHECK[i] == nil then PLASMA_CHECK[i] = false
                 execute_command("msg_prefix \"\"")
                 say(i, "Woah! You're out of plasma grenades!")
                 execute_command("msg_prefix \"** SERVER ** \"")
