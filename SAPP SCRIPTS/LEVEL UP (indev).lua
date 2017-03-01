@@ -19,7 +19,7 @@ Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 25 -- Time (in seconds) before player is rewarded ammo/powerup
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
@@ -56,6 +56,7 @@ object_table_ptr = nil
 TIMER = {}
 FLAG = { }
 players = { }
+players_alive = { }
 CAPTURES = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
@@ -246,7 +247,6 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
-    time_alive = 0
     game_over = false
     CheckType()
     LoadItems()
@@ -292,7 +292,6 @@ end
 
 function OnGameEnd()
     Level = { }
-    time_alive = 0
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
@@ -343,8 +342,8 @@ function RewardPlayer(PlayerIndex)
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        rprint(PlayerIndex, "Rewarding you with " ..tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
-        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(time_alive)) .. " minutes!")
+        local hash = get_var(PlayerIndex, "$hash")
+        rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[hash].time_alive)) .. " minutes!")
     end
 end
 
@@ -353,14 +352,16 @@ function math.round(num, idp)
 end
 
 function OnTick()
-    for o = 1,16 do
+    for o = 1,16 do 
         if (TIMER[o] ~= false and PlayerAlive(o) == true) then
-            time_alive = time_alive + 0.030
-            cprint("Time Alive: " .. tonumber(time_alive))
-            if time_alive >= allocated_time then
+            local hash = get_var(o, "$hash")
+            players_alive[hash].time_alive = players_alive[hash].time_alive + 0.030
+            cprint("Time alive: " .. tonumber(players_alive[hash].time_alive) .. " seconds")
+            if players_alive[hash].time_alive >= allocated_time then
                 TIMER[o] = false
             end
             if (PlayerAlive(o) == true) and (TIMER[o] == false) then
+                cprint("stopping loop", 2+8)
                 RewardPlayer(o)
             end
         end
@@ -577,7 +578,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer == -1) then
         return false
     end
-    -- UNKNOWN/GLITCHED --
+    -- UNKNOWN/GLITCHED --t/
     if (killer == nil) then
         return false
     end
@@ -643,6 +644,9 @@ function OnPlayerJoin(PlayerIndex)
     timer(1000*6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
     setscore(PlayerIndex, players[PlayerIndex][1]) -- First initial score is equal to Level 1 (score point 1)
+    local hash = get_var(PlayerIndex, "$hash")
+    players_alive[hash] = {}
+	players_alive[hash].time_alive = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -701,7 +705,8 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
         TIMER[PlayerIndex] = true
-        time_alive = 0
+        local hash = get_var(PlayerIndex, "$hash")
+        players_alive[hash].time_alive = 0
     end
 end
 
@@ -1021,7 +1026,6 @@ function cycle_level(PlayerIndex, update, advance)
         local cur = current_Level + 1
         if cur == (#Level + 1) then
             game_over = true
-            time_alive = 0
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -1053,7 +1057,6 @@ function cycle_level(PlayerIndex, update, advance)
         end
         if current_Level == (#Level + 1) then
             game_over = true
-            time_alive = 0
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
