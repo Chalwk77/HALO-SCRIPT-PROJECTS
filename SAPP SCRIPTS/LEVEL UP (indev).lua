@@ -19,7 +19,7 @@ Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 25 -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
@@ -339,10 +339,10 @@ end
 function RewardPlayer(PlayerIndex)
     -- for a future update --
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
+        local hash = get_var(PlayerIndex, "$hash")
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        local hash = get_var(PlayerIndex, "$hash")
         rprint(PlayerIndex, "You have been alive for " ..  tonumber(math.round(players_alive[hash].time_alive)) .. " minutes!")
     end
 end
@@ -356,12 +356,12 @@ function OnTick()
         if (TIMER[o] ~= false and PlayerAlive(o) == true) then
             local hash = get_var(o, "$hash")
             players_alive[hash].time_alive = players_alive[hash].time_alive + 0.030
-            cprint("Time alive: " .. tonumber(players_alive[hash].time_alive) .. " seconds")
+            -- cprint("Time alive: " .. tonumber(players_alive[hash].time_alive) .. " seconds")
             if players_alive[hash].time_alive >= allocated_time then
                 TIMER[o] = false
             end
             if (PlayerAlive(o) == true) and (TIMER[o] == false) then
-                cprint("stopping loop", 2+8)
+                -- cprint("stopping loop", 2+8)
                 RewardPlayer(o)
             end
         end
@@ -495,7 +495,6 @@ function WriteNavs(PlayerIndex)
     local m_player = getplayer(PlayerIndex)
     if m_player then
         local slayer_target = read_word(m_player, 0x88)
-        cprint("yes", 2+8)
         write_word(m_player, 0x88, PlayerIndex)
     end
 end
@@ -578,7 +577,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer == -1) then
         return false
     end
-    -- UNKNOWN/GLITCHED --t/
+    -- UNKNOWN/GLITCHED --
     if (killer == nil) then
         return false
     end
