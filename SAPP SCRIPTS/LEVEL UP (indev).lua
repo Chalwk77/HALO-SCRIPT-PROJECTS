@@ -28,6 +28,9 @@ survivor_rewards = true
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
 allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
 
+-- If player has been alive for "progression_timer", then cycle their level (update, advance)
+progression_timer = 180 -- (3 minutes)
+
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
 
@@ -368,19 +371,34 @@ function math.round(num, idp)
     return tonumber(string.format("%." ..(idp or 0) .. "f", num))
 end
 
+-- To do:
+-- Rewards based on current level
+-- Additional Health
+-- Overshields
+-- Ammo Drops
+-- Alternative Weapons (temporary)
+
 function OnTick()
     -- WIP
     if (survivor_rewards == true) then
         for o = 1, 16 do
             if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                 local PLAYER_ID = get_var(o, "$n")
+                -- If player has been alive for "TIME_ALIVE", then reward them.
                 PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                -- cprint("Time alive: " .. tonumber(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE) .. " seconds")
                 if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= allocated_time then
+                    -- Reset --
                     TIMER[o] = false
-                    -- cprint("stopping loop", 2+8)
+                end
+                -- If player has been alive for "levelup_timer", then cycle their level (update, advance)
+                if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= progression_timer then
+                    -- Reset --
+                    TIMER[o] = false
+                    -- Level up, (update, advance)
+                    cycle_level(o, true, true)
                 end
                 if (PlayerAlive(o) == true) and(TIMER[o] == false) then
+                    -- reward player --
                     RewardPlayer(o)
                 end
             end
@@ -727,6 +745,7 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
+        -- Reset --
         TIMER[PlayerIndex] = true
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
