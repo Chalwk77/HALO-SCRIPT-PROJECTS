@@ -8,8 +8,10 @@ Implementing API version: 1.11.0.0
                     Timer for playerX will reset when:
                     - They quit the game (handled by OnTick)
                     - On Death (handled by PlayerAlive)
-                    - Timer reaches ALLOCATED_TIME threshold.
                     - Game Ends
+                    
+                    When the timer reaches the elapsed ALLOCATED_TIME threshold, 
+                    it will reset to 0 seconds but not continue counting down until they respawn/rejoin.
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
