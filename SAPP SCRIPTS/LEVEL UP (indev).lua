@@ -21,6 +21,10 @@ ctf_enabled = true -- Spawn the flag?
 -- If the player survives "allocated_time" without dying, reward them with random ammo/powerups
 survivor_rewards = true
 
+-- WIP
+-- If player survives 3 Minutes without dying, level them up
+
+
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
 allocated_time = 120 -- Time (in seconds) before player is rewarded ammo/powerup
 
@@ -354,6 +358,7 @@ function RewardPlayer(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
+        rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][11]))
     elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
         -- WIP
     end
