@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
     Acknowledgments
     Credits to "Giraffe" for his AutoVehicle-Flip functions.
     Credits to 002 for his get_tag_info function (return metaid)
-    Credits to sehé°° for his death message patch
+    Credits to sehe for his death message patch
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -79,7 +79,6 @@ EQUIPMENT_TAGS = { }
 PLAYER_LOCATION = { }
 EQUIPMENT_TABLE = { }
 CURRENT_FLAG_HOLDER = nil
-temp = 0
 for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
 eqip_type_id = "eqip"
@@ -192,7 +191,7 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    -- sehé°°'s death Message Patch --
+    -- sehe's death Message Patch --
 	disable_killmsg_addr = sig_scan("8B42348A8C28D500000084C9")	+ 3
 	original_code_1 = read_dword(disable_killmsg_addr)
 	safe_write(true)
@@ -230,7 +229,7 @@ function OnScriptUnload()
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
-    -- sehé°°'s death Message Patch --
+    -- sehe's death Message Patch --
 	safe_write(true)
 	write_dword(disable_killmsg_addr, original_code_1)
 	write_word(disable_speed_decrease_addr, original_code_2)
