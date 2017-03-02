@@ -397,17 +397,16 @@ function OnTick()
                     --cprint("Progression Timer: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds!")
                     if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.round(progression_timer) then
                         if (o == CURRENT_FLAG_HOLDER) then 
-                            drop_weapon(o)
-                            timer(1, "delay_cycle_progression", o)
                             PROGRESSION_TIMER[o] = false
+                            drop_weapon(o)
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
                             CheckPlayer(o)
                         else
                             -- Not Current Flag Holder
+                            PROGRESSION_TIMER[o] = false
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
-                            PROGRESSION_TIMER[o] = false
                             CheckPlayer(o)
                         end
                     end
@@ -934,11 +933,6 @@ function delay_cycle_command(PlayerIndex)
     if level_down then
         cycle_level(Player, true)
     end
-end
-
-function delay_cycle_progression(PlayerIndex)
-    local Player = tonumber(PlayerIndex)
-    cycle_level(Player, true, true)
 end
 
 function delay_weapons(PlayerIndex)
