@@ -407,14 +407,18 @@ function OnTick()
                         if (o == CURRENT_FLAG_HOLDER) then 
                             PROGRESSION_TIMER[o] = false
                             drop_weapon(o)
+                            execute_command("msg_prefix \"\"")
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
+                            execute_command("msg_prefix \"** SERVER ** \"")
                             CheckPlayer(o)
                         else
                             -- Not Current Flag Holder
                             PROGRESSION_TIMER[o] = false
+                            execute_command("msg_prefix \"\"")
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
+                            execute_command("msg_prefix \"** SERVER ** \"")
                             CheckPlayer(o)
                         end
                     end
