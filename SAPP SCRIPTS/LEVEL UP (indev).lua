@@ -21,15 +21,11 @@ ctf_enabled = true -- Spawn the flag?
 -- If the player survives "allocated_time" without dying, reward them with random ammo/powerups
 survivor_rewards = true
 
--- WIP
--- If player survives 3 Minutes without dying, level them up
-
-
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
 allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
-progression_timer = 60 -- (3 minutes)
+progression_timer = 180 -- (3 minutes)
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
@@ -406,11 +402,13 @@ function OnTick()
                             PROGRESSION_TIMER[o] = false
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
+                            CheckPlayer(o)
                         else
-                            cycle_level(o, true, true)
+                            -- Not Current Flag Holder
                             say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
                             say(o, "Leveling up!")
                             PROGRESSION_TIMER[o] = false
+                            CheckPlayer(o)
                         end
                     end
                 end
@@ -841,14 +839,22 @@ function moveobject(ObjectID, x, y, z)
     end
 end
 
-function ctf_score(Player)
-    PlayerIndex = Player
+function ctf_score(PlayerIndex)
     CURRENT_FLAG_HOLDER = nil
-    cycle_level(Player, true, true)
+    cycle_level(PlayerIndex, true, true)
     SPAWN_FLAG()
-    timer(300, "delay_move", Player)
+    timer(300, "delay_move", PlayerIndex)
     CAPTURES = temp + 1
-    say(Player, "You have (" .. CAPTURES .. ") flag captures!")
+    say(PlayerIndex, "You have (" .. CAPTURES .. ") flag captures!")
+end
+
+function CheckPlayer(PlayerIndex)
+    cycle_level(PlayerIndex, true, true)
+    radius = 3
+    if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
+        or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], radius) == true then
+        timer(300, "delay_move", PlayerIndex)
+    end
 end
 
 -- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building,
@@ -889,7 +895,6 @@ function delay_move(PlayerIndex)
                 else
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
-
             elseif (MAP_NAME == "sidewinder") then
                 -- RED BASE
                 if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
@@ -898,7 +903,6 @@ function delay_move(PlayerIndex)
                 elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
-
             elseif (MAP_NAME == "timberland") then
                 if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, 3) == true then
                     moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
