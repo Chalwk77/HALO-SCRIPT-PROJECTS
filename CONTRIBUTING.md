@@ -10,6 +10,7 @@ Contributors to [code]
 
   * Author of SAPP for Halo
         - http://halo.isimaginary.com/forum/user-1.html
+  * Death Message patch
 
 * **[AelitePrime](http://phasor.proboards.com/user/37)**
 
