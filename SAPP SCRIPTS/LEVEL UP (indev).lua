@@ -84,6 +84,7 @@ weap_type_id = "weap"
 eqip_type_id = "eqip"
 vehi_type_id = "vehi"
 
+-- For a Future Update
 -- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
 EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo!" }
 EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo!" }
@@ -702,16 +703,19 @@ end
 function OnPlayerJoin(PlayerIndex)
     -- set level
     players[PlayerIndex] = { Starting_Level, 0 }
-
-    local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
-    -- Check for Previous Statistics --
-    for k, v in pairs(SCORED_LEVELS) do
-        if tostring(k) == tostring(saved_data) then
-            players[PlayerIndex][1] = SCORED_LEVELS[saved_data][1]
-            players[PlayerIndex][2] = SCORED_LEVELS[saved_data][2]
-            break
+    
+    if PlayerIndex ~= 0 then
+        local saved_data = get_var(PlayerIndex, "$n") .. ":" .. get_var(PlayerIndex, "$name")
+        -- Check for Previous Statistics --
+        for k, v in pairs(SCORED_LEVELS) do
+            if tostring(k) == tostring(saved_data) then
+                players[PlayerIndex][1] = SCORED_LEVELS[saved_data][1]
+                players[PlayerIndex][2] = SCORED_LEVELS[saved_data][2]
+                break
+            end
         end
     end
+    
     -- Assign Weapons, Frags, and Ammo --
     timer(1000 * 6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
@@ -726,9 +730,11 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     DAMAGE_APPLIED[PlayerIndex] = nil
-    local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
-    -- Create Table Key for Player --
-    SCORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+    if PlayerIndex ~= 0 then
+        local saved_data = get_var(PlayerIndex, "$n") .. ":" .. get_var(PlayerIndex, "$name")
+        -- Create Table Key for Player --
+        SCORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+    end
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
         -- reset death location --
