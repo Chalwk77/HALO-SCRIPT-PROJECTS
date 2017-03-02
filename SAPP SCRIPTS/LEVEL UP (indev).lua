@@ -5,6 +5,7 @@ Implementing API version: 1.11.0.0
     Acknowledgments
     Credits to "Giraffe" for his AutoVehicle-Flip functions.
     Credits to 002 for his get_tag_info function (return metaid)
+    Credits to sehé°° for his death message patch
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -26,6 +27,9 @@ allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is reward
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
+
+-- Temporary weapon to assign when they exit their vehicle
+out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
@@ -64,7 +68,6 @@ TIMER = { }
 PROGRESSION_TIMER = { }
 FLAG = { }
 players = { }
-CAPTURES = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
 PLASMA_CHECK = { }
@@ -76,6 +79,7 @@ EQUIPMENT_TAGS = { }
 PLAYER_LOCATION = { }
 EQUIPMENT_TABLE = { }
 CURRENT_FLAG_HOLDER = nil
+temp = 0
 for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
 eqip_type_id = "eqip"
@@ -188,6 +192,13 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    -- sehé°°'s death Message Patch --
+	disable_killmsg_addr = sig_scan("8B42348A8C28D500000084C9")	+ 3
+	original_code_1 = read_dword(disable_killmsg_addr)
+	safe_write(true)
+	write_dword(disable_killmsg_addr, 0x03EB01B1)
+	safe_write(false)
+    -------------------------------------------------------------------
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
@@ -219,6 +230,13 @@ function OnScriptUnload()
     rider_ejection = nil
     object_table_ptr = nil
     CURRENT_FLAG_HOLDER = nil
+    -- sehé°°'s death Message Patch --
+	safe_write(true)
+	write_dword(disable_killmsg_addr, original_code_1)
+	write_word(disable_speed_decrease_addr, original_code_2)
+	write_word(force_speed_sync_addr, original_code_3)
+	safe_write(false)
+    ----------------------------------------------------------
     if (halo_type == "CE") then
         -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
@@ -257,7 +275,6 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
-    temp = 0
     game_over = false
     CheckType()
     LoadItems()
@@ -517,22 +534,22 @@ function OnVehicleExit(PlayerIndex)
         -- Control temporary weapon assignment on vehicle exit.
         -- Warthog --
         if MetaIndex == 0xE3D40260 then
-            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
             -- Rocket Hog --
         elseif MetaIndex == 0xE5050391 then
-            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
             -- Tank --
         elseif MetaIndex == 0xE45702E3 then
             timer(1000 * 2, "AssignTemp", PlayerIndex)
             -- Ghost --
         elseif MetaIndex == 0xE4B70343 then
-            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
             -- Banshee --
         elseif MetaIndex == 0xE54003CC then
-            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
             -- Turret --
         elseif MetaIndex == 0xE86906F5 then
-            timer(1000 * 1, "AssignTemp", PlayerIndex)
+            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
         end
         execute_command("msg_prefix \"\"")
         say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
@@ -541,10 +558,18 @@ function OnVehicleExit(PlayerIndex)
 end
 
 function AssignTemp(PlayerIndex)
+    local loaded = 12 -- Ready to fire
+    local unloaded = 24 -- backup
+    -- Time until ammo is updated for new weapon. (in seconds)
+    local wait_time = 1
     local player_object = get_dynamic_player(PlayerIndex)
     local x, y, z = read_vector3d(player_object + 0x5C)
-    local weapid = assign_weapon(spawn_object("weap", "weapons\\needler\\mp_needler", x, y, z + 0.5), PlayerIndex)
-    local weapid = assign_weapon(spawn_object("weap", "weapons\\shotgun\\shotgun", x, y, z + 0.5), PlayerIndex)
+    local weapid = assign_weapon(spawn_object("weap", out_of_vehicle_weapon, x, y, z + 0.5), PlayerIndex)
+    if tonumber(ammo_multiplier) then
+        execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. loaded)
+        execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. unloaded)
+        say(PlayerIndex, "Assigning you with Shotgun")
+    end 
 end
         
 -- For a future update
@@ -559,6 +584,9 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    VictimName = get_var(PlayerIndex, "$name")
+    KillerName = get_var(KillerIndex, "$name")
+    execute_command("msg_prefix \"\"")
     -- local player = get_player(PlayerIndex)
     -- write_dword(player + 0x2C, 1 * 33)
     ------------------------------------------
@@ -572,6 +600,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- PvP --
     if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
+        say_all(VictimName .. " was killed by " ..KillerName)
         if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_NEEDLER or
@@ -589,6 +618,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             MELEE_VICTIM = tonumber(PlayerIndex)
             -- update, level down
             cycle_level(victim, true)
+            SayAll(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
         end
         -- Add kill to Killer | Check if victim was Flag Holder.
         add_kill(killer, victim)
@@ -608,6 +638,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
         -- SUICIDE --
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        say(PlayerIndex, VictimName .. " committed suicide")
+        SayAll(VictimName .. " committed suicide and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
         if (victim == CURRENT_FLAG_HOLDER) then
             SPAWN_FLAG()
         end
@@ -634,17 +666,21 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- KILLED BY SERVER --
     if (killer == -1) then
+        say_all(VictimName .. " was killed by the server")
         return false
     end
     -- UNKNOWN/GLITCHED --
     if (killer == nil) then
+        say_all(VictimName .. " was killed by an unknown source - guardians perhaps? (:")
         return false
     end
     -- KILLED BY VEHICLE --
     if (killer == 0) then
+        say_all(VictimName .. " was killed by a vehicle")
         return false
     end
     DAMAGE_APPLIED[PlayerIndex] = 0
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function add_kill(killer, victim)
@@ -695,6 +731,7 @@ function OnPlayerJoin(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID] = { }
     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -803,6 +840,18 @@ function SayToAll(Message, PlayerIndex)
     end
 end
 
+function SayAll(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                execute_command("msg_prefix \"\"")
+                say(i, " " .. Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+end
+
 function OnWin(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
@@ -843,8 +892,9 @@ function ctf_score(PlayerIndex)
     cycle_level(PlayerIndex, true, true)
     SPAWN_FLAG()
     timer(300, "delay_move", PlayerIndex)
-    CAPTURES = temp + 1
-    say(PlayerIndex, "You have (" .. CAPTURES .. ") flag captures!")
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
+    say(PlayerIndex, "You have " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
 end
 
 function CheckPlayer(PlayerIndex)
@@ -1112,6 +1162,7 @@ function cycle_level(PlayerIndex, update, advance)
     -- clear player console --
     cls(PlayerIndex)
     local current_Level = players[PlayerIndex][1]
+    ammo_multiplier = tonumber(Level[players[PlayerIndex][1]][6])
     if advance == true then
         local cur = current_Level + 1
         if cur ==(#Level + 1) then
@@ -1136,6 +1187,7 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
+            SayAll(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
             rprint(PlayerIndex, "|c****** LEVEL UP ******")
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
@@ -1175,6 +1227,7 @@ function cycle_level(PlayerIndex, update, advance)
                 rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")
             else
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
+                SayAll(name .. " leveled down and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
             end
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
