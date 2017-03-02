@@ -29,10 +29,11 @@ survivor_rewards = true
 allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
-progression_timer = 180 -- (3 minutes)
+progression_timer = 60 -- (3 minutes)
 
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
+Default_Running_Speed = 1 -- in seconds
 
 Flag_Runner_Speed = 2.0 -- Flag-Holder running speed
 Flag_Runner_Camo_Duration = 15 -- Flag-Holder invisibility time
@@ -159,6 +160,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
@@ -259,6 +261,7 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
+    temp = 0
     game_over = false
     CheckType()
     LoadItems()
@@ -385,7 +388,7 @@ function OnTick()
                     local PLAYER_ID = get_var(o, "$n")
                     -- Player alive for "allocated_time" (2 minutes by default). Reward them.
                     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                    cprint("time alive: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
+                    --cprint("time alive: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
                     if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.round(allocated_time) then
                         TIMER[o] = false
                         RewardPlayer(o)
@@ -395,12 +398,20 @@ function OnTick()
                 if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
                     local PLAYER_ID = get_var(o, "$n")
                     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE + 0.030
-                    cprint("Progression Timer: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds!")
+                    --cprint("Progression Timer: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds!")
                     if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.round(progression_timer) then
-                        PROGRESSION_TIMER[o] = false
-                        cycle_level(o, true, true)
-                        say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
-                        say(o, "Leveling up!")
+                        if (o == CURRENT_FLAG_HOLDER) then 
+                            drop_weapon(o)
+                            timer(1, "delay_cycle_progression", o)
+                            PROGRESSION_TIMER[o] = false
+                            say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
+                            say(o, "Leveling up!")
+                        else
+                            cycle_level(o, true, true)
+                            say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
+                            say(o, "Leveling up!")
+                            PROGRESSION_TIMER[o] = false
+                        end
                     end
                 end
             end
@@ -424,6 +435,7 @@ function OnTick()
     end
     for j = 1, 16 do
         if (player_alive(j)) then
+            -- Monitor players
             if (CheckForFlag(j) == false and FLAG_BOOL[j]) then FLAG_BOOL[j] = nil end
             if (CheckForFlag(j) == true) then
                 -- Player is current flag holder, monitor them until they capture it, drop it, or die.
@@ -439,12 +451,11 @@ function OnTick()
                     execute_command("msg_prefix \"\"")
                     say_all(get_var(j, "$name") .. " scored a flag!")
                     execute_command("msg_prefix \"** SERVER ** \"")
-                    execute_command("s " .. j .. " 1")
+                    execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
                 end
             end
             -- player has the flag --
-            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
-                FLAG_BOOL[j] = true
+            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then FLAG_BOOL[j] = true
                 rprint(j, "|cReturn the flag to a base to gain a level")
                 rprint(j, "|c ")
                 rprint(j, "|c ")
@@ -475,6 +486,14 @@ function OnTick()
                     flip_vehicle(object)
                 end
             end
+        end
+    end
+end
+
+function OnWeaponDrop(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        if (PlayerIndex == CURRENT_FLAG_HOLDER) then
+            execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
         end
     end
 end
@@ -633,7 +652,7 @@ end
 
 function add_kill(killer, victim)
     -- If the Flag Holder (victim) is killed, respawn the flag, but only if they died from being melee'd.
-    if (victim == CURRENT_FLAG_HOLDER) and(victim == MELEE_VICTIM) then
+    if (victim == CURRENT_FLAG_HOLDER) and (victim == MELEE_VICTIM) then
         SPAWN_FLAG()
     end
     -- add on a kill
@@ -650,18 +669,6 @@ function add_kill(killer, victim)
             cycle_level(killer, true, true)
         end
     end
-end
-
-function delay_score(id, count, PlayerIndex)
-    if PlayerIndex then
-        setscore(PlayerIndex, players[PlayerIndex][1])
-    end
-    return 0
-end
-
-function delay_cycle(killer)
-    local Player = tonumber(killer)
-    cycle_level(Player, true, true)
 end
 
 function DropPowerup(x, y, z)
@@ -839,8 +846,7 @@ function ctf_score(Player)
     CURRENT_FLAG_HOLDER = nil
     cycle_level(Player, true, true)
     SPAWN_FLAG()
-    timer(300, "delay_move", PlayerIndex)
-    temp = 0
+    timer(300, "delay_move", Player)
     CAPTURES = temp + 1
     say(Player, "You have (" .. CAPTURES .. ") flag captures!")
 end
@@ -852,7 +858,7 @@ function delay_move(PlayerIndex)
         local player_object = get_dynamic_player(PlayerIndex)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
         local seat = read_word(player_object + 0x2F0)
-        if (VehicleObj ~= 0) and(seat == 1) or(seat == 2) or(seat == 3) or(seat == 4) or(seat == 5) then
+        if (VehicleObj ~= 0) and (seat == 0) or (seat == 1) or (seat == 2) or (seat == 3) or (seat == 4) or (seat == 5) then
             local vehicleId = read_dword(player_object + 0x11C)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
@@ -901,6 +907,41 @@ function delay_move(PlayerIndex)
                 end
             end
         end
+    end
+end
+
+function delay_score(id, count, PlayerIndex)
+    if PlayerIndex then
+        setscore(PlayerIndex, players[PlayerIndex][1])
+    end
+    return 0
+end
+
+function delay_cycle(killer)
+    local Player = tonumber(killer)
+    cycle_level(Player, true, true)
+end
+
+function delay_cycle_command(PlayerIndex)
+    local Player = tonumber(PlayerIndex)
+    if level_up then
+        cycle_level(Player, true, true)
+    end
+    if level_down then
+        cycle_level(Player, true)
+    end
+end
+
+function delay_cycle_progression(PlayerIndex)
+    local Player = tonumber(PlayerIndex)
+    cycle_level(Player, true, true)
+end
+
+function delay_weapons(PlayerIndex)
+    if (LargeMapConfiguration == true) then
+        WeaponHandler(PlayerIndex)
+    elseif (LargeMapConfiguration == false) then
+        WeaponHandlerAlternate(PlayerIndex)
     end
 end
 
@@ -972,14 +1013,6 @@ function RemoveSpawnProtect(PlayerIndex)
     return 0
 end
 
-function delay_weapons(PlayerIndex)
-    if (LargeMapConfiguration == true) then
-        WeaponHandler(PlayerIndex)
-    elseif (LargeMapConfiguration == false) then
-        WeaponHandlerAlternate(PlayerIndex)
-    end
-end
-
 function OnPlayerChat(PlayerIndex, Message, type)
     local response = nil
     local Message = string.lower(Message)
@@ -1016,10 +1049,23 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] ~= nil then
                 if t[2] == "up" then
                     -- update, advance
-                    cycle_level(PlayerIndex, true, true)
+                    if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                        drop_weapon(PlayerIndex)
+                        timer(1, "delay_cycle_command", PlayerIndex)
+                        level_up = true
+                    else
+                        cycle_level(PlayerIndex, true, true)
+                    end
+                    
                 elseif t[2] == "down" then
                     -- update
-                    cycle_level(PlayerIndex, true)
+                    if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                        drop_weapon(PlayerIndex)
+                        timer(1, "delay_cycle_command", PlayerIndex)
+                        level_down = true
+                    else
+                        cycle_level(PlayerIndex, true)
+                    end
                 else
                     rprint(PlayerIndex, "Action not defined - up or down")
                 end
