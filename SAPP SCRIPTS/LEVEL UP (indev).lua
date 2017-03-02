@@ -382,15 +382,6 @@ function math.round(number, place)
 	return math.floor(number * ( 10 ^ (place or 0) ) + 0.5) / ( 10 ^ (place or 0) )
 end
 
--- To do:
--- Rewards based on current level
--- Additional Health
--- Overshields
--- Ammo Drops
--- Weapon Drops
--- Powerups
--- Alternative Weapons (temporary)
-
 function OnTick()
     -- WIP
     if (survivor_rewards == true) then
