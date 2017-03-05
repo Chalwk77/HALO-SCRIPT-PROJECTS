@@ -375,7 +375,7 @@ function RewardPlayer(PlayerIndex)
         rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
         rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
     -- elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
-        -- -- WIP
+        -- WIP
     end
 end
 
