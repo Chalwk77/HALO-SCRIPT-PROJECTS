@@ -344,7 +344,9 @@ function FragCheck(PlayerIndex)
     local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
     local frags = read_byte(player_object + 0x31E)
-    if tonumber(frags) <= 0 then return true end
+    if tonumber(frags) <= 0 then 
+        return true 
+    end
     return false
 end
 
@@ -352,7 +354,9 @@ function PlasmaCheck(PlayerIndex)
     local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
     local plasmas = read_byte(player_object + 0x31F)
-    if tonumber(plasmas) <= 0 then return true end
+    if tonumber(plasmas) <= 0 then 
+        return true 
+    end
     return false
 end
 
