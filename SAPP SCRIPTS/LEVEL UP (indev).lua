@@ -374,8 +374,8 @@ function RewardPlayer(PlayerIndex)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
         rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
-    elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
-        -- WIP
+    -- elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
+        -- -- WIP
     end
 end
 
@@ -780,7 +780,7 @@ function OnPlayerSpawn(PlayerIndex)
         if Spawn_Invunrable_Time ~= nil and Spawn_Invunrable_Time > 0 then
             write_float(PlayerIndex + 0xE0, 99999999)
             -- Health. (0 to 1) (Normal = 1)
-            write_float(PlayerIndex + 0xE4, 99999999)
+            write_float(PlayerIndex + 0xE4, 3)
             -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
         end
