@@ -204,6 +204,7 @@ function OnScriptLoad()
             local PLAYER_ID = get_var(i, "$n")
             PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
@@ -288,6 +289,7 @@ function OnNewGame()
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
             local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
             PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
@@ -341,6 +343,7 @@ function OnGameEnd()
             PROGRESSION_TIMER[i] = false
             DAMAGE_APPLIED[i] = 0
             local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
             PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
@@ -417,11 +420,11 @@ function OnTick()
    for m = 1, 16 do
         if (player_alive(m)) then
             local player = get_dynamic_player(m)
-            local player_vehicle_id = read_dword(player + 0x11C)
-            if (player_vehicle_id ~= 0xFFFFFFFF) then
-                local vehicle = get_object_memory(player_vehicle_id)
+            local vehicle_id = read_dword(player + 0x11C)
+            if (vehicle_id ~= 0xFFFFFFFF) then
+                local vehicle = get_object_memory(vehicle_id)
                 local PLAYER_ID = get_var(m, "$n")
-                PLAYERS_ALIVE[PLAYER_ID].VEHICLE = player_vehicle_id
+                PLAYERS_ALIVE[PLAYER_ID].VEHICLE = vehicle_id
             end
         end
     end
@@ -802,7 +805,6 @@ function OnPlayerLeave(PlayerIndex)
         -- reset death location --
         PLAYER_LOCATION[PlayerIndex][i] = nil
     end
-   
     -- destroy vehicle --
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     if PLAYERS_ALIVE[PLAYER_ID].VEHICLE ~= nil then
