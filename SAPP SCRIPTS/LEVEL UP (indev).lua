@@ -54,7 +54,7 @@ ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
 WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 -----------------------------------------------------------------------------------------------------------
--- Choose what to drop when someone dies.
+-- Choose what to drop when someone dies --
 PowerUpSettings = {
     ["WeaponsAndEquipment"] = false,
     ["JustEquipment"] = false,
@@ -412,13 +412,8 @@ function secondsToTime(seconds, places)
     end
 end
 
-function VehicleHasDriver(VehicleID)
-    local vehicle_object = get_object_memory(VehicleID)
-    if (vehicle_object == 0) then return false end
-    return read_dword(vehicle_object + 0x324) ~= 0xFFFFFFFF
-end
-
 function OnTick()
+    -- Monitor players in vehicles --
    for m = 1, 16 do
         if (player_alive(m)) then
             local player = get_dynamic_player(m)
@@ -426,11 +421,15 @@ function OnTick()
             if (vehicle_id ~= 0xFFFFFFFF) then
                 local vehicle = get_object_memory(vehicle_id)
                 local PLAYER_ID = get_var(m, "$n")
+                -- Create table key for unique player in this vehicle. Used to destroy their vehicle when they quit.
                 PLAYERS_ALIVE[PLAYER_ID].VEHICLE = vehicle_id
             end
         end
     end
+    
+    -- Monitor players who're alive --
     if (survivor_rewards == true) then
+        -- If there two or mores players on the server, run the timers.
         if cur_players > 2 then
             for o = 1, 16 do
                 if player_present(o) then
@@ -440,9 +439,11 @@ function OnTick()
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
                         -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                         if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
+                            -- Reset --
                             TIMER[o] = false
                             survivor = tonumber(o)
                             RewardPlayer(o)
+                            -- Not Currently Used --
                             SetNav(o)
                         end
                     end
@@ -454,6 +455,7 @@ function OnTick()
                             local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                            -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                                -- Reset --
                                 PROGRESSION_TIMER[o] = false
                                 drop_weapon(o)
                                 execute_command("msg_prefix \"\"")
@@ -463,6 +465,7 @@ function OnTick()
                                 execute_command("msg_prefix \"** SERVER ** \"")
                                 CheckPlayer(o)
                             else
+                                -- Reset --
                                 PROGRESSION_TIMER[o] = false
                                 execute_command("msg_prefix \"\"")
                                 local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
@@ -633,6 +636,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     VictimName = get_var(PlayerIndex, "$name")
     KillerName = get_var(KillerIndex, "$name")
     execute_command("msg_prefix \"\"")
+    
+    -- Instant respawn time (for debugging) --
     -- local player = get_player(PlayerIndex)
     -- write_dword(player + 0x2C, 1 * 33)
     ------------------------------------------
@@ -659,19 +664,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DAMAGE_APPLIED[PlayerIndex] == MELEE_SNIPER_RIFLE or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_ODDBALL or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
-            -- Player was melee'd, move them down a level
-            -- VICTIM_WAS_MELEED = true
             local PLAYER_ID = get_var(victim, "$n")
+            
+            -- Assign table key to Victim --
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = victim
             if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) and (victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
                 SPAWN_FLAG()
                 PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             end
-            -- update, level down
+            -- Player was melee'd, move them down a level (update, level down)
             cycle_level(victim, true)
             SayAll(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
         end
-        -- Add kill to Killer | Check if victim was Flag Holder.
+        -- Add kill to Killer
         add_kill(killer, victim)
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
@@ -1421,10 +1426,6 @@ function WeaponHandler(PlayerIndex)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     timer(0, "delay_gunners_seat", PlayerIndex)
                 else
-               
-                
-                
-                
                     -- handle other vehicle spawns --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
