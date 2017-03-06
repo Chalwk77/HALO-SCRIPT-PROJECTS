@@ -26,7 +26,7 @@ survivor_rewards = true
 allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
-progression_timer = 180 -- (3 minutes)
+progression_timer = 25 -- (3 minutes)
 
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
@@ -347,6 +347,7 @@ function OnGameEnd()
             PROGRESSION_TIMER[i] = false
             DAMAGE_APPLIED[i] = 0
             local PLAYER_ID = get_var(i, "$n")
+            FLAG_BOOL[i] = nil
             PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
             PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
             PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
@@ -401,6 +402,10 @@ function RewardPlayer(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
+        
+        AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
+        AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. "", PlayerIndex)
+        
         rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
         rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
     end
@@ -433,7 +438,7 @@ function OnTick()
         for o = 1, 16 do
             if player_present(o) then
                 -- If there two or mores players on the server, run the timers.
-                if current_players > 2 then
+                if current_players >= 2 then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
@@ -452,28 +457,38 @@ function OnTick()
                     if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE  + 0.030
+                        --[[
+                        -- debugging --
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        ]]
                         if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                             local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-                           -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
                                 -- Reset --
                                 PROGRESSION_TIMER[o] = false
                                 drop_weapon(o)
-                                execute_command("msg_prefix \"\"")
+                                CheckPlayer(o)
+                                -- To player
                                 local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                execute_command("msg_prefix \"\"")
                                 say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                                 say(o, "Leveling up!")
                                 execute_command("msg_prefix \"** SERVER ** \"")
-                                CheckPlayer(o)
+                                -- To all other players
+                                AnnounceChat(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s) without dying!", o)
                             else
                                 -- Reset --
                                 PROGRESSION_TIMER[o] = false
-                                execute_command("msg_prefix \"\"")
+                                CheckPlayer(o)
+                                -- To player
                                 local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                execute_command("msg_prefix \"\"")
                                 say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                                 say(o, "Leveling up!")
                                 execute_command("msg_prefix \"** SERVER ** \"")
-                                CheckPlayer(o)
+                                -- To all other players
+                                AnnounceChat(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s) without dying!", o)
                             end
                         end
                     end
@@ -500,7 +515,11 @@ function OnTick()
     for j = 1, 16 do
         if (player_alive(j)) then
             -- Monitor players
-            if (CheckForFlag(j) == false and FLAG_BOOL[j]) then FLAG_BOOL[j] = nil end
+            if (CheckForFlag(j) == false and FLAG_BOOL[j]) then 
+                local PLAYER_ID = get_var(j, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+                FLAG_BOOL[j] = nil 
+            end
             if (CheckForFlag(j) == true) then
                 -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
                 local PLAYER_ID = get_var(j, "$n")
@@ -513,14 +532,13 @@ function OnTick()
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
                     -- level up (update, advance)
                     ctf_score(j)
-                    execute_command("msg_prefix \"\"")
-                    say_all(get_var(j, "$name") .. " scored a flag!")
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                    AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
                     execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
                 end
             end
             -- player has the flag --
             if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then FLAG_BOOL[j] = true
+                Announce(get_var(j, "$name") .. " has the flag!", j)
                 rprint(j, "|cReturn the flag to a base to gain a level")
                 rprint(j, "|c ")
                 rprint(j, "|c ")
@@ -858,6 +876,7 @@ function OnPlayerSpawn(PlayerIndex)
         rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
         rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         rprint(PlayerIndex, " ")
+        ammo_multiplier = tonumber(Level[players[PlayerIndex][1]][6])
         -- Reset --
         TIMER[PlayerIndex] = true
         PROGRESSION_TIMER[PlayerIndex] = true
@@ -898,20 +917,6 @@ function ResetSpeed(PlayerIndex)
     end
 end
 
-function SayToAll(Message, PlayerIndex)
-    for i = 1, 16 do
-        if player_present(i) then
-            if i ~= PlayerIndex then
-                rprint(i, "|c" .. Message)
-                rprint(i, "|c")
-                rprint(i, "|c")
-                rprint(i, "|c")
-                rprint(i, "|c")
-            end
-        end
-    end
-end
-
 function SayAll(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
@@ -929,6 +934,19 @@ function OnWin(Message, PlayerIndex)
         if player_present(i) then
             if i ~= PlayerIndex then
                 rprint(i, "|c" .. Message)
+            end
+        end
+    end
+end
+
+function AnnounceChat(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                cls(i)
+                execute_command("msg_prefix \"\"")
+                say(i, " " .. Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
             end
         end
     end
@@ -960,14 +978,17 @@ function moveobject(ObjectID, x, y, z)
 end
 
 function ctf_score(PlayerIndex)
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
-    cycle_level(PlayerIndex, true, true)
-    SPAWN_FLAG()
-    timer(300, "delay_move", PlayerIndex)
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-    say(PlayerIndex, "You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+    if game_over then 
+        -- do nothing
+    else
+        cycle_level(PlayerIndex, true, true)
+        SPAWN_FLAG()
+        timer(300, "delay_move", PlayerIndex)
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+        PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
+        say(PlayerIndex, "You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+    end
 end
 
 function CheckPlayer(PlayerIndex)
@@ -1265,11 +1286,14 @@ function cycle_level(PlayerIndex, update, advance)
     -- clear player console --
     cls(PlayerIndex)
     local current_Level = players[PlayerIndex][1]
-    ammo_multiplier = tonumber(Level[players[PlayerIndex][1]][6])
     if advance == true then
         local cur = current_Level + 1
         if cur ==(#Level + 1) then
             game_over = true
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                drop_weapon(PlayerIndex)
+            end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -1302,6 +1326,10 @@ function cycle_level(PlayerIndex, update, advance)
         end
         if current_Level ==(#Level + 1) then
             game_over = true
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                drop_weapon(PlayerIndex)
+            end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
             OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -1354,7 +1382,6 @@ function cycle_level(PlayerIndex, update, advance)
         end
         -- Reset Kills --
         players[PlayerIndex][2] = 0
-        NadeID = tonumber(Level[players[PlayerIndex][1]][5])
     end
 end
 
@@ -1706,43 +1733,43 @@ function LoadItems()
             { - 26.576030731201, - 6.9761986732483, 9.6631727218628 },
             { 29.843469619751, 15.971487045288, 8.2952880859375 },
             { - 30.282138824463, 31.312761306763, 16.601940155029 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["icefields"] = {
             { 24.85000038147, - 22.110000610352, 2.1110000610352 },
             { - 77.860000610352, 86.550003051758, 2.1110000610352 },
             { - 26.032163619995, 32.365093231201, 9.0070295333862 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["infinity"] = {
             { 0.67973816394806, - 164.56719970703, 15.039022445679 },
             { - 1.8581243753433, 47.779975891113, 11.791272163391 },
             { 9.6316251754761, - 64.030670166016, 7.7762198448181 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["sidewinder"] = {
             { - 32.038200378418, - 42.066699981689, - 3.7000000476837 },
             { 30.351499557495, - 46.108001708984, - 3.7000000476837 },
             { 2.0510597229004, 55.220195770264, - 2.8019363880157 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["timberland"] = {
             { 17.322099685669, - 52.365001678467, - 17.751399993896 },
             { - 16.329900741577, 52.360000610352, - 17.741399765015 },
             { 1.2504668235779, - 1.4873152971268, - 21.264007568359 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["dangercanyon"] = {
             { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 },
             { 12.007399559021, - 3.4513700008392, - 2.2418999671936 },
             { - 0.47723594307899, 55.331966400146, 0.23940123617649 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["beavercreek"] = {
             { 29.055599212646, 13.732000350952, - 0.10000000149012 },
             { - 0.86037802696228, 13.764800071716, - 0.0099999997764826 },
             { 14.01514339447, 14.238339424133, - 0.91193699836731 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["boardingaction"] = {
             { 1.723109960556, 0.4781160056591, 0.60000002384186 },
@@ -1754,61 +1781,61 @@ function LoadItems()
             { 5.6063799858093, - 13.548299789429, - 3.2000000476837 },
             { - 5.7499198913574, 13.886699676514, - 3.2000000476837 },
             { 0.033261407166719, 0.0034416019916534, - 0.85620224475861 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["chillout"] = {
             { 7.4876899719238, - 4.49059009552, 2.5 },
             { - 7.5086002349854, 9.750340461731, 0.10000000149012 },
             { 1.392117857933, 4.7001452445984, 3.108856678009 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["damnation"] = {
             { 9.6933002471924, - 13.340399742126, 6.8000001907349 },
             { - 12.17884349823, 14.982703208923, - 0.20000000298023 },
             { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["gephyrophobia"] = {
             { 26.884338378906, - 144.71551513672, - 16.049139022827 },
             { 26.727857589722, 0.16621616482735, - 16.048349380493 },
             { 63.513668060303, - 74.088592529297, - 1.0624552965164 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["hangemhigh"] = {
             { 13.047902107239, 9.0331249237061, - 3.3619771003723 },
             { 32.655700683594, - 16.497299194336, - 1.7000000476837 },
             { 21.020147323608, - 4.6323413848877, - 4.2290902137756 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["longest"] = {
             { - 12.791899681091, - 21.6422996521, - 0.40000000596046 },
             { 11.034700393677, - 7.5875601768494, - 0.40000000596046 },
             { - 0.84, - 14.54, 2.41 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["prisoner"] = {
             { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 },
             { 9.3676500320435, 5.1193399429321, 5.6999998092651 },
             { 0.90271377563477, 0.088873945176601, 1.392499089241 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["putput"] = {
             { - 18.89049911499, - 20.186100006104, 1.1000000238419 },
             { 34.865299224854, - 28.194700241089, 0.10000000149012 },
             { - 2.3500289916992, - 21.121452331543, 0.90232092142105 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["ratrace"] = {
             { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 },
             { 18.613000869751, - 22.652599334717, - 3.4000000953674 },
             { 8.6629104614258, - 11.159770965576, 0.2217468470335 },
-            { 1.5 }
+            { 1.2 }
         }
         FLAG["wizard"] = {
             { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 },
             { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 },
             { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 },
-            { 1.5 }
+            { 1.2 }
         }
     end
 end
