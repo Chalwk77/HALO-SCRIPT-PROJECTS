@@ -538,7 +538,7 @@ function OnTick()
             end
             -- player has the flag --
             if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then FLAG_BOOL[j] = true
-                Announce(get_var(j, "$name") .. " has the flag!", j)
+                AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
                 rprint(j, "|cReturn the flag to a base to gain a level")
                 rprint(j, "|c ")
                 rprint(j, "|c ")
@@ -1180,9 +1180,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             response = false
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then 
-                drop_weapon(PlayerIndex)
-                timer(1, "delay_cycle_command", PlayerIndex)
-                level_up = true
+                if PlayerInVehicle(PlayerIndex) then
+                    rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                else
+                    drop_weapon(PlayerIndex)
+                    timer(1, "delay_cycle_command", PlayerIndex)
+                    level_up = true
+                end
             else
                 cycle_level(PlayerIndex, true, true)
             end
@@ -1190,9 +1194,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             response = false
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then 
-                drop_weapon(PlayerIndex)
-                timer(1, "delay_cycle_command", PlayerIndex)
-                level_down = true
+                if PlayerInVehicle(PlayerIndex) then
+                    rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                else
+                    drop_weapon(PlayerIndex)
+                    timer(1, "delay_cycle_command", PlayerIndex)
+                    level_up = true
+                end
             else
                 cycle_level(PlayerIndex, true)
             end
@@ -1208,9 +1216,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         -- update, advance
                         local PLAYER_ID = get_var(PlayerIndex, "$n")
                         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then 
-                            drop_weapon(PlayerIndex)
-                            timer(1, "delay_cycle_command", PlayerIndex)
-                            level_up = true
+                            if PlayerInVehicle(PlayerIndex) then
+                                rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                            else
+                                drop_weapon(PlayerIndex)
+                                timer(1, "delay_cycle_command", PlayerIndex)
+                                level_up = true
+                            end
                         else
                             cycle_level(PlayerIndex, true, true)
                         end
@@ -1218,9 +1230,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         -- update
                         local PLAYER_ID = get_var(PlayerIndex, "$n")
                         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then 
-                            drop_weapon(PlayerIndex)
-                            timer(1, "delay_cycle_command", PlayerIndex)
-                            level_down = true
+                            if PlayerInVehicle(PlayerIndex) then
+                                rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                            else
+                                drop_weapon(PlayerIndex)
+                                timer(1, "delay_cycle_command", PlayerIndex)
+                                level_up = true
+                            end
                         else
                             cycle_level(PlayerIndex, true)
                         end
@@ -1296,8 +1312,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
-            execute_command("map_next")
-            execute_command("mapvote_begin")
+            execute_command("sv_map_next")
         end
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
@@ -1333,8 +1348,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
-            execute_command("map_next")
-            execute_command("mapvote_begin")
+            execute_command("sv_map_next")
         end
     else
         if current_Level > Starting_Level then
