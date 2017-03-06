@@ -198,6 +198,7 @@ function OnScriptLoad()
 	safe_write(true)
 	write_dword(disable_killmsg_addr, 0x03EB01B1)
 	safe_write(false)
+    current_players = 0
     -------------------------------------------------------------------
     for i = 1, 16 do
         if player_present(i) then
@@ -289,6 +290,7 @@ function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
+            current_players = current_players + 1
             local PLAYER_ID = get_var(i, "$n")
             PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
             PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
@@ -430,8 +432,8 @@ function OnTick()
     -- Monitor players who're alive --
     if (survivor_rewards == true) then
         -- If there two or mores players on the server, run the timers.
-        if cur_players > 2 then
-            for o = 1, 16 do
+        for o = 1, 16 do
+            if current_players > 2 then
                 if player_present(o) then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
