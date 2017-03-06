@@ -428,13 +428,12 @@ function OnTick()
             end
         end
     end
-    
     -- Monitor players who're alive --
     if (survivor_rewards == true) then
-        -- If there two or mores players on the server, run the timers.
         for o = 1, 16 do
-            if current_players > 2 then
-                if player_present(o) then
+            if player_present(o) then
+                -- If there two or mores players on the server, run the timers.
+                if current_players > 2 then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
