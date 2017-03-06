@@ -719,17 +719,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- KILLED BY SERVER --
     if (killer == -1) then
-        say_all(VictimName .. " was killed by the server")
+        say_all(VictimName .. " died")
         return false
     end
     -- UNKNOWN/GLITCHED --
     if (killer == nil) then
-        say_all(VictimName .. " was killed by an unknown source - guardians perhaps? (:")
+        say_all(VictimName .. " died")
         return false
     end
     -- KILLED BY VEHICLE --
     if (killer == 0) then
-        say_all(VictimName .. " was killed by a vehicle")
+        say_all(VictimName .. " died")
         return false
     end
     DAMAGE_APPLIED[PlayerIndex] = 0
