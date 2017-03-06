@@ -26,7 +26,7 @@ survivor_rewards = true
 allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
-progression_timer = 25 -- (3 minutes)
+progression_timer = 180 -- (3 minutes)
 
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
