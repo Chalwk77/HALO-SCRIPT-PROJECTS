@@ -163,6 +163,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
+    register_callback(cb["EVENT_VEHICLE_ENTER"], "OnVehicleEntry")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
@@ -375,16 +376,19 @@ function RewardPlayer(PlayerIndex)
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
+        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        rprint(PlayerIndex, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
+        rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
         rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
-    -- elseif GetLevel(PlayerIndex) >= 7 and GetLevel(PlayerIndex) <= 10 then
-        -- WIP
     end
 end
 
-function math.round(number, place)
-	return math.floor(number * ( 10 ^ (place or 0) ) + 0.5) / ( 10 ^ (place or 0) )
+function secondsToTime(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
 end
 
 function OnTick()
@@ -394,33 +398,38 @@ function OnTick()
             if player_present(o) then
                 if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                     local PLAYER_ID = get_var(o, "$n")
-                    -- Player alive for "allocated_time" (2 minutes by default). Reward them.
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                    --cprint("time alive: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
-                    if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.round(allocated_time) then
+                    local time = os.clock()
+                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = time
+                    local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+                    cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                    if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
                         TIMER[o] = false
+                        survivor = tonumber(o)
                         RewardPlayer(o)
+                        SetNav(o)
                     end
                 end
-                -- Player alive for "progression_timer" (3 minutes by default). Level them up.
+                -- player has been alive for "progression_timer" (3 minutes by default). Level them up.
                 if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
                     local PLAYER_ID = get_var(o, "$n")
-                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE + 0.030
-                    --cprint("Progression Timer: " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds!")
-                    if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.round(progression_timer) then
-                        if (o == CURRENT_FLAG_HOLDER) then 
+                    local time = os.clock()
+                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = time
+                    if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        cprint(get_var(o, "$name") .. " is leveling up")
+                        if (o == CURRENT_FLAG_HOLDER) then
                             PROGRESSION_TIMER[o] = false
                             drop_weapon(o)
                             execute_command("msg_prefix \"\"")
-                            say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
+                            say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
                             CheckPlayer(o)
                         else
-                            -- Not Current Flag Holder
                             PROGRESSION_TIMER[o] = false
                             execute_command("msg_prefix \"\"")
-                            say(o, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE)) .. " seconds.")
+                            say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
                             CheckPlayer(o)
@@ -521,6 +530,14 @@ function flip_vehicle(Object)
     end
 end
 
+-- For a future Update --
+function OnVehicleEntry(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local Current_VehicleID = read_dword(player_object + 0x11C)
+    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+    local player_obj_id = Current_VehicleID
+end
+
 function OnVehicleExit(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
@@ -570,13 +587,11 @@ function AssignTemp(PlayerIndex)
         say(PlayerIndex, "Assigning you with Shotgun")
     end 
 end
-        
--- For a future update
-function WriteNavs(PlayerIndex)
-    local m_player = getplayer(PlayerIndex)
-    if m_player then
-        local slayer_target = read_word(m_player, 0x88)
-        write_word(m_player, 0x88, PlayerIndex)
+
+function SetNav(survivor)
+    if survivor ~= 0 then
+        local player = to_real_index(survivor)
+        write_word(get_player(survivor) + 0x88, player)
     end
 end
 
@@ -898,7 +913,7 @@ function ctf_score(PlayerIndex)
     timer(300, "delay_move", PlayerIndex)
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-    say(PlayerIndex, "You have " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+    say(PlayerIndex, "You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
 end
 
 function CheckPlayer(PlayerIndex)
@@ -1092,33 +1107,59 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return response
 end
 
-function OnServerCommand(PlayerIndex, Command)
+function OnServerCommand(PlayerIndex, Command, Environment)
     local response = nil
     local t = tokenizestring(Command)
-    if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
+    Command = string.lower(Command)
+    -- RCON
+	if (Environment == 1) then
+        if (Command == "level_up") then
             response = false
-            if t[2] ~= nil then
-                if t[2] == "up" then
-                    -- update, advance
-                    if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
-                        drop_weapon(PlayerIndex)
-                        timer(1, "delay_cycle_command", PlayerIndex)
-                        level_up = true
+            if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                drop_weapon(PlayerIndex)
+                timer(1, "delay_cycle_command", PlayerIndex)
+                level_up = true
+            else
+                cycle_level(PlayerIndex, true, true)
+            end
+        elseif (Command == "level_down") then
+            response = false
+            if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                drop_weapon(PlayerIndex)
+                timer(1, "delay_cycle_command", PlayerIndex)
+                level_down = true
+            else
+                cycle_level(PlayerIndex, true)
+            end
+        end
+    end
+    -- CHAT
+    if (Environment == 2) then 
+        if t[1] ~= nil then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower("level")) then
+                response = false
+                if t[2] ~= nil then
+                    if t[2] == "up" then
+                        -- update, advance
+                        if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                            drop_weapon(PlayerIndex)
+                            timer(1, "delay_cycle_command", PlayerIndex)
+                            level_up = true
+                        else
+                            cycle_level(PlayerIndex, true, true)
+                        end
+                    elseif t[2] == "down" then
+                        -- update
+                        if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                            drop_weapon(PlayerIndex)
+                            timer(1, "delay_cycle_command", PlayerIndex)
+                            level_down = true
+                        else
+                            cycle_level(PlayerIndex, true)
+                        end
                     else
-                        cycle_level(PlayerIndex, true, true)
+                        rprint(PlayerIndex, "Action not defined - up or down")
                     end
-                elseif t[2] == "down" then
-                    -- update
-                    if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
-                        drop_weapon(PlayerIndex)
-                        timer(1, "delay_cycle_command", PlayerIndex)
-                        level_down = true
-                    else
-                        cycle_level(PlayerIndex, true)
-                    end
-                else
-                    rprint(PlayerIndex, "Action not defined - up or down")
                 end
             end
         end
@@ -1130,7 +1171,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You're already in a vehicle!")
             else
                 if t[2] ~= nil then
-                    if t[2] == "me" then
+                    if t[2] == "me" or (Command == "enter me") then
                         if (GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 8 or higher.")
@@ -1274,9 +1315,9 @@ function PlayerInVehicle(PlayerIndex)
 end
 
 -- destroy old vehicle --
-function DestroyVehicle(old_vehicle_id)
-    if old_vehicle_id then
-        destroy_object(old_vehicle_id)
+function DestroyVehicle(vehicle_Id)
+    if vehicle_Id then
+        destroy_object(vehicle_Id)
     end
     return 0
 end
@@ -1724,6 +1765,10 @@ function read_widestring(address, length)
         count = count + 2
     end
     return table.concat(byte_table)
+end
+
+function math.round(number, place)
+	return math.floor(number * ( 10 ^ (place or 0) ) + 0.5) / ( 10 ^ (place or 0) )
 end
         
 function OnError(Message)
