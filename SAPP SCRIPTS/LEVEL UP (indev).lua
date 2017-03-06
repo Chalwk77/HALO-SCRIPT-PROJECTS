@@ -398,10 +398,9 @@ function OnTick()
             if player_present(o) then
                 if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                     local PLAYER_ID = get_var(o, "$n")
-                    local time = os.clock()
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = time
+                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
                     local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
-                    --cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                    cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                     if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
                         TIMER[o] = false
                         survivor = tonumber(o)
@@ -409,19 +408,19 @@ function OnTick()
                         SetNav(o)
                     end
                 end
-                -- player has been alive for "progression_timer" (3 minutes by default). Level them up.
+                --player has been alive for "progression_timer" (3 minutes by default). Level them up.
                 if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
                     local PLAYER_ID = get_var(o, "$n")
-                    local time = os.clock()
-                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = time
+                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE  + 0.030
                     if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
-                        --cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                        --cprint(get_var(o, "$name") .. " is leveling up")
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        cprint(get_var(o, "$name") .. " is leveling up")
                         if (o == CURRENT_FLAG_HOLDER) then
                             PROGRESSION_TIMER[o] = false
                             drop_weapon(o)
                             execute_command("msg_prefix \"\"")
+                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
                             say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
@@ -429,6 +428,7 @@ function OnTick()
                         else
                             PROGRESSION_TIMER[o] = false
                             execute_command("msg_prefix \"\"")
+                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
                             say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
