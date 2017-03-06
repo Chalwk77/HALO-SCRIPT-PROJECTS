@@ -162,7 +162,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
-    register_callback(cb["EVENT_VEHICLE_ENTER"], "OnVehicleEntry")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
@@ -202,6 +201,12 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
+            local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         end
     end
     -- Giraffe's --
@@ -282,6 +287,12 @@ function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
+            local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         end
     end
     if ctf_enabled == true then
@@ -329,6 +340,12 @@ function OnGameEnd()
             TIMER[i] = false
             PROGRESSION_TIMER[i] = false
             DAMAGE_APPLIED[i] = 0
+            local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         end
     end
 end
@@ -390,8 +407,24 @@ function secondsToTime(seconds, places)
     end
 end
 
+function VehicleHasDriver(VehicleID)
+    local vehicle_object = get_object_memory(VehicleID)
+    if (vehicle_object == 0) then return false end
+    return read_dword(vehicle_object + 0x324) ~= 0xFFFFFFFF
+end
+
 function OnTick()
-    -- WIP
+   for m = 1, 16 do
+        if (player_alive(m)) then
+            local player = get_dynamic_player(m)
+            local player_vehicle_id = read_dword(player + 0x11C)
+            if (player_vehicle_id ~= 0xFFFFFFFF) then
+                local vehicle = get_object_memory(player_vehicle_id)
+                local PLAYER_ID = get_var(m, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].VEHICLE = player_vehicle_id
+            end
+        end
+    end
     if (survivor_rewards == true) then
         for o = 1, 16 do
             if player_present(o) then
@@ -413,12 +446,12 @@ function OnTick()
                     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE  + 0.030
                     if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-                        -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                       -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                         if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
                             PROGRESSION_TIMER[o] = false
                             drop_weapon(o)
                             execute_command("msg_prefix \"\"")
-                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
+                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                             say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
@@ -426,7 +459,7 @@ function OnTick()
                         else
                             PROGRESSION_TIMER[o] = false
                             execute_command("msg_prefix \"\"")
-                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].progression_timer, 2)
+                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                             say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                             say(o, "Leveling up!")
                             execute_command("msg_prefix \"** SERVER ** \"")
@@ -530,21 +563,13 @@ function flip_vehicle(Object)
     end
 end
 
--- For a future Update --
-function OnVehicleEntry(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local Current_VehicleID = read_dword(player_object + 0x11C)
-    local player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-    local player_obj_id = Current_VehicleID
-end
-
 function OnVehicleExit(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
-        vehicle_Id = read_dword(player_object + 0x11C)
-        obj_id = get_object_memory(vehicle_Id)
+        local Vehicle_ID = read_dword(player_object + 0x11C)
+        local obj_id = get_object_memory(Vehicle_ID)
         exit_vehicle(PlayerIndex)
-        timer(1000 * 2, "DestroyVehicle", vehicle_Id)
+        timer(1000 * 2, "DestroyVehicle", Vehicle_ID)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
         local MetaIndex = read_dword(VehicleObj)
         -- Control temporary weapon assignment on vehicle exit.
@@ -608,8 +633,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local player_object = get_dynamic_player(victim)
     if PlayerInVehicle(victim) then
         if player_object ~= 0 then
-            vehicle_Id = read_dword(player_object + 0x11C)
-            timer(0, "DestroyVehicle", vehicle_Id)
+            local Vehicle_ID = read_dword(player_object + 0x11C)
+            timer(0, "DestroyVehicle", Vehicle_ID)
         end
     end
     -- PvP --
@@ -731,7 +756,7 @@ function OnPlayerJoin(PlayerIndex)
     players[PlayerIndex] = { Starting_Level, 0 }
     
     if PlayerIndex ~= 0 then
-        local saved_data = get_var(PlayerIndex, "$n") .. ":" .. get_var(PlayerIndex, "$name")
+        local saved_data = get_var(PlayerIndex, "$ip") .. ":" .. get_var(PlayerIndex, "$name")
         -- Check for Previous Statistics --
         for k, v in pairs(SCORED_LEVELS) do
             if tostring(k) == tostring(saved_data) then
@@ -749,6 +774,7 @@ function OnPlayerJoin(PlayerIndex)
     setscore(PlayerIndex, players[PlayerIndex][1])
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     PLAYERS_ALIVE[PLAYER_ID] = { }
+    PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
     PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
@@ -767,7 +793,7 @@ function OnPlayerLeave(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
     DAMAGE_APPLIED[PlayerIndex] = nil
     if PlayerIndex ~= 0 then
-        local saved_data = get_var(PlayerIndex, "$n") .. ":" .. get_var(PlayerIndex, "$name")
+        local saved_data = get_var(PlayerIndex, "$ip") .. ":" .. get_var(PlayerIndex, "$name")
         -- Create Table Key for Player --
         SCORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
     end
@@ -776,9 +802,11 @@ function OnPlayerLeave(PlayerIndex)
         -- reset death location --
         PLAYER_LOCATION[PlayerIndex][i] = nil
     end
+   
     -- destroy vehicle --
-    if vehicleId ~= nil then
-        timer(0, "DestroyVehicle", vehicleId)
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    if PLAYERS_ALIVE[PLAYER_ID].VEHICLE ~= nil then
+        destroy_object(PLAYERS_ALIVE[PLAYER_ID].VEHICLE)
     end
 end
 
@@ -1200,14 +1228,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             -- Rocket Hog (Gunner & Drivers Seat)
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
-                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
                             timer(0, "delay_gunners_seat", PlayerIndex)
                         else
                             -- All other vehicles.
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
-                            local vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
                         end
                     else
@@ -1337,11 +1365,10 @@ function PlayerInVehicle(PlayerIndex)
 end
 
 -- destroy old vehicle --
-function DestroyVehicle(vehicle_Id)
-    if vehicle_Id then
-        destroy_object(vehicle_Id)
+function DestroyVehicle(Vehicle_ID)
+    if Vehicle_ID then
+        destroy_object(Vehicle_ID)
     end
-    return 0
 end
 
 -- Delay entery to Gunner Seat (Rocket Hog) --
@@ -1359,10 +1386,10 @@ function WeaponHandler(PlayerIndex)
             vbool = true
             if player_object ~= 0 then
                 -- destroy old vehicle --
-                vehicle_Id = read_dword(player_object + 0x11C)
-                obj_id = get_object_memory(vehicle_Id)
+                Vehicle_ID = read_dword(player_object + 0x11C)
+                obj_id = get_object_memory(Vehicle_ID)
                 exit_vehicle(PlayerIndex)
-                timer(0, "DestroyVehicle", vehicle_Id)
+                timer(0, "DestroyVehicle", Vehicle_ID)
             end
         end
         if (Level[players[PlayerIndex][1]][12]) == 1 then
@@ -1386,6 +1413,10 @@ function WeaponHandler(PlayerIndex)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     timer(0, "delay_gunners_seat", PlayerIndex)
                 else
+               
+                
+                
+                
                     -- handle other vehicle spawns --
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
