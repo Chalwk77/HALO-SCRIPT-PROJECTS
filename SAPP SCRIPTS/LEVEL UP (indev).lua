@@ -578,31 +578,26 @@ function OnVehicleExit(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
         local Vehicle_ID = read_dword(player_object + 0x11C)
-        local obj_id = get_object_memory(Vehicle_ID)
         exit_vehicle(PlayerIndex)
         timer(1000 * 2, "DestroyVehicle", Vehicle_ID)
-        local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-        local MetaIndex = read_dword(VehicleObj)
-        -- Control temporary weapon assignment on vehicle exit.
-        -- Warthog --
-        if MetaIndex == 0xE3D40260 then
-            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
-            -- Rocket Hog --
-        elseif MetaIndex == 0xE5050391 then
-            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
-            -- Tank --
-        elseif MetaIndex == 0xE45702E3 then
-            timer(1000 * 2, "AssignTemp", PlayerIndex)
-            -- Ghost --
-        elseif MetaIndex == 0xE4B70343 then
-            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
-            -- Banshee --
-        elseif MetaIndex == 0xE54003CC then
-            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
-            -- Turret --
-        elseif MetaIndex == 0xE86906F5 then
-            timer(1000 * 1.1, "AssignTemp", PlayerIndex)
+        local PlayerObj = get_dynamic_player(PlayerIndex)
+        local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
+        local VehicleName = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
+        if VehicleName == "vehicles\\warthog\\mp_warthog" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\rwarthog\\rwarthog" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\scorpion\\scorpion_mp" then
+            delay = 1000 * 2
+        elseif VehicleName == "vehicles\\ghost\\ghost_mp" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\banshee\\banshee_mp" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\c gun turret\\c gun turret_mp" then
+            delay = 1000 * 1.1
         end
+        -- Temporary weapon assignment on vehicle exit.
+        timer(delay, "AssignTemp", PlayerIndex)
         execute_command("msg_prefix \"\"")
         say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
