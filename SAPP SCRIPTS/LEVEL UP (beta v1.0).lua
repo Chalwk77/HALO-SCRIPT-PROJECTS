@@ -688,7 +688,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
             -- Player was melee'd, move them down a level (update, level down)
             cycle_level(victim, true)
-            SayAll(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+            AnnounceChat(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
         end
         -- Add kill to Killer
         add_kill(killer, victim)
@@ -709,7 +709,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- SUICIDE --
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
         say(PlayerIndex, VictimName .. " committed suicide")
-        SayAll(VictimName .. " committed suicide and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+        AnnounceChat(VictimName .. " committed suicide and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
         local PLAYER_ID = get_var(victim, "$n")
         PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = victim
         if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -914,18 +914,6 @@ function ResetSpeed(PlayerIndex)
         execute_command("s " .. PlayerIndex .. " 1")
     else
         return false
-    end
-end
-
-function SayAll(Message, PlayerIndex)
-    for i = 1, 16 do
-        if player_present(i) then
-            if i ~= PlayerIndex then
-                execute_command("msg_prefix \"\"")
-                say(i, " " .. Message)
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-        end
     end
 end
 
@@ -1314,7 +1302,7 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
-            SayAll(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
+            AnnounceChat(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
             rprint(PlayerIndex, "|c****** LEVEL UP ******")
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
@@ -1359,7 +1347,7 @@ function cycle_level(PlayerIndex, update, advance)
                 rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")
             else
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
-                SayAll(name .. " leveled down and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+                AnnounceChat(name .. " leveled down and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
             end
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
