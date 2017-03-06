@@ -81,8 +81,7 @@ function OnTick()
             if player_present(i) then
                 if (TIMER[i] ~= false and PlayerAlive(i) == true) then
                     local PLAYER_ID = get_var(i, "$n")
-                    local time = os.clock()
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = time
+                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0.030
                     if (PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(ALLOCATED_TIME)) then
                         TIMER[i] = false
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
