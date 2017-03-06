@@ -67,8 +67,12 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
-function math.round(number, place)
-	return math.floor(number * ( 10 ^ (place or 0) ) + 0.5) / ( 10 ^ (place or 0) )
+function secondsToTime(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
 end
 
 function OnTick()
@@ -77,12 +81,15 @@ function OnTick()
             if player_present(i) then
                 if (TIMER[i] ~= false and PlayerAlive(i) == true) then
                     local PLAYER_ID = get_var(i, "$n")
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                    if (PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.round(ALLOCATED_TIME)) then
+                    local time = os.clock()
+                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = time
+                    if (PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(ALLOCATED_TIME)) then
                         TIMER[i] = false
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                         -- do something here --
-                        -- cprint("Alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!", 2+8)
-                        rprint(i, "You have been alive for " .. tonumber(math.round(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE)) .. " seconds!")
+                        
+                        -----------------------
                     end
                 end
             end
