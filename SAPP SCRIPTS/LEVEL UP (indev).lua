@@ -78,7 +78,6 @@ DAMAGE_APPLIED = { }
 EQUIPMENT_TAGS = { }
 PLAYER_LOCATION = { }
 EQUIPMENT_TABLE = { }
-CURRENT_FLAG_HOLDER = nil
 for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
 eqip_type_id = "eqip"
@@ -230,7 +229,6 @@ function OnScriptUnload()
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
-    CURRENT_FLAG_HOLDER = nil
     -- sehe's death Message Patch --
 	safe_write(true)
 	write_dword(disable_killmsg_addr, original_code_1)
@@ -286,7 +284,9 @@ function OnNewGame()
             DAMAGE_APPLIED[i] = 0
         end
     end
-    if ctf_enabled == true then SPAWN_FLAG() end
+    if ctf_enabled == true then
+        SPAWN_FLAG() 
+    end
     if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder"
         or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
         LargeMapConfiguration = true
@@ -324,7 +324,6 @@ function OnGameEnd()
     Level = { }
     rider_ejection = nil
     object_table_ptr = nil
-    CURRENT_FLAG_HOLDER = nil
     for i = 1, 16 do
         if player_present(i) then
             TIMER[i] = false
@@ -415,7 +414,7 @@ function OnTick()
                     if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                         -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                        if (o == CURRENT_FLAG_HOLDER) then
+                        if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then
                             PROGRESSION_TIMER[o] = false
                             drop_weapon(o)
                             execute_command("msg_prefix \"\"")
@@ -460,7 +459,8 @@ function OnTick()
             if (CheckForFlag(j) == false and FLAG_BOOL[j]) then FLAG_BOOL[j] = nil end
             if (CheckForFlag(j) == true) then
                 -- Player is current flag holder, monitor them until they capture it, drop it, or die.
-                CURRENT_FLAG_HOLDER = tonumber(j)
+                local PLAYER_ID = get_var(j, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER = (j)
                 -- Set player speed
                 execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
                 -- Blue Base
@@ -513,7 +513,8 @@ end
 
 function OnWeaponDrop(PlayerIndex)
     if player_alive(PlayerIndex) then
-        if (PlayerIndex == CURRENT_FLAG_HOLDER) then
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then
             execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
         end
     end
@@ -628,7 +629,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
             -- Player was melee'd, move them down a level
             -- VICTIM_WAS_MELEED = true
-            MELEE_VICTIM = tonumber(PlayerIndex)
+            local PLAYER_ID = get_var(victim, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = victim
+            if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) and (victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
+                SPAWN_FLAG()
+                PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            end
             -- update, level down
             cycle_level(victim, true)
             SayAll(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
@@ -653,7 +659,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
         say(PlayerIndex, VictimName .. " committed suicide")
         SayAll(VictimName .. " committed suicide and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
-        if (victim == CURRENT_FLAG_HOLDER) then
+        local PLAYER_ID = get_var(victim, "$n")
+        if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then
             SPAWN_FLAG()
         end
         VICTIM_SUICIDE = tonumber(PlayerIndex)
@@ -697,16 +704,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function add_kill(killer, victim)
-    -- If the Flag Holder (victim) is killed, respawn the flag, but only if they died from being melee'd.
-    if (victim == CURRENT_FLAG_HOLDER) and (victim == MELEE_VICTIM) then
-        SPAWN_FLAG()
-    end
     -- add on a kill
     local kills = players[killer][2]
     players[killer][2] = kills + 1
     -- check to see if player advances
     if players[killer][2] == Level[players[killer][1]][4] then
-        if (killer == CURRENT_FLAG_HOLDER) then
+        local PLAYER_ID = get_var(killer, "$n")
+        if (killer == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then
             drop_weapon(killer)
             -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
@@ -748,6 +752,8 @@ function OnPlayerJoin(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
+    PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = false
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -813,6 +819,8 @@ function OnPlayerSpawn(PlayerIndex)
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
         PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+        PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+        PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = false
     end
 end
 
@@ -906,7 +914,8 @@ function moveobject(ObjectID, x, y, z)
 end
 
 function ctf_score(PlayerIndex)
-    CURRENT_FLAG_HOLDER = nil
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER = nil
     cycle_level(PlayerIndex, true, true)
     SPAWN_FLAG()
     timer(300, "delay_move", PlayerIndex)
@@ -1114,7 +1123,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
 	if (Environment == 1) then
         if (Command == "level_up") then
             response = false
-            if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then 
                 drop_weapon(PlayerIndex)
                 timer(1, "delay_cycle_command", PlayerIndex)
                 level_up = true
@@ -1123,7 +1133,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
         elseif (Command == "level_down") then
             response = false
-            if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then 
                 drop_weapon(PlayerIndex)
                 timer(1, "delay_cycle_command", PlayerIndex)
                 level_down = true
@@ -1140,7 +1151,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 if t[2] ~= nil then
                     if t[2] == "up" then
                         -- update, advance
-                        if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                        local PLAYER_ID = get_var(PlayerIndex, "$n")
+                        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then 
                             drop_weapon(PlayerIndex)
                             timer(1, "delay_cycle_command", PlayerIndex)
                             level_up = true
@@ -1149,7 +1161,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         end
                     elseif t[2] == "down" then
                         -- update
-                        if (PlayerIndex == CURRENT_FLAG_HOLDER) then 
+                        local PLAYER_ID = get_var(PlayerIndex, "$n")
+                        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAG_HOLDER) then 
                             drop_weapon(PlayerIndex)
                             timer(1, "delay_cycle_command", PlayerIndex)
                             level_down = true
@@ -1264,10 +1277,11 @@ function cycle_level(PlayerIndex, update, advance)
     else
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
             players[PlayerIndex][1] = current_Level - 1
             if (PlayerIndex == VICTIM_SUICIDE) then
                 rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
-            elseif (PlayerIndex == MELEE_VICTIM) then
+            elseif (PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM == PlayerIndex) then
                 rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")
             else
                 rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
