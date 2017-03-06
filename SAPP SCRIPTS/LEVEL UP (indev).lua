@@ -64,9 +64,9 @@ PowerUpSettings = {
 rider_ejection = nil
 object_table_ptr = nil
 -----------------------
-TIMER = { }
-PROGRESSION_TIMER = { }
+current_players = 0
 FLAG = { }
+TIMER = { }
 players = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
@@ -78,6 +78,7 @@ DAMAGE_APPLIED = { }
 EQUIPMENT_TAGS = { }
 PLAYER_LOCATION = { }
 EQUIPMENT_TABLE = { }
+PROGRESSION_TIMER = { }
 for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
 eqip_type_id = "eqip"
@@ -335,6 +336,7 @@ end
 
 function OnGameEnd()
     Level = { }
+    current_players = 0	
     rider_ejection = nil
     object_table_ptr = nil
     for i = 1, 16 do
@@ -429,44 +431,46 @@ function OnTick()
         end
     end
     if (survivor_rewards == true) then
-        for o = 1, 16 do
-            if player_present(o) then
-                if (TIMER[o] ~= false and PlayerAlive(o) == true) then
-                    local PLAYER_ID = get_var(o, "$n")
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                    local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
-                    -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                    if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
-                        TIMER[o] = false
-                        survivor = tonumber(o)
-                        RewardPlayer(o)
-                        SetNav(o)
+        if cur_players > 2 then
+            for o = 1, 16 do
+                if player_present(o) then
+                    if (TIMER[o] ~= false and PlayerAlive(o) == true) then
+                        local PLAYER_ID = get_var(o, "$n")
+                        PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+                        -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
+                            TIMER[o] = false
+                            survivor = tonumber(o)
+                            RewardPlayer(o)
+                            SetNav(o)
+                        end
                     end
-                end
-                --player has been alive for "progression_timer" (3 minutes by default). Level them up.
-                if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
-                    local PLAYER_ID = get_var(o, "$n")
-                    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE  + 0.030
-                    if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
-                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-                       -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                        if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-                            PROGRESSION_TIMER[o] = false
-                            drop_weapon(o)
-                            execute_command("msg_prefix \"\"")
+                    --player has been alive for "progression_timer" (3 minutes by default). Level them up.
+                    if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
+                        local PLAYER_ID = get_var(o, "$n")
+                        PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE  + 0.030
+                        if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                             local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-                            say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                            say(o, "Leveling up!")
-                            execute_command("msg_prefix \"** SERVER ** \"")
-                            CheckPlayer(o)
-                        else
-                            PROGRESSION_TIMER[o] = false
-                            execute_command("msg_prefix \"\"")
-                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-                            say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                            say(o, "Leveling up!")
-                            execute_command("msg_prefix \"** SERVER ** \"")
-                            CheckPlayer(o)
+                           -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                            if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                                PROGRESSION_TIMER[o] = false
+                                drop_weapon(o)
+                                execute_command("msg_prefix \"\"")
+                                local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                                say(o, "Leveling up!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                                CheckPlayer(o)
+                            else
+                                PROGRESSION_TIMER[o] = false
+                                execute_command("msg_prefix \"\"")
+                                local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                say(o,"You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                                say(o, "Leveling up!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                                CheckPlayer(o)
+                            end
                         end
                     end
                 end
@@ -755,6 +759,7 @@ function DropPowerup(x, y, z)
 end
 
 function OnPlayerJoin(PlayerIndex)
+    current_players = current_players + 1	
     -- set level
     players[PlayerIndex] = { Starting_Level, 0 }
     
@@ -787,6 +792,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    current_players = current_players - 1	
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
