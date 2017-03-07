@@ -456,8 +456,8 @@ function OnTick()
             if (FLAG_RESPAWN[p] == true) then
                 flag_init_respawn = flag_init_respawn + 0.030
                 respawn_timer = flag_init_respawn
-                local minutes, seconds = secondsToTime(respawn_timer, 2)
-                cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                --local minutes, seconds = secondsToTime(respawn_timer, 2)
+                --cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
                 if flag_init_respawn >= math.floor(flag_respawn_timer) then
                     FLAG_RESPAWN[p] = false
                     local flag = get_object_memory(flag_objId)
