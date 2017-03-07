@@ -1373,7 +1373,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     if t[2] == "me" or(Command == "enter me") then
                         if (GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
-                            rprint(PlayerIndex, "You must be Level 8 or higher.")
+                            rprint(PlayerIndex, "You must be Level 7 or higher.")
                         elseif (GetLevel(PlayerIndex) <= 8) then
                             -- rocket hog (gunner & drivers seat)
                             local player_object = get_dynamic_player(PlayerIndex)
