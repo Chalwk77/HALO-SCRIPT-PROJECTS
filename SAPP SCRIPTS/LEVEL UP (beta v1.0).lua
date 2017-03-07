@@ -576,12 +576,6 @@ function OnTick()
                 local PLAYER_ID = get_var(j, "$n")
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = (j)
                 
-                -- Restart Flag Respawn Timer --
-                FLAG_RESPAWN[j] = false
-                FLAG_WARN[j] = false
-                flag_init_respawn = 0
-                flag_init_warn = 0
-                
                 -- Set player speed
                 execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
                 -- Blue Base
@@ -649,6 +643,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 		local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
         if (name == "weapons\\flag\\flag") then
             for i = 1,16 do
+                -- Restart Flag Respawn Timer --
                 FLAG_RESPAWN[i] = false
                 FLAG_WARN[i] = false
                 flag_init_respawn = 0
