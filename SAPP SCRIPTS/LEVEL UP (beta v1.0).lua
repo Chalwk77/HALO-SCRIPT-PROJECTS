@@ -1034,8 +1034,18 @@ end
 function ctf_score(PlayerIndex)
     scored = false
     if game_over then 
+        -- Restart Flag Respawn Timer --
+        FLAG_RESPAWN[j] = false
+        FLAG_WARN[j] = false
+        flag_init_respawn = 0
+        flag_init_warn = 0
         -- do nothing
     else
+        -- Restart Flag Respawn Timer --
+        FLAG_RESPAWN[j] = false
+        FLAG_WARN[j] = false
+        flag_init_respawn = 0
+        flag_init_warn = 0
         cycle_level(PlayerIndex, true, true)
         SPAWN_FLAG()
         timer(300, "delay_move", PlayerIndex)
