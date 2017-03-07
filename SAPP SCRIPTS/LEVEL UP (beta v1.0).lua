@@ -530,10 +530,20 @@ function OnTick()
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
                     -- Red Base
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
-                    -- level up (update, advance)
-                    ctf_score(j)
-                    AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
-                    execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
+                    if PlayerInVehicle(j) then
+                        cls(j)
+                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                        rprint(j, "|cYou have to get out of your vehicle to score!")
+                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                        rprint(j, "|c")
+                        rprint(j, "|c")
+                        rprint(j, "|c")
+                    else
+                        -- level up (update, advance)
+                        ctf_score(j)
+                        AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
+                        execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
+                    end
                 end
             end
             -- player has the flag --
@@ -633,7 +643,6 @@ function AssignTemp(PlayerIndex)
     if tonumber(ammo_multiplier) then
         execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. loaded)
         execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. unloaded)
-        say(PlayerIndex, "Assigning you with Shotgun")
     end 
 end
 
@@ -1662,7 +1671,7 @@ function tokenizestring(inputstr, sep)
 end
 
 function cls(PlayerIndex)
-    for clear = 1, 20 do
+    for clear = 1, 25 do
         rprint(PlayerIndex, " ")
     end
 end
