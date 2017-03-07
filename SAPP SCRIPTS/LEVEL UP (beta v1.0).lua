@@ -748,6 +748,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- PvP --
     if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
         say_all(VictimName .. " was killed by " ..KillerName)
+        local PLAYER_ID = get_var(victim, "$n")
+        if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            FLAG_RESPAWN[PlayerIndex] = true
+            FLAG_WARN[PlayerIndex] = true
+        end
         if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_NEEDLER or
@@ -761,7 +766,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             DAMAGE_APPLIED[PlayerIndex] == MELEE_ODDBALL or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
             local PLAYER_ID = get_var(victim, "$n")
-            
             -- Assign table key to Victim --
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = victim
             if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) and (victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
