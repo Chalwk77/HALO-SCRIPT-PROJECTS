@@ -1055,7 +1055,9 @@ function ctf_score(PlayerIndex)
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-        say(PlayerIndex, "You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
