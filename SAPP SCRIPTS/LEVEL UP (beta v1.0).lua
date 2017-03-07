@@ -432,6 +432,9 @@ function secondsToTime(seconds, places)
 end
 
 function OnTick()
+    -- Flag Respawn Handler --
+    --  If the flag is dropped, it will respawn after 30 seconds but warn players 20 seconds before hand.
+    --  This doubles as a safety mechanism should the flag become glitched or stuck in a wall somewhere.
     for p = 1, 16 do
         if player_present(p) then
             -- WARNING --
