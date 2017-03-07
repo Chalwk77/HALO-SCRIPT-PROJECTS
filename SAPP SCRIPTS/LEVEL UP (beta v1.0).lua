@@ -31,6 +31,12 @@ progression_timer = 180 -- (3 minutes)
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
 
+-- Time until flag respawns after being dropped (in seconds)
+flag_respawn_timer = 30
+
+-- Time until flag respawn warning is announced (in seconds)
+flag_warning = 15
+
 Speed_Powerup = 2 -- in seconds
 Speed_Powerup_Duration = 20 -- in seconds
 Default_Running_Speed = 1 -- in seconds
@@ -70,6 +76,8 @@ TIMER = { }
 players = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
+FLAG_RESPAWN = { }
+FLAG_WARN = { }
 PLASMA_CHECK = { }
 WEAPON_TABLE = { }
 PLAYERS_ALIVE = { }
@@ -210,6 +218,7 @@ function OnScriptLoad()
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+            PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
         end
     end
     -- Giraffe's --
@@ -287,6 +296,8 @@ function OnNewGame()
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     gametype = get_var(0, "$gt")
+    flag_init_respawn = 0
+    flag_init_warn = 0
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
@@ -298,6 +309,7 @@ function OnNewGame()
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
             PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+            PLAYERS_ALIVE[PLAYER_ID].FLAG = false
         end
     end
     if ctf_enabled == true then
@@ -360,9 +372,9 @@ end
 
 function SPAWN_FLAG()
     MAP_NAME = get_var(1, "$map")
-    local t = FLAG[MAP_NAME][3]
+    flag_table = FLAG[MAP_NAME][3]
     -- Spawn flag at x,y,z
-    flag_objId = spawn_object("weap", "weapons\\flag\\flag", t[1], t[2], t[3])
+    flag_objId = spawn_object("weap", "weapons\\flag\\flag", flag_table[1], flag_table[2],flag_table[3])
 end
 
 function FragCheck(PlayerIndex)
@@ -420,6 +432,35 @@ function secondsToTime(seconds, places)
 end
 
 function OnTick()
+    for p = 1, 16 do
+        if player_present(p) then
+            -- WARNING --
+            if (FLAG_WARN[p] == true) then
+                flag_init_warn = flag_init_warn + 0.030
+                warning_timer = flag_init_warn
+                --local minutes, seconds = secondsToTime(warning_timer, 2)
+                --cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                if warning_timer > math.floor(flag_warning) then
+                    FLAG_WARN[p] = false
+                    local minutes, seconds = secondsToTime(warning_timer, 2)
+                    say_all("Flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
+                end
+            end
+            -- RESPAWN FLAG --
+            if (FLAG_RESPAWN[p] == true) then
+                flag_init_respawn = flag_init_respawn + 0.030
+                respawn_timer = flag_init_respawn
+                --local minutes, seconds = secondsToTime(respawn_timer, 2)
+                --cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                if flag_init_respawn >= math.floor(flag_respawn_timer) then
+                    FLAG_RESPAWN[p] = false
+                    local flag = get_object_memory(flag_objId)
+                    write_vector3d(flag + 0x5C, flag_table[1], flag_table[2], flag_table[3])
+                    say_all("The flag has been respawned!")
+                end
+            end
+        end
+    end
     -- Monitor players in vehicles --
    for m = 1, 16 do
         if (player_alive(m)) then
@@ -441,7 +482,9 @@ function OnTick()
                 if current_players >= 2 then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
+                        
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
+                        
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
                         -- cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                         if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
@@ -524,9 +567,17 @@ function OnTick()
                 -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
                 local PLAYER_ID = get_var(j, "$n")
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = (j)
+                
+                -- Restart Flag Respawn Timer --
+                FLAG_RESPAWN[j] = false
+                FLAG_WARN[j] = false
+                flag_init_respawn = 0
+                flag_init_warn = 0
+                
                 -- Set player speed
                 execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
                 -- Blue Base
+                scored = false
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
                     -- Red Base
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
@@ -541,6 +592,7 @@ function OnTick()
                     else
                         -- level up (update, advance)
                         ctf_score(j)
+                        scored = true
                         AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
                         execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
                     end
@@ -584,6 +636,9 @@ function OnTick()
 end
 
 function OnWeaponDrop(PlayerIndex)
+    -- Initiate Respawn Timer --
+    FLAG_RESPAWN[PlayerIndex] = true
+    FLAG_WARN[PlayerIndex] = true
     if player_alive(PlayerIndex) then
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -817,6 +872,7 @@ function OnPlayerJoin(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+    PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -895,6 +951,7 @@ function OnPlayerSpawn(PlayerIndex)
         PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
         PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+        PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
     end
 end
 
@@ -975,6 +1032,7 @@ function moveobject(ObjectID, x, y, z)
 end
 
 function ctf_score(PlayerIndex)
+    scored = false
     if game_over then 
         -- do nothing
     else
