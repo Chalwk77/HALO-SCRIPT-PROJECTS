@@ -171,6 +171,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
+	register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- Giraffe's object_table_ptr --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
@@ -446,20 +447,24 @@ function OnTick()
                 if warning_timer > math.floor(flag_warning) then
                     FLAG_WARN[p] = false
                     local minutes, seconds = secondsToTime(warning_timer, 2)
-                    say_all("Flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
+                    execute_command("msg_prefix \"\"")
+                    say_all("The flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
                 end
             end
             -- RESPAWN FLAG --
             if (FLAG_RESPAWN[p] == true) then
                 flag_init_respawn = flag_init_respawn + 0.030
                 respawn_timer = flag_init_respawn
-                --local minutes, seconds = secondsToTime(respawn_timer, 2)
-                --cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                local minutes, seconds = secondsToTime(respawn_timer, 2)
+                cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
                 if flag_init_respawn >= math.floor(flag_respawn_timer) then
                     FLAG_RESPAWN[p] = false
                     local flag = get_object_memory(flag_objId)
                     write_vector3d(flag + 0x5C, flag_table[1], flag_table[2], flag_table[3])
-                    say_all("The flag has been respawned!")
+                    execute_command("msg_prefix \"\"")
+                    say_all("The flag has been re-spawned!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
                 end
             end
         end
@@ -580,7 +585,7 @@ function OnTick()
                 -- Set player speed
                 execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
                 -- Blue Base
-                scored = false
+
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
                     -- Red Base
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
@@ -595,7 +600,6 @@ function OnTick()
                     else
                         -- level up (update, advance)
                         ctf_score(j)
-                        scored = true
                         AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
                         execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
                     end
@@ -636,6 +640,22 @@ function OnTick()
             end
         end
     end
+end
+
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+	if tonumber(Type) == 1 then
+		local PlayerObj = get_dynamic_player(PlayerIndex)
+		local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+		local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
+        if (name == "weapons\\flag\\flag") then
+            for i = 1,16 do
+                FLAG_RESPAWN[i] = false
+                FLAG_WARN[i] = false
+                flag_init_respawn = 0
+                flag_init_warn = 0
+            end
+        end
+	end
 end
 
 function OnWeaponDrop(PlayerIndex)
@@ -1035,7 +1055,6 @@ function moveobject(ObjectID, x, y, z)
 end
 
 function ctf_score(PlayerIndex)
-    scored = false
     if game_over then 
         -- Restart Flag Respawn Timer --
         FLAG_RESPAWN[PlayerIndex] = false
