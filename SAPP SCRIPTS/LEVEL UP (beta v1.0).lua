@@ -273,22 +273,14 @@ function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
-function Vehicle_Level_Info(PlayerIndex)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "If you're level 7+ and you exit the vehicle,")
-    say(PlayerIndex, '"You can type "/enter me" to enter your previous vehicle')
-    execute_command("msg_prefix \"** SERVER ** \"")
-end
-
 function InfoHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Kill players to gain a Level.")
+    say(PlayerIndex, "This is a progression based game - kill players to gain a Level.")
+    say(PlayerIndex, "You will start with a Shotgun (no ammo) and 6 of each grenade.")
+    say(PlayerIndex, "Level 1 Objective: Melee or Nades!")
     say(PlayerIndex, "Being meeled or committing suicide will result in moving down a Level.")
-    say(PlayerIndex, "There is a Flag somewhere on the map - Return it to a base to gain a Level.")
+    say(PlayerIndex, "There is a flag somewhere on the map - Return it to a base to gain a Level.")
     execute_command("msg_prefix \"** SERVER ** \"")
-    if (LargeMapConfiguration == true) then
-        timer(1000 * 5, "Vehicle_Level_Info", PlayerIndex)
-    end
 end
 
 function OnNewGame()
@@ -596,6 +588,7 @@ function OnTick()
                     -- Red Base
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
                     if PlayerInVehicle(j) then
+                        -- Clear their console
                         cls(j)
                         rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
                         rprint(j, "|cYou have to get out of your vehicle to score!")
@@ -615,10 +608,17 @@ function OnTick()
             if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
                 FLAG_BOOL[j] = true
                 AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
-                rprint(j, "|cReturn the flag to a base to gain a level")
-                rprint(j, "|c ")
-                rprint(j, "|c ")
-                rprint(j, "|c ")
+                -- Clear their console
+                if game_over then  
+                    -- do nothing
+                else
+                    cls(j)
+                    rprint(j, "|cReturn the flag to a base to gain a level")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                end
             end
         end
     end
@@ -966,6 +966,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
+        -- Clear their console
+        cls(PlayerIndex)
         --  assign weapons or vehicle according to level --
         if (LargeMapConfiguration == true) then
             WeaponHandler(PlayerIndex)
@@ -1034,6 +1036,7 @@ function AnnounceChat(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
             if i ~= PlayerIndex then
+                -- Clear their console
                 cls(i)
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
@@ -1090,9 +1093,14 @@ function ctf_score(PlayerIndex)
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-        execute_command("msg_prefix \"\"")
-        say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
-        execute_command("msg_prefix \"** SERVER ** \"")
+        -- Don't display flag-cap message on game_over (necessary to call this twice)
+        if game_over then  
+            -- do nothing
+        else
+            execute_command("msg_prefix \"\"")
+            say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+            execute_command("msg_prefix \"** SERVER ** \"")
+        end
     end
 end
 
@@ -1410,7 +1418,7 @@ function cycle_level(PlayerIndex, update, advance)
     if advance == true then
         local cur = current_Level + 1
         -- Player has completed level 10, end game.
-        if cur ==(#Level + 1) then
+        if cur == (#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1457,7 +1465,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
         end
         -- Player has completed level 10, end game.
-        if current_Level ==(#Level + 1) then
+        if current_Level == (#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1784,6 +1792,7 @@ function tokenizestring(inputstr, sep)
     return t
 end
 
+-- Clear the player's console
 function cls(PlayerIndex)
     for clear = 1, 25 do
         rprint(PlayerIndex, " ")
