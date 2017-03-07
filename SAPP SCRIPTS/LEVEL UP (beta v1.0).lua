@@ -819,7 +819,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
             -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
             drop_weapon(victim)
-            -- Alternatively, resapwn it. (currently disabled out of preference)
+            -- Alternatively, respawn it. (currently disabled out of preference)
             -- SPAWN_FLAG()
         end
         -- Player Committed Suicide, move them down a level
