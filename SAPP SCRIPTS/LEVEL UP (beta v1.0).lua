@@ -461,7 +461,8 @@ function OnTick()
                 if flag_init_respawn >= math.floor(flag_respawn_timer) then
                     FLAG_RESPAWN[p] = false
                     local flag = get_object_memory(flag_objId)
-                    write_vector3d(flag + 0x5C, flag_table[1], flag_table[2], flag_table[3])
+                    destroy_object(flag_objId)
+                    SPAWN_FLAG()
                     execute_command("msg_prefix \"\"")
                     say_all("The flag has been re-spawned!")
                     execute_command("msg_prefix \"** SERVER ** \"")
@@ -472,13 +473,16 @@ function OnTick()
     -- Monitor players in vehicles --
    for m = 1, 16 do
         if (player_alive(m)) then
-            local player = get_dynamic_player(m)
-            local vehicle_id = read_dword(player + 0x11C)
-            if (vehicle_id ~= 0xFFFFFFFF) then
-                local vehicle = get_object_memory(vehicle_id)
-                local PLAYER_ID = get_var(m, "$n")
-                -- Create table key for unique player in this vehicle. Used to destroy their vehicle when they quit.
-                PLAYERS_ALIVE[PLAYER_ID].VEHICLE = vehicle_id
+            if PlayerInVehicle(m) then
+                local player = get_dynamic_player(m)
+                local vehicle_id = read_dword(player + 0x11C)
+                if (vehicle_id ~= 0xFFFFFFFF) then
+                    local vehicle = get_object_memory(vehicle_id)
+                    local PLAYER_ID = get_var(m, "$n")
+                    -- Create table key for unique player in this vehicle. 
+                    -- Used to destroy their vehicle when they quit.
+                    PLAYERS_ALIVE[PLAYER_ID].VEHICLE = vehicle_id
+                end
             end
         end
     end
@@ -578,8 +582,8 @@ function OnTick()
                 
                 -- Set player speed
                 execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
+                
                 -- Blue Base
-
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
                     -- Red Base
                     or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
@@ -642,8 +646,8 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 		local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
 		local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
         if (name == "weapons\\flag\\flag") then
+            -- reset flag respawn timers for all players --
             for i = 1,16 do
-                -- Restart Flag Respawn Timer --
                 FLAG_RESPAWN[i] = false
                 FLAG_WARN[i] = false
                 flag_init_respawn = 0
@@ -654,7 +658,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 end
 
 function OnWeaponDrop(PlayerIndex)
-    -- Initiate Respawn Timer --
+    -- initiate flag respawn timers --
     FLAG_RESPAWN[PlayerIndex] = true
     FLAG_WARN[PlayerIndex] = true
     if player_alive(PlayerIndex) then
@@ -750,6 +754,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(VictimName .. " was killed by " ..KillerName)
         local PLAYER_ID = get_var(victim, "$n")
         if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            -- initiate flag respawn timers --
             FLAG_RESPAWN[PlayerIndex] = true
             FLAG_WARN[PlayerIndex] = true
         end
@@ -799,7 +804,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local PLAYER_ID = get_var(victim, "$n")
         PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = victim
         if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-            SPAWN_FLAG()
+            -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
+            drop_weapon(victim)
+            -- Alternatively, resapwn it. (currently disabled out of preference)
+            -- SPAWN_FLAG()
         end
         -- Player Committed Suicide, move them down a level
         cycle_level(victim, true)
@@ -975,6 +983,7 @@ function OnPlayerSpawn(PlayerIndex)
         PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
     end
 end
 
@@ -1056,14 +1065,13 @@ end
 
 function ctf_score(PlayerIndex)
     if game_over then 
-        -- Restart Flag Respawn Timer --
+        -- reset flag respawn timers --
         FLAG_RESPAWN[PlayerIndex] = false
         FLAG_WARN[PlayerIndex] = false
         flag_init_respawn = 0
         flag_init_warn = 0
-        -- do nothing
     else
-        -- Restart Flag Respawn Timer --
+        -- reset flag respawn timers --
         FLAG_RESPAWN[PlayerIndex] = false
         FLAG_WARN[PlayerIndex] = false
         flag_init_respawn = 0
@@ -1088,6 +1096,8 @@ function CheckPlayer(PlayerIndex)
         timer(300, "delay_move", PlayerIndex)
     end
 end
+
+-- Note to self: Re-calculate coordinates for all maps except bloodgulch.
 
 -- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building,
 -- move them outside the building upon leveling up. Otherwise they might get stuck inside the walls of the building.
@@ -1128,10 +1138,8 @@ function delay_move(PlayerIndex)
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
             elseif (MAP_NAME == "sidewinder") then
-                -- RED BASE
                 if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
                     moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
-                    -- BLUE BASE
                 elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
@@ -1178,17 +1186,20 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     DAMAGE_APPLIED[PlayerIndex] = MetaID
+    -- Ghost Bolt Damage - (double damage)
     if MetaID == VEHICLE_GHOST_BOLT then
         -- Double Damage
         return true, Damage * 2
     end
+    
+    -- Assault Rifle Bullets (double damage)
     if MetaID == ASSAULT_RIFLE_BULLET then
         -- Double Damage
         return true, Damage * 2
     end
+    -- Multiply grenade damage by the value of "Grenade_Multiplier" - Equal to 4 by design default. 1 = normal game value
     if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
         if GetLevel(PlayerIndex) == 1 then
-            -- 4 times normal damage
             return true, Damage * Grenade_Multiplier
         else
             -- Double Damage
@@ -1212,6 +1223,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
+-- Return player's current Level --
 function GetLevel(PlayerIndex)
     if tonumber(players[PlayerIndex][1]) == 1 then
         return 1
@@ -1364,14 +1376,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 8 or higher.")
                         elseif (GetLevel(PlayerIndex) <= 8) then
-                            -- Rocket Hog (Gunner & Drivers Seat)
+                            -- rocket hog (gunner & drivers seat)
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
                             vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
                             timer(0, "delay_gunners_seat", PlayerIndex)
                         else
-                            -- All other vehicles.
+                            -- all other vehicles --
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
                             vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
@@ -1397,7 +1409,8 @@ function cycle_level(PlayerIndex, update, advance)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
-        if cur ==(#Level + 1) then
+        -- Player has completed level 10, end game.
+        if cur == (#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1429,6 +1442,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             execute_command("sv_map_next")
         end
+        -- LEVEL UP
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
@@ -1442,7 +1456,8 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
         end
-        if current_Level ==(#Level + 1) then
+        -- Player has completed level 10, end game.
+        if current_Level == (#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1476,6 +1491,7 @@ function cycle_level(PlayerIndex, update, advance)
             execute_command("sv_map_next")
         end
     else
+        -- LEVEL DOWN
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             local PLAYER_ID = get_var(PlayerIndex, "$n")
