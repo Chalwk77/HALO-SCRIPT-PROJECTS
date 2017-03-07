@@ -1559,6 +1559,7 @@ function DestroyVehicle(Vehicle_ID)
 end
 
 -- Delay entery to Gunner Seat (Rocket Hog) --
+-- Important to delay this otherwise player's will spawn in the drivers seat 70% of the time.
 function delay_gunners_seat(PlayerIndex)
     -- Gunners Seat --
     enter_vehicle(vehicleId, PlayerIndex, 2)
@@ -1764,8 +1765,7 @@ function CheckType()
     type_is_koth = get_var(1, "$gt") == "koth"
     type_is_oddball = get_var(1, "$gt") == "oddball"
     type_is_race = get_var(1, "$gt") == "race"
-    if (type_is_koth) or(type_is_oddball) or(type_is_race) then
-        cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
+    if (type_is_koth) or (type_is_oddball) or (type_is_race) then
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -1777,6 +1777,7 @@ function CheckType()
         unregister_callback(cb['EVENT_COMMAND'])
         unregister_callback(cb['EVENT_PRESPAWN'])
         unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+        cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
     end
 end
 
