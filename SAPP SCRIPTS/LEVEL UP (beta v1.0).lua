@@ -1075,32 +1075,27 @@ end
 
 -- When a player is in the scoring area (sphere) of a base while holding the flag, update their score accordingly.
 function ctf_score(PlayerIndex)
-    if game_over then
+    cycle_level(PlayerIndex, true, true)
+    -- reset flag respawn timers --
+    FLAG_RESPAWN[PlayerIndex] = false
+    FLAG_WARN[PlayerIndex] = false
+    flag_init_respawn = 0
+    flag_init_warn = 0
+    timer(300, "delay_move", PlayerIndex)
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
+    if game_over then  
         -- reset flag respawn timers --
         FLAG_RESPAWN[PlayerIndex] = false
         FLAG_WARN[PlayerIndex] = false
         flag_init_respawn = 0
         flag_init_warn = 0
     else
-        -- reset flag respawn timers --
-        FLAG_RESPAWN[PlayerIndex] = false
-        FLAG_WARN[PlayerIndex] = false
-        flag_init_respawn = 0
-        flag_init_warn = 0
-        cycle_level(PlayerIndex, true, true)
         SPAWN_FLAG()
-        timer(300, "delay_move", PlayerIndex)
-        local PLAYER_ID = get_var(PlayerIndex, "$n")
-        PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
-        PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-        -- Don't display flag-cap message on game_over (necessary to call this twice)
-        if game_over then  
-            -- do nothing
-        else
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
-            execute_command("msg_prefix \"** SERVER ** \"")
-        end
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
