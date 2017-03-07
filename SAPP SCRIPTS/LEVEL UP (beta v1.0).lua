@@ -823,8 +823,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- SPAWN_FLAG()
         end
         -- Player Committed Suicide, move them down a level
-        cycle_level(victim, true)
         -- update, level down
+        cycle_level(victim, true)
         if Spawn_Where_Killed == true then
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
@@ -873,7 +873,7 @@ function add_kill(killer, victim)
             -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
             timer(1, "delay_cycle", killer)
         else
-            -- PvP, level up (update, advance)
+            -- PvP, update, advance (level up)
             cycle_level(killer, true, true)
         end
     end
@@ -1080,7 +1080,9 @@ end
 
 -- When a player is in the scoring area (sphere) of a base while holding the flag, update their score accordingly.
 function ctf_score(PlayerIndex)
+    -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
+    
     -- reset flag respawn timers --
     FLAG_RESPAWN[PlayerIndex] = false
     FLAG_WARN[PlayerIndex] = false
@@ -1106,6 +1108,7 @@ end
 
 -- Check if player is in Scoring area. If they are, call "delay_move".
 function CheckPlayer(PlayerIndex)
+    -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
     radius = 3
     if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
@@ -1180,15 +1183,18 @@ end
 
 function delay_cycle(killer)
     local Player = tonumber(killer)
+    -- Update, advance (level up)
     cycle_level(Player, true, true)
 end
 
 function delay_cycle_command(PlayerIndex)
     local Player = tonumber(PlayerIndex)
     if level_up then
+        -- Update, advance (level up)
         cycle_level(Player, true, true)
     end
     if level_down then
+        -- Update, (level down)
         cycle_level(Player, true)
     end
 end
@@ -1312,6 +1318,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     level_up = true
                 end
             else
+                -- Update, advance (level up)
                 cycle_level(PlayerIndex, true, true)
             end
         elseif (Command == "level_down") then
@@ -1326,6 +1333,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     level_up = true
                 end
             else
+                -- Update (level down)
                 cycle_level(PlayerIndex, true)
             end
         end
@@ -1348,6 +1356,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 level_up = true
                             end
                         else
+                            -- Update, advance (level up)
                             cycle_level(PlayerIndex, true, true)
                         end
                     elseif t[2] == "down" then
@@ -1362,6 +1371,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 level_up = true
                             end
                         else
+                            -- Update (level down)
                             cycle_level(PlayerIndex, true)
                         end
                     else
