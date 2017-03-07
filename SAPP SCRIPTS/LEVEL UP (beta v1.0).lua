@@ -81,7 +81,7 @@ FLAG_WARN = { }
 PLASMA_CHECK = { }
 WEAPON_TABLE = { }
 PLAYERS_ALIVE = { }
-SCORED_LEVELS = { }
+STORED_LEVELS = { }
 DAMAGE_APPLIED = { }
 EQUIPMENT_TAGS = { }
 PLAYER_LOCATION = { }
@@ -240,7 +240,7 @@ function OnScriptUnload()
     FRAG_CHECK = { }
     PLASMA_CHECK = { }
     WEAPON_TABLE = { }
-    SCORED_LEVELS = { }
+    STORED_LEVELS = { }
     DAMAGE_APPLIED = { }
     PLAYER_LOCATION = { }
     EQUIPMENT_TAGS = { }
@@ -869,12 +869,13 @@ function OnPlayerJoin(PlayerIndex)
     players[PlayerIndex] = { Starting_Level, 0 }
     
     if PlayerIndex ~= 0 then
-        local saved_data = get_var(PlayerIndex, "$ip") .. ":" .. get_var(PlayerIndex, "$name")
+        local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
         -- Check for Previous Statistics --
-        for k, v in pairs(SCORED_LEVELS) do
+        for k, v in pairs(STORED_LEVELS) do
             if tostring(k) == tostring(saved_data) then
-                players[PlayerIndex][1] = SCORED_LEVELS[saved_data][1]
-                players[PlayerIndex][2] = SCORED_LEVELS[saved_data][2]
+                say(PlayerIndex, "Your previous level has been saved and restored!")
+                players[PlayerIndex][1] = STORED_LEVELS[saved_data][1]
+                players[PlayerIndex][2] = STORED_LEVELS[saved_data][2]
                 break
             end
         end
@@ -908,9 +909,9 @@ function OnPlayerLeave(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
     DAMAGE_APPLIED[PlayerIndex] = nil
     if PlayerIndex ~= 0 then
-        local saved_data = get_var(PlayerIndex, "$ip") .. ":" .. get_var(PlayerIndex, "$name")
+        local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
         -- Create Table Key for Player --
-        SCORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+        STORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
     end
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
