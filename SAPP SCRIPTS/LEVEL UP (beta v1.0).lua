@@ -51,7 +51,7 @@ Check_Time = 0 -- Mili-seconds to check if player in scoring area
 Check_Radius = 1 -- Radius determining if player is in scoring area
 
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
-Grenade_Multiplier = 3 -- Multiplier to frag damage. 1 = normal damage
+Grenade_Multiplier = 4 -- Multiplier to frag damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weapon damage multiplier. 1 = normal damage
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
@@ -1181,9 +1181,13 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         -- Double Damage
         return true, Damage * 2
     end
+    if MetaID == ASSAULT_RIFLE_BULLET then
+        -- Double Damage
+        return true, Damage * 2
+    end
     if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
         if GetLevel(PlayerIndex) == 1 then
-            -- 3 times normal damage
+            -- 4 times normal damage
             return true, Damage * Grenade_Multiplier
         else
             -- Double Damage
@@ -1839,6 +1843,8 @@ function LoadItems()
         GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
         -- Vehicles
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+        -- Weapons
+        ASSAULT_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
 
         -- configuration --
         -- Red Base x,y,z
