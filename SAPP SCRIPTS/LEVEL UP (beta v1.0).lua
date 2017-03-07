@@ -450,8 +450,8 @@ function OnTick()
             if (FLAG_RESPAWN[p] == true) then
                 flag_init_respawn = flag_init_respawn + 0.030
                 respawn_timer = flag_init_respawn
-                --local minutes, seconds = secondsToTime(respawn_timer, 2)
-                --cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                local minutes, seconds = secondsToTime(respawn_timer, 2)
+                cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
                 if flag_init_respawn >= math.floor(flag_respawn_timer) then
                     FLAG_RESPAWN[p] = false
                     local flag = get_object_memory(flag_objId)
@@ -1035,15 +1035,15 @@ function ctf_score(PlayerIndex)
     scored = false
     if game_over then 
         -- Restart Flag Respawn Timer --
-        FLAG_RESPAWN[j] = false
-        FLAG_WARN[j] = false
+        FLAG_RESPAWN[PlayerIndex] = false
+        FLAG_WARN[PlayerIndex] = false
         flag_init_respawn = 0
         flag_init_warn = 0
         -- do nothing
     else
         -- Restart Flag Respawn Timer --
-        FLAG_RESPAWN[j] = false
-        FLAG_WARN[j] = false
+        FLAG_RESPAWN[PlayerIndex] = false
+        FLAG_WARN[PlayerIndex] = false
         flag_init_respawn = 0
         flag_init_warn = 0
         cycle_level(PlayerIndex, true, true)
