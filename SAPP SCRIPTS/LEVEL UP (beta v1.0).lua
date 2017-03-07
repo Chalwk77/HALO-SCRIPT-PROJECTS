@@ -123,7 +123,7 @@ function LoadLarge()
     Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
     Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
     Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
-    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
     Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
     Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
     Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
@@ -146,7 +146,7 @@ function LoadSmall()
     Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
     Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
     Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
-    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 1 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
     for k, v in pairs(Level) do
         if string.find(v[1], "weapons") then
             v[7] = v[1]
@@ -947,8 +947,13 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
+    
+    -- temporarily disabled --
+    --[[
     -- reset last damage --
     DAMAGE_APPLIED[PlayerIndex] = 0
+    ]]
+    
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
@@ -980,7 +985,7 @@ function OnPlayerSpawn(PlayerIndex)
             write_float(PlayerIndex + 0xE0, 99999999)
             -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
             write_float(PlayerIndex + 0xE4, 3)
-            timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtect", PlayerIndex)
+            timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtection", PlayerIndex)
         end
         rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
         rprint(PlayerIndex, "Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
@@ -1253,7 +1258,7 @@ function GetLevel(PlayerIndex)
     end
 end
 
-function RemoveSpawnProtect(PlayerIndex)
+function RemoveSpawnProtection(PlayerIndex)
     if (player_alive(PlayerIndex)) then
         -- Health. (0 to 1) (Normal = 1)
         write_float(PlayerIndex + 0xE0, 1)
