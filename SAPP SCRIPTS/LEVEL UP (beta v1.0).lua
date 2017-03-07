@@ -1296,7 +1296,17 @@ function cycle_level(PlayerIndex, update, advance)
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-                drop_weapon(PlayerIndex)
+                -- Delete the winner's weapons and assign them plasma pistol (for fun, because why not)
+                local player_object = get_dynamic_player(PlayerIndex)
+                local weaponId = read_dword(player_object + 0x118)
+                if weaponId ~= 0 then
+                    for j = 0, 3 do
+                        local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                        destroy_object(m_weapon)
+                    end
+                end
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
             end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -1331,7 +1341,17 @@ function cycle_level(PlayerIndex, update, advance)
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-                drop_weapon(PlayerIndex)
+                -- Delete the winner's weapons and assign them plasma pistol (for fun, because why not)
+                local player_object = get_dynamic_player(PlayerIndex)
+                local weaponId = read_dword(player_object + 0x118)
+                if weaponId ~= 0 then
+                    for j = 0, 3 do
+                        local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                        destroy_object(m_weapon)
+                    end
+                end
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
             end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
