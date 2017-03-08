@@ -500,7 +500,7 @@ function OnTick()
         for o = 1, 16 do
             if player_present(o) then
                 -- If there two or mores players on the server, run the timers.
-                if current_players >= 0 then
+                if current_players >= 2 then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
