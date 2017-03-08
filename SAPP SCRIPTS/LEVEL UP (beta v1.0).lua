@@ -907,8 +907,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-
-    -- Assign Weapons, Frags, and Ammo --
+    
     timer(1000 * 6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
     -- First initial score is equal to Level 1 (score point 1)
