@@ -787,7 +787,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- Assign table key to Victim --
             PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = victim
             if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) and(victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
-                SPAWN_FLAG()
+                -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
+                drop_weapon(victim)
+                
+                -- Alternatively, respawn it. (currently disabled out of preference)
+                -- SPAWN_FLAG()
+                
+                -- Reset Melee Victim
                 PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             end
             -- Player was melee'd, move them down a level (update, level down)
