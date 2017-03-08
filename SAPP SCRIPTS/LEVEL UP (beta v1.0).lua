@@ -500,7 +500,7 @@ function OnTick()
                             survivor = tonumber(o)
                             RewardPlayer(o)
                             -- Not Currently Used --
-                            SetNav(o)
+                            -- SetNav(o)
                         end
                     end
                     -- player has been alive for "progression_timer" (3 minutes by default). Level them up.
