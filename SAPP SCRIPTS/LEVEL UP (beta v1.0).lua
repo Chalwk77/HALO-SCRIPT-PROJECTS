@@ -23,13 +23,18 @@ ctf_enabled = true -- Spawn the flag?
 survivor_rewards = true
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 5 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
 
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
+
+-- 1 random item from this list will be given after surviving "allocated_time"
+REWARDS = { }
+REWARDS[1] = { "powerups\\active camouflage", "a camouflage!"}
+REWARDS[2] = { "powerups\\over shield", "an overshield!"}
 
 -- Time until flag respawns after being dropped (in seconds)
 flag_respawn_timer = 30
@@ -94,27 +99,27 @@ vehi_type_id = "vehi"
 
 -- For a Future Update
 -- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
-EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo!" }
-EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo!" }
-EQUIPMENT_TABLE[3] = { "powerups\\pistol ammo\\pistol ammo", "Pistol Ammo!" }
-EQUIPMENT_TABLE[4] = { "powerups\\sniper rifle ammo\\sniper rifle ammo", "Sniper Rifle Ammo!" }
-EQUIPMENT_TABLE[5] = { "powerups\\rocket launcher ammo\\rocket launcher ammo", "Rocket Launcher Ammo!" }
-EQUIPMENT_TABLE[6] = { "powerups\\needler ammo\\needler ammo", "Needler Ammo!" }
-EQUIPMENT_TABLE[7] = { "powerups\\flamethrower ammo\\flamethrower ammo", "Flamethrower Ammo!" }
-EQUIPMENT_TABLE[8] = { "powerups\\active camouflage", "Camouflage!" }
-EQUIPMENT_TABLE[9] = { "powerups\\health pack", "Health Pack!" }
-EQUIPMENT_TABLE[10] = { "powerups\\over shield", "Overshield!" }
+EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo" }
+EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo" }
+EQUIPMENT_TABLE[3] = { "powerups\\pistol ammo\\pistol ammo", "Pistol Ammo" }
+EQUIPMENT_TABLE[4] = { "powerups\\sniper rifle ammo\\sniper rifle ammo", "Sniper Rifle Ammo" }
+EQUIPMENT_TABLE[5] = { "powerups\\rocket launcher ammo\\rocket launcher ammo", "Rocket Launcher Ammo" }
+EQUIPMENT_TABLE[6] = { "powerups\\needler ammo\\needler ammo", "Needler Ammo" }
+EQUIPMENT_TABLE[7] = { "powerups\\flamethrower ammo\\flamethrower ammo", "Flamethrower Ammo" }
+EQUIPMENT_TABLE[8] = { "powerups\\active camouflage", "Camouflage" }
+EQUIPMENT_TABLE[9] = { "powerups\\health pack", "Health Pack" }
+EQUIPMENT_TABLE[10] = { "powerups\\over shield", "Overshield" }
 -- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
-WEAPON_TABLE[1] = { "weapons\\shotgun\\shotgun", "Shotgun!" }
-WEAPON_TABLE[2] = { "weapons\\assault rifle\\assault rifle", "Assault Rifle!" }
-WEAPON_TABLE[3] = { "weapons\\pistol\\pistol", "Pistol!" }
-WEAPON_TABLE[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle!" }
-WEAPON_TABLE[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher!" }
-WEAPON_TABLE[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon!" }
-WEAPON_TABLE[7] = { "weapons\\flamethrower\\flamethrower", "Flamethrower!" }
-WEAPON_TABLE[8] = { "weapons\\needler\\mp_needler", "Needler!" }
-WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol!" }
-WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle!" }
+WEAPON_TABLE[1] = { "weapons\\shotgun\\shotgun", "Shotgun" }
+WEAPON_TABLE[2] = { "weapons\\assault rifle\\assault rifle", "Assault Rifle" }
+WEAPON_TABLE[3] = { "weapons\\pistol\\pistol", "Pistol" }
+WEAPON_TABLE[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle" }
+WEAPON_TABLE[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher" }
+WEAPON_TABLE[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon" }
+WEAPON_TABLE[7] = { "weapons\\flamethrower\\flamethrower", "Flamethrower" }
+WEAPON_TABLE[8] = { "weapons\\needler\\mp_needler", "Needler" }
+WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol" }
+WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle" }
 
 function LoadLarge()
     Level = { }
@@ -407,12 +412,22 @@ function RewardPlayer(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-
-        AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
-        AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. "", PlayerIndex)
-
+        -- Pick Camouflage or Overshield (item chosen is random)
+        math.randomseed(os.time())
+        local num = math.random(1, #REWARDS)
+        if (tonumber(num) == 1) then
+            spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
+            item = REWARDS[1][2]
+        else
+            spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
+            item = REWARDS[2][2]
+        end
+        -- To receiving player
         rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-        rprint(PlayerIndex, "Rewarding you with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]))
+        rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
+        -- To all other players
+        AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
+        AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
     end
 end
 
@@ -485,7 +500,7 @@ function OnTick()
         for o = 1, 16 do
             if player_present(o) then
                 -- If there two or mores players on the server, run the timers.
-                if current_players >= 2 then
+                if current_players >= 0 then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
