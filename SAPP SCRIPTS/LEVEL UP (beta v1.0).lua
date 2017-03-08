@@ -929,10 +929,14 @@ function OnPlayerLeave(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
     DAMAGE_APPLIED[PlayerIndex] = nil
-    if PlayerIndex ~= 0 then
-        local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
-        -- Create Table Key for Player --
-        STORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+    if game_over then
+        -- do nothing
+    else
+        if PlayerIndex ~= 0 then
+            local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
+            -- Create Table Key for Player --
+            STORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
+        end
     end
     -- Wipe Saved Spawn Locations
     for i = 1, 3 do
