@@ -23,7 +23,7 @@ ctf_enabled = true -- Spawn the flag?
 survivor_rewards = true
 
 -- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 5 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
+allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
@@ -378,7 +378,9 @@ end
 function FragCheck(PlayerIndex)
     local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
     local frags = read_byte(player_object + 0x31E)
+    safe_read(false)
     if tonumber(frags) <= 0 then
         return true
     end
@@ -388,7 +390,9 @@ end
 function PlasmaCheck(PlayerIndex)
     local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
     local plasmas = read_byte(player_object + 0x31F)
+    safe_read(false)
     if tonumber(plasmas) <= 0 then
         return true
     end
