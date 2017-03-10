@@ -1,5 +1,3 @@
--- Test
-
 --[[
 ------------------------------------
 Script Name: ChatIDs, for SAPP | (PC\CE)
