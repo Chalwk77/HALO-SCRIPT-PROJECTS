@@ -68,10 +68,10 @@ function OnScriptUnload() end
 function OnVehicleEnter(PlayerIndex, Seat)
     local PlayerObj = get_dynamic_player(PlayerIndex)
     local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
-    local MetaIndex = read_dword(VehicleObj)
+    local VehicleName = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
     local name = get_var(PlayerIndex, "$name")
 
-    if MetaIndex == 0xE3D40260 then
+    if VehicleName == "vehicles\\warthog\\mp_warthog" then
         Vehicle_Name = "Warthog"
         if Seat == "0" then
             Seat_Position = "Drivers Seat"
@@ -82,7 +82,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
 
-    if MetaIndex == 0xE5050391 then
+    if VehicleName == "vehicles\\rwarthog\\rwarthog" then
         Vehicle_Name = "Rocket Hog"
         if Seat == "0" then
             Seat_Position = "Drivers Seat"
@@ -93,7 +93,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
 
-    if MetaIndex == 0xE45702E3 then
+    if VehicleName == "vehicles\\scorpion\\scorpion_mp" then
         Vehicle_Name = "Scorpion Tank"
         if Seat == "0" then
             Seat_Position = "Drivers Seat"
@@ -108,14 +108,14 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
 
-    if MetaIndex == 0xE4B70343 then
+    if VehicleName == "vehicles\\ghost\\ghost_mp" then
         Vehicle_Name = "Ghost"
         if Seat == "0" then
             Seat_Position = "Drivers Seat"
         end
     end
 
-    if MetaIndex == 0xE54003CC then
+    if VehicleName == "vehicles\\banshee\\banshee_mp" then
         Vehicle_Name = "Banshee"
         if Seat == "0" then -- Drivers Seat
     -- You don't drive a banshee, you fly it.
@@ -123,7 +123,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
         end
     end
     
-    if MetaIndex == 0xE86906F5 then
+    if VehicleName == "vehicles\\c gun turret\\c gun turret_mp" then
         Vehicle_Name = "Turret"
         if Seat == "0" then -- Drivers Seat 
     -- It's weird to me to say that PlayerX entered the 'drivers' seat of a turret - It's not something you drive.

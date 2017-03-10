@@ -2,7 +2,7 @@
     Script Name: Cyborg Spawner, for SAPP | (PC\CE)
     Implementing API version: 1.11.0.0
 
-    Description: Spawn cyborgs at designated locations!
+    Description: Spawn cyborgs at designated locations
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS

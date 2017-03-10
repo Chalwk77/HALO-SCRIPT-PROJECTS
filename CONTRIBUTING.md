@@ -10,6 +10,7 @@ Contributors to [code]
 
   * Author of SAPP for Halo
         - http://halo.isimaginary.com/forum/user-1.html
+  * Death Message patch
 
 * **[AelitePrime](http://phasor.proboards.com/user/37)**
 
@@ -30,8 +31,15 @@ Contributors to [code]
 
   * http client
         - https://github.com/Halogen002/SAPP-HTTP-Client
+  * GetTagInfo
+        - get_tag_info (function)
         
 * **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
 
   * Crash_Player (function)
         - http://pastebin.com/1dtn0DiM
+        
+* **[giraffe](https://opencarnage.net/index.php?/profile/1463-giraffe/)**
+
+  * Auto-Vehicle Flip (script)
+        - https://opencarnage.net/index.php?/topic/6251-auto-vehicle-flip/
