@@ -1,0 +1,279 @@
+############################
+#    Coffee Shop
+#       Script
+#  Made By: Chalwk
+############################
+
+############################
+#   Coffee Shop Assignment
+############################
+coffeeshop_assignment:
+  type: assignment
+  debug: false
+  actions:
+    on assignment:
+      - trigger name:click state:true
+      - trigger name:proximity state:true radius:3
+    on enter proximity:
+      - narrate format:coffeeshop_chat_format "What can I get for you?"
+      - WAIT 1s
+      - inventory open d:in@coffeeshop_Inventory
+    on click:
+      - inventory open d:in@coffeeshop_Inventory
+      
+############################
+#   Coffee Shop Inventory
+############################ 
+coffeeshop_Inventory:
+  type: inventory
+  title: "<&b>Coffee Shop Menu"
+  size: 27
+  slots:
+  - "[i@sweetened_tea] [i@pinacolada] [i@lemonade] [i@pineapple_juice] [i@pineapple_smoothie] [i@item_wine] [i@thai_tea] [i@lasagna] [i@club_sandwich]"
+  - "[i@burrito] [i@chicken_burrito] [i@bbq_bacon_wrapped_hot_dog] [i@bacon_wrapped_cheese_filled_hot_dog] [] [] [] [] []"
+  - "[] [] [] [] [] [] [] [] []"
+  
+############################
+#   Coffee Shop Chat Format
+############################ 
+coffeeshop_chat_format:
+  type: format
+  debug: false
+  format: <&6>Employee:<&f> <text>
+  
+############################
+#   Coffee Shop Items
+############################
+sweetened_tea:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Sweetened Tea"
+  lore:
+  - "<&a>$<&f>4.30"
+pinacolada:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Pinacolada"
+  lore:
+  - "<&a>$<&f>9.00"
+lemonade:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Lemonade"
+  lore:
+  - "<&a>$<&f>2.30"
+pineapple_juice:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Pineapple Juice"
+  lore:
+  - "<&a>$<&f>2.80"
+pineapple_smoothie:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Pineapple Smoothie"
+  lore:
+  - "<&a>$<&f>3.10"
+item_wine:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Wine"
+  lore:
+  - "<&a>$<&f>5.90"
+thai_tea:
+  type: item
+  material: "373:8194"
+  display name: "<&6>Thai Tea"
+  lore:
+  - "<&a>$<&f>4.20"
+lasagna:
+  type: item
+  material: "364"
+  display name: "<&6>Lasagna"
+  lore:
+  - "<&a>$<&f>6.50"
+club_sandwich:
+  type: item
+  material: "297"
+  display name: "<&6>Club Sandwich"
+  lore:
+  - "<&a>$<&f>4.10"
+burrito:
+  type: item
+  material: "297"
+  display name: "<&6>Burrito"
+  lore:
+  - "<&a>$<&f>3.90"
+chicken_burrito:
+  type: item
+  material: "366"
+  display name: "<&6>Chicken Burrito"
+  lore:
+  - "<&a>$<&f>5.50"
+bbq_bacon_wrapped_hot_dog:
+  type: item
+  material: "297"
+  display name: "<&6>Bbq/Bacon Wrapped Hot Dog"
+  lore:
+  - "<&a>$<&f>7.00"
+bacon_wrapped_cheese_filled_hot_dog:
+  type: item
+  material: "297"
+  display name: "<&6>Bacon Wrapped Cheese Filled Hot Dog"
+  lore:
+  - "<&a>$<&f>7.80"
+
+######################################
+#   Coffee Shop Inventory Handler
+######################################
+coffeeshop_Inventory_Handler:
+  type: world
+  events:
+    on player clicks in coffeeshop_Inventory:
+    - determine cancelled
+    on player drags in coffeeshop_Inventory:
+    - determine cancelled
+
+    on player clicks sweetened_tea in coffeeshop_Inventory:
+    - if <player.money> >= "4.30" {
+      - inventory close
+      - money take quantity:4.30
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Sweetened Tea"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>4.30 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> sweetened_tea"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks pinacolada in coffeeshop_Inventory:
+    - if <player.money> >= "9.00" {
+      - inventory close
+      - money take quantity:9.00
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Pinacolada"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>9.00 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> pinacolada"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks lemonade in coffeeshop_Inventory:
+    - if <player.money> >= "2.30" {
+      - inventory close
+      - money take quantity:2.30
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Lemonade"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>2.30 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> lemonade"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks pineapple_juice in coffeeshop_Inventory:
+    - if <player.money> >= "2.80" {
+      - inventory close
+      - money take quantity:2.80
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Pineapple Juice"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>2.80 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> pineapple_juice"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks pineapple_smoothie in coffeeshop_Inventory:
+    - if <player.money> >= "3.10" {
+      - inventory close
+      - money take quantity:3.10
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Pineapple Smoothie"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>3.10 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> pineapple_smoothie"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks item_wine in coffeeshop_Inventory:
+    - if <player.money> >= "5.90" {
+      - inventory close
+      - money take quantity:5.90
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Wine"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>5.90 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> wine"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks thai_tea in coffeeshop_Inventory:
+    - if <player.money> >= "4.20" {
+      - inventory close
+      - money take quantity:4.20
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Thai Tea"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>4.20 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> thai_tea"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks lasagna in coffeeshop_Inventory:
+    - if <player.money> >= "6.50" {
+      - inventory close
+      - money take quantity:6.50
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Lasagna"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>6.50 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> lasagna"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks club_sandwich in coffeeshop_Inventory:
+    - if <player.money> >= "4.10" {
+      - inventory close
+      - money take quantity:4.10
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Club Sandwich"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>4.10 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> club_sandwich"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks burrito in coffeeshop_Inventory:
+    - if <player.money> >= "3.90" {
+      - inventory close
+      - money take quantity:3.90
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Burrito"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>3.90 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> burrito"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks chicken_burrito in coffeeshop_Inventory:
+    - if <player.money> >= "5.50" {
+      - inventory close
+      - money take quantity:5.50
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Chicken Burrito"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>5.50 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> chicken_burrito"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks bbq_bacon_wrapped_hot_dog in coffeeshop_Inventory:
+    - if <player.money> >= "7.00" {
+      - inventory close
+      - money take quantity:7.00
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>BBQ Bacon Hot Dog"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>7.00 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> bbq_bacon_wrapped_hot_dog"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
+    on player clicks bacon_wrapped_cheese_filled_hot_dog in coffeeshop_Inventory:
+    - if <player.money> >= "7.80" {
+      - inventory close
+      - money take quantity:7.80
+      - narrate "<&8>[<&b>Coffee Shop<&8>] <&7>You purchased <&6>Bacon & Cheest Hot Dog"
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&a>$<&e>7.80 <&a>has been taken from your account."
+      - execute as_server "sf give <player.name> bacon_wrapped_cheese_filled_hot_dog"
+      } else {
+      - inventory close
+      - narrate "<&f>[<&c>JeriCraft<&f>] <&c>You do not have enough money!"
+      }
