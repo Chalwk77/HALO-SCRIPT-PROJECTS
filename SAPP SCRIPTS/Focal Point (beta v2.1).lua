@@ -8,7 +8,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
 * This is my extension of another "progression based game" that was for Phasor, by SlimJim
-* Written by Jericho Crosby (Chalwk)
+* Re-written and converted to sapp by Jericho Crosby (Chalwk)
 ]]
 
 api_version = "1.11.0.0"
