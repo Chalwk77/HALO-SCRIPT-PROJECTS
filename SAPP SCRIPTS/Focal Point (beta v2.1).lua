@@ -7,7 +7,7 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of another "progression based game" that was for Phasor, by SlimJim
+* This is my extension of another "progression based game" that was for Phasor, originally by SlimJim
 * Re-written and converted to sapp by Jericho Crosby (Chalwk)
 ]]
 
