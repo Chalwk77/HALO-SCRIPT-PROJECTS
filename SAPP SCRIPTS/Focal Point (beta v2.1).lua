@@ -7,7 +7,7 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of another "progression based game" that was for Phasor, originally by SlimJim
+* This is my extension of another "progression based game" that was for Phasor, by SlimJim
 * Re-written and converted to sapp by Jericho Crosby (Chalwk)
 ]]
 
@@ -45,6 +45,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
 	register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    LoadItems()
 end
  
 function OnScriptUnload()
@@ -78,6 +79,7 @@ end
 
 function OnNewGame()
     CheckType()
+    LoadItems()
     -- 	Map Name
     map_name = get_var(1, "$map")
     -- 	Reset Variables
@@ -469,13 +471,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- KILLED BY SERVER --
     if (killer == -1) then  mode = 0 end
     -- FALL / DISTANCE DAMAGE
-    if last_damage[PlayerIndex] == FALL_DAMAGE or last_damage[PlayerIndex] == DISTANCE_DAMAGE then mode = 1 end
+    if last_damage[PlayerIndex] == falling_damage or last_damage[PlayerIndex] == distance_damage then mode = 1 end
     -- GUARDIANS / UNKNOWN --
     if (killer == nil) then mode = 2 end
     -- KILLED BY VEHICLE --
     if (killer == 0) then  mode = 3 end
     -- KILLED BY KILLER --
-    if (killer > 0) and(victim ~= killer) then mode = 4 end
+    if (killer > 0) and (victim ~= killer) then mode = 4 end
     -- BETRAY / TEAM KILL --
     if (KillerTeam == VictimTeam) and (PlayerIndex ~= KillerIndex) then mode = 5 end
     -- SUICIDE --
@@ -483,95 +485,109 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     if mode == 4 then
         local hash = gethash(killer)
-        local vhash = gethash(victim)
         local m_object = read_dword(get_player(victim) + 0x34)
-        if last_damage[vhash] then
-            cprint("Hash that last received damage was: " .. vhash .. "", 2+8)
-            if string.find(last_damage[vhash], "melee") then
-                medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-                stats[hash].kills.melee = stats[hash].kills.melee + 1
-            elseif last_damage[vhash] == "globals\\vehicle_collision" then
-                stats[hash].kills.splatter = stats[hash].kills.splatter + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\banshee\\mp_fuel rod explosion" then
-                stats[hash].kills.bansheefuelrod = stats[hash].kills.bansheefuelrod + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\banshee\\banshee bolt" then
-                stats[hash].kills.banshee = stats[hash].kills.banshee + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\c gun turret\\mp bolt" then
-                stats[hash].kills.turret = stats[hash].kills.turret + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\ghost\\ghost bolt" then
-                stats[hash].kills.ghost = stats[hash].kills.ghost + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\scorpion\\bullet" then
-                stats[hash].kills.tankmachinegun = stats[hash].kills.tankmachinegun + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\scorpion\\shell explosion" then
-                stats[hash].kills.tankshell = stats[hash].kills.tankshell + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "vehicles\\warthog\\bullet" then
-                stats[hash].kills.chainhog = stats[hash].kills.chainhog + 1
-                medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            elseif last_damage[vhash] == "weapons\\assault rifle\\bullet" then
-                stats[hash].kills.assaultrifle = stats[hash].kills.assaultrifle + 1
-                medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-            elseif last_damage[vhash] == "weapons\\flamethrower\\burning" or last_damage[vhash] == "weapons\\flamethrower\\explosion" or last_damage[vhash] == "weapons\\flamethrower\\impact damage" then
-                medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-                stats[hash].kills.flamethrower = stats[hash].kills.flamethrower + 1
-            elseif last_damage[vhash] == "weapons\\frag grenade\\explosion" then
-                medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-                stats[hash].kills.fragnade = stats[hash].kills.fragnade + 1
-            elseif last_damage[vhash] == "weapons\\needler\\detonation damage" or last_damage[vhash] == "weapons\\needler\\explosion" or last_damage[vhash] == "weapons\\needler\\impact damage" then
-                medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-                stats[hash].kills.needler = stats[hash].kills.needler + 1
-            elseif last_damage[vhash] == "weapons\\pistol\\bullet" then
-                stats[hash].kills.pistol = stats[hash].kills.pistol + 1
-                medals[hash].count.sidearm = medals[hash].count.sidearm + 1
-            elseif last_damage[vhash] == "weapons\\plasma grenade\\attached" then
-                medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-                stats[hash].kills.grenadestuck = stats[hash].kills.grenadestuck + 1
-            elseif last_damage[vhash] == "weapons\\plasma grenade\\explosion" then
-                cprint("blown up with a grenade!", 2+8)
-                medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-                stats[hash].kills.plasmanade = stats[hash].kills.plasmanade + 1
-            elseif last_damage[vhash] == "weapons\\plasma pistol\\bolt" then
-                stats[hash].kills.plasmapistol = stats[hash].kills.plasmapistol + 1
-                medals[hash].count.sidearm = medals[hash].count.sidearm + 1
-            elseif last_damage[vhash] == "weapons\\plasma rifle\\charged bolt" then
-                extra[hash].woops.empblast = extra[hash].woops.empblast + 1
-                medals[hash].count.jackofalltrades = medals[hash].count.jackofalltrades + 1
-                -- EMP Blast
-            elseif last_damage[vhash] == "weapons\\plasma rifle\\bolt" then
-                stats[hash].kills.plasmarifle = stats[hash].kills.plasmarifle + 1
-                medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-            elseif last_damage[vhash] == "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion" or last_damage[vhash] == "weapons\\plasma_cannon\\impact damage" then
-                medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-                stats[hash].kills.fuelrod = stats[hash].kills.fuelrod + 1
-            elseif last_damage[vhash] == "weapons\\rocket launcher\\explosion" then
-                if m_object then
-                    if read_byte(m_object + 0x2A0) == 1 then
-                        -- obj_crouch
-                        extra[hash].woops.rockethog = extra[hash].woops.rockethog + 1
-                    else
-                        medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-                        stats[hash].kills.rocket = stats[hash].kills.rocket + 1
-                    end
+        -- Weapon Melee --
+        if last_damage[PlayerIndex] == flag_melee or
+            last_damage[PlayerIndex] == ball_melee or
+            last_damage[PlayerIndex] == pistol_melee or
+            last_damage[PlayerIndex] == needle_melee or
+            last_damage[PlayerIndex] == shotgun_melee or
+            last_damage[PlayerIndex] == flame_melee or
+            last_damage[PlayerIndex] == sniper_melee or
+            last_damage[PlayerIndex] == prifle_melee or
+            last_damage[PlayerIndex] == ppistol_melee or
+            last_damage[PlayerIndex] == assault_melee or
+            last_damage[PlayerIndex] == rocket_melee then
+            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
+            stats[hash].kills.melee = stats[hash].kills.melee + 1
+            
+        -- Grenades --
+        elseif last_damage[PlayerIndex] == frag_explode then
+            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
+            stats[hash].kills.fragnade = stats[hash].kills.fragnade + 1
+        elseif last_damage[PlayerIndex] == plasma_attach then
+            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
+            stats[hash].kills.grenadestuck = stats[hash].kills.grenadestuck + 1
+        elseif last_damage[PlayerIndex] == plasma_explode then
+            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
+            stats[hash].kills.plasmanade = stats[hash].kills.plasmanade + 1
+            
+        -- Vehicle Collision --
+        elseif last_damage[PlayerIndex] == veh_damage then
+            stats[hash].kills.splatter = stats[hash].kills.splatter + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+
+        -- Vehicle Projectiles --
+        elseif last_damage[PlayerIndex] == banshee_explode then
+            stats[hash].kills.bansheefuelrod = stats[hash].kills.bansheefuelrod + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == banshee_bolt then
+            stats[hash].kills.banshee = stats[hash].kills.banshee + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == turret_bolt then
+            stats[hash].kills.turret = stats[hash].kills.turret + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == ghost_bolt then
+            stats[hash].kills.ghost = stats[hash].kills.ghost + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == tank_bullet then
+            stats[hash].kills.tankmachinegun = stats[hash].kills.tankmachinegun + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == tank_shell then
+            stats[hash].kills.tankshell = stats[hash].kills.tankshell + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+        elseif last_damage[PlayerIndex] == chain_bullet then
+            stats[hash].kills.chainhog = stats[hash].kills.chainhog + 1
+            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            
+        -- Weapon Projectiles --
+        elseif last_damage[PlayerIndex] == assault_bullet then
+            stats[hash].kills.assaultrifle = stats[hash].kills.assaultrifle + 1
+            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
+        elseif last_damage[PlayerIndex] == flame_explode then
+            medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
+            stats[hash].kills.flamethrower = stats[hash].kills.flamethrower + 1
+        elseif last_damage[PlayerIndex] == needle_detonate or last_damage[PlayerIndex] == needle_explode or last_damage[PlayerIndex] == needle_impact then
+            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
+            stats[hash].kills.needler = stats[hash].kills.needler + 1
+        elseif last_damage[PlayerIndex] == pistol_bullet then
+            cprint("PISTOL BULLET", 2+8)
+            stats[hash].kills.pistol = stats[hash].kills.pistol + 1
+            medals[hash].count.sidearm = medals[hash].count.sidearm + 1
+        elseif last_damage[PlayerIndex] == ppistol_bolt then
+            stats[hash].kills.plasmapistol = stats[hash].kills.plasmapistol + 1
+            medals[hash].count.sidearm = medals[hash].count.sidearm + 1
+        elseif last_damage[PlayerIndex] == ppistol_charged then
+            extra[hash].woops.empblast = extra[hash].woops.empblast + 1
+            medals[hash].count.jackofalltrades = medals[hash].count.jackofalltrades + 1
+        elseif last_damage[PlayerIndex] == prifle_bolt then
+            stats[hash].kills.plasmarifle = stats[hash].kills.plasmarifle + 1
+            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
+        elseif last_damage[PlayerIndex] == pcannon_explode then
+            medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
+            stats[hash].kills.fuelrod = stats[hash].kills.fuelrod + 1
+        elseif last_damage[PlayerIndex] == rocket_explode then
+            if m_object then
+                if read_byte(m_object + 0x2A0) == 1 then
+                    -- obj_crouch
+                    extra[hash].woops.rockethog = extra[hash].woops.rockethog + 1
                 else
                     medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
                     stats[hash].kills.rocket = stats[hash].kills.rocket + 1
                 end
-            elseif last_damage[vhash] == "weapons\\shotgun\\pellet" then
-                medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-                stats[hash].kills.shotgun = stats[hash].kills.shotgun + 1
-            elseif last_damage[vhash] == "weapons\\sniper rifle\\sniper bullet" then
-                medals[hash].count.crackshot = medals[hash].count.crackshot + 1
-                stats[hash].kills.sniper = stats[hash].kills.sniper + 1
-            elseif last_damage[vhash] == "backtap" then
-                medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-                stats[hash].kills.melee = stats[hash].kills.melee + 1
+            else
+                medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
+                stats[hash].kills.rocket = stats[hash].kills.rocket + 1
             end
+        elseif last_damage[PlayerIndex] == shotgun_pellet then
+            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
+            stats[hash].kills.shotgun = stats[hash].kills.shotgun + 1
+        elseif last_damage[PlayerIndex] == sniper_bullet then
+            medals[hash].count.crackshot = medals[hash].count.crackshot + 1
+            stats[hash].kills.sniper = stats[hash].kills.sniper + 1
+        elseif last_damage[PlayerIndex] == "backtap" then
+            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
+            stats[hash].kills.melee = stats[hash].kills.melee + 1
         end
     end
     if game_started == true then
@@ -893,6 +909,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             timer(10, "LevelUp", killer)
         end
     end
+    last_damage[PlayerIndex] = 0
 end
 
 function getobject(PlayerIndex)
@@ -904,41 +921,9 @@ function getobject(PlayerIndex)
 	return nil
 end
 
-function OnDamageLookup(receiver, causer, mapId)
-
-    local tagname, tagtype = gettaginfo(mapId)
-    if causer ~= nil then
-        if getobject(causer) then
-            local cplayer = objectaddrtoplayer(causer)
-        else
-            local cplayer = nil
-        end
-    end
-
-    if string.find(tagname, "melee") then
-        odl_multiplier(500)
-    end
-
-    if cplayer ~= nil then
-        if getteam(cplayer) ~= nil then
-            -- 		Verify Red Team
-            if getteam(cplayer) == RED_TEAM then
-                local modifier = 1.0
-                odl_multiplier(modifier)
-            end
-        end
-    end
-end
-
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if game_started then
+    if game_started == true then
         last_damage[PlayerIndex] = MetaID
-        if MetaID == FALL_DAMAGE then
-            last_damage[PlayerIndex] = FALL_DAMAGE
-        end
-        if MetaID == DISTANCE_DAMAGE then
-            last_damage[PlayerIndex] = DISTANCE_DAMAGE
-        end
     end
 end
 
@@ -2592,32 +2577,55 @@ function get_tag_info(tagclass,tagname)
 end
 
 function LoadItems()
-    if get_var(0, "$gt") ~= "n/a" then
-        -- Melee
-        MELEE_ASSAULT_RIFLE = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
-        MELEE_ODDBALL = get_tag_info("jpt!", "weapons\\ball\\melee")
-        MELEE_FLAG = get_tag_info("jpt!", "weapons\\flag\\melee")
-        MELEE_FLAME_THROWER = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
-        MELEE_NEEDLER = get_tag_info("jpt!", "weapons\\needler\\melee")
-        MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
-        MELEE_PLASMA_PISTOL = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
-        MELEE_PLASMA_RIFLE = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
-        MELEE_ROCKET_LAUNCHER = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
-        MELEE_SHOTGUN = get_tag_info("jpt!", "weapons\\shotgun\\melee")
-        MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
-        MELEE_PLASMA_CANNON = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-        -- Grenades Explosion/Attached
-        GRENADE_FRAG_EXPLOSION = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
-        GRENADE_PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
-        GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
-        -- Vehicles
-        VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
-        -- Weapons
-        ASSAULT_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
-        -- Fall Damage / Distance Damage
-        FALL_DAMAGE = get_tag_info("jpt!", "globals\\falling")
-        DISTANCE_DAMAGE = get_tag_info("jpt!", "globals\\distance")
-    end
+    -- fall damage --
+    falling_damage = get_tag_info("jpt!", "globals\\falling")
+    distance_damage = get_tag_info("jpt!", "globals\\distance")
+    
+    -- vehicle collision --
+    veh_damage = get_tag_info("jpt!", "globals\\vehicle_collision")
+    
+    -- vehicle projectiles --
+    ghost_bolt = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+    tank_bullet = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
+    chain_bullet = get_tag_info("jpt!", "vehicles\\warthog\\bullet")
+    turret_bolt = get_tag_info("jpt!", "vehicles\\c gun turret\\mp bolt")
+    banshee_bolt = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
+    tank_shell = get_tag_info("jpt!", "vehicles\\scorpion\\shell explosion")
+    banshee_explode = get_tag_info("jpt!", "vehicles\\banshee\\mp_fuel rod explosion")
+    
+    -- weapon projectiles --
+    pistol_bullet = get_tag_info("jpt!", "weapons\\pistol\\bullet")
+    prifle_bolt = get_tag_info("jpt!", "weapons\\plasma rifle\\bolt")
+    shotgun_pellet = get_tag_info("jpt!", "weapons\\shotgun\\pellet")
+    ppistol_bolt = get_tag_info("jpt!", "weapons\\plasma pistol\\bolt")
+    needle_explode = get_tag_info("jpt!", "weapons\\needler\\explosion")
+    assault_bullet = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
+    needle_impact = get_tag_info("jpt!", "weapons\\needler\\impact damage")
+    flame_explode = get_tag_info("jpt!", "weapons\\flamethrower\\explosion")
+    sniper_bullet = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
+    rocket_explode = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
+    needle_detonate = get_tag_info("jpt!", "weapons\\needler\\detonation damage")
+    ppistol_charged = get_tag_info("jpt!", "weapons\\plasma rifle\\charged bolt")
+    pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+    pcannon_explode = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion")
+    
+    -- grenades --
+    frag_explode = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
+    plasma_attach = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
+    plasma_explode = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
+    
+    -- weapon melee --
+    flag_melee = get_tag_info("jpt!", "weapons\\flag\\melee")
+    ball_melee = get_tag_info("jpt!", "weapons\\ball\\melee")
+    pistol_melee = get_tag_info("jpt!", "weapons\\pistol\\melee")
+    needle_melee = get_tag_info("jpt!", "weapons\\needler\\melee")
+    shotgun_melee = get_tag_info("jpt!", "weapons\\shotgun\\melee")
+    flame_melee = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
+    sniper_melee = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")	
+    prifle_melee = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
+    ppistol_melee = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
+    assault_melee = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
+    rocket_melee = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
 end
 
 function RuleTimer(id, count)
