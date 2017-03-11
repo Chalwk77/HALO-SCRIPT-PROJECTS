@@ -36,30 +36,15 @@ last_damage = { }
 kill_command_count = { }
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], "OnTick")
+    --register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+    register_callback(cb['EVENT_CHAT'], "OnServerChat")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
-    register_callback(cb['EVENT_CHAT'], "OnServerChat")
+	register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-    -------------------------------------------
-    -- OPEN FILES:
-    -- 	Stats.txt
-    -- 	KillStats.txt
-    -- 	Sprees.txt
-    -- 	Medals.txt
-    -- 	Extra.txt
-    -- 	CompletedMedals.txt
-    OpenFiles()
-    game_started = true
-    
-    -- Disabled for now --
-    -- -- Recalculate team counters.
-    -- cur_blue_count = getteamsize(BLUE_TEAM)
-    -- cur_red_count = getteamsize(RED_TEAM)
-    -- cur_players = cur_blue_count + cur_red_count
 end
  
 function OnScriptUnload()
@@ -67,6 +52,7 @@ function OnScriptUnload()
     SaveTableData(sprees, "Sprees.txt")
     SaveTableData(medals, "Medals.txt")
     SaveTableData(stats, "Stats.txt")
+    last_damage = {}
 end
  
 function CheckType()
@@ -100,6 +86,12 @@ function OnNewGame()
     cur_players = 0
     game_started = true
     Rule_Timer = timer(1000, "RuleTimer")
+    OpenFiles()
+	for i=1,16 do
+		if player_present(i) then	
+			last_damage[i] = 0
+		end
+	end	
 end
  
 function OnGameEnd()
@@ -135,7 +127,13 @@ function OnGameEnd()
             end
         end
     end
-
+    
+	for i=1,16 do
+		if player_present(i) then		
+			last_damage[i] = 0
+		end
+	end
+    
     SaveTableData(killstats, "KillStats.txt")
     SaveTableData(extra, "Extra.txt")
     SaveTableData(done, "CompletedMedals.txt")
@@ -145,6 +143,10 @@ function OnGameEnd()
     SaveTableData(extra, "Extra.txt")
 
     game_started = false
+end
+
+function OnPlayerPreSpawn(PlayerIndex)
+	last_damage[PlayerIndex] = 0
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -163,25 +165,7 @@ function OnServerChat(PlayerIndex, Message)
 
     if PlayerIndex ~= nil then
         local hash = get_var(PlayerIndex, "$hash")
-        if Message == "@kill" then
-            -- 		Verify Red Team
-            if getteam(PlayerIndex) ~= RED_TEAM then
-                if isplayerdead(PlayerIndex) == false then
-                    if kill_command_count[hash] <= 5 then
-                        kill_command_count[hash] = kill_command_count[hash] + 1
-                        kill(PlayerIndex)
-                        say(getname(PlayerIndex) .. " killed themself.")
-                    else
-                        rprint(PlayerIndex, "You are only allowed to kill yourself 5 times in a match!")
-                    end
-                else
-                    rprint(PlayerIndex, "You are dead! You can not kill yourself!")
-                end
-            else
-                rprint(PlayerIndex, "You are a Human, you can not kill yourself.")
-            end
-            return false
-        elseif Message == "@info" then
+        if Message == "@info" then
             rprint(PlayerIndex, "\"@weapons\":  Will display stats for eash weapon.")
             rprint(PlayerIndex, "\"@stats\":  Will display about your kills, deaths etc.")
             rprint(PlayerIndex, "\"@sprees\":  Will display info about your Killing Spreees.")
@@ -199,6 +183,7 @@ function OnServerChat(PlayerIndex, Message)
             -- =========================================================================================================================================================================
             return false
         elseif Message == "@stats" then
+            -- =========================================================================================================================================================================
             local Player_KDR = RetrievePlayerKDR(PlayerIndex)
             local cpm = math.round(killstats[hash].total.credits / extra[hash].woops.gamesplayed, 2)
             if cpm == 0 or cpm == nil then
@@ -222,7 +207,6 @@ function OnServerChat(PlayerIndex, Message)
             -- =========================================================================================================================================================================
             return false
         elseif Message == "@rank" then
-            cprint("@rank")
             local credits = { }
             for k, _ in pairs(killstats) do
                 table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
@@ -453,10 +437,10 @@ function OnPlayerJoin(PlayerIndex)
         -- 	Update Counts
         thisTeamSize = cur_red_count
     end
-    CreditsUntilNextPromo(PlayerIndex)
 end	
 
 function OnPlayerLeave(PlayerIndex)
+    last_damage[PlayerIndex] = nil
     cur_players = cur_players - 1
     hash_table[gethash(PlayerIndex)] = getteam(PlayerIndex)
     kills[gethash(PlayerIndex)] = 0
@@ -491,7 +475,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- KILLED BY VEHICLE --
     if (killer == 0) then  mode = 3 end
     -- KILLED BY KILLER --
-    if (killer > 0) and(victim ~= killer) then  mode = 4 end
+    if (killer > 0) and(victim ~= killer) then mode = 4 end
     -- BETRAY / TEAM KILL --
     if (KillerTeam == VictimTeam) and (PlayerIndex ~= KillerIndex) then mode = 5 end
     -- SUICIDE --
@@ -500,9 +484,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if mode == 4 then
         local hash = gethash(killer)
         local vhash = gethash(victim)
-        local m_player = getplayer(killer)
-        local m_object = getobject(read_dword(m_player + 0x34))
+        local m_object = read_dword(get_player(victim) + 0x34)
         if last_damage[vhash] then
+            cprint("Hash that last received damage was: " .. vhash .. "", 2+8)
             if string.find(last_damage[vhash], "melee") then
                 medals[hash].count.closequarters = medals[hash].count.closequarters + 1
                 stats[hash].kills.melee = stats[hash].kills.melee + 1
@@ -549,6 +533,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 medals[hash].count.grenadier = medals[hash].count.grenadier + 1
                 stats[hash].kills.grenadestuck = stats[hash].kills.grenadestuck + 1
             elseif last_damage[vhash] == "weapons\\plasma grenade\\explosion" then
+                cprint("blown up with a grenade!", 2+8)
                 medals[hash].count.grenadier = medals[hash].count.grenadier + 1
                 stats[hash].kills.plasmanade = stats[hash].kills.plasmanade + 1
             elseif last_damage[vhash] == "weapons\\plasma pistol\\bolt" then
@@ -946,12 +931,14 @@ function OnDamageLookup(receiver, causer, mapId)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    last_damage[PlayerIndex] = MetaID
-    if MetaID == FALL_DAMAGE then
-        last_damage[PlayerIndex] = FALL_DAMAGE
-    end
-    if MetaID == DISTANCE_DAMAGE then
-        last_damage[PlayerIndex] = DISTANCE_DAMAGE
+    if game_started then
+        last_damage[PlayerIndex] = MetaID
+        if MetaID == FALL_DAMAGE then
+            last_damage[PlayerIndex] = FALL_DAMAGE
+        end
+        if MetaID == DISTANCE_DAMAGE then
+            last_damage[PlayerIndex] = DISTANCE_DAMAGE
+        end
     end
 end
 
@@ -1237,7 +1224,6 @@ function OpenFiles()
     done = LoadTableData("CompletedMedals.txt")
 end
 
-
 function RetrievePlayerKDR(PlayerIndex)
     local Player_KDR = nil
     if killstats[gethash(PlayerIndex)].total.kills ~= 0 then
@@ -1255,7 +1241,6 @@ function RetrievePlayerKDR(PlayerIndex)
 end
 
 function DeclearNewPlayerStats(hash)
-
     if stats[hash] == nil then
         stats[hash] = { }
         stats[hash].kills = { }
@@ -1413,18 +1398,6 @@ function table.find(t, v, case)
         else
             if string.lower(v) == string.lower(val) then
                 return k
-            end
-        end
-    end
-end
-
-function DestroyGuns(object)
-
-    for i = 0, 3 do
-        if getobject(object) then
-            local weapID = read_dword(getobject(object) + 0x2F8 + i * 4)
-            if getobject(weapID) then
-                destroyobject(weapID)
             end
         end
     end
@@ -2296,9 +2269,7 @@ function GetPlayerRank(PlayerIndex)
     if hash then
         killstats[hash].total.credits = killstats[hash].total.credits or 0
         if killstats[hash].total.credits > 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
-            cprint("1", 2+8)
             if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < 7500 then
-                cprint("kill stats are less than 7500", 2+8)
                 -- 0 - 7,500
                 killstats[hash].total.rank = "Recruit"
                 -- Decide his rank.
