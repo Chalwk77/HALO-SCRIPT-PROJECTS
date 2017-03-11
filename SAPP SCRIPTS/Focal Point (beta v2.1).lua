@@ -551,7 +551,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             medals[hash].count.triggerman = medals[hash].count.triggerman + 1
             stats[hash].kills.needler = stats[hash].kills.needler + 1
         elseif last_damage[PlayerIndex] == pistol_bullet then
-            cprint("PISTOL BULLET", 2+8)
             stats[hash].kills.pistol = stats[hash].kills.pistol + 1
             medals[hash].count.sidearm = medals[hash].count.sidearm + 1
         elseif last_damage[PlayerIndex] == ppistol_bolt then
