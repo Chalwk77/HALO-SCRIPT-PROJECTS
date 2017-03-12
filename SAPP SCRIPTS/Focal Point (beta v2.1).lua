@@ -935,7 +935,6 @@ function OnTick()
     if (SAVE_DATA_WARNING == true) then
         save_data_warn = save_data_warn + 0.030
         warning_timer = save_data_warn
-        cprint("------------------------------>>>>>>>>>1<<<<<<<<------------------------------")
         if warning_timer > math.floor(save_data_warning) then
             SAVE_DATA_WARNING = false
             local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
@@ -948,7 +947,6 @@ function OnTick()
     if (SAVE_DATA == true) then
         save_data_timer = save_data_timer + 0.030
         save_data_void = save_data_timer
-        cprint("------------------------------>>>>>>>>>2<<<<<<<<------------------------------")
         if save_data_void >= math.floor(save_data) then
             SAVE_DATA = false
             
