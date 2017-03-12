@@ -7,8 +7,8 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of another "stats script" that was for Phasor, by SlimJim
-* Re-written, heavily modified and converted to sapp by Jericho Crosby (Chalwk)
+* This is my extension of another "progression based game" that was for Phasor, by SlimJim
+* Re-written and converted to sapp by Jericho Crosby (Chalwk)
 ]]
 
 api_version = "1.11.0.0"
@@ -34,9 +34,10 @@ jointime = { } 	-- Declare Jointime. Used for a PlayerIndex's time spent in serv
 hash_table = { }
 last_damage = { }
 kill_command_count = { }
+data_folder = 'sapp\\'
 
 function OnScriptLoad()
-    --register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb['EVENT_CHAT'], "OnServerChat")
@@ -403,9 +404,10 @@ function OnPlayerJoin(PlayerIndex)
     local alreadyExists = false
     GetPlayerRank(PlayerIndex)
     jointime[gethash(PlayerIndex)] = os.time()
-    xcoords[gethash(PlayerIndex)] = read_float(getplayer(PlayerIndex) + 0xF8)
-    ycoords[gethash(PlayerIndex)] = read_float(getplayer(PlayerIndex) + 0xFC)
-    zcoords[gethash(PlayerIndex)] = read_float(getplayer(PlayerIndex) + 0x100)
+    local player_static = get_player(PlayerIndex)
+    xcoords[gethash(PlayerIndex)] = read_float(player_static + 0xF8)
+    ycoords[gethash(PlayerIndex)] = read_float(player_static + 0xFC)
+    zcoords[gethash(PlayerIndex)] = read_float(player_static + 0x100)
     timer(1000 * 6, "WelcomeHandler", PlayerIndex)
     local thisTeamSize = 0
     killers[PlayerIndex] = { }
@@ -796,7 +798,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 end
             end
             -- 			Killed from the Grave		
-            if isplayerdead(killer) == true then
+            if PlayerAlive(killer) == false then
                 medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
                 SendMessage(killer, "Rewarded:  +10 (cR) - Killed from the Grave")
@@ -927,15 +929,15 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function OnTick()
-    for i = 1,16 do
-        if player_present(i) then
-            GivePlayerMedals(i)
+    for i = 1, 16 do
+        if (player_alive(i)) then
             local player_object = get_dynamic_player(i)
             local x, y, z = read_vector3d(player_object + 0x5C)
+            GivePlayerMedals(i)
             if xcoords[gethash(i)] then
                 local x_dist = x - xcoords[gethash(i)]
                 local y_dist = y - ycoords[gethash(i)]
-                local z_dist = z - zcoords[gethash(i)]
+               local z_dist = z - zcoords[gethash(i)]
                 local dist = math.sqrt(x_dist ^ 2 + y_dist ^ 2 + z_dist ^ 2)
                 extra[gethash(i)].woops.distance = extra[gethash(i)].woops.distance + dist
             end
@@ -945,9 +947,6 @@ function OnTick()
         end
     end
 end
-
--- Directory to store Data (Stats.txt, KillStats.txt, Sprees.txt, Medals.txt, Extra.txt, CompletedMedals.txt)
-data_folder = 'sapp\\'
 
 function getprofilepath()
     local folder_directory = data_folder
@@ -1082,16 +1081,12 @@ function adjustedtimestamp()
     return timestamp
 end
 
-
-function isplayerdead(PlayerIndex)
-
-    local m_objectId = getplayerobjectid(PlayerIndex)
-    if m_objectId then
-        local m_object = getobject(m_objectId)
-        if m_object then
-            return false
-        else
+function PlayerAlive(PlayerIndex)
+    if player_present(PlayerIndex) then
+        if (player_alive(PlayerIndex)) then
             return true
+        else
+            return false
         end
     end
 end
@@ -1550,17 +1545,12 @@ end
 function GivePlayerMedals(PlayerIndex)
 
     local hash = get_var(PlayerIndex, "$hash")
-    -- Get the PlayerIndex's hash.
     if hash then
         if done[hash].medal.sprees == "False" then
             if medals[hash].class.sprees == "Iron" and medals[hash].count.sprees >= 5 then
-                -- If the class is iron and the count is more then 5,
                 medals[hash].class.sprees = "Bronze"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.sprees == "Bronze" and medals[hash].count.sprees >= 50 then
-                -- If the class is bronze and the count is more then 50.
                 medals[hash].class.sprees = "Silver"
                 -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Bronze!")
@@ -2212,6 +2202,14 @@ function GetMedalClasses(PlayerIndex)
     elseif medals[hash].count.triggerman > 32000 then
         medals[hash].class.triggerman = "MAX"
     end
+end
+
+function getname(PlayerIndex)
+	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+		local name = get_var(PlayerIndex, "$name")
+		return name
+	end
+	return nil
 end
 
 function getplayer(PlayerIndex)
