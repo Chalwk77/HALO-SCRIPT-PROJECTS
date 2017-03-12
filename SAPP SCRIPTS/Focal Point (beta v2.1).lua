@@ -35,9 +35,9 @@ save_data = 180
 -- The reason for the warning is because the Data Saving method can cause temporary server, and people should be aware of that.
 save_data_warning = 165
 
---===================================================]
+-- ===================================================]
 -- Amount of Credits (cR) required for the next rank
---===================================================]
+-- ===================================================]
 Recruit = 7500
 Private = 10000
 Corporal = 15000
@@ -87,8 +87,8 @@ Nova = 13000000
 Forerunner = 16500000
 Reclaimer = 20000000
 Inheritor = "Ranks Complete"
---===============================]
---===============================]
+-- ===============================]
+-- ===============================]
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -118,7 +118,7 @@ function CheckType()
     type_is_oddball = get_var(1, "$gt") == "oddball"
     type_is_race = get_var(1, "$gt") == "race"
     type_is_slayer = get_var(1, "$gt") == "slayer"
-    if (type_is_koth) or (type_is_oddball) or (type_is_race) or (type_is_slayer) then
+    if (type_is_koth) or(type_is_oddball) or(type_is_race) or(type_is_slayer) then
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -430,7 +430,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     DeclearNewPlayerStats(gethash(PlayerIndex))
-    timer(1000*300, "CreditTimer", PlayerIndex)
+    timer(1000 * 300, "CreditTimer", PlayerIndex)
     GetMedalClasses(PlayerIndex)
     GetPlayerRank(PlayerIndex)
     jointime[gethash(PlayerIndex)] = os.time()
@@ -446,20 +446,20 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function CreditTimer(PlayerIndex)
-	if game_started == true then
-		if player_present(PlayerIndex) then
-			SendMessage(PlayerIndex, "+25 cR - 5 minutes in the server")
-			changescore(PlayerIndex, 25, plus)
-			if killstats[gethash(PlayerIndex)].total.credits ~= nil then
-				killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
-			else
-				killstats[gethash(PlayerIndex)].total.credits = 15
-			end
-		end
-		return true
-	else
-		return false
-	end
+    if game_started == true then
+        if player_present(PlayerIndex) then
+            SendMessage(PlayerIndex, "+25 cR - 5 minutes in the server")
+            changescore(PlayerIndex, 25, plus)
+            if killstats[gethash(PlayerIndex)].total.credits ~= nil then
+                killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
+            else
+                killstats[gethash(PlayerIndex)].total.credits = 15
+            end
+        end
+        return true
+    else
+        return false
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -487,9 +487,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- KILLED BY VEHICLE --
     if (killer == 0) then mode = 3 end
     -- KILLED BY KILLER --
-    if (killer > 0) and (victim ~= killer) then mode = 4 end
+    if (killer > 0) and(victim ~= killer) then mode = 4 end
     -- BETRAY / TEAM KILL --
-    if (KillerTeam == VictimTeam) and (PlayerIndex ~= KillerIndex) then mode = 5 end
+    if (KillerTeam == VictimTeam) and(PlayerIndex ~= KillerIndex) then mode = 5 end
     -- SUICIDE --
     if tonumber(PlayerIndex) == tonumber(KillerIndex) then mode = 6 end
 
@@ -614,7 +614,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
             -- 		mode 4: Killed by killer
         elseif mode == 4 then
-        
+
             if table.find(killers[victim], killer, false) == nil then
                 table.insert(killers[victim], killer)
             end
@@ -791,7 +791,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 killstats[hash].total.credits = killstats[hash].total.credits + 40
                 medals[hash].count.sprees = medals[hash].count.sprees + 1
             end
-            
+
             -- Revenge		
             for k, v in pairs(killers[killer]) do
                 if v == victim then
@@ -802,7 +802,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     changescore(killer, 10, plus)
                 end
             end
-            
+
             -- Killed from the Grave		
             if PlayerAlive(killer) == false then
                 medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
@@ -810,7 +810,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 SendMessage(killer, " +10 (cR) - Killed from the Grave")
                 changescore(killer, 10, plus)
             end
-            
+
             -- roadrage
             if getplayer(killer) then
                 if killer ~= nil then
@@ -827,7 +827,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
-            
+
             -- Avenger
             for i = 1, 16 do
                 if getplayer(i) then
@@ -840,14 +840,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
-            
+
             if avenge[gethash(killer)] == gethash(victim) then
                 medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
                 SendMessage(killer, " +5 (cR) - Avenger")
                 changescore(killer, 5, plus)
             end
-            
+
             -- Killjoy
             if killer then
                 kills[gethash(killer)] = kills[gethash(killer)] or 1
@@ -863,7 +863,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
-            
+
             kills[gethash(victim)] = 0
 
             -- Reload This
@@ -938,7 +938,7 @@ function OnTick()
         if warning_timer > math.floor(save_data_warning) then
             SAVE_DATA_WARNING = false
             local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
-            
+
             execute_command("msg_prefix \"\"")
             say_all("LAG WARNING: Server saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
             execute_command("msg_prefix \"** SERVER ** \"")
@@ -949,7 +949,7 @@ function OnTick()
         save_data_void = save_data_timer
         if save_data_void >= math.floor(save_data) then
             SAVE_DATA = false
-            
+
             SaveTableData(killstats, "KillStats.txt")
             SaveTableData(extra, "Extra.txt")
             SaveTableData(done, "CompletedMedals.txt")
@@ -957,11 +957,11 @@ function OnTick()
             SaveTableData(stats, "Stats.txt")
             SaveTableData(medals, "Medals.txt")
             SaveTableData(extra, "Extra.txt")
-            
+
             execute_command("msg_prefix \"\"")
             say_all("Server data has been saved!")
             execute_command("msg_prefix \"** SERVER ** \"")
-            
+
             -- reset --
             save_data_timer = 0
             save_data_warn = 0
