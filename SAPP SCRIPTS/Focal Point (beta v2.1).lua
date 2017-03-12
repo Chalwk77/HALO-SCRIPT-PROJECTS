@@ -31,8 +31,8 @@ data_folder = 'sapp\\'
 -- How often should the server backup player data?
 -- Save Data every (seconds)...
 save_data = 180
--- How many seconds before "save_data" should player's be warned that the server is about to save player data?
--- The reason for the warning is because the Data Saving method can cause temporary server, and people should be aware of that.
+-- How many seconds before players are warned that the server is about to save player data?
+-- The reason for this warning is because the Data-Saving Method can cause temporary server lag, and people should be aware of that.
 save_data_warning = 165
 
 -- ===================================================]
