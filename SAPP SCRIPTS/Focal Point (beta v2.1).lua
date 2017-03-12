@@ -514,93 +514,240 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             last_damage[PlayerIndex] == rocket_melee then
             medals[hash].count.closequarters = medals[hash].count.closequarters + 1
             stats[hash].kills.melee = stats[hash].kills.melee + 1
+            SendMessage(PlayerIndex, " -10 (cR) - You were Meleed by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 10, minus)
+            changescore(killer, 13, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+            SendMessage(PlayerIndex, " +13 (cR)")
 
             -- Grenades --
         elseif last_damage[PlayerIndex] == frag_explode then
             medals[hash].count.grenadier = medals[hash].count.grenadier + 1
             stats[hash].kills.fragnade = stats[hash].kills.fragnade + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == plasma_attach then
             medals[hash].count.grenadier = medals[hash].count.grenadier + 1
             stats[hash].kills.grenadestuck = stats[hash].kills.grenadestuck + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == plasma_explode then
             medals[hash].count.grenadier = medals[hash].count.grenadier + 1
             stats[hash].kills.plasmanade = stats[hash].kills.plasmanade + 1
-
+            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
             -- Vehicle Collision --
         elseif last_damage[PlayerIndex] == veh_damage then
             stats[hash].kills.splatter = stats[hash].kills.splatter + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-
+            SendMessage(PlayerIndex, " -10 (cR) - You were run over by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 10, minus)
+            changescore(killer, 13, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+            SendMessage(PlayerIndex, " +13 (cR)")
+            
             -- Vehicle Projectiles --
         elseif last_damage[PlayerIndex] == banshee_explode then
             stats[hash].kills.bansheefuelrod = stats[hash].kills.bansheefuelrod + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a Banshee Fuel Rod")
+            changescore(PlayerIndex, 10, minus)
+            changescore(killer, 13, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+            SendMessage(PlayerIndex, " +13 (cR)")
+            
         elseif last_damage[PlayerIndex] == banshee_bolt then
             stats[hash].kills.banshee = stats[hash].kills.banshee + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a Banshee Bolt")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == turret_bolt then
             stats[hash].kills.turret = stats[hash].kills.turret + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a Turret")
+            changescore(PlayerIndex, 3, minus)
+            changescore(killer, 6, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
+            SendMessage(PlayerIndex, " +6 (cR)")
+            
         elseif last_damage[PlayerIndex] == ghost_bolt then
             stats[hash].kills.ghost = stats[hash].kills.ghost + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with ghost bolt")
+            changescore(PlayerIndex, 4, minus)
+            changescore(killer, 7, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
+            SendMessage(PlayerIndex, " +7 (cR)")
+            
         elseif last_damage[PlayerIndex] == tank_bullet then
             stats[hash].kills.tankmachinegun = stats[hash].kills.tankmachinegun + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with tank bullet")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == tank_shell then
             stats[hash].kills.tankshell = stats[hash].kills.tankshell + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
+            SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with tank shell")
+            changescore(PlayerIndex, 10, minus)
+            changescore(killer, 13, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+            SendMessage(PlayerIndex, " +13 (cR)")
+            
         elseif last_damage[PlayerIndex] == chain_bullet then
             stats[hash].kills.chainhog = stats[hash].kills.chainhog + 1
             medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. "'s Warthog chain gun bullets")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
             -- Weapon Projectiles --
         elseif last_damage[PlayerIndex] == assault_bullet then
             stats[hash].kills.assaultrifle = stats[hash].kills.assaultrifle + 1
             medals[hash].count.triggerman = medals[hash].count.triggerman + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with an assault rifle")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == flame_explode then
             medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
             stats[hash].kills.flamethrower = stats[hash].kills.flamethrower + 1
+            SendMessage(PlayerIndex, " -3 (cR) - You were burnt to a crisp by " .. get_var(killer, "$name") .. "'s flame thrower")
+            changescore(PlayerIndex, 3, minus)
+            changescore(killer, 6, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
+            SendMessage(PlayerIndex, " +6 (cR)")
+            
         elseif last_damage[PlayerIndex] == needle_detonate or last_damage[PlayerIndex] == needle_explode or last_damage[PlayerIndex] == needle_impact then
             medals[hash].count.triggerman = medals[hash].count.triggerman + 1
             stats[hash].kills.needler = stats[hash].kills.needler + 1
+            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a needler")
+            changescore(PlayerIndex, 4, minus)
+            changescore(killer, 7, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
+            SendMessage(PlayerIndex, " +7 (cR)")
+            
         elseif last_damage[PlayerIndex] == pistol_bullet then
             stats[hash].kills.pistol = stats[hash].kills.pistol + 1
             medals[hash].count.sidearm = medals[hash].count.sidearm + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a pistol")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == ppistol_bolt then
             stats[hash].kills.plasmapistol = stats[hash].kills.plasmapistol + 1
             medals[hash].count.sidearm = medals[hash].count.sidearm + 1
+            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a plasma pistol")
+            changescore(PlayerIndex, 3, minus)
+            changescore(killer, 6, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
+            SendMessage(PlayerIndex, " +6 (cR)")
+            
         elseif last_damage[PlayerIndex] == ppistol_charged then
             extra[hash].woops.empblast = extra[hash].woops.empblast + 1
             medals[hash].count.jackofalltrades = medals[hash].count.jackofalltrades + 1
+            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a charged plasma pistol")
+            changescore(PlayerIndex, 3, minus)
+            changescore(killer, 6, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
+            SendMessage(PlayerIndex, " +6 (cR)")
+            
         elseif last_damage[PlayerIndex] == prifle_bolt then
             stats[hash].kills.plasmarifle = stats[hash].kills.plasmarifle + 1
             medals[hash].count.triggerman = medals[hash].count.triggerman + 1
+            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a plasma rifle")
+            changescore(PlayerIndex, 4, minus)
+            changescore(killer, 7, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
+            SendMessage(PlayerIndex, " +7 (cR)")
+            
         elseif last_damage[PlayerIndex] == pcannon_explode then
             medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
             stats[hash].kills.fuelrod = stats[hash].kills.fuelrod + 1
+            SendMessage(PlayerIndex, " -8 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a plasma cannon")
+            changescore(PlayerIndex, 8, minus)
+            changescore(killer, 11, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 11
+            SendMessage(PlayerIndex, " +11 (cR)")
+            
         elseif last_damage[PlayerIndex] == rocket_explode then
             if m_object then
                 if read_byte(m_object + 0x2A0) == 1 then
                     -- obj_crouch
                     extra[hash].woops.rockethog = extra[hash].woops.rockethog + 1
+                    SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. "'s Rocket-Hog Rocket")
+                    changescore(PlayerIndex, 10, minus)
+                    changescore(killer, 13, plus)
+                    killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+                    SendMessage(PlayerIndex, " +13 (cR)")
                 else
                     medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
                     stats[hash].kills.rocket = stats[hash].kills.rocket + 1
+                    SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a rocket launcher")
+                    changescore(PlayerIndex, 10, minus)
+                    changescore(killer, 13, plus)
+                    killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+                    SendMessage(PlayerIndex, " +13 (cR)")
                 end
             else
                 medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
                 stats[hash].kills.rocket = stats[hash].kills.rocket + 1
+                SendMessage(PlayerIndex, " -10 (cR) - You were blown up!")
+                changescore(PlayerIndex, 10, minus)
+                changescore(killer, 13, plus)
+                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+                SendMessage(PlayerIndex, " +13 (cR)")
             end
         elseif last_damage[PlayerIndex] == shotgun_pellet then
             medals[hash].count.closequarters = medals[hash].count.closequarters + 1
             stats[hash].kills.shotgun = stats[hash].kills.shotgun + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a shotgun")
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
+            
         elseif last_damage[PlayerIndex] == sniper_bullet then
             medals[hash].count.crackshot = medals[hash].count.crackshot + 1
             stats[hash].kills.sniper = stats[hash].kills.sniper + 1
+            SendMessage(PlayerIndex, " -10 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a sniper rifle")
+            changescore(PlayerIndex, 10, minus)
+            changescore(killer, 13, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
+            SendMessage(PlayerIndex, " +13 (cR)")
         elseif last_damage[PlayerIndex] == "backtap" then
             medals[hash].count.closequarters = medals[hash].count.closequarters + 1
             stats[hash].kills.melee = stats[hash].kills.melee + 1
+            SendMessage(PlayerIndex, " -5 (cR) - You were back tapped by " .. get_var(killer, "$name"))
+            changescore(PlayerIndex, 5, minus)
+            changescore(killer, 8, plus)
+            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
+            SendMessage(PlayerIndex, " +8 (cR)")
         end
     end
     if game_started == true then
@@ -628,47 +775,47 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
             if read_word(getplayer(killer) + 0x9C) == 10 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, "+5 (cR) - 10 Kills")
+                SendMessage(killer, "+5 (cR) - 10 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             elseif read_word(getplayer(killer) + 0x9C) == 20 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, "+5 (cR) - 20 Kills")
+                SendMessage(killer, "+5 (cR) - 20 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             elseif read_word(getplayer(killer) + 0x9C) == 30 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, "+5 (cR) - 30 Kills")
+                SendMessage(killer, "+5 (cR) - 30 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             elseif read_word(getplayer(killer) + 0x9C) == 40 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, "+5 (cR) - 40 Kills")
+                SendMessage(killer, "+5 (cR) - 40 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             elseif read_word(getplayer(killer) + 0x9C) == 50 then
                 changescore(killer, 10, plus)
-                SendMessage(killer, "+10 (cR) - 50 Kills")
+                SendMessage(killer, "+10 (cR) - 50 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
             elseif read_word(getplayer(killer) + 0x9C) == 60 then
                 changescore(killer, 10, plus)
-                SendMessage(killer, "+10 (cR) - 60 Kills")
+                SendMessage(killer, "+10 (cR) - 60 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
             elseif read_word(getplayer(killer) + 0x9C) == 70 then
                 changescore(killer, 10, plus)
-                SendMessage(killer, "+10 (cR) - 70 Kills")
+                SendMessage(killer, "+10 (cR) - 70 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
             elseif read_word(getplayer(killer) + 0x9C) == 80 then
                 changescore(killer, 10, plus)
-                SendMessage(killer, "+10 (cR) - 80 Kills")
+                SendMessage(killer, "+10 (cR) - 80 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
             elseif read_word(getplayer(killer) + 0x9C) == 90 then
                 changescore(killer, 10, plus)
-                SendMessage(killer, "+10 (cR) - 90 Kills")
+                SendMessage(killer, "+10 (cR) - 90 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
             elseif read_word(getplayer(killer) + 0x9C) == 100 then
                 changescore(killer, 20, plus)
-                SendMessage(killer, "+20 (cR) - 100 Kills")
+                SendMessage(killer, "+20 (cR) - 100 total Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 20
             elseif read_word(getplayer(killer) + 0x9C) > 100 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, "+5 (cR) - More than 100 Kills")
+                SendMessage(killer, "+5 (cR) - More than 100 Kills!")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             end
 
