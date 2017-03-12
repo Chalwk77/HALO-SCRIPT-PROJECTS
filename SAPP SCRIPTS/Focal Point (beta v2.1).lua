@@ -37,9 +37,11 @@ save_data = 180
 -- The reason for this warning is because the Data-Saving Method can cause temporary server lag, and people should be aware of that.
 save_data_warning = 165
 
--- ===================================================]
+-- ================================================================]
 -- Amount of Credits (cR) required for the next rank
--- ===================================================]
+-- Example, 7500 cR required to level up from Recruit >> Private.
+-- Example, 10000 cR required to level up from Private >> Corporal.
+-- ================================================================]
 Recruit = 7500
 Private = 10000
 Corporal = 15000
