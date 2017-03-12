@@ -14,6 +14,8 @@
 api_version = "1.11.0.0"
 AnnounceRank = true
 game_started = false
+-- Save Player Data every x seconds?
+SAVE_PLAYER_DATA = true
 processid = 0
 kill_count = 0
 time = { } 	 	-- Declare time. Used for PlayerIndex's time spent in server.
@@ -930,41 +932,43 @@ function SaveDataTimeToSeconds(seconds, places)
 end
 
 function OnTick()
-    if (SAVE_DATA_WARNING == true) then
-        save_data_warn = save_data_warn + 0.030
-        warning_timer = save_data_warn
-        if warning_timer > math.floor(save_data_warning) then
-            SAVE_DATA_WARNING = false
-            local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
+    if SAVE_PLAYER_DATA then 
+        if (SAVE_DATA_WARNING == true) then
+            save_data_warn = save_data_warn + 0.030
+            warning_timer = save_data_warn
+            if warning_timer > math.floor(save_data_warning) then
+                SAVE_DATA_WARNING = false
+                local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
 
-            execute_command("msg_prefix \"\"")
-            say_all("** LAG WARNING ** Saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
-            execute_command("msg_prefix \"** SERVER ** \"")
+                execute_command("msg_prefix \"\"")
+                say_all("** LAG WARNING ** Saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
         end
-    end
-    if (SAVE_DATA == true) then
-        save_data_timer = save_data_timer + 0.030
-        save_data_void = save_data_timer
-        if save_data_void >= math.floor(save_data) then
-            SAVE_DATA = false
+        if (SAVE_DATA == true) then
+            save_data_timer = save_data_timer + 0.030
+            save_data_void = save_data_timer
+            if save_data_void >= math.floor(save_data) then
+                SAVE_DATA = false
 
-            SaveTableData(killstats, "KillStats.txt")
-            SaveTableData(extra, "Extra.txt")
-            SaveTableData(done, "CompletedMedals.txt")
-            SaveTableData(sprees, "Sprees.txt")
-            SaveTableData(stats, "Stats.txt")
-            SaveTableData(medals, "Medals.txt")
-            SaveTableData(extra, "Extra.txt")
+                SaveTableData(killstats, "KillStats.txt")
+                SaveTableData(extra, "Extra.txt")
+                SaveTableData(done, "CompletedMedals.txt")
+                SaveTableData(sprees, "Sprees.txt")
+                SaveTableData(stats, "Stats.txt")
+                SaveTableData(medals, "Medals.txt")
+                SaveTableData(extra, "Extra.txt")
 
-            execute_command("msg_prefix \"\"")
-            say_all("Server data has been saved!")
-            execute_command("msg_prefix \"** SERVER ** \"")
+                execute_command("msg_prefix \"\"")
+                say_all("Server data has been saved!")
+                execute_command("msg_prefix \"** SERVER ** \"")
 
-            -- reset --
-            save_data_timer = 0
-            save_data_warn = 0
-            SAVE_DATA = true
-            SAVE_DATA_WARNING = true
+                -- reset --
+                save_data_timer = 0
+                save_data_warn = 0
+                SAVE_DATA = true
+                SAVE_DATA_WARNING = true
+            end
         end
     end
     for i = 1, 16 do
