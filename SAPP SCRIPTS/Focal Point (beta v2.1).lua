@@ -283,9 +283,9 @@ function OnServerChat(PlayerIndex, Message)
             if t[2] then
                 local rcon_id = tonumber(t[2])
                 if rcon_id then
-                    local Player = rresolveplayer(rcon_id)
+                    local Player = rcon_id
                     if Player then
-                        local hash = get_var(PlayerIndex, "$hash")
+                        local hash = gethash(Player)
                         if hash then
                             rprint(PlayerIndex, getname(Player) .. "'s Weapon Stats")
                             rprint(PlayerIndex, "Assault Rifle: " .. stats[hash].kills.assaultrifle .. " | Banshee: " .. stats[hash].kills.banshee .. " | Banshee Fuel Rod: " .. stats[hash].kills.bansheefuelrod .. " | Chain Hog: " .. stats[hash].kills.chainhog)
@@ -295,14 +295,8 @@ function OnServerChat(PlayerIndex, Message)
                             rprint(PlayerIndex, "Rocket Hog: " .. extra[hash].woops.rockethog .. " | Rocket Launcher: " .. stats[hash].kills.rocket .. " | Shotgun: " .. stats[hash].kills.shotgun .. " | Sniper Rifle: " .. stats[hash].kills.sniper)
                             rprint(PlayerIndex, "Stuck Grenade: " .. stats[hash].kills.grenadestuck .. " | Tank Machine Gun: " .. stats[hash].kills.tankmachinegun .. " | Tank Shell: " .. stats[hash].kills.tankshell .. " | Turret: " .. stats[hash].kills.turret)
                             -- =========================================================================================================================================================================
-                        else
-                            rprint(PlayerIndex, "Script Error! Please try again!")
                         end
-                    else
-                        rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats! They must be in the server!")
                     end
-                else
-                    rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats!")
                 end
             end
             return false
@@ -310,7 +304,7 @@ function OnServerChat(PlayerIndex, Message)
             if t[2] then
                 local rcon_id = tonumber(t[2])
                 if rcon_id then
-                    local Player = rresolveplayer(rcon_id)
+                    local Player = rcon_id
                     if Player then
                         local hash = gethash(Player)
                         if hash then
@@ -342,7 +336,7 @@ function OnServerChat(PlayerIndex, Message)
             if t[2] then
                 local rcon_id = tonumber(t[2])
                 if rcon_id then
-                    local Player = rresolveplayer(rcon_id)
+                    local Player = rcon_id
                     if Player then
                         local hash = gethash(Player)
                         if hash then
@@ -369,7 +363,7 @@ function OnServerChat(PlayerIndex, Message)
             if t[2] then
                 local rcon_id = tonumber(t[2])
                 if rcon_id then
-                    local Player = rresolveplayer(rcon_id)
+                    local Player = rcon_id
                     if Player then
                         local hash = gethash(Player)
                         if hash then
@@ -408,7 +402,7 @@ function OnServerChat(PlayerIndex, Message)
             if t[2] then
                 local rcon_id = tonumber(t[2])
                 if rcon_id then
-                    local Player = rresolveplayer(rcon_id)
+                    local Player = rcon_id
                     if Player then
                         local hash = gethash(Player)
                         if hash then
