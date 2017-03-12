@@ -73,10 +73,7 @@ end
 function OnNewGame()
     CheckType()
     LoadItems()
-    -- 	Map Name
-    map_name = get_var(1, "$map")
     game_started = true
-    Rule_Timer = timer(1000, "RuleTimer")
     OpenFiles()
     for i = 1, 16 do
         if player_present(i) then
@@ -86,20 +83,18 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    if stage == 1 then
-        timer(10, "AssistDelay")
-        for i = 1, 16 do
-            if getplayer(i) then
-                -- If the palyer has less than 3 Deaths on game end, then award them 15+ cR
-                if read_word(getplayer(i) + 0xAE) < 3 then
-                    changescore(i, 15, plus)
-                    SendMessage(i, "+15 (cR) - Less then 3 Deaths")
-                    killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits + 15
-                end
-                extra[gethash(i)].woops.gamesplayed = extra[gethash(i)].woops.gamesplayed + 1
-                time = os.time() - jointime[gethash(i)]
-                extra[gethash(i)].woops.time = extra[gethash(i)].woops.time + time
+    timer(10, "AssistDelay")
+    for i = 1, 16 do
+        if getplayer(i) then
+            -- If the palyer has less than 3 Deaths on game end, then award them 15+ cR
+            if read_word(getplayer(i) + 0xAE) < 3 then
+                changescore(i, 15, plus)
+                SendMessage(i, "+15 (cR) - Less then 3 Deaths")
+                killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits + 15
             end
+            extra[gethash(i)].woops.gamesplayed = extra[gethash(i)].woops.gamesplayed + 1
+            time = os.time() - jointime[gethash(i)]
+            extra[gethash(i)].woops.time = extra[gethash(i)].woops.time + time
         end
     end
 
@@ -366,12 +361,8 @@ function OnServerChat(PlayerIndex, Message)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    -- execute_command("sv_password vm315")
     DeclearNewPlayerStats(gethash(PlayerIndex))
-    -- credit_timer = timer(60000, "CreditTimer", PlayerIndex)
-    -- Update the PlayerIndex counts
     GetMedalClasses(PlayerIndex)
-    local alreadyExists = false
     GetPlayerRank(PlayerIndex)
     jointime[gethash(PlayerIndex)] = os.time()
     local player_static = get_player(PlayerIndex)
@@ -966,31 +957,6 @@ function tablelen(t)
     return count
 end
 
-function adjustedtimestamp()
-    local strMonth = os.date("%m")
-    local strYear = os.date("%Y")
-    local strMin = os.date("%M")
-    local strSec = os.date("%S")
-    local intDay = tonumber(os.date("%d"))
-    local intHour = tonumber(os.date("%H"))
-    if intHour < 7 then
-        local intDiff = 7 - intHour
-        intHour = 24 - intDiff
-        intDay = intDay - 1
-    elseif intHour >= 7 then
-        intHour = intHour - 7
-    end
-    local strMonthFinal = string.format("%02.0f", strMonth)
-    local strYearFinal = string.format("%04.0f", strYear)
-    local strMinFinal = string.format("%02.0f", strMin)
-    local strSecFinal = string.format("%02.0f", strSec)
-    local intDayFinal = string.format("%02.0f", intDay)
-    local intHourFinal = string.format("%02.0f", intHour)
-    local temp = "[" .. strMonthFinal .. "/" .. intDayFinal .. "/" .. strYearFinal .. " " .. intHourFinal .. ":" .. strMinFinal .. ":" .. strSecFinal .. "]"
-    local timestamp = tostring(temp)
-    return timestamp
-end
-
 function PlayerAlive(PlayerIndex)
     if player_present(PlayerIndex) then
         if (player_alive(PlayerIndex)) then
@@ -998,37 +964,6 @@ function PlayerAlive(PlayerIndex)
         else
             return false
         end
-    end
-end
-
-function isplayerinvis(PlayerIndex)
-
-    if PlayerIndex ~= nil then
-        local m_playerObjId = read_dword(getplayer(PlayerIndex) + 0x34)
-        local m_object = getobject(m_playerObjId)
-        local obj_invis_scale = read_float(m_object + 0x37C)
-        if obj_invis_scale == 0 then
-            return false
-        else
-            return true
-        end
-    end
-end
-
-function CreditTimer(id, count, PlayerIndex)
-    if game_started == true then
-        if getplayer(PlayerIndex) then
-            SendMessage(PlayerIndex, " +15 (cR) - 1 Minute in Server")
-            changescore(PlayerIndex, 15, plus)
-            if killstats[gethash(PlayerIndex)].total.credits ~= nil then
-                killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
-            else
-                killstats[gethash(PlayerIndex)].total.credits = 15
-            end
-        end
-        return true
-    else
-        return false
     end
 end
 
@@ -1054,23 +989,13 @@ function AssistDelay(id, count)
     end
 end
 
-function getplayerobjectid(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local weaponId = read_dword(player_object + 0x118)
-    if weaponId ~= 0 then
-        local m_weapon = read_dword(player_object + 0x2F8)
-        return m_weapon
-    end
-end
-
 function CloseCall(id, count, killer)
     -- Cleared
-
     if getplayer(killer) then
         if killer ~= nil then
-            local objectid = getplayerobjectid(killer)
-            if objectid ~= nil then
-                local m_object = getobject(objectid)
+            local player_object = get_dynamic_player(killer)
+            if player_object ~= nil then
+                local m_object = getobject(player_object)
                 local shields = read_float(m_object + 0xE4)
                 local health = read_float(m_object + 0xE0)
                 if shields ~= nil then
@@ -1087,19 +1012,6 @@ function CloseCall(id, count, killer)
                 end
             end
         end
-    end
-end
-
--- Rounds the number
-function round(num)
-    under = math.floor(num)
-    upper = math.floor(num) + 1
-    underV = -(under - num)
-    upperV = upper - num
-    if (upperV > underV) then
-        return under
-    else
-        return upper
     end
 end
 
@@ -1296,7 +1208,6 @@ function math.round(input, precision)
 end
 
 function LevelUp(killer)
-    cprint("LevelUp called!", 2 + 8)
     local hash = gethash(killer)
 
     killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
@@ -1460,37 +1371,24 @@ function GivePlayerMedals(PlayerIndex)
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Iron!")
             elseif medals[hash].class.sprees == "Bronze" and medals[hash].count.sprees >= 50 then
                 medals[hash].class.sprees = "Silver"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Bronze!")
-                -- Tell them what they earned.
             elseif medals[hash].class.sprees == "Silver" and medals[hash].count.sprees >= 250 then
-                -- If the class is silver and the clount is more then 250.
                 medals[hash].class.sprees = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.sprees == "Gold" and medals[hash].count.sprees >= 1000 then
-                -- If the class is gold and the count is more then 1000.
                 medals[hash].class.sprees = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1000
                 rprint(PlayerIndex, " +1000 cR - Any Spree : Gold")
                 changescore(PlayerIndex, 1000, plus)
             elseif medals[hash].class.sprees == "Onyx" and medals[hash].count.sprees >= 4000 then
-                -- If the class is onyx and the count is more then 4000.
                 medals[hash].class.sprees = "MAX"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 2000
                 rprint(PlayerIndex, " +2000 cR - Any Spree : Onyx")
                 changescore(PlayerIndex, 2000, plus)
             elseif medals[hash].class.sprees == "MAX" and medals[hash].count.sprees == 10000 then
-                -- if the class is max and the count is 10000.
                 say(getname(PlayerIndex) .. " has earned a medal : Any Spree MAX!")
-                -- Tell them what they have earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 3000
                 rprint(PlayerIndex, " +3000 cR - Any Spree : MAX")
                 changescore(PlayerIndex, 3000, plus)
@@ -1500,45 +1398,28 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.assists == "False" then
             if medals[hash].class.assists == "Iron" and medals[hash].count.assists >= 50 then
-                -- If the class is iron and the count is more then 50.
                 medals[hash].class.assists = "Bronze"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.assists == "Bronze" and medals[hash].count.assists >= 250 then
-                -- If the class is bronze and the count is more then 250.
                 medals[hash].class.assists = "Silver"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant Bronze!")
-                -- Tell them what they earned.
             elseif medals[hash].class.assists == "Silver" and medals[hash].count.assists >= 1000 then
-                -- If the class is silver and the count is more then 1000.
                 medals[hash].class.assists = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.assists == "Gold" and medals[hash].count.assists >= 4000 then
-                -- If the class is gold and the count is more then 4000.
                 medals[hash].class.assists = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1500
                 rprint(PlayerIndex, " +1500 cR - Assistant : Gold")
                 changescore(PlayerIndex, 1500, plus)
             elseif medals[hash].class.assists == "Onyx" and medals[hash].count.assists >= 8000 then
-                -- If the class is onyx and the count is more then 8000.
                 medals[hash].class.assists = "MAX"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 2500
                 rprint(PlayerIndex, " +2500 cR - Assistant : Onyx")
                 changescore(PlayerIndex, 2500, plus)
             elseif medals[hash].class.assists == "MAX" and medals[hash].count.assists == 20000 then
-                -- If the class is max and the count is 20000.
                 say(getname(PlayerIndex) .. " has earned a medal : Assistant MAX!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 3500
                 rprint(PlayerIndex, " +3500 cR - Assistant : MAX")
                 changescore(PlayerIndex, 3500, plus)
@@ -1548,45 +1429,28 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.closequarters == "False" then
             if medals[hash].class.closequarters == "Iron" and medals[hash].count.closequarters >= 50 then
-                -- If the class is iron and the count is more then 50.
                 medals[hash].class.closequarters = "Bronze"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.closequarters == "Bronze" and medals[hash].count.closequarters >= 125 then
-                -- If the class is bronze and the count is more then 125.
                 medals[hash].class.closequarters = "Silver"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters Bronze!")
-                -- Tell them what they earned.
             elseif medals[hash].class.closequarters == "Silver" and medals[hash].count.closequarters >= 400 then
-                -- If the class is silver and the count is more then 400.
                 medals[hash].class.closequarters = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.closequarters == "Gold" and medals[hash].count.closequarters >= 1600 then
-                -- If the class is gold and the count is more then 1600.
                 medals[hash].class.closequarters = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 750
                 rprint(PlayerIndex, " +750 cR - Close Quarters : Gold")
                 changescore(PlayerIndex, 750, plus)
             elseif medals[hash].class.closequarters == "Onyx" and medals[hash].count.closequarters >= 4000 then
-                -- If the class is onyx and the count is more then 4000.
                 medals[hash].class.closequarters = "MAX"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1500
                 rprint(PlayerIndex, " +1500 cR - Close Quarters : Onyx")
                 changescore(PlayerIndex, 1500, plus)
             elseif medals[hash].class.closequarters == "MAX" and medals[hash].count.closequarters == 8000 then
-                -- If the class is max and the count is 8000.
                 say(getname(PlayerIndex) .. " has earned a medal : Close Quarters MAX!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 2250
                 rprint(PlayerIndex, "2250 cR - Close Quarters : MAX")
                 changescore(PlayerIndex, 2250, plus)
@@ -1596,45 +1460,28 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.crackshot == "False" then
             if medals[hash].class.crackshot == "Iron" and medals[hash].count.crackshot >= 100 then
-                -- If the class is iron and the count is more then 100 .
                 medals[hash].class.crackshot = "Bronze"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.crackshot == "Bronze" and medals[hash].count.crackshot >= 500 then
-                -- If the class is bronze and the count is more then 500.
                 medals[hash].class.crackshot = "Silver"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot Bronze!")
-                -- Tell them what they earned.
             elseif medals[hash].class.crackshot == "Silver" and medals[hash].count.crackshot >= 4000 then
-                -- If the class is silver and the count is more then 4000.
                 medals[hash].class.crackshot = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.crackshot == "Gold" and medals[hash].count.crackshot >= 10000 then
-                -- If the class is gold and the count is more then 10000.
                 medals[hash].class.crackshot = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1000
                 rprint(PlayerIndex, " +1000 cR - Crack Shot : Gold")
                 changescore(PlayerIndex, 1000, plus)
             elseif medals[hash].class.crackshot == "Onyx" and medals[hash].count.crackshot >= 20000 then
-                -- If the class is onyx and the count is more then 20000.
                 medals[hash].class.crackshot = "MAX"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 2000
                 rprint(PlayerIndex, " +2000 cR - Crack Shot : Onyx")
                 changescore(PlayerIndex, 2000, plus)
             elseif medals[hash].class.crackshot == "MAX" and medals[hash].count.crackshot == 32000 then
-                -- If the class is max and the count is 32000.
                 say(getname(PlayerIndex) .. " has earned a medal : Crack Shot MAX!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 3000
                 rprint(PlayerIndex, " +3000 cR - Crack Shot : MAX")
                 changescore(PlayerIndex, 3000, plus)
@@ -1644,45 +1491,28 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.roadrage == "False" then
             if medals[hash].class.roadrage == "Iron" and medals[hash].count.roadrage >= 5 then
-                -- If the class is iron and count is more then 5.
                 medals[hash].class.roadrage = "Bronze"
-                -- Level it up.
                 say(getnamye(PlayerIndex) .. " has earned a medal : roadrage Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.roadrage == "Bronze" and medals[hash].count.roadrage >= 50 then
-                -- If the class is bronze and count is more then 50.
                 medals[hash].class.roadrage = "Silver"
-                -- Level it up
                 say(getname(PlayerIndex) .. " has earned a medal : roadrage Bronze!")
-                -- Tell them what the earned.
             elseif medals[hash].class.roadrage == "Silver" and medals[hash].count.roadrage >= 750 then
-                -- If the class is silver and count is more then 750.
                 medals[hash].class.roadrage = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : roadrage Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.roadrage == "Gold" and medals[hash].count.roadrage >= 4000 then
-                -- If the class is gold and count is more then 4000.
                 medals[hash].class.roadrage = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : roadrage Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 500
                 rprint(PlayerIndex, " +500 cR - roadrage : Gold")
                 changescore(PlayerIndex, 500, plus)
             elseif medals[hash].class.roadrage == "Onyx" and medals[hash].count.roadrage >= 8000 then
-                -- If the class is onyx and count is more then 8000.
                 medals[hash].class.roadrage = "MAX"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : roadrage Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1000
                 rprint(PlayerIndex, " +1000 cR - roadrage : Onyx")
                 changescore(PlayerIndex, 1000, plus)
             elseif medals[hash].class.roadrage == "MAX" and medals[hash].count.roadrage == 20000 then
-                -- If the class is max and count is 20000.
                 say(getname(PlayerIndex) .. " has earned a medal : roadrage MAX!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1500
                 rprint(PlayerIndex, " +1500 cR - roadrage : MAX")
                 changescore(PlayerIndex, 1500, plus)
@@ -1692,45 +1522,28 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.grenadier == "False" then
             if medals[hash].class.grenadier == "Iron" and medals[hash].count.grenadier >= 25 then
-                -- If the class is iron and count is more then 25.
                 medals[hash].class.grenadier = "Bronze"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier Iron!")
-                -- Tell them what they earned.
             elseif medals[hash].class.grenadier == "Bronze" and medals[hash].count.grenadier >= 125 then
-                -- If the class is bronze and count is more then 125.
                 medals[hash].class.grenadier = "Silver"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier Bronze!")
-                -- Tell them what they earned.
             elseif medals[hash].class.grenadier == "Silver" and medals[hash].count.grenadier >= 500 then
-                -- If the class is silver and count is more then 500.
                 medals[hash].class.grenadier = "Gold"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier Silver!")
-                -- Tell them what they earned.
             elseif medals[hash].class.grenadier == "Gold" and medals[hash].count.grenadier >= 4000 then
-                -- If the class is gold and count is more then 4000.
                 medals[hash].class.grenadier = "Onyx"
-                -- Level it up.
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier Gold!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 750
                 rprint(PlayerIndex, " +750 cR - Grenadier : Gold")
                 changescore(PlayerIndex, 750, plus)
             elseif medals[hash].class.grenadier == "Onyx" and medals[hash].count.grenadier >= 8000 then
-                -- If the class is onyx and count is more then 8000.
                 medals[hash].class.grenadier = "MAX"
-                -- Level it up
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier Onyx!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 1500
                 rprint(PlayerIndex, " +1500 cR - Grenadier : Onyx")
                 changescore(PlayerIndex, 1500, plus)
             elseif medals[hash].class.grenadier == "MAX" and medals[hash].count.grenadier == 14000 then
-                -- If the class is max and count is 14000.
                 say(getname(PlayerIndex) .. " has earned a medal : Grenadier MAX!")
-                -- Tell them what they earned.
                 killstats[hash].total.credits = killstats[hash].total.credits + 2250
                 rprint(PlayerIndex, " +2250 cR - Grenadier : MAX")
                 changescore(PlayerIndex, 2250, plus)
@@ -1771,7 +1584,6 @@ function GivePlayerMedals(PlayerIndex)
 
         if done[hash].medal.jackofalltrades == "False" then
             if medals[hash].class.jackofalltrades == "Iron" and medals[hash].count.jackofalltrades >= 50 then
-                -- Create the jackofalltrades count table.
                 medals[hash].class.jackofalltrades = "Bronze"
                 say(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Iron!")
             elseif medals[hash].class.jackofalltrades == "Bronze" and medals[hash].count.jackofalltrades >= 125 then
@@ -2531,41 +2343,6 @@ function LoadItems()
     assault_melee = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
     rocket_melee = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
 end
-
-function RuleTimer(id, count)
-    local number = getvalidcount(count)
-    if number ~= nil then
-        if number == 1 then
-            say("Blocking Ports / Pathways / Tunnels, Glitching into rocks/trees/out of map is not allowed.")
-        elseif number == 2 then
-            say("Team Grenading / Flipping / Shooting / Meleeing / Ramming is not allowed.")
-        elseif number == 3 then
-            say("Type \"@stuck\" for more indepth rules")
-        elseif number == 4 then
-            say("If you get stuck, you can type \"@stuck\" to find a way out.")
-        elseif number == 5 then
-            say("Type \"@info\" for all the commands to view your stats.")
-        end
-    end
-    return true
-end
-
-function getvalidcount(count)
-    local number = nil
-    if table.find( { "180", "360", "540", "720", "900", "1080" }, count) then
-        number = 1
-    elseif table.find( { "182", "362", "542", "722", "902", "1082" }, count) then
-        number = 2
-    elseif table.find( { "184", "364", "544", "724", "904", "1084" }, count) then
-        number = 3
-    elseif table.find( { "186", "366", "546", "726", "906", "1086" }, count) then
-        number = 4
-    elseif table.find( { "188", "368", "548", "728", "908", "1088" }, count) then
-        number = 5
-    end
-    return number
-end
-
 
 function secondsToTime(seconds, places)
     local years = math.floor(seconds /(60 * 60 * 24 * 365))
