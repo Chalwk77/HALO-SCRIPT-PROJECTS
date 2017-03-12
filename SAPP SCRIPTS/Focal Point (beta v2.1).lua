@@ -2455,12 +2455,14 @@ function changescore(PlayerIndex, number, bool)
     local m_player = getplayer(PlayerIndex)
     if m_player then
         local player_scores = read_word(m_player + 0xC8)
-        if bool == true then
-            local score = player_scores + number
-            setscore(PlayerIndex, score)
-        elseif bool == false then
-            local score = player_scores + math.abs(number)
-            setscore(PlayerIndex, -score)
+        if bool ~= nil then
+            if bool == true then
+                local score = player_scores + number
+                setscore(PlayerIndex, score)
+            elseif bool == false then
+                local score = player_scores + math.abs(number)
+                setscore(PlayerIndex, -score)
+            end
         end
     end
 end
