@@ -28,6 +28,13 @@ jointime = { } 	-- Declare Jointime. Used for player's time spent in server.
 last_damage = { }
 data_folder = 'sapp\\'
 
+-- How often should the server backup player data?
+-- Save Data every (seconds)...
+save_data = 180
+-- How many seconds before "save_data" should player's be warned that the server is about to save player data?
+-- The reason for the warning is because the Data Saving method can cause temporary server, and people should be aware of that.
+save_data_warning = 165
+
 --===================================================]
 -- Amount of Credits (cR) required for the next rank
 --===================================================]
@@ -102,6 +109,8 @@ function OnScriptUnload()
     SaveTableData(medals, "Medals.txt")
     SaveTableData(stats, "Stats.txt")
     last_damage = { }
+    save_data_timer = 0
+    save_data_warn = 0
 end
 
 function CheckType()
@@ -130,6 +139,8 @@ function OnNewGame()
     LoadItems()
     game_started = true
     OpenFiles()
+    save_data_timer = 0
+    save_data_warn = 0
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
@@ -138,6 +149,8 @@ function OnNewGame()
 end
 
 function OnGameEnd()
+    save_data_timer = 0
+    save_data_warn = 0
     timer(10, "AssistDelay")
     for i = 1, 16 do
         if getplayer(i) then
@@ -907,8 +920,57 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         last_damage[PlayerIndex] = MetaID
     end
 end
+SAVE_DATA_WARNING = true
+SAVE_DATA = true
+
+function SaveDataTimeToSeconds(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
+end
 
 function OnTick()
+    if (SAVE_DATA_WARNING == true) then
+        save_data_warn = save_data_warn + 0.030
+        warning_timer = save_data_warn
+        cprint("------------------------------>>>>>>>>>1<<<<<<<<------------------------------")
+        if warning_timer > math.floor(save_data_warning) then
+            SAVE_DATA_WARNING = false
+            local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
+            
+            execute_command("msg_prefix \"\"")
+            say_all("LAG WARNING: Server saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
+            execute_command("msg_prefix \"** SERVER ** \"")
+        end
+    end
+    if (SAVE_DATA == true) then
+        save_data_timer = save_data_timer + 0.030
+        save_data_void = save_data_timer
+        cprint("------------------------------>>>>>>>>>2<<<<<<<<------------------------------")
+        if save_data_void >= math.floor(save_data) then
+            SAVE_DATA = false
+            
+            SaveTableData(killstats, "KillStats.txt")
+            SaveTableData(extra, "Extra.txt")
+            SaveTableData(done, "CompletedMedals.txt")
+            SaveTableData(sprees, "Sprees.txt")
+            SaveTableData(stats, "Stats.txt")
+            SaveTableData(medals, "Medals.txt")
+            SaveTableData(extra, "Extra.txt")
+            
+            execute_command("msg_prefix \"\"")
+            say_all("Server data has been saved!")
+            execute_command("msg_prefix \"** SERVER ** \"")
+            
+            -- reset --
+            save_data_timer = 0
+            save_data_warn = 0
+            SAVE_DATA = true
+            SAVE_DATA_WARNING = true
+        end
+    end
     for i = 1, 16 do
         if (player_alive(i)) then
             GivePlayerMedals(i)
