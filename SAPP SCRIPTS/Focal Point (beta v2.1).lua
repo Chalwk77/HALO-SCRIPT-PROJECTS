@@ -744,7 +744,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         elseif last_damage[PlayerIndex] == "backtap" then
             medals[hash].count.closequarters = medals[hash].count.closequarters + 1
             stats[hash].kills.melee = stats[hash].kills.melee + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were back tapped by " .. get_var(killer, "$name"))
+            SendMessage(PlayerIndex, " -5 (cR) - You were back-tapped by " .. get_var(killer, "$name"))
             changescore(PlayerIndex, 5, false)
             changescore(killer, 8, true)
             killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
