@@ -28,6 +28,61 @@ jointime = { } 	-- Declare Jointime. Used for player's time spent in server.
 last_damage = { }
 data_folder = 'sapp\\'
 
+--===================================================]
+-- Amount of Credits (cR) required for the next rank
+--===================================================]
+Recruit = 7500
+Private = 10000
+Corporal = 15000
+Sergeant = 20000
+Sergeant_Grade_1 = 26250
+Sergeant_Grade_2 = 32500
+Warrant_Officer = 45000
+Warrant_Officer_Grade_1 = 78000
+Warrant_Officer_Grade_2 = 111000
+Warrant_Officer_Grade_3 = 144000
+Captain = 210000
+Captain_Grade_1 = 233000
+Captain_Grade_2 = 256000
+Captain_Grade_3 = 279000
+Major = 325000
+Major_Grade_1 = 350000
+Major_Grade_2 = 375000
+Major_Grade_3 = 400000
+Lt_Colonel = 450000
+Lt_Colonel_Grade_1 = 480000
+Lt_Colonel_Grade_2 = 510000
+Lt_Colonel_Grade_3 = 540000
+Commander = 600000
+Commander_Grade_1 = 650000
+Commander_Grade_2 = 700000
+Commander_Grade_3 = 750000
+Colonel = 850000
+Colonel_Grade_1 = 960000
+Colonel_Grade_2 = 1070000
+Colonel_Grade_3 = 1180000
+Brigadier = 1400000
+Brigadier_Grade_1 = 1520000
+Brigadier_Grade_2 = 1640000
+Brigadier_Grade_3 = 1760000
+General = 2000000
+General_Grade_1 = 2350000
+General_Grade_2 = 2500000
+General_Grade_3 = 2650000
+General_Grade_4 = 3000000
+Field_Marshall = 3700000
+Hero = 4600000
+Legend = 5650000
+Mythic = 7000000
+Noble = 8500000
+Eclipse = 11000000
+Nova = 13000000
+Forerunner = 16500000
+Reclaimer = 20000000
+Inheritor = "Ranks Complete"
+--===============================]
+--===============================]
+
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
@@ -362,7 +417,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     DeclearNewPlayerStats(gethash(PlayerIndex))
-    timer(1000*10, "CreditTimer", PlayerIndex)
+    timer(1000*300, "CreditTimer", PlayerIndex)
     GetMedalClasses(PlayerIndex)
     GetPlayerRank(PlayerIndex)
     jointime[gethash(PlayerIndex)] = os.time()
@@ -380,13 +435,13 @@ end
 function CreditTimer(PlayerIndex)
 	if game_started == true then
 		if player_present(PlayerIndex) then
-			SendMessage(PlayerIndex, "Awarded:    +15 cR - 1 Minute In Server")
-			changescore(PlayerIndex, 15, plus)
+			SendMessage(PlayerIndex, "+25 cR - 5 minutes in the server")
+			changescore(PlayerIndex, 25, plus)
 			if killstats[gethash(PlayerIndex)].total.credits ~= nil then
 				killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
 			else
 				killstats[gethash(PlayerIndex)].total.credits = 15
-			end	
+			end
 		end
 		return true
 	else
@@ -1106,151 +1161,153 @@ function LevelUp(killer)
     killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
     killstats[hash].total.credits = killstats[hash].total.credits or 0
     if killstats[hash].total.rank ~= nil and killstats[hash].total.credits ~= 0 then
-        if killstats[hash].total.rank == "Recruit" and killstats[hash].total.credits > 7500 then
+        execute_command("msg_prefix \"\"")
+        if killstats[hash].total.rank == "Recruit" and killstats[hash].total.credits > Recruit then
             killstats[hash].total.rank = "Private"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Private" and killstats[hash].total.credits > 10000 then
+        elseif killstats[hash].total.rank == "Private" and killstats[hash].total.credits > Private then
             killstats[hash].total.rank = "Corporal"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Corporal" and killstats[hash].total.credits > 15000 then
+        elseif killstats[hash].total.rank == "Corporal" and killstats[hash].total.credits > Corporal then
             killstats[hash].total.rank = "Sergeant"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant" and killstats[hash].total.credits > 20000 then
+        elseif killstats[hash].total.rank == "Sergeant" and killstats[hash].total.credits > Sergeant then
             killstats[hash].total.rank = "Sergeant Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant Grade 1" and killstats[hash].total.credits > 26250 then
+        elseif killstats[hash].total.rank == "Sergeant Grade 1" and killstats[hash].total.credits > Sergeant_Grade_1 then
             killstats[hash].total.rank = "Sergeant Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant Grade 2" and killstats[hash].total.credits > 32500 then
+        elseif killstats[hash].total.rank == "Sergeant Grade 2" and killstats[hash].total.credits > Sergeant_Grade_2 then
             killstats[hash].total.rank = "Warrant Officer"
-            say(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer" and killstats[hash].total.credits > 45000 then
+            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
+        elseif killstats[hash].total.rank == "Warrant Officer" and killstats[hash].total.credits > Warrant_Officer then
             killstats[hash].total.rank = "Warrant Officer Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 1" and killstats[hash].total.credits > 78000 then
+        elseif killstats[hash].total.rank == "Warrant Officer Grade 1" and killstats[hash].total.credits > Warrant_Officer_Grade_1 then
             killstats[hash].total.rank = "Warrant Officer Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 2" and killstats[hash].total.credits > 111000 then
+        elseif killstats[hash].total.rank == "Warrant Officer Grade 2" and killstats[hash].total.credits > Warrant_Officer_Grade_2 then
             killstats[hash].total.rank = "Warrant Officer Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 3" and killstats[hash].total.credits > 144000 then
+        elseif killstats[hash].total.rank == "Warrant Officer Grade 3" and killstats[hash].total.credits > Warrant_Officer_Grade_3 then
             killstats[hash].total.rank = "Captain"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain" and killstats[hash].total.credits > 210000 then
+        elseif killstats[hash].total.rank == "Captain" and killstats[hash].total.credits > Captain then
             killstats[hash].total.rank = "Captain Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 1" and killstats[hash].total.credits > 233000 then
+        elseif killstats[hash].total.rank == "Captain Grade 1" and killstats[hash].total.credits > Captain_Grade_1 then
             killstats[hash].total.rank = "Captain Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 2" and killstats[hash].total.credits > 256000 then
+        elseif killstats[hash].total.rank == "Captain Grade 2" and killstats[hash].total.credits > Captain_Grade_2 then
             killstats[hash].total.rank = "Captain Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 3" and killstats[hash].total.credits > 279000 then
+        elseif killstats[hash].total.rank == "Captain Grade 3" and killstats[hash].total.credits > Captain_Grade_3 then
             killstats[hash].total.rank = "Major"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major" and killstats[hash].total.credits > 325000 then
+        elseif killstats[hash].total.rank == "Major" and killstats[hash].total.credits > Major then
             killstats[hash].total.rank = "Major Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 1" and killstats[hash].total.credits > 350000 then
+        elseif killstats[hash].total.rank == "Major Grade 1" and killstats[hash].total.credits > Major_Grade_1 then
             killstats[hash].total.rank = "Major Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 2" and killstats[hash].total.credits > 375000 then
+        elseif killstats[hash].total.rank == "Major Grade 2" and killstats[hash].total.credits > Major_Grade_2 then
             killstats[hash].total.rank = "Major Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 3" and killstats[hash].total.credits > 400000 then
+        elseif killstats[hash].total.rank == "Major Grade 3" and killstats[hash].total.credits > Major_Grade_3 then
             killstats[hash].total.rank = "Lt. Colonel"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel" and killstats[hash].total.credits > 450000 then
+        elseif killstats[hash].total.rank == "Lt. Colonel" and killstats[hash].total.credits > Lt_Colonel then
             killstats[hash].total.rank = "Lt. Colonel Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 1" and killstats[hash].total.credits > 480000 then
+        elseif killstats[hash].total.rank == "Lt. Colonel Grade 1" and killstats[hash].total.credits > Lt_Colonel_Grade_1 then
             killstats[hash].total.rank = "Lt. Colonel Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 2" and killstats[hash].total.credits > 510000 then
+        elseif killstats[hash].total.rank == "Lt. Colonel Grade 2" and killstats[hash].total.credits > Lt_Colonel_Grade_2 then
             killstats[hash].total.rank = "Lt. Colonel Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 3" and killstats[hash].total.credits > 540000 then
+        elseif killstats[hash].total.rank == "Lt. Colonel Grade 3" and killstats[hash].total.credits > Lt_Colonel_Grade_3 then
             killstats[hash].total.rank = "Commander"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander" and killstats[hash].total.credits > 600000 then
+        elseif killstats[hash].total.rank == "Commander" and killstats[hash].total.credits > Commander then
             killstats[hash].total.rank = "Commander Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 1" and killstats[hash].total.credits > 650000 then
+        elseif killstats[hash].total.rank == "Commander Grade 1" and killstats[hash].total.credits > Commander_Grade_1 then
             killstats[hash].total.rank = "Commander Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 2" and killstats[hash].total.credits > 700000 then
+        elseif killstats[hash].total.rank == "Commander Grade 2" and killstats[hash].total.credits > Commander_Grade_2 then
             killstats[hash].total.rank = "Commander Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 3" and illstats[hash].total.credits > 750000 then
+        elseif killstats[hash].total.rank == "Commander Grade 3" and killstats[hash].total.credits > Commander_Grade_3 then
             killstats[hash].total.rank = "Colonel"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel" and killstats[hash].total.credits > 850000 then
+        elseif killstats[hash].total.rank == "Colonel" and killstats[hash].total.credits > Colonel then
             killstats[hash].total.rank = "Colonel Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 1" and killstats[hash].total.credits > 960000 then
+        elseif killstats[hash].total.rank == "Colonel Grade 1" and killstats[hash].total.credits > Colonel_Grade_1 then
             killstats[hash].total.rank = "Colonel Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 2" and killstats[hash].total.credits > 1070000 then
+        elseif killstats[hash].total.rank == "Colonel Grade 2" and killstats[hash].total.credits > Colonel_Grade_2 then
             killstats[hash].total.rank = "Colonel Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 3" and killstats[hash].total.credits > 1180000 then
+        elseif killstats[hash].total.rank == "Colonel Grade 3" and killstats[hash].total.credits > Colonel_Grade_3 then
             killstats[hash].total.rank = "Brigadier"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier" and killstats[hash].total.credits > 1400000 then
+        elseif killstats[hash].total.rank == "Brigadier" and killstats[hash].total.credits > Brigadier then
             killstats[hash].total.rank = "Brigadier Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 1" and killstats[hash].total.credits > 1520000 then
+        elseif killstats[hash].total.rank == "Brigadier Grade 1" and killstats[hash].total.credits > Brigadier_Grade_1 then
             killstats[hash].total.rank = "Brigadier Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 2" and killstats[hash].total.credits > 1640000 then
+        elseif killstats[hash].total.rank == "Brigadier Grade 2" and killstats[hash].total.credits > Brigadier_Grade_2 then
             killstats[hash].total.rank = "Brigadier Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 3" and killstats[hash].total.credits > 1760000 then
+        elseif killstats[hash].total.rank == "Brigadier Grade 3" and killstats[hash].total.credits > Brigadier_Grade_3 then
             killstats[hash].total.rank = "General"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General" and killstats[hash].total.credits > 2000000 then
+        elseif killstats[hash].total.rank == "General" and killstats[hash].total.credits > General then
             killstats[hash].total.rank = "General Grade 1"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 1" and killstats[hash].total.credits > 2200000 then
+        elseif killstats[hash].total.rank == "General Grade 1" and killstats[hash].total.credits > General_Grade_1 then
             killstats[hash].total.rank = "General Grade 2"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 2" and killstats[hash].total.credits > 2350000 then
+        elseif killstats[hash].total.rank == "General Grade 2" and killstats[hash].total.credits > General_Grade_2 then
             killstats[hash].total.rank = "General Grade 3"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 3" and killstats[hash].total.credits > 2500000 then
+        elseif killstats[hash].total.rank == "General Grade 3" and killstats[hash].total.credits > General_Grade_3 then
             killstats[hash].total.rank = "General Grade 4"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 4" and killstats[hash].total.credits > 2650000 then
+        elseif killstats[hash].total.rank == "General Grade 4" and killstats[hash].total.credits > General_Grade_4 then
             killstats[hash].total.rank = "Field Marshall"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Field Marshall" and killstats[hash].total.credits > 3000000 then
+        elseif killstats[hash].total.rank == "Field Marshall" and killstats[hash].total.credits > Field_Marshall then
             killstats[hash].total.rank = "Hero"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Hero" and killstats[hash].total.credits > 3700000 then
+        elseif killstats[hash].total.rank == "Hero" and killstats[hash].total.credits > Hero then
             killstats[hash].total.rank = "Legend"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Legend" and killstats[hash].total.credits > 4600000 then
+        elseif killstats[hash].total.rank == "Legend" and killstats[hash].total.credits > Legend then
             killstats[hash].total.rank = "Mythic"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Mythic" and killstats[hash].total.credits > 5650000 then
+        elseif killstats[hash].total.rank == "Mythic" and killstats[hash].total.credits > Mythic then
             killstats[hash].total.rank = "Noble"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Noble" and killstats[hash].total.credits > 7000000 then
+        elseif killstats[hash].total.rank == "Noble" and killstats[hash].total.credits > Noble then
             killstats[hash].total.rank = "Eclipse"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Eclipse" and killstats[hash].total.credits > 8500000 then
+        elseif killstats[hash].total.rank == "Eclipse" and killstats[hash].total.credits > Eclipse then
             killstats[hash].total.rank = "Nova"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Nova" and killstats[hash].total.credits > 11000000 then
+        elseif killstats[hash].total.rank == "Nova" and killstats[hash].total.credits > Nova then
             killstats[hash].total.rank = "Forerunner"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Forerunner" and killstats[hash].total.credits > 13000000 then
+        elseif killstats[hash].total.rank == "Forerunner" and killstats[hash].total.credits > Forerunner then
             killstats[hash].total.rank = "Reclaimer"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Reclaimer" and killstats[hash].total.credits > 16500000 then
+        elseif killstats[hash].total.rank == "Reclaimer" and killstats[hash].total.credits > Reclaimer then
             killstats[hash].total.rank = "Inheritor"
             say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
         end
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
@@ -1849,103 +1906,103 @@ function GetPlayerRank(PlayerIndex)
     if hash then
         killstats[hash].total.credits = killstats[hash].total.credits or 0
         if killstats[hash].total.credits >= 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
-            if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < 7500 then
+            if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < Recruit then
                 killstats[hash].total.rank = "Recruit"
-            elseif killstats[hash].total.credits > 7500 and killstats[hash].total.credits < 10000 then
+            elseif killstats[hash].total.credits > Recruit and killstats[hash].total.credits < Private then
                 killstats[hash].total.rank = "Private"
-            elseif killstats[hash].total.credits > 10000 and killstats[hash].total.credits < 15000 then
+            elseif killstats[hash].total.credits > Private and killstats[hash].total.credits < Corporal then
                 killstats[hash].total.rank = "Corporal"
-            elseif killstats[hash].total.credits > 15000 and killstats[hash].total.credits < 20000 then
+            elseif killstats[hash].total.credits > Corporal and killstats[hash].total.credits < Sergeant then
                 killstats[hash].total.rank = "Sergeant"
-            elseif killstats[hash].total.credits > 20000 and killstats[hash].total.credits < 26250 then
+            elseif killstats[hash].total.credits > Sergeant and killstats[hash].total.credits < Sergeant_Grade_1 then
                 killstats[hash].total.rank = "Sergeant Grade 1"
-            elseif killstats[hash].total.credits > 26250 and killstats[hash].total.credits < 32500 then
+            elseif killstats[hash].total.credits > Sergeant_Grade_1 and killstats[hash].total.credits < Sergeant_Grade_2 then
                 killstats[hash].total.rank = "Sergeant Grade 2"
-            elseif killstats[hash].total.credits > 32500 and killstats[hash].total.credits < 45000 then
+            elseif killstats[hash].total.credits > Sergeant_Grade_2 and killstats[hash].total.credits < Warrant_Officer then
                 killstats[hash].total.rank = "Warrant Officer"
-            elseif killstats[hash].total.credits > 45000 and killstats[hash].total.credits < 78000 then
+            elseif killstats[hash].total.credits > Warrant_Officer and killstats[hash].total.credits < Warrant_Officer_Grade_1 then
                 killstats[hash].total.rank = "Warrant Officer Grade 1"
-            elseif killstats[hash].total.credits > 78000 and killstats[hash].total.credits < 111000 then
+            elseif killstats[hash].total.credits > Warrant_Officer_Grade_1 and killstats[hash].total.credits < Warrant_Officer_Grade_2 then
                 killstats[hash].total.rank = "Warrant Officer Grade 2"
-            elseif killstats[hash].total.credits > 111000 and killstats[hash].total.credits < 144000 then
+            elseif killstats[hash].total.credits > Warrant_Officer_Grade_2 and killstats[hash].total.credits < Warrant_Officer_Grade_3 then
                 killstats[hash].total.rank = "Warrant Officer Grade 3"
-            elseif killstats[hash].total.credits > 144000 and killstats[hash].total.credits < 210000 then
+            elseif killstats[hash].total.credits > Warrant_Officer_Grade_3 and killstats[hash].total.credits < Captain then
                 killstats[hash].total.rank = "Captain"
-            elseif killstats[hash].total.credits > 210000 and killstats[hash].total.credits < 233000 then
+            elseif killstats[hash].total.credits > Captain and killstats[hash].total.credits < Captain_Grade_1 then
                 killstats[hash].total.rank = "Captain Grade 1"
-            elseif killstats[hash].total.credits > 233000 and killstats[hash].total.credits < 256000 then
+            elseif killstats[hash].total.credits > Captain_Grade_1 and killstats[hash].total.credits < Captain_Grade_2 then
                 killstats[hash].total.rank = "Captain Grade 2"
-            elseif killstats[hash].total.credits > 256000 and killstats[hash].total.credits < 279000 then
+            elseif killstats[hash].total.credits > Captain_Grade_2 and killstats[hash].total.credits < Captain_Grade_3 then
                 killstats[hash].total.rank = "Captain Grade 3"
-            elseif killstats[hash].total.credits > 279000 and killstats[hash].total.credits < 325000 then
+            elseif killstats[hash].total.credits > Captain_Grade_3 and killstats[hash].total.credits < Major then
                 killstats[hash].total.rank = "Major"
-            elseif killstats[hash].total.credits > 325000 and killstats[hash].total.credits < 350000 then
+            elseif killstats[hash].total.credits > Major and killstats[hash].total.credits < Major_Grade_1 then
                 killstats[hash].total.rank = "Major Grade 1"
-            elseif killstats[hash].total.credits > 350000 and killstats[hash].total.credits < 375000 then
+            elseif killstats[hash].total.credits > Major_Grade_1 and killstats[hash].total.credits < Major_Grade_2 then
                 killstats[hash].total.rank = "Major Grade 2"
-            elseif killstats[hash].total.credits > 375000 and killstats[hash].total.credits < 400000 then
+            elseif killstats[hash].total.credits > Major_Grade_2 and killstats[hash].total.credits < Major_Grade_3 then
                 killstats[hash].total.rank = "Major Grade 3"
-            elseif killstats[hash].total.credits > 400000 and killstats[hash].total.credits < 450000 then
+            elseif killstats[hash].total.credits > Major_Grade_3 and killstats[hash].total.credits < Lt_Colonel then
                 killstats[hash].total.rank = "Lt. Colonel"
-            elseif killstats[hash].total.credits > 450000 and killstats[hash].total.credits < 480000 then
+            elseif killstats[hash].total.credits > Lt_Colonel and killstats[hash].total.credits < Lt_Colonel_Grade_1 then
                 killstats[hash].total.rank = "Lt. Colonel Grade 1"
-            elseif killstats[hash].total.credits > 480000 and killstats[hash].total.credits < 510000 then
+            elseif killstats[hash].total.credits > Lt_Colonel_Grade_1 and killstats[hash].total.credits < Lt_Colonel_Grade_2 then
                 killstats[hash].total.rank = "Lt. Colonel Grade 2"
-            elseif killstats[hash].total.credits > 510000 and killstats[hash].total.credits < 540000 then
+            elseif killstats[hash].total.credits > Lt_Colonel_Grade_2 and killstats[hash].total.credits < Lt_Colonel_Grade_3 then
                 killstats[hash].total.rank = "Lt. Colonel Grade 3"
-            elseif killstats[hash].total.credits > 540000 and killstats[hash].total.credits < 600000 then
+            elseif killstats[hash].total.credits > Lt_Colonel_Grade_3 and killstats[hash].total.credits < Commander then
                 killstats[hash].total.rank = "Commander"
-            elseif killstats[hash].total.credits > 600000 and killstats[hash].total.credits < 650000 then
+            elseif killstats[hash].total.credits > Commander and killstats[hash].total.credits < Commander_Grade_1 then
                 killstats[hash].total.rank = "Commander Grade 1"
-            elseif killstats[hash].total.credits > 650000 and killstats[hash].total.credits < 700000 then
+            elseif killstats[hash].total.credits > Commander_Grade_1 and killstats[hash].total.credits < Commander_Grade_2 then
                 killstats[hash].total.rank = "Commander Grade 2"
-            elseif killstats[hash].total.credits > 700000 and killstats[hash].total.credits < 750000 then
+            elseif killstats[hash].total.credits > Commander_Grade_2 and killstats[hash].total.credits < Commander_Grade_3 then
                 killstats[hash].total.rank = "Commander Grade 3"
-            elseif killstats[hash].total.credits > 750000 and killstats[hash].total.credits < 850000 then
+            elseif killstats[hash].total.credits > Commander_Grade_3 and killstats[hash].total.credits < Colonel then
                 killstats[hash].total.rank = "Colonel"
-            elseif killstats[hash].total.credits > 850000 and killstats[hash].total.credits < 960000 then
+            elseif killstats[hash].total.credits > Colonel and killstats[hash].total.credits < Colonel_Grade_1 then
                 killstats[hash].total.rank = "Colonel Grade 1"
-            elseif killstats[hash].total.credits > 960000 and killstats[hash].total.credits < 1070000 then
+            elseif killstats[hash].total.credits > Colonel_Grade_1 and killstats[hash].total.credits < Colonel_Grade_2 then
                 killstats[hash].total.rank = "Colonel Grade 2"
-            elseif killstats[hash].total.credits > 1070000 and killstats[hash].total.credits < 1180000 then
+            elseif killstats[hash].total.credits > Colonel_Grade_2 and killstats[hash].total.credits < Colonel_Grade_3 then
                 killstats[hash].total.rank = "Colonel Grade 3"
-            elseif killstats[hash].total.credits > 1180000 and killstats[hash].total.credits < 1400000 then
+            elseif killstats[hash].total.credits > Colonel_Grade_3 and killstats[hash].total.credits < Brigadier then
                 killstats[hash].total.rank = "Brigadier"
-            elseif killstats[hash].total.credits > 1400000 and killstats[hash].total.credits < 1520000 then
+            elseif killstats[hash].total.credits > Brigadier and killstats[hash].total.credits < Brigadier_Grade_1 then
                 killstats[hash].total.rank = "Brigadier Grade 1"
-            elseif killstats[hash].total.credits > 1520000 and killstats[hash].total.credits < 1640000 then
+            elseif killstats[hash].total.credits > Brigadier_Grade_1 and killstats[hash].total.credits < Brigadier_Grade_2 then
                 killstats[hash].total.rank = "Brigadier Grade 2"
-            elseif killstats[hash].total.credits > 1640000 and killstats[hash].total.credits < 1760000 then
+            elseif killstats[hash].total.credits > Brigadier_Grade_2 and killstats[hash].total.credits < Brigadier_Grade_3 then
                 killstats[hash].total.rank = "Brigadier Grade 3"
-            elseif killstats[hash].total.credits > 1760000 and killstats[hash].total.credits < 2000000 then
+            elseif killstats[hash].total.credits > Brigadier_Grade_3 and killstats[hash].total.credits < General then
                 killstats[hash].total.rank = "General"
-            elseif killstats[hash].total.credits > 2000000 and killstats[hash].total.credits < 2200000 then
+            elseif killstats[hash].total.credits > General and killstats[hash].total.credits < General_Grade_1 then
                 killstats[hash].total.rank = "General Grade 1"
-            elseif killstats[hash].total.credits > 2200000 and killstats[hash].total.credits < 2350000 then
+            elseif killstats[hash].total.credits > General_Grade_1 and killstats[hash].total.credits < General_Grade_2 then
                 killstats[hash].total.rank = "General Grade 2"
-            elseif killstats[hash].total.credits > 2350000 and killstats[hash].total.credits < 2500000 then
+            elseif killstats[hash].total.credits > General_Grade_2 and killstats[hash].total.credits < General_Grade_3 then
                 killstats[hash].total.rank = "General Grade 3"
-            elseif killstats[hash].total.credits > 2500000 and killstats[hash].total.credits < 2650000 then
+            elseif killstats[hash].total.credits > General_Grade_3 and killstats[hash].total.credits < General_Grade_4 then
                 killstats[hash].total.rank = "General Grade 4"
-            elseif killstats[hash].total.credits > 2650000 and killstats[hash].total.credits < 3000000 then
+            elseif killstats[hash].total.credits > General_Grade_4 and killstats[hash].total.credits < Field_Marshall then
                 killstats[hash].total.rank = "Field Marshall"
-            elseif killstats[hash].total.credits > 3000000 and killstats[hash].total.credits < 3700000 then
+            elseif killstats[hash].total.credits > Field_Marshall and killstats[hash].total.credits < Hero then
                 killstats[hash].total.rank = "Hero"
-            elseif killstats[hash].total.credits > 3700000 and killstats[hash].total.credits < 4600000 then
+            elseif killstats[hash].total.credits > Hero and killstats[hash].total.credits < Legend then
                 killstats[hash].total.rank = "Legend"
-            elseif killstats[hash].total.credits > 4600000 and killstats[hash].total.credits < 5650000 then
+            elseif killstats[hash].total.credits > Legend and killstats[hash].total.credits < Mythic then
                 killstats[hash].total.rank = "Mythic"
-            elseif killstats[hash].total.credits > 5650000 and killstats[hash].total.credits < 7000000 then
+            elseif killstats[hash].total.credits > Mythic and killstats[hash].total.credits < Noble then
                 killstats[hash].total.rank = "Noble"
-            elseif killstats[hash].total.credits > 7000000 and killstats[hash].total.credits < 8500000 then
+            elseif killstats[hash].total.credits > Noble and killstats[hash].total.credits < Eclipse then
                 killstats[hash].total.rank = "Eclipse"
-            elseif killstats[hash].total.credits > 8500000 and killstats[hash].total.credits < 11000000 then
+            elseif killstats[hash].total.credits > Eclipse and killstats[hash].total.credits < Nova then
                 killstats[hash].total.rank = "Nova"
-            elseif killstats[hash].total.credits > 11000000 and killstats[hash].total.credits < 13000000 then
+            elseif killstats[hash].total.credits > Nova and killstats[hash].total.credits < Forerunner then
                 killstats[hash].total.rank = "Forerunner"
-            elseif killstats[hash].total.credits > 13000000 and killstats[hash].total.credits < 16500000 then
+            elseif killstats[hash].total.credits > Forerunner and killstats[hash].total.credits < Reclaimer then
                 killstats[hash].total.rank = "Reclaimer"
-            elseif killstats[hash].total.credits > 16500000 and killstats[hash].total.credits < 20000000 then
+            elseif killstats[hash].total.credits > Reclaimer and killstats[hash].total.credits < Reclaimer then
                 killstats[hash].total.rank = "Inheritor"
             end
         end
@@ -1957,101 +2014,101 @@ function CreditsUntilNextPromo(PlayerIndex)
     killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
     killstats[hash].total.credits = killstats[hash].total.credits or 0
     if killstats[hash].total.rank == "Recruit" then
-        return 7500 - killstats[hash].total.credits
+        return Recruit - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Private" then
-        return 10000 - killstats[hash].total.credits
+        return Private - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Corporal" then
-        return 15000 - killstats[hash].total.credits
+        return Corporal - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Sergeant" then
-        return 20000 - killstats[hash].total.credits
+        return Sergeant - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Sergeant Grade 1" then
-        return 26250 - killstats[hash].total.credits
+        return Sergeant_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Sergeant Grade 2" then
-        return 32500 - killstats[hash].total.credits
+        return Sergeant_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Warrant Officer" then
-        return 45000 - killstats[hash].total.credits
+        return Warrant_Officer - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Warrant Officer Grade 1" then
-        return 78000 - killstats[hash].total.credits
+        return Warrant_Officer_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Warrant Officer Grade 2" then
-        return 111000 - killstats[hash].total.credits
+        return Warrant_Officer_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Warrant Officer Grade 3" then
-        return 144000 - killstats[hash].total.credits
+        return Warrant_Officer_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Captain" then
-        return 210000 - killstats[hash].total.credits
+        return Captain - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Captain Grade 1" then
-        return 233000 - killstats[hash].total.credits
+        return Captain_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Captain Grade 2" then
-        return 256000 - killstats[hash].total.credits
+        return Captain_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Captain Grade 3" then
-        return 279000 - killstats[hash].total.credits
+        return Captain_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Major" then
-        return 325000 - killstats[hash].total.credits
+        return Major - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Major Grade 1" then
-        return 350000 - killstats[hash].total.credits
+        return Major_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Major Grade 2" then
-        return 375000 - killstats[hash].total.credits
+        return Major_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Major Grade 3" then
-        return 400000 - killstats[hash].total.credits
+        return Major_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Lt. Colonel" then
-        return 450000 - killstats[hash].total.credits
+        return Lt_Colonel - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Lt. Colonel Grade 1" then
-        return 480000 - killstats[hash].total.credits
+        return Lt_Colonel_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Lt. Colonel Grade 2" then
-        return 510000 - killstats[hash].total.credits
+        return Lt_Colonel_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Lt. Colonel Grade 3" then
-        return 540000 - killstats[hash].total.credits
+        return Lt_Colonel_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Commander" then
-        return 600000 - killstats[hash].total.credits
+        return Commander - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Commander Grade 1" then
-        return 650000 - killstats[hash].total.credits
+        return Commander_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Commander Grade 2" then
-        return 700000 - killstats[hash].total.credits
+        return Commander_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Commander Grade 3" then
-        return 750000 - killstats[hash].total.credits
+        return Commander_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Colonel" then
-        return 850000 - killstats[hash].total.credits
+        return Colonel - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Colonel Grade 1" then
-        return 960000 - killstats[hash].total.credits
+        return Colonel_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Colonel Grade 2" then
-        return 1070000 - killstats[hash].total.credits
+        return Colonel_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Colonel Grade 3" then
-        return 1180000 - killstats[hash].total.credits
+        return Colonel_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Brigadier" then
-        return 1400000 - killstats[hash].total.credits
+        return Brigadier - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Brigadier Grade 1" then
-        return 1520000 - killstats[hash].total.credits
+        return Brigadier_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Brigadier Grade 2" then
-        return 1640000 - killstats[hash].total.credits
+        return Brigadier_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Brigadier Grade 3" then
-        return 1760000 - killstats[hash].total.credits
+        return Brigadier_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "General" then
-        return 2000000 - killstats[hash].total.credits
+        return General - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "General Grade 1" then
-        return 2350000 - killstats[hash].total.credits
+        return General_Grade_1 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "General Grade 2" then
-        return 2500000 - killstats[hash].total.credits
+        return General_Grade_2 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "General Grade 3" then
-        return 2650000 - killstats[hash].total.credits
+        return General_Grade_3 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "General Grade 4" then
-        return 3000000 - killstats[hash].total.credits
+        return General_Grade_4 - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Field Marshall" then
-        return 3700000 - killstats[hash].total.credits
+        return Field_Marshall - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Hero" then
-        return 4600000 - killstats[hash].total.credits
+        return Hero - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Legend" then
-        return 5650000 - killstats[hash].total.credits
+        return Legend - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Mythic" then
-        return 7000000 - killstats[hash].total.credits
+        return Mythic - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Noble" then
-        return 8500000 - killstats[hash].total.credits
+        return Noble - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Eclipse" then
-        return 11000000 - killstats[hash].total.credits
+        return Eclipse - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Nova" then
-        return 13000000 - killstats[hash].total.credits
+        return Nova - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Forerunner" then
-        return 16500000 - killstats[hash].total.credits
+        return Forerunner - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Reclaimer" then
-        return 20000000 - killstats[hash].total.credits
+        return Reclaimer - killstats[hash].total.credits
     elseif killstats[hash].total.rank == "Inheritor" then
         return "Ranks Complete"
     end
@@ -2176,14 +2233,6 @@ function setscore(PlayerIndex, score)
                 write_word(m_player + 0xC8, -0x7FFF)
             else
                 write_word(m_player + 0xC8, score)
-            end
-        elseif get_var(0, "$gt") == "slayer" then
-            if score >= 0x7FFF then
-                execute_command("score " .. PlayerIndex .. " +1")
-            elseif score <= -0x7FFF then
-                execute_command("score " .. PlayerIndex .. " -1")
-            else
-                execute_command("score " .. PlayerIndex .. " " .. score)
             end
         end
     end
