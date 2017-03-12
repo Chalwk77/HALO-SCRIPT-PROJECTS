@@ -54,7 +54,7 @@ function CheckType()
     type_is_oddball = get_var(1, "$gt") == "oddball"
     type_is_race = get_var(1, "$gt") == "race"
     type_is_slayer = get_var(1, "$gt") == "slayer"
-    if (type_is_koth) or(type_is_oddball) or(type_is_race) or(type_is_slayer) then
+    if (type_is_koth) or (type_is_oddball) or (type_is_race) or (type_is_slayer) then
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -362,6 +362,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     DeclearNewPlayerStats(gethash(PlayerIndex))
+    timer(1000*10, "CreditTimer", PlayerIndex)
     GetMedalClasses(PlayerIndex)
     GetPlayerRank(PlayerIndex)
     jointime[gethash(PlayerIndex)] = os.time()
@@ -374,6 +375,23 @@ function OnPlayerJoin(PlayerIndex)
     if AnnounceRank == true then
         AnnouncePlayerRank(PlayerIndex)
     end
+end
+
+function CreditTimer(PlayerIndex)
+	if game_started == true then
+		if player_present(PlayerIndex) then
+			SendMessage(PlayerIndex, "Awarded:    +15 cR - 1 Minute In Server")
+			changescore(PlayerIndex, 15, plus)
+			if killstats[gethash(PlayerIndex)].total.credits ~= nil then
+				killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
+			else
+				killstats[gethash(PlayerIndex)].total.credits = 15
+			end	
+		end
+		return true
+	else
+		return false
+	end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -964,7 +982,6 @@ function DeclearNewPlayerStats(hash)
     end
 
     if killstats[hash] == nil then
-        cprint("pass", 2+8)
         killstats[hash] = { }
         killstats[hash].total = { }
         killstats[hash].total.kills = 0
@@ -1081,11 +1098,9 @@ function AnnouncePlayerRank(PlayerIndex)
 end
 
 function LevelUp(killer)
-    
     local hash = gethash(killer)
     killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
     killstats[hash].total.credits = killstats[hash].total.credits or 0
-    
     if killstats[hash].total.rank ~= nil and killstats[hash].total.credits ~= 0 then
         if killstats[hash].total.rank == "Recruit" and killstats[hash].total.credits > 7500 then
             killstats[hash].total.rank = "Private"
@@ -1838,12 +1853,11 @@ function SendMessage(PlayerIndex, message)
 end
 
 function GetPlayerRank(PlayerIndex)
-
     local hash = get_var(PlayerIndex, "$hash")
     -- Get the hash of the PlayerIndex.
     if hash then
         killstats[hash].total.credits = killstats[hash].total.credits or 0
-        if killstats[hash].total.credits > 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
+        if killstats[hash].total.credits >= 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
             if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < 7500 then
                 -- 0 - 7,500
                 killstats[hash].total.rank = "Recruit"
