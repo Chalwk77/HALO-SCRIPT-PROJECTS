@@ -596,7 +596,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 20
             elseif read_word(getplayer(killer) + 0x9C) > 100 then
                 changescore(killer, 5, plus)
-                SendMessage(killer, " +5 (cR) - More then 100 Kills")
+                SendMessage(killer, " +5 (cR) - More than 100 Kills")
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
             end
 
@@ -658,7 +658,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 killstats[hash].total.credits = killstats[hash].total.credits + 22
                 medals[hash].count.multikill = medals[hash].count.multikill + 1
             elseif read_word(getplayer(killer) + 0x98) >= 10 then
-                -- if multi kill is equal to 10 or more then
+                -- if multi kill is equal to 10 or more than
                 SendMessage(killer, " +25 (cR) - Killionaire")
                 changescore(killer, 25, plus)
                 sprees[hash].count.killionaire = sprees[hash].count.killionaire + 1
@@ -723,7 +723,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 killstats[hash].total.credits = killstats[hash].total.credits + 40
                 medals[hash].count.sprees = medals[hash].count.sprees + 1
             end
-            -- 			Revenge		
+            
+            -- Revenge		
             for k, v in pairs(killers[killer]) do
                 if v == victim then
                     table.remove(killers[killer], k)
@@ -733,14 +734,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     changescore(killer, 10, plus)
                 end
             end
-            -- 			Killed from the Grave		
+            
+            -- Killed from the Grave		
             if PlayerAlive(killer) == false then
                 medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
                 SendMessage(killer, " +10 (cR) - Killed from the Grave")
                 changescore(killer, 10, plus)
             end
-            -- 			roadrage
+            
+            -- roadrage
             if getplayer(killer) then
                 if killer ~= nil then
                     if PlayerInVehicle(killer) then
@@ -756,6 +759,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
+            
             -- Avenger
             for i = 1, 16 do
                 if getplayer(i) then
@@ -768,14 +772,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
-
+            
             if avenge[gethash(killer)] == gethash(victim) then
                 medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
                 SendMessage(killer, " +5 (cR) - Avenger")
                 changescore(killer, 5, plus)
             end
-
+            
             -- Killjoy
             if killer then
                 kills[gethash(killer)] = kills[gethash(killer)] or 1
@@ -791,9 +795,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
+            
             kills[gethash(victim)] = 0
 
-            -- 			Reload This
+            -- Reload This
             local m_object = get_dynamic_player(victim)
             local reloading = read_byte(m_object + 0x2A4)
             if reloading == 5 then
@@ -802,7 +807,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
                 changescore(killer, 5, plus)
             end
-            -- 			First Strike
+            -- First Strike
             kill_count = kill_count + 1
 
             if kill_count == 1 then
@@ -813,18 +818,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
 
             timer(10, "CloseCall", killer)
-            -- 		mode 5: Betrayed by killer
+            -- mode 5: Betrayed by killer
         elseif mode == 5 then
             killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
             killstats[gethash(killer)].total.betrays = killstats[gethash(killer)].total.betrays + 1
-            -- 		mode 6: Suicide
+            -- mode 6: Suicide
         elseif mode == 6 then
             killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
             killstats[gethash(victim)].total.suicides = killstats[gethash(victim)].total.suicides + 1
             changescore(victim, 10, minus)
         end
 
-        -- 		mode 4: Killed by killer
+        -- mode 4: Killed by killer
         if mode == 4 then
             GetPlayerRank(killer)
             timer(10, "LevelUp", killer)
@@ -901,7 +906,6 @@ function AssistDelay(id, count)
 end
 
 function CloseCall(id, count, killer)
-    -- Cleared
     if getplayer(killer) then
         if killer ~= nil then
             local player_object = get_dynamic_player(killer)
@@ -1745,42 +1749,30 @@ function GetMedalClasses(PlayerIndex)
 
     if medals[hash].count.moblieasset > 25 and medals[hash].count.moblieasset < 125 then
         medals[hash].class.mobileasset = "Bronze"
-        -- Declear the medal's class.
     elseif medals[hash].count.moblieasset > 125 and medals[hash].count.moblieasset < 500 then
         medals[hash].class.mobileasset = "Silver"
-        -- Declear the medal's class.
     elseif medals[hash].count.moblieasset > 500 and medals[hash].count.moblieasset < 4000 then
         medals[hash].class.mobileasset = "Gold"
-        -- Declear the medal's class.
     elseif medals[hash].count.moblieasset > 4000 and medals[hash].count.moblieasset < 8000 then
         medals[hash].class.mobileasset = "Onyx"
-        -- Declear the medal's class.
     elseif medals[hash].count.moblieasset > 8000 and medals[hash].count.moblieasset < 14000 then
         medals[hash].class.mobileasset = "MAX"
-        -- Declear the medal's class.
     elseif medals[hash].count.moblieasset > 14000 then
         medals[hash].class.mobileasset = "MAX"
-        -- Declear the medal's class.
     end
 
     if medals[hash].count.multikill > 10 and medals[hash].count.multikill < 125 then
         medals[hash].class.multikill = "Bronze"
-        -- Declear the medal's class.
     elseif medals[hash].count.multikill > 125 and medals[hash].count.multikill < 500 then
         medals[hash].class.multikill = "Silver"
-        -- Declear the medal's class.
     elseif medals[hash].count.multikill > 500 and medals[hash].count.multikill < 2500 then
         medals[hash].class.multikill = "Gold"
-        -- Declear the medal's class.
     elseif medals[hash].count.multikill > 2500 and medals[hash].count.multikill < 5000 then
         medals[hash].class.multikill = "Onyx"
-        -- Declear the medal's class.
     elseif medals[hash].count.multikill > 5000 and medals[hash].count.multikill < 15000 then
         medals[hash].class.multikill = "MAX"
-        -- Declear the medal's class.
     elseif medals[hash].count.multikill > 15000 then
         medals[hash].class.multikill = "MAX"
-        -- Declear the medal's class.
     end
 
     if medals[hash].count.sidearm > 50 and medals[hash].count.sidearm < 250 then
@@ -1854,206 +1846,107 @@ end
 
 function GetPlayerRank(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
-    -- Get the hash of the PlayerIndex.
     if hash then
         killstats[hash].total.credits = killstats[hash].total.credits or 0
         if killstats[hash].total.credits >= 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
             if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < 7500 then
-                -- 0 - 7,500
                 killstats[hash].total.rank = "Recruit"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 7500 and killstats[hash].total.credits < 10000 then
-                -- 7,500 - 10,000
                 killstats[hash].total.rank = "Private"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 10000 and killstats[hash].total.credits < 15000 then
-                -- 10,000 - 15,000
                 killstats[hash].total.rank = "Corporal"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 15000 and killstats[hash].total.credits < 20000 then
-                -- 15,000 - 20,000
                 killstats[hash].total.rank = "Sergeant"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 20000 and killstats[hash].total.credits < 26250 then
-                -- 20,000 - 26,250
                 killstats[hash].total.rank = "Sergeant Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 26250 and killstats[hash].total.credits < 32500 then
-                -- 26,250 - 32,500
                 killstats[hash].total.rank = "Sergeant Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 32500 and killstats[hash].total.credits < 45000 then
-                -- 32,500 - 45,000
                 killstats[hash].total.rank = "Warrant Officer"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 45000 and killstats[hash].total.credits < 78000 then
-                -- 45,000 - 78,000
                 killstats[hash].total.rank = "Warrant Officer Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 78000 and killstats[hash].total.credits < 111000 then
-                -- 78,000 - 111,000
                 killstats[hash].total.rank = "Warrant Officer Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 111000 and killstats[hash].total.credits < 144000 then
-                -- 111,000 - 144,000
                 killstats[hash].total.rank = "Warrant Officer Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 144000 and killstats[hash].total.credits < 210000 then
-                -- 144,000 - 210,000
                 killstats[hash].total.rank = "Captain"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 210000 and killstats[hash].total.credits < 233000 then
-                -- 210,000 - 233,000
                 killstats[hash].total.rank = "Captain Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 233000 and killstats[hash].total.credits < 256000 then
-                -- 233,000 - 256,000
                 killstats[hash].total.rank = "Captain Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 256000 and killstats[hash].total.credits < 279000 then
-                -- 256,000 - 279,000
                 killstats[hash].total.rank = "Captain Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 279000 and killstats[hash].total.credits < 325000 then
-                -- 279,000 - 325,000
                 killstats[hash].total.rank = "Major"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 325000 and killstats[hash].total.credits < 350000 then
-                -- 325,000 - 350,000
                 killstats[hash].total.rank = "Major Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 350000 and killstats[hash].total.credits < 375000 then
-                -- 350,000 - 375,000
                 killstats[hash].total.rank = "Major Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 375000 and killstats[hash].total.credits < 400000 then
-                -- 375,000 - 400,000
                 killstats[hash].total.rank = "Major Grade 3"
-                -- Decide his rank
             elseif killstats[hash].total.credits > 400000 and killstats[hash].total.credits < 450000 then
-                -- 400,000 - 450,000
                 killstats[hash].total.rank = "Lt. Colonel"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 450000 and killstats[hash].total.credits < 480000 then
-                -- 450,000 - 480,000
                 killstats[hash].total.rank = "Lt. Colonel Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 480000 and killstats[hash].total.credits < 510000 then
-                -- 480,000 - 510,000
                 killstats[hash].total.rank = "Lt. Colonel Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 510000 and killstats[hash].total.credits < 540000 then
-                -- 510,000 - 540,000
                 killstats[hash].total.rank = "Lt. Colonel Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 540000 and killstats[hash].total.credits < 600000 then
-                -- 540,000 - 600,000
                 killstats[hash].total.rank = "Commander"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 600000 and killstats[hash].total.credits < 650000 then
-                -- 600,000 - 650,000
                 killstats[hash].total.rank = "Commander Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 650000 and killstats[hash].total.credits < 700000 then
-                -- 650,000 - 700,000
                 killstats[hash].total.rank = "Commander Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 700000 and killstats[hash].total.credits < 750000 then
-                -- 700,000 - 750,000
                 killstats[hash].total.rank = "Commander Grade 3"
-                -- Decide his rank
             elseif killstats[hash].total.credits > 750000 and killstats[hash].total.credits < 850000 then
-                -- 750,000 - 850,000
                 killstats[hash].total.rank = "Colonel"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 850000 and killstats[hash].total.credits < 960000 then
-                -- 850,000 - 960,000
                 killstats[hash].total.rank = "Colonel Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 960000 and killstats[hash].total.credits < 1070000 then
-                -- 960,000 - 1,070,000
                 killstats[hash].total.rank = "Colonel Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 1070000 and killstats[hash].total.credits < 1180000 then
-                -- 1,070,000 - 1,180,000
                 killstats[hash].total.rank = "Colonel Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 1180000 and killstats[hash].total.credits < 1400000 then
-                -- 1,180,000 - 1,400,000
                 killstats[hash].total.rank = "Brigadier"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 1400000 and killstats[hash].total.credits < 1520000 then
-                -- 1,400,000 - 1,520,000
                 killstats[hash].total.rank = "Brigadier Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 1520000 and killstats[hash].total.credits < 1640000 then
-                -- 1,520,000 - 1,640,000
                 killstats[hash].total.rank = "Brigadier Grade 2"
-                -- Decide his rank
             elseif killstats[hash].total.credits > 1640000 and killstats[hash].total.credits < 1760000 then
-                -- 1,640,000 - 1,760,000
                 killstats[hash].total.rank = "Brigadier Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 1760000 and killstats[hash].total.credits < 2000000 then
-                -- 1,760,000 - 2,000,000
                 killstats[hash].total.rank = "General"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 2000000 and killstats[hash].total.credits < 2200000 then
-                -- 2,000,000 - 2,200,000
                 killstats[hash].total.rank = "General Grade 1"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 2200000 and killstats[hash].total.credits < 2350000 then
-                -- 2,200,000 - 2,350,000
                 killstats[hash].total.rank = "General Grade 2"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 2350000 and killstats[hash].total.credits < 2500000 then
-                -- 2,350,000 - 2,500,000
                 killstats[hash].total.rank = "General Grade 3"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 2500000 and killstats[hash].total.credits < 2650000 then
-                -- 2,500,000 - 2,650,000
                 killstats[hash].total.rank = "General Grade 4"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 2650000 and killstats[hash].total.credits < 3000000 then
-                -- 2,650,000 - 3,000,000
                 killstats[hash].total.rank = "Field Marshall"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 3000000 and killstats[hash].total.credits < 3700000 then
-                -- 3,000,000 - 3,700,000
                 killstats[hash].total.rank = "Hero"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 3700000 and killstats[hash].total.credits < 4600000 then
-                -- 3,700,000 - 4,600,000
                 killstats[hash].total.rank = "Legend"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 4600000 and killstats[hash].total.credits < 5650000 then
-                -- 4,600,000 - 5,650,000
                 killstats[hash].total.rank = "Mythic"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 5650000 and killstats[hash].total.credits < 7000000 then
-                -- 5,650,000 - 7,000,000
                 killstats[hash].total.rank = "Noble"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 7000000 and killstats[hash].total.credits < 8500000 then
-                -- 7,000,000 - 8,500,000
                 killstats[hash].total.rank = "Eclipse"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 8500000 and killstats[hash].total.credits < 11000000 then
-                -- 8,500,000 - 11,000,000
                 killstats[hash].total.rank = "Nova"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 11000000 and killstats[hash].total.credits < 13000000 then
-                -- 11,000,000 - 13,000,000
                 killstats[hash].total.rank = "Forerunner"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 13000000 and killstats[hash].total.credits < 16500000 then
-                -- 13,000,000 - 16,500,000
                 killstats[hash].total.rank = "Reclaimer"
-                -- Decide his rank.
             elseif killstats[hash].total.credits > 16500000 and killstats[hash].total.credits < 20000000 then
-                -- 16,500,000 - 20,000,000
                 killstats[hash].total.rank = "Inheritor"
-                -- Decide his rank.
             end
         end
     end
