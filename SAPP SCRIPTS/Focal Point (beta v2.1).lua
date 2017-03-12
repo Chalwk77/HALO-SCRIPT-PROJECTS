@@ -111,6 +111,8 @@ function OnScriptUnload()
     last_damage = { }
     save_data_timer = 0
     save_data_warn = 0
+    SAVE_DATA_WARNING = false
+    SAVE_DATA = false
 end
 
 function CheckType()
@@ -141,6 +143,8 @@ function OnNewGame()
     OpenFiles()
     save_data_timer = 0
     save_data_warn = 0
+    SAVE_DATA_WARNING = true
+    SAVE_DATA = true
     for i = 1, 16 do
         if player_present(i) then
             last_damage[i] = 0
@@ -151,6 +155,8 @@ end
 function OnGameEnd()
     save_data_timer = 0
     save_data_warn = 0
+    SAVE_DATA_WARNING = false
+    SAVE_DATA = false
     timer(10, "AssistDelay")
     for i = 1, 16 do
         if getplayer(i) then
@@ -920,8 +926,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         last_damage[PlayerIndex] = MetaID
     end
 end
-SAVE_DATA_WARNING = true
-SAVE_DATA = true
 
 function SaveDataTimeToSeconds(seconds, places)
     local minutes = math.floor(seconds / 60)
