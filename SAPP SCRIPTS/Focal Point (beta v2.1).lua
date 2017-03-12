@@ -933,13 +933,13 @@ end
 
 function OnTick()
     if SAVE_PLAYER_DATA then 
-        if (SAVE_DATA_WARNING == true) then
+        if (SAVE_DATA_WARNING == true) and (SAVE_DATA == true) then
             save_data_warn = save_data_warn + 0.030
             warning_timer = save_data_warn
             if warning_timer > math.floor(save_data_warning) then
+                -- Stop Loop --
                 SAVE_DATA_WARNING = false
-                local minutes, seconds = SaveDataTimeToSeconds(warning_timer, 2)
-
+                -- Announce Warning --
                 execute_command("msg_prefix \"\"")
                 say_all("** LAG WARNING ** Saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
                 execute_command("msg_prefix \"** SERVER ** \"")
@@ -949,8 +949,9 @@ function OnTick()
             save_data_timer = save_data_timer + 0.030
             save_data_void = save_data_timer
             if save_data_void >= math.floor(save_data) then
+                -- Stop Loop --
                 SAVE_DATA = false
-
+                -- Save Data --
                 SaveTableData(killstats, "KillStats.txt")
                 SaveTableData(extra, "Extra.txt")
                 SaveTableData(done, "CompletedMedals.txt")
@@ -958,11 +959,10 @@ function OnTick()
                 SaveTableData(stats, "Stats.txt")
                 SaveTableData(medals, "Medals.txt")
                 SaveTableData(extra, "Extra.txt")
-
+                -- Announce Saved --
                 execute_command("msg_prefix \"\"")
                 say_all("Server data has been saved!")
                 execute_command("msg_prefix \"** SERVER ** \"")
-
                 -- reset --
                 save_data_timer = 0
                 save_data_warn = 0
