@@ -160,6 +160,7 @@ function LoadSmall()
 end  
      
 function OnScriptLoad()
+    CheckType()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
@@ -284,8 +285,8 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
-    game_over = false
     CheckType()
+    game_over = false
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     gametype = get_var(0, "$gt")
@@ -367,7 +368,11 @@ function SPAWN_FLAG()
     MAP_NAME = get_var(1, "$map")
     flag_table = FLAG[MAP_NAME][3]
     -- Spawn flag at x,y,z
-    flag_objId = spawn_object("weap", "weapons\\flag\\flag", flag_table[1], flag_table[2], flag_table[3])
+    if FLAG[MAP_NAME] ~= nil then
+        flag_objId = spawn_object("weap", "weapons\\flag\\flag", flag_table[1], flag_table[2], flag_table[3])
+    else
+        cprint("Something went wrong! Unable to spawn the flag.", 4 + 8)
+    end
 end
 
 function FragCheck(PlayerIndex)
@@ -1782,16 +1787,7 @@ end
 
 function setscore(PlayerIndex, score)
     if tonumber(score) then
-        if get_var(0, "$gt") == "ctf" then
-            local m_player = getplayer(PlayerIndex)
-            if score >= 0x7FFF then
-                write_word(m_player + 0xC8, 0x7FFF)
-            elseif score <= -0x7FFF then
-                write_word(m_player + 0xC8, -0x7FFF)
-            else
-                write_word(m_player + 0xC8, score)
-            end
-        elseif get_var(0, "$gt") == "slayer" then
+        if get_var(0, "$gt") == "slayer" then
             if score >= 0x7FFF then
                 execute_command("score " .. PlayerIndex .. " +1")
             elseif score <= -0x7FFF then
@@ -1803,11 +1799,34 @@ function setscore(PlayerIndex, score)
     end
 end
 
+valid_maps = {
+    "bloodgulch",
+    "carousel",
+    "chillout",
+    "damnation",
+    "timberland",
+    "sidewinder",
+    "gephyrophobia",
+    "hangemhigh",
+    "longest",
+    "dangercanyon",
+    "deathisland",
+    "icefields",
+    "infinity",
+    "beavercreek",
+    "boardingaction",
+    "prisoner",
+    "putput",
+    "ratrace",
+    "wizard"
+    }
+
 function CheckType()
-    type_is_koth = get_var(1, "$gt") == "koth"
-    type_is_oddball = get_var(1, "$gt") == "oddball"
-    type_is_race = get_var(1, "$gt") == "race"
-    if (type_is_koth) or (type_is_oddball) or (type_is_race) then
+    local type_is_ctf= get_var(1, "$gt") == "ctf"
+    local type_is_koth = get_var(1, "$gt") == "koth"
+    local type_is_oddball = get_var(1, "$gt") == "oddball"
+    local type_is_race = get_var(1, "$gt") == "race"
+    if (type_is_ctf) or (type_is_koth) or (type_is_oddball) or (type_is_race) then
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -1819,7 +1838,34 @@ function CheckType()
         unregister_callback(cb['EVENT_COMMAND'])
         unregister_callback(cb['EVENT_PRESPAWN'])
         unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
-        cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
+        cprint("Warning: This script doesn't support CTF, KOTH, ODDBALL, or RACE", 4 + 8)
+    end
+    local type_is_slayer = get_var(1, "$gt") == "slayer"
+    local mapname = get_var(1, "$map")
+    if (type_is_slayer) then
+        if not (table.match(valid_maps, mapname)) then
+            unregister_callback(cb['EVENT_TICK'])
+            unregister_callback(cb["EVENT_JOIN"])
+            unregister_callback(cb["EVENT_DIE"])
+            unregister_callback(cb['EVENT_CHAT'])
+            unregister_callback(cb["EVENT_GAME_END"])
+            unregister_callback(cb['EVENT_SPAWN'])
+            unregister_callback(cb["EVENT_LEAVE"])
+            unregister_callback(cb["EVENT_GAME_START"])
+            unregister_callback(cb['EVENT_COMMAND'])
+            unregister_callback(cb['EVENT_PRESPAWN'])
+            unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+            cprint("levelup.lua does not support the map " ..mapname, 4 + 8)
+            cprint("Script cannot be used.", 4 + 8)
+        end
+    end
+end
+    
+function table.match(table, value)
+    for k,v in pairs(table) do
+        if v == value then
+            return k
+        end
     end
 end
 
