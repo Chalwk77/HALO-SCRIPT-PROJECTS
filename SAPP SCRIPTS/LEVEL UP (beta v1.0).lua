@@ -184,7 +184,6 @@ function OnScriptLoad()
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     -- Check if valid GameType
-    CheckType()
     gametype = get_var(0, "$gt")
     -- set score limit --
     execute_command("scorelimit 250")
@@ -731,7 +730,9 @@ function OnVehicleExit(PlayerIndex)
             delay = 1000 * 1.1
         end
         -- temporary weapon assignment on vehicle exit --
-        timer(delay, "AssignTemp", PlayerIndex)
+        if (player_alive(PlayerIndex)) then
+            timer(delay, "AssignTemp", PlayerIndex)
+        end
         execute_command("msg_prefix \"\"")
         say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
@@ -739,19 +740,21 @@ function OnVehicleExit(PlayerIndex)
 end
 
 function AssignTemp(PlayerIndex)
-    -- ready to fire
-    local loaded = 12
-    -- backup
-    local unloaded = 24
-    -- wait_time = time until ammo is updated for new weapon (in seconds)
-    -- Do not go lower than 1 second!
-    local wait_time = 1
-    local player_object = get_dynamic_player(PlayerIndex)
-    local x, y, z = read_vector3d(player_object + 0x5C)
-    local weapid = assign_weapon(spawn_object("weap", out_of_vehicle_weapon, x, y, z + 0.5), PlayerIndex)
-    if tonumber(ammo_multiplier) then
-        execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. loaded)
-        execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. unloaded)
+    if (player_alive(PlayerIndex)) then
+        -- ready to fire
+        local loaded = 12
+        -- backup
+        local unloaded = 24
+        -- wait_time = time until ammo is updated for new weapon (in seconds)
+        -- Do not go lower than 1 second!
+        local wait_time = 1
+        local player_object = get_dynamic_player(PlayerIndex)
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local weapid = assign_weapon(spawn_object("weap", out_of_vehicle_weapon, x, y, z + 0.5), PlayerIndex)
+        if tonumber(ammo_multiplier) then
+            execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. loaded)
+            execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. unloaded)
+        end
     end
 end
 
@@ -773,7 +776,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- local player = get_player(PlayerIndex)
     -- write_dword(player + 0x2C, 1 * 33)
     ------------------------------------------
-    -- If victim was in a vehicle, destroy it...
+    --If victim was in a vehicle, destroy it...
     local player_object = get_dynamic_player(victim)
     if PlayerInVehicle(victim) then
         if player_object ~= 0 then
@@ -975,12 +978,8 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    
-    -- temporarily disabled --
-    --[[
-    -- reset last damage --
+
     DAMAGE_APPLIED[PlayerIndex] = 0
-    ]]
     
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
