@@ -19,11 +19,11 @@ api_version = "1.11.0.0"
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 
--- If the player survives "allocated_time" without dying, reward them with random ammo/powerups
+-- If the player survives "allocated_time" without dying, reward them with random ammo/powerup
 survivor_rewards = true
 
--- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
-allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
+-- If the player survives this amount of time without dying then they're rewarded with ammo/powerup
+allocated_time = 120 -- (2 minutes - in seconds) before player is rewarded with ammo/powerup
 
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
@@ -39,15 +39,10 @@ REWARDS[2] = { "powerups\\over shield", "an overshield!"}
 -- Time until flag respawns after being dropped (in seconds)
 flag_respawn_timer = 30
 
--- Time until flag respawn warning is announced (in seconds)
+-- Time until flag respawn warning is announced (in seconds) <15 seconds before flag respawns by default>
 flag_warning = 15
 
-Speed_Powerup = 2 -- in seconds
-Speed_Powerup_Duration = 20 -- in seconds
 Default_Running_Speed = 1 -- in seconds
-
-Flag_Runner_Speed = 2.0 -- Flag-Holder running speed
-Flag_Runner_Camo_Duration = 15 -- Flag-Holder invisibility time
 
 Spawn_Where_Killed = false -- Spawn at the same location as player died
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
@@ -66,6 +61,7 @@ PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip v
 WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
 -----------------------------------------------------------------------------------------------------------
 -- Choose what to drop when someone dies --
+-- [!] For a future update. Works in its current state, but players cannot pickup ammo.
 PowerUpSettings = {
     ["WeaponsAndEquipment"] = false,
     ["JustEquipment"] = false,
@@ -409,28 +405,36 @@ function PlayerAlive(PlayerIndex)
 end
 
 function RewardPlayer(PlayerIndex)
-    if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
-        local PLAYER_ID = get_var(PlayerIndex, "$n")
+    
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+    rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+    AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
+    
+    -- Level 1-5
+    if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 5 then
         local player_object = get_dynamic_player(PlayerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
-        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
-        -- Pick Camouflage or Overshield (item chosen is random)
-        math.randomseed(os.time())
-        local num = math.random(1, #REWARDS)
-        if (tonumber(num) == 1) then
-            spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
-            item = REWARDS[1][2]
-        else
-            spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
-            item = REWARDS[2][2]
-        end
-        -- To receiving player
-        rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
         rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
-        -- To all other players
-        AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
         AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
+    
+    -- Level 6 
+    elseif GetLevel(PlayerIndex) == 6 then
+        execute_command(PlayerIndex, "battery " .. PlayerIndex .. " 100")
+        rprint(PlayerIndex, "Received extra battery power for Plasma Cannon + " .. tostring(item))
+        AnnounceChat("Rewarding him/her with extra battery power for their Plasma Cannon + " .. tostring(item), PlayerIndex)
+    end
+    
+    -- Pick Camouflage or Overshield (item chosen is random)
+    math.randomseed(os.time())
+    local num = math.random(1, #REWARDS)
+    if (tonumber(num) == 1) then
+        spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
+        item = REWARDS[1][2]
+    else
+        spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
+        item = REWARDS[2][2]
     end
 end
 
@@ -1158,28 +1162,29 @@ function delay_move(PlayerIndex)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
             player_obj_id = vehicleId
             local added_height = 0.3
+            local radius = 5
             -- [!] -- Red Base, Blue Base
             -- inSphere Red, else inSphere Blue base
             if (MAP_NAME == "bloodgulch") then
-                if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, 3) == true then
+                if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, radius) == true then
                     moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
                 else
                     moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
                 end
             elseif (MAP_NAME == "deathisland") then
-                if inSphere(PlayerIndex, -26.576030731201, -6.9761986732483, 9.6631727218628, 3) == true then
+                if inSphere(PlayerIndex, -26.576030731201, -6.9761986732483, 9.6631727218628, radius) == true then
                     moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
                 else
                     moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
                 end
             elseif (MAP_NAME == "icefields") then
-                if inSphere(PlayerIndex, 24.85000038147, -22.110000610352, 2.1110000610352, 3) == true then
+                if inSphere(PlayerIndex, 24.85000038147, -22.110000610352, 2.1110000610352, radius) == true then
                     moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
                 else
                     moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
                 end
             elseif (MAP_NAME == "infinity") then
-                if inSphere(PlayerIndex, 0.67973816394806, -164.56719970703, 15.039022445679, 3) == true then
+                if inSphere(PlayerIndex, 0.67973816394806, -164.56719970703, 15.039022445679, radius) == true then
                     moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
                 else
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
@@ -1191,7 +1196,7 @@ function delay_move(PlayerIndex)
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
             elseif (MAP_NAME == "timberland") then
-                if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, 3) == true then
+                if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, radius) == true then
                     moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
                 else
                     moveobject(vehicleId, 3 - 15.02, 45.36, -18 + added_height)
