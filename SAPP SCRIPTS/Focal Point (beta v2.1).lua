@@ -1,200 +1,270 @@
 --[[
-    Script Name: Focal Point (beta v2.1), for SAPP | (PC\CE)
-    Implementing API version: 1.11.0.0
+Script Name: LEVEL UP (beta v1.0), for SAPP | (PC\CE)
+Implementing API version: 1.11.0.0
 
+    Acknowledgments
+    Credits to "Giraffe" for his AutoVehicle-Flip functions.
+    Credits to 002 for his get_tag_info function (return metaid)
+    Credits to sehe for his death message patch
 
-    This script is also available on my github! Check my github for regular updates on my projects, including this script.
-    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+This script is also available on my github! Check my github for regular updates on my projects, including this script.
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
-    * IGN: Chalwk
-    * This is my extension of another "progression based game" that was for Phasor, by SlimJim
-    * Re-written and converted to sapp by Jericho Crosby (Chalwk)
+* IGN: Chalwk
+* This is my extension of a "progression based game" that was for Phasor, by OZ Clan
+* Written by Jericho Crosby (Chalwk)
 ]]
 
 api_version = "1.11.0.0"
-AnnounceRank = true
-game_started = false
--- Save Player Data every x seconds?
-SAVE_PLAYER_DATA = true
-processid = 0
-kill_count = 0
-time = { } 	 	-- Declare time. Used for PlayerIndex's time spent in server.
-kills = { }
-avenge = { }
-killers = { }
-xcoords = { } 	-- Declare x coords. Used for distance traveled.
-ycoords = { } 	-- Declare y coords. Used for distance traveled.
-zcoords = { } 	-- Declare z coords. Used for distance traveled.
-messages = { }
-jointime = { } 	-- Declare Jointime. Used for player's time spent in server.
-last_damage = { }
-data_folder = 'sapp\\'
+Starting_Level = 1 -- Must match beginning of level[#]
+ctf_enabled = true -- Spawn the flag?
 
--- How often should the server backup player data?
--- Save Data every (seconds)...
-save_data = 180
--- How many seconds before players are warned that the server is about to save player data?
--- The reason for this warning is because the Data-Saving Method can cause temporary server lag, and people should be aware of that.
-save_data_warning = 165
+-- If the player survives "allocated_time" without dying, reward them with random ammo/powerups
+survivor_rewards = true
 
--- ================================================================]
--- Amount of Credits (cR) required for the next rank
--- Example, 7500 cR required to level up from Recruit >> Private.
--- Example, 10000 cR required to level up from Private >> Corporal.
--- ================================================================]
-Recruit = 7500
-Private = 10000
-Corporal = 15000
-Sergeant = 20000
-Sergeant_Grade_1 = 26250
-Sergeant_Grade_2 = 32500
-Warrant_Officer = 45000
-Warrant_Officer_Grade_1 = 78000
-Warrant_Officer_Grade_2 = 111000
-Warrant_Officer_Grade_3 = 144000
-Captain = 210000
-Captain_Grade_1 = 233000
-Captain_Grade_2 = 256000
-Captain_Grade_3 = 279000
-Major = 325000
-Major_Grade_1 = 350000
-Major_Grade_2 = 375000
-Major_Grade_3 = 400000
-Lt_Colonel = 450000
-Lt_Colonel_Grade_1 = 480000
-Lt_Colonel_Grade_2 = 510000
-Lt_Colonel_Grade_3 = 540000
-Commander = 600000
-Commander_Grade_1 = 650000
-Commander_Grade_2 = 700000
-Commander_Grade_3 = 750000
-Colonel = 850000
-Colonel_Grade_1 = 960000
-Colonel_Grade_2 = 1070000
-Colonel_Grade_3 = 1180000
-Brigadier = 1400000
-Brigadier_Grade_1 = 1520000
-Brigadier_Grade_2 = 1640000
-Brigadier_Grade_3 = 1760000
-General = 2000000
-General_Grade_1 = 2350000
-General_Grade_2 = 2500000
-General_Grade_3 = 2650000
-General_Grade_4 = 3000000
-Field_Marshall = 3700000
-Hero = 4600000
-Legend = 5650000
-Mythic = 7000000
-Noble = 8500000
-Eclipse = 11000000
-Nova = 13000000
-Forerunner = 16500000
-Reclaimer = 20000000
-Inheritor = "Ranks Complete"
--- ===============================]
--- ===============================]
+-- If the player survives this amount of time without dying then they're rewarded with ammo and/or powerup
+allocated_time = 120 -- (2 minutes) -- Time (in seconds) before player is rewarded ammo/powerup
 
+-- If player has been alive for "progression_timer", then cycle their level (update, advance)
+progression_timer = 180 -- (3 minutes)
+
+-- Temporary weapon to assign when they exit their vehicle
+out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
+
+-- 1 random item from this list will be given after surviving "allocated_time"
+REWARDS = { }
+REWARDS[1] = { "powerups\\active camouflage", "a camouflage!"}
+REWARDS[2] = { "powerups\\over shield", "an overshield!"}
+
+-- Time until flag respawns after being dropped (in seconds)
+flag_respawn_timer = 30
+
+-- Time until flag respawn warning is announced (in seconds)
+flag_warning = 15
+
+Speed_Powerup = 2 -- in seconds
+Speed_Powerup_Duration = 20 -- in seconds
+Default_Running_Speed = 1 -- in seconds
+
+Flag_Runner_Speed = 2.0 -- Flag-Holder running speed
+Flag_Runner_Camo_Duration = 15 -- Flag-Holder invisibility time
+
+Spawn_Where_Killed = false -- Spawn at the same location as player died
+Spawn_Invunrable_Time = nil -- Seconds - nil disabled
+
+Check_Time = 0 -- Mili-seconds to check if player in scoring area
+Check_Radius = 1 -- Radius determining if player is in scoring area
+
+Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
+Grenade_Multiplier = 4 -- Multiplier to frag damage. 1 = normal damage
+Normal_Damage = 1 -- Normal weapon damage multiplier. 1 = normal damage
+
+ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
+
+-- Giraffe's --
+PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
+WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
+-----------------------------------------------------------------------------------------------------------
+-- Choose what to drop when someone dies --
+PowerUpSettings = {
+    ["WeaponsAndEquipment"] = false,
+    ["JustEquipment"] = false,
+    ["JustWeapons"] = false
+}
+-- Giraffe's
+rider_ejection = nil
+object_table_ptr = nil
+-----------------------
+current_players = 0
+FLAG = { }
+TIMER = { }
+players = { }
+FLAG_BOOL = { }
+FRAG_CHECK = { }
+FLAG_RESPAWN = { }
+FLAG_WARN = { }
+PLASMA_CHECK = { }
+WEAPON_TABLE = { }
+PLAYERS_ALIVE = { }
+STORED_LEVELS = { }
+DAMAGE_APPLIED = { }
+EQUIPMENT_TAGS = { }
+PLAYER_LOCATION = { }
+EQUIPMENT_TABLE = { }
+PROGRESSION_TIMER = { }
+for i = 1, 16 do PLAYER_LOCATION[i] = { } end
+weap_type_id = "weap"
+eqip_type_id = "eqip"
+vehi_type_id = "vehi"
+
+-- For a Future Update
+-- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
+EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo" }
+EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo" }
+EQUIPMENT_TABLE[3] = { "powerups\\pistol ammo\\pistol ammo", "Pistol Ammo" }
+EQUIPMENT_TABLE[4] = { "powerups\\sniper rifle ammo\\sniper rifle ammo", "Sniper Rifle Ammo" }
+EQUIPMENT_TABLE[5] = { "powerups\\rocket launcher ammo\\rocket launcher ammo", "Rocket Launcher Ammo" }
+EQUIPMENT_TABLE[6] = { "powerups\\needler ammo\\needler ammo", "Needler Ammo" }
+EQUIPMENT_TABLE[7] = { "powerups\\flamethrower ammo\\flamethrower ammo", "Flamethrower Ammo" }
+EQUIPMENT_TABLE[8] = { "powerups\\active camouflage", "Camouflage" }
+EQUIPMENT_TABLE[9] = { "powerups\\health pack", "Health Pack" }
+EQUIPMENT_TABLE[10] = { "powerups\\over shield", "Overshield" }
+-- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
+WEAPON_TABLE[1] = { "weapons\\shotgun\\shotgun", "Shotgun" }
+WEAPON_TABLE[2] = { "weapons\\assault rifle\\assault rifle", "Assault Rifle" }
+WEAPON_TABLE[3] = { "weapons\\pistol\\pistol", "Pistol" }
+WEAPON_TABLE[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle" }
+WEAPON_TABLE[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher" }
+WEAPON_TABLE[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon" }
+WEAPON_TABLE[7] = { "weapons\\flamethrower\\flamethrower", "Flamethrower" }
+WEAPON_TABLE[8] = { "weapons\\needler\\mp_needler", "Needler" }
+WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol" }
+WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle" }
+
+function LoadLarge()
+    Level = { }
+    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
+    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240 }
+    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
+    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
+    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
+    Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
+    Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
+    Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
+    Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
+    for k, v in pairs(Level) do
+        if string.find(v[1], "vehicles") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
+end
+
+function LoadSmall()
+    Level = { }
+    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
+    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240 }
+    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
+    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
+    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
+    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
+    for k, v in pairs(Level) do
+        if string.find(v[1], "weapons") then
+            v[7] = v[1]
+            v[8] = 1
+        else
+            v[7] = v[1]
+            v[8] = 0
+        end
+    end
+end  
+     
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb['EVENT_CHAT'], "OnServerChat")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+    register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    -- Giraffe's object_table_ptr --
+    object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
+    -------------------------------------------------------------
     LoadItems()
+    MAP_NAME = get_var(1, "$map")
+    -- Check if valid GameType
+    gametype = get_var(0, "$gt")
+    -- set score limit --
+    execute_command("scorelimit 250")
+    -- disable vehicle entry --
+    execute_command("disable_all_vehicles 0 1")
+    -- disable weapon pickups --
+    execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
+    execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
+    execute_command("disable_object 'weapons\\needler\\mp_needler'")
+    execute_command("disable_object 'weapons\\pistol\\pistol'")
+    execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
+    execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
+    execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
+    execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
+    execute_command("disable_object 'weapons\\shotgun\\shotgun'")
+    execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
+    -- disable grenade pickups --
+    execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
+    execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
+    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    -- sehe's death Message Patch --
+    disable_killmsg_addr = sig_scan("8B42348A8C28D500000084C9") + 3
+    original_code_1 = read_dword(disable_killmsg_addr)
+    safe_write(true)
+    write_dword(disable_killmsg_addr, 0x03EB01B1)
+    safe_write(false)
+    current_players = 0
+    -------------------------------------------------------------------
+    for i = 1, 16 do
+        if player_present(i) then
+            DAMAGE_APPLIED[i] = 0
+            local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+            PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
+        end
+    end
+    -- Giraffe's --
+    if (halo_type == "CE") then
+        rider_ejection = read_byte(0x59A34C)
+        write_byte(0x59A34C, 0)
+    else
+        rider_ejection = read_byte(0x6163EC)
+        write_byte(0x6163EC, 0)
+    end
+    -- ======================================== --
 end
 
 function OnScriptUnload()
-    -- Save Tables --
-    SaveTableData(sprees, "Sprees.txt")
-    SaveTableData(medals, "Medals.txt")
-    SaveTableData(stats, "Stats.txt")
-    last_damage = { }
-    save_data_timer = 0
-    save_data_warn = 0
-    SAVE_DATA_WARNING = false
-    SAVE_DATA = false
-end
-
-function CheckType()
-    type_is_koth = get_var(1, "$gt") == "koth"
-    type_is_oddball = get_var(1, "$gt") == "oddball"
-    type_is_race = get_var(1, "$gt") == "race"
-    type_is_slayer = get_var(1, "$gt") == "slayer"
-    if (type_is_koth) or(type_is_oddball) or(type_is_race) or(type_is_slayer) then
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb["EVENT_JOIN"])
-        unregister_callback(cb["EVENT_DIE"])
-        unregister_callback(cb['EVENT_CHAT'])
-        unregister_callback(cb["EVENT_GAME_END"])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb["EVENT_LEAVE"])
-        unregister_callback(cb["EVENT_GAME_START"])
-        unregister_callback(cb['EVENT_COMMAND'])
-        unregister_callback(cb['EVENT_PRESPAWN'])
-        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
-        cprint("Warning: This script doesn't support KOTH, ODDBALL, RACE or SLAYER", 4 + 8)
+    Level = { }
+    FLAG = { }
+    players = { }
+    FRAG_CHECK = { }
+    PLASMA_CHECK = { }
+    WEAPON_TABLE = { }
+    STORED_LEVELS = { }
+    DAMAGE_APPLIED = { }
+    PLAYER_LOCATION = { }
+    EQUIPMENT_TAGS = { }
+    EQUIPMENT_TABLE = { }
+    rider_ejection = nil
+    object_table_ptr = nil
+    -- sehe's death Message Patch --
+    safe_write(true)
+    write_dword(disable_killmsg_addr, original_code_1)
+    write_word(disable_speed_decrease_addr, original_code_2)
+    write_word(force_speed_sync_addr, original_code_3)
+    safe_write(false)
+    ----------------------------------------------------------
+    if (halo_type == "CE") then
+        -- Giraffe's
+        write_byte(0x59A34C, rider_ejection)
+    else
+        write_byte(0x6163EC, rider_ejection)
     end
-end
-
-function OnNewGame()
-    CheckType()
-    LoadItems()
-    game_started = true
-    OpenFiles()
-    save_data_timer = 0
-    save_data_warn = 0
-    SAVE_DATA_WARNING = true
-    SAVE_DATA = true
-    for i = 1, 16 do
-        if player_present(i) then
-            last_damage[i] = 0
-        end
-    end
-end
-
-function OnGameEnd()
-    save_data_timer = 0
-    save_data_warn = 0
-    SAVE_DATA_WARNING = false
-    SAVE_DATA = false
-    timer(10, "AssistDelay")
-    for i = 1, 16 do
-        if getplayer(i) then
-            -- If the palyer has less than 3 Deaths on game end, then award them 15+ cR
-            if read_word(getplayer(i) + 0xAE) < 3 then
-                changescore(i, 15, true)
-                SendMessage(i, "+15 (cR) - Less then 3 Deaths")
-                killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits + 15
-            end
-            extra[gethash(i)].woops.gamesplayed = extra[gethash(i)].woops.gamesplayed + 1
-            time = os.time() - jointime[gethash(i)]
-            extra[gethash(i)].woops.time = extra[gethash(i)].woops.time + time
-        end
-    end
-
-    for i = 1, 16 do
-        if player_present(i) then
-            last_damage[i] = 0
-        end
-    end
-
-    SaveTableData(killstats, "KillStats.txt")
-    SaveTableData(extra, "Extra.txt")
-    SaveTableData(done, "CompletedMedals.txt")
-    SaveTableData(sprees, "Sprees.txt")
-    SaveTableData(stats, "Stats.txt")
-    SaveTableData(medals, "Medals.txt")
-    SaveTableData(extra, "Extra.txt")
-
-    game_started = false
-end
-
-function OnPlayerPreSpawn(PlayerIndex)
-    last_damage[PlayerIndex] = 0
+    -- ======================================== --
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -202,943 +272,130 @@ function WelcomeHandler(PlayerIndex)
     ServerName = read_widestring(network_struct + 0x8, 0x42)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to " .. ServerName)
+    say(PlayerIndex, "Type @info if you don't know How to Play")
+    say(PlayerIndex, "Type @stats to view your current stats.")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
-function OnServerChat(PlayerIndex, Message)
-
-    local Message = string.lower(Message)
-    local t = tokenizestring(Message, " ")
-    local count = #t
-
-    if PlayerIndex ~= nil then
-        local hash = get_var(PlayerIndex, "$hash")
-        if Message == "@info" then
-            rprint(PlayerIndex, "\"@weapons\":  Will display stats for eash weapon.")
-            rprint(PlayerIndex, "\"@stats\":  Will display about your kills, deaths etc.")
-            rprint(PlayerIndex, "\"@sprees\":  Will display info about your Killing Spreees.")
-            rprint(PlayerIndex, "\"@rank\":  Will display info about your rank.")
-            rprint(PlayerIndex, "\"@medals\":  Will display info about your medals.")
-            return false
-        elseif Message == "@weapons" then
-            -- =========================================================================================================================================================================
-            rprint(PlayerIndex, "Assault Rifle: " .. stats[hash].kills.assaultrifle .. " | Banshee: " .. stats[hash].kills.banshee .. " | Banshee Fuel Rod: " .. stats[hash].kills.bansheefuelrod .. " | Chain Hog: " .. stats[hash].kills.chainhog)
-            rprint(PlayerIndex, "EMP Blast: " .. extra[hash].woops.empblast .. " | Flame Thrower: " .. stats[hash].kills.flamethrower .. " | Frag Grenade: " .. stats[hash].kills.fragnade .. " | Fuel Rod: " .. stats[hash].kills.fuelrod)
-            rprint(PlayerIndex, "Ghost: " .. stats[hash].kills.ghost .. " | Melee: " .. stats[hash].kills.melee .. " | Needler: " .. stats[hash].kills.needler .. " | People Splattered: " .. stats[hash].kills.splatter)
-            rprint(PlayerIndex, "Pistol: " .. stats[hash].kills.pistol .. " | Plasma Grenade: " .. stats[hash].kills.plasmanade .. " | Plasma Pistol: " .. stats[hash].kills.plasmapistol .. " | Plasma Rifle: " .. stats[hash].kills.plasmarifle)
-            rprint(PlayerIndex, "Rocket Hog: " .. extra[hash].woops.rockethog .. " | Rocket Launcher: " .. stats[hash].kills.rocket .. " | Shotgun: " .. stats[hash].kills.shotgun .. " | Sniper Rifle: " .. stats[hash].kills.sniper)
-            rprint(PlayerIndex, "Stuck Grenade: " .. stats[hash].kills.grenadestuck .. " | Tank Machine Gun: " .. stats[hash].kills.tankmachinegun .. " | Tank Shell: " .. stats[hash].kills.tankshell .. " | Turret: " .. stats[hash].kills.turret)
-            -- =========================================================================================================================================================================
-            return false
-        elseif Message == "@stats" then
-            -- =========================================================================================================================================================================
-            local Player_KDR = RetrievePlayerKDR(PlayerIndex)
-            local cpm = math.round(killstats[hash].total.credits / extra[hash].woops.gamesplayed, 2)
-            if cpm == 0 or cpm == nil then
-                cpm = "No credits earned"
-            end
-            local days, hours, minutes, seconds = secondsToTime(extra[hash].woops.time, 4)
-            -- =========================================================================================================================================================================
-            rprint(PlayerIndex, "Kills: " .. killstats[hash].total.kills .. " | Deaths: " .. killstats[hash].total.deaths .. " | Assists: " .. killstats[hash].total.assists)
-            rprint(PlayerIndex, "KDR: " .. Player_KDR .. " | Suicides: " .. killstats[hash].total.suicides .. " | Betrays: " .. killstats[hash].total.betrays)
-            rprint(PlayerIndex, "Games Played: " .. extra[hash].woops.gamesplayed .. " | Time in Server: " .. days .. "d " .. hours .. "h " .. minutes .. "m " .. seconds .. "s")
-            rprint(PlayerIndex, "Distance Traveled: " .. math.round(extra[hash].woops.distance / 1000, 2) .. " kilometers | Credits Per Map: " .. cpm)
-            -- =========================================================================================================================================================================
-            return false
-        elseif Message == "@sprees" then
-            -- =========================================================================================================================================================================
-            rprint(PlayerIndex, "Double Kill: " .. sprees[hash].count.double .. " | Triple Kill: " .. sprees[hash].count.triple .. " | Overkill: " .. sprees[hash].count.overkill .. " | Killtacular: " .. sprees[hash].count.killtacular)
-            rprint(PlayerIndex, "Killtrocity: " .. sprees[hash].count.killtrocity .. " | Killimanjaro " .. sprees[hash].count.killimanjaro .. " | Killtastrophe: " .. sprees[hash].count.killtastrophe .. " | Killpocalypse: " .. sprees[hash].count.killpocalypse)
-            rprint(PlayerIndex, "Killionaire: " .. sprees[hash].count.killionaire .. " | Kiling Spree " .. sprees[hash].count.killingspree .. " | Killing Frenzy: " .. sprees[hash].count.killingfrenzy .. " | Running Riot: " .. sprees[hash].count.runningriot)
-            rprint(PlayerIndex, "Rampage: " .. sprees[hash].count.rampage .. " | Untouchable: " .. sprees[hash].count.untouchable .. " | Invincible: " .. sprees[hash].count.invincible .. " | Anomgstopkillingme: " .. sprees[hash].count.anomgstopkillingme)
-            rprint(PlayerIndex, "Unfrigginbelievable: " .. sprees[hash].count.unfrigginbelievable .. " | Minutes as Last Man Standing: " .. sprees[hash].count.timeaslms)
-            -- =========================================================================================================================================================================
-            return false
-        elseif Message == "@rank" then
-            local credits = { }
-            for k, _ in pairs(killstats) do
-                table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
-            end
-
-            table.sort(credits, function(a, b) return a.credits > b.credits end)
-
-            for k, v in ipairs(credits) do
-                if hash == credits[k].hash then
-                    local until_next_rank = CreditsUntilNextPromo(PlayerIndex)
-                    -- =========================================================================================================================================================================
-                    rprint(PlayerIndex, "You are ranked " .. k .. " out of " .. #credits .. "!")
-                    rprint(PlayerIndex, "Credits: " .. killstats[hash].total.credits .. " | Rank: " .. killstats[hash].total.rank)
-                    rprint(PlayerIndex, "Credits Until Next Rank: " .. until_next_rank)
-                    -- =========================================================================================================================================================================
-                end
-            end
-            return false
-        elseif Message == "@medals" then
-            -- =========================================================================================================================================================================
-            rprint(PlayerIndex, "Any Spree: " .. medals[hash].class.sprees .. " (" .. medals[hash].count.sprees .. ") | Assistant: " .. medals[hash].class.assists .. " (" .. medals[hash].count.assists .. ") | Close Quarters: " .. medals[hash].class.closequarters .. " (" .. medals[hash].count.assists .. ")")
-            rprint(PlayerIndex, "Crack Shot: " .. medals[hash].class.crackshot .. " (" .. medals[hash].count.crackshot .. ") | Roadrage: " .. medals[hash].class.roadrage .. " (" .. medals[hash].count.roadrage .. ") | Grenadier: " .. medals[hash].class.grenadier .. " (" .. medals[hash].count.grenadier .. ")")
-            rprint(PlayerIndex, "Heavy Weapons: " .. medals[hash].class.heavyweapons .. " (" .. medals[hash].count.heavyweapons .. ") | Jack of all Trades: " .. medals[hash].class.jackofalltrades .. " (" .. medals[hash].count.jackofalltrades .. ") | Mobile Asset: " .. medals[hash].class.mobileasset .. " (" .. medals[hash].count.moblieasset .. ")")
-            rprint(PlayerIndex, "Multi Kill: " .. medals[hash].class.multikill .. " (" .. medals[hash].count.multikill .. ") | Sidearm: " .. medals[hash].class.sidearm .. " (" .. medals[hash].count.sidearm .. ") | Trigger Man: " .. medals[hash].class.triggerman .. " (" .. medals[hash].count.triggerman .. ")")
-            -- =========================================================================================================================================================================
-            return false
-        end
-
-        if t[1] == "@weapons" then
-            if t[2] then
-                local rcon_id = tonumber(t[2])
-                if rcon_id then
-                    local Player = rcon_id
-                    if Player then
-                        local hash = gethash(Player)
-                        if hash then
-                            rprint(PlayerIndex, getname(Player) .. "'s Weapon Stats")
-                            rprint(PlayerIndex, "Assault Rifle: " .. stats[hash].kills.assaultrifle .. " | Banshee: " .. stats[hash].kills.banshee .. " | Banshee Fuel Rod: " .. stats[hash].kills.bansheefuelrod .. " | Chain Hog: " .. stats[hash].kills.chainhog)
-                            rprint(PlayerIndex, "EMP Blast: " .. extra[hash].woops.empblast .. " | Flame Thrower: " .. stats[hash].kills.flamethrower .. " | Frag Grenade: " .. stats[hash].kills.fragnade .. " | Fuel Rod: " .. stats[hash].kills.fuelrod)
-                            rprint(PlayerIndex, "Ghost: " .. stats[hash].kills.ghost .. " | Melee: " .. stats[hash].kills.melee .. " | Needler: " .. stats[hash].kills.needler .. " | People Splattered: " .. stats[hash].kills.splatter)
-                            rprint(PlayerIndex, "Pistol: " .. stats[hash].kills.pistol .. " | Plasma Grenade: " .. stats[hash].kills.plasmanade .. " | Plasma Pistol: " .. stats[hash].kills.plasmapistol .. " | Plasma Rifle: " .. stats[hash].kills.plasmarifle)
-                            rprint(PlayerIndex, "Rocket Hog: " .. extra[hash].woops.rockethog .. " | Rocket Launcher: " .. stats[hash].kills.rocket .. " | Shotgun: " .. stats[hash].kills.shotgun .. " | Sniper Rifle: " .. stats[hash].kills.sniper)
-                            rprint(PlayerIndex, "Stuck Grenade: " .. stats[hash].kills.grenadestuck .. " | Tank Machine Gun: " .. stats[hash].kills.tankmachinegun .. " | Tank Shell: " .. stats[hash].kills.tankshell .. " | Turret: " .. stats[hash].kills.turret)
-                            -- =========================================================================================================================================================================
-                        end
-                    end
-                end
-            end
-            return false
-        elseif t[1] == "@stats" then
-            if t[2] then
-                local rcon_id = tonumber(t[2])
-                if rcon_id then
-                    local Player = rcon_id
-                    if Player then
-                        local hash = gethash(Player)
-                        if hash then
-                            local Player_KDR = RetrievePlayerKDR(Player)
-                            local cpm = math.round(killstats[hash].total.credits / extra[hash].woops.gamesplayed, 2)
-                            if cpm == 0 or cpm == nil then
-                                cpm = "No credits earned"
-                            end
-                            local days, hours, minutes, seconds = secondsToTime(extra[hash].woops.time, 4)
-                            -- =========================================================================================================================================================================
-                            rprint(PlayerIndex, getname(Player) .. "'s Stats.")
-                            rprint(PlayerIndex, "Kills: " .. killstats[hash].total.kills .. " | Deaths: " .. killstats[hash].total.deaths .. " | Assists: " .. killstats[hash].total.assists)
-                            rprint(PlayerIndex, "KDR: " .. Player_KDR .. " | Suicides: " .. killstats[hash].total.suicides .. " | Betrays: " .. killstats[hash].total.betrays)
-                            rprint(PlayerIndex, "Games Played: " .. extra[hash].woops.gamesplayed .. " | Time in Server: " .. days .. "d " .. hours .. "h " .. minutes .. "m " .. seconds .. "s")
-                            rprint(PlayerIndex, "Distance Traveled: " .. math.round(extra[hash].woops.distance / 1000, 2) .. " kilometers | Credits Per Map: " .. cpm)
-                            -- =========================================================================================================================================================================
-                        else
-                            rprint(PlayerIndex, "Script Error! Please try again!")
-                        end
-                    else
-                        rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats! They must be in the server!")
-                    end
-                else
-                    rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats!")
-                end
-            end
-            return false
-        elseif t[1] == "@sprees" then
-            if t[2] then
-                local rcon_id = tonumber(t[2])
-                if rcon_id then
-                    local Player = rcon_id
-                    if Player then
-                        local hash = gethash(Player)
-                        if hash then
-                            -- =========================================================================================================================================================================
-                            rprint(PlayerIndex, getname(Player) .. "'s Spree Stats.")
-                            rprint(PlayerIndex, "Double Kill: " .. sprees[hash].count.double .. " | Triple Kill: " .. sprees[hash].count.triple .. " | Overkill: " .. sprees[hash].count.overkill .. " | Killtacular: " .. sprees[hash].count.killtacular)
-                            rprint(PlayerIndex, "Killtrocity: " .. sprees[hash].count.killtrocity .. " | Killimanjaro " .. sprees[hash].count.killimanjaro .. " | Killtastrophe: " .. sprees[hash].count.killtastrophe .. " | Killpocalypse: " .. sprees[hash].count.killpocalypse)
-                            rprint(PlayerIndex, "Killionaire: " .. sprees[hash].count.killionaire .. " | Kiling Spree " .. sprees[hash].count.killingspree .. " | Killing Frenzy: " .. sprees[hash].count.killingfrenzy .. " | Running Riot: " .. sprees[hash].count.runningriot)
-                            rprint(PlayerIndex, "Rampage: " .. sprees[hash].count.rampage .. " | Untouchable: " .. sprees[hash].count.untouchable .. " | Invincible: " .. sprees[hash].count.invincible .. " | Anomgstopkillingme: " .. sprees[hash].count.anomgstopkillingme)
-                            rprint(PlayerIndex, "Unfrigginbelievable: " .. sprees[hash].count.unfrigginbelievable .. " | Minutes as Last Man Standing: " .. sprees[hash].count.timeaslms)
-                            -- =========================================================================================================================================================================
-                        else
-                            rprint(PlayerIndex, "Script Error! Please try again!")
-                        end
-                    else
-                        rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats! They must be in the server!")
-                    end
-                else
-                    rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats!")
-                end
-            end
-            return false
-        elseif t[1] == "@rank" then
-            if t[2] then
-                local rcon_id = tonumber(t[2])
-                if rcon_id then
-                    local Player = rcon_id
-                    if Player then
-                        local hash = gethash(Player)
-                        if hash then
-                            local credits = { }
-                            for k, _ in pairs(killstats) do
-                                table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
-                            end
-
-                            table.sort(credits, function(a, b) return a.credits > b.credits end)
-
-                            for k, v in ipairs(credits) do
-                                if hash == credits[k].hash then
-                                    local until_next_rank = CreditsUntilNextPromo(Player)
-                                    if until_next_rank == nil then
-                                        until_next_rank = "Unknown - " .. getname(Player) .. " is a new PlayerIndex"
-                                    end
-                                    -- =========================================================================================================================================================================
-                                    rprint(PlayerIndex, getname(Player) .. " is ranked " .. k .. " out of " .. #credits .. "!")
-                                    rprint(PlayerIndex, "Credits: " .. killstats[hash].total.credits .. " | Rank: " .. killstats[hash].total.rank)
-                                    rprint(PlayerIndex, "Credits Until Next Rank: " .. until_next_rank)
-                                    -- =========================================================================================================================================================================
-                                end
-                            end
-                        else
-                            rprint(PlayerIndex, "Script Error! Please try again!")
-                        end
-                    else
-                        rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats! They must be in the server!")
-                    end
-                else
-                    rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats!")
-                end
-            end
-            return false
-        elseif t[1] == "@medals" then
-            if t[2] then
-                local rcon_id = tonumber(t[2])
-                if rcon_id then
-                    local Player = rcon_id
-                    if Player then
-                        local hash = gethash(Player)
-                        if hash then
-                            -- =========================================================================================================================================================================
-                            rprint(PlayerIndex, getname(Player) .. "'s Medal Stats.")
-                            rprint(PlayerIndex, "Any Spree: " .. medals[hash].class.sprees .. " (" .. medals[hash].count.sprees .. ") | Assistant: " .. medals[hash].class.assists .. " (" .. medals[hash].count.assists .. ") | Close Quarters: " .. medals[hash].class.closequarters .. " (" .. medals[hash].count.assists .. ")")
-                            rprint(PlayerIndex, "Crack Shot: " .. medals[hash].class.crackshot .. " (" .. medals[hash].count.crackshot .. ") | Roadrage: " .. medals[hash].class.roadrage .. " (" .. medals[hash].count.roadrage .. ") | Grenadier: " .. medals[hash].class.grenadier .. " (" .. medals[hash].count.grenadier .. ")")
-                            rprint(PlayerIndex, "Heavy Weapons: " .. medals[hash].class.heavyweapons .. " (" .. medals[hash].count.heavyweapons .. ") | Jack of all Trades: " .. medals[hash].class.jackofalltrades .. " (" .. medals[hash].count.jackofalltrades .. ") | Mobile Asset: " .. medals[hash].class.mobileasset .. " (" .. medals[hash].count.moblieasset .. ")")
-                            rprint(PlayerIndex, "Multi Kill: " .. medals[hash].class.multikill .. " (" .. medals[hash].count.multikill .. ") | Sidearm: " .. medals[hash].class.sidearm .. " (" .. medals[hash].count.sidearm .. ") | Trigger Man: " .. medals[hash].class.triggerman .. " (" .. medals[hash].count.triggerman .. ")")
-                            -- =========================================================================================================================================================================
-                        else
-                            rprint(PlayerIndex, "Script Error! Please try again!")
-                        end
-                    else
-                        rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats! They must be in the server!")
-                    end
-                else
-                    rprint(PlayerIndex, "Please enter a number between 1 and 16 to view their stats!")
-                end
-            end
-            return false
-        end
-    end
+function InfoHandler(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "This is a progression based game - kill players to gain a Level.")
+    say(PlayerIndex, "You will start with a Shotgun (no ammo) and 6 of each grenade.")
+    say(PlayerIndex, "Level 1 Objective: Melee or Nades!")
+    say(PlayerIndex, "Being meeled or committing suicide will result in moving down a Level.")
+    say(PlayerIndex, "There is a flag somewhere on the map - Return it to a base to gain a Level.")
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
-function OnPlayerJoin(PlayerIndex)
-    DeclearNewPlayerStats(gethash(PlayerIndex))
-    timer(1000 * 300, "CreditTimer", PlayerIndex)
-    GetMedalClasses(PlayerIndex)
-    GetPlayerRank(PlayerIndex)
-    jointime[gethash(PlayerIndex)] = os.time()
-    local player_static = get_player(PlayerIndex)
-    xcoords[gethash(PlayerIndex)] = read_float(player_static + 0xF8)
-    ycoords[gethash(PlayerIndex)] = read_float(player_static + 0xFC)
-    zcoords[gethash(PlayerIndex)] = read_float(player_static + 0x100)
-    timer(1000 * 6, "WelcomeHandler", PlayerIndex)
-    killers[PlayerIndex] = { }
-    if AnnounceRank == true then
-        AnnouncePlayerRank(PlayerIndex)
-    end
-end
-
-function CreditTimer(PlayerIndex)
-    if game_started == true then
-        if player_present(PlayerIndex) then
-            SendMessage(PlayerIndex, "+25 cR - 5 minutes in the server")
-            changescore(PlayerIndex, 25, true)
-            if killstats[gethash(PlayerIndex)].total.credits ~= nil then
-                killstats[gethash(PlayerIndex)].total.credits = killstats[gethash(PlayerIndex)].total.credits + 15
-            else
-                killstats[gethash(PlayerIndex)].total.credits = 15
-            end
-        end
-        return true
-    else
-        return false
-    end
-end
-
-function OnPlayerLeave(PlayerIndex)
-    last_damage[PlayerIndex] = nil
-    kills[gethash(PlayerIndex)] = 0
-    extra[gethash(PlayerIndex)].woops.time = extra[gethash(PlayerIndex)].woops.time + os.time() - jointime[gethash(PlayerIndex)]
-end
-
-function OnPlayerDeath(PlayerIndex, KillerIndex)
-    local victim = tonumber(PlayerIndex)
-    local killer = tonumber(KillerIndex)
-    -- Player Name --
-    VictimName = get_var(PlayerIndex, "$name")
-    KillerName = get_var(KillerIndex, "$name")
-    -- Player Team --
-    KillerTeam = get_var(KillerIndex, "$team")
-    VictimTeam = get_var(PlayerIndex, "$team")
-
-    -- KILLED BY SERVER --
-    if (killer == -1) then mode = 0 end
-    -- FALL / DISTANCE DAMAGE
-    if last_damage[PlayerIndex] == falling_damage or last_damage[PlayerIndex] == distance_damage then mode = 1 end
-    -- GUARDIANS / UNKNOWN --
-    if (killer == nil) then mode = 2 end
-    -- KILLED BY VEHICLE --
-    if (killer == 0) then mode = 3 end
-    -- KILLED BY KILLER --
-    if (killer > 0) and(victim ~= killer) then mode = 4 end
-    -- BETRAY / TEAM KILL --
-    if (KillerTeam == VictimTeam) and(PlayerIndex ~= KillerIndex) then mode = 5 end
-    -- SUICIDE --
-    if tonumber(PlayerIndex) == tonumber(KillerIndex) then mode = 6 end
-
-    if mode == 4 then
-        local hash = gethash(killer)
-        local m_object = read_dword(get_player(victim) + 0x34)
-        -- Weapon Melee --
-        if last_damage[PlayerIndex] == flag_melee or
-            last_damage[PlayerIndex] == ball_melee or
-            last_damage[PlayerIndex] == pistol_melee or
-            last_damage[PlayerIndex] == needle_melee or
-            last_damage[PlayerIndex] == shotgun_melee or
-            last_damage[PlayerIndex] == flame_melee or
-            last_damage[PlayerIndex] == sniper_melee or
-            last_damage[PlayerIndex] == prifle_melee or
-            last_damage[PlayerIndex] == ppistol_melee or
-            last_damage[PlayerIndex] == assault_melee or
-            last_damage[PlayerIndex] == rocket_melee then
-            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-            stats[hash].kills.melee = stats[hash].kills.melee + 1
-            SendMessage(PlayerIndex, " -10 (cR) - You were Meleed by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 10, false)
-            changescore(killer, 13, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-            SendMessage(killer, " +13 (cR)")
-            
-
-            -- Grenades --
-        elseif last_damage[PlayerIndex] == frag_explode then
-            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-            stats[hash].kills.fragnade = stats[hash].kills.fragnade + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == plasma_attach then
-            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-            stats[hash].kills.grenadestuck = stats[hash].kills.grenadestuck + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == plasma_explode then
-            medals[hash].count.grenadier = medals[hash].count.grenadier + 1
-            stats[hash].kills.plasmanade = stats[hash].kills.plasmanade + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were blown up by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-            -- Vehicle Collision --
-        elseif last_damage[PlayerIndex] == veh_damage then
-            stats[hash].kills.splatter = stats[hash].kills.splatter + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -10 (cR) - You were run over by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 10, false)
-            changescore(killer, 13, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-            SendMessage(killer, " +13 (cR)")
-            
-            -- Vehicle Projectiles --
-        elseif last_damage[PlayerIndex] == banshee_explode then
-            stats[hash].kills.bansheefuelrod = stats[hash].kills.bansheefuelrod + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a Banshee Fuel Rod")
-            changescore(PlayerIndex, 10, false)
-            changescore(killer, 13, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-            SendMessage(killer, " +13 (cR)")
-            
-        elseif last_damage[PlayerIndex] == banshee_bolt then
-            stats[hash].kills.banshee = stats[hash].kills.banshee + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a Banshee Bolt")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == turret_bolt then
-            stats[hash].kills.turret = stats[hash].kills.turret + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a Turret")
-            changescore(PlayerIndex, 3, false)
-            changescore(killer, 6, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
-            SendMessage(killer, " +6 (cR)")
-            
-        elseif last_damage[PlayerIndex] == ghost_bolt then
-            stats[hash].kills.ghost = stats[hash].kills.ghost + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with ghost bolt")
-            changescore(PlayerIndex, 4, false)
-            changescore(killer, 7, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
-            SendMessage(killer, " +7 (cR)")
-            
-        elseif last_damage[PlayerIndex] == tank_bullet then
-            stats[hash].kills.tankmachinegun = stats[hash].kills.tankmachinegun + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with tank bullet")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == tank_shell then
-            stats[hash].kills.tankshell = stats[hash].kills.tankshell + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with tank shell")
-            changescore(PlayerIndex, 10, false)
-            changescore(killer, 13, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-            SendMessage(killer, " +13 (cR)")
-            
-        elseif last_damage[PlayerIndex] == chain_bullet then
-            stats[hash].kills.chainhog = stats[hash].kills.chainhog + 1
-            medals[hash].count.moblieasset = medals[hash].count.moblieasset + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. "'s Warthog chain gun bullets")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-            -- Weapon Projectiles --
-        elseif last_damage[PlayerIndex] == assault_bullet then
-            stats[hash].kills.assaultrifle = stats[hash].kills.assaultrifle + 1
-            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with an assault rifle")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == flame_explode then
-            medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-            stats[hash].kills.flamethrower = stats[hash].kills.flamethrower + 1
-            SendMessage(PlayerIndex, " -3 (cR) - You were burnt to a crisp by " .. get_var(killer, "$name") .. "'s flame thrower")
-            changescore(PlayerIndex, 3, false)
-            changescore(killer, 6, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
-            SendMessage(killer, " +6 (cR)")
-            
-        elseif last_damage[PlayerIndex] == needle_detonate or last_damage[PlayerIndex] == needle_explode or last_damage[PlayerIndex] == needle_impact then
-            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-            stats[hash].kills.needler = stats[hash].kills.needler + 1
-            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a needler")
-            changescore(PlayerIndex, 4, false)
-            changescore(killer, 7, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
-            SendMessage(killer, " +7 (cR)")
-            
-        elseif last_damage[PlayerIndex] == pistol_bullet then
-            stats[hash].kills.pistol = stats[hash].kills.pistol + 1
-            medals[hash].count.sidearm = medals[hash].count.sidearm + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a pistol")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == ppistol_bolt then
-            stats[hash].kills.plasmapistol = stats[hash].kills.plasmapistol + 1
-            medals[hash].count.sidearm = medals[hash].count.sidearm + 1
-            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a plasma pistol")
-            changescore(PlayerIndex, 3, false)
-            changescore(killer, 6, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
-            SendMessage(killer, " +6 (cR)")
-            
-        elseif last_damage[PlayerIndex] == ppistol_charged then
-            extra[hash].woops.empblast = extra[hash].woops.empblast + 1
-            medals[hash].count.jackofalltrades = medals[hash].count.jackofalltrades + 1
-            SendMessage(PlayerIndex, " -3 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a charged plasma pistol")
-            changescore(PlayerIndex, 3, false)
-            changescore(killer, 6, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 6
-            SendMessage(killer, " +6 (cR)")
-            
-        elseif last_damage[PlayerIndex] == prifle_bolt then
-            stats[hash].kills.plasmarifle = stats[hash].kills.plasmarifle + 1
-            medals[hash].count.triggerman = medals[hash].count.triggerman + 1
-            SendMessage(PlayerIndex, " -4 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a plasma rifle")
-            changescore(PlayerIndex, 4, false)
-            changescore(killer, 7, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 7
-            SendMessage(killer, " +7 (cR)")
-            
-        elseif last_damage[PlayerIndex] == pcannon_explode then
-            medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-            stats[hash].kills.fuelrod = stats[hash].kills.fuelrod + 1
-            SendMessage(PlayerIndex, " -8 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a plasma cannon")
-            changescore(PlayerIndex, 8, false)
-            changescore(killer, 11, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 11
-            SendMessage(killer, " +11 (cR)")
-            
-        elseif last_damage[PlayerIndex] == rocket_explode then
-            if m_object then
-                if read_byte(m_object + 0x2A0) == 1 then
-                    -- obj_crouch
-                    extra[hash].woops.rockethog = extra[hash].woops.rockethog + 1
-                    SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. "'s Rocket-Hog Rocket")
-                    changescore(PlayerIndex, 10, false)
-                    changescore(killer, 13, true)
-                    killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-                    SendMessage(killer, " +13 (cR)")
-                else
-                    medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-                    stats[hash].kills.rocket = stats[hash].kills.rocket + 1
-                    SendMessage(PlayerIndex, " -10 (cR) - You were blown up by " .. get_var(killer, "$name") .. " with a rocket launcher")
-                    changescore(PlayerIndex, 10, false)
-                    changescore(killer, 13, true)
-                    killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-                    SendMessage(killer, " +13 (cR)")
-                end
-            else
-                medals[hash].count.heavyweapons = medals[hash].count.heavyweapons + 1
-                stats[hash].kills.rocket = stats[hash].kills.rocket + 1
-                SendMessage(PlayerIndex, " -10 (cR) - You were blown up!")
-                changescore(PlayerIndex, 10, false)
-                changescore(killer, 13, true)
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-                SendMessage(killer, " +13 (cR)")
-            end
-        elseif last_damage[PlayerIndex] == shotgun_pellet then
-            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-            stats[hash].kills.shotgun = stats[hash].kills.shotgun + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a shotgun")
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-            
-        elseif last_damage[PlayerIndex] == sniper_bullet then
-            medals[hash].count.crackshot = medals[hash].count.crackshot + 1
-            stats[hash].kills.sniper = stats[hash].kills.sniper + 1
-            SendMessage(PlayerIndex, " -10 (cR) - You were shot by " .. get_var(killer, "$name") .. " with a sniper rifle")
-            changescore(PlayerIndex, 10, false)
-            changescore(killer, 13, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 13
-            SendMessage(killer, " +13 (cR)")
-        elseif last_damage[PlayerIndex] == "backtap" then
-            medals[hash].count.closequarters = medals[hash].count.closequarters + 1
-            stats[hash].kills.melee = stats[hash].kills.melee + 1
-            SendMessage(PlayerIndex, " -5 (cR) - You were back-tapped by " .. get_var(killer, "$name"))
-            changescore(PlayerIndex, 5, false)
-            changescore(killer, 8, true)
-            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 8
-            SendMessage(killer, " +8 (cR)")
-        end
-    end
-    if game_started == true then
-        -- 		mode 0: Killed by server
-        if mode == 0 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            -- 		mode 1: Killed by fall damage
-        elseif mode == 1 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            -- 		mode 2: Killed by guardians
-        elseif mode == 2 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            -- 		mode 3: Killed by vehicle
-        elseif mode == 3 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            -- 		mode 4: Killed by killer
-        elseif mode == 4 then
-
-            if table.find(killers[victim], killer, false) == nil then
-                table.insert(killers[victim], killer)
-            end
-
-            killstats[gethash(killer)].total.kills = killstats[gethash(killer)].total.kills + 1
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-
-            if read_word(getplayer(killer) + 0x9C) == 10 then
-                changescore(killer, 5, true)
-                SendMessage(killer, "+5 (cR) - 10 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-            elseif read_word(getplayer(killer) + 0x9C) == 20 then
-                changescore(killer, 5, true)
-                SendMessage(killer, "+5 (cR) - 20 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-            elseif read_word(getplayer(killer) + 0x9C) == 30 then
-                changescore(killer, 5, true)
-                SendMessage(killer, "+5 (cR) - 30 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-            elseif read_word(getplayer(killer) + 0x9C) == 40 then
-                changescore(killer, 5, true)
-                SendMessage(killer, "+5 (cR) - 40 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-            elseif read_word(getplayer(killer) + 0x9C) == 50 then
-                changescore(killer, 10, true)
-                SendMessage(killer, "+10 (cR) - 50 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-            elseif read_word(getplayer(killer) + 0x9C) == 60 then
-                changescore(killer, 10, true)
-                SendMessage(killer, "+10 (cR) - 60 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-            elseif read_word(getplayer(killer) + 0x9C) == 70 then
-                changescore(killer, 10, true)
-                SendMessage(killer, "+10 (cR) - 70 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-            elseif read_word(getplayer(killer) + 0x9C) == 80 then
-                changescore(killer, 10, true)
-                SendMessage(killer, "+10 (cR) - 80 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-            elseif read_word(getplayer(killer) + 0x9C) == 90 then
-                changescore(killer, 10, true)
-                SendMessage(killer, "+10 (cR) - 90 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-            elseif read_word(getplayer(killer) + 0x9C) == 100 then
-                changescore(killer, 20, true)
-                SendMessage(killer, "+20 (cR) - 100 total Kills")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 20
-            elseif read_word(getplayer(killer) + 0x9C) > 100 then
-                changescore(killer, 5, true)
-                SendMessage(killer, "+5 (cR) - More than 100 Kills!")
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-            end
-
-            local hash = gethash(killer)
-            if read_word(getplayer(killer) + 0x98) == 2 then
-                -- if multi kill is equal to 2 then
-                SendMessage(killer, "+8 (cR) - Double Kill")
-                changescore(killer, 8, true)
-                killstats[hash].total.credits = killstats[hash].total.credits + 8
-                sprees[hash].count.double = sprees[hash].count.double + 1
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 3 then
-                -- if multi kill is equal to 3 then
-                SendMessage(killer, "+10 (cR) - Triple Kill")
-                changescore(killer, 10, true)
-                sprees[hash].count.triple = sprees[hash].count.triple + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 10
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 4 then
-                -- if multi kill is equal to 4 then
-                SendMessage(killer, "+12 (cR) - Overkill")
-                changescore(killer, 12, true)
-                sprees[hash].count.overkill = sprees[hash].count.overkill + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 12
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 5 then
-                -- if multi kill is equal to 5 then
-                SendMessage(killer, "+14 (cR) - Killtacular")
-                changescore(killer, 14, true)
-                sprees[hash].count.killtacular = sprees[hash].count.killtacular + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 14
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 6 then
-                -- if multi kill is equal to 6 then
-                SendMessage(killer, "+16 (cR) - Killtrocity")
-                changescore(killer, 16, true)
-                sprees[hash].count.killtrocity = sprees[hash].count.killtrocity + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 16
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 7 then
-                -- if multi kill is equal to 7 then
-                SendMessage(killer, "+18 (cR) - Killimanjaro")
-                changescore(killer, 18, true)
-                sprees[hash].count.killimanjaro = sprees[hash].count.killimanjaro + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 18
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 8 then
-                -- if multi kill is equal to 8 then
-                SendMessage(killer, "+20 (cR) - Killtastrophe")
-                changescore(killer, 20, true)
-                sprees[hash].count.killtastrophe = sprees[hash].count.killtastrophe + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 20
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) == 9 then
-                -- if multi kill is equal to 9 then
-                SendMessage(killer, "+22 (cR) - Killpocalypse")
-                changescore(killer, 22, true)
-                sprees[hash].count.killpocalypse = sprees[hash].count.killpocalypse + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 22
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            elseif read_word(getplayer(killer) + 0x98) >= 10 then
-                -- if multi kill is equal to 10 or more than
-                SendMessage(killer, "+25 (cR) - Killionaire")
-                changescore(killer, 25, true)
-                sprees[hash].count.killionaire = sprees[hash].count.killionaire + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 25
-                medals[hash].count.multikill = medals[hash].count.multikill + 1
-            end
-
-            if read_word(getplayer(killer) + 0x96) == 5 then
-                -- if killing spree is 5 then
-                SendMessage(killer, "+5 (cR) - Killing Spree")
-                changescore(killer, 5, true)
-                sprees[hash].count.killingspree = sprees[hash].count.killingspree + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 5
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 10 then
-                -- if killing spree is 10 then
-                SendMessage(killer, "+10 (cR) - Killing Frenzy")
-                changescore(killer, 10, true)
-                sprees[hash].count.killingfrenzy = sprees[hash].count.killingfrenzy + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 10
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 15 then
-                -- if killing spree is 15 then
-                SendMessage(killer, "+15 (cR) - Running Riot")
-                changescore(killer, 15, true)
-                sprees[hash].count.runningriot = sprees[hash].count.runningriot + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 15
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 20 then
-                -- if killing spree is 20 then
-                SendMessage(killer, "+20 (cR) - Rampage")
-                changescore(killer, 20, true)
-                sprees[hash].count.rampage = sprees[hash].count.rampage + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 20
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 25 then
-                -- if killing spree is 25 then
-                SendMessage(killer, "+25 (cR) - Untouchable")
-                changescore(killer, 25, true)
-                sprees[hash].count.untouchable = sprees[hash].count.untouchable + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 25
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 30 then
-                -- if killing spree is 30 then
-                SendMessage(killer, "+30 (cR) - Invincible")
-                changescore(killer, 30, true)
-                sprees[hash].count.invincible = sprees[hash].count.invincible + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 30
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) == 35 then
-                -- if killing spree is 35 then
-                SendMessage(killer, "+35 (cR) - Anomgstopkillingme")
-                changescore(killer, 35, true)
-                sprees[hash].count.anomgstopkillingme = sprees[hash].count.anomgstopkillingme + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 35
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            elseif read_word(getplayer(killer) + 0x96) >= 40 and sprees % 5 == 0 then
-                -- if killing spree is 40 or more (Every 5 it will say this after 40) then
-                SendMessage(killer, "+40 (cR) - Unfrigginbelievable")
-                changescore(killer, 40, true)
-                sprees[hash].count.unfrigginbelievable = sprees[hash].count.unfrigginbelievable + 1
-                killstats[hash].total.credits = killstats[hash].total.credits + 40
-                medals[hash].count.sprees = medals[hash].count.sprees + 1
-            end
-
-            -- Revenge		
-            for k, v in pairs(killers[killer]) do
-                if v == victim then
-                    table.remove(killers[killer], k)
-                    medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                    killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-                    SendMessage(killer, "+10 (cR) - Revenge")
-                    changescore(killer, 10, true)
-                end
-            end
-
-            -- Killed from the Grave		
-            if PlayerAlive(killer) == false then
-                medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-                SendMessage(killer, "+10 (cR) - Killed from the Grave")
-                changescore(killer, 10, true)
-            end
-
-            -- roadrage
-            if getplayer(killer) then
-                if killer ~= nil then
-                    if PlayerInVehicle(killer) then
-                        local player_object = get_dynamic_player(killer)
-                        local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-                        local seat_index = read_word(player_object + 0x2F0)
-                        if (VehicleObj ~= 0) and(seat_index == 0) then
-                            medals[gethash(killer)].count.roadrage = medals[gethash(killer)].count.roadrage + 1
-                            killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-                            SendMessage(killer, "+5 (cR) - RoadRage")
-                            changescore(killer, 5, true)
-                        end
-                    end
-                end
-            end
-
-            -- Avenger
-            for i = 1, 16 do
-                if getplayer(i) then
-                    if i ~= victim then
-                        if gethash(i) then
-                            if getteam(i) == getteam(victim) then
-                                avenge[gethash(i)] = gethash(killer)
-                            end
-                        end
-                    end
-                end
-            end
-
-            if avenge[gethash(killer)] == gethash(victim) then
-                medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-                SendMessage(killer, "+5 (cR) - Avenger")
-                changescore(killer, 5, true)
-            end
-
-            -- Killjoy
-            if killer then
-                kills[gethash(killer)] = kills[gethash(killer)] or 1
-            end
-
-            if killer and victim then
-                if kills[gethash(victim)] ~= nil then
-                    if kills[gethash(victim)] >= 5 then
-                        medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                        killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-                        SendMessage(killer, "+5 (cR) - Killjoy")
-                        changescore(killer, 5, true)
-                    end
-                end
-            end
-
-            kills[gethash(victim)] = 0
-
-            -- Reload This
-            local m_object = get_dynamic_player(victim)
-            local reloading = read_byte(m_object + 0x2A4)
-            if reloading == 5 then
-                SendMessage(killer, "+5 (cR) - Reload This!")
-                medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 5
-                changescore(killer, 5, true)
-            end
-            -- First Strike
-            kill_count = kill_count + 1
-
-            if kill_count == 1 then
-                medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-                SendMessage(killer, "+10 (cR) - First Strike")
-                changescore(killer, 10, true)
-            end
-
-            timer(10, "CloseCall", killer)
-            -- mode 5: Betrayed by killer
-        elseif mode == 5 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            killstats[gethash(killer)].total.betrays = killstats[gethash(killer)].total.betrays + 1
-            changescore(PlayerIndex, 10, false)
-            -- mode 6: Suicide
-        elseif mode == 6 then
-            killstats[gethash(victim)].total.deaths = killstats[gethash(victim)].total.deaths + 1
-            killstats[gethash(victim)].total.suicides = killstats[gethash(victim)].total.suicides + 1
-            changescore(PlayerIndex, 5, false)
-        end
-
-        -- mode 4: Killed by killer
-        if mode == 4 then
-            GetPlayerRank(killer)
-            timer(10, "LevelUp", killer)
-        end
-    end
-    last_damage[PlayerIndex] = 0
-end
-
-function getobject(PlayerIndex)
-    local m_player = get_player(PlayerIndex)
-    if m_player ~= 0 then
-        local ObjectId = read_dword(m_player + 0x24)
-        return ObjectId
-    end
-    return nil
-end
-
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if game_started == true then
-        last_damage[PlayerIndex] = MetaID
-    end
-end
-
-function SaveDataTimeToSeconds(seconds, places)
-    local minutes = math.floor(seconds / 60)
-    seconds = seconds % 60
-    if places == 2 then
-        return minutes, seconds
-    end
-end
-
-function OnTick()
-    if SAVE_PLAYER_DATA then 
-        if (SAVE_DATA_WARNING == true) and (SAVE_DATA == true) then
-            save_data_warn = save_data_warn + 0.030
-            warning_timer = save_data_warn
-            if warning_timer > math.floor(save_data_warning) then
-                -- Stop Loop --
-                SAVE_DATA_WARNING = false
-                -- Announce Warning --
-                execute_command("msg_prefix \"\"")
-                say_all("** LAG WARNING ** Saving player data in " .. math.floor(save_data - save_data_warning) .. " seconds...")
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-        end
-        if (SAVE_DATA == true) then
-            save_data_timer = save_data_timer + 0.030
-            save_data_void = save_data_timer
-            if save_data_void >= math.floor(save_data) then
-                -- Stop Loop --
-                SAVE_DATA = false
-                -- Save Data --
-                SaveTableData(killstats, "KillStats.txt")
-                SaveTableData(extra, "Extra.txt")
-                SaveTableData(done, "CompletedMedals.txt")
-                SaveTableData(sprees, "Sprees.txt")
-                SaveTableData(stats, "Stats.txt")
-                SaveTableData(medals, "Medals.txt")
-                SaveTableData(extra, "Extra.txt")
-                -- Announce Saved --
-                execute_command("msg_prefix \"\"")
-                say_all("Server data has been saved!")
-                execute_command("msg_prefix \"** SERVER ** \"")
-                -- reset --
-                save_data_timer = 0
-                save_data_warn = 0
-                SAVE_DATA = true
-                SAVE_DATA_WARNING = true
-            end
-        end
-    end
+function OnNewGame()
+    game_over = false
+    CheckType()
+    LoadItems()
+    MAP_NAME = get_var(1, "$map")
+    gametype = get_var(0, "$gt")
+    flag_init_respawn = 0
+    flag_init_warn = 0
     for i = 1, 16 do
-        if (player_alive(i)) then
-            GivePlayerMedals(i)
-            local player_object = get_dynamic_player(i)
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            if xcoords[gethash(i)] then
-                local x_dist = x - xcoords[gethash(i)]
-                local y_dist = y - ycoords[gethash(i)]
-                local z_dist = z - zcoords[gethash(i)]
-                local dist = math.sqrt(x_dist ^ 2 + y_dist ^ 2 + z_dist ^ 2)
-                extra[gethash(i)].woops.distance = extra[gethash(i)].woops.distance + dist
-            end
-            xcoords[gethash(i)] = x
-            ycoords[gethash(i)] = y
-            zcoords[gethash(i)] = z
+        if player_present(i) then
+            DAMAGE_APPLIED[i] = 0
+            current_players = current_players + 1
+            local PLAYER_ID = get_var(i, "$n")
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+            PLAYERS_ALIVE[PLAYER_ID].FLAG = false
         end
     end
+    if ctf_enabled == true then
+        SPAWN_FLAG()
+    end
+    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder"
+        or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
+        LargeMapConfiguration = true
+        LoadLarge()
+    end
+    -- gephyrophobia = WIP --
+    if MAP_NAME == "beavercreek" or MAP_NAME == "boardingaction" or MAP_NAME == "carousel"
+        or MAP_NAME == "chillout" or MAP_NAME == "damnation" or MAP_NAME == "gephyrophobia"
+        or MAP_NAME == "hangemhigh" or MAP_NAME == "longest" or MAP_NAME == "prisoner"
+        or MAP_NAME == "putput" or MAP_NAME == "ratrace" or MAP_NAME == "wizard" then
+        LargeMapConfiguration = false
+        LoadSmall()
+    end
+    for k, v in pairs(EQUIPMENT_TABLE) do
+        if string.find(v[1], "powerups") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
+    for k, v in pairs(WEAPON_TABLE) do
+        if string.find(v[1], "weapons") then
+            v[11] = v[1]
+            v[12] = 1
+        else
+            v[11] = v[1]
+            v[12] = 0
+        end
+    end
+end
+
+function OnGameEnd()
+    Level = { }
+    current_players = 0
+    rider_ejection = nil
+    object_table_ptr = nil
+    for i = 1, 16 do
+        if player_present(i) then
+            TIMER[i] = false
+            PROGRESSION_TIMER[i] = false
+            DAMAGE_APPLIED[i] = 0
+            local PLAYER_ID = get_var(i, "$n")
+            FLAG_BOOL[i] = nil
+            PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
+            PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+            PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+        end
+    end
+end
+
+function SPAWN_FLAG()
+    MAP_NAME = get_var(1, "$map")
+    flag_table = FLAG[MAP_NAME][3]
+    -- Spawn flag at x,y,z
+    flag_objId = spawn_object("weap", "weapons\\flag\\flag", flag_table[1], flag_table[2], flag_table[3])
+end
+
+function FragCheck(PlayerIndex)
+    local plasma_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
+    local frags = read_byte(player_object + 0x31E)
+    safe_read(false)
+    if tonumber(frags) <= 0 then
+        return true
+    end
+    return false
+end
+
+function PlasmaCheck(PlayerIndex)
+    local plasma_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
+    local plasmas = read_byte(player_object + 0x31F)
+    safe_read(false)
+    if tonumber(plasmas) <= 0 then
+        return true
+    end
+    return false
 end
 
 function PlayerAlive(PlayerIndex)
@@ -1151,44 +408,156 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
-function AssistDelay(id, count)
-    for i = 1, 16 do
-        if getplayer(i) then
-            if gethash(i) then
-                if read_word(getplayer(i) + 0xA4) ~= 0 then
-                    killstats[gethash(i)].total.assists = killstats[gethash(i)].total.assists + read_word(getplayer(i) + 0xA4)
-                    medals[gethash(i)].count.assists = medals[gethash(i)].count.assists + read_word(getplayer(i) + 0xA4)
-                    if (read_word(getplayer(i) + 0xA4) * 3) ~= 0 then
-                        killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits +(read_word(getplayer(i) + 0xA4) * 3)
-                        changescore(i,(read_word(getplayer(i) + 0xA4) * 3), true)
-                    end
-                    if read_word(getplayer(i) + 0xA4) == 1 then
-                        SendMessage(i, "+" ..(read_word(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. read_word(getplayer(i) + 0xA4) .. " Assist")
-                    else
-                        SendMessage(i, "+" ..(read_word(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. read_word(getplayer(i) + 0xA4) .. " Assists")
-                    end
+function RewardPlayer(PlayerIndex)
+    if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 6 then
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        local player_object = get_dynamic_player(PlayerIndex)
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+        spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
+        -- Pick Camouflage or Overshield (item chosen is random)
+        math.randomseed(os.time())
+        local num = math.random(1, #REWARDS)
+        if (tonumber(num) == 1) then
+            spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
+            item = REWARDS[1][2]
+        else
+            spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
+            item = REWARDS[2][2]
+        end
+        -- To receiving player
+        rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+        rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
+        -- To all other players
+        AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
+        AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
+    end
+end
+
+function secondsToTime(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
+end
+
+function OnTick()
+    -- Flag Respawn Handler --
+    --  If the flag is dropped, it will respawn after 30 seconds but warn players 20 seconds before hand.
+    --  This doubles as a safety mechanism should the flag become glitched or stuck in a wall somewhere.
+    for p = 1, 16 do
+        if player_present(p) then
+            -- WARNING --
+            if (FLAG_WARN[p] == true) then
+                flag_init_warn = flag_init_warn + 0.030
+                warning_timer = flag_init_warn
+                -- local minutes, seconds = secondsToTime(warning_timer, 2)
+                -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                if warning_timer > math.floor(flag_warning) then
+                    FLAG_WARN[p] = false
+                    local minutes, seconds = secondsToTime(warning_timer, 2)
+                    execute_command("msg_prefix \"\"")
+                    say_all("The flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                end
+            end
+            -- RESPAWN FLAG --
+            if (FLAG_RESPAWN[p] == true) then
+                flag_init_respawn = flag_init_respawn + 0.030
+                respawn_timer = flag_init_respawn
+                -- local minutes, seconds = secondsToTime(respawn_timer, 2)
+                -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                if flag_init_respawn >= math.floor(flag_respawn_timer) then
+                    FLAG_RESPAWN[p] = false
+                    local flag = get_object_memory(flag_objId)
+                    -- destroy old flag --
+                    destroy_object(flag_objId)
+                    -- spawn new flag --
+                    SPAWN_FLAG()
+                    execute_command("msg_prefix \"\"")
+                    say_all("The flag has been re-spawned!")
+                    execute_command("msg_prefix \"** SERVER ** \"")
                 end
             end
         end
     end
-end
-
-function CloseCall(id, count, killer)
-    if getplayer(killer) then
-        if killer ~= nil then
-            local player_object = get_dynamic_player(killer)
-            if player_object ~= nil then
-                local m_object = getobject(player_object)
-                local shields = read_float(m_object + 0xE4)
-                local health = read_float(m_object + 0xE0)
-                if shields ~= nil then
-                    if shields == 0 then
-                        if health then
-                            if health ~= 1 then
-                                medals[gethash(killer)].count.jackofalltrades = medals[gethash(killer)].count.jackofalltrades + 1
-                                killstats[gethash(killer)].total.credits = killstats[gethash(killer)].total.credits + 10
-                                SendMessage(killer, "+10 (cR) - Close Call")
-                                changescore(killer, 10, true)
+    -- Monitor players in vehicles --
+    for m = 1, 16 do
+        if (player_alive(m)) then
+            if PlayerInVehicle(m) then
+                local player = get_dynamic_player(m)
+                local vehicle_id = read_dword(player + 0x11C)
+                if (vehicle_id ~= 0xFFFFFFFF) then
+                    local vehicle = get_object_memory(vehicle_id)
+                    local PLAYER_ID = get_var(m, "$n")
+                    -- Create table key for unique player in this vehicle.
+                    -- Used to destroy their vehicle when they quit.
+                    PLAYERS_ALIVE[PLAYER_ID].VEHICLE = vehicle_id
+                end
+            end
+        end
+    end
+    -- Monitor players who're alive --
+    if (survivor_rewards == true) then
+        for o = 1, 16 do
+            if player_present(o) then
+                -- If there two or mores players on the server, run the timers.
+                if current_players >= 2 then
+                    if (TIMER[o] ~= false and PlayerAlive(o) == true) then
+                        local PLAYER_ID = get_var(o, "$n")
+                        PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
+                        --[[
+                        -- debugging --
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        ]]
+                        if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
+                            -- Reset --
+                            TIMER[o] = false
+                            survivor = tonumber(o)
+                            RewardPlayer(o)
+                            -- Not Currently Used --
+                            -- SetNav(o)
+                        end
+                    end
+                    -- player has been alive for "progression_timer" (3 minutes by default). Level them up.
+                    if (PROGRESSION_TIMER[o] ~= false and PlayerAlive(o) == true) then
+                        local PLAYER_ID = get_var(o, "$n")
+                        PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE + 0.030
+                        --[[
+                        -- debugging --
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        ]]
+                        if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
+                            local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                            if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                                -- Reset --
+                                PROGRESSION_TIMER[o] = false
+                                -- Force player to drop the flag otherwise it will be deleted. (Blame WeaponHandler)
+                                drop_weapon(o)
+                                CheckPlayer(o)
+                                local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                -- to player who triggered the timer --
+                                execute_command("msg_prefix \"\"")
+                                say(o, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                                say(o, "Leveling up!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                                -- to all other players --
+                                AnnounceChat(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s) without dying!", o)
+                            else
+                                -- Reset --
+                                PROGRESSION_TIMER[o] = false
+                                CheckPlayer(o)
+                                local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                                -- to player who triggered the timer --
+                                execute_command("msg_prefix \"\"")
+                                say(o, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                                say(o, "Leveling up!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                                -- to all other players --
+                                AnnounceChat(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s) without dying!", o)
                             end
                         end
                     end
@@ -1196,1134 +565,1011 @@ function CloseCall(id, count, killer)
             end
         end
     end
-end
+    for i = 1, 16 do
+        if (player_alive(i)) then
+            if FRAG_CHECK[i] and FragCheck(i) == false then
+                FRAG_CHECK[i] = nil
+            elseif FragCheck(i) and FRAG_CHECK[i] == nil then
+                FRAG_CHECK[i] = false
+                execute_command("msg_prefix \"\"")
+                say(i, "Woah! You're out of frag grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+            if PLASMA_CHECK[i] and PlasmaCheck(i) == false then
+                PLASMA_CHECK[i] = nil
+            elseif PlasmaCheck(i) and PLASMA_CHECK[i] == nil then
+                PLASMA_CHECK[i] = false
+                execute_command("msg_prefix \"\"")
+                say(i, "Woah! You're out of plasma grenades!")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+    for j = 1, 16 do
+        if (player_alive(j)) then
+            -- Monitor players
+            if (CheckForFlag(j) == false and FLAG_BOOL[j]) then
+                local PLAYER_ID = get_var(j, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+                FLAG_BOOL[j] = nil
+            end
+            if (CheckForFlag(j) == true) then
+                -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
+                local PLAYER_ID = get_var(j, "$n")
+                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
 
-function OpenFiles()
-    stats = LoadTableData("Stats.txt")
-    killstats = LoadTableData("KillStats.txt")
-    sprees = LoadTableData("Sprees.txt")
-    medals = LoadTableData("Medals.txt")
-    extra = LoadTableData("Extra.txt")
-    done = LoadTableData("CompletedMedals.txt")
-end
+                -- Set player speed
+                execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
 
-function RetrievePlayerKDR(PlayerIndex)
-    local Player_KDR = nil
-    if killstats[gethash(PlayerIndex)].total.kills ~= 0 then
-        if killstats[gethash(PlayerIndex)].total.deaths ~= 0 then
-            local kdr = killstats[gethash(PlayerIndex)].total.kills / killstats[gethash(PlayerIndex)].total.deaths
-            Player_KDR = math.round(kdr, 2)
-        else
-            Player_KDR = "No Deaths"
+                -- Blue Base
+                if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
+                    -- Red Base
+                    or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
+                    if PlayerInVehicle(j) then
+                        -- Clear their console
+                        cls(j)
+                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                        rprint(j, "|cYou have to get out of your vehicle to score!")
+                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                        rprint(j, "|c")
+                        rprint(j, "|c")
+                        rprint(j, "|c")
+                    else
+                        -- level up (update, advance)
+                        ctf_score(j)
+                        AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
+                        execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
+                    end
+                end
+            end
+            -- player has the flag --
+            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
+                FLAG_BOOL[j] = true
+                AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
+                -- Clear their console
+                if game_over then  
+                    -- do nothing
+                else
+                    cls(j)
+                    rprint(j, "|cReturn the flag to a base to gain a level")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                    rprint(j, "|c ")
+                end
+            end
+        end
+    end
+    -- Giraffe's Fucntion --
+    if (PLAYER_VEHICLES_ONLY) then
+        for k = 1, 16 do
+            if (player_alive(k)) then
+                local player = get_dynamic_player(k)
+                local player_vehicle_id = read_dword(player + 0x11C)
+                if (player_vehicle_id ~= 0xFFFFFFFF) then
+                    local vehicle = get_object_memory(player_vehicle_id)
+                    flip_vehicle(vehicle)
+                end
+            end
         end
     else
-        Player_KDR = "No Kills"
-    end
-
-    return Player_KDR
-end
-
-function DeclearNewPlayerStats(hash)
-    if stats[hash] == nil then
-        stats[hash] = { }
-        stats[hash].kills = { }
-        stats[hash].kills.melee = 0
-        stats[hash].kills.fragnade = 0
-        stats[hash].kills.plasmanade = 0
-        stats[hash].kills.grenadestuck = 0
-        stats[hash].kills.sniper = 0
-        stats[hash].kills.shotgun = 0
-        stats[hash].kills.rocket = 0
-        stats[hash].kills.fuelrod = 0
-        stats[hash].kills.plasmarifle = 0
-        stats[hash].kills.plasmapistol = 0
-        stats[hash].kills.pistol = 0
-        stats[hash].kills.needler = 0
-        stats[hash].kills.flamethrower = 0
-        stats[hash].kills.flagmelee = 0
-        stats[hash].kills.oddballmelee = 0
-        stats[hash].kills.assaultrifle = 0
-        stats[hash].kills.chainhog = 0
-        stats[hash].kills.tankshell = 0
-        stats[hash].kills.tankmachinegun = 0
-        stats[hash].kills.ghost = 0
-        stats[hash].kills.turret = 0
-        stats[hash].kills.bansheefuelrod = 0
-        stats[hash].kills.banshee = 0
-        stats[hash].kills.splatter = 0
-    end
-
-    if killstats[hash] == nil then
-        killstats[hash] = { }
-        killstats[hash].total = { }
-        killstats[hash].total.kills = 0
-        killstats[hash].total.deaths = 0
-        killstats[hash].total.assists = 0
-        killstats[hash].total.suicides = 0
-        killstats[hash].total.betrays = 0
-        killstats[hash].total.credits = 0
-        killstats[hash].total.rank = 0
-    end
-
-    if sprees[hash] == nil then
-        sprees[hash] = { }
-        sprees[hash].count = { }
-        sprees[hash].count.double = 0
-        sprees[hash].count.triple = 0
-        sprees[hash].count.overkill = 0
-        sprees[hash].count.killtacular = 0
-        sprees[hash].count.killtrocity = 0
-        sprees[hash].count.killimanjaro = 0
-        sprees[hash].count.killtastrophe = 0
-        sprees[hash].count.killpocalypse = 0
-        sprees[hash].count.killionaire = 0
-        sprees[hash].count.killingspree = 0
-        sprees[hash].count.killingfrenzy = 0
-        sprees[hash].count.runningriot = 0
-        sprees[hash].count.rampage = 0
-        sprees[hash].count.untouchable = 0
-        sprees[hash].count.invincible = 0
-        sprees[hash].count.anomgstopkillingme = 0
-        sprees[hash].count.unfrigginbelievable = 0
-        sprees[hash].count.timeaslms = 0
-    end
-
-    if medals[hash] == nil then
-        medals[hash] = { }
-        medals[hash].count = { }
-        medals[hash].class = { }
-        medals[hash].count.sprees = 0
-        medals[hash].class.sprees = "Iron"
-        medals[hash].count.assists = 0
-        medals[hash].class.assists = "Iron"
-        medals[hash].count.closequarters = 0
-        medals[hash].class.closequarters = "Iron"
-        medals[hash].count.crackshot = 0
-        medals[hash].class.crackshot = "Iron"
-        medals[hash].count.roadrage = 0
-        medals[hash].class.roadrage = "Iron"
-        medals[hash].count.grenadier = 0
-        medals[hash].class.grenadier = "Iron"
-        medals[hash].count.heavyweapons = 0
-        medals[hash].class.heavyweapons = "Iron"
-        medals[hash].count.jackofalltrades = 0
-        medals[hash].class.jackofalltrades = "Iron"
-        medals[hash].count.moblieasset = 0
-        medals[hash].class.mobileasset = "Iron"
-        medals[hash].count.multikill = 0
-        medals[hash].class.multikill = "Iron"
-        medals[hash].count.sidearm = 0
-        medals[hash].class.sidearm = "Iron"
-        medals[hash].count.triggerman = 0
-        medals[hash].class.triggerman = "Iron"
-    end
-
-    if extra[hash] == nil then
-        extra[hash] = { }
-        extra[hash].woops = { }
-        extra[hash].woops.rockethog = 0
-        extra[hash].woops.falldamage = 0
-        extra[hash].woops.empblast = 0
-        extra[hash].woops.gamesplayed = 0
-        extra[hash].woops.time = 0
-        extra[hash].woops.distance = 0
-    end
-
-    if done[hash] == nil then
-        done[hash] = { }
-        done[hash].medal = { }
-        done[hash].medal.sprees = "False"
-        done[hash].medal.assists = "False"
-        done[hash].medal.closequarters = "False"
-        done[hash].medal.crackshot = "False"
-        done[hash].medal.roadrage = "False"
-        done[hash].medal.grenadier = "False"
-        done[hash].medal.heavyweapons = "False"
-        done[hash].medal.jackofalltrades = "False"
-        done[hash].medal.mobileasset = "False"
-        done[hash].medal.multikill = "False"
-        done[hash].medal.sidearm = "False"
-        done[hash].medal.triggerman = "False"
-    end
-end
-
-function AnnouncePlayerRank(PlayerIndex)
-    local rank = nil
-    local total = nil
-    local hash = get_var(PlayerIndex, "$hash")
-
-    local credits = { }
-    for k, _ in pairs(killstats) do
-        table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
-    end
-
-    table.sort(credits, function(a, b) return a.credits > b.credits end)
-
-    for k, v in ipairs(credits) do
-        if hash == credits[k].hash then
-            rank = k
-            total = #credits
-            string = "Server Statistics: You are currently ranked " .. rank .. " out of " .. total .. "."
+        local object_table = read_dword(read_dword(object_table_ptr + 2))
+        local object_count = read_word(object_table + 0x2E)
+        local first_object = read_dword(object_table + 0x34)
+        for l = 0, object_count - 1 do
+            local object = read_dword(first_object + l * 0xC + 0x8)
+            if (object ~= 0 and object ~= 0xFFFFFFFF) then
+                if (read_word(object + 0xB4) == 1) then
+                    flip_vehicle(object)
+                end
+            end
         end
     end
-    return rprint(PlayerIndex, string)
 end
 
-function LevelUp(killer)
-    local hash = gethash(killer)
-    killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
-    killstats[hash].total.credits = killstats[hash].total.credits or 0
-    if killstats[hash].total.rank ~= nil and killstats[hash].total.credits ~= 0 then
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+    if tonumber(Type) == 1 then
+        local PlayerObj = get_dynamic_player(PlayerIndex)
+        local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
+        local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
+        if (name == "weapons\\flag\\flag") then
+            -- reset flag respawn timers for all players --
+            for i = 1, 16 do
+                FLAG_RESPAWN[i] = false
+                FLAG_WARN[i] = false
+                flag_init_respawn = 0
+                flag_init_warn = 0
+            end
+        end
+    end
+end
+
+function OnWeaponDrop(PlayerIndex)
+    -- initiate flag respawn timers --
+    FLAG_RESPAWN[PlayerIndex] = true
+    FLAG_WARN[PlayerIndex] = true
+    -- Set default running speed for player who just dropped the flag.
+    if player_alive(PlayerIndex) then
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
+        end
+    end
+end
+
+function flip_vehicle(Object)
+    -- Giraffe's Fucntion --
+    if (read_bit(Object + 0x8B, 7) == 1) then
+        if (WAIT_FOR_IMPACT and read_bit(Object + 0x10, 1) == 0) then
+            return
+        end
+        write_vector3d(Object + 0x80, 0, 0, 1)
+    end
+end
+
+function OnVehicleExit(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object ~= 0 then
+        local Vehicle_ID = read_dword(player_object + 0x11C)
+        exit_vehicle(PlayerIndex)
+        timer(1000 * 2, "DestroyVehicle", Vehicle_ID)
+        local PlayerObj = get_dynamic_player(PlayerIndex)
+        local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
+        local VehicleName = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
+        if VehicleName == "vehicles\\warthog\\mp_warthog" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\rwarthog\\rwarthog" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\scorpion\\scorpion_mp" then
+            delay = 1000 * 2
+        elseif VehicleName == "vehicles\\ghost\\ghost_mp" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\banshee\\banshee_mp" then
+            delay = 1000 * 1.1
+        elseif VehicleName == "vehicles\\c gun turret\\c gun turret_mp" then
+            delay = 1000 * 1.1
+        end
+        -- temporary weapon assignment on vehicle exit --
+        if (player_alive(PlayerIndex)) then
+            timer(delay, "AssignTemp", PlayerIndex)
+        end
         execute_command("msg_prefix \"\"")
-        if killstats[hash].total.rank == "Recruit" and killstats[hash].total.credits > Recruit then
-            killstats[hash].total.rank = "Private"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Private" and killstats[hash].total.credits > Private then
-            killstats[hash].total.rank = "Corporal"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Corporal" and killstats[hash].total.credits > Corporal then
-            killstats[hash].total.rank = "Sergeant"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant" and killstats[hash].total.credits > Sergeant then
-            killstats[hash].total.rank = "Sergeant Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant Grade 1" and killstats[hash].total.credits > Sergeant_Grade_1 then
-            killstats[hash].total.rank = "Sergeant Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Sergeant Grade 2" and killstats[hash].total.credits > Sergeant_Grade_2 then
-            killstats[hash].total.rank = "Warrant Officer"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer" and killstats[hash].total.credits > Warrant_Officer then
-            killstats[hash].total.rank = "Warrant Officer Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 1" and killstats[hash].total.credits > Warrant_Officer_Grade_1 then
-            killstats[hash].total.rank = "Warrant Officer Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 2" and killstats[hash].total.credits > Warrant_Officer_Grade_2 then
-            killstats[hash].total.rank = "Warrant Officer Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Warrant Officer Grade 3" and killstats[hash].total.credits > Warrant_Officer_Grade_3 then
-            killstats[hash].total.rank = "Captain"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain" and killstats[hash].total.credits > Captain then
-            killstats[hash].total.rank = "Captain Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 1" and killstats[hash].total.credits > Captain_Grade_1 then
-            killstats[hash].total.rank = "Captain Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 2" and killstats[hash].total.credits > Captain_Grade_2 then
-            killstats[hash].total.rank = "Captain Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Captain Grade 3" and killstats[hash].total.credits > Captain_Grade_3 then
-            killstats[hash].total.rank = "Major"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major" and killstats[hash].total.credits > Major then
-            killstats[hash].total.rank = "Major Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 1" and killstats[hash].total.credits > Major_Grade_1 then
-            killstats[hash].total.rank = "Major Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 2" and killstats[hash].total.credits > Major_Grade_2 then
-            killstats[hash].total.rank = "Major Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Major Grade 3" and killstats[hash].total.credits > Major_Grade_3 then
-            killstats[hash].total.rank = "Lt. Colonel"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel" and killstats[hash].total.credits > Lt_Colonel then
-            killstats[hash].total.rank = "Lt. Colonel Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 1" and killstats[hash].total.credits > Lt_Colonel_Grade_1 then
-            killstats[hash].total.rank = "Lt. Colonel Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 2" and killstats[hash].total.credits > Lt_Colonel_Grade_2 then
-            killstats[hash].total.rank = "Lt. Colonel Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Lt. Colonel Grade 3" and killstats[hash].total.credits > Lt_Colonel_Grade_3 then
-            killstats[hash].total.rank = "Commander"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander" and killstats[hash].total.credits > Commander then
-            killstats[hash].total.rank = "Commander Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 1" and killstats[hash].total.credits > Commander_Grade_1 then
-            killstats[hash].total.rank = "Commander Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 2" and killstats[hash].total.credits > Commander_Grade_2 then
-            killstats[hash].total.rank = "Commander Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Commander Grade 3" and killstats[hash].total.credits > Commander_Grade_3 then
-            killstats[hash].total.rank = "Colonel"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel" and killstats[hash].total.credits > Colonel then
-            killstats[hash].total.rank = "Colonel Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 1" and killstats[hash].total.credits > Colonel_Grade_1 then
-            killstats[hash].total.rank = "Colonel Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 2" and killstats[hash].total.credits > Colonel_Grade_2 then
-            killstats[hash].total.rank = "Colonel Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Colonel Grade 3" and killstats[hash].total.credits > Colonel_Grade_3 then
-            killstats[hash].total.rank = "Brigadier"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier" and killstats[hash].total.credits > Brigadier then
-            killstats[hash].total.rank = "Brigadier Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 1" and killstats[hash].total.credits > Brigadier_Grade_1 then
-            killstats[hash].total.rank = "Brigadier Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 2" and killstats[hash].total.credits > Brigadier_Grade_2 then
-            killstats[hash].total.rank = "Brigadier Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Brigadier Grade 3" and killstats[hash].total.credits > Brigadier_Grade_3 then
-            killstats[hash].total.rank = "General"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General" and killstats[hash].total.credits > General then
-            killstats[hash].total.rank = "General Grade 1"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 1" and killstats[hash].total.credits > General_Grade_1 then
-            killstats[hash].total.rank = "General Grade 2"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 2" and killstats[hash].total.credits > General_Grade_2 then
-            killstats[hash].total.rank = "General Grade 3"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 3" and killstats[hash].total.credits > General_Grade_3 then
-            killstats[hash].total.rank = "General Grade 4"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "General Grade 4" and killstats[hash].total.credits > General_Grade_4 then
-            killstats[hash].total.rank = "Field Marshall"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Field Marshall" and killstats[hash].total.credits > Field_Marshall then
-            killstats[hash].total.rank = "Hero"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Hero" and killstats[hash].total.credits > Hero then
-            killstats[hash].total.rank = "Legend"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Legend" and killstats[hash].total.credits > Legend then
-            killstats[hash].total.rank = "Mythic"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Mythic" and killstats[hash].total.credits > Mythic then
-            killstats[hash].total.rank = "Noble"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Noble" and killstats[hash].total.credits > Noble then
-            killstats[hash].total.rank = "Eclipse"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Eclipse" and killstats[hash].total.credits > Eclipse then
-            killstats[hash].total.rank = "Nova"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Nova" and killstats[hash].total.credits > Nova then
-            killstats[hash].total.rank = "Forerunner"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Forerunner" and killstats[hash].total.credits > Forerunner then
-            killstats[hash].total.rank = "Reclaimer"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        elseif killstats[hash].total.rank == "Reclaimer" and killstats[hash].total.credits > Reclaimer then
-            killstats[hash].total.rank = "Inheritor"
-            say_all(getname(killer) .. " is now a " .. killstats[hash].total.rank .. "!")
-        end
+        say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
         execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
-function GivePlayerMedals(PlayerIndex)
-    local hash = get_var(PlayerIndex, "$hash")
-    if hash then
-        if done[hash].medal.sprees == "False" then
-            if medals[hash].class.sprees == "Iron" and medals[hash].count.sprees >= 5 then
-                medals[hash].class.sprees = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree Iron!")
-            elseif medals[hash].class.sprees == "Bronze" and medals[hash].count.sprees >= 50 then
-                medals[hash].class.sprees = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree Bronze!")
-            elseif medals[hash].class.sprees == "Silver" and medals[hash].count.sprees >= 250 then
-                medals[hash].class.sprees = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree Silver!")
-            elseif medals[hash].class.sprees == "Gold" and medals[hash].count.sprees >= 1000 then
-                medals[hash].class.sprees = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Any Spree : Gold")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.sprees == "Onyx" and medals[hash].count.sprees >= 4000 then
-                medals[hash].class.sprees = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2000
-                SendMessage(PlayerIndex, " +2000 cR - Any Spree : Onyx")
-                changescore(PlayerIndex, 2000, true)
-            elseif medals[hash].class.sprees == "MAX" and medals[hash].count.sprees == 10000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Any Spree MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 3000
-                SendMessage(PlayerIndex, " +3000 cR - Any Spree : MAX")
-                changescore(PlayerIndex, 3000, true)
-                done[hash].medal.sprees = "True"
+function AssignTemp(PlayerIndex)
+    if (player_alive(PlayerIndex)) then
+        -- ready to fire
+        local loaded = 12
+        -- backup
+        local unloaded = 24
+        -- wait_time = time until ammo is updated for new weapon (in seconds)
+        -- Do not go lower than 1 second!
+        local wait_time = 1
+        local player_object = get_dynamic_player(PlayerIndex)
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local weapid = assign_weapon(spawn_object("weap", out_of_vehicle_weapon, x, y, z + 0.5), PlayerIndex)
+        if tonumber(ammo_multiplier) then
+            execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. loaded)
+            execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. unloaded)
+        end
+    end
+end
+
+-- Only works when "Kill In Order" is ON and Objectives Indicator is set to Nav Markers
+function SetNav(survivor)
+    if survivor ~= 0 then
+        local player = to_real_index(survivor)
+        write_word(get_player(survivor) + 0x88, player)
+    end
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    local victim = tonumber(PlayerIndex)
+    local killer = tonumber(KillerIndex)
+    VictimName = get_var(PlayerIndex, "$name")
+    KillerName = get_var(KillerIndex, "$name")
+    execute_command("msg_prefix \"\"")
+    -- Instant respawn time (for debugging) --
+    -- local player = get_player(PlayerIndex)
+    -- write_dword(player + 0x2C, 1 * 33)
+    ------------------------------------------
+    --If victim was in a vehicle, destroy it...
+    local player_object = get_dynamic_player(victim)
+    if PlayerInVehicle(victim) then
+        if player_object ~= 0 then
+            local Vehicle_ID = read_dword(player_object + 0x11C)
+            timer(0, "DestroyVehicle", Vehicle_ID)
+        end
+    end
+    -- PvP --
+    if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
+        say_all(VictimName .. " was killed by " .. KillerName)
+        local PLAYER_ID = get_var(victim, "$n")
+        if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            -- initiate flag respawn timers --
+            FLAG_RESPAWN[PlayerIndex] = true
+            FLAG_WARN[PlayerIndex] = true
+        end
+        if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_NEEDLER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PISTOL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_PISTOL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_PLASMA_CANNON or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_ROCKET_LAUNCHER or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_SHOTGUN or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_SNIPER_RIFLE or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_ODDBALL or
+            DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAG then
+            local PLAYER_ID = get_var(victim, "$n")
+            -- Assign table key to Victim --
+            PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = victim
+            if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) and(victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
+                -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
+                drop_weapon(victim)
+                
+                -- Alternatively, respawn it. (currently disabled out of preference)
+                -- SPAWN_FLAG()
+                
+                -- Reset Melee Victim
+                PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+            end
+            -- Player was melee'd, move them down a level (update, level down)
+            cycle_level(victim, true)
+            AnnounceChat(VictimName .. " was meleed and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+        end
+        -- Add kill to Killer
+        add_kill(killer, victim)
+        if Spawn_Where_Killed == true then
+            local player_object = get_dynamic_player(victim)
+            local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
+            PLAYER_LOCATION[victim][1] = xAxis
+            PLAYER_LOCATION[victim][2] = yAxis
+            PLAYER_LOCATION[victim][3] = zAxis
+            if (PowerUpSettings["WeaponsAndEquipment"] == true) then
+                WeaponsAndEquipment(xAxis, yAxis, zAxis)
+            elseif (PowerUpSettings["JustEquipment"] == true) then
+                JustEquipment(xAxis, yAxis, zAxis)
+            elseif (PowerUpSettings["JustWeapons"] == true) then
+                JustWeapons(xAxis, yAxis, zAxis)
             end
         end
-
-        if done[hash].medal.assists == "False" then
-            if medals[hash].class.assists == "Iron" and medals[hash].count.assists >= 50 then
-                medals[hash].class.assists = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant Iron!")
-            elseif medals[hash].class.assists == "Bronze" and medals[hash].count.assists >= 250 then
-                medals[hash].class.assists = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant Bronze!")
-            elseif medals[hash].class.assists == "Silver" and medals[hash].count.assists >= 1000 then
-                medals[hash].class.assists = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant Silver!")
-            elseif medals[hash].class.assists == "Gold" and medals[hash].count.assists >= 4000 then
-                medals[hash].class.assists = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Assistant : Gold")
-                changescore(PlayerIndex, 1500, true)
-            elseif medals[hash].class.assists == "Onyx" and medals[hash].count.assists >= 8000 then
-                medals[hash].class.assists = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2500
-                SendMessage(PlayerIndex, " +2500 cR - Assistant : Onyx")
-                changescore(PlayerIndex, 2500, true)
-            elseif medals[hash].class.assists == "MAX" and medals[hash].count.assists == 20000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Assistant MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 3500
-                SendMessage(PlayerIndex, " +3500 cR - Assistant : MAX")
-                changescore(PlayerIndex, 3500, true)
-                done[hash].medal.assists = "True"
+        -- SUICIDE --
+    elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        say(PlayerIndex, VictimName .. " committed suicide")
+        AnnounceChat(VictimName .. " committed suicide and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+        local PLAYER_ID = get_var(victim, "$n")
+        PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = victim
+        if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
+            drop_weapon(victim)
+            -- Alternatively, respawn it. (currently disabled out of preference)
+            -- SPAWN_FLAG()
+        end
+        -- Player Committed Suicide, move them down a level
+        -- update, level down
+        cycle_level(victim, true)
+        if Spawn_Where_Killed == true then
+            local player_object = get_dynamic_player(victim)
+            local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
+            PLAYER_LOCATION[victim][1] = xAxis
+            PLAYER_LOCATION[victim][2] = yAxis
+            PLAYER_LOCATION[victim][3] = zAxis
+            if (PowerUpSettings["WeaponsAndEquipment"] == true) then
+                WeaponsAndEquipment(xAxis, yAxis, zAxis)
+            elseif (PowerUpSettings["JustEquipment"] == true) then
+                JustEquipment(xAxis, yAxis, zAxis)
+            elseif (PowerUpSettings["JustWeapons"] == true) then
+                JustWeapons(xAxis, yAxis, zAxis)
             end
         end
+        timer(500, "delay_score", PlayerIndex)
+        timer(500, "delay_score", KillerIndex)
+    end
+    -- KILLED BY SERVER --
+    if (killer == -1) then
+        say_all(VictimName .. " died")
+        return false
+    end
+    -- UNKNOWN/GLITCHED --
+    if (killer == nil) then
+        say_all(VictimName .. " died")
+        return false
+    end
+    -- KILLED BY VEHICLE --
+    if (killer == 0) then
+        say_all(VictimName .. " died")
+        return false
+    end
+    DAMAGE_APPLIED[PlayerIndex] = 0
+    execute_command("msg_prefix \"** SERVER ** \"")
+end
 
-        if done[hash].medal.closequarters == "False" then
-            if medals[hash].class.closequarters == "Iron" and medals[hash].count.closequarters >= 50 then
-                medals[hash].class.closequarters = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters Iron!")
-            elseif medals[hash].class.closequarters == "Bronze" and medals[hash].count.closequarters >= 125 then
-                medals[hash].class.closequarters = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters Bronze!")
-            elseif medals[hash].class.closequarters == "Silver" and medals[hash].count.closequarters >= 400 then
-                medals[hash].class.closequarters = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters Silver!")
-            elseif medals[hash].class.closequarters == "Gold" and medals[hash].count.closequarters >= 1600 then
-                medals[hash].class.closequarters = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 750
-                SendMessage(PlayerIndex, " +750 cR - Close Quarters : Gold")
-                changescore(PlayerIndex, 750, true)
-            elseif medals[hash].class.closequarters == "Onyx" and medals[hash].count.closequarters >= 4000 then
-                medals[hash].class.closequarters = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Close Quarters : Onyx")
-                changescore(PlayerIndex, 1500, true)
-            elseif medals[hash].class.closequarters == "MAX" and medals[hash].count.closequarters == 8000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Close Quarters MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2250
-                SendMessage(PlayerIndex, "2250 cR - Close Quarters : MAX")
-                changescore(PlayerIndex, 2250, true)
-                done[hash].medal.closequarters = "True"
+function add_kill(killer, victim)
+    -- add on a kill
+    local kills = players[killer][2]
+    players[killer][2] = kills + 1
+    -- check to see if player advances
+    if players[killer][2] == Level[players[killer][1]][4] then
+        local PLAYER_ID = get_var(killer, "$n")
+        if (killer == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            drop_weapon(killer)
+            -- Killer Melee'd someone while holding the flag - delay scoring to avoid deleting their flag on cycle_level.
+            timer(1, "delay_cycle", killer)
+        else
+            -- PvP, update, advance (level up)
+            cycle_level(killer, true, true)
+        end
+    end
+end
+
+function DropPowerup(x, y, z)
+    local num = rand(1, #EQUIPMENT_TAGS)
+    spawn_object(EQUIPMENT_TAGS[num], x, y, z + 0.5)
+end
+
+function OnPlayerJoin(PlayerIndex)
+    current_players = current_players + 1
+    -- set level
+    players[PlayerIndex] = { Starting_Level, 0 }
+
+    if PlayerIndex ~= 0 then
+        local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
+        -- Check for Previous Statistics --
+        for k, v in pairs(STORED_LEVELS) do
+            if tostring(k) == tostring(saved_data) then
+                say(PlayerIndex, "Your previous level has been saved and restored!")
+                players[PlayerIndex][1] = STORED_LEVELS[saved_data][1]
+                players[PlayerIndex][2] = STORED_LEVELS[saved_data][2]
+                break
             end
         end
+    end
+    
+    timer(1000 * 6, "WelcomeHandler", PlayerIndex)
+    -- Update score to reflect changes.
+    -- First initial score is equal to Level 1 (score point 1)
+    setscore(PlayerIndex, players[PlayerIndex][1])
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID] = { }
+    PLAYERS_ALIVE[PLAYER_ID].VEHICLE = nil
+    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
+    PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+    PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+    PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
+end
 
-        if done[hash].medal.crackshot == "False" then
-            if medals[hash].class.crackshot == "Iron" and medals[hash].count.crackshot >= 100 then
-                medals[hash].class.crackshot = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot Iron!")
-            elseif medals[hash].class.crackshot == "Bronze" and medals[hash].count.crackshot >= 500 then
-                medals[hash].class.crackshot = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot Bronze!")
-            elseif medals[hash].class.crackshot == "Silver" and medals[hash].count.crackshot >= 4000 then
-                medals[hash].class.crackshot = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot Silver!")
-            elseif medals[hash].class.crackshot == "Gold" and medals[hash].count.crackshot >= 10000 then
-                medals[hash].class.crackshot = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Crack Shot : Gold")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.crackshot == "Onyx" and medals[hash].count.crackshot >= 20000 then
-                medals[hash].class.crackshot = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2000
-                SendMessage(PlayerIndex, " +2000 cR - Crack Shot : Onyx")
-                changescore(PlayerIndex, 2000, true)
-            elseif medals[hash].class.crackshot == "MAX" and medals[hash].count.crackshot == 32000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Crack Shot MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 3000
-                SendMessage(PlayerIndex, " +3000 cR - Crack Shot : MAX")
-                changescore(PlayerIndex, 3000, true)
-                done[hash].medal.crackshot = "True"
-            end
+function OnPlayerLeave(PlayerIndex)
+    current_players = current_players - 1
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = 0
+    PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+    PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+    PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+    DAMAGE_APPLIED[PlayerIndex] = nil
+    if game_over then
+        -- do nothing
+    else
+        if PlayerIndex ~= 0 then
+            local saved_data = get_var(PlayerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$name")
+            -- Create Table Key for Player --
+            STORED_LEVELS[saved_data] = { players[PlayerIndex][1], players[PlayerIndex][2] }
         end
+    end
+    -- Wipe Saved Spawn Locations
+    for i = 1, 3 do
+        -- reset death location --
+        PLAYER_LOCATION[PlayerIndex][i] = nil
+    end
+    -- destroy vehicle --
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    if PLAYERS_ALIVE[PLAYER_ID].VEHICLE ~= nil then
+        destroy_object(PLAYERS_ALIVE[PLAYER_ID].VEHICLE)
+    end
+end
 
-        if done[hash].medal.roadrage == "False" then
-            if medals[hash].class.roadrage == "Iron" and medals[hash].count.roadrage >= 5 then
-                medals[hash].class.roadrage = "Bronze"
-                say_all(getnamye(PlayerIndex) .. " has earned a medal : roadrage Iron!")
-            elseif medals[hash].class.roadrage == "Bronze" and medals[hash].count.roadrage >= 50 then
-                medals[hash].class.roadrage = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : roadrage Bronze!")
-            elseif medals[hash].class.roadrage == "Silver" and medals[hash].count.roadrage >= 750 then
-                medals[hash].class.roadrage = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : roadrage Silver!")
-            elseif medals[hash].class.roadrage == "Gold" and medals[hash].count.roadrage >= 4000 then
-                medals[hash].class.roadrage = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : roadrage Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 500
-                SendMessage(PlayerIndex, " +500 cR - roadrage : Gold")
-                changescore(PlayerIndex, 500, true)
-            elseif medals[hash].class.roadrage == "Onyx" and medals[hash].count.roadrage >= 8000 then
-                medals[hash].class.roadrage = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : roadrage Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - roadrage : Onyx")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.roadrage == "MAX" and medals[hash].count.roadrage == 20000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : roadrage MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - roadrage : MAX")
-                changescore(PlayerIndex, 1500, true)
-                done[hash].medal.roadrage = "True"
-            end
-        end
+function OnPlayerPrespawn(PlayerIndex)
 
-        if done[hash].medal.grenadier == "False" then
-            if medals[hash].class.grenadier == "Iron" and medals[hash].count.grenadier >= 25 then
-                medals[hash].class.grenadier = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier Iron!")
-            elseif medals[hash].class.grenadier == "Bronze" and medals[hash].count.grenadier >= 125 then
-                medals[hash].class.grenadier = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier Bronze!")
-            elseif medals[hash].class.grenadier == "Silver" and medals[hash].count.grenadier >= 500 then
-                medals[hash].class.grenadier = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier Silver!")
-            elseif medals[hash].class.grenadier == "Gold" and medals[hash].count.grenadier >= 4000 then
-                medals[hash].class.grenadier = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 750
-                SendMessage(PlayerIndex, " +750 cR - Grenadier : Gold")
-                changescore(PlayerIndex, 750, true)
-            elseif medals[hash].class.grenadier == "Onyx" and medals[hash].count.grenadier >= 8000 then
-                medals[hash].class.grenadier = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Grenadier : Onyx")
-                changescore(PlayerIndex, 1500, true)
-            elseif medals[hash].class.grenadier == "MAX" and medals[hash].count.grenadier == 14000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Grenadier MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2250
-                SendMessage(PlayerIndex, " +2250 cR - Grenadier : MAX")
-                changescore(PlayerIndex, 2250, true)
-                done[hash].medal.grenadier = "True"
-            end
-        end
-
-        if done[hash].medal.heavyweapons == "False" then
-            if medals[hash].class.heavyweapons == "Iron" and medals[hash].count.heavyweapons >= 25 then
-                medals[hash].class.heavyweapons = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon Iron!")
-            elseif medals[hash].class.heavyweapons == "Bronze" and medals[hash].count.heavyweapons >= 150 then
-                medals[hash].class.heavyweapons = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon Bronze!")
-            elseif medals[hash].class.heavyweapons == "Silver" and medals[hash].count.heavyweapons >= 750 then
-                medals[hash].class.heavyweapons = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon Silver!")
-            elseif medals[hash].class.heavyweapons == "Gold" and medals[hash].count.heavyweapons >= 3000 then
-                medals[hash].class.heavyweapons = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 500
-                SendMessage(PlayerIndex, " +500 cR - Heavy Weapon : Gold")
-                changescore(PlayerIndex, 500, true)
-            elseif medals[hash].class.heavyweapons == "Onyx" and medals[hash].count.heavyweapons >= 7000 then
-                medals[hash].class.heavyweapons = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Heavy Weapon : Onyx")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.heavyweapons == "MAX" and medals[hash].count.heavyweapons == 14000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Heavy Weapon MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Heavy Weapon : MAX")
-                changescore(PlayerIndex, 1500, true)
-                done[hash].medal.heavyweapons = "True"
-            end
-        end
-
-        if done[hash].medal.jackofalltrades == "False" then
-            if medals[hash].class.jackofalltrades == "Iron" and medals[hash].count.jackofalltrades >= 50 then
-                medals[hash].class.jackofalltrades = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Iron!")
-            elseif medals[hash].class.jackofalltrades == "Bronze" and medals[hash].count.jackofalltrades >= 125 then
-                medals[hash].class.jackofalltrades = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Bronze!")
-            elseif medals[hash].class.jackofalltrades == "Silver" and medals[hash].count.jackofalltrades >= 400 then
-                medals[hash].class.jackofalltrades = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Silver!")
-            elseif medals[hash].class.jackofalltrades == "Gold" and medals[hash].count.jackofalltrades >= 1600 then
-                medals[hash].class.jackofalltrades = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 500
-                SendMessage(PlayerIndex, " +500 cR - Jack of all Trades : Gold")
-                changescore(PlayerIndex, 500, true)
-            elseif medals[hash].class.jackofalltrades == "Onyx" and medals[hash].count.jackofalltrades >= 4800 then
-                medals[hash].class.jackofalltrades = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Jack of all Trades : Onyx")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.jackofalltrades == "MAX" and medals[hash].count.jackofalltrades == 9600 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Jack of all Trades MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Jack of all Trades : MAX")
-                changescore(PlayerIndex, 1500, true)
-                done[hash].medal.jackofalltrades = "True"
-            end
-        end
-
-        if done[hash].medal.mobileasset == "False" then
-            if medals[hash].class.mobileasset == "Iron" and medals[hash].count.moblieasset >= 25 then
-                medals[hash].class.mobileasset = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset Iron!")
-            elseif medals[hash].class.mobileasset == "Bronze" and medals[hash].count.moblieasset >= 125 then
-                medals[hash].class.mobileasset = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset Bronze!")
-            elseif medals[hash].class.mobileasset == "Silver" and medals[hash].count.moblieasset >= 500 then
-                medals[hash].class.mobileasset = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset Silver!")
-            elseif medals[hash].class.mobileasset == "Gold" and medals[hash].count.moblieasset >= 4000 then
-                medals[hash].class.mobileasset = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 750
-                SendMessage(PlayerIndex, " +750 cR - Mobile Asset : Gold")
-                changescore(PlayerIndex, 750, true)
-            elseif medals[hash].class.mobileasset == "Onyx" and medals[hash].count.moblieasset >= 8000 then
-                medals[hash].class.mobileasset = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Mobile Asset : Onyx")
-                changescore(PlayerIndex, 1500, true)
-            elseif medals[hash].class.mobileasset == "MAX" and medals[hash].count.moblieasset == 14000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Mobile Asset MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2250
-                SendMessage(PlayerIndex, " +2250 cR - Mobile Asset : MAX")
-                changescore(PlayerIndex, 2250, true)
-                done[hash].medal.mobileasset = "True"
-            end
-        end
-
-        if done[hash].medal.multikill == "False" then
-            if medals[hash].class.multikill == "Iron" and medals[hash].count.multikill >= 10 then
-                medals[hash].class.multikill = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Multikill Iron!")
-            elseif medals[hash].class.multikill == "Bronze" and medals[hash].count.multikill >= 125 then
-                medals[hash].class.multikill = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Multikill Bronze!")
-            elseif medals[hash].class.multikill == "Silver" and medals[hash].count.multikill >= 500 then
-                medals[hash].class.multikill = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Multikill Silver!")
-            elseif medals[hash].class.multikill == "Gold" and medals[hash].count.multikill >= 2500 then
-                medals[hash].class.multikill = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Multikill Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 500
-                SendMessage(PlayerIndex, " +500 cR - Multikill : Gold")
-                changescore(PlayerIndex, 500, true)
-            elseif medals[hash].class.multikill == "Onyx" and medals[hash].count.multikill >= 5000 then
-                medals[hash].class.multikill = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Multikill Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Multikill : Onyx")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.multikill == "MAX" and medals[hash].count.multikill == 15000 then
-                say_all(getname(PlayerIndex) .. " has earned a mdeal : Multikill MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1500
-                SendMessage(PlayerIndex, " +1500 cR - Multikill : MAX")
-                changescore(PlayerIndex, 1500, true)
-                done[hash].medal.multikill = "True"
-            end
-        end
-
-        if done[hash].medal.sidearm == "False" then
-            if medals[hash].class.sidearm == "Iron" and medals[hash].count.sidearm >= 50 then
-                medals[hash].class.sidearm = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm Iron!")
-            elseif medals[hash].class.sidearm == "Bronze" and medals[hash].count.sidearm >= 250 then
-                medals[hash].class.sidearm = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm Bronze!")
-            elseif medals[hash].class.sidearm == "Silver" and medals[hash].count.sidearm >= 1000 then
-                medals[hash].class.sidearm = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm Silver!")
-            elseif medals[hash].class.sidearm == "Gold" and medals[hash].count.sidearm >= 4000 then
-                medals[hash].class.sidearm = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Sidearm : Gold")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.sidearm == "Onyx" and medals[hash].count.sidearm >= 8000 then
-                medals[hash].class.sidearm = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2000
-                SendMessage(PlayerIndex, " +2000 cR - Sidearm : Onyx")
-                changescore(PlayerIndex, 2000, true)
-            elseif medals[hash].class.sidearm == "MAX" and medals[hash].count.sidearm == 10000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Sidearm MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 3000
-                SendMessage(PlayerIndex, " +3000 cR - Sidearm : MAX")
-                changescore(PlayerIndex, 3000, true)
-                done[hash].medal.sidearm = "True"
-            end
-        end
-
-        if done[hash].medal.triggerman == "False" then
-            if medals[hash].class.triggerman == "Iron" and medals[hash].count.triggerman >= 100 then
-                medals[hash].class.triggerman = "Bronze"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman Iron!")
-            elseif medals[hash].class.triggerman == "Bronze" and medals[hash].count.triggerman >= 500 then
-                medals[hash].class.triggerman = "Silver"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman Bronze!")
-            elseif medals[hash].class.triggerman == "Silver" and medals[hash].count.triggerman >= 4000 then
-                medals[hash].class.triggerman = "Gold"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman Silver!")
-            elseif medals[hash].class.triggerman == "Gold" and medals[hash].count.triggerman >= 10000 then
-                medals[hash].class.triggerman = "Onyx"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman Gold!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 1000
-                SendMessage(PlayerIndex, " +1000 cR - Triggerman : Gold")
-                changescore(PlayerIndex, 1000, true)
-            elseif medals[hash].class.triggerman == "Onyx" and medals[hash].count.triggerman >= 20000 then
-                medals[hash].class.triggerman = "MAX"
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman Onyx!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 2000
-                SendMessage(PlayerIndex, " +2000 cR - Triggerman : Onyx")
-                changescore(PlayerIndex, 2000, true)
-            elseif medals[hash].class.triggerman == "MAX" and medals[hash].count.triggerman == 32000 then
-                say_all(getname(PlayerIndex) .. " has earned a medal : Triggerman MAX!")
-                killstats[hash].total.credits = killstats[hash].total.credits + 3000
-                SendMessage(PlayerIndex, " +3000 cR - Triggerman : MAX")
-                changescore(PlayerIndex, 3000, true)
-                done[hash].medal.triggerman = "True"
+    DAMAGE_APPLIED[PlayerIndex] = 0
+    
+    if spawn_where_killed == true then
+        local victim = tonumber(PlayerIndex)
+        if PlayerIndex then
+            if PLAYER_LOCATION[victim][1] ~= nil then
+                -- spawn at death location --
+                write_vector3d(get_dynamic_player(victim) + 0x5C, PLAYER_LOCATION[victim][1], PLAYER_LOCATION[victim][2], PLAYER_LOCATION[victim][3])
+                for i = 1, 3 do
+                    -- reset death location --
+                    PLAYER_LOCATION[victim][i] = nil
+                end
             end
         end
     end
 end
 
-function GetMedalClasses(PlayerIndex)
-
-    local hash = get_var(PlayerIndex, "$hash")
-
-    if medals[hash].count.sprees > 5 and medals[hash].count.sprees < 50 then
-        medals[hash].class.sprees = "Bronze"
-    elseif medals[hash].count.sprees > 50 and medals[hash].count.sprees < 250 then
-        medals[hash].class.sprees = "Silver"
-    elseif medals[hash].count.sprees > 250 and medals[hash].count.sprees < 1000 then
-        medals[hash].class.sprees = "Gold"
-    elseif medals[hash].count.sprees > 1000 and medals[hash].count.sprees < 4000 then
-        medals[hash].class.sprees = "Onyx"
-    elseif medals[hash].count.sprees > 4000 and medals[hash].count.sprees < 10000 then
-        medals[hash].class.sprees = "MAX"
-    elseif medals[hash].count.sprees > 10000 then
-        medals[hash].class.sprees = "MAX"
-    end
-
-    if medals[hash].count.assists > 50 and medals[hash].count.assists < 250 then
-        medals[hash].class.assists = "Bronze"
-    elseif medals[hash].count.assists > 250 and medals[hash].count.assists < 1000 then
-        medals[hash].class.assists = "Silver"
-    elseif medals[hash].count.assists > 1000 and medals[hash].count.assists < 4000 then
-        medals[hash].class.assists = "Gold"
-    elseif medals[hash].count.assists > 4000 and medals[hash].count.assists < 8000 then
-        medals[hash].class.assists = "Onyx"
-    elseif medals[hash].count.assists > 8000 and medals[hash].count.assists < 20000 then
-        medals[hash].class.assists = "MAX"
-    elseif medals[hash].count.assists > 20000 then
-        medals[hash].class.assists = "MAX"
-    end
-
-    if medals[hash].count.closequarters > 50 and medals[hash].count.closequarters < 150 then
-        medals[hash].class.closequarters = "Bronze"
-    elseif medals[hash].count.closequarters > 150 and medals[hash].count.closequarters < 400 then
-        medals[hash].class.closequarters = "Silver"
-    elseif medals[hash].count.closequarters > 400 and medals[hash].count.closequarters < 1600 then
-        medals[hash].class.closequarters = "Gold"
-    elseif medals[hash].count.closequarters > 1600 and medals[hash].count.closequarters < 4000 then
-        medals[hash].class.closequarters = "Onyx"
-    elseif medals[hash].count.closequarters > 4000 and medals[hash].count.closequarters < 8000 then
-        medals[hash].count.closequarters = "MAX"
-    elseif medals[hash].count.closequarters > 8000 then
-        medals[hash].count.closequarters = "MAX"
-    end
-
-    if medals[hash].count.crackshot > 100 and medals[hash].count.crackshot < 500 then
-        medals[hash].class.crackshot = "Bronze"
-    elseif medals[hash].count.crackshot > 500 and medals[hash].count.crackshot < 4000 then
-        medals[hash].class.crackshot = "Silver"
-    elseif medals[hash].count.crackshot > 4000 and medals[hash].count.crackshot < 10000 then
-        medals[hash].class.crackshot = "Gold"
-    elseif medals[hash].count.crackshot > 10000 and medals[hash].count.crackshot < 20000 then
-        medals[hash].class.crackshot = "Onyx"
-    elseif medals[hash].count.crackshot > 20000 and medals[hash].count.crackshot < 32000 then
-        medals[hash].class.crackshot = "MAX"
-    elseif medals[hash].count.crackshot > 32000 then
-        medals[hash].class.crackshot = "MAX"
-    end
-
-    if medals[hash].count.roadrage > 5 and medals[hash].count.roadrage < 50 then
-        medals[hash].class.roadrage = "Bronze"
-    elseif medals[hash].count.roadrage > 50 and medals[hash].count.roadrage < 750 then
-        medals[hash].class.roadrage = "Silver"
-    elseif medals[hash].count.roadrage > 750 and medals[hash].count.roadrage < 4000 then
-        medals[hash].class.roadrage = "Gold"
-    elseif medals[hash].count.roadrage > 4000 and medals[hash].count.roadrage < 8000 then
-        medals[hash].class.roadrage = "Onyx"
-    elseif medals[hash].count.roadrage > 8000 and medals[hash].count.roadrage < 20000 then
-        medals[hash].count.roadrage = "MAX"
-    elseif medals[hash].count.roadrage > 20000 then
-        medals[hash].count.roadrage = "MAX"
-    end
-
-    if medals[hash].count.grenadier > 25 and medals[hash].count.grenadier < 125 then
-        medals[hash].class.grenadier = "Bronze"
-    elseif medals[hash].count.grenadier > 125 and medals[hash].count.grenadier < 500 then
-        medals[hash].class.grenadier = "Silver"
-    elseif medals[hash].count.grenadier > 500 and medals[hash].count.grenadier < 4000 then
-        medals[hash].class.grenadier = "Gold"
-    elseif medals[hash].count.grenadier > 4000 and medals[hash].count.grenadier < 8000 then
-        medals[hash].class.grenadier = "Onyx"
-    elseif medals[hash].count.grenadier > 8000 and medals[hash].count.grenadier < 14000 then
-        medals[hash].class.grenadier = "MAX"
-    elseif medals[hash].count.grenadier > 14000 then
-        medals[hash].class.grenadier = "MAX"
-    end
-
-    if medals[hash].count.heavyweapons > 25 and medals[hash].count.heavyweapons < 150 then
-        medals[hash].class.heavyweapons = "Bronze"
-    elseif medals[hash].count.heavyweapons > 150 and medals[hash].count.heavyweapons < 750 then
-        medals[hash].class.heavyweapons = "Silver"
-    elseif medals[hash].count.heavyweapons > 750 and medals[hash].count.heavyweapons < 3000 then
-        medals[hash].class.heavyweapons = "Gold"
-    elseif medals[hash].count.heavyweapons > 3000 and medals[hash].count.heavyweapons < 7000 then
-        medals[hash].class.heavyweapons = "Onyx"
-    elseif medals[hash].count.heavyweapons > 7000 and medals[hash].count.heavyweapons < 14000 then
-        medals[hash].class.heavyweapons = "MAX"
-    elseif medals[hash].count.heavyweapons > 14000 then
-        medals[hash].class.heavyweapons = "MAX"
-    end
-
-    if medals[hash].count.jackofalltrades > 50 and medals[hash].count.jackofalltrades < 125 then
-        medals[hash].class.jackofalltrades = "Bronze"
-    elseif medals[hash].count.jackofalltrades > 125 and medals[hash].count.jackofalltrades < 400 then
-        medals[hash].class.jackofalltrades = "Silver"
-    elseif medals[hash].count.jackofalltrades > 400 and medals[hash].count.jackofalltrades < 1600 then
-        medals[hash].class.jackofalltrades = "Gold"
-    elseif medals[hash].count.jackofalltrades > 1600 and medals[hash].count.jackofalltrades < 4800 then
-        medals[hash].class.jackofalltrades = "Onyx"
-    elseif medals[hash].count.jackofalltrades > 4800 and medals[hash].count.jackofalltrades < 9600 then
-        medals[hash].class.jackofalltrades = "MAX"
-    elseif medals[hash].count.jackofalltrades > 9600 then
-        medals[hash].class.jackofalltrades = "MAX"
-    end
-
-    if medals[hash].count.moblieasset > 25 and medals[hash].count.moblieasset < 125 then
-        medals[hash].class.mobileasset = "Bronze"
-    elseif medals[hash].count.moblieasset > 125 and medals[hash].count.moblieasset < 500 then
-        medals[hash].class.mobileasset = "Silver"
-    elseif medals[hash].count.moblieasset > 500 and medals[hash].count.moblieasset < 4000 then
-        medals[hash].class.mobileasset = "Gold"
-    elseif medals[hash].count.moblieasset > 4000 and medals[hash].count.moblieasset < 8000 then
-        medals[hash].class.mobileasset = "Onyx"
-    elseif medals[hash].count.moblieasset > 8000 and medals[hash].count.moblieasset < 14000 then
-        medals[hash].class.mobileasset = "MAX"
-    elseif medals[hash].count.moblieasset > 14000 then
-        medals[hash].class.mobileasset = "MAX"
-    end
-
-    if medals[hash].count.multikill > 10 and medals[hash].count.multikill < 125 then
-        medals[hash].class.multikill = "Bronze"
-    elseif medals[hash].count.multikill > 125 and medals[hash].count.multikill < 500 then
-        medals[hash].class.multikill = "Silver"
-    elseif medals[hash].count.multikill > 500 and medals[hash].count.multikill < 2500 then
-        medals[hash].class.multikill = "Gold"
-    elseif medals[hash].count.multikill > 2500 and medals[hash].count.multikill < 5000 then
-        medals[hash].class.multikill = "Onyx"
-    elseif medals[hash].count.multikill > 5000 and medals[hash].count.multikill < 15000 then
-        medals[hash].class.multikill = "MAX"
-    elseif medals[hash].count.multikill > 15000 then
-        medals[hash].class.multikill = "MAX"
-    end
-
-    if medals[hash].count.sidearm > 50 and medals[hash].count.sidearm < 250 then
-        medals[hash].class.sidearm = "Bronze"
-    elseif medals[hash].count.sidearm > 250 and medals[hash].count.sidearm < 1000 then
-        medals[hash].class.sidearm = "Silver"
-    elseif medals[hash].count.sidearm > 1000 and medals[hash].count.sidearm < 4000 then
-        medals[hash].class.sidearm = "Gold"
-    elseif medals[hash].count.sidearm > 4000 and medals[hash].count.sidearm < 8000 then
-        medals[hash].class.sidearm = "Onyx"
-    elseif medals[hash].count.sidearm > 8000 and medals[hash].count.sidearm < 10000 then
-        medals[hash].class.sidearm = "MAX"
-    elseif medals[hash].count.sidearm > 10000 then
-        medals[hash].class.sidearm = "MAX"
-    end
-
-    if medals[hash].count.triggerman > 100 and medals[hash].count.triggerman < 500 then
-        medals[hash].class.triggerman = "Bronze"
-    elseif medals[hash].count.triggerman > 500 and medals[hash].count.triggerman < 4000 then
-        medals[hash].class.triggerman = "Silver"
-    elseif medals[hash].count.triggerman > 4000 and medals[hash].count.triggerman < 10000 then
-        medals[hash].class.triggerman = "Gold"
-    elseif medals[hash].count.triggerman > 10000 and medals[hash].count.triggerman < 20000 then
-        medals[hash].class.triggerman = "Onyx"
-    elseif medals[hash].count.triggerman > 20000 and medals[hash].count.triggerman < 32000 then
-        medals[hash].class.triggerman = "MAX"
-    elseif medals[hash].count.triggerman > 32000 then
-        medals[hash].class.triggerman = "MAX"
-    end
-end
-
-function getname(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local name = get_var(PlayerIndex, "$name")
-        return name
-    end
-    return nil
-end
-
-function getplayer(PlayerIndex)
-    if tonumber(PlayerIndex) then
-        if tonumber(PlayerIndex) ~= 0 then
-            local m_player = get_player(PlayerIndex)
-            if m_player ~= 0 then return m_player end
-        end
-    end
-    return nil
-end
-
-function getteam(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local team = get_var(PlayerIndex, "$team")
-        return team
-    end
-    return nil
-end
-
-function gethash(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local hash = get_var(PlayerIndex, "$hash")
-        return hash
-    end
-    return nil
-end
-
-function SendMessage(PlayerIndex, message)
+function OnPlayerSpawn(PlayerIndex)
     if getplayer(PlayerIndex) then
-        rprint(PlayerIndex, "|c" .. message)
+        -- Clear their console
+        cls(PlayerIndex)
+        --  assign weapons or vehicle according to level --
+        if (LargeMapConfiguration == true) then
+            WeaponHandler(PlayerIndex)
+        elseif (LargeMapConfiguration == false) then
+            WeaponHandlerAlternate(PlayerIndex)
+        end
+        --  Setup Invulnerable Timer --
+        if Spawn_Invunrable_Time ~= nil and Spawn_Invunrable_Time > 0 then
+            -- Health. (0 to 1) (Normal = 1)
+            write_float(PlayerIndex + 0xE0, 99999999)
+            -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+            write_float(PlayerIndex + 0xE4, 3)
+            timer(Spawn_Invunrable_Time * 1000, "RemoveSpawnProtection", PlayerIndex)
+        end
+        rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+        rprint(PlayerIndex, "Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+        rprint(PlayerIndex, "Your Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+        rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        rprint(PlayerIndex, " ")
+        ammo_multiplier = tonumber(Level[players[PlayerIndex][1]][6])
+        -- Reset --
+        TIMER[PlayerIndex] = true
+        PROGRESSION_TIMER[PlayerIndex] = true
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+        PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
+        PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
+        PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
+        PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+        PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
     end
 end
 
-function GetPlayerRank(PlayerIndex)
-    local hash = get_var(PlayerIndex, "$hash")
-    if hash then
-        killstats[hash].total.credits = killstats[hash].total.credits or 0
-        if killstats[hash].total.credits >= 0 and killstats[hash].total.credits ~= nil and killstats[hash].total.rank ~= nil then
-            if killstats[hash].total.credits >= 0 and killstats[hash].total.credits < Recruit then
-                killstats[hash].total.rank = "Recruit"
-            elseif killstats[hash].total.credits > Recruit and killstats[hash].total.credits < Private then
-                killstats[hash].total.rank = "Private"
-            elseif killstats[hash].total.credits > Private and killstats[hash].total.credits < Corporal then
-                killstats[hash].total.rank = "Corporal"
-            elseif killstats[hash].total.credits > Corporal and killstats[hash].total.credits < Sergeant then
-                killstats[hash].total.rank = "Sergeant"
-            elseif killstats[hash].total.credits > Sergeant and killstats[hash].total.credits < Sergeant_Grade_1 then
-                killstats[hash].total.rank = "Sergeant Grade 1"
-            elseif killstats[hash].total.credits > Sergeant_Grade_1 and killstats[hash].total.credits < Sergeant_Grade_2 then
-                killstats[hash].total.rank = "Sergeant Grade 2"
-            elseif killstats[hash].total.credits > Sergeant_Grade_2 and killstats[hash].total.credits < Warrant_Officer then
-                killstats[hash].total.rank = "Warrant Officer"
-            elseif killstats[hash].total.credits > Warrant_Officer and killstats[hash].total.credits < Warrant_Officer_Grade_1 then
-                killstats[hash].total.rank = "Warrant Officer Grade 1"
-            elseif killstats[hash].total.credits > Warrant_Officer_Grade_1 and killstats[hash].total.credits < Warrant_Officer_Grade_2 then
-                killstats[hash].total.rank = "Warrant Officer Grade 2"
-            elseif killstats[hash].total.credits > Warrant_Officer_Grade_2 and killstats[hash].total.credits < Warrant_Officer_Grade_3 then
-                killstats[hash].total.rank = "Warrant Officer Grade 3"
-            elseif killstats[hash].total.credits > Warrant_Officer_Grade_3 and killstats[hash].total.credits < Captain then
-                killstats[hash].total.rank = "Captain"
-            elseif killstats[hash].total.credits > Captain and killstats[hash].total.credits < Captain_Grade_1 then
-                killstats[hash].total.rank = "Captain Grade 1"
-            elseif killstats[hash].total.credits > Captain_Grade_1 and killstats[hash].total.credits < Captain_Grade_2 then
-                killstats[hash].total.rank = "Captain Grade 2"
-            elseif killstats[hash].total.credits > Captain_Grade_2 and killstats[hash].total.credits < Captain_Grade_3 then
-                killstats[hash].total.rank = "Captain Grade 3"
-            elseif killstats[hash].total.credits > Captain_Grade_3 and killstats[hash].total.credits < Major then
-                killstats[hash].total.rank = "Major"
-            elseif killstats[hash].total.credits > Major and killstats[hash].total.credits < Major_Grade_1 then
-                killstats[hash].total.rank = "Major Grade 1"
-            elseif killstats[hash].total.credits > Major_Grade_1 and killstats[hash].total.credits < Major_Grade_2 then
-                killstats[hash].total.rank = "Major Grade 2"
-            elseif killstats[hash].total.credits > Major_Grade_2 and killstats[hash].total.credits < Major_Grade_3 then
-                killstats[hash].total.rank = "Major Grade 3"
-            elseif killstats[hash].total.credits > Major_Grade_3 and killstats[hash].total.credits < Lt_Colonel then
-                killstats[hash].total.rank = "Lt. Colonel"
-            elseif killstats[hash].total.credits > Lt_Colonel and killstats[hash].total.credits < Lt_Colonel_Grade_1 then
-                killstats[hash].total.rank = "Lt. Colonel Grade 1"
-            elseif killstats[hash].total.credits > Lt_Colonel_Grade_1 and killstats[hash].total.credits < Lt_Colonel_Grade_2 then
-                killstats[hash].total.rank = "Lt. Colonel Grade 2"
-            elseif killstats[hash].total.credits > Lt_Colonel_Grade_2 and killstats[hash].total.credits < Lt_Colonel_Grade_3 then
-                killstats[hash].total.rank = "Lt. Colonel Grade 3"
-            elseif killstats[hash].total.credits > Lt_Colonel_Grade_3 and killstats[hash].total.credits < Commander then
-                killstats[hash].total.rank = "Commander"
-            elseif killstats[hash].total.credits > Commander and killstats[hash].total.credits < Commander_Grade_1 then
-                killstats[hash].total.rank = "Commander Grade 1"
-            elseif killstats[hash].total.credits > Commander_Grade_1 and killstats[hash].total.credits < Commander_Grade_2 then
-                killstats[hash].total.rank = "Commander Grade 2"
-            elseif killstats[hash].total.credits > Commander_Grade_2 and killstats[hash].total.credits < Commander_Grade_3 then
-                killstats[hash].total.rank = "Commander Grade 3"
-            elseif killstats[hash].total.credits > Commander_Grade_3 and killstats[hash].total.credits < Colonel then
-                killstats[hash].total.rank = "Colonel"
-            elseif killstats[hash].total.credits > Colonel and killstats[hash].total.credits < Colonel_Grade_1 then
-                killstats[hash].total.rank = "Colonel Grade 1"
-            elseif killstats[hash].total.credits > Colonel_Grade_1 and killstats[hash].total.credits < Colonel_Grade_2 then
-                killstats[hash].total.rank = "Colonel Grade 2"
-            elseif killstats[hash].total.credits > Colonel_Grade_2 and killstats[hash].total.credits < Colonel_Grade_3 then
-                killstats[hash].total.rank = "Colonel Grade 3"
-            elseif killstats[hash].total.credits > Colonel_Grade_3 and killstats[hash].total.credits < Brigadier then
-                killstats[hash].total.rank = "Brigadier"
-            elseif killstats[hash].total.credits > Brigadier and killstats[hash].total.credits < Brigadier_Grade_1 then
-                killstats[hash].total.rank = "Brigadier Grade 1"
-            elseif killstats[hash].total.credits > Brigadier_Grade_1 and killstats[hash].total.credits < Brigadier_Grade_2 then
-                killstats[hash].total.rank = "Brigadier Grade 2"
-            elseif killstats[hash].total.credits > Brigadier_Grade_2 and killstats[hash].total.credits < Brigadier_Grade_3 then
-                killstats[hash].total.rank = "Brigadier Grade 3"
-            elseif killstats[hash].total.credits > Brigadier_Grade_3 and killstats[hash].total.credits < General then
-                killstats[hash].total.rank = "General"
-            elseif killstats[hash].total.credits > General and killstats[hash].total.credits < General_Grade_1 then
-                killstats[hash].total.rank = "General Grade 1"
-            elseif killstats[hash].total.credits > General_Grade_1 and killstats[hash].total.credits < General_Grade_2 then
-                killstats[hash].total.rank = "General Grade 2"
-            elseif killstats[hash].total.credits > General_Grade_2 and killstats[hash].total.credits < General_Grade_3 then
-                killstats[hash].total.rank = "General Grade 3"
-            elseif killstats[hash].total.credits > General_Grade_3 and killstats[hash].total.credits < General_Grade_4 then
-                killstats[hash].total.rank = "General Grade 4"
-            elseif killstats[hash].total.credits > General_Grade_4 and killstats[hash].total.credits < Field_Marshall then
-                killstats[hash].total.rank = "Field Marshall"
-            elseif killstats[hash].total.credits > Field_Marshall and killstats[hash].total.credits < Hero then
-                killstats[hash].total.rank = "Hero"
-            elseif killstats[hash].total.credits > Hero and killstats[hash].total.credits < Legend then
-                killstats[hash].total.rank = "Legend"
-            elseif killstats[hash].total.credits > Legend and killstats[hash].total.credits < Mythic then
-                killstats[hash].total.rank = "Mythic"
-            elseif killstats[hash].total.credits > Mythic and killstats[hash].total.credits < Noble then
-                killstats[hash].total.rank = "Noble"
-            elseif killstats[hash].total.credits > Noble and killstats[hash].total.credits < Eclipse then
-                killstats[hash].total.rank = "Eclipse"
-            elseif killstats[hash].total.credits > Eclipse and killstats[hash].total.credits < Nova then
-                killstats[hash].total.rank = "Nova"
-            elseif killstats[hash].total.credits > Nova and killstats[hash].total.credits < Forerunner then
-                killstats[hash].total.rank = "Forerunner"
-            elseif killstats[hash].total.credits > Forerunner and killstats[hash].total.credits < Reclaimer then
-                killstats[hash].total.rank = "Reclaimer"
-            elseif killstats[hash].total.credits > Reclaimer and killstats[hash].total.credits < Reclaimer then
-                killstats[hash].total.rank = "Inheritor"
+function CheckForFlag(PlayerIndex)
+    local bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    for i = 0, 3 do
+        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+        if (weapon_id ~= 0xFFFFFFFF) then
+            local weap_object = get_object_memory(weapon_id)
+            if (weap_object ~= 0) then
+                local obj_type = read_byte(weap_object + 0xB4)
+                local tag_address = read_word(weap_object)
+                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tagdata + 0x308, 3) == 1) then
+                    bool = true
+                end
+            end
+        end
+    end
+    return bool
+end
+
+function OnWin(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                rprint(i, "|c" .. Message)
             end
         end
     end
 end
 
-function CreditsUntilNextPromo(PlayerIndex)
-    local hash = get_var(PlayerIndex, "$hash")
-    killstats[hash].total.rank = killstats[hash].total.rank or "Recruit"
-    killstats[hash].total.credits = killstats[hash].total.credits or 0
-    if killstats[hash].total.rank == "Recruit" then
-        return Recruit - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Private" then
-        return Private - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Corporal" then
-        return Corporal - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Sergeant" then
-        return Sergeant - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Sergeant Grade 1" then
-        return Sergeant_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Sergeant Grade 2" then
-        return Sergeant_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Warrant Officer" then
-        return Warrant_Officer - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Warrant Officer Grade 1" then
-        return Warrant_Officer_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Warrant Officer Grade 2" then
-        return Warrant_Officer_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Warrant Officer Grade 3" then
-        return Warrant_Officer_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Captain" then
-        return Captain - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Captain Grade 1" then
-        return Captain_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Captain Grade 2" then
-        return Captain_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Captain Grade 3" then
-        return Captain_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Major" then
-        return Major - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Major Grade 1" then
-        return Major_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Major Grade 2" then
-        return Major_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Major Grade 3" then
-        return Major_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Lt. Colonel" then
-        return Lt_Colonel - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Lt. Colonel Grade 1" then
-        return Lt_Colonel_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Lt. Colonel Grade 2" then
-        return Lt_Colonel_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Lt. Colonel Grade 3" then
-        return Lt_Colonel_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Commander" then
-        return Commander - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Commander Grade 1" then
-        return Commander_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Commander Grade 2" then
-        return Commander_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Commander Grade 3" then
-        return Commander_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Colonel" then
-        return Colonel - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Colonel Grade 1" then
-        return Colonel_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Colonel Grade 2" then
-        return Colonel_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Colonel Grade 3" then
-        return Colonel_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Brigadier" then
-        return Brigadier - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Brigadier Grade 1" then
-        return Brigadier_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Brigadier Grade 2" then
-        return Brigadier_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Brigadier Grade 3" then
-        return Brigadier_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "General" then
-        return General - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "General Grade 1" then
-        return General_Grade_1 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "General Grade 2" then
-        return General_Grade_2 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "General Grade 3" then
-        return General_Grade_3 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "General Grade 4" then
-        return General_Grade_4 - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Field Marshall" then
-        return Field_Marshall - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Hero" then
-        return Hero - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Legend" then
-        return Legend - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Mythic" then
-        return Mythic - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Noble" then
-        return Noble - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Eclipse" then
-        return Eclipse - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Nova" then
-        return Nova - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Forerunner" then
-        return Forerunner - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Reclaimer" then
-        return Reclaimer - killstats[hash].total.credits
-    elseif killstats[hash].total.rank == "Inheritor" then
-        return "Ranks Complete"
+function AnnounceChat(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                -- Clear their console
+                cls(i)
+                execute_command("msg_prefix \"\"")
+                say(i, " " .. Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+end
+
+-- Check if player is in Sphere (X, Y, Z, Radius)
+function inSphere(PlayerIndex, x, y, z, radius)
+    if PlayerIndex then
+        local player_static = get_player(PlayerIndex)
+        local obj_x = read_float(player_static + 0xF8)
+        local obj_y = read_float(player_static + 0xFC)
+        local obj_z = read_float(player_static + 0x100)
+        local x_diff = x - obj_x
+        local y_diff = y - obj_y
+        local z_diff = z - obj_z
+        local dist_from_center = math.sqrt(x_diff ^ 2 + y_diff ^ 2 + z_diff ^ 2)
+        if dist_from_center <= radius then
+            return true
+        end
+    end
+    return false
+end
+
+-- Move ObjectID to X,Y,Z
+function moveobject(ObjectID, x, y, z)
+    local object = get_object_memory(ObjectID)
+    if get_object_memory(ObjectID) ~= 0 then
+        local veh_obj = get_object_memory(read_dword(object + 0x11C))
+        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
+    end
+end
+
+-- When a player is in the scoring area (sphere) of a base while holding the flag, update their score accordingly.
+function ctf_score(PlayerIndex)
+    -- Update, advance (level up)
+    cycle_level(PlayerIndex, true, true)
+    
+    -- reset flag respawn timers --
+    FLAG_RESPAWN[PlayerIndex] = false
+    FLAG_WARN[PlayerIndex] = false
+    flag_init_respawn = 0
+    flag_init_warn = 0
+    timer(300, "delay_move", PlayerIndex)
+    local PLAYER_ID = get_var(PlayerIndex, "$n")
+    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+    PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
+    if game_over then  
+        -- reset flag respawn timers --
+        FLAG_RESPAWN[PlayerIndex] = false
+        FLAG_WARN[PlayerIndex] = false
+        flag_init_respawn = 0
+        flag_init_warn = 0
+    else
+        SPAWN_FLAG()
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "[CAPTURE] You have " .. tonumber(math.floor(PLAYERS_ALIVE[PLAYER_ID].CAPTURES)) .. " flag captures!")
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
+end
+
+-- Check if player is in Scoring area. If they are, call "delay_move".
+function CheckPlayer(PlayerIndex)
+    -- Update, advance (level up)
+    cycle_level(PlayerIndex, true, true)
+    radius = 3
+    if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
+        or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], radius) == true then
+        timer(300, "delay_move", PlayerIndex)
+    end
+end
+
+-- Note to self: Re-calculate coordinates for all maps except bloodgulch.
+
+-- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building,
+-- move them outside the building upon leveling up. Otherwise they might get stuck inside the walls of the building.
+function delay_move(PlayerIndex)
+    if PlayerInVehicle(PlayerIndex) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
+        local seat = read_word(player_object + 0x2F0)
+        if (VehicleObj ~= 0) and(seat == 0) or(seat == 1) or(seat == 2) or(seat == 3) or(seat == 4) or(seat == 5) then
+            local vehicleId = read_dword(player_object + 0x11C)
+            player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
+            player_obj_id = vehicleId
+            local added_height = 0.3
+            -- [!] -- Red Base, Blue Base
+            -- inSphere Red, else inSphere Blue base
+            if (MAP_NAME == "bloodgulch") then
+                if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, 3) == true then
+                    moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
+                else
+                    moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
+                end
+            elseif (MAP_NAME == "deathisland") then
+                if inSphere(PlayerIndex, -26.576030731201, -6.9761986732483, 9.6631727218628, 3) == true then
+                    moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
+                else
+                    moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
+                end
+            elseif (MAP_NAME == "icefields") then
+                if inSphere(PlayerIndex, 24.85000038147, -22.110000610352, 2.1110000610352, 3) == true then
+                    moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
+                else
+                    moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
+                end
+            elseif (MAP_NAME == "infinity") then
+                if inSphere(PlayerIndex, 0.67973816394806, -164.56719970703, 15.039022445679, 3) == true then
+                    moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
+                else
+                    moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
+                end
+            elseif (MAP_NAME == "sidewinder") then
+                if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
+                    moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
+                elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
+                    moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
+                end
+            elseif (MAP_NAME == "timberland") then
+                if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, 3) == true then
+                    moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
+                else
+                    moveobject(vehicleId, 3 - 15.02, 45.36, -18 + added_height)
+                end
+            end
+        end
+    end
+end
+
+function delay_score(id, count, PlayerIndex)
+    if PlayerIndex then
+        setscore(PlayerIndex, players[PlayerIndex][1])
+    end
+    return 0
+end
+
+function delay_cycle(killer)
+    local Player = tonumber(killer)
+    -- Update, advance (level up)
+    cycle_level(Player, true, true)
+end
+
+function delay_cycle_command(PlayerIndex)
+    local Player = tonumber(PlayerIndex)
+    if level_up then
+        -- Update, advance (level up)
+        cycle_level(Player, true, true)
+    end
+    if level_down then
+        -- Update, (level down)
+        cycle_level(Player, true)
+    end
+end
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    DAMAGE_APPLIED[PlayerIndex] = MetaID
+    -- Ghost Bolt Damage - (double damage)
+    if MetaID == VEHICLE_GHOST_BOLT then
+        -- Double Damage
+        return true, Damage * 2
+    end
+    -- Assault Rifle Bullets (double damage)
+    if MetaID == ASSAULT_RIFLE_BULLET then
+        -- Double Damage
+        return true, Damage * 2
+    end
+    -- Multiply grenade damage by the value of "Grenade_Multiplier" - Equal to 4 by design default. 1 = normal game value
+    if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
+        if GetLevel(PlayerIndex) == 1 then
+            return true, Damage * Grenade_Multiplier
+        else
+            -- Double Damage
+            return true, Damage * 2
+        end
+    end
+    if MetaID == MELEE_ASSAULT_RIFLE or
+        MetaID == MELEE_ODDBALL or
+        MetaID == MELEE_FLAG or
+        MetaID == MELEE_FLAME_THROWER or
+        MetaID == MELEE_NEEDLER or
+        MetaID == MELEE_PISTOL or
+        MetaID == MELEE_PLASMA_PISTOL or
+        MetaID == MELEE_PLASMA_RIFLE or
+        MetaID == MELEE_PLASMA_CANNON or
+        MetaID == MELEE_ROCKET_LAUNCHER or
+        MetaID == MELEE_SHOTGUN or
+        MetaID == MELEE_SNIPER_RIFLE then
+        -- 4 times normal damage
+        return true, Damage * Melee_Multiplier
+    end
+end
+
+-- Return player's current Level --
+function GetLevel(PlayerIndex)
+    if tonumber(players[PlayerIndex][1]) == 1 then
+        return 1
+    elseif tonumber(players[PlayerIndex][1]) == 2 then
+        return 2
+    elseif tonumber(players[PlayerIndex][1]) == 3 then
+        return 3
+    elseif tonumber(players[PlayerIndex][1]) == 4 then
+        return 4
+    elseif tonumber(players[PlayerIndex][1]) == 5 then
+        return 5
+    elseif tonumber(players[PlayerIndex][1]) == 6 then
+        return 6
+    elseif tonumber(players[PlayerIndex][1]) == 7 then
+        return 7
+    elseif tonumber(players[PlayerIndex][1]) == 8 then
+        return 8
+    elseif tonumber(players[PlayerIndex][1]) == 9 then
+        return 9
+    elseif tonumber(players[PlayerIndex][1]) == 10 then
+        return 10
+    else
+        return false
+    end
+end
+
+function RemoveSpawnProtection(PlayerIndex)
+    if (player_alive(PlayerIndex)) then
+        -- Health. (0 to 1) (Normal = 1)
+        write_float(PlayerIndex + 0xE0, 1)
+        -- Overshield. (0 to 3) (Normal = 1) (Full overshield = 3)
+        write_float(PlayerIndex + 0xE4, 1)
+    end
+end
+
+function OnPlayerChat(PlayerIndex, Message, type)
+    local response = nil
+    local Message = string.lower(Message)
+    if (Message == "@info") then
+        timer(0, "InfoHandler", PlayerIndex)
+        response = false
+        return false
+    end
+    if (Message == "@stats") then
+        if (GetLevel(PlayerIndex) >= 7) then
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        else
+            local nades_tbl = Level[players[PlayerIndex][1]][5]
+            rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
+            rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]))
+            rprint(PlayerIndex, "Plasmas: " .. tostring(nades_tbl[2]))
+            rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+        end
+        response = false
+    end
+    return response
+end
+
+function OnServerCommand(PlayerIndex, Command, Environment)
+    local response = nil
+    local t = tokenizestring(Command)
+    Command = string.lower(Command)
+    -- RCON
+    if (Environment == 1) then
+        if (Command == "level_up") then
+            response = false
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                if PlayerInVehicle(PlayerIndex) then
+                    rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                else
+                    drop_weapon(PlayerIndex)
+                    timer(1, "delay_cycle_command", PlayerIndex)
+                    level_up = true
+                end
+            else
+                -- Update, advance (level up)
+                cycle_level(PlayerIndex, true, true)
+            end
+        elseif (Command == "level_down") then
+            response = false
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                if PlayerInVehicle(PlayerIndex) then
+                    rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                else
+                    drop_weapon(PlayerIndex)
+                    timer(1, "delay_cycle_command", PlayerIndex)
+                    level_up = true
+                end
+            else
+                -- Update (level down)
+                cycle_level(PlayerIndex, true)
+            end
+        end
+    end
+    -- CHAT
+    if (Environment == 2) then
+        if t[1] ~= nil then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
+                response = false
+                if t[2] ~= nil then
+                    if t[2] == "up" then
+                        -- update, advance
+                        local PLAYER_ID = get_var(PlayerIndex, "$n")
+                        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                            if PlayerInVehicle(PlayerIndex) then
+                                rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                            else
+                                drop_weapon(PlayerIndex)
+                                timer(1, "delay_cycle_command", PlayerIndex)
+                                level_up = true
+                            end
+                        else
+                            -- Update, advance (level up)
+                            cycle_level(PlayerIndex, true, true)
+                        end
+                    elseif t[2] == "down" then
+                        -- update
+                        local PLAYER_ID = get_var(PlayerIndex, "$n")
+                        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                            if PlayerInVehicle(PlayerIndex) then
+                                rprint(PlayerIndex, "You cannot level up while holding the flag!")
+                            else
+                                drop_weapon(PlayerIndex)
+                                timer(1, "delay_cycle_command", PlayerIndex)
+                                level_up = true
+                            end
+                        else
+                            -- Update (level down)
+                            cycle_level(PlayerIndex, true)
+                        end
+                    else
+                        rprint(PlayerIndex, "Action not defined - up or down")
+                    end
+                end
+            end
+        end
+    end
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and(t[1] == string.lower("enter")) then
+        response = false
+        if (LargeMapConfiguration == true) then
+            if PlayerInVehicle(PlayerIndex) then
+                rprint(PlayerIndex, "You're already in a vehicle!")
+            else
+                if t[2] ~= nil then
+                    if t[2] == "me" or(Command == "enter me") then
+                        if (GetLevel(PlayerIndex) <= 6) then
+                            rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+                            rprint(PlayerIndex, "You must be Level 7 or higher.")
+                        elseif (GetLevel(PlayerIndex) <= 8) then
+                            -- rocket hog (gunner & drivers seat)
+                            local player_object = get_dynamic_player(PlayerIndex)
+                            local x, y, z = read_vector3d(player_object + 0x5c)
+                            vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            enter_vehicle(vehicleId, PlayerIndex, 0)
+                            timer(0, "delay_gunners_seat", PlayerIndex)
+                        else
+                            -- all other vehicles --
+                            local player_object = get_dynamic_player(PlayerIndex)
+                            local x, y, z = read_vector3d(player_object + 0x5c)
+                            vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                            enter_vehicle(vehicleId, PlayerIndex, 0)
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
+                end
+            end
+        else
+            rprint(PlayerIndex, "This map is not set up for vehicles!")
+        end
+    end
+    return response
+end
+
+  -- [[ PROGRESSION HANDLER ]] --    
+function cycle_level(PlayerIndex, update, advance)
+    -- clear player console --
+    cls(PlayerIndex)
+    local current_Level = players[PlayerIndex][1]
+    if advance == true then
+        local cur = current_Level + 1
+        -- Player has completed level 10, end game.
+        if cur == (#Level + 1) then
+            game_over = true
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                -- Delete the winner's weapons and assign them plasma pistol (for fun, because why not)
+                local player_object = get_dynamic_player(PlayerIndex)
+                local weaponId = read_dword(player_object + 0x118)
+                if weaponId ~= 0 then
+                    for j = 0, 3 do
+                        local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                        destroy_object(m_weapon)
+                    end
+                end
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
+            end
+            -- ON WIN --
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            -------------------------------------------------------------------------
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+            rprint(PlayerIndex, "|cYOU WIN!")
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            execute_command("sv_map_next")
+        end
+        -- LEVEL UP
+        if current_Level < #Level then
+            players[PlayerIndex][1] = current_Level + 1
+            local name = get_var(PlayerIndex, "$name")
+            AnnounceChat(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
+            rprint(PlayerIndex, "|c****** LEVEL UP ******")
+            rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+            rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+        end
+        -- Player has completed level 10, end game.
+        if current_Level == (#Level + 1) then
+            game_over = true
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                -- Delete the winner's weapons and assign them plasma pistol (for fun, because why not)
+                local player_object = get_dynamic_player(PlayerIndex)
+                local weaponId = read_dword(player_object + 0x118)
+                if weaponId ~= 0 then
+                    for j = 0, 3 do
+                        local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                        destroy_object(m_weapon)
+                    end
+                end
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
+            end
+            -- ON WIN --
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
+            OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            OnWin(" ", PlayerIndex)
+            -------------------------------------------------------------------------
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+            rprint(PlayerIndex, "|cYOU WIN!")
+            rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            execute_command("sv_map_next")
+        end
+    else
+        -- LEVEL DOWN
+        if current_Level > Starting_Level then
+            local name = get_var(PlayerIndex, "$name")
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            players[PlayerIndex][1] = current_Level - 1
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM) then
+                rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
+            elseif (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
+                rprint(PlayerIndex, "|c****** MELEED - LEVEL DOWN ******")
+            else
+                rprint(PlayerIndex, "|c****** LEVEL DOWN ******")
+                AnnounceChat(name .. " leveled down and is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level), PlayerIndex)
+            end
+            rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
+            rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
+            rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
+            rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+            rprint(PlayerIndex, "|c ")
+        end
+    end
+    if (update == true) and not game_over then
+        setscore(PlayerIndex, players[PlayerIndex][1])
+    end
+    --  assign weapons or vehicle according to level --
+    if not game_over then
+        if (LargeMapConfiguration == true) then
+            WeaponHandler(PlayerIndex)
+        elseif (LargeMapConfiguration == false) then
+            WeaponHandlerAlternate(PlayerIndex)
+        end
+        -- Reset Kills --
+        players[PlayerIndex][2] = 0
     end
 end
 
@@ -2342,98 +1588,191 @@ function PlayerInVehicle(PlayerIndex)
     end
 end
 
--- [function get_tag_info] - Thanks to 002
-function get_tag_info(tagclass, tagname)
-    local tagarray = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) -1 do
-        local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == tagclass) then
-            if (read_string(read_dword(tag + 0x10)) == tagname) then
-                return read_dword(tag + 0xC)
+-- destroy old vehicle --
+function DestroyVehicle(Vehicle_ID)
+    if Vehicle_ID then
+        destroy_object(Vehicle_ID)
+    end
+end
+
+-- Delay entery to Gunner Seat (Rocket Hog) --
+-- Important to delay this otherwise player's will spawn in the drivers seat 70% of the time.
+function delay_gunners_seat(PlayerIndex)
+    -- Gunners Seat --
+    enter_vehicle(vehicleId, PlayerIndex, 2)
+end
+
+-- WEAPON / VEHICLE ASSIGNMENT HANDLERS
+-----------------------------------------
+function WeaponHandler(PlayerIndex)
+    if (player_alive(PlayerIndex)) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        -- If already in vehicle when they level up, destroy the old one
+        vbool = false
+        if PlayerInVehicle(PlayerIndex) then
+            vbool = true
+            if player_object ~= 0 then
+                -- destroy old vehicle --
+                Vehicle_ID = read_dword(player_object + 0x11C)
+                obj_id = get_object_memory(Vehicle_ID)
+                exit_vehicle(PlayerIndex)
+                timer(0, "DestroyVehicle", Vehicle_ID)
+            end
+        end
+        if (Level[players[PlayerIndex][1]][12]) == 1 then
+            -- remove weapon --
+            local weaponId = read_dword(player_object + 0x118)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
+                end
+            end
+            -- Core handler --
+            if (vbool == true) then
+                if (GetLevel(PlayerIndex) == 8) then
+                    -- Spawn in Rocket Hog as Gunner/Driver --
+                    local x, y, z = read_vector3d(obj_id + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    -- Can't be higher than 0.3 otherwise players get stuck in walls on large maps when flag capturing and leveling up to a Vehicle Level.
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                    timer(0, "delay_gunners_seat", PlayerIndex)
+                else
+                    -- handle other vehicle spawns --
+                    local x, y, z = read_vector3d(obj_id + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    -- Can't be higher than 0.3 otherwise players get stuck in walls.
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                end
+            else
+                -- If scoring with the flag, make sure Level 8 recipients spawn in the gunner/drivers seat of the rocket hog.
+                if (GetLevel(PlayerIndex) == 8) then
+                    local x, y, z = read_vector3d(player_object + 0x5c)
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                    timer(0, "delay_gunners_seat", PlayerIndex)
+                    -- All other vehicles
+                else
+                    local x, y, z = read_vector3d(player_object + 0x5c)
+                    -- added_height (important for moving vehicle objects on scoring)
+                    -- Can't be higher than 0.3 otherwise players get stuck in walls.
+                    added_height = 0.3
+                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    enter_vehicle(vehicleId, PlayerIndex, 0)
+                end
+            end
+        else
+            -- remove weapon --
+            local weaponId = read_dword(player_object + 0x118)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
+                end
+            end
+            -- assign weapon --
+            local x, y, z = read_vector3d(player_object + 0x5C)
+            local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5), PlayerIndex)
+            local wait_time = 1
+            -- Sync Ammo --
+            if tonumber(Level[players[PlayerIndex][1]][6]) then
+                execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+                if (GetLevel(PlayerIndex) == 2) then
+                    -- Assault Rifle
+                    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] -180)
+                elseif (GetLevel(PlayerIndex) == 3) then
+                    -- Pistol
+                    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] -24)
+                elseif (GetLevel(PlayerIndex) == 4) then
+                    -- Sniper Rifle
+                    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] / 3)
+                elseif (GetLevel(PlayerIndex) == 5) then
+                    -- Rocket Launcher
+                    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] / 3)
+                else
+                    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+                end
+            end
+            -- write nades --
+            local nades_tbl = Level[players[PlayerIndex][1]][5]
+            if nades_tbl then
+                FRAG_CHECK[PlayerIndex] = true
+                PLASMA_CHECK[PlayerIndex] = true
+                safe_write(true)
+                local PLAYER = get_dynamic_player(PlayerIndex)
+                -- Frags
+                write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+                -- Plasmas
+                write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
+                safe_write(false)
             end
         end
     end
-    return nil
 end
 
-function LoadItems()
-    -- fall damage --
-    falling_damage = get_tag_info("jpt!", "globals\\falling")
-    distance_damage = get_tag_info("jpt!", "globals\\distance")
-
-    -- vehicle collision --
-    veh_damage = get_tag_info("jpt!", "globals\\vehicle_collision")
-
-    -- vehicle projectiles --
-    ghost_bolt = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
-    tank_bullet = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
-    chain_bullet = get_tag_info("jpt!", "vehicles\\warthog\\bullet")
-    turret_bolt = get_tag_info("jpt!", "vehicles\\c gun turret\\mp bolt")
-    banshee_bolt = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
-    tank_shell = get_tag_info("jpt!", "vehicles\\scorpion\\shell explosion")
-    banshee_explode = get_tag_info("jpt!", "vehicles\\banshee\\mp_fuel rod explosion")
-
-    -- weapon projectiles --
-    pistol_bullet = get_tag_info("jpt!", "weapons\\pistol\\bullet")
-    prifle_bolt = get_tag_info("jpt!", "weapons\\plasma rifle\\bolt")
-    shotgun_pellet = get_tag_info("jpt!", "weapons\\shotgun\\pellet")
-    ppistol_bolt = get_tag_info("jpt!", "weapons\\plasma pistol\\bolt")
-    needle_explode = get_tag_info("jpt!", "weapons\\needler\\explosion")
-    assault_bullet = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
-    needle_impact = get_tag_info("jpt!", "weapons\\needler\\impact damage")
-    flame_explode = get_tag_info("jpt!", "weapons\\flamethrower\\explosion")
-    sniper_bullet = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
-    rocket_explode = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
-    needle_detonate = get_tag_info("jpt!", "weapons\\needler\\detonation damage")
-    ppistol_charged = get_tag_info("jpt!", "weapons\\plasma rifle\\charged bolt")
-    pcannon_melee = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-    pcannon_explode = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion")
-
-    -- grenades --
-    frag_explode = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
-    plasma_attach = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
-    plasma_explode = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
-
-    -- weapon melee --
-    flag_melee = get_tag_info("jpt!", "weapons\\flag\\melee")
-    ball_melee = get_tag_info("jpt!", "weapons\\ball\\melee")
-    pistol_melee = get_tag_info("jpt!", "weapons\\pistol\\melee")
-    needle_melee = get_tag_info("jpt!", "weapons\\needler\\melee")
-    shotgun_melee = get_tag_info("jpt!", "weapons\\shotgun\\melee")
-    flame_melee = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
-    sniper_melee = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
-    prifle_melee = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
-    ppistol_melee = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
-    assault_melee = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
-    rocket_melee = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
-end
-
-function secondsToTime(seconds, places)
-    local years = math.floor(seconds /(60 * 60 * 24 * 365))
-    seconds = seconds %(60 * 60 * 24 * 365)
-    local weeks = math.floor(seconds /(60 * 60 * 24 * 7))
-    seconds = seconds %(60 * 60 * 24 * 7)
-    local days = math.floor(seconds /(60 * 60 * 24))
-    seconds = seconds %(60 * 60 * 24)
-    local hours = math.floor(seconds /(60 * 60))
-    seconds = seconds %(60 * 60)
-    local minutes = math.floor(seconds / 60)
-    seconds = seconds % 60
-
-    if places == 6 then
-        return string.format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
-    elseif places == 5 then
-        return string.format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
-    elseif not places or places == 4 then
-        return days, hours, minutes, seconds
-    elseif places == 3 then
-        return string.format("%02d:%02d:%02d", hours, minutes, seconds)
-    elseif places == 2 then
-        return string.format("%02d:%02d", minutes, seconds)
-    elseif places == 1 then
-        return string.format("%02", seconds)
+function WeaponHandlerAlternate(PlayerIndex)
+    if (player_alive(PlayerIndex)) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        -- remove weapon --
+        local weaponId = read_dword(player_object + 0x118)
+        if weaponId ~= 0 then
+            for j = 0, 3 do
+                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                destroy_object(m_weapon)
+            end
+        end
+        -- assign weapon --
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local weapid = assign_weapon(spawn_object(weap_type_id, Level[players[PlayerIndex][1]][7], x, y, z + 0.5), PlayerIndex)
+        local wait_time = 1
+        -- Sync Ammo --
+        if tonumber(Level[players[PlayerIndex][1]][6]) then
+            execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+            if (GetLevel(PlayerIndex) == 2) then
+                -- Assault Rifle
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] -180)
+            elseif (GetLevel(PlayerIndex) == 3) then
+                -- Pistol
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] -24)
+            elseif (GetLevel(PlayerIndex) == 4) then
+                -- Sniper Rifle
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] / 3)
+            elseif (GetLevel(PlayerIndex) == 5) then
+                -- Rocket Launcher
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6] / 3)
+            else
+                execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. Level[players[PlayerIndex][1]][6])
+            end
+        end
+        -- write nades --
+        local nades_tbl = Level[players[PlayerIndex][1]][5]
+        if nades_tbl then
+            FRAG_CHECK[PlayerIndex] = true
+            PLASMA_CHECK[PlayerIndex] = true
+            safe_write(true)
+            local PLAYER = get_dynamic_player(PlayerIndex)
+            -- Frags
+            write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+            -- Plasmas
+            write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
+            safe_write(false)
+        end
     end
+end
+
+function getplayer(PlayerIndex)
+    if tonumber(PlayerIndex) then
+        if tonumber(PlayerIndex) ~= 0 then
+            local m_player = get_player(PlayerIndex)
+            if m_player ~= 0 then return m_player end
+        end
+    end
+    return nil
 end
 
 function setscore(PlayerIndex, score)
@@ -2447,165 +1786,36 @@ function setscore(PlayerIndex, score)
             else
                 write_word(m_player + 0xC8, score)
             end
-        end
-    end
-end
-
-function changescore(PlayerIndex, number, bool)
-    local m_player = getplayer(PlayerIndex)
-    if m_player then
-        local player_scores = read_word(m_player + 0xC8)
-        if bool ~= nil then
-            if bool == true then
-                local score = player_scores + number
-                setscore(PlayerIndex, score)
-            elseif bool == false then
-                local score = player_scores + math.abs(number)
-                setscore(PlayerIndex, -score)
-            end
-        end
-    end
-end
-
-function getprofilepath()
-    local folder_directory = data_folder
-    return folder_directory
-end
-
-function SaveTableData(t, filename)
-    local dir = getprofilepath()
-    local file = io.open(dir .. filename, "w")
-    local spaces = 0
-    local function tab()
-        local str = ""
-        for i = 1, spaces do
-            str = str .. " "
-        end
-        return str
-    end
-    local function format(t)
-        spaces = spaces + 4
-        local str = "{ "
-        for k, v in opairs(t) do
-            -- Key datatypes
-            if type(k) == "string" then
-                k = string.format("%q", k)
-            elseif k == math.inf then
-                k = "1 / 0"
-            end
-            k = tostring(k)
-            -- Value datatypes
-            if type(v) == "string" then
-                v = string.format("%q", v)
-            elseif v == math.inf then
-                v = "1 / 0"
-            end
-            if type(v) == "table" then
-                if tablelen(v) > 0 then
-                    str = str .. "\n" .. tab() .. "[" .. k .. "] = " .. format(v) .. ","
-                else
-                    str = str .. "\n" .. tab() .. "[" .. k .. "] = {},"
-                end
+        elseif get_var(0, "$gt") == "slayer" then
+            if score >= 0x7FFF then
+                execute_command("score " .. PlayerIndex .. " +1")
+            elseif score <= -0x7FFF then
+                execute_command("score " .. PlayerIndex .. " -1")
             else
-                str = str .. "\n" .. tab() .. "[" .. k .. "] = " .. tostring(v) .. ","
-            end
-        end
-        spaces = spaces - 4
-        return string.sub(str, 1, string.len(str) -1) .. "\n" .. tab() .. "}"
-    end
-    file:write("return " .. format(t))
-    file:close()
-end
-
-function opairs(t)
-    local keys = { }
-    for k, v in pairs(t) do
-        table.insert(keys, k)
-    end
-    table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
-    local count = 1
-    return function()
-        if unpack(keys) then
-            local key = keys[count]
-            local value = t[key]
-            count = count + 1
-            return key, value
-        end
-    end
-end
-
-function spaces(n, delimiter)
-    delimiter = delimiter or ""
-    local str = ""
-    for i = 1, n do
-        if i == math.floor(n / 2) then
-            str = str .. delimiter
-        end
-        str = str .. " "
-    end
-    return str
-end
-
-function LoadTableData(filename)
-    local dir = getprofilepath()
-    local file = loadfile(dir .. filename)
-    if file then
-        return file() or { }
-    end
-    return { }
-end
-
-function tablelen(t)
-    local count = 0
-    for k, v in pairs(t) do
-        count = count + 1
-    end
-    return count
-end
-
-function table.find(t, v, case)
-
-    if case == nil then case = true end
-
-    for k, val in pairs(t) do
-        if case then
-            if v == val then
-                return k
-            end
-        else
-            if string.lower(v) == string.lower(val) then
-                return k
+                execute_command("score " .. PlayerIndex .. " " .. score)
             end
         end
     end
 end
 
-function math.round(input, precision)
-    return math.floor(input *(10 ^ precision) + 0.5) /(10 ^ precision)
-end
-
-function read_widestring(address, length)
-    local count = 0
-    local byte_table = { }
-    for i = 1, length do
-        if read_byte(address + count) ~= 0 then
-            byte_table[i] = string.char(read_byte(address + count))
-        end
-        count = count + 2
+function CheckType()
+    type_is_koth = get_var(1, "$gt") == "koth"
+    type_is_oddball = get_var(1, "$gt") == "oddball"
+    type_is_race = get_var(1, "$gt") == "race"
+    if (type_is_koth) or (type_is_oddball) or (type_is_race) then
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb['EVENT_CHAT'])
+        unregister_callback(cb["EVENT_GAME_END"])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_GAME_START"])
+        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_PRESPAWN'])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+        cprint("Warning: This script doesn't support ODDBALL, KOTH or RACE", 4 + 8)
     end
-    return table.concat(byte_table)
 end
 
 function tokenizestring(inputstr, sep)
@@ -2618,4 +1828,228 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+-- Clear the player's console
+function cls(PlayerIndex)
+    for clear = 1, 25 do
+        rprint(PlayerIndex, " ")
+    end
+end
+
+function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
+    math.randomseed(os.time())
+    local e = EQUIPMENT_TABLE[math.random(1, #EQUIPMENT_TABLE - 1)]
+    local w = WEAPON_TABLE[math.random(1, #WEAPON_TABLE - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    local GetRandomNumber = math.random(1, 2)
+    if (tonumber(GetRandomNumber) == 1) then
+        spawn_object(tostring(eqip_type_id), e, xAxis, yAxis, zAxis + 0.5, rotation)
+    elseif (tonumber(GetRandomNumber) == 2) then
+        spawn_object(tostring(weap_type_id), w, xAxis, yAxis, zAxis + 0.5, rotation)
+    end
+end
+
+function JustEquipment(victim, xAxis, yAxis, zAxis)
+    math.randomseed(os.time())
+    local e = EQUIPMENT_TABLE[math.random(0, #EQUIPMENT_TABLE - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(eqip_type_id), e, xAxis, yAxis, zAxis + 0.5, rotation)
+end
+
+function JustWeapons(victim, xAxis, yAxis, zAxis)
+    math.randomseed(os.time())
+    local w = WEAPON_TABLE[math.random(0, #WEAPON_TABLE - 1)]
+    local player = get_player(victim)
+    local rotation = read_float(player + 0x138)
+    spawn_object(tostring(weap_type_id), w, xAxis, yAxis, zAxis + 0.5, rotation)
+end
+
+function get_tag_info(tagclass, tagname)
+    -- Credits to 002 for this function. Return metaid
+    local tagarray = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) -1 do
+        local tag = tagarray + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == tagclass) then
+            if (read_string(read_dword(tag + 0x10)) == tagname) then
+                return read_dword(tag + 0xC)
+            end
+        end
+    end
+    return nil
+end
+
+function LoadTableLarge()
+    if get_var(0, "$gt") ~= "n/a" then
+
+    end
+end
+
+function LoadItems()
+    if get_var(0, "$gt") ~= "n/a" then
+        -- Melee
+        MELEE_ASSAULT_RIFLE = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
+        MELEE_ODDBALL = get_tag_info("jpt!", "weapons\\ball\\melee")
+        MELEE_FLAG = get_tag_info("jpt!", "weapons\\flag\\melee")
+        MELEE_FLAME_THROWER = get_tag_info("jpt!", "weapons\\flamethrower\\melee")
+        MELEE_NEEDLER = get_tag_info("jpt!", "weapons\\needler\\melee")
+        MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
+        MELEE_PLASMA_PISTOL = get_tag_info("jpt!", "weapons\\plasma pistol\\melee")
+        MELEE_PLASMA_RIFLE = get_tag_info("jpt!", "weapons\\plasma rifle\\melee")
+        MELEE_ROCKET_LAUNCHER = get_tag_info("jpt!", "weapons\\rocket launcher\\melee")
+        MELEE_SHOTGUN = get_tag_info("jpt!", "weapons\\shotgun\\melee")
+        MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
+        MELEE_PLASMA_CANNON = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+        -- Grenades Explosion/Attached
+        GRENADE_FRAG_EXPLOSION = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
+        GRENADE_PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
+        GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
+        -- Vehicles
+        VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+        -- Weapons
+        ASSAULT_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
+
+        -- configuration --
+        -- Red Base x,y,z
+        -- Blue Base x,y,z
+        -- Flag x,y,z
+        -- Flag Runner Speed
+        FLAG["bloodgulch"] = {
+            { 95.687797546387, - 159.44900512695, - 0.10000000149012 },
+            { 40.240600585938, - 79.123199462891, - 0.10000000149012 },
+            { 65.749893188477, - 120.40949249268, 0.11860413849354 },
+            { 1.2 }
+        }
+        FLAG["deathisland"] = {
+            { - 26.576030731201, - 6.9761986732483, 9.6631727218628 },
+            { 29.843469619751, 15.971487045288, 8.2952880859375 },
+            { - 30.282138824463, 31.312761306763, 16.601940155029 },
+            { 1.2 }
+        }
+        FLAG["icefields"] = {
+            { 24.85000038147, - 22.110000610352, 2.1110000610352 },
+            { - 77.860000610352, 86.550003051758, 2.1110000610352 },
+            { - 26.032163619995, 32.365093231201, 9.0070295333862 },
+            { 1.2 }
+        }
+        FLAG["infinity"] = {
+            { 0.67973816394806, - 164.56719970703, 15.039022445679 },
+            { - 1.8581243753433, 47.779975891113, 11.791272163391 },
+            { 9.6316251754761, - 64.030670166016, 7.7762198448181 },
+            { 1.2 }
+        }
+        FLAG["sidewinder"] = {
+            { - 32.038200378418, - 42.066699981689, - 3.7000000476837 },
+            { 30.351499557495, - 46.108001708984, - 3.7000000476837 },
+            { 2.0510597229004, 55.220195770264, - 2.8019363880157 },
+            { 1.2 }
+        }
+        FLAG["timberland"] = {
+            { 17.322099685669, - 52.365001678467, - 17.751399993896 },
+            { - 16.329900741577, 52.360000610352, - 17.741399765015 },
+            { 1.2504668235779, - 1.4873152971268, - 21.264007568359 },
+            { 1.2 }
+        }
+        FLAG["dangercanyon"] = {
+            { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 },
+            { 12.007399559021, - 3.4513700008392, - 2.2418999671936 },
+            { - 0.47723594307899, 55.331966400146, 0.23940123617649 },
+            { 1.2 }
+        }
+        FLAG["beavercreek"] = {
+            { 29.055599212646, 13.732000350952, - 0.10000000149012 },
+            { - 0.86037802696228, 13.764800071716, - 0.0099999997764826 },
+            { 14.01514339447, 14.238339424133, - 0.91193699836731 },
+            { 1.2 }
+        }
+        FLAG["boardingaction"] = {
+            { 1.723109960556, 0.4781160056591, 0.60000002384186 },
+            { 18.204000473022, - 0.53684097528458, 0.60000002384186 },
+            { 4.3749675750732, - 12.832932472229, 7.2201852798462 },
+            { 1.5 }
+        }
+        FLAG["carousel"] = {
+            { 5.6063799858093, - 13.548299789429, - 3.2000000476837 },
+            { - 5.7499198913574, 13.886699676514, - 3.2000000476837 },
+            { 0.033261407166719, 0.0034416019916534, - 0.85620224475861 },
+            { 1.2 }
+        }
+        FLAG["chillout"] = {
+            { 7.4876899719238, - 4.49059009552, 2.5 },
+            { - 7.5086002349854, 9.750340461731, 0.10000000149012 },
+            { 1.392117857933, 4.7001452445984, 3.108856678009 },
+            { 1.2 }
+        }
+        FLAG["damnation"] = {
+            { 9.6933002471924, - 13.340399742126, 6.8000001907349 },
+            { - 12.17884349823, 14.982703208923, - 0.20000000298023 },
+            { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 },
+            { 1.2 }
+        }
+        FLAG["gephyrophobia"] = {
+            { 26.884338378906, - 144.71551513672, - 16.049139022827 },
+            { 26.727857589722, 0.16621616482735, - 16.048349380493 },
+            { 63.513668060303, - 74.088592529297, - 1.0624552965164 },
+            { 1.2 }
+        }
+        FLAG["hangemhigh"] = {
+            { 13.047902107239, 9.0331249237061, - 3.3619771003723 },
+            { 32.655700683594, - 16.497299194336, - 1.7000000476837 },
+            { 21.020147323608, - 4.6323413848877, - 4.2290902137756 },
+            { 1.2 }
+        }
+        FLAG["longest"] = {
+            { - 12.791899681091, - 21.6422996521, - 0.40000000596046 },
+            { 11.034700393677, - 7.5875601768494, - 0.40000000596046 },
+            { - 0.84, - 14.54, 2.41 },
+            { 1.2 }
+        }
+        FLAG["prisoner"] = {
+            { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 },
+            { 9.3676500320435, 5.1193399429321, 5.6999998092651 },
+            { 0.90271377563477, 0.088873945176601, 1.392499089241 },
+            { 1.2 }
+        }
+        FLAG["putput"] = {
+            { - 18.89049911499, - 20.186100006104, 1.1000000238419 },
+            { 34.865299224854, - 28.194700241089, 0.10000000149012 },
+            { - 2.3500289916992, - 21.121452331543, 0.90232092142105 },
+            { 1.2 }
+        }
+        FLAG["ratrace"] = {
+            { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 },
+            { 18.613000869751, - 22.652599334717, - 3.4000000953674 },
+            { 8.6629104614258, - 11.159770965576, 0.2217468470335 },
+            { 1.2 }
+        }
+        FLAG["wizard"] = {
+            { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 },
+            { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 },
+            { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 },
+            { 1.2 }
+        }
+    end
+end
+        
+function read_widestring(address, length)
+    local count = 0
+    local byte_table = { }
+    for i = 1, length do
+        if read_byte(address + count) ~= 0 then
+            byte_table[i] = string.char(read_byte(address + count))
+        end
+        count = count + 2
+    end
+    return table.concat(byte_table)
+end
+
+function math.round(number, place)
+    return math.floor(number *(10 ^(place or 0)) + 0.5) /(10 ^(place or 0))
+end
+        
+function OnError(Message)
+    print(debug.traceback())
 end
