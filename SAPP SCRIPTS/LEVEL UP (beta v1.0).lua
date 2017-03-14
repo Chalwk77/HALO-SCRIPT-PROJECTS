@@ -2,6 +2,8 @@
 Script Name: LEVEL UP (beta v1.0), for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
 
+    STATUS: COMPLETE.
+
     Acknowledgments
     Credits to "Giraffe" for his AutoVehicle-Flip functions.
     Credits to 002 for his get_tag_info function (return metaid)
