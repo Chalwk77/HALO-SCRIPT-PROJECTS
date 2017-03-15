@@ -40,57 +40,57 @@ Implementing API version: 1.11.0.0
     Your overall object: Cap, Kill ,Survive - the option is yours!
     --------------------------------------------------------------
 -->> Level 1: 
-    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 1.25x speed boost.
+    You will receive a Shotgun (w/no ammo) + 6 of each grenade
     Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
     Grenade Damage will do 4 times normal damage.
     
 -->> Level 2:
-    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.10x speed boost.
+    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade
     Your assault rifle bullets will do DOUBLE DAMAGE.
     Grenade Damage will do 4 times normal damage.
     
 -->> Level 3:
-    You will receive a Pistol + 36 bullets in the mag + 2 Frag Grenades + 1 Plasma Grenade, (no speed boost).
+    You will receive a Pistol + 36 bullets in the mag + 2 Frag Grenades + 1 Plasma Grenade
     Your pistol bullets will do NORMAL DAMAGE.
     Grenade Damage will do 4 times normal damage.
     
 -->> Level 4:
-    You will receive a Sniper Rifle + 12 bullets in the mag + 3 Frag Grenades + 1 Plasma Grenade, (no speed boost).
+    You will receive a Sniper Rifle + 12 bullets in the mag + 3 Frag Grenades + 1 Plasma Grenade
     Your sniper rifle bullets will do DOUBLE DAMAGE.
     Grenade Damage will do DOUBLE DAMAGE.
 
 -->> Level 5:
-    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 1.30x speed boost.
+    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade
     Your Rocket Launcher will do three times normal damage.
     Grenade Damage will do DOUBLE DAMAGE.
     
 -->> Level 6:
-    You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade + 1.25x speed boost.
+    You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade
     Your Plasma Cannon will do DOUBLE DAMAGE.
     Grenade Damage will do DOUBLE DAMAGE.
     
 -->> Level 7:
     You will spawn in a Ghost - No weapons / Grenades, or Speed Boost.
     Your Ghost Bolt will do DOUBLE DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 8:
     You will spawn in a Rocket Hog as both the Driver and Gunner - No weapons / Grenades, or Speed Boost.
     Your Rocket Hog will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 9:
     You will spawn in a Tank - No weapons / Grenades, or Speed Boost.
     Your Tank will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 10:
     You will spawn in a Banshee - No weapons / Grenades, or Speed Boost.
     Your Banshee will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
 --===============================================================================================================================================================--
 
@@ -165,49 +165,30 @@ SniperRifle_Multiplier = 2
 PlasmaCannon_Multiplier = 2
 RocketLauncher_Multiplier = 3
 
--- determine player speed for level# (1.0 = normal) --
-player_speed = { }
--- Shotgun
-player_speed[1] = { "Level 1", 1.20}
--- Assault Rifle
-player_speed[2] = { "Level 2", 1.10}
--- Pistol
-player_speed[3] = { "Level 3", 1.0}
--- Sniper Rifle
-player_speed[4] = { "Level 4", 1.0}
--- Rocket Launcher
-player_speed[5] = { "Level 5", 1.30}
--- Plasma Cannon
-player_speed[6] = { "Level 6", 1.25}
--- Ghost
-player_speed[7] = { "Level 7", 1.0}
--- Rocket Hog
-player_speed[8] = { "Level 8", 1.0}
--- Tank
-player_speed[9] = { "Level 9", 1.0}
--- Banshee
-player_speed[10] = { "Level 10", 1.0}
-
 -- determine player speed for current flag holder --
 flag_runner_speed = {
-    beavercreek = 1.25,
-    bloodgulch = 1.25,
-    boardingaction = 1.25,
-    carousel = 1.1,
-    dangercanyon = 1.25,
-    deathisland = 1.25,
-    gephyrophobia = 1.5,
-    icefields = 1.25,
+    -- large maps --
     infinity = 1.25,
-    sidewinder = 1.5,
+    icefields = 1.25,
+    bloodgulch = 1.25,
     timberland = 1.25,
-    hangemhigh = 0.80,
-    ratrace = 0.80,
-    damnation = 0.80,
-    putput = 0.80,
-    prisoner = 0.80,
-    wizard = 0.80,
+    sidewinder = 1.25,
+    deathisland = 1.25,
+    dangercanyon = 1.25,
+    gephyrophobia = 1.25,
+    -- small maps --
+    wizard = 0.50,
+    putput = 0.50,
+    ratrace = 0.50,
+    carousel = 0.50,
+    prisoner = 0.60,
+    damnation = 0.60,
+    hangemhigh = 0.50,
+    beavercreek = 0.60,
+    boardingaction = 0.60,
 }
+
+-- You can specify player speeds on a per level / per map basis in a function called UpdatePlayerSpeed: line 1456.
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 
@@ -234,6 +215,7 @@ TIMER = { }
 players = { }
 FLAG_BOOL = { }
 FRAG_CHECK = { }
+player_speed = { }
 FLAG_RESPAWN = { }
 FLAG_WARN = { }
 PLASMA_CHECK = { }
@@ -796,7 +778,9 @@ function OnTick()
                     -- do nothing
                 else
                     cls(j)
+                    local speed = flag_runner_speed[MAP_NAME]
                     rprint(j, "|cReturn the flag to a base to gain a level")
+                    rprint(j, "|c- " .. tostring(speed) .. "x speed")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
@@ -1467,28 +1451,82 @@ function GetLevel(PlayerIndex)
     end
 end
 
+-- determine player speed for level# on a per map basis 
+-- (1.0 = normal)
 function UpdatePlayerSpeed(PlayerIndex)
-    if (GetLevel(PlayerIndex) == 1) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[1][2]))
-    elseif (GetLevel(PlayerIndex) == 2) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[2][2]))
-    elseif (GetLevel(PlayerIndex) == 3) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[3][2]))
-    elseif (GetLevel(PlayerIndex) == 4) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[4][2]))
-    elseif (GetLevel(PlayerIndex) == 5) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[5][2]))
-    elseif (GetLevel(PlayerIndex) == 6) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[6][2]))
-    elseif (GetLevel(PlayerIndex) == 7) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[7][2]))
-    elseif (GetLevel(PlayerIndex) == 8) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[8][2]))
-    elseif (GetLevel(PlayerIndex) == 9) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[9][2]))
-    elseif (GetLevel(PlayerIndex) == 10) then
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[10][2]))
-    end
+    -- LEVEL 1 (shotgun)
+    player_speed[1] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 2 (assault rifle)
+    player_speed[2] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 3 (pistol)
+    player_speed[3] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 4 (sniper rifle)
+    player_speed[4] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 5 (rocket launcher)
+    player_speed[5] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 6 (plasma cannon)
+    player_speed[6] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 7 (ghost)
+    player_speed[7] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 8 (rocket hog)
+    player_speed[8] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 9 (tank)
+    player_speed[9] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    -- LEVEL 10 (banshee)
+    player_speed[10] = { 
+    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, 
+    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
+    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
+    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    }
+    mapname = get_var(1, "$map")
+    PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+    execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
 end
 
 function RemoveSpawnProtection(PlayerIndex)
@@ -1697,6 +1735,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed boost")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -1753,6 +1792,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed boost")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
