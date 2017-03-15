@@ -108,15 +108,19 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 ]]
 
 api_version = "1.11.0.0"
+-- CONFIGURATION STARTS --
+-- ================================================================================================================== --
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
+-- Time until flag respawns after being dropped (in seconds)
+flag_respawn_timer = 30
+-- Time until flag respawn warning is announced (in seconds) <15 seconds before flag respawns by default>
+flag_warning = 15
 
 -- If the player survives "allocated_time" without dying, reward them with random ammo/powerup
 survivor_rewards = true
-
 -- If the player survives this amount of time without dying then they're rewarded with ammo/powerup
 allocated_time = 120 -- (2 minutes - in seconds) before player is rewarded with ammo/powerup
-
 -- If player has been alive for "progression_timer", then cycle their level (update, advance)
 progression_timer = 180 -- (3 minutes)
 
@@ -128,16 +132,10 @@ REWARDS = { }
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!"}
 REWARDS[2] = { "powerups\\over shield", "an overshield!"}
 
--- Time until flag respawns after being dropped (in seconds)
-flag_respawn_timer = 30
-
--- Time until flag respawn warning is announced (in seconds) <15 seconds before flag respawns by default>
-flag_warning = 15
-
 -- Not Currently Used (out of preference)
 Spawn_Where_Killed = false -- Spawn at the same location as player died
 -- Not Currently Used (out of preference)
-Spawn_Invunrable_Time = nil -- Seconds - nil disabled
+Spawn_Invunrable_Time = nil -- in seconds - nil disabled
 
 -- Scoring --
 Check_Time = 0 -- Time (in mili-seconds) to check if player in scoring area (sphere of base)
@@ -149,16 +147,14 @@ Check_Radius = 1 -- Radius determining if player is in scoring area
 -- 3 = three times normal damage ratio
 -- ect
 
--- Normal Damage Multiplier --
-Normal_Damage = 1 -- 1 = normal damage
 -- Melee Damage Multiplier --
-Melee_Multiplier = 4 -- 1 = normal damage
+Melee_Multiplier = 4
 -- Grenade Damage Multiplier --
 
--- level's 1-3
-Grenade_Multiplier = 4 -- 1 = normal damage
--- level's 4-6
-Default_Grenade_Multiplier = 2 -- 1 = normal damage
+-- For level's 1 to 3
+Grenade_Multiplier = 4
+-- For level's 4 to 6
+Default_Grenade_Multiplier = 2
 
 -- vehicle damage multiplier -- 
 Ghost_Multiplier = 2
@@ -226,6 +222,8 @@ PowerUpSettings = {
     ["JustEquipment"] = false,
     ["JustWeapons"] = false
 }
+-- CONFIGURATION ENDS --
+-- ================================================================================================================== --
 -- Giraffe's
 rider_ejection = nil
 object_table_ptr = nil
