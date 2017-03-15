@@ -27,7 +27,7 @@ Implementing API version: 1.11.0.0
     All weapons will do four times NORMAL MELEE DAMAGE.
  
     If the flag is dropped, it will automatically respawn after 30 seconds.
-    The current flag holder will get a 1.5x speed boost.
+    The current flag holder will get a 1.2x speed boost.
     
     The first person to complete level 10 wins the game.
     
@@ -40,12 +40,12 @@ Implementing API version: 1.11.0.0
     Your overall object: Cap, Kill ,Survive - the option is yours!
     --------------------------------------------------------------
 -->> Level 1: 
-    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 2x speed boost.
+    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 1.2x speed boost.
     Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
     Grenade Damage will do 4 times normal damage.
     
 -->> Level 2:
-    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.5x speed boost.
+    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.1x speed boost.
     Your assault rifle bullets will do DOUBLE DAMAGE.
     Grenade Damage will do 4 times normal damage.
     
@@ -60,7 +60,7 @@ Implementing API version: 1.11.0.0
     Grenade Damage will do DOUBLE DAMAGE.
 
 -->> Level 5:
-    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 2x speed boost.
+    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 1.5x speed boost.
     Your Rocket Launcher will do three times normal damage.
     Grenade Damage will do DOUBLE DAMAGE.
     
@@ -171,36 +171,36 @@ RocketLauncher_Multiplier = 3
 
 -- determine player speed for level# (1 = normal) --
 player_speed = { }
-player_speed[1] = { "Level 1", 2}
-player_speed[2] = { "Level 2", 1.5}
-player_speed[3] = { "Level 3", 1}
-player_speed[4] = { "Level 4", 1}
-player_speed[5] = { "Level 5", 2}
+player_speed[1] = { "Level 1", 1.2}
+player_speed[2] = { "Level 2", 1.1}
+player_speed[3] = { "Level 3", 1.0}
+player_speed[4] = { "Level 4", 1.0}
+player_speed[5] = { "Level 5", 1.5}
 player_speed[6] = { "Level 6", 1.5}
-player_speed[7] = { "Level 7", 1}
-player_speed[8] = { "Level 8", 1}
-player_speed[9] = { "Level 9", 1}
-player_speed[10] = { "Level 10", 1}
+player_speed[7] = { "Level 7", 1.0}
+player_speed[8] = { "Level 8", 1.0}
+player_speed[9] = { "Level 9", 1.0}
+player_speed[10] = { "Level 10", 1.0}
 
 -- determine player speed for current flag holder --
 flag_runner_speed = {
-    beavercreek = 1.5,
-    bloodgulch = 1.5,
-    boardingaction = 1.5,
-    carousel = 1.5,
-    dangercanyon = 1.5,
-    deathisland = 1.5,
-    gephyrophobia = 1.5,
-    icefields = 1.5,
-    infinity = 1.5,
-    sidewinder = 1.5,
-    timberland = 1.5,
-    hangemhigh = 1.5,
-    ratrace = 1.5,
-    damnation = 1.5,
-    putput = 1.5,
-    prisoner = 1.5,
-    wizard = 1.5
+    beavercreek = 1.2,
+    bloodgulch = 1.2,
+    boardingaction = 1.2,
+    carousel = 1.2,
+    dangercanyon = 1.2,
+    deathisland = 1.2,
+    gephyrophobia = 1.2,
+    icefields = 1.2,
+    infinity = 1.2,
+    sidewinder = 1.2,
+    timberland = 1.2,
+    hangemhigh = 1.2,
+    ratrace = 1.2,
+    damnation = 1.2,
+    putput = 1.2,
+    prisoner = 1.2,
+    wizard = 1.2
 }
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
@@ -776,7 +776,6 @@ function OnTick()
                         -- level up (update, advance)
                         ctf_score(j)
                         AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
-                        UpdatePlayerSpeed(PlayerIndex)
                     end
                 end
             end
@@ -850,7 +849,7 @@ function OnWeaponDrop(PlayerIndex)
     if player_alive(PlayerIndex) then
         local PLAYER_ID = get_var(PlayerIndex, "$n")
         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-            execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
+            UpdatePlayerSpeed(PlayerIndex)
         end
     end
 end
