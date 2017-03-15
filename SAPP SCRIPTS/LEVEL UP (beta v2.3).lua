@@ -1605,7 +1605,7 @@ function DestroyVehicle(Vehicle_ID)
     end
 end
 
--- Delay entery to Gunner Seat (Rocket Hog) --
+-- Delay Entry to Gunner Seat (Rocket Hog) --
 -- Important to delay this otherwise player's will spawn in the drivers seat 70% of the time.
 function delay_gunners_seat(PlayerIndex)
     -- Gunners Seat --
