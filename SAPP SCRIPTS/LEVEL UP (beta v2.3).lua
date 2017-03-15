@@ -66,25 +66,25 @@ Implementing API version: 1.11.0.0
 -->> Level 7:
     You will spawn in a Ghost - No weapons / Grenades, or Speed Boost.
     Your Ghost Bolt will do DOUBLE DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 8:
     You will spawn in a Rocket Hog as both the Driver and Gunner - No weapons / Grenades, or Speed Boost.
     Your Rocket Hog will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 9:
     You will spawn in a Tank - No weapons / Grenades, or Speed Boost.
     Your Tank will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
     Type "/enter me" to re-enter your vehicle.
     
 -->> Level 10:
     You will spawn in a Banshee - No weapons / Grenades, or Speed Boost.
     Your Banshee will do NORMAL DAMAGE.
-    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades), (no speed boost).
     Type "/enter me" to re-enter your vehicle.
 --===============================================================================================================================================================--
 
@@ -139,6 +139,19 @@ Check_Radius = 1 -- Radius determining if player is in scoring area
 Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
 Grenade_Multiplier = 4 -- Multiplier to frag damage. 1 = normal damage
 Normal_Damage = 1 -- Normal weapon damage multiplier. 1 = normal damage
+
+
+player_speed = { }
+player_speed[1] = { "Level 1", 2}
+player_speed[2] = { "Level 2", 1.5}
+player_speed[3] = { "Level 3", 0}
+player_speed[4] = { "Level 4", 0}
+player_speed[5] = { "Level 5", 2}
+player_speed[6] = { "Level 6", 1.5}
+player_speed[7] = { "Level 7", 0}
+player_speed[8] = { "Level 8", 0}
+player_speed[9] = { "Level 9", 0}
+player_speed[10] = { "Level 10", 0}
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 
@@ -1125,7 +1138,7 @@ function OnPlayerSpawn(PlayerIndex)
         PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM = nil
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(Default_Running_Speed))
+        UpdatePlayerSpeed(PlayerIndex)
     end
 end
 
@@ -1399,6 +1412,30 @@ function GetLevel(PlayerIndex)
         return 10
     else
         return false
+    end
+end
+
+function UpdatePlayerSpeed(PlayerIndex)
+    if (GetLevel(PlayerIndex) == 1) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[1][2]))
+    elseif (GetLevel(PlayerIndex) == 2) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[2][2]))
+    elseif (GetLevel(PlayerIndex) == 3) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[3][2]))
+    elseif (GetLevel(PlayerIndex) == 4) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[4][2]))
+    elseif (GetLevel(PlayerIndex) == 5) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[5][2]))
+    elseif (GetLevel(PlayerIndex) == 6) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[6][2]))
+    elseif (GetLevel(PlayerIndex) == 7) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[7][2]))
+    elseif (GetLevel(PlayerIndex) == 8) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[8][2]))
+    elseif (GetLevel(PlayerIndex) == 9) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[9][2]))
+    elseif (GetLevel(PlayerIndex) == 10) then
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(player_speed[10][2]))
     end
 end
 
@@ -1681,6 +1718,7 @@ function cycle_level(PlayerIndex, update, advance)
         end
         -- Reset Kills --
         players[PlayerIndex][2] = 0
+        UpdatePlayerSpeed(PlayerIndex)
     end
 end
 
