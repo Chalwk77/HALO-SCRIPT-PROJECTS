@@ -19,7 +19,7 @@ Implementing API version: 1.11.0.0
             to prevent you from becoming stuck in a wall or glitching out.
             
         [2]: Meet the required kill threshold!
-            Each level has an amount of kills required to level up - the amount kills required is equal to your level number.
+            Each level has an amount of kills required to level up - the amount of kills required is equal to your currnet level number.
             For example, assuming you're level 5, you will need 5 (non consecutive kills) to progress to level 6.
             
     Be careful!
