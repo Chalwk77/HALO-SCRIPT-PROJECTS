@@ -1,0 +1,19 @@
+bloodgulch:Levelup SLAYER Gametype:bloodgulch - SLAYER
+dangercanyon:Levelup SLAYER Gametype:dangercanyon - SLAYER
+deathisland:Levelup SLAYER Gametype:deathisland - SLAYER
+icefields:Levelup SLAYER Gametype:icefields - SLAYER
+infinity:Levelup SLAYER Gametype:infinity - SLAYER
+sidewinder:Levelup SLAYER Gametype:sidewinder - SLAYER
+timberland:Levelup SLAYER Gametype:timberland - SLAYER
+
+longest:Levelup SLAYER Gametype:longest - SLAYER
+beavercreek:Levelup SLAYER Gametype:beavercreek - SLAYER
+boardingaction:Levelup SLAYER Gametype:boardingaction - SLAYER
+carousel:Levelup SLAYER Gametype:carousel - SLAYER
+gephyrophobia:Levelup SLAYER Gametype:gephyrophobia - SLAYER
+hangemhigh:Levelup SLAYER Gametype:hangemhigh - SLAYER
+ratrace:Levelup SLAYER Gametype:ratrace - SLAYER
+damnation:Levelup SLAYER Gametype:damnation - SLAYER
+putput:Levelup SLAYER Gametype:putput - SLAYER
+prisoner:Levelup SLAYER Gametype:prisoner - SLAYER
+wizard:Levelup SLAYER Gametype:wizard - SLAYER
