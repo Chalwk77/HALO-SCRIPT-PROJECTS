@@ -27,7 +27,7 @@ Implementing API version: 1.11.0.0
     All weapons will do four times NORMAL MELEE DAMAGE.
  
     If the flag is dropped, it will automatically respawn after 30 seconds.
-    The current flag holder will get a 1.2x speed boost.
+    The current flag holder will get a speed boost.
     
     The first person to complete level 10 wins the game.
     
@@ -40,12 +40,12 @@ Implementing API version: 1.11.0.0
     Your overall object: Cap, Kill ,Survive - the option is yours!
     --------------------------------------------------------------
 -->> Level 1: 
-    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 1.2x speed boost.
+    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 1.25x speed boost.
     Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
     Grenade Damage will do 4 times normal damage.
     
 -->> Level 2:
-    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.1x speed boost.
+    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.10x speed boost.
     Your assault rifle bullets will do DOUBLE DAMAGE.
     Grenade Damage will do 4 times normal damage.
     
@@ -60,12 +60,12 @@ Implementing API version: 1.11.0.0
     Grenade Damage will do DOUBLE DAMAGE.
 
 -->> Level 5:
-    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 1.5x speed boost.
+    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 1.30x speed boost.
     Your Rocket Launcher will do three times normal damage.
     Grenade Damage will do DOUBLE DAMAGE.
     
 -->> Level 6:
-    You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade + 1.5x speed boost.
+    You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade + 1.25x speed boost.
     Your Plasma Cannon will do DOUBLE DAMAGE.
     Grenade Damage will do DOUBLE DAMAGE.
     
@@ -172,17 +172,17 @@ RocketLauncher_Multiplier = 3
 -- determine player speed for level# (1.0 = normal) --
 player_speed = { }
 -- Shotgun
-player_speed[1] = { "Level 1", 1.2}
+player_speed[1] = { "Level 1", 1.20}
 -- Assault Rifle
-player_speed[2] = { "Level 2", 1.1}
+player_speed[2] = { "Level 2", 1.10}
 -- Pistol
 player_speed[3] = { "Level 3", 1.0}
 -- Sniper Rifle
 player_speed[4] = { "Level 4", 1.0}
 -- Rocket Launcher
-player_speed[5] = { "Level 5", 1.5}
+player_speed[5] = { "Level 5", 1.30}
 -- Plasma Cannon
-player_speed[6] = { "Level 6", 1.5}
+player_speed[6] = { "Level 6", 1.25}
 -- Ghost
 player_speed[7] = { "Level 7", 1.0}
 -- Rocket Hog
@@ -194,23 +194,23 @@ player_speed[10] = { "Level 10", 1.0}
 
 -- determine player speed for current flag holder --
 flag_runner_speed = {
-    beavercreek = 1.2,
-    bloodgulch = 1.2,
-    boardingaction = 1.2,
-    carousel = 1.2,
-    dangercanyon = 1.2,
-    deathisland = 1.2,
-    gephyrophobia = 1.2,
-    icefields = 1.2,
-    infinity = 1.2,
-    sidewinder = 1.2,
-    timberland = 1.2,
-    hangemhigh = 1.2,
-    ratrace = 1.2,
-    damnation = 1.2,
-    putput = 1.2,
-    prisoner = 1.2,
-    wizard = 1.2
+    beavercreek = 1.25,
+    bloodgulch = 1.25,
+    boardingaction = 1.25,
+    carousel = 1.1,
+    dangercanyon = 1.25,
+    deathisland = 1.25,
+    gephyrophobia = 1.5,
+    icefields = 1.25,
+    infinity = 1.25,
+    sidewinder = 1.5,
+    timberland = 1.25,
+    hangemhigh = 0.80,
+    ratrace = 0.80,
+    damnation = 0.80,
+    putput = 0.80,
+    prisoner = 0.80,
+    wizard = 0.80,
 }
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
