@@ -780,7 +780,7 @@ function OnTick()
                     cls(j)
                     local speed = flag_runner_speed[MAP_NAME]
                     rprint(j, "|cReturn the flag to a base to gain a level")
-                    rprint(j, "|c- " .. tostring(speed) .. "x speed")
+                    rprint(j, "|c- " .. tostring(PlayerSpeed) .. "x speed")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
