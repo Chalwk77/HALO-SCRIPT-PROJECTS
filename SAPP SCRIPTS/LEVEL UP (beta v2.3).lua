@@ -1,17 +1,103 @@
 --[[
 Script Name: LEVEL UP (beta v2.3), for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
+    
+    Description: 
+    This is a progression based game. 
+    Player's will advance thru a system of level's 1-10 (large maps) / level's 1-6 (small maps).
+    Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades.
+    
+    There are three ways to level up. 
+        [1]: Survive!
+            If you survive for 3 minutes without dying, you will level up automatically (only applies to level's 1 thru 6)
+            There is no progression timer for level's 7-10
+            In addition to this, if you survive for 2 minutes without dying, you will be rewarded ammo + a random powerup, (camo/overshield)
+            
+        [2]: Capture a flag! 
+            You will level up automatically if you capture a flag.
+            If you're progressing to a vehicle-based level, and capture a flag, this script will teleport you outside the building
+            to prevent you from becoming stuck in a wall or glitching out.
+            
+        [2]: Meet the required kill threshold!
+            Each level has an amount of kills required to level up - the amount kills required is equal to your level number.
+            For example, assuming you're level 5, you will need 5 (non consecutive kills) to progress to level 6.
+            
+    Be careful!
+    Being meeled or committing suicide will result in moving down a Level
+    All weapons will do four times NORMAL MELEE DAMAGE.
+ 
+    If the flag is dropped, it will automatically respawn after 30 seconds.
+    The current flag holder will get a 1.5x speed boost.
+    
+    The first person to complete level 10 will wins the game.
+    
+    If you lag out, this script will save your previous statistics (on quit) and load them (on join).
+    For example, assuming you're level 5 and you disconnect from the server, when you re-join you will return to level 5.
+    
+--===============================================================================================================================================================--
+    -- Level Information --
 
-    Acknowledgments
-    Credits to "Giraffe" for his AutoVehicle-Flip functions.
-    Credits to 002 for his get_tag_info function (return metaid)
-    Credits to sehe for his death message patch
+    Your overall object: Cap, Kill ,Survive - the option is yours!
+    --------------------------------------------------------------
+-->> Level 1: 
+    You will receive a Shotgun (w/no ammo) + 6 of each grenade + 2x speed boost.
+    Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
+    
+-->> Level 2:
+    You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.5x speed boost.
+    Your assault rifle bullets will do DOUBLE DAMAGE.
+    
+-->> Level 3:
+    You will receive a Pistol + 36 bullets in the mag + 2 Frag Grenades + 1 Plasma Grenade, (no speed boost).
+    Your pistol bullets will do NORMAL DAMAGE.
+    
+-->> Level 4:
+    You will receive a Sniper Rifle + 12 bullets in the mag + 3 Frag Grenades + 1 Plasma Grenade, (no speed boost).
+    Your sniper rifle bullets will do DOUBLE DAMAGE.
+
+-->> Level 5:
+    You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 2x speed boost.
+    Your Rocket Launcher will do three times normal damage.
+    
+-->> Level 6:
+    You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade + 1.5x speed boost.
+    Your Plasma Cannon will do DOUBLE DAMAGE.
+    
+-->> Level 7:
+    You will spawn in a Ghost - No weapons / Grenades, or Speed Boost.
+    Your Ghost Bolt will do DOUBLE DAMAGE.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    Type "/enter me" to re-enter your vehicle.
+    
+-->> Level 8:
+    You will spawn in a Rocket Hog as both the Driver and Gunner - No weapons / Grenades, or Speed Boost.
+    Your Rocket Hog will do NORMAL DAMAGE.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    Type "/enter me" to re-enter your vehicle.
+    
+-->> Level 9:
+    You will spawn in a Tank - No weapons / Grenades, or Speed Boost.
+    Your Tank will do NORMAL DAMAGE.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    Type "/enter me" to re-enter your vehicle.
+    
+-->> Level 10:
+    You will spawn in a Banshee - No weapons / Grenades, or Speed Boost.
+    Your Banshee will do NORMAL DAMAGE.
+    If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades) + normal walking speed.
+    Type "/enter me" to re-enter your vehicle.
+--===============================================================================================================================================================--
+
+Acknowledgments
+Credits to "Giraffe" for his AutoVehicle-Flip functions.
+Credits to 002 for his get_tag_info function (returns metaid)
+Credits to sehe for his death message patch
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of a "progression based game" that was for Phasor, by OZ Clan
+* This is my extension of a "progression based game" that was for Phasor, by OZ Clan, Inspired by the works of someone called Mitch.
 * Written by Jericho Crosby (Chalwk)
 ]]
 
@@ -1243,8 +1329,23 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         -- Double Damage
         return true, Damage * 2
     end
-    -- Assault Rifle Bullets (double damage)
+    -- Assault Rifle Projectile (double damage)
     if MetaID == ASSAULT_RIFLE_BULLET then
+        -- Double Damage
+        return true, Damage * 2
+    end
+    -- Sniper Rifle Projectile (double damage)
+    if MetaID == SNIPER_RIFLE_BULLET then
+        -- Double Damage
+        return true, Damage * 2
+    end
+    -- Rocket Launcher Projectile (three times normal damage)
+    if MetaID == ROCKET_EXPLODE then
+        -- Double Damage
+        return true, Damage * 4
+    end
+    -- Plasma Cannon Projectile (three times normal damage)
+    if MetaID == PCANNON_EXPLOSION then
         -- Double Damage
         return true, Damage * 2
     end
@@ -1960,9 +2061,12 @@ function LoadItems()
         GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
         -- Vehicles
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
-        -- Weapons
+        -- weapon projectiles --
         ASSAULT_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
-
+        SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
+        ROCKET_EXPLODE = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
+        PCANNON_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion")
+        
         -- configuration --
         -- Red Base x,y,z
         -- Blue Base x,y,z
