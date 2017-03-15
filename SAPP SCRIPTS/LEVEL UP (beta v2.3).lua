@@ -42,26 +42,32 @@ Implementing API version: 1.11.0.0
 -->> Level 1: 
     You will receive a Shotgun (w/no ammo) + 6 of each grenade + 2x speed boost.
     Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
+    Grenade Damage will do 4 times normal damage.
     
 -->> Level 2:
     You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade + 1.5x speed boost.
     Your assault rifle bullets will do DOUBLE DAMAGE.
+    Grenade Damage will do 4 times normal damage.
     
 -->> Level 3:
     You will receive a Pistol + 36 bullets in the mag + 2 Frag Grenades + 1 Plasma Grenade, (no speed boost).
     Your pistol bullets will do NORMAL DAMAGE.
+    Grenade Damage will do 4 times normal damage.
     
 -->> Level 4:
     You will receive a Sniper Rifle + 12 bullets in the mag + 3 Frag Grenades + 1 Plasma Grenade, (no speed boost).
     Your sniper rifle bullets will do DOUBLE DAMAGE.
+    Grenade Damage will do DOUBLE DAMAGE.
 
 -->> Level 5:
     You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade + 2x speed boost.
     Your Rocket Launcher will do three times normal damage.
+    Grenade Damage will do DOUBLE DAMAGE.
     
 -->> Level 6:
     You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade + 1.5x speed boost.
     Your Plasma Cannon will do DOUBLE DAMAGE.
+    Grenade Damage will do DOUBLE DAMAGE.
     
 -->> Level 7:
     You will spawn in a Ghost - No weapons / Grenades, or Speed Boost.
@@ -128,19 +134,42 @@ flag_respawn_timer = 30
 -- Time until flag respawn warning is announced (in seconds) <15 seconds before flag respawns by default>
 flag_warning = 15
 
-Default_Running_Speed = 1 -- in seconds
-
+-- Not Currently Used (out of preference)
 Spawn_Where_Killed = false -- Spawn at the same location as player died
+-- Not Currently Used (out of preference)
 Spawn_Invunrable_Time = nil -- Seconds - nil disabled
 
-Check_Time = 0 -- Mili-seconds to check if player in scoring area
+-- Scoring --
+Check_Time = 0 -- Time (in mili-seconds) to check if player in scoring area (sphere of base)
 Check_Radius = 1 -- Radius determining if player is in scoring area
 
-Melee_Multiplier = 4 -- Multiplier to meele damage. 1 = normal damage
-Grenade_Multiplier = 4 -- Multiplier to frag damage. 1 = normal damage
-Normal_Damage = 1 -- Normal weapon damage multiplier. 1 = normal damage
+-- Damage Multiplier's --
+-- 1 = normal damage
+-- 2 = double the normal damage ratio
+-- 3 = three times normal damage ratio
+-- ect
 
+-- Normal Damage Multiplier --
+Normal_Damage = 1 -- 1 = normal damage
+-- Melee Damage Multiplier --
+Melee_Multiplier = 4 -- 1 = normal damage
+-- Grenade Damage Multiplier --
 
+-- level's 1-3
+Grenade_Multiplier = 4 -- 1 = normal damage
+-- level's 4-6
+Default_Grenade_Multiplier = 2 -- 1 = normal damage
+
+-- vehicle damage multiplier -- 
+Ghost_Multiplier = 2
+
+-- weapon damage multiplier -- 
+AssaultRifle_Multiplier = 2
+SniperRifle_Multiplier = 2
+PlasmaCannon_Multiplier = 2
+RocketLauncher_Multiplier = 3
+
+-- determine player speed for level# (1 = normal) --
 player_speed = { }
 player_speed[1] = { "Level 1", 2}
 player_speed[2] = { "Level 2", 1.5}
@@ -726,7 +755,7 @@ function OnTick()
                         -- level up (update, advance)
                         ctf_score(j)
                         AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
-                        execute_command("s " .. j .. " :" .. tonumber(Default_Running_Speed))
+                        UpdatePlayerSpeed(PlayerIndex)
                     end
                 end
             end
@@ -1339,36 +1368,31 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     DAMAGE_APPLIED[PlayerIndex] = MetaID
     -- Ghost Bolt Damage - (double damage)
     if MetaID == VEHICLE_GHOST_BOLT then
-        -- Double Damage
-        return true, Damage * 2
+        return true, Damage * Ghost_Multiplier
     end
     -- Assault Rifle Projectile (double damage)
     if MetaID == ASSAULT_RIFLE_BULLET then
-        -- Double Damage
-        return true, Damage * 2
+        return true, Damage * AssaultRifle_Multiplier
     end
     -- Sniper Rifle Projectile (double damage)
     if MetaID == SNIPER_RIFLE_BULLET then
-        -- Double Damage
-        return true, Damage * 2
+        return true, Damage * SniperRifle_Multiplier
+    end
+    -- Plasma Cannon Projectile (double damage)
+    if MetaID == PCANNON_EXPLOSION then
+        return true, Damage * PlasmaCannon_Multiplier
     end
     -- Rocket Launcher Projectile (three times normal damage)
     if MetaID == ROCKET_EXPLODE then
-        -- Double Damage
-        return true, Damage * 4
-    end
-    -- Plasma Cannon Projectile (three times normal damage)
-    if MetaID == PCANNON_EXPLOSION then
-        -- Double Damage
-        return true, Damage * 2
+        return true, Damage * RocketLauncher_Multiplier
     end
     -- Multiply grenade damage by the value of "Grenade_Multiplier" - Equal to 4 by design default. 1 = normal game value
     if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
-        if GetLevel(PlayerIndex) == 1 then
+        if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 3 then
             return true, Damage * Grenade_Multiplier
         else
             -- Double Damage
-            return true, Damage * 2
+            return true, Damage * Default_Grenade_Multiplier
         end
     end
     if MetaID == MELEE_ASSAULT_RIFLE or
