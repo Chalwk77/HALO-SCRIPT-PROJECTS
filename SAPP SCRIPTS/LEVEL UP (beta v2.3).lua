@@ -29,7 +29,7 @@ Implementing API version: 1.11.0.0
     If the flag is dropped, it will automatically respawn after 30 seconds.
     The current flag holder will get a 1.5x speed boost.
     
-    The first person to complete level 10 will wins the game.
+    The first person to complete level 10 wins the game.
     
     If you lag out, this script will save your previous statistics (on quit) and load them (on join).
     For example, assuming you're level 5 and you disconnect from the server, when you re-join you will return to level 5.
