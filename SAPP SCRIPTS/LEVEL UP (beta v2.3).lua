@@ -169,17 +169,27 @@ SniperRifle_Multiplier = 2
 PlasmaCannon_Multiplier = 2
 RocketLauncher_Multiplier = 3
 
--- determine player speed for level# (1 = normal) --
+-- determine player speed for level# (1.0 = normal) --
 player_speed = { }
+-- Shotgun
 player_speed[1] = { "Level 1", 1.2}
+-- Assault Rifle
 player_speed[2] = { "Level 2", 1.1}
+-- Pistol
 player_speed[3] = { "Level 3", 1.0}
+-- Sniper Rifle
 player_speed[4] = { "Level 4", 1.0}
+-- Rocket Launcher
 player_speed[5] = { "Level 5", 1.5}
+-- Plasma Cannon
 player_speed[6] = { "Level 6", 1.5}
+-- Ghost
 player_speed[7] = { "Level 7", 1.0}
+-- Rocket Hog
 player_speed[8] = { "Level 8", 1.0}
+-- Tank
 player_speed[9] = { "Level 9", 1.0}
+-- Banshee
 player_speed[10] = { "Level 10", 1.0}
 
 -- determine player speed for current flag holder --
