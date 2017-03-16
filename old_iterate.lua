@@ -61,22 +61,4 @@ function OnNewGame()
         LargeMapConfiguration = false
         LoadSmall()
     end
-    for k, v in pairs(EQUIPMENT_TABLE) do
-        if string.find(v[1], "powerups") then
-            v[11] = v[1]
-            v[12] = 1
-        else
-            v[11] = v[1]
-            v[12] = 0
-        end
-    end
-    for k, v in pairs(WEAPON_TABLE) do
-        if string.find(v[1], "weapons") then
-            v[11] = v[1]
-            v[12] = 1
-        else
-            v[11] = v[1]
-            v[12] = 0
-        end
-    end
 end
