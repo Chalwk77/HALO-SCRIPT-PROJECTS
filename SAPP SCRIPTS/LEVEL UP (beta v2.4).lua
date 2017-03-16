@@ -15,7 +15,7 @@ Implementing API version: 1.11.0.0
             
         [2]: Capture a flag! 
             You will level up automatically if you capture a flag.
-            If you're progressing to a vehicle-based level, and capture a flag, this script will teleport you outside the building
+            If you're progressing to a vehicle-based level and capture a flag, this script will teleport you outside the building
             to prevent you from becoming stuck in a wall or glitching out.
             
         [2]: Meet the required kill threshold!
