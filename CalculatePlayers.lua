@@ -24,18 +24,15 @@ function CalculatePlayers(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
         local mapname = get_var(1, "$map")
-        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+        PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
     -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + math.floor(math.round(0.5))
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     -- between 10-16
     elseif current_players >= 10 and current_players <= 16 then
         local mapname = get_var(1, "$map")
-        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + math.floor(math.round(0.10))
-        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+        PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + math.floor(math.round(0.10))
     end
 end
 
