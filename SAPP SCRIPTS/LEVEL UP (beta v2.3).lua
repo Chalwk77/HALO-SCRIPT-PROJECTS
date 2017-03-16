@@ -1548,8 +1548,6 @@ function CalculatePlayers(PlayerIndex)
     if current_players >= 1 and current_players <= 5 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
-        
-        
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
