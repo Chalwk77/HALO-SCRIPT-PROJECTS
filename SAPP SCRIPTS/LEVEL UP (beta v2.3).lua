@@ -176,6 +176,12 @@ SniperRifle_Multiplier = 2
 PlasmaCannon_Multiplier = 2
 RocketLauncher_Multiplier = 3
 
+-- player speed offsets --
+-- If there are between 5-10 players online, how much should we offset the configured speed by? (adds this amount to player_speed)
+var_offset_1 = 0.35
+-- If there are between 10-16 players online, how much should we offset the configured speed by? (adds this amount to player_speed)
+var_offset_2 = 0.45
+
 -- determine player speed for current flag holder --
 flag_runner_speed = {
     -- large maps --
@@ -1447,6 +1453,7 @@ end
 
 -- determine player speed for level# on a per map basis 
 -- (1.0 = normal)
+
 function UpdatePlayerSpeed(PlayerIndex)
     -- LEVEL 1 (shotgun)
     player_speed[1] = { 
@@ -1519,8 +1526,26 @@ function UpdatePlayerSpeed(PlayerIndex)
     prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
     }
     mapname = get_var(1, "$map")
-    PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
-    execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+    CalculatePlayers(PlayerIndex)
+end
+
+function CalculatePlayers(PlayerIndex)
+    -- between 1-5
+    if current_players >= 1 and current_players <= 5 then
+        local mapname = get_var(1, "$map")
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+    -- between 5-10
+    elseif current_players >= 5 and current_players <= 10 then
+        local mapname = get_var(1, "$map")
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + var_offset_1
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+    -- between 10-16
+    elseif current_players >= 10 and current_players <= 16 then
+        local mapname = get_var(1, "$map")
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + var_offset_2
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+    end
 end
 
 function RemoveSpawnProtection(PlayerIndex)
