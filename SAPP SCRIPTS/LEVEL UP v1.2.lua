@@ -179,7 +179,8 @@ SniperRifle_Multiplier = 2
 PlasmaCannon_Multiplier = 2
 RocketLauncher_Multiplier = 3
 
--- ================================================================================================================ --
+-- =========================================================================================================================================== --
+-- =========================================================================================================================================== --
 -- PLAYER RUNNING SPEED CONFIGURATION --
 -- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1515.
 -- This means that you can specify how fast all player's will run on the map Wizard if they are level 5 and so on.
@@ -191,6 +192,7 @@ use_speed_offset = true
 speed_offset_1 = 0.35
 -- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
 speed_offset_2 = 0.45
+
 --[[
     
     "speed_offset_1" will take effect if there is 5-10 players online.
@@ -205,15 +207,6 @@ speed_offset_2 = 0.45
     Which now means that BOB is running at a speed of 2 instead of 1.5%.
    
 ]]
-
--- FLAG HOLDER OFFSETS --
--- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
-use_flag_holder_offset = true
--- (5-10 players online)
-flag_runner_offset_1 = 0.50
--- (10-16 players online)
-flag_runner_offset_2 = 0.90
--- ================================================================================================================ --
 
 -- determine player speed for current flag holder --
 flag_runner_speed = {
@@ -238,6 +231,16 @@ flag_runner_speed = {
     beavercreek = 0.60,
     boardingaction = 0.60,
 }
+
+-- FLAG HOLDER OFFSETS --
+-- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
+use_flag_holder_offset = true
+-- (5-10 players online)
+flag_runner_offset_1 = 0.50
+-- (10-16 players online)
+flag_runner_offset_2 = 0.90
+-- =========================================================================================================================================== --
+-- =========================================================================================================================================== --
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
 
