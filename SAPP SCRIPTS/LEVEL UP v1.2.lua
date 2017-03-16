@@ -183,7 +183,7 @@ RocketLauncher_Multiplier = 3
 -- =========================================================================================================================================== --
 -- PLAYER RUNNING SPEED CONFIGURATION --
 -- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1518.
--- This means that you can specify how fast all player's will run on the map Wizard if they are level 5 and so on.
+-- This means that you can specify how fast all player's will run on the map X.X.X. if they are level X and so on.
 -- There is a lot of flexibility here.
 
 -- Use offsets? [SEE BELOW FOR MORE INFORMATION]
@@ -194,17 +194,16 @@ speed_offset_1 = 0.35
 speed_offset_2 = 0.45
 
 --[[
-
-    "speed_offset_1" will take effect if there is 5-10 players online.
-    "speed_offset_2" will take effect if there is 10-16 players online.
-    [!] Neither will have any effect if there is below 5 players online.
-
+    
     Let's assume there are 10 players online and you have specified in the "UpdatePlayerSpeed" function that player's will run at a speed of 1.5% on the map bloodgulch while they are level 5.
     With less than 5 players online, this speed seeting seems reasonable. However, when there are 10 players (or more) online, it can be substantially harder to escape combat at slower speeds.
     We can compensate for this by adding additional speed to the player's current speed value.
     Let's now assume that you have specified that the "speed_offset_1" value will be 0.50%.
-    This now means that with between 5-10 players online, the function "CalculatePlayers" will add an additional 0.50% speed boost on top of the existing 1.5%.
-    Which now means that BOB is running at a speed of 2 instead of 1.5%.
+    This now means that that BOB is running at a speed of 2 instead of 1.5%.
+    
+    "speed_offset_1" will take effect if there is 5-10 players online.
+    "speed_offset_2" will take effect if there is 10-16 players online.
+    [!] Neither will have any effect if there is below 5 players online.
 
 ]]
 
