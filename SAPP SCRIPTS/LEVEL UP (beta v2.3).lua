@@ -110,6 +110,17 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 api_version = "1.11.0.0"
 -- CONFIGURATION STARTS --
 -- ================================================================================================================== --
+Level = { }
+Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true}
+Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true}
+Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true}
+Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12, true}
+Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6, true}
+Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0, true}
+Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0, false}
+Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0, false}
+Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0, false}
+Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0, false}
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 -- Time until flag respawns after being dropped (in seconds)
@@ -255,48 +266,6 @@ WEAPON_TABLE[7] = { "weapons\\flamethrower\\flamethrower", "Flamethrower" }
 WEAPON_TABLE[8] = { "weapons\\needler\\mp_needler", "Needler" }
 WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol" }
 WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle" }
-
-function LoadLarge()
-    Level = { }
-    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
-    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240 }
-    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
-    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
-    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
-    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
-    Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0 }
-    Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0 }
-    Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0 }
-    Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0 }
-    for k, v in pairs(Level) do
-        if string.find(v[1], "vehicles") then
-            v[11] = v[1]
-            v[12] = 1
-        else
-            v[11] = v[1]
-            v[12] = 0
-        end
-    end
-end
-
-function LoadSmall()
-    Level = { }
-    Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0 }
-    Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240 }
-    Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 }
-    Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12 }
-    Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6 }
-    Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0 }
-    for k, v in pairs(Level) do
-        if string.find(v[1], "weapons") then
-            v[7] = v[1]
-            v[8] = 1
-        else
-            v[7] = v[1]
-            v[8] = 0
-        end
-    end
-end  
      
 function OnScriptLoad()
     CheckType()
@@ -448,18 +417,41 @@ function OnNewGame()
     if ctf_enabled == true then
         SPAWN_FLAG()
     end
-    if MAP_NAME == "bloodgulch" or MAP_NAME == "timberland" or MAP_NAME == "sidewinder"
-        or MAP_NAME == "dangercanyon" or MAP_NAME == "deathisland" or MAP_NAME == "icefields" or MAP_NAME == "infinity" then
-        LargeMapConfiguration = true
-        LoadLarge()
-    end
-    -- gephyrophobia = WIP --
-    if MAP_NAME == "beavercreek" or MAP_NAME == "boardingaction" or MAP_NAME == "carousel"
-        or MAP_NAME == "chillout" or MAP_NAME == "damnation" or MAP_NAME == "gephyrophobia"
-        or MAP_NAME == "hangemhigh" or MAP_NAME == "longest" or MAP_NAME == "prisoner"
-        or MAP_NAME == "putput" or MAP_NAME == "ratrace" or MAP_NAME == "wizard" then
-        LargeMapConfiguration = false
-        LoadSmall()
+    for k, v in pairs(Level) do
+        local index = k
+        if (MAP_NAME == "bloodgulch") or (MAP_NAME == "timberland") or (MAP_NAME == "sidewinder") or (MAP_NAME == "dangercanyon") 
+            or (MAP_NAME == "deathisland") or (MAP_NAME == "icefields") or (MAP_NAME == "infinity") or (MAP_NAME == "gephyrophobia") then
+            LargeMapConfiguration = true
+            -- debugging --
+            -- cprint("Legnth of the array: " tostring(#Level), 2+8)
+            if string.find(v[1], "vehicles") then
+                v[11] = v[1]
+                v[12] = 1
+            else
+                v[11] = v[1]
+                v[12] = 0
+            end
+        elseif (MAP_NAME == "beavercreek") or (MAP_NAME == "carousel") or (MAP_NAME == "chillout") or (MAP_NAME == "damnation") 
+            or (MAP_NAME == "hangemhigh") or (MAP_NAME == "longest") or (MAP_NAME == "prisoner") 
+            or (MAP_NAME == "putput") or (MAP_NAME == "ratrace") or (MAP_NAME == "wizard") then
+            LargeMapConfiguration = false
+            if (v[7] == false) then
+                Level[index] = Level[index]
+                Level[index] = nil
+                index = index - k
+                -- debugging --
+                -- cprint("[Level] Removing index #" ..k.. " from the Level Table", 2+8)
+            else
+                index = index + k
+                if string.find(v[1], "weapons") then
+                    v[7] = v[1]
+                    v[8] = 1
+                else
+                    v[7] = v[1]
+                    v[8] = 0
+                end
+            end
+        end
     end
     for k, v in pairs(EQUIPMENT_TABLE) do
         if string.find(v[1], "powerups") then
@@ -482,7 +474,6 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    Level = { }
     current_players = 0
     rider_ejection = nil
     object_table_ptr = nil
@@ -2162,12 +2153,6 @@ function get_tag_info(tagclass, tagname)
         end
     end
     return nil
-end
-
-function LoadTableLarge()
-    if get_var(0, "$gt") ~= "n/a" then
-
-    end
 end
 
 function LoadItems()
