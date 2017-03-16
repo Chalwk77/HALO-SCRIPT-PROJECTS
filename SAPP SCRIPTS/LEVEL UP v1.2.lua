@@ -1,5 +1,5 @@
 --[[
-Script Name: LEVEL UP v2.4, for SAPP | (PC\CE)
+Script Name: LEVEL UP v1.2, for SAPP | (PC & CE)
 Implementing API version: 1.11.0.0
     
     Description: 
@@ -110,7 +110,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 ]]
 
 api_version = "1.11.0.0"
-Script_Version = "2.4"
+Script_Version = "1.2"
 -- CONFIGURATION STARTS --
 -- --===========================================================================================================================================================================-- --
 Level = { }
@@ -2394,7 +2394,7 @@ function WriteChangeLog()
     local file = io.open("LEVEL UP - change log v" .. Script_Version .. ".txt", "w")
     file:write("Document Name: LEVEL UP v" .. Script_Version .. "\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-    file:write("LEVEL UP version 2.4\n")
+    file:write("LEVEL UP version 1.2\n")
     file:write("Released on (Wednesday 15 Marth 2017)\n")
     file:write("-- Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.\n")
     file:write("-- Fixed typos in the documentation.\n")
@@ -2407,7 +2407,7 @@ function WriteChangeLog()
     file:write("\n")
     file:write("\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-    file:write("LEVEL UP version 2.3\n")
+    file:write("LEVEL UP version 1.0\n")
     file:write("First Official Release (Wednesday 1st February 2017)\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
     file:write("\n")
