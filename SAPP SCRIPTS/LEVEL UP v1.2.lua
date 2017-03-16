@@ -761,9 +761,9 @@ function OnTick()
 
                 -- set player speed --
                 -- Determine how many players are currently connected to the server. 
-                -- If there are between 1-5 players online, no offset is made. 
-                -- If there are between 5-10 players online, it applies the configurable value of a variable called "var_offset_1" at the top of the script to the player's current speed. 
-                -- If there are between 10-16, it applies to var_offset_2.
+                -- If there is 1 to 5 players online, no offset is made and will return the value of flag_runner_speed/mapname/speed
+                -- If there are between 5 to 10 players online, it applies the configurable value from a variable called "var_offset_1" at the top of the script to the player's current speed. 
+                -- If there are between 10 to 16 online, it refers to var_offset_2.
                 
                 -- player's connected: between 1-5
                 if current_players >= 1 and current_players <= 5 then
@@ -1558,14 +1558,13 @@ function UpdatePlayerSpeed(PlayerIndex)
     sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
     prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
     }
-    mapname = get_var(1, "$map")
     CalculatePlayers(PlayerIndex)
 end
 
 -- The player calculator function determines how many players are currently connected to the server. 
--- If there are between 1-5 players online, no offset is made. 
--- But if there are between 5-10 players online, it applies the configurable value of a variable called "var_offset_1" at the top of the script to the player's current speed. 
--- If there are between 10-16, it applies to var_offset_2.
+-- If there is 1 to 5 players online, no offset is made and will return the value of player_speed/level/mapname
+-- If there are between 5 to 10 players online, it applies the configurable value from a variable called "var_offset_1" at the top of the script to the player's current speed. 
+-- If there are between 10 to 16 online, it refers to var_offset_2.
 function CalculatePlayers(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
