@@ -179,12 +179,6 @@ SniperRifle_Multiplier = 2
 PlasmaCannon_Multiplier = 2
 RocketLauncher_Multiplier = 3
 
--- player speed offsets --
--- If there are between 5-10 players online, how much should we offset the configured speed by? (adds this amount to player_speed)
-var_offset_1 = 0.35
--- If there are between 10-16 players online, how much should we offset the configured speed by? (adds this amount to player_speed)
-var_offset_2 = 0.45
-
 -- determine player speed for current flag holder --
 flag_runner_speed = {
     -- large maps --
@@ -210,10 +204,29 @@ flag_runner_speed = {
 }
 
 -- ================================================================================================================ --
--- PLAYER RUNNING SPEEDS (non flag holders) --
--- You can specify player running speed on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1495.
--- This means that you can specify how fast BOB will run on the map Wizard if he's level 1. 
+-- PLAYER RUNNING SPEED CONFIGURATION (non flag holders) --
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1507.
+-- This means that you can specify how fast BOB will run on the map Wizard if he's level 5 and so on.
 -- There is a lot of flexibility here.
+
+use_speed_offset = true
+-- Speed Offset - (5-10 players online) - [SEE BELOW FOR MORE INFORMATION]
+speed_offset_1 = 0.35
+-- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
+speed_offset_2 = 0.45
+
+-- The "CalculatePlayers" function determines how many players are currently connected to the server and offsets their speed accordingly.
+-- If there is only 1 to 5 players online, no offset is made.
+-- However, if there are between 5 to 10 players online, the script will apply an additional amount of speed (offset) on top of the player's current speed.
+-- You can configure this amount in the variables above called "speed_offset_1" and "speed_offset_2".
+
+-- In other words...
+-- Let's assume there are 5 to 10 players online and you have specified (in the "UpdatePlayerSpeed" function) that player's will run at a speed of 1.2 on the map bloodgulch while they are level 5.
+-- With less than 5 players online, this speed seeting seems reasonable. However, when there are 5 to 10 players online, it can be substantially harder to escape combat at slower speeds.
+-- We can compensate for this by adding additional speed (speed offset) to the player's current speed value.
+-- Let's now assume you have specified that the "speed_offset_1" value is "0.50"...
+-- This now means that with 5 to 10 players online, the function "CalculatePlayers" will add an additional 0.50% speed boost on top of the existing 1.5%. 
+-- Which now means that BOB is running at a speed of 2.
 -- ================================================================================================================ --
 
 ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
@@ -763,28 +776,27 @@ function OnTick()
                 -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
                 local PLAYER_ID = get_var(j, "$n")
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
-
-                -- set player speed --
-                -- Determine how many players are currently connected to the server. 
-                -- If there is 1 to 5 players online, no offset is made and will return the value of flag_runner_speed/mapname/speed
-                -- If there are between 5 to 10 players online, it applies the configurable value from a variable called "var_offset_1" at the top of the script to the player's current speed. 
-                -- If there are between 10 to 16 online, it refers to var_offset_2.
                 
                 -- player's connected: between 1-5
-                if current_players >= 1 and current_players <= 5 then
-                    local MAPNAME = get_var(1, "$map")
-                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
-                -- player's connected: between 5-10
-                elseif current_players >= 5 and current_players <= 10 then
-                    local MAPNAME = get_var(1, "$map")
-                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
-                -- player's connected: between 10-16
-                elseif current_players >= 10 and current_players <= 16 then
-                    local MAPNAME = get_var(1, "$map")
-                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
+                no_offset = FLAG[MAP_NAME][4][1]
+                if use_speed_offset then
+                    if current_players >= 1 and current_players <= 5 then
+                        local MAPNAME = get_var(1, "$map")
+                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
+                    -- player's connected: between 5-10
+                    elseif current_players >= 5 and current_players <= 10 then
+                        local MAPNAME = get_var(1, "$map")
+                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + speed_offset_1
+                    -- player's connected: between 10-16
+                    elseif current_players >= 10 and current_players <= 16 then
+                        local MAPNAME = get_var(1, "$map")
+                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + speed_offset_2
+                    end
+                    execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
+                else
+                    execute_command("s " .. j .. " :" .. tonumber(no_offset))
                 end
                 
-                execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
 
                 -- Blue Base
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
@@ -1563,13 +1575,15 @@ function UpdatePlayerSpeed(PlayerIndex)
     sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
     prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
     }
-    CalculatePlayers(PlayerIndex)
+    if use_speed_offset then
+        CalculatePlayers(PlayerIndex)
+    else
+    local mapname = get_var(1, "$map")
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+    end
 end
 
--- The player calculator function determines how many players are currently connected to the server. 
--- If there is 1 to 5 players online, no offset is made and will return the value of player_speed/level/mapname
--- If there are between 5 to 10 players online, it applies the configurable value from a variable called "var_offset_1" at the top of the script to the player's current speed. 
--- If there are between 10 to 16 online, it refers to var_offset_2.
 function CalculatePlayers(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
@@ -1579,12 +1593,12 @@ function CalculatePlayers(PlayerIndex)
     -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
         local mapname = get_var(1, "$map")
-        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + var_offset_1
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_1
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     -- between 10-16
     elseif current_players >= 10 and current_players <= 16 then
         local mapname = get_var(1, "$map")
-        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + var_offset_2
+        local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_2
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     end
 end
@@ -1870,7 +1884,13 @@ function cycle_level(PlayerIndex, update, advance)
         end
         -- Reset Kills --
         players[PlayerIndex][2] = 0
-        UpdatePlayerSpeed(PlayerIndex)
+        if use_speed_offset then
+            CalculatePlayers(PlayerIndex)
+        else
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
+        end
     end
 end
 
