@@ -746,16 +746,21 @@ function OnTick()
                 local PLAYER_ID = get_var(j, "$n")
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
 
-                -- Set player speed
-                -- between 1-5
+                -- set player speed --
+                -- Determine how many players are currently connected to the server. 
+                -- If there are between 1-5 players online, no offset is made. 
+                -- If there are between 5-10 players online, it applies the configurable value of a variable called "var_offset_1" at the top of the script to the player's current speed. 
+                -- If there are between 10-16, it applies to var_offset_2.
+                
+                -- player's connected: between 1-5
                 if current_players >= 1 and current_players <= 5 then
                     local MAPNAME = get_var(1, "$map")
                     FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
-                -- between 5-10
+                -- player's connected: between 5-10
                 elseif current_players >= 5 and current_players <= 10 then
                     local MAPNAME = get_var(1, "$map")
                     FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
-                -- between 10-16
+                -- player's connected: between 10-16
                 elseif current_players >= 10 and current_players <= 16 then
                     local MAPNAME = get_var(1, "$map")
                     FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
@@ -1543,6 +1548,10 @@ function UpdatePlayerSpeed(PlayerIndex)
     CalculatePlayers(PlayerIndex)
 end
 
+-- The player calculator function determines how many players are currently connected to the server. 
+-- If there are between 1-5 players online, no offset is made. 
+-- But if there are between 5-10 players online, it applies the configurable value of a variable called "var_offset_1" at the top of the script to the player's current speed. 
+-- If there are between 10-16, it applies to var_offset_2.
 function CalculatePlayers(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
