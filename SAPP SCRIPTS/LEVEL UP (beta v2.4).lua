@@ -1474,7 +1474,8 @@ end
 
 -- determine player speed for level# on a per map basis 
 -- (1.0 = normal)
-
+-- This function give you a lot of flexibility in the way of specifying player speeds on a per level, per map basis. 
+-- Currently, all values are 1.0. But the option is there to change them if you so desire.
 function UpdatePlayerSpeed(PlayerIndex)
     -- LEVEL 1 (shotgun)
     player_speed[1] = { 
