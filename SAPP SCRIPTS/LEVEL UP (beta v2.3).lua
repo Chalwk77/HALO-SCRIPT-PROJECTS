@@ -424,7 +424,7 @@ function OnNewGame()
             or (MAP_NAME == "deathisland") or (MAP_NAME == "icefields") or (MAP_NAME == "infinity") or (MAP_NAME == "gephyrophobia") then
             LargeMapConfiguration = true
             -- debugging --
-            -- cprint("Legnth of the array: " tostring(#Level), 2+8)
+            -- cprint("Length of the array: " tostring(#Level), 2+8)
             if string.find(v[1], "vehicles") then
                 v[11] = v[1]
                 v[12] = 1
@@ -441,7 +441,7 @@ function OnNewGame()
                 Level[index] = nil
                 index = index - k
                 -- debugging --
-                -- cprint("[Level] Removing index #" ..k.. " from the Level Table", 2+8)
+                -- cprint("Removing index #" ..k.. " from the Level Table", 2+8)
             else
                 index = index + k
                 if string.find(v[1], "weapons") then
