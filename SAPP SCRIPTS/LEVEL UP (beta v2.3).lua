@@ -747,7 +747,21 @@ function OnTick()
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
 
                 -- Set player speed
-                execute_command("s " .. j .. " :" .. tonumber(FLAG[MAP_NAME][4][1]))
+                -- between 1-5
+                if current_players >= 1 and current_players <= 5 then
+                    local MAPNAME = get_var(1, "$map")
+                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
+                -- between 5-10
+                elseif current_players >= 5 and current_players <= 10 then
+                    local MAPNAME = get_var(1, "$map")
+                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
+                -- between 10-16
+                elseif current_players >= 10 and current_players <= 16 then
+                    local MAPNAME = get_var(1, "$map")
+                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
+                end
+                
+                execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
 
                 -- Blue Base
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
@@ -780,7 +794,7 @@ function OnTick()
                     cls(j)
                     local speed = flag_runner_speed[MAP_NAME]
                     rprint(j, "|cReturn the flag to a base to gain a level")
-                    rprint(j, "|c- " .. tostring(flag_runner_speed[MAP_NAME]) .. "x speed")
+                    rprint(j, "|c- " .. tostring(FlagRunnerSpeed) .. "x speed")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
                     rprint(j, "|c ")
@@ -1534,6 +1548,8 @@ function CalculatePlayers(PlayerIndex)
     if current_players >= 1 and current_players <= 5 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+        
+        
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
