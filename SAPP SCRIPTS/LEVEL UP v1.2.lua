@@ -4,34 +4,42 @@ Implementing API version: 1.11.0.0
 
     Description:
     This is a progression based game.
-    Player's will advance thru a system of level's 1-10 (large maps) / level's 1-6 (small maps).
-    Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades.
+    Player's will advance through a progresion based leveling sytem. 
+    There are 10 levels in total.
+    Large maps will consist of all 10 levels. (level's 7 to 10 are vechile-based).
+    Whereas smaller maps will only consist of Level's 1 to 6
+    
+    Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades and various objectives.
 
     There are three ways to level up.
-        [1]: Survive!
-            If you survive for 3 minutes without dying, you will level up automatically (only applies to level's 1 thru 6)
-            There is no progression timer for level's 7-10
-            In addition to this, if you survive for 2 minutes without dying, you will be rewarded ammo + a random powerup, (camo/overshield)
+        [1]: Meet the required kill threshold!
+            Each level has an amount of kills required to level up. The amount of kills required is equal to your currnet level number.
+            For example, assuming you're level 5, you will need 5 non-consecutive kills to progress to level 6.
 
         [2]: Capture a flag!
             You will level up automatically if you capture a flag.
             If you're progressing to a vehicle-based level and capture a flag, this script will teleport you outside the building
             to prevent you from becoming stuck in a wall or glitching out.
 
-        [2]: Meet the required kill threshold!
-            Each level has an amount of kills required to level up - the amount of kills required is equal to your currnet level number.
-            For example, assuming you're level 5, you will need 5 (non consecutive kills) to progress to level 6.
+        [3]: Survive!
+            If you survive for 3 minutes without dying, you will level up automatically (only applies to level's 1 thru 6)
+            There is no progression timer for level's 7-10
+            In addition to this, if you survive for 2 minutes without dying, you will be rewarded ammo + a random powerup, (camo/overshield)
+            
+    [!] CAUTION [!]
+    Being meeled or committing suicide will result in moving down a Level!
+    
+    ** MELEE **
+    All weapons will do four times the normal melee damage.
 
-    Be careful!
-    Being meeled or committing suicide will result in moving down a Level
-    All weapons will do four times NORMAL MELEE DAMAGE.
-
+    ** FLAG **
     If the flag is dropped, it will automatically respawn after 30 seconds.
     The current flag holder will get a speed boost.
 
     The first person to complete level 10 wins the game.
 
-    If you lag out, this script will save your previous statistics (on quit) and load them (on join).
+    ** STATS SAVING **
+    If you lag out, this script will save your previous statistics (on quit) and load them (on join) provided the game you were in hasn't finished.
     For example, assuming you're level 5 and you disconnect from the server, when you re-join you will return to level 5.
 
 --===========================================================================================================================================================================--
@@ -182,7 +190,7 @@ RocketLauncher_Multiplier = 3
 -- =========================================================================================================================================== --
 -- =========================================================================================================================================== --
 -- PLAYER RUNNING SPEED CONFIGURATION --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1518.
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1525.
 -- This means that you can specify how fast all player's will run on the map X.X.X. if they are level X and so on.
 -- There is a lot of flexibility here.
 
@@ -1726,7 +1734,7 @@ function UpdatePlayerSpeed(PlayerIndex)
         boardingaction = 1.0
     }
     if use_speed_offset then
-        CalculatePlayers(PlayerIndex)
+        SpeedHandler(PlayerIndex)
     else
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
@@ -1734,7 +1742,7 @@ function UpdatePlayerSpeed(PlayerIndex)
     end
 end
 
-function CalculatePlayers(PlayerIndex)
+function SpeedHandler(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
         local mapname = get_var(1, "$map")
@@ -2035,7 +2043,7 @@ function cycle_level(PlayerIndex, update, advance)
         -- Reset Kills --
         players[PlayerIndex][2] = 0
         if use_speed_offset then
-            CalculatePlayers(PlayerIndex)
+            SpeedHandler(PlayerIndex)
         else
             local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
