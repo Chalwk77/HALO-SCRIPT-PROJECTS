@@ -110,6 +110,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 ]]
 
 api_version = "1.11.0.0"
+Script_Version = "2.4"
 -- CONFIGURATION STARTS --
 -- --===========================================================================================================================================================================-- --
 Level = { }
@@ -327,6 +328,16 @@ function OnScriptLoad()
     safe_write(false)
     current_players = 0
     -------------------------------------------------------------------
+    local file = io.open(string.format("changelog_" .. Script_Version .. ".txt"), "r")
+    if file then
+        changelog = true
+        file:close()
+    else
+        WriteChangeLog()
+    end
+    if not changelog then
+    	cprint("levelup.lua - Change Log v" .. Script_Version .. " is being written.")
+    end
     for i = 1, 16 do
         if player_present(i) then
             DAMAGE_APPLIED[i] = 0
@@ -2379,13 +2390,28 @@ function OnError(Message)
     print(debug.traceback())
 end
 
---[[
-Change Log:
-Version 2.4
-[+] Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.
-[o] Fixed typos in the documentation.
-[+] Created a new configurable "flag_runner_speed" table at the top of the script.
-[+] Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).
-[o] Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.
-[o] Changed the way the script iterates over the current map cycle and determines the weapon set.
-]]
+function WriteChangeLog()
+    local file = io.open("LEVEL UP - change log v" .. Script_Version .. ".txt", "w")
+    file:write("Document Name: LEVEL UP v" .. Script_Version .. "\n")
+    file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+    file:write("LEVEL UP version 2.4\n")
+    file:write("Released on (Wednesday 15 Marth 2017)\n")
+    file:write("-- Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.\n")
+    file:write("-- Fixed typos in the documentation.\n")
+    file:write("-- Created a new configurable 'flag_runner_speed' table at the top of the script.\n")
+    file:write("-- Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).\n")
+    file:write("-- Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.\n")
+    file:write("-- Changed the way the script iterates over the current map cycle and determines the weapon set.\n")
+    file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+    file:write("\n")
+    file:write("\n")
+    file:write("\n")
+    file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+    file:write("LEVEL UP version 2.3\n")
+    file:write("First Official Release (Wednesday 1st February 2017)\n")
+    file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+    file:write("\n")
+    file:write("-- Script Created")
+    file:write("\n")
+    file:close()
+end
