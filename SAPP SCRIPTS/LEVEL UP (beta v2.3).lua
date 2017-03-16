@@ -755,7 +755,7 @@ function OnTick()
                 -- player's connected: between 1-5
                 if current_players >= 1 and current_players <= 5 then
                     local MAPNAME = get_var(1, "$map")
-                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + var_offset_1
+                    FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
                 -- player's connected: between 5-10
                 elseif current_players >= 5 and current_players <= 10 then
                     local MAPNAME = get_var(1, "$map")
