@@ -21,8 +21,9 @@ function OnNewGame()
         local index = k
         local ValueOfIndex = Level[index]
         local MAP_NAME = get_var(1, "$map")
-        if MAP_NAME == "beavercreek" or MAP_NAME == "carousel" or MAP_NAME == "chillout" or MAP_NAME == "damnation" or MAP_NAME == "gephyrophobia"
-            or MAP_NAME == "hangemhigh" or MAP_NAME == "longest" or MAP_NAME == "prisoner" or MAP_NAME == "putput" or MAP_NAME == "ratrace" or MAP_NAME == "wizard" then
+        if (MAP_NAME == "beavercreek") or (MAP_NAME == "carousel") or (MAP_NAME == "chillout") or (MAP_NAME == "damnation") 
+            or (MAP_NAME == "gephyrophobia") or (MAP_NAME == "hangemhigh") or (MAP_NAME == "longest") or (MAP_NAME == "prisoner") 
+            or (MAP_NAME == "putput") or (MAP_NAME == "ratrace") or (MAP_NAME == "wizard") then
             if (v[7] == false) then
                 Level[index] = Level[index]
                 Level[index] = nil
@@ -38,7 +39,8 @@ function OnNewGame()
             else
                 index = index + k
             end
-        else
+        elseif (MAP_NAME == "bloodgulch") or (MAP_NAME == "timberland") or (MAP_NAME == "sidewinder") or (MAP_NAME == "dangercanyon") 
+            or (MAP_NAME == "deathisland") or (MAP_NAME == "icefields") or (MAP_NAME == "infinity") or (MAP_NAME == "gephyrophobia") then
             if string.find(v[1], "vehicles") then
                 v[11] = v[1]
                 v[12] = 1
