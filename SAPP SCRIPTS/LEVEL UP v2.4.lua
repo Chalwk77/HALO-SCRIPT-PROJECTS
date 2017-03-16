@@ -1,5 +1,5 @@
 --[[
-Script Name: LEVEL UP (beta v2.4), for SAPP | (PC\CE)
+Script Name: LEVEL UP v2.4, for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
     
     Description: 
