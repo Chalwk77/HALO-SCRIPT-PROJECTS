@@ -1,59 +1,59 @@
 --[[
 Script Name: LEVEL UP v1.2, for SAPP | (PC & CE)
 Implementing API version: 1.11.0.0
-    
-    Description: 
-    This is a progression based game. 
+
+    Description:
+    This is a progression based game.
     Player's will advance thru a system of level's 1-10 (large maps) / level's 1-6 (small maps).
     Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades.
-    
-    There are three ways to level up. 
+
+    There are three ways to level up.
         [1]: Survive!
             If you survive for 3 minutes without dying, you will level up automatically (only applies to level's 1 thru 6)
             There is no progression timer for level's 7-10
             In addition to this, if you survive for 2 minutes without dying, you will be rewarded ammo + a random powerup, (camo/overshield)
-            
-        [2]: Capture a flag! 
+
+        [2]: Capture a flag!
             You will level up automatically if you capture a flag.
             If you're progressing to a vehicle-based level and capture a flag, this script will teleport you outside the building
             to prevent you from becoming stuck in a wall or glitching out.
-            
+
         [2]: Meet the required kill threshold!
             Each level has an amount of kills required to level up - the amount of kills required is equal to your currnet level number.
             For example, assuming you're level 5, you will need 5 (non consecutive kills) to progress to level 6.
-            
+
     Be careful!
     Being meeled or committing suicide will result in moving down a Level
     All weapons will do four times NORMAL MELEE DAMAGE.
- 
+
     If the flag is dropped, it will automatically respawn after 30 seconds.
     The current flag holder will get a speed boost.
-    
+
     The first person to complete level 10 wins the game.
-    
+
     If you lag out, this script will save your previous statistics (on quit) and load them (on join).
     For example, assuming you're level 5 and you disconnect from the server, when you re-join you will return to level 5.
-    
+
 --===========================================================================================================================================================================--
     -- Level Information --
 
     Your overall object: Cap, Kill ,Survive - the option is yours!
     --------------------------------------------------------------
--->> Level 1: 
+-->> Level 1:
     You will receive a Shotgun (w/no ammo) + 6 of each grenade
     Melee someone or blow them up with a grenade. Alternatively, cap a flag, or survive for 3 minutes without dying!
     Grenade Damage will do 4 times normal damage.
-    
+
 -->> Level 2:
     You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade
     Your assault rifle bullets will do DOUBLE DAMAGE.
     Grenade Damage will do 4 times normal damage.
-    
+
 -->> Level 3:
     You will receive a Pistol + 36 bullets in the mag + 2 Frag Grenades + 1 Plasma Grenade
     Your pistol bullets will do NORMAL DAMAGE.
     Grenade Damage will do 4 times normal damage.
-    
+
 -->> Level 4:
     You will receive a Sniper Rifle + 12 bullets in the mag + 3 Frag Grenades + 1 Plasma Grenade
     Your sniper rifle bullets will do DOUBLE DAMAGE.
@@ -63,30 +63,30 @@ Implementing API version: 1.11.0.0
     You will receive a Rocket Launcher + 6 additional rockets + 1 of each grenade
     Your Rocket Launcher will do three times normal damage.
     Grenade Damage will do DOUBLE DAMAGE.
-    
+
 -->> Level 6:
     You will receive a Plasma Cannon + 3 Frag Grenades + 1 Plasma Grenade
     Your Plasma Cannon will do DOUBLE DAMAGE.
     Grenade Damage will do DOUBLE DAMAGE.
-    
+
 -->> Level 7:
     You will spawn in a Ghost - No weapons / Grenades, or Speed Boost.
     Your Ghost Bolt will do DOUBLE DAMAGE.
     If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
-    
+
 -->> Level 8:
     You will spawn in a Rocket Hog as both the Driver and Gunner - No weapons / Grenades, or Speed Boost.
     Your Rocket Hog will do NORMAL DAMAGE.
     If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
-    
+
 -->> Level 9:
     You will spawn in a Tank - No weapons / Grenades, or Speed Boost.
     Your Tank will do NORMAL DAMAGE.
     If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
-    
+
 -->> Level 10:
     You will spawn in a Banshee - No weapons / Grenades, or Speed Boost.
     Your Banshee will do NORMAL DAMAGE.
@@ -114,16 +114,16 @@ Script_Version = "1.2"
 -- CONFIGURATION STARTS --
 -- --===========================================================================================================================================================================-- --
 Level = { }
-Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true}
-Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true}
-Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true}
-Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12, true}
-Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6, true}
-Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0, true}
-Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0, false}
-Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0, false}
-Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0, false}
-Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0, false}
+Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true }
+Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true }
+Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true }
+Level[4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", "Aim, Exhale and fire!", 4, { 3, 2 }, 12, true }
+Level[5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", "Blow people up!", 5, { 1, 1 }, 6, true }
+Level[6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", "Bombard anything that moves!", 6, { 3, 1 }, 0, true }
+Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0 }, 0, false }
+Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0, false }
+Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0, false }
+Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0, false }
 Starting_Level = 1 -- Must match beginning of level[#]
 ctf_enabled = true -- Spawn the flag?
 -- Time until flag respawns after being dropped (in seconds)
@@ -143,8 +143,8 @@ out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
 
 -- 1 random item from this list will be given after surviving "allocated_time"
 REWARDS = { }
-REWARDS[1] = { "powerups\\active camouflage", "a camouflage!"}
-REWARDS[2] = { "powerups\\over shield", "an overshield!"}
+REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
+REWARDS[2] = { "powerups\\over shield", "an overshield!" }
 
 -- Not Currently Used (out of preference)
 Spawn_Where_Killed = false -- Spawn at the same location as player died
@@ -182,7 +182,7 @@ RocketLauncher_Multiplier = 3
 -- =========================================================================================================================================== --
 -- =========================================================================================================================================== --
 -- PLAYER RUNNING SPEED CONFIGURATION --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1515.
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1518.
 -- This means that you can specify how fast all player's will run on the map Wizard if they are level 5 and so on.
 -- There is a lot of flexibility here.
 
@@ -194,18 +194,18 @@ speed_offset_1 = 0.35
 speed_offset_2 = 0.45
 
 --[[
-    
+
     "speed_offset_1" will take effect if there is 5-10 players online.
     "speed_offset_2" will take effect if there is 10-16 players online.
     [!] Neither will have any effect if there is below 5 players online.
-    
+
     Let's assume there are 10 players online and you have specified in the "UpdatePlayerSpeed" function that player's will run at a speed of 1.5% on the map bloodgulch while they are level 5.
     With less than 5 players online, this speed seeting seems reasonable. However, when there are 10 players (or more) online, it can be substantially harder to escape combat at slower speeds.
     We can compensate for this by adding additional speed to the player's current speed value.
     Let's now assume that you have specified that the "speed_offset_1" value will be 0.50%.
     This now means that with between 5-10 players online, the function "CalculatePlayers" will add an additional 0.50% speed boost on top of the existing 1.5%.
     Which now means that BOB is running at a speed of 2 instead of 1.5%.
-   
+
 ]]
 
 -- determine player speed for current flag holder --
@@ -367,7 +367,7 @@ function OnScriptLoad()
         WriteChangeLog()
     end
     if not changelog then
-    	cprint("levelup.lua - Change Log v" .. Script_Version .. " is being written.")
+        cprint("levelup.lua - Change Log v" .. Script_Version .. " is being written.")
     end
     for i = 1, 16 do
         if player_present(i) then
@@ -470,8 +470,8 @@ function OnNewGame()
     end
     for k, v in pairs(Level) do
         local index = k
-        if (MAP_NAME == "bloodgulch") or (MAP_NAME == "timberland") or (MAP_NAME == "sidewinder") or (MAP_NAME == "dangercanyon") 
-            or (MAP_NAME == "deathisland") or (MAP_NAME == "icefields") or (MAP_NAME == "infinity") or (MAP_NAME == "gephyrophobia") then
+        if (MAP_NAME == "bloodgulch") or(MAP_NAME == "timberland") or(MAP_NAME == "sidewinder") or(MAP_NAME == "dangercanyon")
+            or(MAP_NAME == "deathisland") or(MAP_NAME == "icefields") or(MAP_NAME == "infinity") or(MAP_NAME == "gephyrophobia") then
             LargeMapConfiguration = true
             -- debugging --
             -- cprint("Length of the array: " tostring(#Level), 2+8)
@@ -482,9 +482,9 @@ function OnNewGame()
                 v[11] = v[1]
                 v[12] = 0
             end
-        elseif (MAP_NAME == "beavercreek") or (MAP_NAME == "carousel") or (MAP_NAME == "chillout") or (MAP_NAME == "damnation") 
-            or (MAP_NAME == "hangemhigh") or (MAP_NAME == "longest") or (MAP_NAME == "prisoner") 
-            or (MAP_NAME == "putput") or (MAP_NAME == "ratrace") or (MAP_NAME == "wizard") then
+        elseif (MAP_NAME == "beavercreek") or(MAP_NAME == "carousel") or(MAP_NAME == "chillout") or(MAP_NAME == "damnation")
+            or(MAP_NAME == "hangemhigh") or(MAP_NAME == "longest") or(MAP_NAME == "prisoner")
+            or(MAP_NAME == "putput") or(MAP_NAME == "ratrace") or(MAP_NAME == "wizard") then
             LargeMapConfiguration = false
             if (v[7] == false) then
                 Level[index] = Level[index]
@@ -591,12 +591,12 @@ function PlayerAlive(PlayerIndex)
 end
 
 function RewardPlayer(PlayerIndex)
-    
+
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
     rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
     AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
-    
+
     -- Level 1-5
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 5 then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -604,14 +604,14 @@ function RewardPlayer(PlayerIndex)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
         AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
-    
-    -- Level 6 
+
+        -- Level 6
     elseif GetLevel(PlayerIndex) == 6 then
         execute_command("battery " .. PlayerIndex .. " :100")
         rprint(PlayerIndex, "Received extra battery power for Plasma Cannon + " .. tostring(item))
         AnnounceChat("Rewarding him/her with extra battery power for their Plasma Cannon + " .. tostring(item), PlayerIndex)
     end
-    
+
     -- Pick Camouflage or Overshield (item chosen is random)
     math.randomseed(os.time())
     local num = math.random(1, #REWARDS)
@@ -789,17 +789,17 @@ function OnTick()
                 -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
                 local PLAYER_ID = get_var(j, "$n")
                 PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
-                
+
                 local no_offset = FLAG[MAP_NAME][4][1]
                 if use_flag_holder_offset then
                     if current_players >= 1 and current_players <= 5 then
                         local MAPNAME = get_var(1, "$map")
                         FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
-                    -- player's connected: between 5-10
+                        -- player's connected: between 5-10
                     elseif current_players >= 5 and current_players <= 10 then
                         local MAPNAME = get_var(1, "$map")
                         FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_1
-                    -- player's connected: between 10-16
+                        -- player's connected: between 10-16
                     elseif current_players >= 10 and current_players <= 16 then
                         local MAPNAME = get_var(1, "$map")
                         FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_2
@@ -808,7 +808,7 @@ function OnTick()
                 else
                     execute_command("s " .. j .. " :" .. tonumber(no_offset))
                 end
-                
+
                 -- Blue Base
                 if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
                     -- Red Base
@@ -834,7 +834,7 @@ function OnTick()
                 FLAG_BOOL[j] = true
                 AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
                 -- Clear their console
-                if game_over then  
+                if game_over then
                     -- do nothing
                 else
                     cls(j)
@@ -985,7 +985,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- local player = get_player(PlayerIndex)
     -- write_dword(player + 0x2C, 1 * 33)
     ------------------------------------------
-    --If victim was in a vehicle, destroy it...
+    -- If victim was in a vehicle, destroy it...
     local player_object = get_dynamic_player(victim)
     if PlayerInVehicle(victim) then
         if player_object ~= 0 then
@@ -1020,10 +1020,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) and(victim == PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM) then
                 -- Drop the flag, otherwise it will be deleted - Blame the WeaponHandler.
                 drop_weapon(victim)
-                
+
                 -- Alternatively, respawn it. (currently disabled out of preference)
                 -- SPAWN_FLAG()
-                
+
                 -- Reset Melee Victim
                 PLAYERS_ALIVE[PLAYER_ID].MELEE_VICTIM = nil
             end
@@ -1138,7 +1138,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    
+
     timer(1000 * 6, "WelcomeHandler", PlayerIndex)
     -- Update score to reflect changes.
     -- First initial score is equal to Level 1 (score point 1)
@@ -1189,7 +1189,7 @@ end
 function OnPlayerPrespawn(PlayerIndex)
 
     DAMAGE_APPLIED[PlayerIndex] = 0
-    
+
     if spawn_where_killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
@@ -1318,7 +1318,7 @@ end
 function ctf_score(PlayerIndex)
     -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
-    
+
     -- reset flag respawn timers --
     FLAG_RESPAWN[PlayerIndex] = false
     FLAG_WARN[PlayerIndex] = false
@@ -1328,7 +1328,7 @@ function ctf_score(PlayerIndex)
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
     PLAYERS_ALIVE[PLAYER_ID].CAPTURES = PLAYERS_ALIVE[PLAYER_ID].CAPTURES + 1
-    if game_over then  
+    if game_over then
         -- reset flag respawn timers --
         FLAG_RESPAWN[PlayerIndex] = false
         FLAG_WARN[PlayerIndex] = false
@@ -1511,85 +1511,225 @@ function GetLevel(PlayerIndex)
     end
 end
 
--- determine player speed for level# on a per map basis 
+-- determine player speed for level# on a per map basis
 -- (1.0 = normal)
--- This function give you a lot of flexibility in the way of specifying player running speed on a per level / per map basis. 
+-- This function give you a lot of flexibility in the way of specifying player running speed on a per level / per map basis.
 -- Currently, all values are 1.0. But the option is there to change them if you so desire.
 function UpdatePlayerSpeed(PlayerIndex)
     -- LEVEL 1 (shotgun)
-    player_speed[1] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[1] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 2 (assault rifle)
-    player_speed[2] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[2] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 3 (pistol)
-    player_speed[3] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[3] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 4 (sniper rifle)
-    player_speed[4] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[4] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 5 (rocket launcher)
-    player_speed[5] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[5] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 6 (plasma cannon)
-    player_speed[6] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[6] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 7 (ghost)
-    player_speed[7] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[7] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 8 (rocket hog)
-    player_speed[8] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[8] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 9 (tank)
-    player_speed[9] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[9] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     -- LEVEL 10 (banshee)
-    player_speed[10] = { 
-    infinity = 1.0, icefields = 1.0, bloodgulch = 1.0, timberland = 1.0, 
-    wizard = 1.0, putput = 1.0, ratrace = 1.0, carousel = 1.0, longest = 1.0, 
-    sidewinder = 1.0, deathisland = 1.0, dangercanyon = 1.0, gephyrophobia = 1.0, 
-    prisoner = 1.0, damnation = 1.0, hangemhigh = 1.0, beavercreek = 1.0, boardingaction = 1.0
+    player_speed[10] = {
+        infinity = 1.0,
+        icefields = 1.0,
+        bloodgulch = 1.0,
+        timberland = 1.0,
+        wizard = 1.0,
+        putput = 1.0,
+        ratrace = 1.0,
+        carousel = 1.0,
+        longest = 1.0,
+        sidewinder = 1.0,
+        deathisland = 1.0,
+        dangercanyon = 1.0,
+        gephyrophobia = 1.0,
+        prisoner = 1.0,
+        damnation = 1.0,
+        hangemhigh = 1.0,
+        beavercreek = 1.0,
+        boardingaction = 1.0
     }
     if use_speed_offset then
         CalculatePlayers(PlayerIndex)
     else
-    local mapname = get_var(1, "$map")
+        local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     end
@@ -1601,12 +1741,12 @@ function CalculatePlayers(PlayerIndex)
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
-    -- between 5-10
+        -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_1
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
-    -- between 10-16
+        -- between 10-16
     elseif current_players >= 10 and current_players <= 16 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_2
@@ -1770,7 +1910,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return response
 end
 
-  -- [[ PROGRESSION HANDLER ]] --    
+-- [[ PROGRESSION HANDLER ]] --    
 function cycle_level(PlayerIndex, update, advance)
     -- clear player console --
     cls(PlayerIndex)
@@ -1778,7 +1918,7 @@ function cycle_level(PlayerIndex, update, advance)
     if advance == true then
         local cur = current_Level + 1
         -- Player has completed level 10, end game.
-        if cur == (#Level + 1) then
+        if cur ==(#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1826,7 +1966,7 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|c ")
         end
         -- Player has completed level 10, end game.
-        if current_Level == (#Level + 1) then
+        if current_Level ==(#Level + 1) then
             game_over = true
             local PLAYER_ID = get_var(PlayerIndex, "$n")
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -2141,14 +2281,14 @@ valid_maps = {
     "putput",
     "ratrace",
     "wizard"
-    }
+}
 
 function CheckType()
-    local type_is_ctf= get_var(1, "$gt") == "ctf"
+    local type_is_ctf = get_var(1, "$gt") == "ctf"
     local type_is_koth = get_var(1, "$gt") == "koth"
     local type_is_oddball = get_var(1, "$gt") == "oddball"
     local type_is_race = get_var(1, "$gt") == "race"
-    if (type_is_ctf) or (type_is_koth) or (type_is_oddball) or (type_is_race) then
+    if (type_is_ctf) or(type_is_koth) or(type_is_oddball) or(type_is_race) then
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_DIE"])
@@ -2165,7 +2305,7 @@ function CheckType()
     local type_is_slayer = get_var(1, "$gt") == "slayer"
     local mapname = get_var(1, "$map")
     if (type_is_slayer) then
-        if not (table.match(valid_maps, mapname)) then
+        if not(table.match(valid_maps, mapname)) then
             unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb["EVENT_JOIN"])
             unregister_callback(cb["EVENT_DIE"])
@@ -2177,14 +2317,14 @@ function CheckType()
             unregister_callback(cb['EVENT_COMMAND'])
             unregister_callback(cb['EVENT_PRESPAWN'])
             unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
-            cprint("levelup.lua does not support the map " ..mapname, 4 + 8)
+            cprint("levelup.lua does not support the map " .. mapname, 4 + 8)
             cprint("Script cannot be used.", 4 + 8)
         end
     end
 end
     
 function table.match(table, value)
-    for k,v in pairs(table) do
+    for k, v in pairs(table) do
         if v == value then
             return k
         end
@@ -2281,7 +2421,7 @@ function LoadItems()
         SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
         ROCKET_EXPLODE = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
         PCANNON_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion")
-        
+
         -- configuration --
         -- Red Base x,y,z
         -- Blue Base x,y,z
@@ -2292,115 +2432,115 @@ function LoadItems()
             { 95.687797546387, - 159.44900512695, - 0.10000000149012 },
             { 40.240600585938, - 79.123199462891, - 0.10000000149012 },
             { 65.749893188477, - 120.40949249268, 0.11860413849354 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["deathisland"] = {
             { - 26.576030731201, - 6.9761986732483, 9.6631727218628 },
             { 29.843469619751, 15.971487045288, 8.2952880859375 },
             { - 30.282138824463, 31.312761306763, 16.601940155029 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["icefields"] = {
             { 24.85000038147, - 22.110000610352, 2.1110000610352 },
             { - 77.860000610352, 86.550003051758, 2.1110000610352 },
             { - 26.032163619995, 32.365093231201, 9.0070295333862 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["infinity"] = {
             { 0.67973816394806, - 164.56719970703, 15.039022445679 },
             { - 1.8581243753433, 47.779975891113, 11.791272163391 },
             { 9.6316251754761, - 64.030670166016, 7.7762198448181 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["sidewinder"] = {
             { - 32.038200378418, - 42.066699981689, - 3.7000000476837 },
             { 30.351499557495, - 46.108001708984, - 3.7000000476837 },
             { 2.0510597229004, 55.220195770264, - 2.8019363880157 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["timberland"] = {
             { 17.322099685669, - 52.365001678467, - 17.751399993896 },
             { - 16.329900741577, 52.360000610352, - 17.741399765015 },
             { 1.2504668235779, - 1.4873152971268, - 21.264007568359 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["dangercanyon"] = {
             { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 },
             { 12.007399559021, - 3.4513700008392, - 2.2418999671936 },
             { - 0.47723594307899, 55.331966400146, 0.23940123617649 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["beavercreek"] = {
             { 29.055599212646, 13.732000350952, - 0.10000000149012 },
             { - 0.86037802696228, 13.764800071716, - 0.0099999997764826 },
             { 14.01514339447, 14.238339424133, - 0.91193699836731 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["boardingaction"] = {
             { 1.723109960556, 0.4781160056591, 0.60000002384186 },
             { 18.204000473022, - 0.53684097528458, 0.60000002384186 },
             { 4.3749675750732, - 12.832932472229, 7.2201852798462 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["carousel"] = {
             { 5.6063799858093, - 13.548299789429, - 3.2000000476837 },
             { - 5.7499198913574, 13.886699676514, - 3.2000000476837 },
             { 0.033261407166719, 0.0034416019916534, - 0.85620224475861 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["chillout"] = {
             { 7.4876899719238, - 4.49059009552, 2.5 },
             { - 7.5086002349854, 9.750340461731, 0.10000000149012 },
             { 1.392117857933, 4.7001452445984, 3.108856678009 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["damnation"] = {
             { 9.6933002471924, - 13.340399742126, 6.8000001907349 },
             { - 12.17884349823, 14.982703208923, - 0.20000000298023 },
             { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["gephyrophobia"] = {
             { 26.884338378906, - 144.71551513672, - 16.049139022827 },
             { 26.727857589722, 0.16621616482735, - 16.048349380493 },
             { 63.513668060303, - 74.088592529297, - 1.0624552965164 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["hangemhigh"] = {
             { 13.047902107239, 9.0331249237061, - 3.3619771003723 },
             { 32.655700683594, - 16.497299194336, - 1.7000000476837 },
             { 21.020147323608, - 4.6323413848877, - 4.2290902137756 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["longest"] = {
             { - 12.791899681091, - 21.6422996521, - 0.40000000596046 },
             { 11.034700393677, - 7.5875601768494, - 0.40000000596046 },
             { - 0.84, - 14.54, 2.41 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["prisoner"] = {
             { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 },
             { 9.3676500320435, 5.1193399429321, 5.6999998092651 },
             { 0.90271377563477, 0.088873945176601, 1.392499089241 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["putput"] = {
             { - 18.89049911499, - 20.186100006104, 1.1000000238419 },
             { 34.865299224854, - 28.194700241089, 0.10000000149012 },
             { - 2.3500289916992, - 21.121452331543, 0.90232092142105 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["ratrace"] = {
             { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 },
             { 18.613000869751, - 22.652599334717, - 3.4000000953674 },
             { 8.6629104614258, - 11.159770965576, 0.2217468470335 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
         FLAG["wizard"] = {
             { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 },
             { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 },
             { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 },
-            {flag_runner_speed[mapname]}
+            { flag_runner_speed[mapname] }
         }
     end
 end
