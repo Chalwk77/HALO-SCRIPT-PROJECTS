@@ -2383,7 +2383,7 @@ end
 Change Log:
 Version 2.4
 [+] Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.
-[o] Fixed types in the documentation.
+[o] Fixed typos in the documentation.
 [+] Created a new configurable "flag_runner_speed" table at the top of the script.
 [+] Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).
 [o] Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.
