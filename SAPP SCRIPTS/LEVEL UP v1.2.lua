@@ -2250,7 +2250,7 @@ function LoadItems()
         -- Red Base x,y,z
         -- Blue Base x,y,z
         -- Flag x,y,z
-        -- Flag Runner Speed
+        -- Flag Runner Speed (see "flag_runner_speed" table at the top of the script)
         local mapname = get_var(1, "$map")
         FLAG["bloodgulch"] = {
             { 95.687797546387, - 159.44900512695, - 0.10000000149012 },
