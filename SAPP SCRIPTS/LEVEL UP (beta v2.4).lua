@@ -1,5 +1,5 @@
 --[[
-Script Name: LEVEL UP (beta v2.3), for SAPP | (PC\CE)
+Script Name: LEVEL UP (beta v2.4), for SAPP | (PC\CE)
 Implementing API version: 1.11.0.0
     
     Description: 
@@ -34,7 +34,7 @@ Implementing API version: 1.11.0.0
     If you lag out, this script will save your previous statistics (on quit) and load them (on join).
     For example, assuming you're level 5 and you disconnect from the server, when you re-join you will return to level 5.
     
---===============================================================================================================================================================--
+--===========================================================================================================================================================================--
     -- Level Information --
 
     Your overall object: Cap, Kill ,Survive - the option is yours!
@@ -92,7 +92,7 @@ Implementing API version: 1.11.0.0
     Your Banshee will do NORMAL DAMAGE.
     If you get out of your vehicle you will be assigned a temporary weapon (shotgun by default) + 24 shotgun shells (no grenades)
     Type "/enter me" to re-enter your vehicle.
---===============================================================================================================================================================--
+--===========================================================================================================================================================================--
 
 Acknowledgments
 Credits to "Giraffe" for his AutoVehicle-Flip functions.
@@ -102,6 +102,8 @@ Credits to sehe for his death message patch
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
+--========== CHANGE LOG AT THE BOTTOM OF THE SCRIPT ========= --
+
 * IGN: Chalwk
 * This is my extension of a "progression based game" that was for Phasor, by OZ Clan, Inspired by the works of someone called Mitch.
 * Written by Jericho Crosby (Chalwk)
@@ -109,7 +111,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 api_version = "1.11.0.0"
 -- CONFIGURATION STARTS --
--- ================================================================================================================== --
+-- --===========================================================================================================================================================================-- --
 Level = { }
 Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true}
 Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true}
@@ -222,7 +224,7 @@ PowerUpSettings = {
     ["JustWeapons"] = false
 }
 -- CONFIGURATION ENDS --
--- ================================================================================================================== --
+-- --===========================================================================================================================================================================-- --
 -- Giraffe's
 rider_ejection = nil
 object_table_ptr = nil
@@ -2375,3 +2377,14 @@ end
 function OnError(Message)
     print(debug.traceback())
 end
+
+--[[
+Change Log:
+Version 2.4
+[+] Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.
+[o] Fixed types in the documentation.
+[+] Created a new configurable "flag_runner_speed" table at the top of the script.
+[+] Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).
+[o] Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.
+[o] Changed the way the script iterates over the current map cycle and determines the weapon set.
+]]
