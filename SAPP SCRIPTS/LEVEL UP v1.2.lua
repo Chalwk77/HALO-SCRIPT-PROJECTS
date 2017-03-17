@@ -749,8 +749,11 @@ function OnTick()
                             if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
                                 -- Reset --
                                 PROGRESSION_TIMER[o] = false
-                                -- Force player to drop the flag otherwise it will be deleted. (Blame WeaponHandler)
-                                drop_weapon(o)
+                                -- As long as they're not in a vehicle...
+                                if PlayerInVehicle(PlayerIndex) == false then
+                                    -- Force player to drop the flag otherwise it will be deleted. (Blame WeaponHandler)
+                                    drop_weapon(o)
+                                end
                                 CheckPlayer(o)
                                 local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                                 -- to player who triggered the timer --
@@ -1160,6 +1163,7 @@ function DropPowerup(x, y, z)
 end
 
 function OnPlayerJoin(PlayerIndex)
+    execute_command("sv_password vm315")
     current_players = current_players + 1
     -- set level
     players[PlayerIndex] = { Starting_Level, 0 }
@@ -1410,11 +1414,10 @@ function CheckPlayer(PlayerIndex)
     end
 end
 
--- Note to self: Re-calculate coordinates for all maps except bloodgulch.
-
 -- Player is ranking up to a Vehicle Level. If they score on a map where the flag is located 'inside' a building,
 -- move them outside the building upon leveling up. Otherwise they might get stuck inside the walls of the building.
 function delay_move(PlayerIndex)
+    CheckGephyrophobia(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
@@ -1425,7 +1428,6 @@ function delay_move(PlayerIndex)
             player_obj_id = vehicleId
             local added_height = 0.3
             local radius = 5
-            -- [!] -- Red Base, Blue Base
             -- inSphere Red, else inSphere Blue base
             if (MAP_NAME == "bloodgulch") then
                 if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, radius) == true then
@@ -1452,9 +1454,9 @@ function delay_move(PlayerIndex)
                     moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
                 end
             elseif (MAP_NAME == "sidewinder") then
-                if inSphere(PlayerIndex, -32.038, -42.067, -3.831, 3) == true then
+                if inSphere(PlayerIndex, -32.038, -42.067, -3.831, radius) == true then
                     moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
-                elseif inSphere(PlayerIndex, 30.351, -46.108, -3.831, 3) == true then
+                else 
                     moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
                 end
             elseif (MAP_NAME == "timberland") then
@@ -1463,7 +1465,37 @@ function delay_move(PlayerIndex)
                 else
                     moveobject(vehicleId, 3 - 15.02, 45.36, -18 + added_height)
                 end
+            elseif (MAP_NAME == "gephyrophobia") then
+                if inSphere(PlayerIndex, 26.884338378906, - 144.71551513672, - 16.049139022827, radius) == true then
+                    moveobject(vehicleId, 26.79, -119.96, -15.63 + added_height)
+                elseif inSphere(PlayerIndex, 26.727857589722, 0.16621616482735, - 16.048349380493, radius) == true then
+                    moveobject(vehicleId, 26.85, -24.26, -15.63 + added_height)
+                end
             end
+        end
+    end
+end
+
+function CheckGephyrophobia(PlayerIndex)
+    if (MAP_NAME == "gephyrophobia") then
+        local PlayerIndex = tonumber(PlayerIndex)
+        if GetLevel(PlayerIndex) == 9 then
+            -- If the player levels up to the TANK and they're in a portal room (top platform), teleport them just outside it by the covenant shields.
+            execute_command("msg_prefix \"\"")
+            if inSphere(PlayerIndex, -23.95, -28.26, -1.25, 5) == true then
+                moveobject(vehicleId, -18.2, -30.81, -1.25 + added_height)
+                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
+            elseif inSphere(PlayerIndex, -26.94, -107.25, -1.25, 5) == true then
+                moveobject(vehicleId, -21.16, -107.21, -1.25 + added_height)
+                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
+            elseif inSphere(PlayerIndex, 74, -38.01, -1.06, 5) == true then
+                moveobject(vehicleId, 68.35, -37.64, -1.06 + added_height)
+                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
+            elseif inSphere(PlayerIndex, 74.35, -112.67, -1.06, 5) == true then
+                moveobject(vehicleId, 68.47, -112.25, -1.06 + added_height)
+                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
+            end
+            execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
 end
@@ -1486,10 +1518,12 @@ function delay_cycle_command(PlayerIndex)
     if level_up then
         -- Update, advance (level up)
         cycle_level(Player, true, true)
+        CheckGephyrophobia(PlayerIndex)
     end
     if level_down then
         -- Update, (level down)
         cycle_level(Player, true)
+        CheckGephyrophobia(PlayerIndex)
     end
 end
 
@@ -1822,12 +1856,12 @@ function SpeedHandler(PlayerIndex)
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
-        -- between 5-10
+    -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_1
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
-        -- between 10-16
+    -- between 10-16
     elseif current_players >= 10 and current_players <= 16 then
         local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_2
@@ -1899,6 +1933,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             else
                 -- Update, advance (level up)
                 cycle_level(PlayerIndex, true, true)
+                CheckGephyrophobia(PlayerIndex)
             end
         elseif (Command == "level_down") then
             response = false
@@ -1914,16 +1949,17 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             else
                 -- Update (level down)
                 cycle_level(PlayerIndex, true)
+                CheckGephyrophobia(PlayerIndex)
             end
         end
     end
     -- CHAT
     if (Environment == 2) then
         if t[1] ~= nil then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower("level")) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower("level")) then
                 response = false
                 if t[2] ~= nil then
-                    if t[2] == "up" then
+                    if t[2] == "up" or (Command == "level up") then
                         -- update, advance
                         local PLAYER_ID = get_var(PlayerIndex, "$n")
                         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1937,8 +1973,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             -- Update, advance (level up)
                             cycle_level(PlayerIndex, true, true)
+                            CheckGephyrophobia(PlayerIndex)
                         end
-                    elseif t[2] == "down" then
+                    elseif t[2] == "down" or (Command == "level down") then
                         -- update
                         local PLAYER_ID = get_var(PlayerIndex, "$n")
                         if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
@@ -1952,6 +1989,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             -- Update (level down)
                             cycle_level(PlayerIndex, true)
+                            CheckGephyrophobia(PlayerIndex)
                         end
                     else
                         rprint(PlayerIndex, "Action not defined - up or down")
@@ -1960,14 +1998,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
         end
     end
-    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and(t[1] == string.lower("enter")) then
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and (t[1] == string.lower("enter")) then
         response = false
         if (LargeMapConfiguration == true) then
             if PlayerInVehicle(PlayerIndex) then
                 rprint(PlayerIndex, "You're already in a vehicle!")
             else
                 if t[2] ~= nil then
-                    if t[2] == "me" or(Command == "enter me") then
+                    if t[2] == "me" or (Command == "enter me") then
                         if (GetLevel(PlayerIndex) >= 1) and (GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 7 or higher.")
@@ -1978,12 +2016,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
                             timer(0, "delay_gunners_seat", PlayerIndex)
+                            CheckGephyrophobia(PlayerIndex)
                         else
                             -- all other vehicles --
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
                             vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
                             enter_vehicle(vehicleId, PlayerIndex, 0)
+                            CheckGephyrophobia(PlayerIndex)
                         end
                     else
                         rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
@@ -2001,6 +2041,7 @@ end
 function cycle_level(PlayerIndex, update, advance)
     -- clear player console --
     cls(PlayerIndex)
+    local PlayerIndex = tonumber(PlayerIndex)
     local current_Level = players[PlayerIndex][1]
     if advance == true then
         local cur = current_Level + 1
@@ -2020,6 +2061,7 @@ function cycle_level(PlayerIndex, update, advance)
                 end
                 local x, y, z = read_vector3d(player_object + 0x5C)
                 local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
+                timer(500, "NoBatteryNoNades", PlayerIndex)
             end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -2070,6 +2112,7 @@ function cycle_level(PlayerIndex, update, advance)
                 end
                 local x, y, z = read_vector3d(player_object + 0x5C)
                 local weapid = assign_weapon(spawn_object("weap", "weapons\\plasma pistol\\plasma pistol", x, y, z + 0.5), PlayerIndex)
+                timer(500, "NoBatteryNoNades", PlayerIndex)
             end
             -- ON WIN --
             OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -2225,7 +2268,14 @@ function WeaponHandler(PlayerIndex)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls.
                     added_height = 0.3
-                    vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    local mapname = get_var(1, "$map")
+                    if (GetLevel(PlayerIndex) == 9) and mapname == "sidewinder" or mapname == "deathisland" then
+                        vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.1)
+                    elseif (GetLevel(PlayerIndex) == 9) and mapname == "timberland" then 
+                        vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.1)
+                    else
+                        vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
+                    end
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
             end
@@ -2439,6 +2489,11 @@ function cls(PlayerIndex)
     for clear = 1, 25 do
         rprint(PlayerIndex, " ")
     end
+end
+
+function NoBatteryNoNades(PlayerIndex)
+    execute_command("battery " .. PlayerIndex .. " :0")
+    execute_command("nades " .. PlayerIndex .. " :0")
 end
 
 function WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
