@@ -1395,10 +1395,13 @@ function CheckPlayer(PlayerIndex)
     -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
     if PlayerInVehicle(PlayerIndex) then
-        SPAWN_FLAG()
-        execute_command("msg_prefix \"\"")
-        say_all("The flag has been re-spawned!")
-        execute_command("msg_prefix \"** SERVER ** \"")
+        local PLAYER_ID = get_var(PlayerIndex, "$n")
+        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+            SPAWN_FLAG()
+            execute_command("msg_prefix \"\"")
+            say_all("The flag has been re-spawned!")
+            execute_command("msg_prefix \"** SERVER ** \"")
+        end
     end
     local radius = 3
     if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
