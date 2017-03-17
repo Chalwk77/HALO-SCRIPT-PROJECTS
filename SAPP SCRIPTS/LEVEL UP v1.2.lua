@@ -1490,7 +1490,11 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
     -- Rocket Launcher Projectile
     if MetaID == ROCKET_EXPLODE then
-        return true, Damage * RocketLauncher_Multiplier
+        if PlayerInVehicle(PlayerIndex) then
+            return true, Damage * RHog_Rocket_Multiplier
+        else	
+            return true, Damage * RocketLauncher_Multiplier
+        end
     end
     -- Ghost Bolt Damage
     if MetaID == VEHICLE_GHOST_BOLT then
