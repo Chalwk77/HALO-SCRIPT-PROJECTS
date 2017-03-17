@@ -223,7 +223,7 @@ RocketLauncher_Multiplier = 1.090
 -- RUNNING SPEED OFFSETS (non flag holders) --
 use_speed_offset = true -- Use offsets? [SEE BELOW FOR MORE INFORMATION]
 speed_offset_1 = 0.35 -- Speed Offset - (5-10 players online) - [SEE BELOW FOR MORE INFORMATION]
-speed_offset_2 = 0.45-- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
+speed_offset_2 = 0.45 -- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
 
 --[[
     -- offset information --
@@ -1394,6 +1394,12 @@ end
 function CheckPlayer(PlayerIndex)
     -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
+    if PlayerInVehicle(PlayerIndex) then
+        SPAWN_FLAG()
+        execute_command("msg_prefix \"\"")
+        say_all("The flag has been re-spawned!")
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
     local radius = 3
     if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
         or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], radius) == true then
@@ -1592,12 +1598,12 @@ function UpdatePlayerSpeed(PlayerIndex)
     player_speed[1] = {
         infinity = 1.45,
         icefields = 1.25,
-        bloodgulch = 1.23,
-        timberland = 1.22,
+        bloodgulch = 1.25,
+        timberland = 1.25,
         wizard = 1.05,
-        putput = 1.03,
-        ratrace = 1.06,
-        carousel = 1.03,
+        putput = 1.05,
+        ratrace = 1.05,
+        carousel = 1.05,
         longest = 1.05,
         sidewinder = 1.25,
         deathisland = 1.30,
@@ -1611,7 +1617,7 @@ function UpdatePlayerSpeed(PlayerIndex)
     }
     -- LEVEL 2 (assault rifle)
     player_speed[2] = {
-        infinity = 1.4,
+        infinity = 1.5,
         icefields = 1.1,
         bloodgulch = 1.1,
         timberland = 1.1,
@@ -1983,8 +1989,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
                 end
             end
-        else
-            rprint(PlayerIndex, "This map is not set up for vehicles!")
         end
     end
     return response
@@ -2034,14 +2038,14 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             AnnounceChat(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
             rprint(PlayerIndex, "|c****** LEVEL UP ******")
             rprint(PlayerIndex, "|cLevel: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            local mapname = get_var(1, "$map")
-            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -2086,6 +2090,8 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             local PLAYER_ID = get_var(PlayerIndex, "$n")
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             players[PlayerIndex][1] = current_Level - 1
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM) then
                 rprint(PlayerIndex, "|c****** SUICIDE - LEVEL DOWN ******")
@@ -2099,8 +2105,6 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            local mapname = get_var(1, "$map")
-            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
