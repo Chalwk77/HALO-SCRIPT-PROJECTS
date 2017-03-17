@@ -1488,7 +1488,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if MetaID == PCANNON_EXPLOSION then
         return true, Damage * PlasmaCannon_Multiplier
     end
-    -- Rocket Launcher Projectile
+    -- Rocket Projectile / Rhog Rocket
     if MetaID == ROCKET_EXPLODE then
         if PlayerInVehicle(PlayerIndex) then
             return true, Damage * RHog_Rocket_Multiplier
@@ -1503,10 +1503,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     -- Warthog Bullet Damage
     if MetaID == WARTHOG_BULLET then
         return true, Damage * Warthog_Bullet_Multiplier
-    end
-    -- Rocket-Hog Rocket Damage
-    if MetaID == RHOG_ROCKET then
-        return true, Damage * RHog_Rocket_Multiplier
     end
     -- Tank Shell Damage
     if MetaID == VEHICLE_TANK_SHELL then
