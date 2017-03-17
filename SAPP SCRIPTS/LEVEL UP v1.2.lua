@@ -161,11 +161,11 @@ Spawn_Where_Killed = false -- Spawn at the same location as player died
 Spawn_Invunrable_Time = nil -- in seconds - nil disabled
 
 -- Scoring --
-Check_Time = 0 -- Time (in mili-seconds) to check if player in scoring area (sphere of base)
+Check_Time = 0 -- Time (in milliseconds) to check if player in scoring area (sphere of base)
 Check_Radius = 1 -- Radius determining if player is in scoring area
 
 
--- [ MELEE DAMAGE MULTIPLIERS ] - Specify melee damage delt on a per level basis. (1 = normal)
+-- [ MELEE DAMAGE MULTIPLIERS ] - Specify melee damage dealt on a per level basis. (1 = normal)
 -- [level number] / multiplier
 
 -- Shotgun --
@@ -191,7 +191,7 @@ melee_damage[10] = 1
 -------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------------
--- [ GRENADE DAMAGE MULTIPLIERS ] - Specify grenade damage delt on a per level basis. (1 = normal)
+-- [ GRENADE DAMAGE MULTIPLIERS ] - Specify grenade damage dealt on a per level basis. (1 = normal)
 -- [level number] / multiplier
 
 -- Shotgun --
@@ -249,7 +249,7 @@ speed_offset_2 = 0.45
 --[[
     
     Let's assume there are 10 players online and you have specified in the "UpdatePlayerSpeed" function that player's will run at a speed of 1.5% on the map bloodgulch while they are level 5.
-    With less than 5 players online, this speed seeting seems reasonable. However, when there are 10 players (or more) online, it can be substantially harder to escape combat at slower speeds.
+    With less than 5 players online, this speed setting seems reasonable. However, when there are 10 players (or more) online, it can be substantially harder to escape combat at slower speeds.
     We can compensate for this by adding additional speed to the player's current speed value.
     Let's now assume that you have specified that the "speed_offset_1" value will be 0.50%.
     This now means that that BOB is running at a speed of 2 instead of 1.5%.
