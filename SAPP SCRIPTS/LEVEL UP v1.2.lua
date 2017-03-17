@@ -4,7 +4,7 @@ Implementing API version: 1.11.0.0
 
     Description:
     This is a progression based game.
-    Player's will advance thru a system of level's 1-10 (large maps) / level's 1-6 (small maps).
+    Player's will advance thru a ranking system consisting of rank levels 1 to 10 (large maps) and rank levels 1 to 6 (small maps).
     Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades.
 
     There are three ways to level up.
@@ -21,10 +21,10 @@ Implementing API version: 1.11.0.0
             If you survive for 3 minutes without dying, you will level up automatically (only applies to level's 1 thru 6)
             There is no progression timer for level's 7-10
             In addition to this, if you survive for 2 minutes without dying, you will be rewarded ammo + a random powerup, (camo/overshield)
-            
+
     [!] CAUTION [!]
     Being meeled or committing suicide will result in moving down a Level!
-    
+
     ** MELEE **
     All weapons will do four times the normal melee damage.
 
@@ -33,7 +33,7 @@ Implementing API version: 1.11.0.0
     The current flag holder will get a speed boost.
 
     Large Maps:
-    The first person to complete level 10 wins the game.    
+    The first person to complete level 10 wins the game.
     Small Maps:
     The first person to complete level 6 wins the game.
 
@@ -146,7 +146,7 @@ flag_respawn_timer = 30 -- [in seconds] - Time until flag respawns after being d
 flag_warning = 15 -- [in seconds] - Time until flag respawn warning is announced
 Check_Time = 0 -- Time [in milliseconds] to check if player is in the scoring area
 Check_Radius = 1 -- Radius determining if player is in the scoring area
---======================================================================================
+-- ======================================================================================
 
 -- ============== Timed Rewards ============== --
 survivor_rewards = true -- Use rewards? True = yes, False = no
@@ -158,7 +158,7 @@ progression_timer = 180 -- [in seconds] - If the player survives this amount of 
 REWARDS = { }
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
 REWARDS[2] = { "powerups\\over shield", "an overshield!" }
---===============================================================================================================================================================--
+-- ===============================================================================================================================================================--
 
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
@@ -220,12 +220,10 @@ RocketLauncher_Multiplier = 1.090
 -- This means that you can specify how fast all player's will run on the map XXX if they are level X and so on.
 -- There is a lot of flexibility here.
 
--- Use offsets? [SEE BELOW FOR MORE INFORMATION]
-use_speed_offset = true
--- Speed Offset - (5-10 players online) - [SEE BELOW FOR MORE INFORMATION]
-speed_offset_1 = 0.35
--- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
-speed_offset_2 = 0.45
+-- RUNNING SPEED OFFSETS (non flag holders) --
+use_speed_offset = true -- Use offsets? [SEE BELOW FOR MORE INFORMATION]
+speed_offset_1 = 0.35 -- Speed Offset - (5-10 players online) - [SEE BELOW FOR MORE INFORMATION]
+speed_offset_2 = 0.45-- Speed Offset - (1-16 players online) - [SEE BELOW FOR MORE INFORMATION]
 
 --[[
     -- offset information --
@@ -234,7 +232,7 @@ speed_offset_2 = 0.45
     We can compensate for this by adding additional speed to the player's current speed value.
     Let's now assume that you have specified that the "speed_offset_1" value will be 0.50%.
     This now means that that BOB is running at a speed of 2 instead of 1.5%.
-    
+
     "speed_offset_1" will take effect if there is 5-10 players online.
     "speed_offset_2" will take effect if there is 10-16 players online.
     [!] Neither will have any effect if there is below 5 players online.
@@ -242,12 +240,9 @@ speed_offset_2 = 0.45
 ]]
 
 -- FLAG HOLDER OFFSETS --
--- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
-use_flag_holder_offset = true
--- (5-10 players online)
-flag_runner_offset_1 = 0.50
--- (10-16 players online)
-flag_runner_offset_2 = 0.90
+use_flag_holder_offset = true -- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
+flag_runner_offset_1 = 0.50 -- (5-10 players online)
+flag_runner_offset_2 = 0.90 -- (10-16 players online)
 
 -- determine player speed for current flag holder --
 flag_runner_speed = {
@@ -313,7 +308,7 @@ vehi_type_id = "vehi"
 -- ======== from Giraffe's auto-vehicle-flip script ======== --
 rider_ejection = nil
 object_table_ptr = nil
---==============================================================
+-- ==============================================================
 
 -- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
 EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo" }
@@ -356,7 +351,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     -- ======== from Giraffe's auto-vehicle-flip script ======== --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
-    --==============================================================
+    -- ==============================================================
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     -- Check if valid GameType
@@ -388,7 +383,7 @@ function OnScriptLoad()
     write_dword(disable_killmsg_addr, 0x03EB01B1)
     safe_write(false)
     current_players = 0
-    --==================================================================
+    -- ==================================================================
     local file = io.open(string.format("changelog_" .. Script_Version .. ".txt"), "r")
     if file then
         changelog = true
@@ -420,7 +415,7 @@ function OnScriptLoad()
         rider_ejection = read_byte(0x6163EC)
         write_byte(0x6163EC, 0)
     end
-    --==============================================================
+    -- ==============================================================
 end
 
 function OnScriptUnload()
@@ -443,14 +438,14 @@ function OnScriptUnload()
     write_word(disable_speed_decrease_addr, original_code_2)
     write_word(force_speed_sync_addr, original_code_3)
     safe_write(false)
-    --=======================================================
+    -- =======================================================
     -- ======== from Giraffe's auto-vehicle-flip script ======== --
     if (halo_type == "CE") then
         write_byte(0x59A34C, rider_ejection)
     else
         write_byte(0x6163EC, rider_ejection)
     end
-    --==============================================================
+    -- ==============================================================
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -643,7 +638,7 @@ function RewardPlayer(PlayerIndex)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
         AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
-    -- Level 6
+        -- Level 6
     elseif GetLevel(PlayerIndex) == 6 then
         execute_command("battery " .. PlayerIndex .. " :100")
         rprint(PlayerIndex, "Received extra battery power for Plasma Cannon + " .. tostring(item))
@@ -950,7 +945,7 @@ function flip_vehicle(Object)
         write_vector3d(Object + 0x80, 0, 0, 1)
     end
 end
---=====================================================================--
+-- =====================================================================--
 
 
 function OnVehicleExit(PlayerIndex)
@@ -1525,9 +1520,9 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if MetaID == VEHICLE_BANSHEE_FUEL_ROD then
         return true, Damage * Banshee_Fuelrod_Multiplier
     end
------------------------------------------------------------------------------------------------------------------------
-    -- Grenade Damage 
-    if (MetaID == GRENADE_FRAG_EXPLOSION) or (MetaID == GRENADE_PLASMA_ATTACHED) or (MetaID == GRENADE_PLASMA_EXPLOSION) then
+    -----------------------------------------------------------------------------------------------------------------------
+    -- Grenade Damage
+    if (MetaID == GRENADE_FRAG_EXPLOSION) or(MetaID == GRENADE_PLASMA_ATTACHED) or(MetaID == GRENADE_PLASMA_EXPLOSION) then
         return true, Damage * grenade_damage[players[PlayerIndex][1]]
     end
     -- Melee Damage
