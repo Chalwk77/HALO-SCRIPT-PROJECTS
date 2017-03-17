@@ -4,16 +4,12 @@ Implementing API version: 1.11.0.0
 
     Description:
     This is a progression based game.
-    Player's will advance through a progresion based leveling sytem. 
-    There are 10 levels in total.
-    Large maps will consist of all 10 levels. (level's 7 to 10 are vechile-based).
-    Whereas smaller maps will only consist of Level's 1 to 6
-    
-    Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades and various objectives.
+    Player's will advance thru a system of level's 1-10 (large maps) / level's 1-6 (small maps).
+    Each level will assign the player with a new weapon + weapon damage multipliers + a different amount of grenades.
 
     There are three ways to level up.
-        [1]: Meet the required kill threshold!
-            Each level has an amount of kills required to level up. The amount of kills required is equal to your currnet level number.
+        [1]: Meet the required kill threshold.
+            Each level has a specific kill-threshold that will result in leveling up when met. The threshold is equal to your current level number.
             For example, assuming you're level 5, you will need 5 non-consecutive kills to progress to level 6.
 
         [2]: Capture a flag!
@@ -36,7 +32,10 @@ Implementing API version: 1.11.0.0
     If the flag is dropped, it will automatically respawn after 30 seconds.
     The current flag holder will get a speed boost.
 
-    The first person to complete level 10 wins the game.
+    Large Maps:
+    The first person to complete level 10 wins the game.    
+    Small Maps:
+    The first person to complete level 6 wins the game.
 
     ** STATS SAVING **
     If you lag out, this script will save your previous statistics (on quit) and load them (on join) provided the game you were in hasn't finished.
@@ -54,7 +53,7 @@ Implementing API version: 1.11.0.0
 
 -->> Level 2:
     You will receive an Assault Rifle + 240 bullets in the mag + 2 of each grenade
-    Your assault rifle bullets will do DOUBLE DAMAGE.
+    Your assault rifle bullets will do 1.35x normal damage.
     Grenade Damage will do 4 times normal damage.
 
 -->> Level 3:
@@ -119,9 +118,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 api_version = "1.11.0.0"
 Script_Version = "1.2"
+Level = { }
+melee_damage = { }
+grenade_damage = { }
 -- CONFIGURATION STARTS --
 -- --===========================================================================================================================================================================-- --
-Level = { }
 Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true }
 Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true }
 Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true }
@@ -163,34 +164,78 @@ Spawn_Invunrable_Time = nil -- in seconds - nil disabled
 Check_Time = 0 -- Time (in mili-seconds) to check if player in scoring area (sphere of base)
 Check_Radius = 1 -- Radius determining if player is in scoring area
 
--- Damage Multiplier's --
--- 1 = normal damage
--- 2 = double the normal damage ratio
--- 3 = three times normal damage ratio
--- ect
 
--- Melee Damage Multiplier --
-Melee_Multiplier = 4
--- Grenade Damage Multiplier --
+-- [ MELEE DAMAGE MULTIPLIERS ] - Specify melee damage delt on a per level basis. (1 = normal)
+-- [level number] / multiplier
 
--- For level's 1 to 3
-Grenade_Multiplier = 4
--- For level's 4 to 6
-Default_Grenade_Multiplier = 2
+-- Shotgun --
+melee_damage[1] = 4
+-- Assault Rifle
+melee_damage[2] = 4
+-- Pistol
+melee_damage[3] = 4
+-- Sniper
+melee_damage[4] = 3
+-- Rocket Launcher
+melee_damage[5] = 3
+-- Plasma Cannon
+melee_damage[6] = 3
+-- Ghost
+melee_damage[7] = 2
+-- Rocket Hog
+melee_damage[8] = 2
+-- Tank
+melee_damage[9] = 2
+-- Banshee
+melee_damage[10] = 1
+-------------------------------------------------------------------------------------
 
--- vehicle damage multiplier -- 
-Ghost_Multiplier = 2
+-------------------------------------------------------------------------------------
+-- [ GRENADE DAMAGE MULTIPLIERS ] - Specify grenade damage delt on a per level basis. (1 = normal)
+-- [level number] / multiplier
 
--- weapon damage multiplier -- 
-AssaultRifle_Multiplier = 2
-SniperRifle_Multiplier = 2
-PlasmaCannon_Multiplier = 2
-RocketLauncher_Multiplier = 3
+-- Shotgun --
+grenade_damage[1] = 1.10
+-- Assault Rifle --
+grenade_damage[2] = 1.00
+-- Pistol --
+grenade_damage[3] = 0.90
+-- Sniper --
+grenade_damage[4] = 0.80
+-- Rocket Launcher --
+grenade_damage[5] = 0.70
+-- Plasma Cannon --
+grenade_damage[6] = 0.60
+-- Ghost --
+grenade_damage[7] = 0.50
+-- Rocket Hog --
+grenade_damage[8] = 0.50
+-- Tank --
+grenade_damage[9] = 0.50
+-- Banshee --
+grenade_damage[10] = 0.50
+-------------------------------------------------------------------------------------
+
+-- [ VEHICLE DAMAGE MULTIPLIERS ] - (1 = normal damage)
+Ghost_Bolt_Multiplier = 1.010
+Warthog_Bullet_Multiplier = 1.015
+RHog_Rocket_Multiplier = 1.020
+Tank_Shell_Multiplier = 1.025
+Tank_Bullet_Multiplier = 1.030
+Banshee_Bolt_Multiplier = 1.035
+Banshee_Fuelrod_Multiplier = 1.040
+
+-- [ WEAPON DAMAGE MULTIPLIERS ] - (1 = normal damage)
+AssaultRifle_Multiplier = 1.050
+Pistol_Multiplier = 1.060
+SniperRifle_Multiplier = 1.070
+PlasmaCannon_Multiplier = 1.080
+RocketLauncher_Multiplier = 1.090
 
 -- =========================================================================================================================================== --
 -- =========================================================================================================================================== --
 -- PLAYER RUNNING SPEED CONFIGURATION --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1525.
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1524.
 -- This means that you can specify how fast all player's will run on the map X.X.X. if they are level X and so on.
 -- There is a lot of flexibility here.
 
@@ -218,14 +263,14 @@ speed_offset_2 = 0.45
 -- determine player speed for current flag holder --
 flag_runner_speed = {
     -- large maps --
-    infinity = 1.25,
+    infinity = 1.45,
     icefields = 1.25,
     bloodgulch = 1.25,
-    timberland = 1.25,
-    sidewinder = 1.25,
-    deathisland = 1.25,
-    dangercanyon = 1.25,
-    gephyrophobia = 1.25,
+    timberland = 1.35,
+    sidewinder = 1.30,
+    deathisland = 1.45,
+    dangercanyon = 1.15,
+    gephyrophobia = 1.20,
     -- small maps --
     wizard = 0.50,
     putput = 0.50,
@@ -437,16 +482,15 @@ function WelcomeHandler(PlayerIndex)
     say(PlayerIndex, "Welcome to " .. ServerName)
     say(PlayerIndex, "Type @info if you don't know How to Play")
     say(PlayerIndex, "Type @stats to view your current stats.")
+    say(PlayerIndex, "Cap, Kill , Survive - Game on!")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function InfoHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "This is a progression based game - kill players to gain a Level.")
-    say(PlayerIndex, "You will start with a Shotgun (no ammo) and 6 of each grenade.")
-    say(PlayerIndex, "Level 1 Objective: Melee or Nades!")
     say(PlayerIndex, "Being meeled or committing suicide will result in moving down a Level.")
-    say(PlayerIndex, "There is a flag somewhere on the map - Return it to a base to gain a Level.")
+    say(PlayerIndex, "There is a flag somewhere on the map, return it to a base to gain a level.")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
@@ -1445,35 +1489,60 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     DAMAGE_APPLIED[PlayerIndex] = MetaID
-    -- Ghost Bolt Damage - (double damage)
-    if MetaID == VEHICLE_GHOST_BOLT then
-        return true, Damage * Ghost_Multiplier
-    end
-    -- Assault Rifle Projectile (double damage)
+    -- Assault Rifle Projectile
     if MetaID == ASSAULT_RIFLE_BULLET then
         return true, Damage * AssaultRifle_Multiplier
     end
-    -- Sniper Rifle Projectile (double damage)
+    -- Pistol Bullet Projectile
+    if MetaID == PISTOL_BULLET then
+        return true, Damage * Pistol_Multiplier
+    end
+    -- Sniper Rifle Projectile
     if MetaID == SNIPER_RIFLE_BULLET then
         return true, Damage * SniperRifle_Multiplier
     end
-    -- Plasma Cannon Projectile (double damage)
+    -- Plasma Cannon Projectile
     if MetaID == PCANNON_EXPLOSION then
         return true, Damage * PlasmaCannon_Multiplier
     end
-    -- Rocket Launcher Projectile (three times normal damage)
+    -- Rocket Launcher Projectile
     if MetaID == ROCKET_EXPLODE then
         return true, Damage * RocketLauncher_Multiplier
     end
-    -- Multiply grenade damage by the value of "Grenade_Multiplier" - Equal to 4 by design default. 1 = normal game value
-    if MetaID == GRENADE_FRAG_EXPLOSION or MetaID == GRENADE_PLASMA_ATTACHED or MetaID == GRENADE_PLASMA_EXPLOSION then
-        if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 3 then
-            return true, Damage * Grenade_Multiplier
-        else
-            -- Double Damage
-            return true, Damage * Default_Grenade_Multiplier
-        end
+    -- Ghost Bolt Damage
+    if MetaID == VEHICLE_GHOST_BOLT then
+        return true, Damage * Ghost_Bolt_Multiplier
     end
+    -- Warthog Bullet Damage
+    if MetaID == WARTHOG_BULLET then
+        return true, Damage * Warthog_Bullet_Multiplier
+    end
+    -- Rocket-Hog Rocket Damage
+    if MetaID == RHOG_ROCKET then
+        return true, Damage * RHog_Rocket_Multiplier
+    end
+    -- Tank Shell Damage
+    if MetaID == VEHICLE_TANK_SHELL then
+        return true, Damage * Tank_Shell_Multiplier
+    end
+    -- Tank Bullet Damage
+    if MetaID == VEHICLE_TANK_BULLET then
+        return true, Damage * Tank_Bullet_Multiplier
+    end
+    -- Banshee Bolt Damage
+    if MetaID == VEHICLE_BANSHEE_BOLT then
+        return true, Damage * Banshee_Bolt_Multiplier
+    end
+    -- Banshee Fuelrod Damage
+    if MetaID == VEHICLE_BANSHEE_FUEL_ROD then
+        return true, Damage * Banshee_Fuelrod_Multiplier
+    end
+-----------------------------------------------------------------------------------------------------------------------
+    -- Grenade Damage 
+    if (MetaID == GRENADE_FRAG_EXPLOSION) or (MetaID == GRENADE_PLASMA_ATTACHED) or (MetaID == GRENADE_PLASMA_EXPLOSION) then
+        return true, Damage * grenade_damage[players[PlayerIndex][1]]
+    end
+    -- Melee Damage
     if MetaID == MELEE_ASSAULT_RIFLE or
         MetaID == MELEE_ODDBALL or
         MetaID == MELEE_FLAG or
@@ -1486,8 +1555,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         MetaID == MELEE_ROCKET_LAUNCHER or
         MetaID == MELEE_SHOTGUN or
         MetaID == MELEE_SNIPER_RIFLE then
-        -- 4 times normal damage
-        return true, Damage * Melee_Multiplier
+        return true, Damage * melee_damage[players[PlayerIndex][1]]
     end
 end
 
@@ -2404,7 +2472,7 @@ end
 
 function LoadItems()
     if get_var(0, "$gt") ~= "n/a" then
-        -- Melee
+        -- Melee --
         MELEE_ASSAULT_RIFLE = get_tag_info("jpt!", "weapons\\assault rifle\\melee")
         MELEE_ODDBALL = get_tag_info("jpt!", "weapons\\ball\\melee")
         MELEE_FLAG = get_tag_info("jpt!", "weapons\\flag\\melee")
@@ -2417,13 +2485,20 @@ function LoadItems()
         MELEE_SHOTGUN = get_tag_info("jpt!", "weapons\\shotgun\\melee")
         MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
         MELEE_PLASMA_CANNON = get_tag_info("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-        -- Grenades Explosion/Attached
+        -- Grenades Explosion/Attached --
         GRENADE_FRAG_EXPLOSION = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
         GRENADE_PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
         GRENADE_PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
-        -- Vehicles
+        -- Vehicles --
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+        WARTHOG_BULLET = get_tag_info("proj", "vehicles\\warthog\\bullet")
+        RHOG_ROCKET = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
+        VEHICLE_TANK_BULLET = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
+        VEHICLE_TANK_SHELL = get_tag_info("jpt!", "vehicles\\scorpion\\tank shell")
+        VEHICLE_BANSHEE_BOLT = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
+        VEHICLE_BANSHEE_FUEL_ROD = get_tag_info("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
         -- weapon projectiles --
+        PISTOL_BULLET = get_tag_info("jpt!", "weapons\\pistol\\bullet")
         ASSAULT_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\assault rifle\\bullet")
         SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
         ROCKET_EXPLODE = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
@@ -2577,10 +2652,12 @@ function WriteChangeLog()
     file:write("Document Name: LEVEL UP v" .. Script_Version .. "\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
     file:write("LEVEL UP version 1.2\n")
-    file:write("Released on (Wednesday 16 March 2017)\n")
+    file:write("Released on (Thursday 16 March 2017)\n")
     file:write("-- Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.\n")
-    file:write("-- Fixed typos in the documentation.\n")
+    file:write("-- Fixed typos in documentation.\n")
     file:write("-- Created a new configurable 'flag_runner_speed' table at the top of the script.\n")
+    file:write("-- Created a new configurable 'grenade_damage' multiplier table at the top of the script.\n")
+    file:write("-- Created a new configurable 'melee_damage' multiplier table at the top of the script.\n")
     file:write("-- Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).\n")
     file:write("-- Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.\n")
     file:write("-- Changed the way the script iterates over the current map cycle and determines the weapon set.\n")
