@@ -1380,7 +1380,7 @@ end
 function CheckPlayer(PlayerIndex)
     -- Update, advance (level up)
     cycle_level(PlayerIndex, true, true)
-    radius = 3
+    local radius = 3
     if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
         or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], radius) == true then
         timer(300, "delay_move", PlayerIndex)
