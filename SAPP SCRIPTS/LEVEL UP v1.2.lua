@@ -216,7 +216,7 @@ RocketLauncher_Multiplier = 1.090
 -------------------------------------------------------------------------------------
 
 -- ============== Player Running Speed Configuration ============== --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1599.
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1632.
 -- This means that you can specify how fast all player's will run on the map XXX if they are level X and so on.
 -- There is a lot of flexibility here.
 
@@ -1163,7 +1163,6 @@ function DropPowerup(x, y, z)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    execute_command("sv_password vm315")
     current_players = current_players + 1
     -- set level
     players[PlayerIndex] = { Starting_Level, 0 }
