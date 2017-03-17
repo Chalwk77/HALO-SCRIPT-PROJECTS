@@ -973,10 +973,14 @@ function OnVehicleExit(PlayerIndex)
         -- temporary weapon assignment on vehicle exit --
         if (player_alive(PlayerIndex)) then
             timer(delay, "AssignTemp", PlayerIndex)
+            UpdatePlayerSpeed(PlayerIndex)
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            rprint(PlayerIndex, "|c" .. tostring(PlayerSpeed) .. "x speed")
+            execute_command("msg_prefix \"\"")
+            say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
+            execute_command("msg_prefix \"** SERVER ** \"")
         end
-        execute_command("msg_prefix \"\"")
-        say(PlayerIndex, get_var(PlayerIndex, "$name") .. ', type "/enter me" to enter your previous vehicle.')
-        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
@@ -1187,6 +1191,16 @@ function OnPlayerJoin(PlayerIndex)
     PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = 0
     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
     PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
+    UpdatePlayerSpeed(PlayerIndex)
+    if current_players >= 5 then
+        for i = 1,16 do 
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            execute_command("msg_prefix \"\"")
+            say(i, current_players .. " players online! Modifying your speed to " ..tostring(PlayerSpeed))
+            execute_command("msg_prefix \"** SERVER ** \"")
+        end
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -1576,40 +1590,40 @@ end
 function UpdatePlayerSpeed(PlayerIndex)
     -- LEVEL 1 (shotgun)
     player_speed[1] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 1.45,
+        icefields = 1.25,
+        bloodgulch = 1.23,
+        timberland = 1.22,
+        wizard = 1.05,
+        putput = 1.03,
+        ratrace = 1.06,
+        carousel = 1.03,
+        longest = 1.05,
+        sidewinder = 1.25,
+        deathisland = 1.30,
+        dangercanyon = 1.35,
+        gephyrophobia = 1.25,
+        prisoner = 1.15,
+        damnation = 1.10,
+        hangemhigh = 1.15,
+        beavercreek = 1.10,
+        boardingaction = 1.10
     }
     -- LEVEL 2 (assault rifle)
     player_speed[2] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
+        infinity = 1.4,
+        icefields = 1.1,
+        bloodgulch = 1.1,
+        timberland = 1.1,
         wizard = 1.0,
         putput = 1.0,
         ratrace = 1.0,
         carousel = 1.0,
         longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
+        sidewinder = 1.1,
+        deathisland = 1.2,
+        dangercanyon = 1.2,
+        gephyrophobia = 1.2,
         prisoner = 1.0,
         damnation = 1.0,
         hangemhigh = 1.0,
@@ -1618,7 +1632,7 @@ function UpdatePlayerSpeed(PlayerIndex)
     }
     -- LEVEL 3 (pistol)
     player_speed[3] = {
-        infinity = 1.0,
+        infinity = 1.3,
         icefields = 1.0,
         bloodgulch = 1.0,
         timberland = 1.0,
@@ -1628,9 +1642,9 @@ function UpdatePlayerSpeed(PlayerIndex)
         carousel = 1.0,
         longest = 1.0,
         sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
+        deathisland = 1.1,
+        dangercanyon = 1.1,
+        gephyrophobia = 1.1,
         prisoner = 1.0,
         damnation = 1.0,
         hangemhigh = 1.0,
@@ -1639,150 +1653,150 @@ function UpdatePlayerSpeed(PlayerIndex)
     }
     -- LEVEL 4 (sniper rifle)
     player_speed[4] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 1.2,
+        icefields = 1.2,
+        bloodgulch = 1.1,
+        timberland = 1.2,
+        wizard = 0.90,
+        putput = 0.90,
+        ratrace = 0.90,
+        carousel = 0.90,
+        longest = 0.90,
+        sidewinder = 1.1,
+        deathisland = 1.2,
+        dangercanyon = 1.1,
+        gephyrophobia = 1.2,
+        prisoner = 0.90,
+        damnation = 0.90,
+        hangemhigh = 0.90,
+        beavercreek = 0.90,
+        boardingaction = 1.1
     }
     -- LEVEL 5 (rocket launcher)
     player_speed[5] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
+        infinity = 1.5,
+        icefields = 1.2,
+        bloodgulch = 0.80,
+        timberland = 1.2,
+        wizard = 0.50,
+        putput = 0.90,
+        ratrace = 0.70,
         carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        longest = 0.60,
+        sidewinder = 1.2,
+        deathisland = 1.4,
+        dangercanyon = 1.4,
+        gephyrophobia = 1.1,
+        prisoner = 0.70,
+        damnation = 0.90,
+        hangemhigh = 0.70,
+        beavercreek = 0.60,
+        boardingaction = 0.70,
     }
     -- LEVEL 6 (plasma cannon)
     player_speed[6] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
+        infinity = 1.5,
+        icefields = 1.2,
+        bloodgulch = 0.80,
+        timberland = 1.2,
+        wizard = 0.50,
+        putput = 0.90,
+        ratrace = 0.70,
         carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        longest = 0.60,
+        sidewinder = 1.2,
+        deathisland = 1.4,
+        dangercanyon = 1.4,
+        gephyrophobia = 1.1,
+        prisoner = 0.70,
+        damnation = 0.90,
+        hangemhigh = 0.70,
+        beavercreek = 0.60,
+        boardingaction = 0.70,
     }
     -- LEVEL 7 (ghost)
     player_speed[7] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 0.90,
+        icefields = 0.90,
+        bloodgulch = 0.90,
+        timberland = 0.90,
+        wizard = 0.90,
+        putput = 0.90,
+        ratrace = 0.90,
+        carousel = 0.90,
+        longest = 0.90,
+        sidewinder = 0.90,
+        deathisland = 0.90,
+        dangercanyon = 0.90,
+        gephyrophobia = 0.90,
+        prisoner = 0.90,
+        damnation = 0.90,
+        hangemhigh = 0.90,
+        beavercreek = 0.90,
+        boardingaction = 0.90
     }
     -- LEVEL 8 (rocket hog)
     player_speed[8] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 0.85,
+        icefields = 0.85,
+        bloodgulch = 0.85,
+        timberland = 0.85,
+        wizard = 0.85,
+        putput = 0.85,
+        ratrace = 0.85,
+        carousel = 0.85,
+        longest = 0.85,
+        sidewinder = 0.85,
+        deathisland = 0.85,
+        dangercanyon = 0.85,
+        gephyrophobia = 0.85,
+        prisoner = 0.85,
+        damnation = 0.85,
+        hangemhigh = 0.85,
+        beavercreek = 0.85,
+        boardingaction = 0.85
     }
     -- LEVEL 9 (tank)
     player_speed[9] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 0.80,
+        icefields = 0.80,
+        bloodgulch = 0.80,
+        timberland = 0.80,
+        wizard = 0.80,
+        putput = 0.80,
+        ratrace = 0.80,
+        carousel = 0.80,
+        longest = 0.80,
+        sidewinder = 0.80,
+        deathisland = 0.80,
+        dangercanyon = 0.80,
+        gephyrophobia = 0.80,
+        prisoner = 0.80,
+        damnation = 0.80,
+        hangemhigh = 0.80,
+        beavercreek = 0.80,
+        boardingaction = 0.80
     }
     -- LEVEL 10 (banshee)
     player_speed[10] = {
-        infinity = 1.0,
-        icefields = 1.0,
-        bloodgulch = 1.0,
-        timberland = 1.0,
-        wizard = 1.0,
-        putput = 1.0,
-        ratrace = 1.0,
-        carousel = 1.0,
-        longest = 1.0,
-        sidewinder = 1.0,
-        deathisland = 1.0,
-        dangercanyon = 1.0,
-        gephyrophobia = 1.0,
-        prisoner = 1.0,
-        damnation = 1.0,
-        hangemhigh = 1.0,
-        beavercreek = 1.0,
-        boardingaction = 1.0
+        infinity = 0.75,
+        icefields = 0.75,
+        bloodgulch = 0.75,
+        timberland = 0.75,
+        wizard = 0.75,
+        putput = 0.75,
+        ratrace = 0.75,
+        carousel = 0.75,
+        longest = 0.75,
+        sidewinder = 0.75,
+        deathisland = 0.75,
+        dangercanyon = 0.75,
+        gephyrophobia = 0.75,
+        prisoner = 0.75,
+        damnation = 0.75,
+        hangemhigh = 0.75,
+        beavercreek = 0.75,
+        boardingaction = 0.75
     }
     if use_speed_offset then
         SpeedHandler(PlayerIndex)
@@ -1834,13 +1848,21 @@ function OnPlayerChat(PlayerIndex, Message, type)
             rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
+            rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]) .. " | Plasmas: " .. tostring(nades_tbl[2]))
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            rprint(PlayerIndex, "Speed Boost: " .. tostring(PlayerSpeed) .. " | Grenade Damage Multiplier: " .. grenade_damage[players[PlayerIndex][1]])
+            rprint(PlayerIndex, "Melee Damage Multiplier: " .. melee_damage[players[PlayerIndex][1]])
+            rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         else
             local nades_tbl = Level[players[PlayerIndex][1]][5]
             rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
-            rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
-            rprint(PlayerIndex, "Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
-            rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]))
-            rprint(PlayerIndex, "Plasmas: " .. tostring(nades_tbl[2]))
+            rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
+            rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]) .. " | Plasmas: " .. tostring(nades_tbl[2]))
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            rprint(PlayerIndex, "Speed Boost: " .. tostring(PlayerSpeed) .. " | Grenade Damage Multiplier: " .. grenade_damage[players[PlayerIndex][1]])
+            rprint(PlayerIndex, "Melee Damage Multiplier: " .. melee_damage[players[PlayerIndex][1]])
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
         end
         response = false
@@ -1937,10 +1959,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             else
                 if t[2] ~= nil then
                     if t[2] == "me" or(Command == "enter me") then
-                        if (GetLevel(PlayerIndex) <= 6) then
+                        if (GetLevel(PlayerIndex) >= 1) and (GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 7 or higher.")
-                        elseif (GetLevel(PlayerIndex) <= 8) then
+                        elseif (GetLevel(PlayerIndex) == 8) then
                             -- rocket hog (gunner & drivers seat)
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
@@ -2018,7 +2040,9 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed boost")
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -2075,7 +2099,9 @@ function cycle_level(PlayerIndex, update, advance)
             rprint(PlayerIndex, "|cKills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "|cYour Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "|cYour Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
-            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed boost")
+            local mapname = get_var(1, "$map")
+            local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
+            rprint(PlayerIndex, "|c+ " .. tostring(PlayerSpeed) .. "x speed")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
             rprint(PlayerIndex, "|c ")
@@ -2644,6 +2670,7 @@ function WriteChangeLog()
     file:write("  * Added a new UpdatePlayerSpeed function which determines the player's running speed on a per-level / per-map basis (a lot of flexibility here).\n")
     file:write("  * Fixed Level 6 (plasma cannon) timed reward. It will now update your weapon battery to 100% instead of throwing an error.\n")
     file:write("  * Changed the way the script iterates over the current map cycle and determines the weapon set.\n")
+    file:write("  * Fixed an issue related to /enter me\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
     file:write("\n")
     file:write("\n")
