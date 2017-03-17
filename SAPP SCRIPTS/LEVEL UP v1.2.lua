@@ -121,8 +121,9 @@ Script_Version = "1.2"
 Level = { }
 melee_damage = { }
 grenade_damage = { }
--- CONFIGURATION STARTS --
--- --===========================================================================================================================================================================-- --
+-- ===================================================================================================================================================================== --
+-- ===================================================================================================================================================================== --
+-- ================= CONFIGURATION STARTS ================= --
 Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true }
 Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true }
 Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true }
@@ -133,87 +134,67 @@ Level[7] = { "vehicles\\ghost\\ghost_mp", "Ghost", "Run people down!", 7, { 0, 0
 Level[8] = { "vehicles\\rwarthog\\rwarthog", "Rocket Hog", "Blow em' up!", 8, { 0, 0 }, 0, false }
 Level[9] = { "vehicles\\scorpion\\scorpion_mp", "Tank", "Wreak havoc!", 9, { 0, 0 }, 0, false }
 Level[10] = { "vehicles\\banshee\\banshee_mp", "Banshee", "Hurry up and win!", 10, { 0, 0 }, 0, false }
-Starting_Level = 1 -- Must match beginning of level[#]
-ctf_enabled = true -- Spawn the flag?
--- Time until flag respawns after being dropped (in seconds)
-flag_respawn_timer = 30
--- Time until flag respawn warning is announced (in seconds) <15 seconds before flag respawns by default>
-flag_warning = 15
 
--- If the player survives "allocated_time" without dying, reward them with random ammo/powerup
-survivor_rewards = true
--- If the player survives this amount of time without dying then they're rewarded with ammo/powerup
-allocated_time = 120 -- (2 minutes - in seconds) before player is rewarded with ammo/powerup
--- If player has been alive for "progression_timer", then cycle their level (update, advance)
-progression_timer = 180 -- (3 minutes)
+ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
+
+-- Player Starting Level [1-10]
+Starting_Level = 1 -- Must match beginning of level[#]
+
+-- ============== Flag Settings ============== --
+ctf_mode = true -- Spawn the flag? True = yes, False = no
+flag_respawn_timer = 30 -- [in seconds] - Time until flag respawns after being dropped.
+flag_warning = 15 -- [in seconds] - Time until flag respawn warning is announced
+Check_Time = 0 -- Time [in milliseconds] to check if player is in the scoring area
+Check_Radius = 1 -- Radius determining if player is in the scoring area
+--======================================================================================
+
+-- ============== Timed Rewards ============== --
+survivor_rewards = true -- Use rewards? True = yes, False = no
+player_count = 2 -- Minimum amount of players that need to be present to give rewards
+allocated_time = 120 -- [in seconds] - If the player survives this amount of time without dying then they're rewarded with ammo and a powerup (camo/overshield)
+progression_timer = 180 -- [in seconds] - If the player survives this amount of time without dying then level them up
+
+-- 1 random item from this list will be given after surviving "allocated_time" without dying.
+REWARDS = { }
+REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
+REWARDS[2] = { "powerups\\over shield", "an overshield!" }
+--===============================================================================================================================================================--
 
 -- Temporary weapon to assign when they exit their vehicle
 out_of_vehicle_weapon = "weapons\\shotgun\\shotgun"
 
--- 1 random item from this list will be given after surviving "allocated_time"
-REWARDS = { }
-REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
-REWARDS[2] = { "powerups\\over shield", "an overshield!" }
-
+-- ============== Spawn Protection ============== --
 -- Not Currently Used (out of preference)
-Spawn_Where_Killed = false -- Spawn at the same location as player died
--- Not Currently Used (out of preference)
+Spawn_Where_Killed = false -- Should the victim spawn at their death location? True = yes, False = no
 Spawn_Invunrable_Time = nil -- in seconds - nil disabled
-
--- Scoring --
-Check_Time = 0 -- Time (in milliseconds) to check if player in scoring area (sphere of base)
-Check_Radius = 1 -- Radius determining if player is in scoring area
-
+-- ===================================================================================================
 
 -- [ MELEE DAMAGE MULTIPLIERS ] - Specify melee damage dealt on a per level basis. (1 = normal)
 -- [level number] / multiplier
-
--- Shotgun --
-melee_damage[1] = 4
--- Assault Rifle
-melee_damage[2] = 4
--- Pistol
-melee_damage[3] = 4
--- Sniper
-melee_damage[4] = 3
--- Rocket Launcher
-melee_damage[5] = 3
--- Plasma Cannon
-melee_damage[6] = 3
--- Ghost
-melee_damage[7] = 2
--- Rocket Hog
-melee_damage[8] = 2
--- Tank
-melee_damage[9] = 2
--- Banshee
-melee_damage[10] = 1
+melee_damage[1] = 4 -- Shotgun
+melee_damage[2] = 4 -- Assault Rifle
+melee_damage[3] = 4 -- Pistol
+melee_damage[4] = 3 -- Sniper
+melee_damage[5] = 3 -- Rocket Launcher
+melee_damage[6] = 3 -- Plasma Cannon
+melee_damage[7] = 2 -- Ghost
+melee_damage[8] = 2 -- Rocket Hog
+melee_damage[9] = 2 -- Tank
+melee_damage[10] = 1 -- Banshee
 -------------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------------
 -- [ GRENADE DAMAGE MULTIPLIERS ] - Specify grenade damage dealt on a per level basis. (1 = normal)
 -- [level number] / multiplier
-
--- Shotgun --
-grenade_damage[1] = 1.10
--- Assault Rifle --
-grenade_damage[2] = 1.00
--- Pistol --
-grenade_damage[3] = 0.90
--- Sniper --
-grenade_damage[4] = 0.80
--- Rocket Launcher --
-grenade_damage[5] = 0.70
--- Plasma Cannon --
-grenade_damage[6] = 0.60
--- Ghost --
-grenade_damage[7] = 0.50
--- Rocket Hog --
-grenade_damage[8] = 0.50
--- Tank --
-grenade_damage[9] = 0.50
--- Banshee --
-grenade_damage[10] = 0.50
+grenade_damage[1] = 1.10 -- Shotgun
+grenade_damage[2] = 1.00 -- Assault Rifle
+grenade_damage[3] = 0.90 -- Pistol
+grenade_damage[4] = 0.80 -- Sniper
+grenade_damage[5] = 0.70 -- Rocket Launcher
+grenade_damage[6] = 0.60 -- Plasma Cannon
+grenade_damage[7] = 0.50 -- Ghost
+grenade_damage[8] = 0.50 -- Rocket Hog
+grenade_damage[9] = 0.50 -- Tank
+grenade_damage[10] = 0.50 -- Banshee
 -------------------------------------------------------------------------------------
 
 -- [ VEHICLE DAMAGE MULTIPLIERS ] - (1 = normal damage)
@@ -224,6 +205,7 @@ Tank_Shell_Multiplier = 1.025
 Tank_Bullet_Multiplier = 1.030
 Banshee_Bolt_Multiplier = 1.035
 Banshee_Fuelrod_Multiplier = 1.040
+-------------------------------------------------------------------------------------
 
 -- [ WEAPON DAMAGE MULTIPLIERS ] - (1 = normal damage)
 AssaultRifle_Multiplier = 1.050
@@ -231,12 +213,11 @@ Pistol_Multiplier = 1.060
 SniperRifle_Multiplier = 1.070
 PlasmaCannon_Multiplier = 1.080
 RocketLauncher_Multiplier = 1.090
+-------------------------------------------------------------------------------------
 
--- =========================================================================================================================================== --
--- =========================================================================================================================================== --
--- PLAYER RUNNING SPEED CONFIGURATION --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1524.
--- This means that you can specify how fast all player's will run on the map X.X.X. if they are level X and so on.
+-- ============== Player Running Speed Configuration ============== --
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1581.
+-- This means that you can specify how fast all player's will run on the map XXX if they are level X and so on.
 -- There is a lot of flexibility here.
 
 -- Use offsets? [SEE BELOW FOR MORE INFORMATION]
@@ -247,7 +228,7 @@ speed_offset_1 = 0.35
 speed_offset_2 = 0.45
 
 --[[
-    
+    -- offset information --
     Let's assume there are 10 players online and you have specified in the "UpdatePlayerSpeed" function that player's will run at a speed of 1.5% on the map bloodgulch while they are level 5.
     With less than 5 players online, this speed setting seems reasonable. However, when there are 10 players (or more) online, it can be substantially harder to escape combat at slower speeds.
     We can compensate for this by adding additional speed to the player's current speed value.
@@ -259,6 +240,14 @@ speed_offset_2 = 0.45
     [!] Neither will have any effect if there is below 5 players online.
 
 ]]
+
+-- FLAG HOLDER OFFSETS --
+-- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
+use_flag_holder_offset = true
+-- (5-10 players online)
+flag_runner_offset_1 = 0.50
+-- (10-16 players online)
+flag_runner_offset_2 = 0.90
 
 -- determine player speed for current flag holder --
 flag_runner_speed = {
@@ -283,36 +272,22 @@ flag_runner_speed = {
     beavercreek = 0.60,
     boardingaction = 0.60,
 }
-
--- FLAG HOLDER OFFSETS --
--- Use flag holder offsets? [SEE ABOVE FOR MORE INFORMATION, SAME DEAL]
-use_flag_holder_offset = true
--- (5-10 players online)
-flag_runner_offset_1 = 0.50
--- (10-16 players online)
-flag_runner_offset_2 = 0.90
--- =========================================================================================================================================== --
 -- =========================================================================================================================================== --
 
-ADMIN_LEVEL = 1 -- Default admin level required to use "/level up" command
-
--- Giraffe's --
-PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
-WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
------------------------------------------------------------------------------------------------------------
 -- Choose what to drop when someone dies --
--- [!] For a future update. Works in its current state, but players cannot pickup ammo.
+-- [!] For a future update. Works in its current state, but players cannot pickup ammo, so it's useless at the moment.
 PowerUpSettings = {
     ["WeaponsAndEquipment"] = false,
     ["JustEquipment"] = false,
     ["JustWeapons"] = false
 }
--- CONFIGURATION ENDS --
--- --===========================================================================================================================================================================-- --
--- Giraffe's
-rider_ejection = nil
-object_table_ptr = nil
------------------------
+
+-- ======== from Giraffe's auto-vehicle-flip script ======== --
+PLAYER_VEHICLES_ONLY = true -- true or false, whether or not to only auto flip vehicles that players are in
+WAIT_FOR_IMPACT = true -- true or false, whether or not to wait until impact before auto flipping vehicle
+-- ================= CONFIGURATION ENDS ================= --
+-- ===================================================================================================================================================================== --
+-- ===================================================================================================================================================================== --
 current_players = 0
 FLAG = { }
 TIMER = { }
@@ -335,8 +310,11 @@ for i = 1, 16 do PLAYER_LOCATION[i] = { } end
 weap_type_id = "weap"
 eqip_type_id = "eqip"
 vehi_type_id = "vehi"
+-- ======== from Giraffe's auto-vehicle-flip script ======== --
+rider_ejection = nil
+object_table_ptr = nil
+--==============================================================
 
--- For a Future Update
 -- Objects to drop when someone dies | Rewards for surviving "allocated_time" without dying
 EQUIPMENT_TABLE[1] = { "powerups\\shotgun ammo\\shotgun ammo", "Shotgun Ammo" }
 EQUIPMENT_TABLE[2] = { "powerups\\assault rifle ammo\\assault rifle ammo", "Assault Rifle Ammo" }
@@ -376,9 +354,9 @@ function OnScriptLoad()
     register_callback(cb["EVENT_VEHICLE_EXIT"], "OnVehicleExit")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-    -- Giraffe's object_table_ptr --
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
-    -------------------------------------------------------------
+    --==============================================================
     LoadItems()
     MAP_NAME = get_var(1, "$map")
     -- Check if valid GameType
@@ -403,14 +381,14 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    -- sehe's death Message Patch --
+    -- ======== sehe's death Message Patch ======== --
     disable_killmsg_addr = sig_scan("8B42348A8C28D500000084C9") + 3
     original_code_1 = read_dword(disable_killmsg_addr)
     safe_write(true)
     write_dword(disable_killmsg_addr, 0x03EB01B1)
     safe_write(false)
     current_players = 0
-    -------------------------------------------------------------------
+    --==================================================================
     local file = io.open(string.format("changelog_" .. Script_Version .. ".txt"), "r")
     if file then
         changelog = true
@@ -434,7 +412,7 @@ function OnScriptLoad()
             PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
         end
     end
-    -- Giraffe's --
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
     if (halo_type == "CE") then
         rider_ejection = read_byte(0x59A34C)
         write_byte(0x59A34C, 0)
@@ -442,7 +420,7 @@ function OnScriptLoad()
         rider_ejection = read_byte(0x6163EC)
         write_byte(0x6163EC, 0)
     end
-    -- ======================================== --
+    --==============================================================
 end
 
 function OnScriptUnload()
@@ -459,20 +437,20 @@ function OnScriptUnload()
     EQUIPMENT_TABLE = { }
     rider_ejection = nil
     object_table_ptr = nil
-    -- sehe's death Message Patch --
+    -- ======== sehe's death Message Patch ======== --
     safe_write(true)
     write_dword(disable_killmsg_addr, original_code_1)
     write_word(disable_speed_decrease_addr, original_code_2)
     write_word(force_speed_sync_addr, original_code_3)
     safe_write(false)
-    ----------------------------------------------------------
+    --=======================================================
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
     if (halo_type == "CE") then
-        -- Giraffe's
         write_byte(0x59A34C, rider_ejection)
     else
         write_byte(0x6163EC, rider_ejection)
     end
-    -- ======================================== --
+    --==============================================================
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -516,7 +494,7 @@ function OnNewGame()
             PLAYERS_ALIVE[PLAYER_ID].FLAG = false
         end
     end
-    if ctf_enabled == true then
+    if ctf_mode == true then
         SPAWN_FLAG()
     end
     for k, v in pairs(Level) do
@@ -642,12 +620,22 @@ function PlayerAlive(PlayerIndex)
 end
 
 function RewardPlayer(PlayerIndex)
-
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
     rprint(PlayerIndex, "You have been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
     AnnounceChat(get_var(PlayerIndex, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)", PlayerIndex)
-
+    -- Pick Camouflage or Overshield (item chosen is random)
+    math.randomseed(os.time())
+    local num = math.random(1, #REWARDS)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local x, y, z = read_vector3d(player_object + 0x5C)
+    if (tonumber(num) == 1) then
+        spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
+        item = REWARDS[1][2]
+    else
+        spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
+        item = REWARDS[2][2]
+    end
     -- Level 1-5
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 5 then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -655,25 +643,11 @@ function RewardPlayer(PlayerIndex)
         spawn_object(tostring(eqip_type_id), EQUIPMENT_TABLE[players[PlayerIndex][1]][11], x, y, z + 0.5)
         rprint(PlayerIndex, "You received " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item))
         AnnounceChat("Rewarding him/her with " .. tostring(EQUIPMENT_TABLE[players[PlayerIndex][1]][2]) .. " and " .. tostring(item), PlayerIndex)
-
-        -- Level 6
+    -- Level 6
     elseif GetLevel(PlayerIndex) == 6 then
         execute_command("battery " .. PlayerIndex .. " :100")
         rprint(PlayerIndex, "Received extra battery power for Plasma Cannon + " .. tostring(item))
         AnnounceChat("Rewarding him/her with extra battery power for their Plasma Cannon + " .. tostring(item), PlayerIndex)
-    end
-
-    -- Pick Camouflage or Overshield (item chosen is random)
-    math.randomseed(os.time())
-    local num = math.random(1, #REWARDS)
-    if (tonumber(num) == 1) then
-        local player_object = get_dynamic_player(PlayerIndex)
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        spawn_object(tostring(eqip_type_id), REWARDS[1][1], x, y, z + 0.5)
-        item = REWARDS[1][2]
-    else
-        spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
-        item = REWARDS[2][2]
     end
 end
 
@@ -689,38 +663,40 @@ function OnTick()
     -- Flag Respawn Handler --
     --  If the flag is dropped, it will respawn after 30 seconds but warn players 20 seconds before hand.
     --  This doubles as a safety mechanism should the flag become glitched or stuck in a wall somewhere.
-    for p = 1, 16 do
-        if player_present(p) then
-            -- WARNING --
-            if (FLAG_WARN[p] == true) then
-                flag_init_warn = flag_init_warn + 0.030
-                warning_timer = flag_init_warn
-                -- local minutes, seconds = secondsToTime(warning_timer, 2)
-                -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
-                if warning_timer > math.floor(flag_warning) then
-                    FLAG_WARN[p] = false
-                    local minutes, seconds = secondsToTime(warning_timer, 2)
-                    execute_command("msg_prefix \"\"")
-                    say_all("The flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
-                    execute_command("msg_prefix \"** SERVER ** \"")
+    if ctf_mode then
+        for p = 1, 16 do
+            if player_present(p) then
+                -- WARNING --
+                if (FLAG_WARN[p] == true) then
+                    flag_init_warn = flag_init_warn + 0.030
+                    warning_timer = flag_init_warn
+                    -- local minutes, seconds = secondsToTime(warning_timer, 2)
+                    -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                    if warning_timer > math.floor(flag_warning) then
+                        FLAG_WARN[p] = false
+                        local minutes, seconds = secondsToTime(warning_timer, 2)
+                        execute_command("msg_prefix \"\"")
+                        say_all("The flag will respawn in " .. math.floor(flag_respawn_timer - flag_warning) .. " seconds if it's not picked up!")
+                        execute_command("msg_prefix \"** SERVER ** \"")
+                    end
                 end
-            end
-            -- RESPAWN FLAG --
-            if (FLAG_RESPAWN[p] == true) then
-                flag_init_respawn = flag_init_respawn + 0.030
-                respawn_timer = flag_init_respawn
-                -- local minutes, seconds = secondsToTime(respawn_timer, 2)
-                -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
-                if flag_init_respawn >= math.floor(flag_respawn_timer) then
-                    FLAG_RESPAWN[p] = false
-                    local flag = get_object_memory(flag_objId)
-                    -- destroy old flag --
-                    destroy_object(flag_objId)
-                    -- spawn new flag --
-                    SPAWN_FLAG()
-                    execute_command("msg_prefix \"\"")
-                    say_all("The flag has been re-spawned!")
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                -- RESPAWN FLAG --
+                if (FLAG_RESPAWN[p] == true) then
+                    flag_init_respawn = flag_init_respawn + 0.030
+                    respawn_timer = flag_init_respawn
+                    -- local minutes, seconds = secondsToTime(respawn_timer, 2)
+                    -- cprint("Flag will respawn in: " .. math.floor(seconds) .. " seconds")
+                    if flag_init_respawn >= math.floor(flag_respawn_timer) then
+                        FLAG_RESPAWN[p] = false
+                        local flag = get_object_memory(flag_objId)
+                        -- destroy old flag --
+                        destroy_object(flag_objId)
+                        -- spawn new flag --
+                        SPAWN_FLAG()
+                        execute_command("msg_prefix \"\"")
+                        say_all("The flag has been re-spawned!")
+                        execute_command("msg_prefix \"** SERVER ** \"")
+                    end
                 end
             end
         end
@@ -746,7 +722,7 @@ function OnTick()
         for o = 1, 16 do
             if player_present(o) then
                 -- If there two or mores players on the server, run the timers.
-                if current_players >= 2 then
+                if current_players >= player_count then
                     if (TIMER[o] ~= false and PlayerAlive(o) == true) then
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
@@ -828,79 +804,81 @@ function OnTick()
             end
         end
     end
-    for j = 1, 16 do
-        if (player_alive(j)) then
-            -- Monitor players
-            if (CheckForFlag(j) == false and FLAG_BOOL[j]) then
-                local PLAYER_ID = get_var(j, "$n")
-                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
-                FLAG_BOOL[j] = nil
-            end
-            if (CheckForFlag(j) == true) then
-                -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
-                local PLAYER_ID = get_var(j, "$n")
-                PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
-
-                local no_offset = FLAG[MAP_NAME][4][1]
-                if use_flag_holder_offset then
-                    if current_players >= 1 and current_players <= 5 then
-                        local MAPNAME = get_var(1, "$map")
-                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
-                        -- player's connected: between 5-10
-                    elseif current_players >= 5 and current_players <= 10 then
-                        local MAPNAME = get_var(1, "$map")
-                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_1
-                        -- player's connected: between 10-16
-                    elseif current_players >= 10 and current_players <= 16 then
-                        local MAPNAME = get_var(1, "$map")
-                        FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_2
-                    end
-                    execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
-                else
-                    execute_command("s " .. j .. " :" .. tonumber(no_offset))
+    if ctf_mode then
+        for j = 1, 16 do
+            if (player_alive(j)) then
+                -- Monitor players
+                if (CheckForFlag(j) == false and FLAG_BOOL[j]) then
+                    local PLAYER_ID = get_var(j, "$n")
+                    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
+                    FLAG_BOOL[j] = nil
                 end
+                if (CheckForFlag(j) == true) then
+                    -- Player is current flag holder, monitor them until they: CAPTURE, DROP, DIE, QUIT, RESPAWN
+                    local PLAYER_ID = get_var(j, "$n")
+                    PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
 
-                -- Blue Base
-                if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
-                    -- Red Base
-                    or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
-                    if PlayerInVehicle(j) then
-                        -- Clear their console
-                        cls(j)
-                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-                        rprint(j, "|cYou have to get out of your vehicle to score!")
-                        rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-                        rprint(j, "|c")
-                        rprint(j, "|c")
-                        rprint(j, "|c")
+                    local no_offset = FLAG[MAP_NAME][4][1]
+                    if use_flag_holder_offset then
+                        if current_players >= 1 and current_players <= 5 then
+                            local MAPNAME = get_var(1, "$map")
+                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
+                            -- player's connected: between 5-10
+                        elseif current_players >= 5 and current_players <= 10 then
+                            local MAPNAME = get_var(1, "$map")
+                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_1
+                            -- player's connected: between 10-16
+                        elseif current_players >= 10 and current_players <= 16 then
+                            local MAPNAME = get_var(1, "$map")
+                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_2
+                        end
+                        execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
                     else
-                        -- level up (update, advance)
-                        ctf_score(j)
-                        AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
+                        execute_command("s " .. j .. " :" .. tonumber(no_offset))
+                    end
+
+                    -- Blue Base
+                    if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
+                        -- Red Base
+                        or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
+                        if PlayerInVehicle(j) then
+                            -- Clear their console
+                            cls(j)
+                            rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                            rprint(j, "|cYou have to get out of your vehicle to score!")
+                            rprint(j, "|c-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+                            rprint(j, "|c")
+                            rprint(j, "|c")
+                            rprint(j, "|c")
+                        else
+                            -- level up (update, advance)
+                            ctf_score(j)
+                            AnnounceChat("[CAPTURE] " .. get_var(j, "$name") .. " captured a flag!", j)
+                        end
                     end
                 end
-            end
-            -- player has the flag --
-            if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
-                FLAG_BOOL[j] = true
-                AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
-                -- Clear their console
-                if game_over then
-                    -- do nothing
-                else
-                    cls(j)
-                    local speed = flag_runner_speed[MAP_NAME]
-                    rprint(j, "|cReturn the flag to a base to gain a level")
-                    rprint(j, "|c- " .. tostring(FlagRunnerSpeed) .. "x speed")
-                    rprint(j, "|c ")
-                    rprint(j, "|c ")
-                    rprint(j, "|c ")
-                    rprint(j, "|c ")
+                -- player has the flag --
+                if (CheckForFlag(j) and FLAG_BOOL[j] == nil) then
+                    FLAG_BOOL[j] = true
+                    AnnounceChat(get_var(j, "$name") .. " has the flag!", j)
+                    -- Clear their console
+                    if game_over then
+                        -- do nothing
+                    else
+                        cls(j)
+                        local speed = flag_runner_speed[MAP_NAME]
+                        rprint(j, "|cReturn the flag to a base to gain a level")
+                        rprint(j, "|c- " .. tostring(FlagRunnerSpeed) .. "x speed")
+                        rprint(j, "|c ")
+                        rprint(j, "|c ")
+                        rprint(j, "|c ")
+                        rprint(j, "|c ")
+                    end
                 end
             end
         end
     end
-    -- Giraffe's Fucntion --
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
     if (PLAYER_VEHICLES_ONLY) then
         for k = 1, 16 do
             if (player_alive(k)) then
@@ -925,40 +903,46 @@ function OnTick()
             end
         end
     end
+    -- ====================================================================
 end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-    if tonumber(Type) == 1 then
-        local PlayerObj = get_dynamic_player(PlayerIndex)
-        local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
-        local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
-        if (name == "weapons\\flag\\flag") then
-            -- reset flag respawn timers for all players --
-            for i = 1, 16 do
-                FLAG_RESPAWN[i] = false
-                FLAG_WARN[i] = false
-                flag_init_respawn = 0
-                flag_init_warn = 0
+    if ctf_mode then
+        if tonumber(Type) == 1 then
+            local PlayerObj = get_dynamic_player(PlayerIndex)
+            local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
+            local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
+            if (name == "weapons\\flag\\flag") then
+                -- reset flag respawn timers for all players --
+                for i = 1, 16 do
+                    FLAG_RESPAWN[i] = false
+                    FLAG_WARN[i] = false
+                    flag_init_respawn = 0
+                    flag_init_warn = 0
+                end
             end
         end
     end
 end
 
 function OnWeaponDrop(PlayerIndex)
-    -- initiate flag respawn timers --
-    FLAG_RESPAWN[PlayerIndex] = true
-    FLAG_WARN[PlayerIndex] = true
-    -- Set default running speed for player who just dropped the flag.
-    if player_alive(PlayerIndex) then
-        local PLAYER_ID = get_var(PlayerIndex, "$n")
-        if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-            UpdatePlayerSpeed(PlayerIndex)
+    if ctf_mode then
+        -- initiate flag respawn timers --
+        FLAG_RESPAWN[PlayerIndex] = true
+        FLAG_WARN[PlayerIndex] = true
+        -- Set default running speed for player who just dropped the flag.
+        if player_alive(PlayerIndex) then
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                UpdatePlayerSpeed(PlayerIndex)
+            end
         end
     end
 end
 
+
+-- ======== from Giraffe's auto-vehicle-flip script ======== --
 function flip_vehicle(Object)
-    -- Giraffe's Fucntion --
     if (read_bit(Object + 0x8B, 7) == 1) then
         if (WAIT_FOR_IMPACT and read_bit(Object + 0x10, 1) == 0) then
             return
@@ -966,6 +950,8 @@ function flip_vehicle(Object)
         write_vector3d(Object + 0x80, 0, 0, 1)
     end
 end
+--=====================================================================--
+
 
 function OnVehicleExit(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
@@ -1048,10 +1034,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
         say_all(VictimName .. " was killed by " .. KillerName)
         local PLAYER_ID = get_var(victim, "$n")
-        if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
-            -- initiate flag respawn timers --
-            FLAG_RESPAWN[PlayerIndex] = true
-            FLAG_WARN[PlayerIndex] = true
+        if ctf_mode then
+            if (victim == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
+                -- initiate flag respawn timers --
+                FLAG_RESPAWN[PlayerIndex] = true
+                FLAG_WARN[PlayerIndex] = true
+            end
         end
         if DAMAGE_APPLIED[PlayerIndex] == MELEE_ASSAULT_RIFLE or
             DAMAGE_APPLIED[PlayerIndex] == MELEE_FLAME_THROWER or
