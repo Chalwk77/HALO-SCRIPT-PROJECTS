@@ -125,6 +125,7 @@ REWARDS = { }
 -- ===================================================================================================================================================================== --
 -- ===================================================================================================================================================================== --
 -- ================= CONFIGURATION STARTS ================= --
+-- weapon | Name | Instructions | Kills Required | Frags/Plasmas | Ammo Multiplier | (do not touch) 
 Level[1] = { "weapons\\shotgun\\shotgun", "Shotgun", "Melee or Nades!", 1, { 6, 6 }, 0, true }
 Level[2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", "Aim and unload!", 2, { 2, 2 }, 240, true }
 Level[3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36, true }
