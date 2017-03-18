@@ -121,6 +121,7 @@ Script_Version = "1.2"
 Level = { }
 melee_damage = { }
 grenade_damage = { }
+REWARDS = { }
 -- ===================================================================================================================================================================== --
 -- ===================================================================================================================================================================== --
 -- ================= CONFIGURATION STARTS ================= --
@@ -155,9 +156,18 @@ allocated_time = 120 -- [in seconds] - If the player survives this amount of tim
 progression_timer = 180 -- [in seconds] - If the player survives this amount of time without dying then level them up
 
 -- 1 random item from this list will be given after surviving "allocated_time" without dying.
-REWARDS = { }
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
 REWARDS[2] = { "powerups\\over shield", "an overshield!" }
+-- 1 number out of 100 will be chosen. If that number lands on any number in this list, the player will be rewarded with grenades.
+chances = {
+    68, 79, 80, 84, 32,
+    76,	6,	31,	31,	67,
+    97,	71,	77,	14,	21,
+    63,	57,	7,	82,	49,
+    99,	6,	1,	44,	21,
+    80,	27,	77,	37,	22,
+    51,	33,	3,	28,	16
+}
 -- ===============================================================================================================================================================--
 
 -- Temporary weapon to assign when they exit their vehicle
@@ -185,16 +195,16 @@ melee_damage[10] = 1 -- Banshee
 
 -- [ GRENADE DAMAGE MULTIPLIERS ] - Specify grenade damage dealt on a per level basis. (1 = normal)
 -- [level number] / multiplier
-grenade_damage[1] = 1.10 -- Shotgun
-grenade_damage[2] = 1.00 -- Assault Rifle
-grenade_damage[3] = 0.90 -- Pistol
-grenade_damage[4] = 0.80 -- Sniper
-grenade_damage[5] = 0.70 -- Rocket Launcher
-grenade_damage[6] = 0.60 -- Plasma Cannon
-grenade_damage[7] = 0.50 -- Ghost
-grenade_damage[8] = 0.50 -- Rocket Hog
-grenade_damage[9] = 0.50 -- Tank
-grenade_damage[10] = 0.50 -- Banshee
+grenade_damage[1] = 4 -- Shotgun
+grenade_damage[2] = 4 -- Assault Rifle
+grenade_damage[3] = 4 -- Pistol
+grenade_damage[4] = 3 -- Sniper
+grenade_damage[5] = 3 -- Rocket Launcher
+grenade_damage[6] = 3 -- Plasma Cannon
+grenade_damage[7] = 2 -- Ghost
+grenade_damage[8] = 2 -- Rocket Hog
+grenade_damage[9] = 2 -- Tank
+grenade_damage[10] = 1 -- Banshee
 -------------------------------------------------------------------------------------
 
 -- [ VEHICLE DAMAGE MULTIPLIERS ] - (1 = normal damage)
@@ -249,7 +259,7 @@ flag_runner_speed = {
     -- large maps --
     infinity = 1.45,
     icefields = 1.25,
-    bloodgulch = 1.25,
+    bloodgulch = 1.35,
     timberland = 1.35,
     sidewinder = 1.30,
     deathisland = 1.45,
@@ -630,6 +640,24 @@ function RewardPlayer(PlayerIndex)
     else
         spawn_object(tostring(eqip_type_id), REWARDS[2][1], x, y, z + 0.5)
         item = REWARDS[2][2]
+    end
+    math.randomseed(os.time())
+    local randNum = math.random(1, 100)
+    if table.match(chances, randNum) then
+        -- write nades --
+        local nades_tbl = Level[players[PlayerIndex][1]][5]
+        if nades_tbl then
+            FRAG_CHECK[PlayerIndex] = true
+            PLASMA_CHECK[PlayerIndex] = true
+            safe_write(true)
+            local PLAYER = get_dynamic_player(PlayerIndex)
+            -- Frags
+            write_word(PLAYER + 0x31E, tonumber(nades_tbl[1]))
+            -- Plasmas
+            write_word(PLAYER + 0x31F, tonumber(nades_tbl[2]))
+            safe_write(false)
+        end
+        rprint(PlayerIndex, "[LUCKY] You received " .. tostring(nades_tbl[1]) .. " Frags and " .. tostring(nades_tbl[2]) .. " Plasmas!")
     end
     -- Level 1-5
     if GetLevel(PlayerIndex) >= 1 and GetLevel(PlayerIndex) <= 5 then
