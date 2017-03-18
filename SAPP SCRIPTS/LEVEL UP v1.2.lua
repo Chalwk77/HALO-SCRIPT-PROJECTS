@@ -160,7 +160,7 @@ REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
 REWARDS[2] = { "powerups\\over shield", "an overshield!" }
 -- After surviving "allocated_time" without dying, 1 random number out of 100 will be selected.
 -- If that number is equal to any number in the below table, the player will be rewarded with a grenade top-up.
--- There are currently 35 chances (excluding duplicate numbers).
+-- There are currently 36 chances (excluding duplicate numbers).
 ratio_min = 1
 ratio_max = 100
 chances = {
@@ -170,7 +170,7 @@ chances = {
     63,57,7,82,49,
     99,8,1,44,22,
     80,27,77,37,62,
-    51,33,3,28,16
+    51,33,3,28,16, 100
 }
 -- ===============================================================================================================================================================--
 
@@ -754,10 +754,10 @@ function OnTick()
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
                         --[[
--- debugging --
-local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
-cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-]]
+                        -- debugging --
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        ]]
                         if PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(allocated_time) then
                             -- Reset --
                             TIMER[o] = false
@@ -772,10 +772,10 @@ cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. "
                         local PLAYER_ID = get_var(o, "$n")
                         PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE + 0.030
                         --[[
--- debugging --
-local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
-cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-]]
+                        -- debugging --
+                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
+                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        ]]
                         if PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE >= math.floor(progression_timer) then
                             local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].PROGRESSION_TIME_ALIVE, 2)
                             if (o == PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER) then
