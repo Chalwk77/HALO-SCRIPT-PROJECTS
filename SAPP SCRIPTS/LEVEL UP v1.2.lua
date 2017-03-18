@@ -158,8 +158,9 @@ progression_timer = 180 -- [in seconds] - If the player survives this amount of 
 -- 1 random item from this list will be given after surviving "allocated_time" without dying.
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
 REWARDS[2] = { "powerups\\over shield", "an overshield!" }
--- 1 number out of 100 will be chosen. If that number lands on any number in this list, the player will be rewarded with grenades.
--- 35 chances out of 100 (excluding duplicate numbers) to receive nades.
+-- 1 random number out of 100 will be chosen. 
+-- If that number lands on any of the numbers in 'chances' table below, the player will be rewarded with a grenade top-up.
+-- There are currently 35 chances (excluding duplicate numbers)
 chances = {
     68, 79, 85, 84, 32,
     76,	6,	35,	31,	67,
@@ -227,7 +228,7 @@ RocketLauncher_Multiplier = 1.090
 -------------------------------------------------------------------------------------
 
 -- ============== Player Running Speed Configuration ============== --
--- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1632.
+-- You can specify player running speeds on a per level / per map basis in a function called "UpdatePlayerSpeed" on line 1662.
 -- This means that you can specify how fast all player's will run on the map XXX if they are level X and so on.
 -- There is a lot of flexibility here.
 
