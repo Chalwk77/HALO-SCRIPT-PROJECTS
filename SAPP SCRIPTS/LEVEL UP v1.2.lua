@@ -159,13 +159,14 @@ progression_timer = 180 -- [in seconds] - If the player survives this amount of 
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
 REWARDS[2] = { "powerups\\over shield", "an overshield!" }
 -- 1 number out of 100 will be chosen. If that number lands on any number in this list, the player will be rewarded with grenades.
+-- 35 chances out of 100 (excluding duplicate numbers) to receive nades.
 chances = {
-    68, 79, 80, 84, 32,
-    76,	6,	31,	31,	67,
-    97,	71,	77,	14,	21,
+    68, 79, 85, 84, 32,
+    76,	6,	35,	31,	67,
+    97,	71,	78,	14,	21,
     63,	57,	7,	82,	49,
-    99,	6,	1,	44,	21,
-    80,	27,	77,	37,	22,
+    99,	8,	1,	44,	22,
+    80,	27,	77,	37,	62,
     51,	33,	3,	28,	16
 }
 -- ===============================================================================================================================================================--
@@ -2751,6 +2752,7 @@ function WriteChangeLog()
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
     file:write("LEVEL UP version 1.2\n")
     file:write("Released on (Thursday 16 March 2017)\n")
+    file:write("  * Added a random number generator for Frag Rewards. 35% chance out of 100\n")
     file:write("  * Added the option to offset flag-runner/player speeds depending on how many player's are currently connected to the server.\n")
     file:write("  * Fixed typos in documentation.\n")
     file:write("  * Created a new configurable 'flag_runner_speed' table at the top of the script.\n")
