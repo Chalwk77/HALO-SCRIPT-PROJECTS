@@ -20,6 +20,7 @@ say_to_all = say_all
 notyetshown = true
 rtv_initiated = 0
 votekicktimeout_table = false
+Multi_Control = true
 
 -- Strings
 script_version = '1.0'
@@ -171,6 +172,7 @@ commands_table = {
     "/unsuspend",
     "/viewadmins",
     "/write",
+    "/clean"
 }
 
 command_access = {
@@ -261,7 +263,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    -- register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    --register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
@@ -269,6 +271,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
+    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     profilepath = getprofilepath()
     GetGameAddresses()
@@ -288,6 +291,7 @@ function OnScriptLoad()
             players_alive[PLAYER_ID].AFK = nil
             players_alive[PLAYER_ID].HIDDEN = nil
             players_alive[PLAYER_ID].INVIS_TIME = 0
+            players_alive[PLAYER_ID].VEHICLE = nil
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -729,6 +733,20 @@ function OnTick()
             end
         end
     end
+    -- Monitor players in vehicles --
+    for i = 1, 16 do
+        if (player_alive(i)) then
+            if isinvehicle(i) then
+                local player = get_dynamic_player(i)
+                local current_vehicle = read_dword(player + 0x11C)
+                if (current_vehicle ~= 0xFFFFFFFF) then
+                    local vehicle = get_object_memory(current_vehicle)
+                    local PLAYER_ID = get_var(i, "$n")
+                    players_alive[PLAYER_ID].VEHICLE = current_vehicle
+                end
+            end
+        end
+    end
     for i = 1, 16 do
         if player_present(i) then
             if tbag_detection then
@@ -936,6 +954,11 @@ function OnNewGame()
             cur_players = cur_players + 1
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
+            local PLAYER_ID = get_var(i, "$n")
+            players_alive[PLAYER_ID].AFK = nil
+            players_alive[PLAYER_ID].HIDDEN = nil
+            players_alive[PLAYER_ID].INVIS_TIME = 0
+            players_alive[PLAYER_ID].VEHICLE = nil
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -950,6 +973,11 @@ function OnGameEnd(mode)
     for i = 1, 16 do
         if player_present(i) then
             TIMER[i] = false
+            local PLAYER_ID = get_var(i, "$n")
+            players_alive[PLAYER_ID].AFK = nil
+            players_alive[PLAYER_ID].HIDDEN = nil
+            players_alive[PLAYER_ID].INVIS_TIME = 0
+            players_alive[PLAYER_ID].VEHICLE = nil
         end
     end
     if mode == 1 then
@@ -1915,6 +1943,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         elseif t[1] == "sv_write" or t[1] == "sv_w" then
             response = false
             Command_Write(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], count)
+        elseif t[1] == "sv_clean" then
+            response = false
+            Command_Clean(PlayerIndex, t[1], t[2], count)
         elseif t[1] == "sv_stickman" then
             response = false
             timer(200, "Stickman")
@@ -1949,6 +1980,7 @@ function OnPlayerJoin(PlayerIndex)
     players_alive[PLAYER_ID] = { }
     players_alive[PLAYER_ID].AFK = nil
     players_alive[PLAYER_ID].HIDDEN = nil
+    players_alive[PLAYER_ID].VEHICLE = nil
     players_alive[PLAYER_ID].INVIS_TIME = 0
     tbag[PlayerIndex] = { }
     players_list[PlayerIndex].name = name
@@ -2019,8 +2051,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Player Team --
     KillerTeam = get_var(KillerIndex, "$team")
     VictimTeam = get_var(PlayerIndex, "$team")
-
-    cleanupdrones(victim)
+    
     hidden[resolveplayer(victim)] = nil
     gods[getip(victim)] = nil
 
@@ -2108,6 +2139,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
+    cleanupdrones(PlayerIndex)
     last_damage[PlayerIndex] = 0
 end
 
@@ -2227,6 +2259,10 @@ function OnWeaponReload(PlayerIndex, weapon)
         reload = false
     end
     return reload
+end
+
+function OnVehicleEntry(PlayerIndex, Seat)
+    
 end
 
 function OnVehicleEject(PlayerIndex, forceEject, relevant)
@@ -6138,7 +6174,6 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
             return
         end
     end
-    
     if bool == false then
         if type == "give" then
             sendresponse("Invalid Weapon", command, executor)
@@ -6802,6 +6837,33 @@ function Command_Unsuspend(executor, command, PlayerIndex, count)
     end
 end
 
+function Command_Clean(executor, command, PlayerIndex, count)
+    if count == 2 then
+        local players = getvalidplayers(PlayerIndex, executor)
+        if players then
+            for i = 1, #players do
+                if getplayer(i) then
+                    cprint("got player", 2+8)
+                    if vehicle_drone_table[i] ~= nil then
+                        cprint("vehicle_drone_table", 2+8)
+                        for k, v in pairs(vehicle_drone_table[i]) do
+                            if v then
+                                if drone_obj then
+                                    destroy_object(v)
+                                end
+                            end
+                            vehicle_drone_table[PlayerIndex][k] = nil
+                            sendresponse("Cleaning up drones " .. getname(players[i]) .."'s vehicles.", command, executor)
+                        end
+                    else
+                        sendresponse("No vehicles to clean up!", command, executor)
+                    end
+                end
+            end
+        end
+    end
+end
+
 function Command_Versioncheck(boolean)
     if count == 2 then
         if (boolean == "1" or boolean == "true") and version_check ~= true then
@@ -7176,8 +7238,7 @@ function cleanupdrones(PlayerIndex)
         if vehicle_drone_table[PlayerIndex] then
             for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
                 if v then
-                    local v_object = getobject(v)
-                    if v_object then
+                    if drone_obj then
                         destroy_object(v)
                     end
                 end
@@ -8486,46 +8547,20 @@ function Timer(id, count)
     end
     return true
 end
+
+-- destroy old vehicle --
+function DestroyVehicle(Vehicle_ID)
+    if Vehicle_ID then
+        destroy_object(Vehicle_ID)
+    end
+end
+
             -- message | name | "vehi" | tag_id | Player | Type
 function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
-    vehid = 0
+    vehicle_id = 0
     local m = tokenizestring(message, " ")
     local count = #m
-    if count == 2 then
-        local m_playerObjId = get_dynamic_player(PlayerIndex)
-        if m_playerObjId then
-            local m_object = getobject(m_playerObjId)
-            local m_vehicleId = read_dword(m_object + 0x11C)
-            if m_object then
-                if isinvehicle(PlayerIndex) and m_vehicleId then
-                    x, y, z = getobjectcoords(m_vehicleId)
-                else
-                    x, y, z = getobjectcoords(m_playerObjId)
-                    local camera_x = read_float(m_object + 0x230)
-                    local camera_y = read_float(m_object + 0x234)
-                    x = x + camera_x * 2
-                    y = y + camera_y * 2
-                    z = z + 2
-                end
-                vehid = createobject(mapId, 0, 60, false, x + 1.0, y, z + 1.3)
-                if type == "give" then
-                    assignweapon(PlayerIndex, vehid)
-                    sendresponse(objname .. " given to " .. getname(PlayerIndex), message, PlayerIndex)
-                elseif type == "spawn" then
-                    sendresponse(objname .. " spawned at " .. getname(PlayerIndex) .. "'s location", message, PlayerIndex)
-                elseif type == "enter" then
-                    vehicle_drone_table[PlayerIndex] = vehicle_drone_table[PlayerIndex] or { }
-                    table.insert(vehicle_drone_table[PlayerIndex], vehid)
-                    entervehicle(PlayerIndex, vehid, 0)
-                    sendresponse(tostring(getname(PlayerIndex)) .. " was forced to enter a " .. tostring(objname), message, PlayerIndex)
-                end
-            else
-                sendresponse("You cannot spawn stuff while dead", message, PlayerIndex)
-            end
-        else
-            sendresponse("You cannot spawn stuff while dead", message, PlayerIndex)
-        end
-    elseif count >= 3 and count <= 6 then
+    if count >= 3 and count <= 6 then
         local players = getvalidplayers(m[3], PlayerIndex)
         if players then
             for i = 1, #players do
@@ -8533,9 +8568,13 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                 if getplayer(players[i]) then
                     local m_playerObjId = get_dynamic_player(players[i])
                     if m_playerObjId then
-                        local m_vehicleId = read_dword(m_playerObjId + 0x11C)
-                        if isinvehicle(players[i]) and m_vehicleId then
-                            x, y, z = getobjectcoords(m_vehicleId)
+                        if isinvehicle(players[i]) then
+                            VehicleID = read_dword(m_playerObjId + 0x11C)
+                            if (VehicleID == 0xFFFFFFFF) then 
+                                return false 
+                            end
+                            local obj_id = get_object_memory(VehicleID)
+                            x, y, z = read_vector3d(obj_id + 0x5c)
                         else
                             x, y, z = read_vector3d(m_playerObjId + 0x5c)
                             local camera_x = read_float(m_playerObjId + 0x230)
@@ -8552,21 +8591,39 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 sendresponse(objname .. " given to " .. getname(players[i]), message, PlayerIndex)
                                 sendresponse(getname(players[i]) .. " has been given a " .. objname .. ".", "//", players[i])
                             elseif type == "spawn" then
-                                vehid = spawn_object("vehi", object_to_spawn, x, y, z)
+                                
+                                local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
                                 sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
-                            elseif type == "enter" then
-                                
-                                -- To Do --
-                                -- Since you can control multiple vehicles at once if you spam /enter <vehicle>
-                                -- I'll make a new command that turns this idea of "Multi-Control" ON|OFF.
-                                -- If the server admin has this feature turned off, it will delete your previous vehicle.
-                                
-                                
-                                vehid = spawn_object("vehi", object_to_spawn, x, y, z)
                                 vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
-                                table.insert(vehicle_drone_table[players[i]], vehid)
-                                enter_vehicle(vehid, players[i], 0)
-                                sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                table.insert(vehicle_drone_table[players[i]], vehicle_id)
+                                drone_obj = get_object_memory(vehicle_id)
+                                
+                            elseif type == "enter" then
+                                local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
+                                if Multi_Control == true and not isinvehicle(players[i]) then
+                                    enter_vehicle(vehicle_id, players[i], 0)
+                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                elseif Multi_Control == false and not isinvehicle(players[i]) then
+                                    enter_vehicle(vehicle_id, players[i], 0)
+                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                elseif Multi_Control == false and isinvehicle(players[i]) then
+                                    local player_object = get_dynamic_player(players[i])
+                                    local Vehicle_ID = read_dword(player_object + 0x11C)
+                                    local obj_id = get_object_memory(Vehicle_ID)
+                                    exit_vehicle(players[i])
+                                    timer(0, "DestroyVehicle", Vehicle_ID)
+                                    enter_vehicle(vehicle_id, players[i], 0)
+                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                elseif Multi_Control == true and isinvehicle(players[i]) then
+                                    enter_vehicle(vehicle_id, players[i], 0)
+                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                end
+                                if vehicle_id ~= nil then
+                                    cprint("inserting vehicle id into drone table.", 2+8)
+                                    vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
+                                    table.insert(vehicle_drone_table[players[i]], vehicle_id)
+                                    drone_obj = get_object_memory(vehicle_id)
+                                end
                             end
                         elseif count == 4 then
                             if m[4] ~= 0 then
@@ -8612,7 +8669,7 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
             sendresponse("Invalid Player", message, PlayerIndex)
         end
     end
-    return vehid
+    return vehicle_id
 end
 
 function spawngunTimer(arguments, id)
