@@ -8557,7 +8557,7 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                             elseif type == "enter" then
                                 
                                 -- To Do --
-                                -- Since you can control multiple vehicles at once if you spawn /enter <vehicle>
+                                -- Since you can control multiple vehicles at once if you spam /enter <vehicle>
                                 -- I'll make a new command that turns this idea of "Multi-Control" ON|OFF.
                                 -- If the server admin has this feature turned off, it will delete your previous vehicle.
                                 
