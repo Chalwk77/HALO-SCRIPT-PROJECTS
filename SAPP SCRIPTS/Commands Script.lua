@@ -1979,7 +1979,7 @@ function OnPlayerJoin(PlayerIndex)
             unique_table[name] = { hash, ip }
             uniques = uniques + 1
             if firstjoin_message then
-                say("This is " .. name .. "'s first time in the server unique PlayerIndex #: " .. tostring(uniques))
+                say("This is " .. name .. "'s first time in the server unique player #: " .. tostring(uniques))
             end
         end
     end
@@ -2164,51 +2164,51 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
--- function OnClientUpdate(PlayerIndex)
--- local id = resolveplayer(PlayerIndex)
--- local m_objectId = get_dynamic_player(PlayerIndex)
--- if m_objectId then
--- local m_object = getobject(m_objectId)
--- if not scrim_mode then
--- if m_object then
--- local x,y,z = getobjectcoords(m_objectId)
--- if x ~= loc[id][1] or y ~= loc[id][2] or z ~= loc[id][3] then
--- if not loc[id][1] then
--- loc[id][1] = x
--- loc[id][2] = y
--- loc[id][3] = z
--- elseif m_object then
--- local result = OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
--- if result == 0 then
--- movobjectcoords(m_objectId, loc[id][1], loc[id][2], loc[id][3])
--- else
--- loc[id][1] = x
--- loc[id][2] = y
--- loc[id][3] = z
--- end
--- end
--- end
--- end
--- end
--- if tbag_detection then
--- if tbag[PlayerIndex] == nil then
--- tbag[PlayerIndex] = {}
--- end
--- if tbag[PlayerIndex].name and tbag[PlayerIndex].x then
--- if not isinvehicle(PlayerIndex) then
--- if check_sphere(m_objectId ,tbag[PlayerIndex].x ,tbag[PlayerIndex].y ,tbag[PlayerIndex].z , 5) then
--- local obj_crouch = read_byte(m_object + 0x2A0)
--- if obj_crouch == 3 and crouch[id] == nil then
--- crouch[id] = OnPlayerCrouch(PlayerIndex)
--- elseif obj_crouch ~= 3 and crouch[id] ~= nil then
--- crouch[id] = nil
--- end
--- end
--- end
--- end
--- end
--- end
--- end
+function OnClientUpdate(PlayerIndex)
+    local id = resolveplayer(PlayerIndex)
+    local m_objectId = get_dynamic_player(PlayerIndex)
+    if m_objectId then
+        local m_object = getobject(m_objectId)
+        if not scrim_mode then
+            if m_object then
+            local x,y,z = getobjectcoords(m_objectId)
+                if x ~= loc[id][1] or y ~= loc[id][2] or z ~= loc[id][3] then
+                    if not loc[id][1] then
+                        loc[id][1] = x
+                        loc[id][2] = y
+                        loc[id][3] = z
+                    elseif m_object then
+                        local result = OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
+                        if result == 0 then
+                        movobjectcoords(m_objectId, loc[id][1], loc[id][2], loc[id][3])
+                    else
+                        loc[id][1] = x
+                        loc[id][2] = y
+                        loc[id][3] = z
+                    end
+                end
+            end
+        end
+    end
+    if tbag_detection then
+        if tbag[PlayerIndex] == nil then
+            tbag[PlayerIndex] = {}
+        end
+        if tbag[PlayerIndex].name and tbag[PlayerIndex].x then
+            if not isinvehicle(PlayerIndex) then
+                if check_sphere(m_objectId ,tbag[PlayerIndex].x ,tbag[PlayerIndex].y ,tbag[PlayerIndex].z , 5) then
+                local obj_crouch = read_byte(m_object + 0x2A0)
+                    if obj_crouch == 3 and crouch[id] == nil then
+                        crouch[id] = OnPlayerCrouch(PlayerIndex)
+                    elseif obj_crouch ~= 3 and crouch[id] ~= nil then
+                        crouch[id] = nil
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
 
 function OnObjectInteraction(PlayerIndex, objId, mapId)
     local Pass = nil
@@ -2262,19 +2262,19 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
--- function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
--- if CauserIndex then
--- if PlayerIndex then
--- if mode[getip(CauserIndex)] == "destroy" then
--- if tagid ~= 0xE63504C1 then
--- destroyobject(receiver_id)
--- end
--- elseif mode[getip(CauserIndex)] == "entergun" then
--- enter_vehicle(PlayerIndex, receiver_id, 0)
--- end
--- end
--- end
--- end
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if CauserIndex then
+        if PlayerIndex then
+            if mode[getip(CauserIndex)] == "destroy" then
+                if tagid ~= 0xE63504C1 then
+                destroyobject(receiver_id)
+            end
+            elseif mode[getip(CauserIndex)] == "entergun" then
+                enter_vehicle(PlayerIndex, receiver_id, 0)
+            end
+        end
+    end
+end
 
 function OnDamageLookup(receiver_id, causer_id, mapId)
     if receiver_id and tbag_detection then
