@@ -270,11 +270,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     profilepath = getprofilepath()
     GetGameAddresses()
-    execute_command("scorelimit 250")
-    -- write_word(special_chars, 0x9090)
-    -- write_word(gametype_patch, 0xEB)
-    -- write_word(devmode_patch1, 0x9090)
-    -- write_word(devmode_patch2, 0x9090)
     gametype = read_byte(gametype_base + 0x30)
     -- maintimer = timer(20, "MainTimer")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
@@ -8179,7 +8174,7 @@ end
 
 function setscore(PlayerIndex, score)
     if tonumber(score) then
-        if gametype == 1 then
+        if get_var(0, "$gt") == "ctf" then
             local m_player = getplayer(PlayerIndex)
             if score >= 0x7FFF then
                 write_word(m_player + 0xC8, 0x7FFF)
@@ -8188,15 +8183,17 @@ function setscore(PlayerIndex, score)
             else
                 write_word(m_player + 0xC8, score)
             end
-        elseif gametype == 2 then
-            if score >= 0x7FFFFFFF then
-                write_word(slayer_globals + 0x40 + PlayerIndex * 4, 0x7FFFFFFF)
-            elseif score <= -0x7FFFFFFF then
-                write_word(slayer_globals + 0x40 + PlayerIndex * 4, -0x7FFFFFFF)
+        end
+        if get_var(0, "$gt") == "slayer" then
+            if score >= 0x7FFF then
+                execute_command("score " .. PlayerIndex .. " +1")
+            elseif score <= -0x7FFF then
+                execute_command("score " .. PlayerIndex .. " -1")
             else
-                write_word(slayer_globals + 0x40 + PlayerIndex * 4, score)
+                execute_command("score " .. PlayerIndex .. " " .. score)
             end
-        elseif gametype == 3 then
+        end
+        if gametype == 3 then
             local oddball_game = read_byte(gametype_base + 0x8C)
             if oddball_game == 0 or oddball_game == 1 then
                 if score * 30 >= 0x7FFFFFFF then
