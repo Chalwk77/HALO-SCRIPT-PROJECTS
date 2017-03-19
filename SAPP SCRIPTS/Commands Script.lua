@@ -5661,19 +5661,14 @@ function Command_Setfrags(executor, command, PlayerIndex, frags, count)
             for i = 1, #players do
                 local m_objectId = get_dynamic_player(players[i])
                 if m_objectId then
-                    local m_object = getobject(m_objectId)
-                    if m_object then
-                        if tonumber(frags) <= 255 then
-                            write_byte(m_object + 0x31E, frags)
-                            sendresponse("Setting " .. getname(players[i]) .. "'s frag grenades to " .. frags, command, executor)
-                            sendresponse("Your frag grenades were set to " .. frags, command, players[i])
-                        else
-                            write_byte(m_object + 0x31E, 255)
-                            sendresponse("Setting " .. getname(players[i]) .. "'s frag grenades to " .. frags, command, executor)
-                            sendresponse("Your frag grenades were set to " .. frags, command, players[i])
-                        end
+                    if tonumber(frags) <= 255 then
+                        write_byte(m_objectId + 0x31E, frags)
+                        sendresponse("Setting " .. getname(players[i]) .. "'s frag grenades to " .. frags, command, executor)
+                        sendresponse("Your frag grenades were set to " .. frags, command, players[i])
                     else
-                        sendresponse(getname(players[i]) .. " is dead", command, executor)
+                        write_byte(m_objectId + 0x31E, 255)
+                        sendresponse("Setting " .. getname(players[i]) .. "'s frag grenades to " .. frags, command, executor)
+                        sendresponse("Your frag grenades were set to " .. frags, command, players[i])
                     end
                 else
                     sendresponse(getname(players[i]) .. " is dead", command, executor)
@@ -5797,24 +5792,19 @@ function Command_Setplasmas(executor, command, PlayerIndex, plasmas, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local m_objectId = get_dynamic_player(players[i])
+                local m_objectId = getplayerobjectid(players[i])
                 if m_objectId then
-                    local m_object = getobject(m_objectId)
-                    if m_object then
-                        if tonumber(frags) <= 255 then
-                            write_byte(m_object + 0x31F, plasmas)
-                            sendresponse("Setting " .. getname(players[i]) .. "'s plasma grenades to " .. plasmas, command, executor)
-                            sendresponse("Your plasma grenades were set to " .. frags, command, players[i])
-                        else
-                            write_byte(m_object + 0x31F, 255)
-                            sendresponse("Setting " .. getname(players[i]) .. "'s plasma grenades to " .. plasmas, command, executor)
-                            sendresponse("Your plasma grenades were set to " .. frags, command, players[i])
-                        end
+                    if tonumber(plasmas) <= 255 then
+                        write_byte(m_objectId + 0x31F, tonumber(plasmas))
+                        sendresponse("Setting " .. getname(players[i]) .. "'s plasma grenades to: " .. plasmas, command, executor)
+                        sendresponse("Your plasma grenades were set to: " .. plasmas, command, players[i])
                     else
-                        sendresponse(getname(players[i]) .. " is dead", command, executor)
+                        write_byte(m_objectId + 0x31F, 255)
+                        sendresponse("Setting " .. getname(players[i]) .. "'s plasma grenades to " .. plasmas, command, executor)
+                        sendresponse("Your plasma grenades were set to: " .. plasmas, command, players[i])
                     end
                 else
-                    sendresponse(getname(players[i]) .. " is dead", command, executor)
+                    sendresponse(getname(players[i]) .. " is dead!", command, executor)
                 end
             end
         else
