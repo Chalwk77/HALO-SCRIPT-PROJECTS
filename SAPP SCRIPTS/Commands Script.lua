@@ -28,7 +28,9 @@ data_folder = 'sapp\\'
 api_version = '1.11.0.0'
 
 -- Tables
-PLAYERS_ALIVE = { }
+players_alive = { }
+weapons = { }
+vehicles = { }
 TIMER = { }
 last_damage = { }
 access_table = { }
@@ -283,9 +285,9 @@ function OnScriptLoad()
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
             local PLAYER_ID = get_var(i, "$n")
-            PLAYERS_ALIVE[PLAYER_ID].AFK = nil
-            PLAYERS_ALIVE[PLAYER_ID].HIDDEN = nil
-            PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME = 0
+            players_alive[PLAYER_ID].AFK = nil
+            players_alive[PLAYER_ID].HIDDEN = nil
+            players_alive[PLAYER_ID].INVIS_TIME = 0
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -716,8 +718,8 @@ function OnTick()
                     camo(i, ghost_table[ip])
                     if (TIMER[i] ~= false and PlayerAlive(i) == true) then
                         local PLAYER_ID = get_var(i, "$n")
-                        PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME = PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME + 0.030
-                        if PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME >= math.floor(invis_time) then
+                        players_alive[PLAYER_ID].INVIS_TIME = players_alive[PLAYER_ID].INVIS_TIME + 0.030
+                        if players_alive[PLAYER_ID].INVIS_TIME >= math.floor(invis_time) then
                             TIMER[i] = false
                             ghost_table[ip] = nil
                             invis_time = 0
@@ -760,7 +762,7 @@ function OnTick()
                 local obj_forward = read_float(player_object + 0x278)
                 local obj_left = read_float(player_object + 0x27C)
                 local PLAYER_ID = get_var(i, "$n")
-                if (i == PLAYERS_ALIVE[PLAYER_ID].AFK) then
+                if (i == players_alive[PLAYER_ID].AFK) then
                     local afk_x = x_aim
                     local afk_y = y_aim
                     local afk_z = z_aim
@@ -768,7 +770,7 @@ function OnTick()
                     if x_aim ~= afk_x or y_aim ~= afk_y or z_aim ~= afk_z or obj_forward ~= 0 or obj_left ~= 0 then
                         write_bit(player_object + 0x10, 7, 0)
                         privateSay(i, "You are no longer afk")
-                        PLAYERS_ALIVE[PLAYER_ID].AFK = nil
+                        players_alive[PLAYER_ID].AFK = nil
                     else
                         write_float(m_player + 0x100, z - 1000)
                     end
@@ -1944,10 +1946,10 @@ function OnPlayerJoin(PlayerIndex)
     if cur_players == 2 then execute_command("sv_password vm315") end
 
     local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID] = { }
-    PLAYERS_ALIVE[PLAYER_ID].AFK = nil
-    PLAYERS_ALIVE[PLAYER_ID].HIDDEN = nil
-    PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME = 0
+    players_alive[PLAYER_ID] = { }
+    players_alive[PLAYER_ID].AFK = nil
+    players_alive[PLAYER_ID].HIDDEN = nil
+    players_alive[PLAYER_ID].INVIS_TIME = 0
     tbag[PlayerIndex] = { }
     players_list[PlayerIndex].name = name
     players_list[PlayerIndex].hash = hash
@@ -2004,9 +2006,9 @@ function OnPlayerLeave(PlayerIndex)
     gods[ip] = nil
     player_ping[id] = 0
     local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID].AFK = nil
-    PLAYERS_ALIVE[PLAYER_ID].HIDDEN = nil
-    PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME = 0
+    players_alive[PLAYER_ID].AFK = nil
+    players_alive[PLAYER_ID].HIDDEN = nil
+    players_alive[PLAYER_ID].INVIS_TIME = 0
     last_damage[PlayerIndex] = nil
 end
 
@@ -2125,7 +2127,7 @@ end
 function OnPlayerSpawn(PlayerIndex)
     TIMER[PlayerIndex] = true
     local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID].INVIS_TIME = 0
+    players_alive[PLAYER_ID].INVIS_TIME = 0
     local ip = getip(PlayerIndex)
     local m_objectId = get_dynamic_player(PlayerIndex)
     if m_objectId then
@@ -2497,7 +2499,7 @@ function Command_AFK(executor, command, PlayerIndex, count)
             local id = resolveplayer(executor)
             local m_player = getplayer(executor)
             local PLAYER_ID = get_var(executor, "$n")
-            PLAYERS_ALIVE[PLAYER_ID].AFK = executor
+            players_alive[PLAYER_ID].AFK = executor
             sendresponse("You are now afk", command, executor)
         else
             sendresponse("Invalid Player", command, executor)
@@ -2508,7 +2510,7 @@ function Command_AFK(executor, command, PlayerIndex, count)
             for i = 1, #players do
                 local id = resolveplayer(players[i])
                 local PLAYER_ID = get_var(id, "$n")
-                PLAYERS_ALIVE[PLAYER_ID].AFK = id
+                players_alive[PLAYER_ID].AFK = id
                 sendresponse(getname(players[i]) .. " is now afk", command, executor)
             end
         else
@@ -4001,7 +4003,7 @@ function Command_Info(executor, command, PlayerIndex, count)
                         else
                             god_boolean = "False"
                         end
-                        if PLAYERS_ALIVE[player_number].AFK == true then
+                        if players_alive[player_number].AFK == true then
                             afk_boolean = "True"
                         else
                             afk_boolean = "False"
@@ -6064,31 +6066,44 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     if type ~= "enter" then
         bool = true
         if object == "energysword" or object == "esword" then
-            Spawn(message, "Energy Sword", "weap", energysword_tag_id, executor, type)
+            object_to_spawn = weapons[14][2]
+            Spawn(message, "Energy Sword", "weap", object_to_spawn, executor, type)
         elseif object == "ball" or object == "oddball" then
-            Spawn(message, "Oddball", "weap", oddball_tag_id, executor, type)
+            object_to_spawn = weapons[2][2]
+            Spawn(message, "Oddball", "weap", object_to_spawn, executor, type)
         elseif object == "flag" then
-            Spawn(message, "Flag", "weap", flag_tag_id, executor, type)
+            object_to_spawn = weapons[3][2]
+            Spawn(message, "Flag", "weap", object_to_spawn, executor, type)
         elseif object == "frg" or object == "fuelrod" or object == "rod" or object == "plasmacannon" then
-            Spawn(message, "Fuel Rod", "weap", plasmacannon_tag_id, executor, type)
+            object_to_spawn = weapons[10][2]
+            Spawn(message, "Fuel Rod", "weap", object_to_spawn, executor, type)
         elseif object == "ggun" or object == "gravitygun" then
-            Spawn(message, "Gravity Gun", "weap", gravityrifle_tag_id, executor, type)
+            object_to_spawn = weapons[5][2]
+            Spawn(message, "Gravity Gun", "weap", object_to_spawn, executor, type)
         elseif object == "needler" then
-            Spawn(message, "Needler", "weap", needler_tag_id, executor, type)
+            object_to_spawn = weapons[6][2]
+            Spawn(message, "Needler", "weap", object_to_spawn, executor, type)
         elseif object == "pistol" then
-            Spawn(message, "Pistol", "weap", pistol_tag_id, executor, type)
+            object_to_spawn = weapons[7][2]
+            Spawn(message, "Pistol", "weap", object_to_spawn, executor, type)
         elseif object == "ppistol" or object == "plasmapistol" then
-            Spawn(message, "Plasma Pistol", "weap", plasmapistol_tag_id, executor, type)
+            object_to_spawn = weapons[8][2]
+            Spawn(message, "Plasma Pistol", "weap", object_to_spawn, executor, type)
         elseif object == "prifle" or object == "plasmarifle" then
-            Spawn(message, "Plasma Rifle", "weap", plasmarifle_tag_id, executor, type)
+            object_to_spawn = weapons[9][2]
+            Spawn(message, "Plasma Rifle", "weap", object_to_spawn, executor, type)
         elseif object == "rifle" or object == "arifle" or object == "assaultrifle" then
-            Spawn(message, "Assault Rifle", "weap", assaultrifle_tag_id, executor, type)
+            object_to_spawn = weapons[1][2]
+            Spawn(message, "Assault Rifle", "weap", object_to_spawn, executor, type)
         elseif object == "rocket" or object == "rocketlauncher" or object == "rox" then
-            Spawn(message, "Rocket Launcher", "weap", rocketlauncher_tag_id, executor, type)
+            object_to_spawn = weapons[11][2]
+            Spawn(message, "Rocket Launcher", "weap", object_to_spawn, executor, type)
         elseif object == "shotty" or object == "shotgun" then
-            Spawn(message, "Shotgun", "weap", shotgun_tag_id, executor, type)
+            object_to_spawn = weapons[12][2]
+            Spawn(message, "Shotgun", "weap", object_to_spawn, executor, type)
         elseif object == "sniper" then
-            Spawn(message, "Sniper Rifle", "weap", sniper_tag_id, executor, type)
+            object_to_spawn = weapons[13][2]
+            Spawn(message, "Sniper Rifle", "weap", object_to_spawn, executor, type)
         else
             bool = false
         end
@@ -6098,22 +6113,24 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type ~= "give" then
         bool = true
-        if object == "wraith" then
-            Spawn(message, "Wraith", "vehi", wraith_tag_id, executor, type)
-        elseif object == "peli" or object == "pelican" then
-            Spawn(message, "Pelican", "vehi", pelican_tag_id, executor, type)
+        if object == "hog" or object == "warthog" then
+            object_to_spawn = vehicles[1][2]
+            Spawn(message, "Warthog", "vehi", object_to_spawn, executor, type)
         elseif object == "ghost" then
-            Spawn(message, "Ghost", "vehi", ghost_tag_id, executor, type)
-        elseif object == "hog" or object == "warthog" then
-            Spawn(message, "Warthog", "vehi", warthog_tag_id, executor, type)
+            object_to_spawn = vehicles[2][2]
+            Spawn(message, "Ghost", "vehi", object_to_spawn, executor, type)
         elseif object == "rhog" or object == "rocketwarthog" then
-            Spawn(message, "Rocket Warthog", "vehi", rwarthog_tag_id, executor, type)
+            object_to_spawn = vehicles[3][2]
+            Spawn(message, "Rocket Warthog", "vehi", object_to_spawn, executor, type)
         elseif object == "shee" or object == "banshee" then
-            Spawn(message, "Banshee", "vehi", banshee_tag_id, executor, type)
+            object_to_spawn = vehicles[4][2]
+            Spawn(message, "Banshee", "vehi", object_to_spawn, executor, type)
         elseif object == "tank" or object == "scorpion" then
-            Spawn(message, "Tank", "vehi", scorpion_tag_id, executor, type)
+            object_to_spawn = vehicles[5][2]
+            Spawn(message, "Tank", "vehi", object_to_spawn, executor, type)
         elseif object == "turret" or object == "shade" then
-            Spawn(message, "Gun Turret", "vehi", turret_tag_id, executor, type)
+            object_to_spawn = vehicles[6][2]
+            Spawn(message, "Gun Turret", "vehi", object_to_spawn, executor, type)
         else
             bool = false
         end
@@ -6121,11 +6138,12 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
             return
         end
     end
+    
     if bool == false then
         if type == "give" then
             sendresponse("Invalid Weapon", command, executor)
         elseif type == "enter" then
-            sendresponse("Invalid Vehicle", command, executor)
+            sendresponse("Invalid Vehicle.", command, executor)
         elseif type == "spawn" then
             sendresponse("Invalid Object", command, executor)
         end
@@ -7810,11 +7828,18 @@ function LoadTags()
     turret_tag_id = get_tag_info("vehi", "vehicles\\c gun turret\\c gun turret_mp")
     ghost_tag_id = get_tag_info("vehi", "vehicles\\ghost\\ghost_mp")
     rwarthog_tag_id = get_tag_info("vehi", "vehicles\\rwarthog\\rwarthog")
-    scorpion_tag_id = get_tag_info("vehi", "vehicles\\scorpion\\scorpion_mp")
     warthog_tag_id = get_tag_info("vehi", "vehicles\\warthog\\mp_warthog")
+    scorpion_tag_id = get_tag_info("vehi", "vehicles\\scorpion\\scorpion_mp")
     wraith_tag_id = get_tag_info("vehi", "vehicles\\wraith\\wraith")
     pelican_tag_id = get_tag_info("vehi", "vehicles\\pelican\\pelican")
 
+    vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog"}
+    vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp"}
+    vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog"}
+    vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp"}
+    vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp"}
+    vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp"}
+    
     -- Weapons
     assaultrifle_tag_id = get_tag_info("weap", "weapons\\assault rifle\\assault rifle")
     oddball_tag_id = get_tag_info("weap", "weapons\\ball\\ball")
@@ -7830,6 +7855,21 @@ function LoadTags()
     shotgun_tag_id = get_tag_info("weap", "weapons\\shotgun\\shotgun")
     sniper_tag_id = get_tag_info("weap", "weapons\\sniper rifle\\sniper rifle")
     energysword_tag_id = get_tag_info("weap", "weapons\\energy sword\\energy sword")
+    
+    weapons[1] = { "weap", "weapons\\assault rifle\\assault rifle"}
+    weapons[2] = { "weap", "weapons\\ball\\ball"}
+    weapons[3] = { "weap", "weapons\\flag\\flag"}
+    weapons[4] = { "weap", "weapons\\flamethrower\\flamethrower"}
+    weapons[5] = { "weap", "weapons\\gravity rifle\\gravity rifle"}
+    weapons[6] = { "weap", "weapons\\needler\\mp_needler"}
+    weapons[7] = { "weap", "weapons\\pistol\\pistol"}
+    weapons[8] = { "weap", "weapons\\plasma pistol\\plasma pistol"}
+    weapons[9] = { "weap", "weapons\\plasma rifle\\plasma rifle"}
+    weapons[10] = { "weap", "weapons\\plasma_cannon\\plasma_cannon"}
+    weapons[11] = { "weap", "weapons\\rocket launcher\\rocket launcher"}
+    weapons[12] = { "weap", "weapons\\shotgun\\shotgun" }
+    weapons[13] = { "weap", "weapons\\sniper rifle\\sniper rifle" }
+    weapons[14] = { "weap", "weapons\\energy sword\\energy sword" }
 
 
     -- Projectiles
@@ -7865,8 +7905,8 @@ function LoadTags()
     objects[7] = { "shee", "vehi", banshee_tag_id }
     objects[8] = { "turret", "vehi", turret_tag_id }
     objects[9] = { "ghost", "vehi", ghost_tag_id }
-    objects[10] = { "rhog", "vehi", rwarthog_tag_id }
     objects[11] = { "tank", "vehi", scorpion_tag_id }
+    objects[10] = { "rhog", "vehi", rwarthog_tag_id }
     objects[12] = { "hog", "vehi", warthog_tag_id }
     objects[13] = { "rifle", "weap", assaultrifle_tag_id }
     objects[14] = { "ball", "weap", oddball_tag_id }
@@ -8446,7 +8486,7 @@ function Timer(id, count)
     end
     return true
 end
-
+            -- message | name | "vehi" | tag_id | Player | Type
 function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
     vehid = 0
     local m = tokenizestring(message, " ")
@@ -8494,73 +8534,80 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                     local m_playerObjId = get_dynamic_player(players[i])
                     if m_playerObjId then
                         local m_vehicleId = read_dword(m_playerObjId + 0x11C)
-                        if m_object then
-                            if isinvehicle(players[i]) and m_vehicleId and getobject(m_vehicleId) then
-                                x, y, z = getobjectcoords(m_vehicleId)
-                            else
-                                x, y, z = read_vector3d(m_playerObjId + 0x5c)
-                                local camera_x = read_float(m_object + 0x230)
-                                local camera_y = read_float(m_object + 0x234)
-                                x = x + camera_x * 2
-                                y = y + camera_y * 2
-                                z = z + 2
-                            end
-                            if count == 3 then
-                                vehid = spawn_object(mapId, x, y, z)
-                                if objtype == "weap" and type == "give" then
-                                    assignweapon(players[i], vehid)
-                                    sendresponse(objname .. " given to " .. getname(players[i]), message, PlayerIndex)
-                                    sendresponse(getname(players[i]) .. " has been given a " .. objname .. ".", "//", players[i])
-                                elseif type == "spawn" then
-                                    sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
-                                elseif type == "enter" then
-                                    vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
-                                    table.insert(vehicle_drone_table[players[i]], vehid)
-                                    entervehicle(players[i], vehid, 0)
-                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
-                                end
-                            elseif count == 4 then
-                                if m[4] ~= 0 then
-                                    for i = 1, m[4] do
-                                        createobject(mapId, 0, 0, false, x, y, z)
-                                    end
-                                    sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
-                                    privatesay(players[i], objname .. " spawned above you.")
-                                else
-                                    sendresponse("You didn't spawn anything")
-                                end
-                            elseif count == 5 then
-                                if m[4] ~= 0 then
-                                    for i = 1, m[4] do
-                                        createobject(mapId, 0, m[5], false, x, y, z)
-                                    end
-                                    sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
-                                    privatesay(players[i], objname .. " spawned above you.")
-                                else
-                                    sendresponse("You didn't spawn anything")
-                                end
-                            elseif count == 6 then
-                                if m[4] ~= 0 then
-                                    for i = 1, m[4] do
-                                        createobject(mapId, 0, m[5], m[6], x, y, z)
-                                    end
-                                    sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
-                                    privatesay(players[i], objname .. " spawned above you.")
-                                else
-                                    sendresponse("You didn't spawn anything", message, PlayerIndex)
-                                end
-                            end
-                            -- elseif type ~= "give" then
-                            -- sendresponse("Could not spawn next to " .. getname(players[i]) .. ". Player is dead.", message, PlayerIndex)
-                            -- elseif type == "give" then
-                            -- sendresponse("Could not give " .. getname(players[i]) .. " a " .. objname .. ". Player is dead.", message, PlayerIndex)
+                        if isinvehicle(players[i]) and m_vehicleId then
+                            x, y, z = getobjectcoords(m_vehicleId)
+                        else
+                            x, y, z = read_vector3d(m_playerObjId + 0x5c)
+                            local camera_x = read_float(m_playerObjId + 0x230)
+                            local camera_y = read_float(m_playerObjId + 0x234)
+                            x = x + camera_x * 2
+                            y = y + camera_y * 2
+                            z = z + 2
                         end
+                        if count == 3 then
+                            if objtype == "weap" and type == "give" then
+                                local player_object = get_dynamic_player(players[i])
+                                local x, y, z = read_vector3d(player_object + 0x5C)
+                                local weapid = assign_weapon(spawn_object("weap", object_to_spawn, x, y, z + 0.5), players[i])
+                                sendresponse(objname .. " given to " .. getname(players[i]), message, PlayerIndex)
+                                sendresponse(getname(players[i]) .. " has been given a " .. objname .. ".", "//", players[i])
+                            elseif type == "spawn" then
+                                vehid = spawn_object("vehi", object_to_spawn, x, y, z)
+                                sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                            elseif type == "enter" then
+                                
+                                -- To Do --
+                                -- Since you can control multiple vehicles at once if you spawn /enter <vehicle>
+                                -- I'll make a new command that turns this idea of "Multi-Control" ON|OFF.
+                                -- If the server admin has this feature turned off, it will delete your previous vehicle.
+                                
+                                
+                                vehid = spawn_object("vehi", object_to_spawn, x, y, z)
+                                vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
+                                table.insert(vehicle_drone_table[players[i]], vehid)
+                                enter_vehicle(vehid, players[i], 0)
+                                sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                            end
+                        elseif count == 4 then
+                            if m[4] ~= 0 then
+                                for i = 1, m[4] do
+                                    spawn_object(mapId, 0, 0, false, x, y, z)
+                                end
+                                sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                                privatesay(players[i], objname .. " spawned above you.")
+                            else
+                                sendresponse("You didn't spawn anything")
+                            end
+                        elseif count == 5 then
+                            if m[4] ~= 0 then
+                                for i = 1, m[4] do
+                                    spawn_object(mapId, 0, m[5], false, x, y, z)
+                                end
+                                sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                                privatesay(players[i], objname .. " spawned above you.")
+                            else
+                                sendresponse("You didn't spawn anything")
+                            end
+                        elseif count == 6 then
+                            if m[4] ~= 0 then
+                                for i = 1, m[4] do
+                                    spawn_object(mapId, 0, m[5], m[6], x, y, z)
+                                end
+                                sendresponse(m[4] .. " " .. objname .. "s spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                                privatesay(players[i], objname .. " spawned above you.")
+                            else
+                                sendresponse("You didn't spawn anything", message, PlayerIndex)
+                            end
+                        end
+                        elseif type ~= "give" then
+                            sendresponse("Could not spawn next to " .. getname(players[i]) .. ". Player is dead.", message, PlayerIndex)
+                        elseif type == "give" then
+                        sendresponse("Could not give " .. getname(players[i]) .. " a " .. objname .. ". Player is dead.", message, PlayerIndex)
                     end
                 else
                     sendresponse("Player is nil", message, PlayerIndex)
                 end
             end
-
         else
             sendresponse("Invalid Player", message, PlayerIndex)
         end
