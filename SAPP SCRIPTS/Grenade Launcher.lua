@@ -27,43 +27,52 @@ function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 end
 
-function OnScriptUnload() end
 
-function get_tag_info(obj_type, obj_name)
-	local tag_id = lookup_tag(obj_type, obj_name)
-	return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
-end	
+function OnScriptUnload() end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID) 
     if MapID == get_tag_info("proj", "weapons\\pistol\\bullet") then
-        timer(0, "ChangeProjectile", ParentID)
+        timer(0, "ChangeProjectile", ObjectID, ParentID)
         return false
     end	
 end
 
-function Thread_ChangeProjectile(ID1, ID2, PlayerIndex)
-    ChangeProjectile(PlayerIndex)
-    return false
-end
-
-function ChangeProjectile(PlayerIndex)
+function ChangeProjectile(PlayerIndex, ObjectID, ParentID)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= nil then
-        local m_objectId = --[[something]]--
-        local X_Aim = read_float(m_objectId, 0x230)
-        local Y_aim = read_float(m_objectId, 0x234)
-        local Z_aim = read_float(m_objectId, 0x238)
-        local x = read_float(m_objectId, 0x5C)
-        local y = read_float(m_objectId, 0x60)
-        local z = read_float(m_objectId, 0x64)
-        local ProjX = x + DISTANCE * math.sin(X_Aim)
-        local ProjY = y + DISTANCE * math.sin(Y_aim)
-        local ProjZ = z + DISTANCE * math.sin(Z_aim) + 0.5
-        local projId = spawn_object("proj", "weapons\\frag grenade\\frag grenade", ProjX, ProjY, ProjZ)
-        local proj_obj = get_object_memory(projId)
-        if proj_obj then
-            write_float(proj_obj, 0x68, tonumber(VELOCITY) * math.sin(X_Aim))
-            write_float(proj_obj, 0x6C, tonumber(VELOCITY) * math.sin(Y_aim))
+        local m_objectId = get_object_memory(ObjectID)
+        if m_objectId ~= nil then
+            local X_Aim = read_float(m_objectId, 0x230)
+            local Y_aim = read_float(m_objectId, 0x234)
+            local Z_aim = read_float(m_objectId, 0x238)
+            local x = read_float(m_objectId, 0x5C)
+            local y = read_float(m_objectId, 0x60)
+            local z = read_float(m_objectId, 0x64)
+            local ProjX = x + DISTANCE * math.sin(X_Aim)
+            local ProjY = y + DISTANCE * math.sin(Y_aim)
+            local ProjZ = z + DISTANCE * math.sin(Z_aim) + 0.5
+            local nade_proj = spawn_object("proj", "weapons\\frag grenade\\frag grenade", ProjX, ProjY, ProjZ)
+            local weapon_proj = get_object_memory(nade_proj)
+            if weapon_proj then
+                write_float(weapon_proj + 0x68, VELOCITY * math.sin(X_Aim))
+                write_float(weapon_proj + 0x6C, VELOCITY * math.sin(Y_aim))
+                write_float(weapon_proj + 0x70, VELOCITY * math.sin(Z_aim))
+            end
+            -- cprint("ProjX: " .. ProjX .. ", " .. "ProjY: " .. ProjY .. ", " .. "ProjZ: " .. ProjZ .. "", 2+8)
         end
     end
+end
+
+function get_tag_info(tagclass, tagname)
+    local tagarray = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) -1 do
+        local tag = tagarray + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == tagclass) then
+            if (read_string(read_dword(tag + 0x10)) == tagname) then
+                return read_dword(tag + 0xC)
+            end
+        end
+    end
+    return nil
 end
