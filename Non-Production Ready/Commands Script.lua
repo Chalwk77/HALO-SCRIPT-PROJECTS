@@ -808,11 +808,11 @@ function getprofilepath()
 end
 
 function getteamplay()
-    if read_byte(gametype_base + 0x34) == 1 then
+    if get_var(0,"$ffa") == "0" then
         return true
-    else
+	else
         return false
-    end
+	end
 end
 
 function PlayerAlive(PlayerIndex)
@@ -871,7 +871,21 @@ function tokenizestring(inputstr, sep)
     return t
 end
 
-function OnBanCheck(hash, ip)
+function OnPlayerPrejoin(PlayerIndex)
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
+    local name = read_widestring(client_network_struct, 12)
+    local hash = get_var(PlayerIndex, "$hash")
+    local ip = get_var(PlayerIndex, "$ip")
+    local id = get_var(PlayerIndex, "$n")
+    players_alive[id] = nil
+    cprint(name .. " is attempting to join the server", 2 + 8)
+    cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
+    for k, v in pairs(name_bans) do
+        if v == name then
+            return false, "Player"
+        end
+    end
     local temp = tokenizestring(ip, ".")
     local ip2 = temp[1] .. "." .. temp[2]
     for k, v in pairs(ip_banlist) do
@@ -898,8 +912,15 @@ function OnBanCheck(hash, ip)
             local entry_name = words[1]
             for i = 1, 16 do
                 if getplayer(i) and(ipadmins[getip(i)] or admin_table[gethash(i)]) then
-                    privateSay(i, entry_name .. " banned from BoS.")
-                    privateSay(i, "Entry: " .. entry_name .. "- " .. words[2])
+                    -- Tell Admins currently in server that this player is banned from BoS
+                    privateSay(i, "Rejecting " .. entry_name .. " - banned from BoS.", 2+8)
+                    privateSay(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - ".. words[3])
+                    -- Log to dedicated server console
+                    cprint("Rejecting " .. entry_name .. " - banned from BoS.", 2+8)
+                    cprint("Entry: " .. entry_name .. " - " .. words[2] .. " - ".. words[3], 2+8)
+                    -- Send message to banned player.
+                    privateSay(PlayerIndex, "Unable to connect. You are currently banned!")
+                    execute_command("k" .. " " .. i)
                 end
             end
             BanReason(entry_name .. " was Banned on Sight")
@@ -908,30 +929,13 @@ function OnBanCheck(hash, ip)
             ip_banlist[ip] = { }
             table.insert(ip_banlist[ip], { ["name"] = entry_name, ["ip"] = ip, ["time"] = - 1, ["id"] = ip_banid })
             ip_banid = ip_banid + 1
-            iprange_banlist[ip] = { }
-            local words = tokenizestring(ip, ".")
-            local ip2 = words[1] .. "." .. words[2]
-            table.insert(iprange_banlist[ip2], { ["name"] = entry_name, ["ip"] = ip2, ["time"] = - 1, ["id"] = iprange_banid })
-            iprange_banid = ip_banid + 1
-            table.remove(boslog_table, k)
+            -- iprange_banlist[ip] = { }
+            -- local words = tokenizestring(ip, ".")
+            -- local ip2 = words[1] .. "." .. words[2]
+            -- table.insert(iprange_banlist[ip2], { ["name"] = entry_name, ["ip"] = ip2, ["time"] = - 1, ["id"] = iprange_banid })
+            -- iprange_banid = ip_banid + 1
+            -- table.remove(boslog_table, k)
             return false
-        end
-    end
-    return nil
-end
-
-function OnPlayerPrejoin(PlayerIndex)
-    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-    local name = read_widestring(client_network_struct, 12)
-    local hash = get_var(PlayerIndex, "$hash")
-    local ip = get_var(PlayerIndex, "$ip")
-    local id = get_var(PlayerIndex, "$n")
-    cprint(name .. " is attempting to join the server", 2 + 8)
-    cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
-    for k, v in pairs(name_bans) do
-        if v == name then
-            return false, "Player"
         end
     end
     return nil
@@ -949,6 +953,7 @@ function OnNewGame()
     DefaultSvTimer()
     chatcommands = true
     tbag_detection = true
+    team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
             local ip = getip(i)
@@ -956,10 +961,12 @@ function OnNewGame()
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
             local PLAYER_ID = get_var(i, "$n")
-            players_alive[PLAYER_ID].AFK = nil
-            players_alive[PLAYER_ID].HIDDEN = nil
-            players_alive[PLAYER_ID].INVIS_TIME = 0
-            players_alive[PLAYER_ID].VEHICLE = nil
+            if player_present(i) then
+                players_alive[PLAYER_ID].AFK = nil
+                players_alive[PLAYER_ID].HIDDEN = nil
+                players_alive[PLAYER_ID].INVIS_TIME = 0
+                players_alive[PLAYER_ID].VEHICLE = nil
+            end
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -969,7 +976,7 @@ function OnNewGame()
     end
 end
 
-function OnGameEnd(mode)
+function OnGameEnd()
     gameend = true
     for i = 1, 16 do
         if player_present(i) then
@@ -979,40 +986,22 @@ function OnGameEnd(mode)
             players_alive[PLAYER_ID].HIDDEN = nil
             players_alive[PLAYER_ID].INVIS_TIME = 0
             players_alive[PLAYER_ID].VEHICLE = nil
-        end
-    end
-    if mode == 1 then
-        if maintimer then
-            removetimer(maintimer)
-            maintimer = nil
-        end
-        if timer then
-            removetimer(timer)
-            timer = nil
-        end
-        if rtvtimer then
-            removetimer(rtvtimer)
-            rtvtimer = nil
-        end
-        if votekicktimeouttimer then
-            removetimer(votekicktimeouttimer)
-            votekicktimeouttimer = nil
-        end
-        rtv_initiated = -1
-        votekick_allowed = false
-        for i = 1, 16 do
             timer(0, "cleanupdrones", i)
         end
-    elseif mode == 3 then
-        local file = io.open(profilepath .. "commands_bos.data", "w")
-        if file then
-            for k, v in pairs(boslog_table) do
-                if v then
-                    file:write(v .. "\n")
-                end
+    end
+    rtvtimer = nil
+    votekicktimeouttimer = nil
+    rtv_initiated = -1
+    votekick_allowed = false
+    local file = io.open(profilepath .. "commands_bos.data", "w")
+    if file then
+        for k, v in pairs(boslog_table) do
+            if v then
+                cprint("writing data to commands_bos.data", 2+8)
+                file:write(v .. "\n")
             end
-            file:close()
         end
+        file:close()
     end
 end
 
@@ -1975,8 +1964,6 @@ function OnPlayerJoin(PlayerIndex)
     local name = getname(PlayerIndex)
     local hash = gethash(PlayerIndex)
     local ip = getip(PlayerIndex)
-    if cur_players == 2 then execute_command("sv_password vm315") end
-
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     players_alive[PLAYER_ID] = { }
     players_alive[PLAYER_ID].AFK = nil
@@ -1988,6 +1975,9 @@ function OnPlayerJoin(PlayerIndex)
     players_list[PlayerIndex].hash = hash
     players_list[PlayerIndex].ip = ip
     dmgmultiplier[ip] = 1.0
+    
+    bos_table[PlayerIndex] = name .. "," .. gethash(PlayerIndex) .. "," .. ip
+    
     for k, v in pairs(banned_hashes) do
         if v == hash then
             table.remove(banned_hashes, k)
@@ -2034,15 +2024,21 @@ function OnPlayerLeave(PlayerIndex)
         temp_admins[ip] = nil
     end
     dmgmultiplier[ip] = 1.0
-    bos_table[id] = name .. "," .. gethash(PlayerIndex) .. "," .. ip
+    bos_table[PlayerIndex] = name .. "," .. gethash(PlayerIndex) .. "," .. ip
     hidden[id] = nil
     gods[ip] = nil
     player_ping[id] = 0
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    players_alive[PLAYER_ID].AFK = nil
-    players_alive[PLAYER_ID].HIDDEN = nil
-    players_alive[PLAYER_ID].INVIS_TIME = 0
-    last_damage[PlayerIndex] = nil
+    for k, v in pairs(boslog_table) do
+        local words = tokenizestring(v, ",")
+        if words[3] == ip then
+        else
+            local PLAYER_ID = get_var(PlayerIndex, "$n")
+            players_alive[PLAYER_ID].AFK = nil
+            players_alive[PLAYER_ID].HIDDEN = nil
+            players_alive[PLAYER_ID].INVIS_TIME = 0
+            last_damage[PlayerIndex] = nil
+        end
+    end
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -2710,10 +2706,11 @@ function Command_BalanceTeams(executor, command, count)
                 msg = "Teams are balanced"
             elseif getteamsize(1) > getteamsize(0) then
                 changeteam(SelectPlayer(1), true)
+                execute_command_sequence("wait 0;st " .. SelectPlayer(1))
                 msg = "Balancing Teams"
                 say(msg)
             elseif getteamsize(1) < getteamsize(0) then
-                changeteam(SelectPlayer(0), true)
+                execute_command_sequence("wait 0;st " .. SelectPlayer(1))
                 msg = "Balancing Teams"
                 say(msg)
             end
@@ -2801,6 +2798,17 @@ function Command_Bos(executor, command, PlayerIndex, count)
                 sendresponse("Adding " .. words[1] .. " to BoS.", command, executor)
                 sendresponse("Entry: " .. words[1] .. " - " .. words[2] .. " - " .. words[3], command, executor)
                 table.insert(boslog_table, bos_entry)
+                local file = io.open(profilepath .. "commands_bos.data", "w")
+                if file then
+                    for k, v in pairs(boslog_table) do
+                        if v then
+                            cprint("Adding " .. words[1] .. " to BoS.", 2+8)
+                            cprint("Entry: " .. words[1] .. " - " .. words[2] .. " - " .. words[3], 2+8)
+                            file:write(v .. "\n")
+                        end
+                    end
+                    file:close()
+                end
             else
                 sendresponse(words[1] .. " is already on the BoS", command, executor)
             end
@@ -8459,7 +8467,7 @@ function SelectPlayer(team)
         end
     end
     if #t > 0 then
-        return t[getrandomnumber(1, #t + 1)]
+        return t[rand(1, #t + 1)]
     end
     return nil
 end
