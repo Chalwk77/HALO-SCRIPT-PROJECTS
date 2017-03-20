@@ -913,7 +913,7 @@ function OnPlayerPrejoin(PlayerIndex)
             for i = 1, 16 do
                 if getplayer(i) and(ipadmins[getip(i)] or admin_table[gethash(i)]) then
                     -- Tell Admins currently in server that this player is banned from BoS
-                    privateSay(i, "Rejecting " .. entry_name .. " - banned from BoS.", 2+8)
+                    privateSay(i, "Rejecting " .. entry_name .. " - banned from BoS.")
                     privateSay(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - ".. words[3])
                     -- Log to dedicated server console
                     cprint("Rejecting " .. entry_name .. " - banned from BoS.", 2+8)
