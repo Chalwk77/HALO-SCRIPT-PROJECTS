@@ -14,7 +14,6 @@ uniques = 0
 
 privateSay = rprint
 privatesay = say
-say_to_all = say_all
 
 -- Booleans
 notyetshown = true
