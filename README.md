@@ -4,6 +4,8 @@
 
 # [Click here to view Project Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
 > Check in with my project tracker and keep up to date on my current projects.
+* [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
+* [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 
 ### SAPP LINKS
 > * SAPP Lua API: [weblink](http://halo.isimaginary.com/lua_info/)
