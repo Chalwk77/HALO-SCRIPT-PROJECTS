@@ -2,10 +2,7 @@
 -- Credits to AelitePrime and Wizard for the original commands script (version 4.2 for Phasor).
 -- Converted to SAPP and re-written by Jericho Crosby (Chalwk)
 
--- [ IN DEVELOPMENT ] -- [ IN DEVELOPMENT ] -- [ IN DEVELOPMENT ] -- [ IN DEVELOPMENT ] --
-
 -- [ IN DEVELOPMENT ] -- -- [ IN DEVELOPMENT ] -- -- [ IN DEVELOPMENT ] -- -- [ IN DEVELOPMENT ] --
-
 -- Counts
 cur_players = 0
 ip_banid = 0
