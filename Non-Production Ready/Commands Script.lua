@@ -22,10 +22,11 @@ votekicktimeout_table = false
 Multi_Control = true
 
 -- Strings
+api_version = '1.11.0.0'
 script_version = '1.0'
 processid = ""
 data_folder = 'sapp\\'
-api_version = '1.11.0.0'
+server_prefix = '** SERVER **'
 
 -- Tables
 players_alive = { }
@@ -735,7 +736,6 @@ function OnTick()
             end
         end
     end
-    -- Monitor players in vehicles --
     for i = 1, 16 do
         if (player_alive(i)) then
             if isinvehicle(i) then
@@ -954,7 +954,6 @@ function OnNewGame()
     DefaultSvTimer()
     chatcommands = true
     tbag_detection = true
-    team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
             local ip = getip(i)
@@ -5407,7 +5406,7 @@ function Command_Say(executor, arg, count)
         for i = 2, #arg do
             message = message .. arg[i] .. " "
         end
-        Say("** SERVER ** " .. message, 5)
+        Say(server_prefix .. " " .. message, 5)
         sendresponse("Message sent.", arg[1], executor)
     else
         sendresponse("Invalid Syntax: " .. arg[1] .. " [message]", arg[1], executor)
