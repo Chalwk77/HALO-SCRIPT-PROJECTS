@@ -2,7 +2,7 @@
 
 # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
 
-## Project Tracker [link](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
+# [Click here to view Project Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
 > Check in with my project tracker and keep up to date with my current projects.
 
 ### SAPP LINKS
