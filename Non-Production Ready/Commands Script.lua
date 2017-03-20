@@ -6844,23 +6844,26 @@ function Command_Clean(executor, command, PlayerIndex, count)
             for i = 1, #players do
                 if getplayer(i) then
                     cprint("got player", 2+8)
-                    if vehicle_drone_table[i] ~= nil then
-                        cprint("vehicle_drone_table", 2+8)
+                    if vehicle_drone_table[i] then
                         for k, v in pairs(vehicle_drone_table[i]) do
                             if v then
                                 if drone_obj then
                                     destroy_object(v)
+                                    sendresponse("Cleaning up drones " .. getname(players[i]) .."'s vehicles.", command, executor)
                                 end
                             end
-                            vehicle_drone_table[PlayerIndex][k] = nil
-                            sendresponse("Cleaning up drones " .. getname(players[i]) .."'s vehicles.", command, executor)
+                            vehicle_drone_table[i][k] = nil
                         end
                     else
                         sendresponse("No vehicles to clean up!", command, executor)
                     end
                 end
             end
+        else
+            sendresponse("Invalid Player")
         end
+    else
+        sendresponse("Invalid Syntax: " .. command .. " [player]")
     end
 end
 
@@ -8619,7 +8622,6 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
                                 end
                                 if vehicle_id ~= nil then
-                                    cprint("inserting vehicle id into drone table.", 2+8)
                                     vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
                                     table.insert(vehicle_drone_table[players[i]], vehicle_id)
                                     drone_obj = get_object_memory(vehicle_id)
