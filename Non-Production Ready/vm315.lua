@@ -1,1 +1,0 @@
-testrun | Tortoise.Git >> Remote
