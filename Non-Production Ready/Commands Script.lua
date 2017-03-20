@@ -6109,18 +6109,18 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type ~= "enter" then
         bool = true
-        if object == "energysword" or object == "esword" then
-            object_to_spawn = weapons[14][2]
-            Spawn(message, "Energy Sword", "weap", object_to_spawn, executor, type)
+        if object == "rifle" or object == "arifle" or object == "assaultrifle" then
+            object_to_spawn = weapons[1][2]
+            Spawn(message, "Assault Rifle", "weap", object_to_spawn, executor, type)
         elseif object == "ball" or object == "oddball" then
             object_to_spawn = weapons[2][2]
             Spawn(message, "Oddball", "weap", object_to_spawn, executor, type)
         elseif object == "flag" then
             object_to_spawn = weapons[3][2]
             Spawn(message, "Flag", "weap", object_to_spawn, executor, type)
-        elseif object == "frg" or object == "fuelrod" or object == "rod" or object == "plasmacannon" then
-            object_to_spawn = weapons[10][2]
-            Spawn(message, "Fuel Rod", "weap", object_to_spawn, executor, type)
+        elseif object == "flamethrower" or object == "flame" then
+            object_to_spawn = weapons[4][2]
+            Spawn(message, "Flame Thrower", "weap", object_to_spawn, executor, type)
         elseif object == "ggun" or object == "gravitygun" then
             object_to_spawn = weapons[5][2]
             Spawn(message, "Gravity Gun", "weap", object_to_spawn, executor, type)
@@ -6136,9 +6136,9 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
         elseif object == "prifle" or object == "plasmarifle" then
             object_to_spawn = weapons[9][2]
             Spawn(message, "Plasma Rifle", "weap", object_to_spawn, executor, type)
-        elseif object == "rifle" or object == "arifle" or object == "assaultrifle" then
-            object_to_spawn = weapons[1][2]
-            Spawn(message, "Assault Rifle", "weap", object_to_spawn, executor, type)
+        elseif object == "frg" or object == "fuelrod" or object == "rod" or object == "plasmacannon" then
+            object_to_spawn = weapons[10][2]
+            Spawn(message, "Fuel Rod", "weap", object_to_spawn, executor, type)
         elseif object == "rocket" or object == "rocketlauncher" or object == "rox" then
             object_to_spawn = weapons[11][2]
             Spawn(message, "Rocket Launcher", "weap", object_to_spawn, executor, type)
@@ -6148,6 +6148,9 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
         elseif object == "sniper" then
             object_to_spawn = weapons[13][2]
             Spawn(message, "Sniper Rifle", "weap", object_to_spawn, executor, type)
+        elseif object == "energysword" or object == "esword" then
+            object_to_spawn = weapons[14][2]
+            Spawn(message, "Energy Sword", "weap", object_to_spawn, executor, type)
         else
             bool = false
         end
