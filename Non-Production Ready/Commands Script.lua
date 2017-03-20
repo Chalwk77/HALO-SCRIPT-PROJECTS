@@ -35,6 +35,8 @@ TIMER = { }
 last_damage = { }
 access_table = { }
 admin_table = { }
+bipds_table = { }
+eqip_table = { }
 afk = { }
 banned_hashes = { }
 bos_table = { }
@@ -6032,74 +6034,110 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type == "spawn" then
         bool = true
+    --------------------------------------------------------------------------------------------------------------------------------------
         if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd" then
             Spawn(message, "Cyborg", "bipd", cyborg_tag_id, executor, type)
+            object_to_spawn = bipds_table[1][2]
         elseif object == "captain" or object == "keyes" then
             Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
+            object_to_spawn = bipds_table[2][2]
         elseif object == "cortana" then
             Spawn(message, "Cortana", "bipd", cortana_tag_id, executor, type)
+            object_to_spawn = bipds_table[3][2]
         elseif object == "cortana2" then
             Spawn(message, "Cortana2", "bipd", cortana2_tag_id, executor, type)
+            object_to_spawn = bipds_table[4][2]
         elseif object == "crewman" then
             Spawn(message, "Crewman", "bipd", crewman_tag_id, executor, type)
+            object_to_spawn = bipds_table[5][2]
         elseif object == "elite" then
             Spawn(message, "elite", "bipd", elite_tag_id, executor, type)
+            object_to_spawn = bipds_table[6][2]
         elseif object == "elite2" then
             Spawn(message, "Elite Special", "bipd", elite2_tag_id, executor, type)
+            object_to_spawn = bipds_table[7][2]
         elseif object == "engineer" then
             Spawn(message, "Engineer", "bipd", engineer_tag_id, executor, type)
+            object_to_spawn = bipds_table[8][2]
         elseif object == "flood" then
             Spawn(message, "Flood Captain", "bipd", flood_tag_id, executor, type)
+            object_to_spawn = bipds_table[9][2]
         elseif object == "flood2" then
             Spawn(message, "Flood Infection", "bipd", flood2_tag_id, executor, type)
+            object_to_spawn = bipds_table[10][2]
         elseif object == "flood3" then
             Spawn(message, "Flood Carrier", "bipd", "characters\\floodcarrier\\floodcarrier", executor, type)
+            object_to_spawn = bipds_table[11][2]
         elseif object == "floodelite" then
             Spawn(message, "FloodCombat Elite", "bipd", "characters\\floodcombat elite\\floodcombat elite", executor, type)
+            object_to_spawn = bipds_table[12][2]
         elseif object == "floodhuman" then
             Spawn(message, "FloodCombat Human", "bipd", "characters\\floodcombat_human\\floodcombat_human", executor, type)
+            object_to_spawn = bipds_table[13][2]
         elseif object == "pedobear" or object == "grunt" then
             Spawn(message, "Pedobear", "bipd", "characters\\grunt\\grunt", executor, type)
+            object_to_spawn = bipds_table[14][2]
         elseif object == "hunter" then
             Spawn(message, "Hunter", "bipd", "characters\\hunter\\hunter", executor, type)
+            object_to_spawn = bipds_table[15][2]
         elseif object == "marine" then
             Spawn(message, "Marine", "bipd", "characters\\marine\\marine", executor, type)
+            object_to_spawn = bipds_table[16][2]
         elseif object == "marinesuicide" or object == "marine2" then
             Spawn(message, "Marine Suicidal", "bipd", "characters\\marine_suicidal\\marine_suicidal", executor, type)
+            object_to_spawn = bipds_table[17][2]
         elseif object == "monitor" then
             Spawn(message, "Monitor", "bipd", "characters\\monitor\\monitor", executor, type)
+            object_to_spawn = bipds_table[18][2]
         elseif object == "sentinel" then
             Spawn(message, "Sentinel", "bipd", "characters\\sentinel\\sentinel", executor, type)
+            object_to_spawn = bipds_table[19][2]
         elseif object == "johnson" then
             Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
+            object_to_spawn = bipds_table[20][2]
+        --------------------------------------------------------------------------------------------------------------------------------------
         elseif object == "camo" or object == "camouflage" then
             Spawn(message, "Camouflage", "eqip", camouflage_tag_id, executor, type)
-        elseif object == "dblspd" then
-            Spawn(message, "Double Speed", "eqip", doublespeed_tag_id, executor, type)
-        elseif object == "fullspec" then
-            Spawn(message, "Full-Spectrum Vision", "eqip", fullspec_tag_id, executor, type)
-        elseif object == "fnade" or object == "nades" then
-            Spawn(message, "Frag Grenade", "eqip", fragnade_tag_id, executor, type)
-        elseif object == "pnade" then
-            Spawn(message, "Plasma Grenade", "eqip", plasmanade_tag_id, executor, type)
-        elseif object == "overshield" or object == "os" then
-            Spawn(message, "Overshield", "eqip", overshield_tag_id, executor, type)
-        elseif object == "rifleammo" then
-            Spawn(message, "Assault Rifle Ammo", "eqip", rifleammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[1][2]
         elseif object == "healthpack" then
             Spawn(message, "Health Pack", "eqip", healthpack_tag_id, executor, type)
+            object_to_spawn = eqip_table[2][2]
+        elseif object == "overshield" or object == "os" then
+            Spawn(message, "Overshield", "eqip", overshield_tag_id, executor, type)
+            object_to_spawn = eqip_table[3][2]
+        elseif object == "dblspd" then
+            Spawn(message, "Double Speed", "eqip", doublespeed_tag_id, executor, type)
+            object_to_spawn = eqip_table[4][2]
+        elseif object == "fullspec" then
+            Spawn(message, "Full-Spectrum Vision", "eqip", fullspec_tag_id, executor, type)
+            object_to_spawn = eqip_table[5][2]
+        elseif object == "fnade" or object == "nades" then
+            Spawn(message, "Frag Grenade", "eqip", fragnade_tag_id, executor, type)
+            object_to_spawn = eqip_table[6][2]
+        elseif object == "pnade" then
+            Spawn(message, "Plasma Grenade", "eqip", plasmanade_tag_id, executor, type)
+            object_to_spawn = eqip_table[7][2]
+        elseif object == "rifleammo" then
+            Spawn(message, "Assault Rifle Ammo", "eqip", rifleammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[8][2]
         elseif object == "needlerammo" then
             Spawn(message, "Needler Ammo", "eqip", needlerammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[9][2]
         elseif object == "pistolammo" then
             Spawn(message, "Pistol Ammo", "eqip", pistolammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[10][2]
         elseif object == "rocketammo" then
             Spawn(message, "Rocket Ammo", "eqip", rocketammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[11][2]
         elseif object == "shottyammo" then
             Spawn(message, "Shotgun Ammo", "eqip", shotgunammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[12][2]
         elseif object == "sniperammo" then
             Spawn(message, "Sniper Ammo", "eqip", sniperammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[13][2]
         elseif object == "flameammo" then
             Spawn(message, "Flamethrower Ammo", "eqip", flameammo_tag_id, executor, type)
+            object_to_spawn = eqip_table[14][2]
         else
             bool = false
         end
@@ -7887,6 +7925,17 @@ function LoadTags()
     engineer_tag_id = get_tag_info("bipd", "characters\\engineer\\engineer")
     flood_tag_id = get_tag_info("bipd", "characters\\flood_captain\\flood_captain")
     flood2_tag_id = get_tag_info("bipd", "characters\\flood_infection\\flood_infection")
+    
+    bipds_table[1] = {"bipd", "tag_here"}
+    bipds_table[2] = {"bipd", "tag_here"}
+    bipds_table[3] = {"bipd", "tag_here"}
+    bipds_table[4] = {"bipd", "tag_here"}
+    bipds_table[5] = {"bipd", "tag_here"}
+    bipds_table[6] = {"bipd", "tag_here"}
+    bipds_table[7] = {"bipd", "tag_here"}
+    bipds_table[8] = {"bipd", "tag_here"}
+    bipds_table[9] = {"bipd", "tag_here"}
+    bipds_table[10] = {"bipd", "tag_here"}
 
     -- Equipment
     camouflage_tag_id = get_tag_info("eqip", "powerups\\active camouflage")
@@ -7903,6 +7952,21 @@ function LoadTags()
     shotgunammo_tag_id = get_tag_info("eqip", "powerups\\shotgun ammo\\shotgun ammo")
     sniperammo_tag_id = get_tag_info("eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo")
     flameammo_tag_id = get_tag_info("eqip", "powerups\\flamethrower ammo\\flamethrower ammo")
+    
+    eqip_table[1] = {"eqip", "powerups\\active camouflage"}
+    eqip_table[2] = {"eqip", "powerups\\health pack"}
+    eqip_table[3] = {"eqip", "powerups\\over shield"}
+    eqip_table[4] = {"eqip", "powerups\\double speed"}
+    eqip_table[5] = {"eqip", "powerups\\full-spectrum vision"}
+    eqip_table[6] = {"eqip", "weapons\\frag grenade\\frag grenade"}
+    eqip_table[7] = {"eqip", "weapons\\plasma grenade\\plasma grenade"}
+    eqip_table[8] = {"eqip", "powerups\\assault rifle ammo\\assault rifle ammo"}
+    eqip_table[9] = {"eqip", "powerups\\needler ammo\\needler ammo"}
+    eqip_table[10] = {"eqip", "powerups\\pistol ammo\\pistol ammo"}
+    eqip_table[11] = {"eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo"}
+    eqip_table[12] = {"eqip", "powerups\\shotgun ammo\\shotgun ammo"}
+    eqip_table[13] = {"eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo"}
+    eqip_table[14] = {"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"}
 
     -- Vehicles
     banshee_tag_id = get_tag_info("vehi", "vehicles\\banshee\\banshee_mp")
