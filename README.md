@@ -2,9 +2,6 @@
 
 # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
 
-### PHASOR SCRIPTS: [repo](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
-### SAPP SCRIPTS: [repo](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
-
 ## Project Tracker [link](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
 > Check in with my project tracker and keep up to date with my current projects.
 
