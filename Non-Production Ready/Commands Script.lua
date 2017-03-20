@@ -700,6 +700,7 @@ function OnScriptUnload()
     file:close()
     for i = 1, 16 do
         cleanupdrones(i)
+        timer(0, "cleanupdrones", i)
     end
 end
 
@@ -1000,7 +1001,7 @@ function OnGameEnd(mode)
         rtv_initiated = -1
         votekick_allowed = false
         for i = 1, 16 do
-            cleanupdrones(i)
+            timer(0, "cleanupdrones", i)
         end
     elseif mode == 3 then
         local file = io.open(profilepath .. "commands_bos.data", "w")
@@ -2024,7 +2025,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    cleanupdrones(PlayerIndex)
+    timer(0, "cleanupdrones", PlayerIndex)
     cur_players = cur_players - 1
     local id = resolveplayer(PlayerIndex)
     local name = getname(PlayerIndex)
@@ -2139,7 +2140,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
-    cleanupdrones(PlayerIndex)
+    timer(0, "cleanupdrones", PlayerIndex)
     last_damage[PlayerIndex] = 0
 end
 
@@ -5231,7 +5232,7 @@ function Command_ResetPlayer(executor, command, PlayerIndex, count)
                 local m_player = getplayer(players[i])
                 follow[id] = nil
                 resetweapons(players[i])
-                cleanupdrones(players[i])
+                timer(0, "cleanupdrones", players[i])
                 if m_object then
                     write_float(m_object + 0xE0, 1)
                     write_float(m_object + 0xE4, 1)
@@ -5428,7 +5429,7 @@ function Command_ScrimMode(executor, command, boolean, count)
                     local m_player = getplayer(i)
                     follow[id] = nil
                     resetweapons(i)
-                    cleanupdrones(i)
+                    timer(0, "cleanupdrones", i)
                     dmgmultiplier[ip] = 1.0
                     if m_object then
                         write_float(m_object + 0xE0, 1)
@@ -6837,33 +6838,39 @@ function Command_Unsuspend(executor, command, PlayerIndex, count)
     end
 end
 
+function DelayCleanUpDrones(PlayerIndex, command, executor)
+   if getplayer(PlayerIndex) then
+        if vehicle_drone_table[PlayerIndex] then
+            for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
+                if vehicle_drone_table[PlayerIndex][k] > 0 then 
+                    if v then
+                        if drone_obj then
+                            destroy_object(v)
+                            sendresponse("Cleaning up " .. drone_name .."'s vehicles.", command, executor)
+                        end
+                        vehicle_drone_table[PlayerIndex][k] = nil
+                    end
+                else
+                    sendresponse("Nothing to clean up!", command, executor)
+                end
+            end
+        end
+    end
+end
+
 function Command_Clean(executor, command, PlayerIndex, count)
     if count == 2 then
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                if getplayer(i) then
-                    cprint("got player", 2+8)
-                    if vehicle_drone_table[i] then
-                        for k, v in pairs(vehicle_drone_table[i]) do
-                            if v then
-                                if drone_obj then
-                                    destroy_object(v)
-                                    sendresponse("Cleaning up drones " .. getname(players[i]) .."'s vehicles.", command, executor)
-                                end
-                            end
-                            vehicle_drone_table[i][k] = nil
-                        end
-                    else
-                        sendresponse("No vehicles to clean up!", command, executor)
-                    end
-                end
+                drone_name = getname(players[i])
+                timer(0, "DelayCleanUpDrones", players[i], command, executor)
             end
         else
-            sendresponse("Invalid Player")
+            sendresponse("Invalid Player", command, executor)
         end
     else
-        sendresponse("Invalid Syntax: " .. command .. " [player]")
+        sendresponse("Invalid Syntax: " .. command .. " [player]", command, executor)
     end
 end
 
@@ -7237,7 +7244,7 @@ function check_sphere(m_objectId, X, Y, Z, R)
 end
 
 function cleanupdrones(PlayerIndex)
-    if getplayer(PlayerIndex) then
+   if getplayer(PlayerIndex) then
         if vehicle_drone_table[PlayerIndex] then
             for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
                 if v then
@@ -8603,21 +8610,25 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 
                             elseif type == "enter" then
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
+                                -- MultiControl ON | Player Not In Vehicle
                                 if Multi_Control == true and not isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                -- MultiControl ON | Player In Vehicle
+                                elseif Multi_Control == true and isinvehicle(players[i]) then
+                                    enter_vehicle(vehicle_id, players[i], 0)
+                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                -- MultiControl OFF | Player Not Vehicle
                                 elseif Multi_Control == false and not isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
+                                -- MultiControl OFF | Player In Vehicle
                                 elseif Multi_Control == false and isinvehicle(players[i]) then
                                     local player_object = get_dynamic_player(players[i])
                                     local Vehicle_ID = read_dword(player_object + 0x11C)
                                     local obj_id = get_object_memory(Vehicle_ID)
                                     exit_vehicle(players[i])
                                     timer(0, "DestroyVehicle", Vehicle_ID)
-                                    enter_vehicle(vehicle_id, players[i], 0)
-                                    sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
-                                elseif Multi_Control == true and isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
                                 end
