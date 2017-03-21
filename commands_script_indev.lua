@@ -1752,6 +1752,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         elseif t[1] == "sv_noweapons" then
             response = false
             Command_Noweapons(PlayerIndex, t[1], t[2], count)
+        elseif t[1] == "sv_nuke" then
+            Command_Nuke(PlayerIndex, t[1], t[2], count)
         elseif t[1] == "sv_os" or t[1] == "sv_o" then
             response = false
             Command_Overshield(PlayerIndex, t[1], t[2], count)
@@ -4957,14 +4959,15 @@ function Command_Nuke(executor, command, PlayerIndex, count)
                 local name = getname(players[i])
                 local m_objectId = get_dynamic_player(players[i])
                 if m_objectId ~= nil then
-                    local m_object = getobject(m_objectId)
                     local x, y, z = getobjectcoords(m_objectId)
                     for j = 1, 5 do
-                        local nukeproj = createobject(rocket_tag_id, m_objectId, 0, false, x, y, z + 10)
+                        local nukeproj = spawn_object("proj", "weapons\\rocket launcher\\rocket", x, y, z + 10)
                         table.insert(nukes, nukeproj)
-                        local m_proj = getobject(nukeproj)
+                        local m_proj = get_object_memory(nukeproj)
                         write_float(m_proj + 0x70, -5)
                     end
+                    sendresponse(name .. " was nuked!", command, executor)
+                    sendresponse(name .. " You were nuked!", command, players[i])
                 else
                     sendresponse("Cannot nuke " .. name .. " because they are dead", command, executor)
                 end
