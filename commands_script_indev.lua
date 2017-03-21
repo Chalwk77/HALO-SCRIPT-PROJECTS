@@ -192,6 +192,7 @@ command_access = {
 }
 
 defaulttxt_commands = {
+    "sv_chatcommands 1",
     "sv_adminblocker 0",
     "sv_anticaps false",
     "sv_antispam all",
@@ -997,7 +998,6 @@ function OnGameEnd()
     if file then
         for k, v in pairs(boslog_table) do
             if v then
-                cprint("writing data to commands_bos.data", 2+8)
                 file:write(v .. "\n")
             end
         end
@@ -2121,10 +2121,6 @@ function OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
     return 1
 end
 
-function run_test()
-    cprint("running...", 2+8)
-end
-
 function Command_AddRconPassword(executor, command, password, level, count)
     if count == 2 or count == 3 then
         local bool = true
@@ -2608,7 +2604,6 @@ function Command_Bosplayers(executor, command, count)
 end
 
 function Command_ChatCommands(executor, command, boolean, count)
-    cprint("Command_ChatCommands()...", 2 + 8)
     if count == 1 then
         if chatcommands then
             sendresponse("Chat Commands are currently on", command, executor)
@@ -3266,7 +3261,6 @@ function Command_Godmode(executor, command, PlayerIndex, count)
             sendresponse("Deathless is now enabled You cannot give out godmode", command, executor)
         end
     elseif count == 2 then
-        cprint("count == 2", 2 + 8)
         if deathless ~= 1 then
             local players = getvalidplayers(PlayerIndex, executor)
             if players then
@@ -3523,7 +3517,7 @@ function resolveplayer(PlayerIndex)
         local player_id = get_var(PlayerIndex, "$n")
         return player_id
     else
-        cprint("nil!")
+        -- nil
     end
     return nil
 end
