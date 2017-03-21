@@ -880,8 +880,8 @@ function OnPlayerPrejoin(PlayerIndex)
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
     players_alive[id] = nil
-    cprint(name .. " is attempting to join the server", 2 + 8)
-    cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
+    --cprint(name .. " is attempting to join the server", 2 + 8)
+    --cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
     for k, v in pairs(name_bans) do
         if v == name then
             return false, "Player"
