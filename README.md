@@ -1,3 +1,7 @@
+<p align="right">
+  <img src="http://i.imgur.com/pojWIQ8.png">
+</p>
+
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
 
 # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
