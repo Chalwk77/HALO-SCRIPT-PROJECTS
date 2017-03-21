@@ -22,6 +22,7 @@ rtv_initiated = 0
 votekicktimeout_table = false
 Multi_Control = true
 use_logo = false
+msga = nil
 
 -- Strings
 api_version = '1.11.0.0'
@@ -285,6 +286,13 @@ function OnScriptLoad()
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     if get_var(0, "$gt") ~= "n/a" then end
+    local rf = sig_scan("B8????????E8??000000A1????????55")
+    if rf ~= 0 then
+        msga = read_dword(rf + 1)
+        safe_write(true)
+        write_byte(msga,0)
+        safe_write(false)
+    end
     team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
@@ -706,6 +714,11 @@ function OnScriptUnload()
     for i = 1, 16 do
         cleanupdrones(i)
         timer(0, "cleanupdrones", i)
+    end
+    if msga ~= nil then
+        safe_write(true)
+        write_byte(msga,0x72)
+        safe_write(false)
     end
 end
 
