@@ -5043,9 +5043,9 @@ function Command_Players(executor, command, count)
                 local ip = getip(i)
                 local hash = gethash(i)
                 if team_play then
-                    if player_team == 0 then
+                    if player_team == "red" then
                         player_team = "Red Team"
-                    elseif player_team == 1 then
+                    elseif player_team == "blue" then
                         player_team = "Blue Team"
                     else
                         player_team = "Hidden"
