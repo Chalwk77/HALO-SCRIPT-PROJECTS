@@ -2277,7 +2277,7 @@ function Command_AFK(executor, command, PlayerIndex, count)
                 players_alive[PLAYER_ID].AFK = executor
                 sendresponse("You are now afk", command, executor)
             else
-                cprint("Server cannot be afk!", 4+8)
+                cprint("Server cannot be afk", 4+8)
                 return false
             end
         else
