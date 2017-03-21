@@ -18,3 +18,6 @@ http://www.lua.org/
 > Contributors are those whom have contributed code to my projects in some way. 
 > Sometimes I will use functions written by other people. 
 > In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md
+
+
+<jericho.crosby227@gmail.com>
