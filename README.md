@@ -1,9 +1,8 @@
+[![Logo](http://i.imgur.com/pojWIQ8.png)](https://github.com/Chalwk77)
+http://www.lua.org/
+> # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
 
-# Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
-
-# [Click here to view Project Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
-> Check in with my project tracker and keep up to date on my current projects.
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 
