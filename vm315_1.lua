@@ -1,13 +1,10 @@
 --[[    
 ------------------------------------
-Script Name: vm351 - Game Settings
-
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
-All Rights Reserved.
-You do not have permission to use this script.
+Script Name: vm351 - Settings
 
 * IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
+Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 -----------------------------------
 ]]-- 
 api_version = "1.11.0.0"
