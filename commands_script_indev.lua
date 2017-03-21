@@ -20,6 +20,7 @@ notyetshown = true
 rtv_initiated = 0
 votekicktimeout_table = false
 Multi_Control = true
+use_logo = false
 
 -- Strings
 api_version = '1.11.0.0'
@@ -880,8 +881,8 @@ function OnPlayerPrejoin(PlayerIndex)
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
     players_alive[id] = nil
-    cprint(name .. " is attempting to join the server", 2 + 8)
-    cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
+    --cprint(name .. " is attempting to join the server", 2 + 8)
+    --cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
     for k, v in pairs(name_bans) do
         if v == name then
             return false, "Player"
@@ -7332,18 +7333,20 @@ function DefaultSvTimer()
     end
     if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
     if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
-    cprint("===================================================================================================", 2 + 8)
-    cprint("")
-    cprint("          ..|'''.|                                                     '||         ", 4 + 8)
-    cprint("          .|'     '    ...   .. .. ..   .. .. ..    ....   .. ...      .. ||   ....  ", 4 + 8)
-    cprint("          ||         .|  '|.  || || ||   || || ||  '' .||   ||  ||   .'  '||  ||. '  ", 4 + 8)
-    cprint("          '|.      . ||   ||  || || ||   || || ||  .|' ||   ||  ||   |.   ||  . '|.. ", 4 + 8)
-    cprint("          ''|....'   '|..|' .|| || ||. .|| || ||. '|..'|' .||. ||.  '|..'||. |'..|' ", 4 + 8)
-    cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-    cprint("                            Commands Script Version " .. script_version .. " for SAPP 10.0")
-    cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-    cprint("")
-    cprint("===================================================================================================", 2 + 8)
+    if use_logo then
+        cprint("===================================================================================================", 2 + 8)
+        cprint("")
+        cprint("          ..|'''.|                                                     '||         ", 4 + 8)
+        cprint("          .|'     '    ...   .. .. ..   .. .. ..    ....   .. ...      .. ||   ....  ", 4 + 8)
+        cprint("          ||         .|  '|.  || || ||   || || ||  '' .||   ||  ||   .'  '||  ||. '  ", 4 + 8)
+        cprint("          '|.      . ||   ||  || || ||   || || ||  .|' ||   ||  ||   |.   ||  . '|.. ", 4 + 8)
+        cprint("          ''|....'   '|..|' .|| || ||. .|| || ||. '|..'|' .||. ||.  '|..'||. |'..|' ", 4 + 8)
+        cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+        cprint("                            Commands Script Version " .. script_version .. " for SAPP 10.0")
+        cprint("                      ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+        cprint("")
+        cprint("===================================================================================================", 2 + 8)
+    end
     -- timer(0, "deleteadmins")
     return false
 end
