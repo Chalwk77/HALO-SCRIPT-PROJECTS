@@ -21,6 +21,9 @@ rtv_initiated = 0
 votekicktimeout_table = false
 Multi_Control = true
 use_logo = false
+pm_enabled = true
+chatcommands = true
+tbag_detection = true
 
 -- Strings
 api_version = '1.11.0.0'
@@ -266,7 +269,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    --register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
@@ -953,8 +956,6 @@ function OnNewGame()
     LoadTags()
     GetGameAddresses()
     DefaultSvTimer()
-    chatcommands = true
-    tbag_detection = true
     for i = 1, 16 do
         if getplayer(i) then
             local ip = getip(i)
@@ -1177,7 +1178,7 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
         if players then
             for i = 1, #players do
                 if PlayerIndex ~= players[i] then
-                    local privatemessage = table.concat(t, " ", 2, #t)
+                    local privatemessage = table.concat(ct, " ", 2, #ct)
                     privateSay(PlayerIndex, "to " .. getname(players[i]) .. " (" .. players[i] + 1 .. ") :  " .. privatemessage)
                     privateSay(players[i], getname(PlayerIndex) .. " (" .. players[i] + 1 .. ") :  " .. privatemessage)
                 end
@@ -1186,6 +1187,7 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
         else
             privatesay(PlayerIndex, "There is no player with an ID of " .. receiverID .. ".")
         end
+        return false
     end
     if AllowChat == nil then
         access = getaccess(PlayerIndex)
