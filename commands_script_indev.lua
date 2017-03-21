@@ -24,6 +24,7 @@ use_logo = false
 pm_enabled = true
 chatcommands = true
 tbag_detection = true
+rockthevote = true
 
 -- Strings
 api_version = '1.11.0.0'
@@ -1009,7 +1010,7 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, chattype)
     local response = nil
-    local AllowChat = nil
+    local response = nil
     local name = "PlayerIndex"
     local hash = "hash"
     local ip = "ip"
@@ -1039,56 +1040,8 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
     if ct[1] == nil then
         return nil
     end
-    if ct[1] == "rtv" then
-        if count == 1 and rockthevote then
-            if rtv_initiated >= 0 then
-                local rtv_count = 0
-                local rtv_number = round(cur_players * rtv_required, 0)
-                for i = 1, 16 do
-                    if getplayer(i) then
-                        if rtv_table[getip(i)] == 1 then
-                            rtv_count = rtv_count + 1
-                        end
-                    end
-                end
-                if rtv_count == 0 then
-                    rtv_initiated = 1
-                    rtv_table[ip] = 1
-                    rtv_count = rtv_count + 1
-                    say(name .. " has initiated rtv")
-                    say("Type \"rtv\" to join the vote")
-                    rtvtimer = timer(120000, "rtvTimer")
-                else
-                    if rtv_table[ip] == 1 then
-                        privatesay(PlayerIndex, "You have already voted for rtv")
-                    elseif rtv_table[ip] == nil then
-                        rtv_table[ip] = 1
-                        rtv_count = rtv_count + 1
-                        say(name .. " has voted for rtv")
-                        say(rtv_count .. " of " .. rtv_number .. " votes required for rtv")
-                    end
-                end
-                if rtv_count >= rtv_number then
-                    if rtvtimer then
-                        removetimer(rtvtimer)
-                        rtvtimer = nil
-                    end
-                    rtv_initiated = rtv_timeout
-                    say("Enough votes for rtv, game is now ending...")
-                    execute_command("sv_map_next")
-                end
-            elseif not gameend then
-                privatesay(PlayerIndex, "You cannot initiate rtv at this time")
-            elseif gameend then
-                privatesay(PlayerIndex, "Game is already ending")
-            end
-            AllowChat = false
-        elseif count == 1 and not rockthevote then
-            privatesay(PlayerIndex, "Rockthevote is now disabled.")
-            AllowChat = false
-        end
-    elseif ct[1] == "votekick" then
-        AllowChat = false
+    if ct[1] == "votekick" then
+        response = false
         if count == 2 then
             if votekick_allowed and votekicktimeout_table == false then
                 local votekick_count = 0
@@ -1139,7 +1092,7 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
         end
     elseif ct[1] == "kick" then
         if count == 1 then
-            AllowChat = false
+            response = false
             if votekick_allowed ~= true and votekick_allowed and votekicktimeout_table then
                 local votekick_count = 0
                 local votekick_number = round(cur_players * votekick_required, 0)
@@ -1172,7 +1125,7 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
             end
         end
     elseif pm_enabled and string.sub(ct[1], 1, 1) == "@" then
-        AllowChat = false
+        response = false
         local receiverID = string.sub(ct[1], 2, ct[1]:len())
         local players = getvalidplayers(receiverID, PlayerIndex)
         if players then
@@ -1189,280 +1142,12 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
         end
         return false
     end
-    if AllowChat == nil then
+    if response == nil then
         access = getaccess(PlayerIndex)
-    end
-    if access and chatcommands then
-        if string.sub(ct[1], 1, 1) == "/" then
-            AllowChat = true
-        elseif string.sub(ct[1], 1, 1) == "\\" then
-            AllowChat = false
-        end
-        cmd = ct[1]:gsub("\\", "/")
-        local found1 = cmd:find("/")
-        local found2 = cmd:find("/", 2)
-        local valid_command
-        if found1 and not found2 then
-            for k, v in pairs(commands_table) do
-                if cmd == v then
-                    ischatcommand = true
-                    valid_command = true
-                    break
-                end
-            end
-            if not valid_command then
-                sendresponse("Invalid Command", ct[1], PlayerIndex)
-            else
-                if checkaccess(cmd, access, PlayerIndex) then
-                    if scrim_mode then
-                        local Command = cmd
-                        if string.sub(Command, 0, 1) == "/" then
-                            Command = string.sub(Command, 2)
-                        end
-                        for i = 0, #scrim_mode_commands do
-                            if scrim_mode_commands[i] then
-                                if Command == scrim_mode_commands[i] then
-                                    sendresponse("This command is currently disabled.\nTurn Scrim Mode off to reenable this command.", ct[1], PlayerIndex)
-                                    cmdlog(getname(PlayerIndex) .. " attempted to use " .. ct[1] .. " during scrim mode.")
-                                    return false
-                                end
-                            end
-                        end
-                    end
-                    response = false
-                    if cmd == "/a" and ct[2] == "list" then
-                        Command_AdminList(PlayerIndex, ct[1] .. " " .. ct[2], count)
-                    elseif cmd == "/a" and ct[2] == "del" then
-                        Command_Admindel(PlayerIndex, ct[1] .. " " .. ct[2], ct[3], count)
-                    elseif cmd == "/a" then
-                        Command_Adminadd(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/revoke" then
-                        Command_Adminrevoke(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/afk" then
-                        Command_AFK(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/alias" then
-                        Command_Alias(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/balance" then
-                        Command_BalanceTeams(PlayerIndex, ct[1], count)
-                    elseif cmd == "/b" then
-                        Command_Ban2(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/banlist" then
-                        Command_Banlist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/bos" then
-                        Command_Bos(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/boslist" then
-                        Command_Boslist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/bosplayers" then
-                        Command_Bosplayers(PlayerIndex, ct[1], count)
-                    elseif cmd == "/crash" then
-                        Command_Crash(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/c" then
-                        Command_Control(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/ts" then
-                        Command_Changeteam(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/cmds" then
-                        Command_Commands(PlayerIndex, ct[1], count)
-                    elseif cmd == "/count" then
-                        Command_Count(PlayerIndex, ct[1], count)
-                    elseif cmd == "/dmg" then
-                        Command_DamageMultiplier(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/deathless" then
-                        Command_Deathless(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/eject" then
-                        Command_Eject(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/e" then
-                        Command_Execute(PlayerIndex, Message, access)
-                    elseif cmd == "/falldamage" then
-                        Command_Falldamage(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/f" then
-                        Command_Follow(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/gethash" then
-                        Command_Gethash(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/getloc" then
-                        Command_Getloc(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/god" then
-                        Command_Godmode(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/getip" then
-                        Command_Getip(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/hide" then
-                        Command_Hide(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/hax" then
-                        Command_Hax(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/heal" then
-                        Command_Heal(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/hitler" then
-                        for c = 1, 16 do
-                            if getplayer(c) then
-                                kill(c)
-                                say(getname(c) .. " was given a lethal injection")
-                            end
-                        end
-                    elseif cmd == "/info" then
-                        Command_Info(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/ipadminadd" then
-                        Command_Ipadminadd(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/ipadmindel" then
-                        Command_Ipadmindel(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/infammo" then
-                        Command_Infammo(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/ipban" then
-                        Command_Ipban(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/ipbanlist" then
-                        Command_Ipbanlist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/ipunban" then
-                        Command_Ipunban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/iprangeban" then
-                        Command_Iprangeban(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/iprangebanlist" then
-                        Command_Iprangebanlist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/ipunban" then
-                        Command_Iprangeunban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/invis" then
-                        Command_Invis(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/k" then
-                        Command_Kick(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/kill" then
-                        Command_Kill(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/lo3" then
-                        Command_Lo3(PlayerIndex, ct[1], count)
-                    elseif cmd == "/launch" then
-                        Command_Launch(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/m" then
-                        Command_Map(PlayerIndex, Message)
-                    elseif cmd == "/j" then
-                        Command_Move(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], count)
-                    elseif cmd == "/mnext" then
-                        Command_Mapnext(PlayerIndex, ct[1], count)
-                    elseif cmd == "/reset" then
-                        Command_Mapreset(PlayerIndex, ct[1], count)
-                    elseif cmd == "/mute" then
-                        Command_Mute(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/nuke" then
-                        Command_Nuke(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/noweapons" then
-                        Command_Noweapons(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/nameban" then
-                        Command_Nameban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/namebanlist" then
-                        Command_Namebanlist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/nameunban" then
-                        Command_Nameunban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/os" then
-                        Command_Overshield(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/pl" and ct[2] == "more" then
-                        Command_PlayersMore(PlayerIndex, ct[1] .. " " .. ct[2], count)
-                    elseif cmd == "/pl" then
-                        Command_Players(PlayerIndex, ct[1], count)
-                    elseif cmd == "/pvtsay" then
-                        Command_Privatesay(PlayerIndex, t, count)
-                    elseif cmd == "/read" then
-                        Command_Read(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], ct[6], count)
-                    elseif cmd == "/resp" then
-                        Command_Resp(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/resetplayer" then
-                        Command_ResetPlayer(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/resetweapons" then
-                        Command_Resetweapons(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/pass" then
-                        Command_Setpassword(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/mc" then
-                        Command_StartMapcycle(PlayerIndex, ct[1], count)
-                    elseif cmd == "/say" then
-                        if count ~= 1 then
-                            sendresponse(string.sub(Message, 6), Message, PlayerIndex)
-                        end
-                    elseif cmd == "/enter" then
-                        Command_Spawn(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], ct[6], "enter", count)
-                    elseif cmd == "/ammo" or cmd == "/setammo" then
-                        Command_Setammo(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/superban" then
-                        Command_Superban(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setmode" then
-                        Command_Setmode(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/setassists" then
-                        Command_Setassists(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setdeaths" then
-                        Command_Setdeaths(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setfrags" then
-                        Command_Setfrags(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setkills" then
-                        Command_Setkills(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setresp" then
-                        Command_Setresp(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/setscore" then
-                        Command_Setscore(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setplasmas" then
-                        Command_Setplasmas(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/spd" then
-                        Command_Setspeed(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/specs" then
-                        Command_Specs(PlayerIndex, ct[1], count)
-                    elseif cmd == "/spawn" then
-                        Command_Spawn(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], ct[6], "spawn", count)
-                    elseif cmd == "/give" then
-                        Command_Spawn(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], ct[6], "give", count)
-                    elseif cmd == "/suspend" then
-                        Command_Suspend(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/setcolor" then
-                        Command_Setcolor(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/takeweapons" then
-                        Command_Takeweapons(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/textban" then
-                        Command_Textban(PlayerIndex, ct[1], ct[2], ct[3], ct[4], count)
-                    elseif cmd == "/textbanlist" then
-                        Command_Textbanlist(PlayerIndex, ct[1], count)
-                    elseif cmd == "/textunban" then
-                        Command_Textunban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/tp" then
-                        Command_Teletoplayer(PlayerIndex, ct[1], ct[2], ct[3], count)
-                    elseif cmd == "/timelimit" then
-                        Command_Timelimit(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unban" then
-                        Command_Unban(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unbos" then
-                        Command_Unbos(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/ungod" then
-                        Command_Ungod(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unhax" then
-                        Command_Unhax(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unhide" then
-                        Command_Unhide(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/uninvis" then
-                        Command_Uninvis(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unmute" then
-                        Command_Unmute(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/unsuspend" then
-                        Command_Unsuspend(PlayerIndex, ct[1], ct[2], count)
-                    elseif cmd == "/viewadmins" then
-                        Command_Viewadmins(PlayerIndex, ct[1], count)
-                    elseif cmd == "/write" then
-                        Command_Write(PlayerIndex, ct[1], ct[2], ct[3], ct[4], ct[5], ct[6], count)
-                    end
-                    cmdlog(getname(PlayerIndex) .. "(Hash: " .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") has executed: " .. Message)
-                else
-                    sendresponse("You cannot execute this command", Message, PlayerIndex)
-                    cmdlog(getname(PlayerIndex) .. "(Hash: " .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") " .. " tried to execute " .. cmd)
-                end
-            end
-        end
-    elseif access and not chatcommands then
-        local bool
-        if string.sub(ct[1], 1, 1) == "/" then
-            AllowChat = false
-            bool = true
-        elseif string.sub(ct[1], 1, 1) == "\\" then
-            AllowChat = false
-            bool = true
-        end
-        if bool then
-            sendresponse("Chat commands are currently disabled", Message:sub(1, 1), PlayerIndex)
-        end
-    elseif Message:sub(1, 1) == "/" or Message:sub(1, 1) == "\\" and AllowChat == true then
-        sendresponse("You cannot execute this command", "sv_", PlayerIndex)
     end
     if spam_max == nil then spam_max = 7 end
     if spam_timeout == nil then spam_timeout = 60 end
-    if AllowChat == nil and antispam ~= "off" and spam_max > 0 and spam_timeout > 0 and chattype >= 0 and chattype <= 2 then
+    if response == nil and antispam ~= "off" and spam_max > 0 and spam_timeout > 0 and chattype >= 0 and chattype <= 2 then
         if antispam == "all" then
             if not spam_table[ip] then
                 spam_table[ip] = 1
@@ -1477,10 +1162,10 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
             end
         end
     end
-    if AllowChat == nil and anticaps and PlayerIndex ~= nil then
+    if response == nil and anticaps and PlayerIndex ~= nil then
         return true, string.lower(Message)
     end
-    return response, AllowChat
+    return response
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
@@ -1489,6 +1174,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local cmd = temp[1]
     local access = getaccess(PlayerIndex)
     local permission
+    if (Environment == 1) then use_console = true end
+    if (Environment == 2) then use_console = false end
     if cmd ~= nil then
         if cmd ~= "cls" then
             if "sv_" ~= string.sub(cmd, 0, 3) then
@@ -1498,8 +1185,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     end
     t = tokenizestring(Command)
     count = #t
-
-
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
@@ -1527,426 +1212,477 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
         end
     end
-    if permission then
+    if permission then 
+        if not ischatcommand then
+            -- if t[1] == "sv_rtv" then
+                -- if count == 1 and rockthevote then
+                    -- if rtv_initiated >= 0 then
+                        -- local rtv_count = 0
+                        -- local rtv_number = round(cur_players * rtv_required, 0)
+                        -- for i = 1, 16 do
+                            -- if getplayer(i) then
+                                -- if rtv_table[getip(i)] == 1 then
+                                    -- rtv_count = rtv_count + 1
+                                -- end
+                            -- end
+                        -- end
+                        -- if rtv_count == 0 then
+                            -- rtv_initiated = 1
+                            -- rtv_table[ip] = 1
+                            -- rtv_count = rtv_count + 1
+                            -- say(name .. " has initiated rtv")
+                            -- say("Type \"rtv\" to join the vote")
+                            -- rtvtimer = timer(120000, "rtvTimer")
+                        -- else
+                            -- if rtv_table[ip] == 1 then
+                                -- privatesay(PlayerIndex, "You have already voted for rtv")
+                            -- elseif rtv_table[ip] == nil then
+                                -- rtv_table[ip] = 1
+                                -- rtv_count = rtv_count + 1
+                                -- say(name .. " has voted for rtv")
+                                -- say(rtv_count .. " of " .. rtv_number .. " votes required for rtv")
+                            -- end
+                        -- end
+                        -- if rtv_count >= rtv_number then
+                            -- if rtvtimer then
+                                -- removetimer(rtvtimer)
+                                -- rtvtimer = nil
+                            -- end
+                            -- rtv_initiated = rtv_timeout
+                            -- say("Enough votes for rtv, game is now ending...")
+                            -- execute_command("sv_map_next")
+                        -- end
+                    -- elseif not gameend then
+                        -- privatesay(PlayerIndex, "You cannot initiate rtv at this time")
+                    -- elseif gameend then
+                        -- privatesay(PlayerIndex, "Game is already ending")
+                    -- end
+                    -- response = false
+                -- elseif count == 1 and not rockthevote then
+                    -- privatesay(PlayerIndex, "Rockthevote is now disabled.")
+                    -- response = false
+                -- end
+            -- end
+                
+            invis_time = tonumber(t[3])
+            invis_time = invis_time
 
-        invis_time = tonumber(t[3])
-        invis_time = invis_time
-
-        if t[1] == "sv_addrcon" then
-            response = false
-            Command_AddRconPassword(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setafk" or t[1] == "sv_afk" then
-            response = false
-            Command_AFK(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_admin_list" or t[1] == "sv_a" and t[2] == "list" then
-            response = false
-            Command_AdminList(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_a" and t[2] == "del" then
-            response = false
-            Command_Admindel(PlayerIndex, t[1] .. " " .. t[2], t[3], count)
-        elseif t[1] == "sv_admin_add" or t[1] == "sv_a" then
-            response = false
-            Command_Adminadd(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_admin_del" then
-            response = false
-            Command_Admindel(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_revoke" then
-            response = false
-            Command_Adminrevoke(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_alias" then
-            response = false
-            Command_Alias(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_adminblocker" then
-            response = false
-            Command_AdminBlocker(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_anticaps" then
-            response = false
-            Command_AntiCaps(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_antispam" then
-            response = false
-            Command_AntiSpam(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_ban" and PlayerIndex == nil then
-            response = Command_Ban(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_balance" then
-            response = false
-            Command_BalanceTeams(PlayerIndex, t[1], count)
-        elseif (t[1] == "sv_b" or t[1] == "sv_ban") and PlayerIndex ~= nil then
-            response = false
-            Command_Ban2(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_bos" then
-            response = false
-            Command_Bos(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_boslist" then
-            response = false
-            Command_Boslist(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_bosplayers" then
-            response = false
-            Command_Bosplayers(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_chatcommands" then
-            response = false
-            Command_ChatCommands(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_change_level" or t[1] == "sv_cl" then
-            response = false
-            Command_ChangeLevel(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_changeteam" or t[1] == "sv_ts" then
-            response = false
-            Command_Changeteam(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_crash" then
-            response = false
-            Command_Crash(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_cmds" then
-            response = false
-            Command_Commands(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_c" or t[1] == "sv_control" then
-            response = false
-            Command_Control(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_count" then
-            response = false
-            Command_Count(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_uniques_enabled" or t[1] == " sv_uniquecount" then
-            response = false
-            Command_CountUniques(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_damage" or t[1] == "sv_dmg" then
-            response = false
-            Command_DamageMultiplier(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_deathless" or t[1] == "sv_d" then
-            response = false
-            Command_Deathless(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_delrcon" then
-            response = false
-            Command_DelRconPassword(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_eject" or t[1] == "sv_e" then
-            response = false
-            Command_Eject(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_falldamage" then
-            response = false
-            Command_Falldamage(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_firstjoin_message" then
-            response = false
-            Command_FirstJoinMessage(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_follow" or t[1] == "sv_f" then
-            response = false
-            Command_Follow(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_gethash" then
-            response = false
-            Command_Gethash(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_getip" then
-            response = false
-            Command_Getip(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_getloc" then
-            response = false
-            Command_Getloc(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_setgod" or t[1] == "sv_god" then
-            response = false
-            Command_Godmode(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_hash_check" then
-            Command_Hashcheck(t[2])
-        elseif t[1] == "sv_hash_duplicates" then
-            response = false
-            Command_HashDuplicates(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_cheat_hax" or t[1] == "sv_hax" then
-            response = false
-            Command_Hax(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_heal" or t[1] == "sv_h" then
-            response = false
-            Command_Heal(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_help" then
-            response = false
-            sendresponse(GetHelp(t[2]), t[1], PlayerIndex)
-        elseif t[1] == "sv_hide" then
-            response = false
-            Command_Hide(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_hitler" then
-            response = false
-            if count == 1 then
-                for c = 1, 16 do
-                    if getplayer(c) then
-                        kill(c)
-                        sendresponse(getname(c) .. " was given a lethal injection", t[1], PlayerIndex)
-                    end
-                end
-            else
-                sendresponse("Invalid Syntax: sv_hitler", t[1], PlayerIndex)
-            end
-        elseif t[1] == "sv_ipadminadd" then
-            response = false
-            Command_Ipadminadd(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_ipadmindel" then
-            response = false
-            Command_Ipadmindel(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_ipban" then
-            response = false
-            Command_Ipban(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_ipbanlist" then
-            response = false
-            Command_Ipbanlist(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_iprangeban" then
-            response = false
-            Command_Iprangeban(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_iprangebanlist" then
-            response = false
-            Command_Iprangebanlist(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_info" or t[1] == "sv_i" then
-            response = false
-            Command_Info(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_infinite_ammo" or t[1] == "sv_infammo" then
-            response = false
-            Command_Infammo(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_ipunban" then
-            response = false
-            Command_Ipunban(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_iprangeunban" then
-            response = false
-            Command_Iprangeunban(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_invis" then
-            response = false
-            Command_Invis(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_k" or t[1] == "sv_kick" and PlayerIndex ~= nil then
-            response = false
-            Command_Kick(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_kill" then
-            response = false
-            Command_Kill(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_killspree" then
-            response = false
-            Command_KillingSpree(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_launch" then
-            response = false
-            Command_Launch(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_list" then
-            response = false
-            Command_List(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_scrim" or t[1] == "sv_lo3" then
-            response = false
-            Command_Lo3(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_login" or t[1] == "sv_l" then
-            response = false
-            Command_Login(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_map" or t[1] == "sv_m" then
-            if command:find("commands") == nil then
+            if t[1] == "sv_addrcon" then
                 response = false
-                Command_Map(PlayerIndex, command)
+                Command_AddRconPassword(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setafk" or t[1] == "sv_afk" then
+                response = false
+                Command_AFK(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_admin_list" or t[1] == "sv_a" and t[2] == "list" then
+                response = false
+                Command_AdminList(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_a" and t[2] == "del" then
+                response = false
+                Command_Admindel(PlayerIndex, t[1] .. " " .. t[2], t[3], count)
+            elseif t[1] == "sv_admin_add" or t[1] == "sv_a" then
+                response = false
+                Command_Adminadd(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_admin_del" then
+                response = false
+                Command_Admindel(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_revoke" then
+                response = false
+                Command_Adminrevoke(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_alias" then
+                response = false
+                Command_Alias(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_adminblocker" then
+                response = false
+                Command_AdminBlocker(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_anticaps" then
+                response = false
+                Command_AntiCaps(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_antispam" then
+                response = false
+                Command_AntiSpam(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_ban" and PlayerIndex == nil then
+                response = Command_Ban(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_balance" then
+                response = false
+                Command_BalanceTeams(PlayerIndex, t[1], count)
+            elseif (t[1] == "sv_b" or t[1] == "sv_ban") and PlayerIndex ~= nil then
+                response = false
+                Command_Ban2(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_bos" then
+                response = false
+                Command_Bos(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_boslist" then
+                response = false
+                Command_Boslist(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_bosplayers" then
+                response = false
+                Command_Bosplayers(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_chatcommands" then
+                response = false
+                Command_ChatCommands(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_change_level" or t[1] == "sv_cl" then
+                response = false
+                Command_ChangeLevel(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_changeteam" or t[1] == "sv_ts" then
+                response = false
+                Command_Changeteam(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_crash" then
+                response = false
+                Command_Crash(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_cmds" then
+                response = false
+                Command_Commands(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_c" or t[1] == "sv_control" then
+                response = false
+                Command_Control(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_count" then
+                response = false
+                Command_Count(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_uniques_enabled" or t[1] == " sv_uniquecount" then
+                response = false
+                Command_CountUniques(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_damage" or t[1] == "sv_dmg" then
+                response = false
+                Command_DamageMultiplier(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_deathless" or t[1] == "sv_d" then
+                response = false
+                Command_Deathless(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_delrcon" then
+                response = false
+                Command_DelRconPassword(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_eject" or t[1] == "sv_e" then
+                response = false
+                Command_Eject(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_falldamage" then
+                response = false
+                Command_Falldamage(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_firstjoin_message" then
+                response = false
+                Command_FirstJoinMessage(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_follow" or t[1] == "sv_f" then
+                response = false
+                Command_Follow(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_gethash" then
+                response = false
+                Command_Gethash(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_getip" then
+                response = false
+                Command_Getip(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_getloc" then
+                response = false
+                Command_Getloc(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_setgod" or t[1] == "sv_god" then
+                response = false
+                Command_Godmode(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_hash_check" then
+                Command_Hashcheck(t[2])
+            elseif t[1] == "sv_hash_duplicates" then
+                response = false
+                Command_HashDuplicates(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_cheat_hax" or t[1] == "sv_hax" then
+                response = false
+                Command_Hax(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_heal" or t[1] == "sv_h" then
+                response = false
+                Command_Heal(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_help" then
+                response = false
+                sendresponse(GetHelp(t[2]), t[1], PlayerIndex)
+            elseif t[1] == "sv_hide" then
+                response = false
+                Command_Hide(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_hitler" then
+                response = false
+                if count == 1 then
+                    for c = 1, 16 do
+                        if getplayer(c) then
+                            kill(c)
+                            sendresponse(getname(c) .. " was given a lethal injection", t[1], PlayerIndex)
+                        end
+                    end
+                else
+                    sendresponse("Invalid Syntax: sv_hitler", t[1], PlayerIndex)
+                end
+            elseif t[1] == "sv_ipadminadd" then
+                response = false
+                Command_Ipadminadd(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_ipadmindel" then
+                response = false
+                Command_Ipadmindel(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_ipban" then
+                response = false
+                Command_Ipban(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_ipbanlist" then
+                response = false
+                Command_Ipbanlist(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_iprangeban" then
+                response = false
+                Command_Iprangeban(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_iprangebanlist" then
+                response = false
+                Command_Iprangebanlist(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_info" or t[1] == "sv_i" then
+                response = false
+                Command_Info(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_infinite_ammo" or t[1] == "sv_infammo" then
+                response = false
+                Command_Infammo(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_ipunban" then
+                response = false
+                Command_Ipunban(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_iprangeunban" then
+                response = false
+                Command_Iprangeunban(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_invis" then
+                response = false
+                Command_Invis(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_k" or t[1] == "sv_kick" and PlayerIndex ~= nil then
+                response = false
+                Command_Kick(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_kill" then
+                response = false
+                Command_Kill(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_killspree" then
+                response = false
+                Command_KillingSpree(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_launch" then
+                response = false
+                Command_Launch(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_list" then
+                response = false
+                Command_List(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_scrim" or t[1] == "sv_lo3" then
+                response = false
+                Command_Lo3(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_login" or t[1] == "sv_l" then
+                response = false
+                Command_Login(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_map" or t[1] == "sv_m" then
+                if command:find("commands") == nil then
+                    response = false
+                    Command_Map(PlayerIndex, command)
+                end
+            elseif t[1] == "sv_mnext" then
+                response = false
+                Command_Mapnext(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_reset" then
+                response = false
+                Command_Mapreset(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_move" or t[1] == "sv_j" then
+                response = false
+                Command_Move(PlayerIndex, t[1], t[2], t[3], t[4], t[5], count)
+            elseif t[1] == "sv_mute" then
+                response = false
+                Command_Mute(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_multiteam_vehicles" then
+                response = false
+                Command_MultiTeamVehicles(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_nameban" or t[1] == "sv_n" then
+                response = false
+                Command_Nameban(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_namebanlist" then
+                response = false
+                Command_Namebanlist(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_nameunban" then
+                response = false
+                Command_Nameunban(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_noweapons" then
+                response = false
+                Command_Noweapons(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_nuke" then
+                Command_Nuke(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_os" or t[1] == "sv_o" then
+                response = false
+                Command_Overshield(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_pvtmessage" or t[1] == "sv_p" then
+                response = false
+                Command_PrivateMessage(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_pvtsay" or t[1] == "sv_privatesay" then
+                response = false
+                Command_Privatesay(PlayerIndex, t, count)
+            elseif t[1] == "sv_players_more" or t[1] == "sv_pl" and t[2] == "more" then
+                response = false
+                Command_PlayersMore(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_players" or t[1] == "sv_pl" then
+                response = false
+                Command_Players(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_rconlist" then
+                response = false
+                Command_RconPasswordList(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_read" then
+                response = false
+                Command_Read(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], count)
+            elseif t[1] == "sv_resetplayer" then
+                response = false
+                Command_ResetPlayer(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_resetweapons" then
+                response = false
+                Command_Resetweapons(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_resp" or t[1] == "sv_r" then
+                response = false
+                Command_Resp(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_rtv_enabled" then
+                response = false
+                Command_RTVEnabled(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_rtv_needed" then
+                response = false
+                Command_RTVRequired(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_serveradmin_message" then
+                response = false
+                Command_SAMessage(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_say" then
+                response = false
+                Command_Say(PlayerIndex, t, count)
+            elseif t[1] == "sv_scrimmode" then
+                response = false
+                Command_ScrimMode(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_load" then
+                response = false
+                Command_ScriptLoad(PlayerIndex, command, count)
+            elseif t[1] == "sv_unload" then
+                response = false
+                Command_ScriptUnload(PlayerIndex, command, count)
+            elseif t[1] == "sv_enter" then
+                response = false
+                Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "enter", count)
+            elseif t[1] == "sv_spawn" or t[1] == "sv_s" then
+                response = false
+                Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "spawn", count)
+            elseif t[1] == "sv_give" then
+                response = false
+                Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "give", count)
+            elseif t[1] == "sv_spammax" then
+                response = false
+                Command_SpamMax(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_spamtimeout" then
+                response = false
+                Command_SpamTimeOut(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_setammo" then
+                response = false
+                Command_Setammo(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_setassists" then
+                response = false
+                Command_Setassists(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setcolor" then
+                response = false
+                Command_Setcolor(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setdeaths" then
+                response = false
+                Command_Setdeaths(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setfrags" then
+                response = false
+                Command_Setfrags(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setkills" then
+                response = false
+                Command_Setkills(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setmode" then
+                response = false
+                Command_Setmode(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_pass" then
+                response = false
+                Command_Setpassword(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_setscore" then
+                response = false
+                Command_Setscore(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_respawn_time" then
+                response = false
+                Command_Setresp(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_setplasmas" then
+                response = false
+                Command_Setplasmas(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_setspeed" or t[1] == "sv_spd" then
+                response = false
+                Command_Setspeed(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_specs" then
+                response = false
+                Command_Specs(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_mc" then
+                response = false
+                Command_StartMapcycle(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_superban" then
+                response = false
+                Command_Superban(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_suspend" then
+                response = false
+                Command_Suspend(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_status" then
+                response = false
+                Command_Status(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_takeweapons" then
+                response = false
+                Command_Takeweapons(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_tbagdet" then
+                response = false
+                Command_TbagDetection(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_test" then
+                response = false
+                Command_Test(PlayerIndex, t[1], t[2], t[3], t[4], t[5], count)
+            elseif t[1] == "sv_teleport_pl" or t[1] == "sv_tp" then
+                response = false
+                Command_Teletoplayer(PlayerIndex, t[1], t[2], t[3], count)
+            elseif t[1] == "sv_textban" then
+                response = false
+                Command_Textban(PlayerIndex, t[1], t[2], t[3], t[4], count)
+            elseif t[1] == "sv_textbanlist" then
+                response = false
+                Command_Textbanlist(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_textunban" then
+                response = false
+                Command_Textunban(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_time_cur" then
+                response = false
+                Command_Timelimit(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_unbos" then
+                response = false
+                Command_Unbos(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_cheat_unhax" or t[1] == "sv_unhax" then
+                response = false
+                Command_Unhax(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_unhide" then
+                response = false
+                Command_Unhide(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_ungod" then
+                response = false
+                Command_Ungod(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_uninvis" then
+                response = false
+                Command_Uninvis(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_unmute" then
+                response = false
+                Command_Unmute(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_unsuspend" then
+                response = false
+                Command_Unsuspend(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_viewadmins" or t[1] == "sv_cur_admins" then
+                response = false
+                Command_Viewadmins(PlayerIndex, t[1], count)
+            elseif t[1] == "sv_votekick_enabled" then
+                response = false
+                Command_VotekickEnabled(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_votekick_needed" then
+                response = false
+                Command_VotekickRequired(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_votekick_action" then
+                response = false
+                Command_VotekickAction(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_version_check" then
+                Command_Versioncheck(t[2])
+            elseif t[1] == "sv_welcomeback_message" then
+                response = false
+                Command_WelcomeBackMessage(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_write" or t[1] == "sv_w" then
+                response = false
+                Command_Write(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], count)
+            elseif t[1] == "sv_clean" then
+                response = false
+                Command_Clean(PlayerIndex, t[1], t[2], count)
+            elseif t[1] == "sv_stickman" then
+                response = false
+                timer(200, "Stickman")
             end
-        elseif t[1] == "sv_mnext" then
-            response = false
-            Command_Mapnext(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_reset" then
-            response = false
-            Command_Mapreset(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_move" or t[1] == "sv_j" then
-            response = false
-            Command_Move(PlayerIndex, t[1], t[2], t[3], t[4], t[5], count)
-        elseif t[1] == "sv_mute" then
-            response = false
-            Command_Mute(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_multiteam_vehicles" then
-            response = false
-            Command_MultiTeamVehicles(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_nameban" or t[1] == "sv_n" then
-            response = false
-            Command_Nameban(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_namebanlist" then
-            response = false
-            Command_Namebanlist(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_nameunban" then
-            response = false
-            Command_Nameunban(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_noweapons" then
-            response = false
-            Command_Noweapons(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_nuke" then
-            Command_Nuke(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_os" or t[1] == "sv_o" then
-            response = false
-            Command_Overshield(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_pvtmessage" or t[1] == "sv_p" then
-            response = false
-            Command_PrivateMessage(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_pvtsay" or t[1] == "sv_privatesay" then
-            response = false
-            Command_Privatesay(PlayerIndex, t, count)
-        elseif t[1] == "sv_players_more" or t[1] == "sv_pl" and t[2] == "more" then
-            response = false
-            Command_PlayersMore(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_players" or t[1] == "sv_pl" then
-            response = false
-            Command_Players(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_rconlist" then
-            response = false
-            Command_RconPasswordList(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_read" then
-            response = false
-            Command_Read(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], count)
-        elseif t[1] == "sv_resetplayer" then
-            response = false
-            Command_ResetPlayer(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_resetweapons" then
-            response = false
-            Command_Resetweapons(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_resp" or t[1] == "sv_r" then
-            response = false
-            Command_Resp(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_rtv_enabled" then
-            response = false
-            Command_RTVEnabled(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_rtv_needed" then
-            response = false
-            Command_RTVRequired(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_serveradmin_message" then
-            response = false
-            Command_SAMessage(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_say" then
-            response = false
-            Command_Say(PlayerIndex, t, count)
-        elseif t[1] == "sv_scrimmode" then
-            response = false
-            Command_ScrimMode(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_load" then
-            response = false
-            Command_ScriptLoad(PlayerIndex, command, count)
-        elseif t[1] == "sv_unload" then
-            response = false
-            Command_ScriptUnload(PlayerIndex, command, count)
-        elseif t[1] == "sv_enter" then
-            response = false
-            Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "enter", count)
-        elseif t[1] == "sv_spawn" or t[1] == "sv_s" then
-            response = false
-            Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "spawn", count)
-        elseif t[1] == "sv_give" then
-            response = false
-            Command_Spawn(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], "give", count)
-        elseif t[1] == "sv_spammax" then
-            response = false
-            Command_SpamMax(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_spamtimeout" then
-            response = false
-            Command_SpamTimeOut(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_setammo" then
-            response = false
-            Command_Setammo(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_setassists" then
-            response = false
-            Command_Setassists(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setcolor" then
-            response = false
-            Command_Setcolor(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setdeaths" then
-            response = false
-            Command_Setdeaths(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setfrags" then
-            response = false
-            Command_Setfrags(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setkills" then
-            response = false
-            Command_Setkills(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setmode" then
-            response = false
-            Command_Setmode(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_pass" then
-            response = false
-            Command_Setpassword(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_setscore" then
-            response = false
-            Command_Setscore(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_respawn_time" then
-            response = false
-            Command_Setresp(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_setplasmas" then
-            response = false
-            Command_Setplasmas(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_setspeed" or t[1] == "sv_spd" then
-            response = false
-            Command_Setspeed(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_specs" then
-            response = false
-            Command_Specs(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_mc" then
-            response = false
-            Command_StartMapcycle(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_superban" then
-            response = false
-            Command_Superban(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_suspend" then
-            response = false
-            Command_Suspend(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_status" then
-            response = false
-            Command_Status(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_takeweapons" then
-            response = false
-            Command_Takeweapons(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_tbagdet" then
-            response = false
-            Command_TbagDetection(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_test" then
-            response = false
-            Command_Test(PlayerIndex, t[1], t[2], t[3], t[4], t[5], count)
-        elseif t[1] == "sv_teleport_pl" or t[1] == "sv_tp" then
-            response = false
-            Command_Teletoplayer(PlayerIndex, t[1], t[2], t[3], count)
-        elseif t[1] == "sv_textban" then
-            response = false
-            Command_Textban(PlayerIndex, t[1], t[2], t[3], t[4], count)
-        elseif t[1] == "sv_textbanlist" then
-            response = false
-            Command_Textbanlist(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_textunban" then
-            response = false
-            Command_Textunban(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_time_cur" then
-            response = false
-            Command_Timelimit(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_unbos" then
-            response = false
-            Command_Unbos(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_cheat_unhax" or t[1] == "sv_unhax" then
-            response = false
-            Command_Unhax(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_unhide" then
-            response = false
-            Command_Unhide(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_ungod" then
-            response = false
-            Command_Ungod(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_uninvis" then
-            response = false
-            Command_Uninvis(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_unmute" then
-            response = false
-            Command_Unmute(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_unsuspend" then
-            response = false
-            Command_Unsuspend(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_viewadmins" or t[1] == "sv_cur_admins" then
-            response = false
-            Command_Viewadmins(PlayerIndex, t[1], count)
-        elseif t[1] == "sv_votekick_enabled" then
-            response = false
-            Command_VotekickEnabled(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_votekick_needed" then
-            response = false
-            Command_VotekickRequired(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_votekick_action" then
-            response = false
-            Command_VotekickAction(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_version_check" then
-            Command_Versioncheck(t[2])
-        elseif t[1] == "sv_welcomeback_message" then
-            response = false
-            Command_WelcomeBackMessage(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_write" or t[1] == "sv_w" then
-            response = false
-            Command_Write(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], count)
-        elseif t[1] == "sv_clean" then
-            response = false
-            Command_Clean(PlayerIndex, t[1], t[2], count)
-        elseif t[1] == "sv_stickman" then
-            response = false
-            timer(200, "Stickman")
-        end
-        if PlayerIndex ~= nil and response == false then
-            cmdlog(getname(PlayerIndex) .. " (Hash:" .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") has executed: '" .. Command .. "'")
+            if PlayerIndex ~= nil and response == false then
+                cmdlog(getname(PlayerIndex) .. " (Hash:" .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") has executed: '" .. Command .. "'")
+            end
         end
     elseif access and not permission then
         response = false
@@ -1956,7 +1692,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     else
         response = false
         if PlayerIndex then
-            cmdlog("	>>Security Alert: " .. getname(PlayerIndex) .. " (Hash:" .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") tried to execute: '" .. Command .. "'")
+            cmdlog("Security Alert: " .. getname(PlayerIndex) .. " (Hash:" .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") tried to execute: '" .. Command .. "'")
         end
         sendresponse("You are not an admin. This will be reported.", t[1], PlayerIndex)
     end
@@ -8315,18 +8051,13 @@ function sendresponse(message, command, PlayerIndex)
         end
         PlayerIndex = tonumber(PlayerIndex)
         if command then
-            -- command was executed by a player --
             if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-                if ischatcommand then
-                    -- chat (in-game) --
+                if not use_console then
                     privatesay(PlayerIndex, message)
-                    ischatcommand = false
-                else
-                    -- rcon (in-game) --
+                elseif use_console then
                     rprint(PlayerIndex, message)
                 end
             else
-                -- server console --
                 cprint(message .. "", 2 + 8)
             end
 
