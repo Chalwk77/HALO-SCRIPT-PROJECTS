@@ -1743,7 +1743,7 @@ function OnPlayerJoin(PlayerIndex)
     if sa_message then
         if ipadmins[ip] or admin_table[hash] then
             cprint("Server Admin: " .. name)
-            Say("Server Admin: " .. name, 1)
+            Say("Server Admin - " .. name, 1)
         end
     end
     if multiteam_vehicles then
