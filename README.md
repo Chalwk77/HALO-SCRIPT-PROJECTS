@@ -1,5 +1,5 @@
 [![Logo](http://i.imgur.com/DcWvurm.png)](https://github.com/Chalwk77)
-http://www.lua.org/
+> http://www.lua.org/
 
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
 > # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
