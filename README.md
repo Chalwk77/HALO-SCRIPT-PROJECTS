@@ -1,9 +1,6 @@
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
+> # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
 
-# Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
-
-# [Click here to view Project Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
-> Check in with my project tracker and keep up to date on my current projects.
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 
@@ -19,3 +16,8 @@
 > Contributors are those whom have contributed code to my projects in some way. 
 > Sometimes I will use functions written by other people. 
 > In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md
+
+
+
+Contact Me:
+<jericho.crosby227@gmail.com>
