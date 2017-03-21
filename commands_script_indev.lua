@@ -4982,26 +4982,19 @@ end
 
 function Command_Overshield(executor, command, PlayerIndex, count)
     if count == 1 and executor ~= nil then
-        local m_playerObjId = get_dynamic_player(executor)
-        if m_playerObjId then
-            local m_object = getobject(m_playerObjId)
-            if m_object then
-                local obj_shields = read_float(m_object + 0xE4)
-                if obj_shields <= 1 then
-                    local m_vehicleId = read_dword(m_object + 0x11C)
-                    if m_vehicleId == nil then
-                        local x, y, z = getobjectcoords(m_playerObjId)
-                        local os = createobject(overshield_tag_id, 0, 0, false, x, y, z + 0.5)
-                        if os ~= nil then write_float(getobject(os) + 0x70, -2) end
-                    else
-                        write_float(m_object + 0xE4, 3)
-                    end
-                    sendresponse("You have given yourself an overshield", command, executor)
+        local player_object = get_dynamic_player(executor)
+        if (player_object ~= 0) then
+            local shields = read_float(player_object + 0xE4)
+            if shields <= 1 then
+                if not isinvehicle(executor) then
+                    local x, y, z = getobjectcoords(player_object)
+                    local overshield = spawn_object("eqip", "powerups\\over shield", x, y, z + 0.5)
                 else
-                    sendresponse("You already have an overshield", command, executor)
+                    write_float(player_object + 0xE4, 3)
                 end
+                sendresponse("You have given yourself an overshield", command, executor)
             else
-                sendresponse("You are dead", command, executor)
+                sendresponse("You already have an overshield", command, executor)
             end
         else
             sendresponse("You are dead", command, executor)
@@ -5012,26 +5005,19 @@ function Command_Overshield(executor, command, PlayerIndex, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local m_playerObjId = get_dynamic_player(players[i])
-                if m_playerObjId then
-                    local m_object = getobject(m_playerObjId)
-                    if m_object then
-                        local obj_shields = read_float(m_object + 0xE4)
-                        if obj_shields <= 1 then
-                            local m_vehicleId = read_dword(m_object + 0x11C)
-                            if m_vehicleId == nil then
-                                local x, y, z = getobjectcoords(m_playerObjId)
-                                local os = createobject(overshield_tag_id, 0, 0, false, x, y, z + 0.5)
-                                if os ~= nil then write_float(getobject(os) + 0x70, -2) end
-                            else
-                                write_float(m_object + 0xE4, 3)
-                            end
-                            sendresponse(getname(players[i]) .. " has been given an overshield", command, executor)
+                local player_object = get_dynamic_player(players[i])
+                if (player_object ~= 0) then
+                    local shields = read_float(player_object + 0xE4)
+                    if shields <= 1 then
+                        if not isinvehicle(players[i]) then
+                            local x, y, z = getobjectcoords(player_object)
+                            local overshield = spawn_object("eqip", "powerups\\over shield", x, y, z + 0.5)
                         else
-                            sendresponse(getname(players[i]) .. " already has an overshield", command, executor)
+                            write_float(player_object + 0xE4, 3)
                         end
+                        sendresponse(getname(players[i]) .. " has been given an overshield", command, executor)
                     else
-                        sendresponse(getname(players[i]) .. " is dead", command, executor)
+                        sendresponse(getname(players[i]) .. " already has an overshield", command, executor)
                     end
                 else
                     sendresponse(getname(players[i]) .. " is dead", command, executor)
