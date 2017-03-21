@@ -20,4 +20,6 @@ http://www.lua.org/
 > In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md
 
 
+
+Contact Me:
 <jericho.crosby227@gmail.com>
