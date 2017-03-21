@@ -12,8 +12,9 @@ rtv_timeout = 1
 textbanid = 0
 uniques = 0
 
-privateSay = rprint
+Say = say_all
 privatesay = say
+privateSay = rprint
 
 -- Booleans
 notyetshown = true
@@ -21,10 +22,6 @@ rtv_initiated = 0
 votekicktimeout_table = false
 Multi_Control = true
 use_logo = false
-pm_enabled = true
-chatcommands = true
-tbag_detection = true
-rockthevote = true
 
 -- Strings
 api_version = '1.11.0.0'
@@ -195,31 +192,31 @@ command_access = {
 }
 
 defaulttxt_commands = {
-    "'sv_adminblocker 0'",
-    "'sv_anticaps false'",
-    "'sv_antispam all'",
-    "'sv_deathless false'",
-    "'sv_falldamage true'",
-    "'sv_firstjoin_message true'",
-    "'sv_hash_duplicates true'",
-    "'sv_infinite_ammo false'",
-    "'sv_killspree true'",
-    "'sv_multiteam_vehicles false'",
-    "'sv_noweapons false'",
-    "'sv_pvtmessage 1'",
-    "'sv_respawn_time default'",
-    "'sv_rtv_enabled false'",
-    "'sv_rtv_needed 0.6'",
-    "'sv_serveradmin_message true'",
-    "'sv_scrimmode false'",
-    "'sv_spammax 7'",
-    "'sv_spamtimeout 1'",
-    "'sv_tbagdet true'",
-    "'sv_uniques_enabled true'",
-    "'sv_votekick_enabled false'",
-    "'sv_votekick_needed 0.7'",
-    "'sv_votekick_action kick'",
-    "'sv_welcomeback_message true'"
+    "sv_adminblocker 0",
+    "sv_anticaps false",
+    "sv_antispam all",
+    "sv_deathless false",
+    "sv_falldamage true",
+    "sv_firstjoin_message true",
+    "sv_hash_duplicates true",
+    "sv_infinite_ammo false",
+    "sv_killspree true",
+    "sv_multiteam_vehicles false",
+    "sv_noweapons false",
+    "sv_pvtmessage 1",
+    "sv_respawn_time default",
+    "sv_rtv_enabled false",
+    "sv_rtv_needed 0.6",
+    "sv_serveradmin_message true",
+    "sv_scrimmode false",
+    "sv_spammax 7",
+    "sv_spamtimeout 1",
+    "sv_tbagdet true",
+    "sv_uniques_enabled true",
+    "sv_votekick_enabled false",
+    "sv_votekick_needed 0.7",
+    "sv_votekick_action kick",
+    "sv_welcomeback_message true"
 }
 
 scrim_mode_commands = {
@@ -1174,6 +1171,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local cmd = temp[1]
     local access = getaccess(PlayerIndex)
     local permission
+    local console_command = string.lower(Command)
     if (Environment == 1) then use_console = true end
     if (Environment == 2) then use_console = false end
     if cmd ~= nil then
@@ -1185,6 +1183,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     end
     t = tokenizestring(Command)
     count = #t
+    invis_time = tonumber(t[3])
+    invis_time = invis_time
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
@@ -1263,10 +1263,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     -- response = false
                 -- end
             -- end
-                
-            invis_time = tonumber(t[3])
-            invis_time = invis_time
-
             if t[1] == "sv_addrcon" then
                 response = false
                 Command_AddRconPassword(PlayerIndex, t[1], t[2], t[3], count)
@@ -1288,7 +1284,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             elseif t[1] == "sv_revoke" then
                 response = false
                 Command_Adminrevoke(PlayerIndex, t[1], t[2], count)
-            elseif t[1] == "sv_alias" then
+            elseif t[1] == "sv_alias" or t[1] == "alias" then
                 response = false
                 Command_Alias(PlayerIndex, t[1], t[2], count)
             elseif t[1] == "sv_adminblocker" then
@@ -1740,7 +1736,7 @@ function OnPlayerJoin(PlayerIndex)
             unique_table[name] = { hash, ip }
             uniques = uniques + 1
             if firstjoin_message then
-                say("This is " .. name .. "'s first time in the server unique player #: " .. tostring(uniques))
+                say("This is " .. name .. "'s first time in the server - unique player #: " .. tostring(uniques))
             end
         end
     end
@@ -2125,6 +2121,10 @@ function OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
     return 1
 end
 
+function run_test()
+    cprint("running...", 2+8)
+end
+
 function Command_AddRconPassword(executor, command, password, level, count)
     if count == 2 or count == 3 then
         local bool = true
@@ -2270,11 +2270,16 @@ end
 function Command_AFK(executor, command, PlayerIndex, count)
     if count == 1 then
         if executor ~= nil then
-            local id = resolveplayer(executor)
-            local m_player = getplayer(executor)
-            local PLAYER_ID = get_var(executor, "$n")
-            players_alive[PLAYER_ID].AFK = executor
-            sendresponse("You are now afk", command, executor)
+            local player = tonumber(executor)
+            if player ~= -1 and player >= 1 and player < 16 then
+                local id = resolveplayer(executor)
+                local PLAYER_ID = get_var(executor, "$n")
+                players_alive[PLAYER_ID].AFK = executor
+                sendresponse("You are now afk", command, executor)
+            else
+                cprint("Server cannot be afk!", 4+8)
+                return false
+            end
         else
             sendresponse("Invalid Player", command, executor)
         end
@@ -2282,10 +2287,14 @@ function Command_AFK(executor, command, PlayerIndex, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local id = resolveplayer(players[i])
-                local PLAYER_ID = get_var(id, "$n")
-                players_alive[PLAYER_ID].AFK = id
-                sendresponse(getname(players[i]) .. " is now afk", command, executor)
+                if player_present(players[i]) then
+                    local id = get_var(players[i], "$n")
+                    local PLAYER_ID = get_var(id, "$n")
+                    players_alive[PLAYER_ID].AFK = id
+                    sendresponse(getname(players[i]) .. " is now afk", command, executor)
+                else
+                    sendresponse("Invalid Player", command, executor)
+                end
             end
         else
             sendresponse("Invalid Player", command, executor)
@@ -2905,7 +2914,7 @@ function Command_Crash(executor, command, PlayerIndex, count)
             sendresponse("Invalid Player", command, executor)
         end
     elseif gameend then
-        sendresposne("You cannot crash a PlayerIndex while the game is ended. Wait until next game.", command, executor)
+        sendresposne("You cannot crash a player while the game is ending. Wait until next game.", command, executor)
     else
         sendresponse("Invalid Syntax: " .. command .. " [player]", command, executor)
     end
@@ -3513,6 +3522,8 @@ function resolveplayer(PlayerIndex)
     if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
         local player_id = get_var(PlayerIndex, "$n")
         return player_id
+    else
+        cprint("nil!")
     end
     return nil
 end
@@ -7036,28 +7047,28 @@ end
 function DefaultSvTimer()
     local defaults_lines = #defaulttxt_commands
     local temp_lines = 0
-    local file = io.open(profilepath .. 'commands_defaults.txt')
     local temp_commands_executed = { }
-    if file then
-        for line in file:lines() do
-            execute_command_sequence(tostring(line))
-            temp_lines = temp_lines + 1
-            local temp = tokenizestring(tostring(line))
-            temp_commands_executed[temp_lines] = temp[1]
-        end
-        file:close()
-    else
-        file = io.open(profilepath .. 'commands_defaults.txt', "a")
-        cprint("Defaults.txt not found. File will be created.", 4 + 8)
-        for i = 0, defaults_lines + 1 do
-            if defaulttxt_commands[i] then
-                execute_command(defaulttxt_commands[i])
-                file:write(defaulttxt_commands[i] .. "\n")
+        local file = io.open(profilepath .. 'commands_defaults.txt', "a")
+        if file then
+            for i = 0, defaults_lines + 1 do
+                if defaulttxt_commands[i] then
+                    execute_command(defaulttxt_commands[i])
+                end
             end
+            file:close()
+            temp_lines = defaults_lines
+        else
+            local file = io.open(profilepath .. 'commands_defaults.txt', "w")
+            cprint("Defaults.txt not found. File will be created.", 4 + 8)
+            for i = 0, defaults_lines + 1 do
+                if defaulttxt_commands[i] then
+                    execute_command(defaulttxt_commands[i])
+                    file:write(defaulttxt_commands[i] .. "\n")
+                end
+            end
+            file:close()
+            temp_lines = defaults_lines
         end
-        file:close()
-        temp_lines = defaults_lines
-    end
     if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
     if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
     if use_logo then
@@ -7531,7 +7542,7 @@ function getvalidplayers(expression, PlayerIndex)
         local players = { }
         if expression == "*" then
             for i = 1, 16 do
-                if getplayer(i) then
+                if get_player(i) then
                     table.insert(players, i)
                 end
             end
@@ -7541,20 +7552,20 @@ function getvalidplayers(expression, PlayerIndex)
             end
         elseif string.sub(expression, 1, 3) == "red" then
             for i = 1, 16 do
-                if getplayer(i) and getteam(i) == 0 then
+                if get_player(i) and getteam(i) == "red" then
                     table.insert(players, i)
                 end
             end
         elseif string.sub(expression, 1, 4) == "blue" then
             for i = 1, 16 do
-                if getplayer(i) and getteam(i) == 1 then
+                if get_player(i) and getteam(i) == "blue" then
                     table.insert(players, i)
                 end
             end
-        elseif (tonumber(expression) or 0) >= 1 and(tonumber(expression) or 0) <= 16 then
+        elseif (tonumber(expression) or 0) >= 1 and (tonumber(expression) or 0) <= 16 then
             local expression = tonumber(expression)
-            if get_var(expression, "$n") then
-                table.insert(players, get_var(expression, "$n"))
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
             end
         elseif expression == "random" or expression == "rand" then
             if cur_players == 1 and PlayerIndex ~= nil then
@@ -7564,14 +7575,14 @@ function getvalidplayers(expression, PlayerIndex)
             local bool = false
             while not bool do
                 num = math.random(1, 16)
-                if getplayer(num) and num ~= PlayerIndex then
+                if get_player(num) and num ~= PlayerIndex then
                     bool = true
                 end
             end
             table.insert(players, num)
         else
             for i = 1, 16 do
-                if getplayer(i) then
+                if get_player(i) then
                     if string.wild(getname(i), expression) == true then
                         table.insert(players, i)
                     end
@@ -8033,15 +8044,6 @@ function getplayerobjectid(PlayerIndex)
     return nil
 end
 
-function Say(message, time, exception)
-    time = time or 3
-    for i = 1, 16 do
-        if getplayer(i) and exception ~= i then
-            privateSay(i, message, time)
-        end
-    end
-end
-
 function sendresponse(message, command, PlayerIndex)
     if message then
         if message == "" then
@@ -8051,7 +8053,7 @@ function sendresponse(message, command, PlayerIndex)
         end
         PlayerIndex = tonumber(PlayerIndex)
         if command then
-            if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
+            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if not use_console then
                     privatesay(PlayerIndex, message)
                 elseif use_console then
@@ -8060,7 +8062,6 @@ function sendresponse(message, command, PlayerIndex)
             else
                 cprint(message .. "", 2 + 8)
             end
-
             if PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex then
                 cmdlog("Response to " .. getname(PlayerIndex) .. ": " .. message)
             end
