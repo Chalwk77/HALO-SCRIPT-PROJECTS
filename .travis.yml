@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 language: c
-=======
-language: lua
->>>>>>> 9adf7323e5ef2872b5e6192f7b542a6496b92cf8
 
 sudo: false
 
@@ -34,11 +30,7 @@ install:
 script:
   - cd test
   - lua -e "print(require'cURL'.version())"
-<<<<<<< HEAD
   - lunit.sh test.lua
-=======
-  - lunit.sh commands_script_indev.lua
->>>>>>> 9adf7323e5ef2872b5e6192f7b542a6496b92cf8
 
 after_success:
   - coveralls -b .. -r .. -i ./src --dump c.report.json
