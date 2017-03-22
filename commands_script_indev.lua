@@ -1185,8 +1185,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local access = getaccess(PlayerIndex)
     local permission
     local console_command = string.lower(Command)
-    if (Environment == 1) then use_console = true end
-    if (Environment == 2) then use_console = false end
+    if (Environment == 1) then 
+        use_console = true
+        was_rcon = true
+    elseif (Environment == 2) then 
+        use_console = false
+        was_rcon = false
+    end
     if cmd ~= nil then
         if cmd ~= "cls" then
             if "sv_" ~= string.sub(cmd, 0, 3) then
@@ -3929,7 +3934,7 @@ function Command_Ipadmindel(executor, command, nickname, count)
         sendresponse("Invalid Syntax: " .. command .. " [nickname]", command, executor)
     end
 end
-
+-- Changed
 function Command_Ipban(executor, command, PlayerIndex, time, message, count)
     ipcount = 0
     if PlayerIndex then
@@ -8067,7 +8072,9 @@ function sendresponse(message, command, PlayerIndex)
         if command then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if not use_console then
+                    execute_command("msg_prefix \"\"")
                     privatesay(PlayerIndex, message)
+                    execute_command("msg_prefix \"** SERVER ** \"")
                 elseif use_console then
                     rprint(PlayerIndex, message)
                 end
