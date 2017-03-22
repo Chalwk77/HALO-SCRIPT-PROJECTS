@@ -21,7 +21,8 @@ notyetshown = true
 rtv_initiated = 0
 votekicktimeout_table = false
 Multi_Control = true
-use_logo = false
+use_logo = true
+tbag_detection = true
 msga = nil
 
 -- Strings
@@ -267,21 +268,21 @@ scrim_mode_commands = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
-    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     profilepath = getprofilepath()
-    GetGameAddresses()
-    gametype = read_byte(gametype_base + 0x30)
+    -- GetGameAddresses()
+    -- gametype = read_byte(gametype_base + 0x30)
     -- maintimer = timer(20, "MainTimer")
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -905,6 +906,7 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnPlayerPrejoin(PlayerIndex)
+    os.execute("echo \7")
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local client_network_struct = network_struct + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
     local name = read_widestring(client_network_struct, 12)
@@ -912,8 +914,13 @@ function OnPlayerPrejoin(PlayerIndex)
     local ip = get_var(PlayerIndex, "$ip")
     local id = get_var(PlayerIndex, "$n")
     players_alive[id] = nil
-    --cprint(name .. " is attempting to join the server", 2 + 8)
-    --cprint("CD Hash: " .. hash .. " - IP Address: " .. ip .. " - IndexID: " .. id)
+    cprint("---------------------------------------------------------------------------------------------------")
+    cprint("              - - |   P L A Y E R   J O I N   | - -")
+    cprint("     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    cprint("Player: " ..name, 2+8)
+    cprint("CD Hash: " ..hash)
+    cprint("IP Address: " ..ip)
+    cprint("IndexID: " ..id)
     for k, v in pairs(name_bans) do
         if v == name then
             return false, "Player"
@@ -1725,7 +1732,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if PlayerIndex then
             cmdlog("Security Alert: " .. getname(PlayerIndex) .. " (Hash:" .. gethash(PlayerIndex) .. " IP: " .. getip(PlayerIndex) .. ") tried to execute: '" .. Command .. "'")
         end
-        sendresponse("You are not an admin. This will be reported.", t[1], PlayerIndex)
+        sendresponse("You are not an admin. Access denied.", t[1], PlayerIndex)
     end
     if (Environment == 0) then response = true end
     return response
@@ -1784,6 +1791,10 @@ function OnPlayerJoin(PlayerIndex)
     if multiteam_vehicles then
         write_byte(getplayer(PlayerIndex) + 0x20, 0)
     end
+    local timestamp = os.date("%A %d %B %Y - %X")
+    cprint("Join Time: " ..timestamp)
+    cprint("Status: connected successfully.")
+    cprint("---------------------------------------------------------------------------------------------------")
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -1811,6 +1822,19 @@ function OnPlayerLeave(PlayerIndex)
             last_damage[PlayerIndex] = nil
         end
     end
+    local name = get_var(PlayerIndex, "$name")
+    local hash = get_var(PlayerIndex, "$hash")
+    local id = get_var(PlayerIndex, "$n")
+    local ping = get_var(PlayerIndex, "$ping")
+    local timestamp = os.date("%A %d %B %Y - %X")
+    cprint("---------------------------------------------------------------------------------------------------")
+    cprint(name.. " quit the game!", 4+8)
+    cprint("CD Hash: " ..hash)
+    cprint("IndexID: " ..id)
+    cprint("Player Ping: " ..ping)
+    cprint("Time: " ..timestamp)
+    cprint("---------------------------------------------------------------------------------------------------")
+    cprint("")
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -2061,20 +2085,17 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
         end
     end
-end
-
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if CauserIndex then
-        if PlayerIndex then
-            if mode[getip(CauserIndex)] == "destroy" then
-                if tagid ~= 0xE63504C1 then
-                destroyobject(receiver_id)
-            end
-            elseif mode[getip(CauserIndex)] == "entergun" then
-                enter_vehicle(PlayerIndex, receiver_id, 0)
-            end
-        end
-    end
+    -- if CauserIndex then
+        -- if PlayerIndex then
+            -- if mode[getip(CauserIndex)] == "destroy" then
+                -- if MetaID ~= 0xE63504C1 then
+                    -- destroy_object(receiver_id)
+                -- end
+            -- elseif mode[getip(CauserIndex)] == "entergun" then
+                -- enter_vehicle(MetaID, PlayerIndex, 0)
+            -- end
+        -- end
+    -- end
 end
 
 function OnDamageLookup(receiver_id, causer_id, mapId)
@@ -5860,47 +5881,47 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
             object_to_spawn = bipds_table[20][2]
         --------------------------------------------------------------------------------------------------------------------------------------
         elseif object == "camo" or object == "camouflage" then
-            Spawn(message, "Camouflage", "eqip", camouflage_tag_id, executor, type)
             object_to_spawn = eqip_table[1][2]
+            Spawn(message, "Camouflage", "eqip", object_to_spawn, executor, type)
         elseif object == "healthpack" then
-            Spawn(message, "Health Pack", "eqip", healthpack_tag_id, executor, type)
             object_to_spawn = eqip_table[2][2]
+            Spawn(message, "Health Pack", "eqip", object_to_spawn, executor, type)
         elseif object == "overshield" or object == "os" then
-            Spawn(message, "Overshield", "eqip", overshield_tag_id, executor, type)
             object_to_spawn = eqip_table[3][2]
+            Spawn(message, "Overshield", "eqip", object_to_spawn, executor, type)
         elseif object == "dblspd" then
-            Spawn(message, "Double Speed", "eqip", doublespeed_tag_id, executor, type)
             object_to_spawn = eqip_table[4][2]
+            Spawn(message, "Double Speed", "eqip", object_to_spawn, executor, type)
         elseif object == "fullspec" then
-            Spawn(message, "Full-Spectrum Vision", "eqip", fullspec_tag_id, executor, type)
             object_to_spawn = eqip_table[5][2]
+            Spawn(message, "Full-Spectrum Vision", "eqip", object_to_spawn, executor, type)
         elseif object == "fnade" or object == "nades" then
-            Spawn(message, "Frag Grenade", "eqip", fragnade_tag_id, executor, type)
             object_to_spawn = eqip_table[6][2]
+            Spawn(message, "Frag Grenade", "eqip", object_to_spawn, executor, type)
         elseif object == "pnade" then
-            Spawn(message, "Plasma Grenade", "eqip", plasmanade_tag_id, executor, type)
             object_to_spawn = eqip_table[7][2]
+            Spawn(message, "Plasma Grenade", "eqip", object_to_spawn, executor, type)
         elseif object == "rifleammo" then
-            Spawn(message, "Assault Rifle Ammo", "eqip", rifleammo_tag_id, executor, type)
             object_to_spawn = eqip_table[8][2]
+            Spawn(message, "Assault Rifle Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "needlerammo" then
-            Spawn(message, "Needler Ammo", "eqip", needlerammo_tag_id, executor, type)
             object_to_spawn = eqip_table[9][2]
+            Spawn(message, "Needler Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "pistolammo" then
-            Spawn(message, "Pistol Ammo", "eqip", pistolammo_tag_id, executor, type)
             object_to_spawn = eqip_table[10][2]
+            Spawn(message, "Pistol Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "rocketammo" then
-            Spawn(message, "Rocket Ammo", "eqip", rocketammo_tag_id, executor, type)
             object_to_spawn = eqip_table[11][2]
+            Spawn(message, "Rocket Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "shottyammo" then
-            Spawn(message, "Shotgun Ammo", "eqip", shotgunammo_tag_id, executor, type)
             object_to_spawn = eqip_table[12][2]
+            Spawn(message, "Shotgun Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "sniperammo" then
-            Spawn(message, "Sniper Ammo", "eqip", sniperammo_tag_id, executor, type)
             object_to_spawn = eqip_table[13][2]
+            Spawn(message, "Sniper Ammo", "eqip", object_to_spawn, executor, type)
         elseif object == "flameammo" then
-            Spawn(message, "Flamethrower Ammo", "eqip", flameammo_tag_id, executor, type)
             object_to_spawn = eqip_table[14][2]
+            Spawn(message, "Flamethrower Ammo", "eqip", object_to_spawn, executor, type)
         else
             bool = false
         end
@@ -7214,40 +7235,36 @@ end
 function GetGameAddresses()
     if halo_type == "PC" then
         oddball_globals = 0x639E18
-        slayer_globals = 0x63A0E8
-        name_base = 0x745D4A
         specs_addr = 0x662D04
         hashcheck_addr = 0x59c280
         versioncheck_addr = 0x5152E7
-        map_pointer = 0x63525c
-        gametype_base = 0x671340
-        gametime_base = 0x671420
-        machine_pointer = 0x745BA0
-        timelimit_address = 0x626630
-        special_chars = 0x517D6B
-        gametype_patch = 0x481F3C
-        devmode_patch1 = 0x4A4DBF
-        devmode_patch2 = 0x4A4E7F
-        hash_duplicate_patch = 0x59C516
-        obj_header_pointer = 0x744C18
+        --map_pointer = 0x63525c
+        --gametype_base = 0x671340
+        --gametime_base = 0x671420
+        --machine_pointer = 0x745BA0
+        --timelimit_address = 0x626630
+        --special_chars = 0x517D6B
+        --gametype_patch = 0x481F3C
+        --devmode_patch1 = 0x4A4DBF
+        --devmode_patch2 = 0x4A4E7F
+        --hash_duplicate_patch = 0x59C516
+        --obj_header_pointer = 0x744C18
     else
         oddball_globals = 0x5BDEB8
-        slayer_globals = 0x5BE108
-        name_base = 0x6C7B6A
         specs_addr = 0x5E6E63
         hashcheck_addr = 0x530130
         obj_header_pointer = 0x6C69F0
-        versioncheck_addr = 0x4CB587
-        map_pointer = 0x5B927C
-        gametype_base = 0x5F5498
-        gametime_base = 0x5F55BC
-        machine_pointer = 0x6C7980
-        timelimit_address = 0x5AA5B0
-        special_chars = 0x4CE0CD
-        gametype_patch = 0x45E50C
-        devmode_patch1 = 0x47DF0C
-        devmode_patch2 = 0x47DFBC
-        hash_duplicate_patch = 0x5302E6
+        --versioncheck_addr = 0x4CB587
+        --map_pointer = 0x5B927C
+        --gametype_base = 0x5F5498
+        --gametime_base = 0x5F55BC
+        --machine_pointer = 0x6C7980
+        --timelimit_address = 0x5AA5B0
+        --special_chars = 0x4CE0CD
+        -- gametype_patch = 0x45E50C
+        -- devmode_patch1 = 0x47DF0C
+        -- devmode_patch2 = 0x47DFBC
+        -- hash_duplicate_patch = 0x5302E6
     end
 end
 
@@ -7676,17 +7693,17 @@ end
 
 function LoadTags()
     cyborg_tag_id = get_tag_info("bipd", "characters\\cyborg_mp\\cyborg_mp")
-    captain_tag_id = get_tag_info("bipd", "characters\\captain\\captain")
-    cortana_tag_id = get_tag_info("bipd", "characters\\cortana\\cortana")
-    cortana2_tag_id = get_tag_info("bipd", "characters\\cortana\\halo_enhanced\\halo_enhanced")
-    crewman_tag_id = get_tag_info("bipd", "characters\\crewman\\crewman")
-    elite_tag_id = get_tag_info("bipd", "characters\\elite\\elite")
-    elite2_tag_id = get_tag_info("bipd", "characters\\elite\\elite special")
-    engineer_tag_id = get_tag_info("bipd", "characters\\engineer\\engineer")
-    flood_tag_id = get_tag_info("bipd", "characters\\flood_captain\\flood_captain")
-    flood2_tag_id = get_tag_info("bipd", "characters\\flood_infection\\flood_infection")
+    -- captain_tag_id = get_tag_info("bipd", "characters\\captain\\captain")
+    -- cortana_tag_id = get_tag_info("bipd", "characters\\cortana\\cortana")
+    -- cortana2_tag_id = get_tag_info("bipd", "characters\\cortana\\halo_enhanced\\halo_enhanced")
+    -- crewman_tag_id = get_tag_info("bipd", "characters\\crewman\\crewman")
+    -- elite_tag_id = get_tag_info("bipd", "characters\\elite\\elite")
+    -- elite2_tag_id = get_tag_info("bipd", "characters\\elite\\elite special")
+    -- engineer_tag_id = get_tag_info("bipd", "characters\\engineer\\engineer")
+    -- flood_tag_id = get_tag_info("bipd", "characters\\flood_captain\\flood_captain")
+    -- flood2_tag_id = get_tag_info("bipd", "characters\\flood_infection\\flood_infection")
     
-    bipds_table[1] = {"bipd", "tag_here"}
+    bipds_table[1] = {"bipd", "characters\\cyborg_mp\\cyborg_mp"}
     bipds_table[2] = {"bipd", "tag_here"}
     bipds_table[3] = {"bipd", "tag_here"}
     bipds_table[4] = {"bipd", "tag_here"}
@@ -7698,20 +7715,20 @@ function LoadTags()
     bipds_table[10] = {"bipd", "tag_here"}
 
     -- Equipment
-    camouflage_tag_id = get_tag_info("eqip", "powerups\\active camouflage")
-    healthpack_tag_id = get_tag_info("eqip", "powerups\\health pack")
-    overshield_tag_id = get_tag_info("eqip", "powerups\\over shield")
-    doublespeed_tag_id = get_tag_info("eqip", "powerups\\double speed")
-    fullspec_tag_id = get_tag_info("eqip", "powerups\\full-spectrum vision")
-    fragnade_tag_id = get_tag_info("eqip", "weapons\\frag grenade\\frag grenade")
-    plasmanade_tag_id = get_tag_info("eqip", "weapons\\plasma grenade\\plasma grenade")
-    rifleammo_tag_id = get_tag_info("eqip", "powerups\\assault rifle ammo\\assault rifle ammo")
-    needlerammo_tag_id = get_tag_info("eqip", "powerups\\needler ammo\\needler ammo")
-    pistolammo_tag_id = get_tag_info("eqip", "powerups\\pistol ammo\\pistol ammo")
-    rocketammo_tag_id = get_tag_info("eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo")
-    shotgunammo_tag_id = get_tag_info("eqip", "powerups\\shotgun ammo\\shotgun ammo")
-    sniperammo_tag_id = get_tag_info("eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo")
-    flameammo_tag_id = get_tag_info("eqip", "powerups\\flamethrower ammo\\flamethrower ammo")
+    -- camouflage_tag_id = get_tag_info("eqip", "powerups\\active camouflage")
+    -- healthpack_tag_id = get_tag_info("eqip", "powerups\\health pack")
+    -- overshield_tag_id = get_tag_info("eqip", "powerups\\over shield")
+    -- doublespeed_tag_id = get_tag_info("eqip", "powerups\\double speed")
+    -- fullspec_tag_id = get_tag_info("eqip", "powerups\\full-spectrum vision")
+    -- fragnade_tag_id = get_tag_info("eqip", "weapons\\frag grenade\\frag grenade")
+    -- plasmanade_tag_id = get_tag_info("eqip", "weapons\\plasma grenade\\plasma grenade")
+    -- rifleammo_tag_id = get_tag_info("eqip", "powerups\\assault rifle ammo\\assault rifle ammo")
+    -- needlerammo_tag_id = get_tag_info("eqip", "powerups\\needler ammo\\needler ammo")
+    -- pistolammo_tag_id = get_tag_info("eqip", "powerups\\pistol ammo\\pistol ammo")
+    -- rocketammo_tag_id = get_tag_info("eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo")
+    -- shotgunammo_tag_id = get_tag_info("eqip", "powerups\\shotgun ammo\\shotgun ammo")
+    -- sniperammo_tag_id = get_tag_info("eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo")
+    -- flameammo_tag_id = get_tag_info("eqip", "powerups\\flamethrower ammo\\flamethrower ammo")
     
     eqip_table[1] = {"eqip", "powerups\\active camouflage"}
     eqip_table[2] = {"eqip", "powerups\\health pack"}
@@ -7729,14 +7746,14 @@ function LoadTags()
     eqip_table[14] = {"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"}
 
     -- Vehicles
-    banshee_tag_id = get_tag_info("vehi", "vehicles\\banshee\\banshee_mp")
-    turret_tag_id = get_tag_info("vehi", "vehicles\\c gun turret\\c gun turret_mp")
-    ghost_tag_id = get_tag_info("vehi", "vehicles\\ghost\\ghost_mp")
-    rwarthog_tag_id = get_tag_info("vehi", "vehicles\\rwarthog\\rwarthog")
-    warthog_tag_id = get_tag_info("vehi", "vehicles\\warthog\\mp_warthog")
-    scorpion_tag_id = get_tag_info("vehi", "vehicles\\scorpion\\scorpion_mp")
-    wraith_tag_id = get_tag_info("vehi", "vehicles\\wraith\\wraith")
-    pelican_tag_id = get_tag_info("vehi", "vehicles\\pelican\\pelican")
+    -- banshee_tag_id = get_tag_info("vehi", "vehicles\\banshee\\banshee_mp")
+    -- turret_tag_id = get_tag_info("vehi", "vehicles\\c gun turret\\c gun turret_mp")
+    -- ghost_tag_id = get_tag_info("vehi", "vehicles\\ghost\\ghost_mp")
+    -- rwarthog_tag_id = get_tag_info("vehi", "vehicles\\rwarthog\\rwarthog")
+    -- warthog_tag_id = get_tag_info("vehi", "vehicles\\warthog\\mp_warthog")
+    -- scorpion_tag_id = get_tag_info("vehi", "vehicles\\scorpion\\scorpion_mp")
+    -- wraith_tag_id = get_tag_info("vehi", "vehicles\\wraith\\wraith")
+    -- pelican_tag_id = get_tag_info("vehi", "vehicles\\pelican\\pelican")
 
     vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog"}
     vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp"}
@@ -7746,20 +7763,20 @@ function LoadTags()
     vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp"}
     
     -- Weapons
-    assaultrifle_tag_id = get_tag_info("weap", "weapons\\assault rifle\\assault rifle")
-    oddball_tag_id = get_tag_info("weap", "weapons\\ball\\ball")
-    flag_tag_id = get_tag_info("weap", "weapons\\flag\\flag")
-    flamethrower_tag_id = get_tag_info("weap", "weapons\\flamethrower\\flamethrower")
-    gravityrifle_tag_id = get_tag_info("weap", "weapons\\gravity rifle\\gravity rifle")
-    needler_tag_id = get_tag_info("weap", "weapons\\needler\\mp_needler")
-    pistol_tag_id = get_tag_info("weap", "weapons\\pistol\\pistol")
-    plasmapistol_tag_id = get_tag_info("weap", "weapons\\plasma pistol\\plasma pistol")
-    plasmarifle_tag_id = get_tag_info("weap", "weapons\\plasma rifle\\plasma rifle")
-    plasmacannon_tag_id = get_tag_info("weap", "weapons\\plasma_cannon\\plasma_cannon")
-    rocketlauncher_tag_id = get_tag_info("weap", "weapons\\rocket launcher\\rocket launcher")
-    shotgun_tag_id = get_tag_info("weap", "weapons\\shotgun\\shotgun")
-    sniper_tag_id = get_tag_info("weap", "weapons\\sniper rifle\\sniper rifle")
-    energysword_tag_id = get_tag_info("weap", "weapons\\energy sword\\energy sword")
+    -- assaultrifle_tag_id = get_tag_info("weap", "weapons\\assault rifle\\assault rifle")
+    -- oddball_tag_id = get_tag_info("weap", "weapons\\ball\\ball")
+    -- flag_tag_id = get_tag_info("weap", "weapons\\flag\\flag")
+    -- flamethrower_tag_id = get_tag_info("weap", "weapons\\flamethrower\\flamethrower")
+    -- gravityrifle_tag_id = get_tag_info("weap", "weapons\\gravity rifle\\gravity rifle")
+    -- needler_tag_id = get_tag_info("weap", "weapons\\needler\\mp_needler")
+    -- pistol_tag_id = get_tag_info("weap", "weapons\\pistol\\pistol")
+    -- plasmapistol_tag_id = get_tag_info("weap", "weapons\\plasma pistol\\plasma pistol")
+    -- plasmarifle_tag_id = get_tag_info("weap", "weapons\\plasma rifle\\plasma rifle")
+    -- plasmacannon_tag_id = get_tag_info("weap", "weapons\\plasma_cannon\\plasma_cannon")
+    -- rocketlauncher_tag_id = get_tag_info("weap", "weapons\\rocket launcher\\rocket launcher")
+    -- shotgun_tag_id = get_tag_info("weap", "weapons\\shotgun\\shotgun")
+    -- sniper_tag_id = get_tag_info("weap", "weapons\\sniper rifle\\sniper rifle")
+    -- energysword_tag_id = get_tag_info("weap", "weapons\\energy sword\\energy sword")
     
     weapons[1] = { "weap", "weapons\\assault rifle\\assault rifle"}
     weapons[2] = { "weap", "weapons\\ball\\ball"}
@@ -7778,73 +7795,73 @@ function LoadTags()
 
 
     -- Projectiles
-    bansheebolt_tag_id = get_tag_info("proj", "vehicles\\banshee\\banshee bolt")
-    bansheeblast_tag_id = get_tag_info("proj", "vehicles\\banshee\\mp_banshee fuel rod")
-    turretfire_tag_id = get_tag_info("proj", "vehicles\\c gun turret\\mp gun turret")
-    ghostbolt_tag_id = get_tag_info("proj", "vehicles\\ghost\\ghost bolt")
-    tankshot_tag_id = get_tag_info("proj", "vehicles\\scorpion\\bullet")
-    tankblast_tag_id = get_tag_info("proj", "vehicles\\scorpion\\tank shell")
-    warthogshot_tag_id = get_tag_info("proj", "vehicles\\warthog\\bullet")
-    rifleshot_tag_id = get_tag_info("proj", "weapons\\assault rifle\\bullet")
-    flame_tag_id = get_tag_info("proj", "weapons\\flamethrower\\flame")
-    needlerfire_tag_id = get_tag_info("proj", "weapons\\needler\\mp_needle")
-    pistolshot_tag_id = get_tag_info("proj", "weapons\\pistol\\bullet")
-    plasmapistolbolt_tag_id = get_tag_info("proj", "weapons\\plasma pistol\\bolt")
-    plasmariflebolt_tag_id = get_tag_info("proj", "weapons\\plasma rifle\\bolt")
-    plasmarifleblast_tag_id = get_tag_info("proj", "weapons\\plasma rifle\\charged bolt")
-    plasmacannonshot_tag_id = get_tag_info("proj", "weapons\\plasma_cannon\\plasma_cannon")
-    rocket_tag_id = get_tag_info("proj", "weapons\\rocket launcher\\rocket")
-    shotgunshot_tag_id = get_tag_info("proj", "weapons\\shotgun\\pellet")
-    snipershot_tag_id = get_tag_info("proj", "weapons\\sniper rifle\\sniper bullet")
+    -- bansheebolt_tag_id = get_tag_info("proj", "vehicles\\banshee\\banshee bolt")
+    -- bansheeblast_tag_id = get_tag_info("proj", "vehicles\\banshee\\mp_banshee fuel rod")
+    -- turretfire_tag_id = get_tag_info("proj", "vehicles\\c gun turret\\mp gun turret")
+    -- ghostbolt_tag_id = get_tag_info("proj", "vehicles\\ghost\\ghost bolt")
+    -- tankshot_tag_id = get_tag_info("proj", "vehicles\\scorpion\\bullet")
+    -- tankblast_tag_id = get_tag_info("proj", "vehicles\\scorpion\\tank shell")
+    -- warthogshot_tag_id = get_tag_info("proj", "vehicles\\warthog\\bullet")
+    -- rifleshot_tag_id = get_tag_info("proj", "weapons\\assault rifle\\bullet")
+    -- flame_tag_id = get_tag_info("proj", "weapons\\flamethrower\\flame")
+    -- needlerfire_tag_id = get_tag_info("proj", "weapons\\needler\\mp_needle")
+    -- pistolshot_tag_id = get_tag_info("proj", "weapons\\pistol\\bullet")
+    -- plasmapistolbolt_tag_id = get_tag_info("proj", "weapons\\plasma pistol\\bolt")
+    -- plasmariflebolt_tag_id = get_tag_info("proj", "weapons\\plasma rifle\\bolt")
+    -- plasmarifleblast_tag_id = get_tag_info("proj", "weapons\\plasma rifle\\charged bolt")
+    -- plasmacannonshot_tag_id = get_tag_info("proj", "weapons\\plasma_cannon\\plasma_cannon")
+    -- rocket_tag_id = get_tag_info("proj", "weapons\\rocket launcher\\rocket")
+    -- shotgunshot_tag_id = get_tag_info("proj", "weapons\\shotgun\\pellet")
+    -- snipershot_tag_id = get_tag_info("proj", "weapons\\sniper rifle\\sniper bullet")
 
     -- Globals
     global_distanceId = get_tag_info("jpt!", "globals\\distance")
     global_fallingId = get_tag_info("jpt!", "globals\\falling")
 
-    objects[1] = { "cyborg", "bipd", cyborg_tag_id }
-    objects[2] = { "camo", "eqip", camouflage_tag_id }
-    objects[3] = { "health", "eqip", healthpack_tag_id }
-    objects[4] = { "overshield", "eqip", overshield_tag_id }
-    objects[5] = { "fnade", "eqip", fragnade_tag_id }
-    objects[6] = { "pnade", "eqip", plasmanade_tag_id }
-    objects[7] = { "shee", "vehi", banshee_tag_id }
-    objects[8] = { "turret", "vehi", turret_tag_id }
-    objects[9] = { "ghost", "vehi", ghost_tag_id }
-    objects[11] = { "tank", "vehi", scorpion_tag_id }
-    objects[10] = { "rhog", "vehi", rwarthog_tag_id }
-    objects[12] = { "hog", "vehi", warthog_tag_id }
-    objects[13] = { "rifle", "weap", assaultrifle_tag_id }
-    objects[14] = { "ball", "weap", oddball_tag_id }
-    objects[15] = { "flag", "weap", flag_tag_id }
-    objects[16] = { "flamethrower", "weap", flamethrower_tag_id }
-    objects[17] = { "needler", "weap", needler_tag_id }
-    objects[18] = { "pistol", "weap", pistol_tag_id }
-    objects[19] = { "ppistol", "weap", plasmapistol_tag_id }
-    objects[20] = { "prifle", "weap", plasmarifle_tag_id }
-    objects[21] = { "frg", "weap", plasmacannon_tag_id }
-    objects[22] = { "rocket", "weap", rocketlauncher_tag_id }
-    objects[23] = { "shotgun", "weap", shotgun_tag_id }
-    objects[24] = { "sniper", "weap", sniper_tag_id }
-    objects[25] = { "sheebolt", "proj", bansheebolt_tag_id }
-    objects[26] = { "sheerod", "proj", bansheeblast_tag_id }
-    objects[27] = { "turretbolt", "proj", turretfire_tag_id }
-    objects[28] = { "ghostbolt", "proj", ghostbolt_tag_id }
-    objects[29] = { "tankshot", "proj", tankshot_tag_id }
-    objects[30] = { "tankshell", "proj", tankblast_tag_id }
-    objects[31] = { "hogshot", "proj", warthogshot_tag_id }
-    objects[32] = { "rifleshot", "proj", rifleshot_tag_id }
-    objects[33] = { "flame", "proj", flame_tag_id }
-    objects[34] = { "needlershot", "proj", needlerfire_tag_id }
-    objects[35] = { "pistolshot", "proj", pistolshot_tag_id }
-    objects[36] = { "ppistolbolt", "proj", plasmapistolbolt_tag_id }
-    objects[37] = { "priflebolt", "proj", plasmariflebolt_tag_id }
-    objects[38] = { "priflecbolt", "proj", plasmarifleblast_tag_id }
-    objects[39] = { "rocketproj", "proj", rocket_tag_id }
-    objects[40] = { "shottyshot", "proj", shotgunshot_tag_id }
-    objects[41] = { "snipershot", "proj", snipershot_tag_id }
-    objects[42] = { "fuelrodshot", "proj", plasmacannonshot_tag_id }
-    objects[43] = { "falldamage", "jpt", global_fallingId }
-    objects[44] = { "distance", "jpt", global_distanceId }
+    -- objects[1] = { "cyborg", "bipd", cyborg_tag_id }
+    -- objects[2] = { "camo", "eqip", camouflage_tag_id }
+    -- objects[3] = { "health", "eqip", healthpack_tag_id }
+    -- objects[4] = { "overshield", "eqip", overshield_tag_id }
+    -- objects[5] = { "fnade", "eqip", fragnade_tag_id }
+    -- objects[6] = { "pnade", "eqip", plasmanade_tag_id }
+    -- objects[7] = { "shee", "vehi", banshee_tag_id }
+    -- objects[8] = { "turret", "vehi", turret_tag_id }
+    -- objects[9] = { "ghost", "vehi", ghost_tag_id }
+    -- objects[11] = { "tank", "vehi", scorpion_tag_id }
+    -- objects[10] = { "rhog", "vehi", rwarthog_tag_id }
+    -- objects[12] = { "hog", "vehi", warthog_tag_id }
+    -- objects[13] = { "rifle", "weap", assaultrifle_tag_id }
+    -- objects[14] = { "ball", "weap", oddball_tag_id }
+    -- objects[15] = { "flag", "weap", flag_tag_id }
+    -- objects[16] = { "flamethrower", "weap", flamethrower_tag_id }
+    -- objects[17] = { "needler", "weap", needler_tag_id }
+    -- objects[18] = { "pistol", "weap", pistol_tag_id }
+    -- objects[19] = { "ppistol", "weap", plasmapistol_tag_id }
+    -- objects[20] = { "prifle", "weap", plasmarifle_tag_id }
+    -- objects[21] = { "frg", "weap", plasmacannon_tag_id }
+    -- objects[22] = { "rocket", "weap", rocketlauncher_tag_id }
+    -- objects[23] = { "shotgun", "weap", shotgun_tag_id }
+    -- objects[24] = { "sniper", "weap", sniper_tag_id }
+    -- objects[25] = { "sheebolt", "proj", bansheebolt_tag_id }
+    -- objects[26] = { "sheerod", "proj", bansheeblast_tag_id }
+    -- objects[27] = { "turretbolt", "proj", turretfire_tag_id }
+    -- objects[28] = { "ghostbolt", "proj", ghostbolt_tag_id }
+    -- objects[29] = { "tankshot", "proj", tankshot_tag_id }
+    -- objects[30] = { "tankshell", "proj", tankblast_tag_id }
+    -- objects[31] = { "hogshot", "proj", warthogshot_tag_id }
+    -- objects[32] = { "rifleshot", "proj", rifleshot_tag_id }
+    -- objects[33] = { "flame", "proj", flame_tag_id }
+    -- objects[34] = { "needlershot", "proj", needlerfire_tag_id }
+    -- objects[35] = { "pistolshot", "proj", pistolshot_tag_id }
+    -- objects[36] = { "ppistolbolt", "proj", plasmapistolbolt_tag_id }
+    -- objects[37] = { "priflebolt", "proj", plasmariflebolt_tag_id }
+    -- objects[38] = { "priflecbolt", "proj", plasmarifleblast_tag_id }
+    -- objects[39] = { "rocketproj", "proj", rocket_tag_id }
+    -- objects[40] = { "shottyshot", "proj", shotgunshot_tag_id }
+    -- objects[41] = { "snipershot", "proj", snipershot_tag_id }
+    -- objects[42] = { "fuelrodshot", "proj", plasmacannonshot_tag_id }
+    -- objects[43] = { "falldamage", "jpt", global_fallingId }
+    -- objects[44] = { "distance", "jpt", global_distanceId }
 end
 
 function isinvehicle(PlayerIndex)
