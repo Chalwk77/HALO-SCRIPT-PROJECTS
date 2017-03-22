@@ -1198,6 +1198,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     count = #t
     invis_time = tonumber(t[3])
     invis_time = invis_time
+    index = tonumber(t[2])
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
@@ -3222,15 +3223,19 @@ function Command_Getloc(executor, command, PlayerIndex, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local player_object = get_dynamic_player(players[i])
-                if player_object then
-                    local x, y, z = getobjectcoords(player_object)
-                    x = round(x, 2)
-                    y = round(y, 2)
-                    z = round(z, 2)
-                    sendresponse(getname(players[i]) .. "'s coords are: X: " .. x .. "  Y: " .. y .. "  Z: " .. z, command, executor)
+                if player_present(players[i]) then
+                    local player_object = get_dynamic_player(players[i])
+                    if player_object then
+                        local x, y, z = getobjectcoords(player_object)
+                        x = round(x, 2)
+                        y = round(y, 2)
+                        z = round(z, 2)
+                        sendresponse(getname(players[i]) .. "'s coords are: X: " .. x .. "  Y: " .. y .. "  Z: " .. z, command, executor)
+                    else
+                        sendresponse(getname(players[i]) .. " is dead", command, executor)
+                    end
                 else
-                    sendresponse(getname(players[i]) .. " is dead", command, executor)
+                    sendresponse("Invalid Player", command, executor)
                 end
             end
         else
