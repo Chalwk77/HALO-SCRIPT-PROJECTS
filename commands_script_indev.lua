@@ -7962,6 +7962,9 @@ function reloadadmins(id, count)
     return false
 end
 
+-- DO TO:
+-- Store previous weapons in a table - On resetweapons() - restore to this weapon layout.
+
 function resetweapons(PlayerIndex)
     if getplayer(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
