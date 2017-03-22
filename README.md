@@ -3,7 +3,7 @@
 
 > # Current Project: 
 > ### Commands Script
-> https://travis-ci.org/Chalwk77/HALO-SCRIPT-PROJECTS.svg?branch=master
+> * [status](https://travis-ci.org/Chalwk77/HALO-SCRIPT-PROJECTS.svg?branch=master)
 
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
