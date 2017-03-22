@@ -3934,7 +3934,7 @@ function Command_Ipadmindel(executor, command, nickname, count)
         sendresponse("Invalid Syntax: " .. command .. " [nickname]", command, executor)
     end
 end
--- Changed
+-- Changed sdfgsdfg
 function Command_Ipban(executor, command, PlayerIndex, time, message, count)
     ipcount = 0
     if PlayerIndex then
