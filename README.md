@@ -1,6 +1,10 @@
 [![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
 > # Halo PC|CE - Lua Scripts for Phasor V2+ and SAPP
 
+> # Current Project: 
+> ### Commands Script
+> ![Logo](https://travis-ci.org/Chalwk77/HALO-SCRIPT-PROJECTS.svg?branch=master)
+
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 
