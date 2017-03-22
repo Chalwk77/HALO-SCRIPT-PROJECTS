@@ -733,6 +733,22 @@ end
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
+            if (player_alive(i)) then
+                if noweapons or Noweapons[getip(i)] then
+                    local player_object = get_dynamic_player(i)
+                    local weaponId = read_dword(player_object + 0x118)
+                    if weaponId ~= 0 then
+                        for j = 0, 3 do
+                            local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                            destroy_object(m_weapon)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for i = 1, 16 do
+        if player_present(i) then
             if getplayer(i) then
                 local ip = getip(i)
                 if ghost_table[ip] == true then
@@ -1922,12 +1938,11 @@ function OnPlayerSpawn(PlayerIndex)
             write_float(m_object + 0xE4, 9999999999)
         end
         if noweapons or Noweapons[ip] then
-            local m_object = getobject(m_objectId)
-            for i = 0, 3 do
-                local weapID = read_dword(m_object + 0x2F8 + i * 4)
-                local weap = getobject(weapID)
-                if weap then
-                    destroyobject(weapID)
+            local weaponId = read_dword(m_objectId + 0x118)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(m_objectId + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
                 end
             end
         end
@@ -4674,16 +4689,12 @@ function Command_Noweapons(executor, command, boolean, count)
         if (boolean == "1" or boolean == "true") and not noweapons then
             for i = 1, 16 do
                 if getplayer(i) then
-                    local m_objectId = get_dynamic_player(i)
-                    if m_objectId then
-                        local m_object = getobject(m_objectId)
-                        if m_object then
-                            for j = 0, 3 do
-                                local weap_id = read_dword(m_object + 0x2F8 +(j * 4))
-                                if getobject(weap_id) then
-                                    destroyobject(weap_id)
-                                end
-                            end
+                    local player_object = get_dynamic_player(i)
+                    local weaponId = read_dword(player_object + 0x118)
+                    if weaponId ~= 0 then
+                        for j = 0, 3 do
+                            local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                            destroy_object(m_weapon)
                         end
                     end
                 end
@@ -5037,13 +5048,10 @@ function Command_Resetweapons(executor, command, PlayerIndex, count)
                 if ip then
                     if Noweapons[ip] then
                         Noweapons[ip] = nil
-                        local m_objectId = get_dynamic_player(players[i])
-                        if m_objectId then
-                            local m_object = getobject(m_objectId)
-                            if m_object then
-                                resetweapons(players[i])
-                                sendresponse(getname(players[i]) .. " had their weapons reset", command, executor)
-                            end
+                        local player_object = get_dynamic_player(players[i])
+                        if player_object then
+                            resetweapons(players[i])
+                            sendresponse(getname(players[i]) .. " had their weapons reset", command, executor)
                         end
                     else
                         sendresponse(getname(players[i]) .. " never had their weapons taken away", command, executor)
@@ -6135,17 +6143,12 @@ function Command_Takeweapons(executor, command, PlayerIndex, count)
                 local ip = getip(players[i])
                 if Noweapons[ip] == nil then
                     Noweapons[ip] = 1
-                    local m_objectId = get_dynamic_player(players[i])
-                    if m_objectId then
-                        local m_object = getobject(m_objectId)
-                        if m_object then
-                            for j = 0, 3 do
-                                local m_weaponId = read_dword(m_object + 0x2F8 + j * 4)
-                                local m_weapon = getobject(m_weaponId)
-                                if m_weapon then
-                                    destroyobject(m_weaponId)
-                                end
-                            end
+                    local player_object = get_dynamic_player(i)
+                    local weaponId = read_dword(player_object + 0x118)
+                    if weaponId ~= 0 then
+                        for j = 0, 3 do
+                            local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                            destroy_object(m_weapon)
                         end
                     end
                     sendresponse(getname(players[i]) .. " now has no weapons", command, executor)
@@ -7961,16 +7964,13 @@ end
 
 function resetweapons(PlayerIndex)
     if getplayer(PlayerIndex) then
-        local m_objectId = get_dynamic_player(PlayerIndex)
-        if m_objectId then
-            local m_object = getobject(m_objectId)
-            if m_object then
-                if getobject(read_dword(m_object + 0x118)) then return end
-                local x = read_float(m_object + 0x5C)
-                local y = read_float(m_object + 0x60)
-                local z = read_float(m_object + 0x64)
-                assignweapon(PlayerIndex, createobject(pistol_tag_id, 0, 60, false, x + 1.0, y, z + 2.0))
-                assignweapon(PlayerIndex, createobject(assaultrifle_tag_id, 0, 60, false, x + 1.0, y, z + 2.0))
+        local player_object = get_dynamic_player(PlayerIndex)
+        if player_object ~= 0 then
+            local weaponId = read_dword(player_object + 0x118)
+            if weaponId ~= 0 then
+                local x, y, z = read_vector3d(player_object + 0x5C)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\pistol\\pistol", x, y, z + 0.5), PlayerIndex)
+                local weapid = assign_weapon(spawn_object("weap", "weapons\\assault rifle\\assault rifle", x, y, z + 0.5), PlayerIndex)
             end
         end
     end
