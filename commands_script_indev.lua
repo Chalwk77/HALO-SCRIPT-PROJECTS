@@ -6265,17 +6265,17 @@ end
 
 function Command_Test(executor, command, arg1, arg2, arg3, arg4, count)
     if count == 1 then
-        cprint("1", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     elseif count == 2 then
-        cprint("2", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     elseif count == 3 then
-        cprint("3", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     elseif count == 4 then
-        cprint("4", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     elseif count == 5 then
-        cprint("5", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     else
-        cprint("6", 2 + 8)
+        cprint("arguments: " ..tostring(count), 2 + 8)
     end
 end
 
@@ -6389,28 +6389,23 @@ function Command_Teletoplayer(executor, command, PlayerIndex, player2, count)
         if players then
             for i = 1, #players do
                 local name = getname(players[i])
-                local m_playerObjId = get_dynamic_player(players[i])
-                if m_playerObjId then
-                    local m_vehicleId = read_dword(m_playerObjId + 0x11C)
-                    local m_vehicle = getobject(m_vehicleId)
+                local player_object = get_dynamic_player(players[i])
+                if player_object then
                     local players2 = getvalidplayers(player2, executor)
                     if players2 then
-                        local m_objectId = get_dynamic_player(players2[1])
-                        if m_objectId then
+                        local player_object_2 = get_dynamic_player(players2[1])
+                        if player_object_2 then
                             if players2[2] == nil and players[i] ~= players2[1] then
                                 local t_name = getname(players2[1])
-                                local x, y, z = read_vector3d(m_objectId + 0x5C)
-                                if m_vehicle then
-                                    write_float(m_vehicle + 0x5C, x)
-                                    write_float(m_vehicle + 0x60, y)
-                                    write_float(m_vehicle + 0x64, z + 1.5)
+                                local x, y, z = read_vector3d(player_object_2 + 0x5C)
+                                if isinvehicle(executor) then
+                                    local vehicleId = read_dword(player_object + 0x11C)
+                                    moveobject(vehicleId, x, y + 1.6, z + 0.5)
                                     sendresponse(name .. " was teleported to " .. t_name, command, executor)
-                                elseif tonumber(z) then
-                                    write_vector3d(m_playerObjId + 0x5C, x, y, z + 1)
+                                else
+                                    write_vector3d(player_object + 0x5C, x, y + 1.5, z)
                                     sendresponse(name .. " was teleported to " .. t_name, command, executor)
                                 end
-                            elseif players2[2] then
-                                sendresponse("You cannot teleport to multiple people.", command, executor)
                             end
                         else
                             sendresponse("The player you are trying to teleport to is dead", command, executor)
@@ -6418,8 +6413,6 @@ function Command_Teletoplayer(executor, command, PlayerIndex, player2, count)
                     else
                         sendresponse("Invalid Player", command, executor)
                     end
-                else
-                    sendresponse("The player(s) you are trying to teleport are dead", command, executor)
                 end
             end
         else
@@ -8019,15 +8012,6 @@ end
 function pack(...)
     local arg = { ...}
     return arg
-end
-
--- Move ObjectID to X,Y,Z
-function moveobject(ObjectID, x, y, z)
-    local object = get_object_memory(ObjectID)
-    if get_object_memory(ObjectID) ~= 0 then
-        local veh_obj = get_object_memory(read_dword(object + 0x11C))
-        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
-    end
 end
 
 function moveobject(ObjectID, x, y, z)
