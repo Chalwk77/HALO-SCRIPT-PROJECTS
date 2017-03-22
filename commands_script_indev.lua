@@ -264,7 +264,7 @@ scrim_mode_commands = {
     "tp",
     "time_cur",
 }
--- testrun
+
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
