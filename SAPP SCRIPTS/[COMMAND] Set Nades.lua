@@ -77,7 +77,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond("Invalid Syntax: /" .. COMMAND .. " me | [player# 1-16] <amount>", PlayerIndex)
+                respond("Invalid Syntax: /" .. t[1] .. " me | [player# 1-16] <amount>", PlayerIndex)
             end
         end
     end
