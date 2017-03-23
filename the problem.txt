@@ -19,5 +19,5 @@ I can force the script to call an alternate function in place of getvalidplayers
       
       if Environment == 1 then getvalidplayers = GetValidPlayers end
       
-      GetValidPlayers will now be formatted to compensate for the double quotes.
-      Note that GetValidPlayers and getvalidplayers are case-sensitive and are totally seperate functions. 
+      I will now have to write a new function called GetValidPlayers that will be formatted to compensate for the double quotes.
+      - Note that GetValidPlayers and getvalidplayers are case-sensitive and are totally seperate functions. 
