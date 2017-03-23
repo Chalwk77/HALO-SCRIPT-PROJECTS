@@ -270,7 +270,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    --register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -1231,8 +1231,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
             permission = checkaccess(t[1], access, PlayerIndex)
-        elseif next(admin_table) == nil and next(ipadmins) == nil then
-            permission = true
+            if (Environment == 0) and next(admin_table) == nil and next(ipadmins) == nil then
+                permission = true
+            elseif (Environment == 1) or (Environment == 2) and next(admin_table) == nil and next(ipadmins) == nil then
+                permission = false
+            end
         end
     elseif PlayerIndex == nil or PlayerIndex == 255 then
         permission = true
@@ -1734,7 +1737,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         end
         sendresponse("You are not an admin. Access denied.", t[1], PlayerIndex)
     end
-    if (Environment == 0) then response = true end
     return response
 end
 
@@ -2328,8 +2330,7 @@ function Command_AFK(executor, command, PlayerIndex, count)
                 players_alive[PLAYER_ID].AFK = executor
                 sendresponse("You are now afk", command, executor)
             else
-                cprint("Server cannot be afk", 4+8)
-                return false
+                sendresponse("The server cannot be afk", command, executor)
             end
         else
             sendresponse("Invalid Player", command, executor)
@@ -3482,19 +3483,20 @@ end
 
 function Command_Hide(executor, command, PlayerIndex, count)
     if count == 1 and executor ~= nil then
-        local id = resolveplayer(executor)
-        if id ~= nil then
-            if hidden[id] == nil then
-                sendresponse("You are now hidden", command, executor)
-                hidden[id] = true
-            else
-                sendresponse("You are already hidden", command, executor)
+        local player = tonumber(executor)
+        if player ~= -1 and player >= 1 and player < 16 then
+            local id = resolveplayer(executor)
+            if id ~= nil then
+                if hidden[id] == nil then
+                    sendresponse("You are now hidden", command, executor)
+                    hidden[id] = true
+                else
+                    sendresponse("You are already hidden", command, executor)
+                end
             end
         else
             sendresponse("The server cannot hide itself", command, executor)
         end
-    elseif count == 1 and executor == nil then
-        sendresponse("The server cannot be hidden", command, executor)
     elseif count == 2 then
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
