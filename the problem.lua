@@ -1,5 +1,5 @@
 Just to clarify, argument 1 is /afk, and argument 2 is the player's number.
-In this case, argument 1 (player 1) is me as I am the only person in the server.
+In this case, argument 2 (player 1) is me as I am the only person in the server.
 
 -- CHAT
 I type: /afk 1
