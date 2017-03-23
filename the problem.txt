@@ -15,7 +15,7 @@ Dedicated Server Console tells me the value of the second argument was "1" (in d
 A crude way to resolve this would be:
 
 Any time the server makes a request to the function "getvalidplayers" and the environment is 1 (RCON), 
-I can do instead call an alternate function in its place, like so: 
+I can force the script to call an alternate function in place of getvalidplayers, like so: 
       
       if Environment == 1 then getvalidplayers = GetValidPlayers end
       
