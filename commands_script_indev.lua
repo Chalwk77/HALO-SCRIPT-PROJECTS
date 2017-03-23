@@ -270,7 +270,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    --register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -1042,7 +1042,8 @@ function OnGameEnd()
 end
 
 function OnPlayerChat(PlayerIndex, Message, chattype)
-    local response = nil
+    rcon_cmd = false
+    getvalidplayers = getvalidplayers
     local response = nil
     local name = "PlayerIndex"
     local hash = "hash"
@@ -1207,15 +1208,16 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local cmd = temp[1]
     local access = getaccess(PlayerIndex)
     local permission
-    local console_command = string.lower(Command)
+    local rcmd = string.lower(Command)
     if (Environment == 1) then 
         use_console = true
-        was_rcon = true
+        rcon_cmd = true
         getvalidplayers = GetValidPlayers
-    elseif (Environment == 2) then
-        use_console = false
-        was_rcon = false
+    end
+    if (Environment == 2) then
         getvalidplayers = getvalidplayers
+        use_console = false
+        rcon_cmd = false
     end
     if cmd ~= nil then
         if cmd ~= "cls" then
@@ -1228,13 +1230,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     count = #t
     invis_time = tonumber(t[3])
     invis_time = invis_time
-    
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
             permission = checkaccess(t[1], access, PlayerIndex)
         elseif next(admin_table) == nil and next(ipadmins) == nil then
-            permission = true
+            permission = false
         end
     elseif PlayerIndex == nil or PlayerIndex == 255 then
         permission = true
@@ -2287,14 +2288,14 @@ function Command_AFK(executor, command, Expression, count)
             sendresponse("Invalid Player", command, executor)
         end
     elseif count == 2 then
-        local players = getvalidplayers(Expression, executor)
-        if players then
-            for i = 1, #players do
-                if player_present(players[i]) then
-                    local id = get_var(players[i], "$n")
+        if _players then
+            for i = 1, #_players do
+                cprint(#_players)
+                if player_present(_players[i]) then
+                    local id = get_var(_players[i], "$n")
                     local PLAYER_ID = get_var(id, "$n")
                     players_alive[PLAYER_ID].AFK = id
-                    sendresponse(getname(players[i]) .. " is now afk", command, executor)
+                    sendresponse(getname(_players[i]) .. " is now afk", command, executor)
                 else
                     sendresponse("Invalid Player", command, executor)
                 end
@@ -3432,31 +3433,36 @@ function Command_Heal(executor, command, PlayerIndex, count)
     end
 end
 
-function Command_Hide(executor, command, PlayerIndex, count)
+function Command_Hide(executor, command, Expression, count)
     if count == 1 and executor ~= nil then
-        local id = resolveplayer(executor)
-        if id ~= nil then
-            if hidden[id] == nil then
-                sendresponse("You are now hidden", command, executor)
-                hidden[id] = true
-            else
-                sendresponse("You are already hidden", command, executor)
+        local player = tonumber(executor)
+        if player ~= -1 and player >= 1 and player < 16 then
+            local id = resolveplayer(executor)
+            if id ~= nil then
+                if hidden[id] == nil then
+                    sendresponse("You are now hidden", command, executor)
+                    hidden[id] = true
+                else
+                    sendresponse("You are already hidden", command, executor)
+                end
             end
         else
             sendresponse("The server cannot hide itself", command, executor)
         end
-    elseif count == 1 and executor == nil then
-        sendresponse("The server cannot be hidden", command, executor)
     elseif count == 2 then
-        local players = getvalidplayers(PlayerIndex, executor)
+        local players = getvalidplayers(Expression, executor)
         if players then
             for i = 1, #players do
-                local id = resolveplayer(players[i])
-                if hidden[id] == nil then
-                    sendresponse(getname(players[i]) .. " is now hidden", command, executor)
-                    hidden[id] = true
+                if player_present(players[i]) then
+                    local id = resolveplayer(players[i])
+                    if hidden[id] == nil then
+                        sendresponse(getname(players[i]) .. " is now hidden", command, executor)
+                        hidden[id] = true
+                    else
+                        sendresponse(getname(players[i]) .. " is already hidden", command, executor)
+                    end
                 else
-                    sendresponse(getname(players[i]) .. " is already hidden", command, executor)
+                    sendresponse("Invalid Player", command, executor)
                 end
             end
         else
@@ -5934,22 +5940,22 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type ~= "give" then
         bool = true
-        if object == "hog" or object == "warthog" then
+        if object == "hog" or object == "warthog" or object == '"hog"' or object == '"warthog"' then
             object_to_spawn = vehicles[1][2]
             Spawn(message, "Warthog", "vehi", object_to_spawn, executor, type)
-        elseif object == "ghost" then
+        elseif object == "ghost" or object == '"ghost"' then
             object_to_spawn = vehicles[2][2]
             Spawn(message, "Ghost", "vehi", object_to_spawn, executor, type)
-        elseif object == "rhog" or object == "rocketwarthog" then
+        elseif object == "rhog" or object == "rocketwarthog" or object == '"rhog"' or object == '"rocketwarthog"' then
             object_to_spawn = vehicles[3][2]
             Spawn(message, "Rocket Warthog", "vehi", object_to_spawn, executor, type)
-        elseif object == "shee" or object == "banshee" then
+        elseif object == "shee" or object == "banshee" or object == '"shee"' or object == '"banshee"' then
             object_to_spawn = vehicles[4][2]
             Spawn(message, "Banshee", "vehi", object_to_spawn, executor, type)
-        elseif object == "tank" or object == "scorpion" then
+        elseif object == "tank" or object == "scorpion" or object == '"tank"' or object == '"scorpion"' then
             object_to_spawn = vehicles[5][2]
             Spawn(message, "Tank", "vehi", object_to_spawn, executor, type)
-        elseif object == "turret" or object == "shade" then
+        elseif object == "turret" or object == "shade" or object == '"turret"' or object == '"shade"' then
             object_to_spawn = vehicles[6][2]
             Spawn(message, "Gun Turret", "vehi", object_to_spawn, executor, type)
         else
@@ -7520,9 +7526,10 @@ function getvalidformat(command)
 end
 
 function getvalidplayers(expression, PlayerIndex)
+    rcon_cmd = false
+    cprint("getvalidplayers", 2+8)
     if cur_players ~= 0 then
         local players = { }
-        cprint("expression: " .. tostring(expression))
         if expression == "*" then
             for i = 1, 16 do
                 if getplayer(i) then
@@ -7580,15 +7587,18 @@ function getvalidplayers(expression, PlayerIndex)
 end
 
 function GetValidPlayers(expression, PlayerIndex)
+    cprint("GetValidPlayers", 2+8)
     if cur_players ~= 0 then
         local players = { }
+        local Format = '"expression"'
+        local Format = '""..expression..""'
         if expression == '"*"' then
             for i = 1, 16 do
                 if getplayer(i) then
                     table.insert(players, i)
                 end
             end
-        elseif expression == "me" then
+        elseif expression == '"me"' then
             if PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex then
                 table.insert(players, PlayerIndex)
             end
@@ -8494,6 +8504,7 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
     local m = tokenizestring(message, " ")
     local count = #m
     if count >= 3 and count <= 6 then
+        cprint("ID: ".. tostring(m[3]) .. "", 2+8)
         local players = getvalidplayers(m[3], PlayerIndex)
         if players then
             for i = 1, #players do
