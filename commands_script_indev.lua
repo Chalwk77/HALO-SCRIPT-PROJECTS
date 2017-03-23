@@ -803,7 +803,7 @@ function OnTick()
                     end
                 end
             end
-            local player_object_id = read_dword(get_player(i) + 0x34)
+            local player_object_id = read_dword(getplayer(i) + 0x34)
             local player_object = get_object_memory(player_object_id)
             local m_player = get_dynamic_player(i)
             if player_object ~= 0 then
@@ -1211,9 +1211,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if (Environment == 1) then 
         use_console = true
         was_rcon = true
-    elseif (Environment == 2) then 
+        getvalidplayers = GetValidPlayers
+    elseif (Environment == 2) then
         use_console = false
         was_rcon = false
+        getvalidplayers = getvalidplayers
     end
     if cmd ~= nil then
         if cmd ~= "cls" then
@@ -1226,16 +1228,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     count = #t
     invis_time = tonumber(t[3])
     invis_time = invis_time
-    index = tonumber(t[2])
+    
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
             permission = checkaccess(t[1], access, PlayerIndex)
-            if (Environment == 0) and next(admin_table) == nil and next(ipadmins) == nil then
-                permission = true
-            elseif (Environment == 1) or (Environment == 2) and next(admin_table) == nil and next(ipadmins) == nil then
-                permission = false
-            end
+        elseif next(admin_table) == nil and next(ipadmins) == nil then
+            permission = true
         end
     elseif PlayerIndex == nil or PlayerIndex == 255 then
         permission = true
@@ -1259,55 +1258,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     end
     if permission then 
         if not ischatcommand then
-            -- if t[1] == "sv_rtv" then
-                -- if count == 1 and rockthevote then
-                    -- if rtv_initiated >= 0 then
-                        -- local rtv_count = 0
-                        -- local rtv_number = round(cur_players * rtv_required, 0)
-                        -- for i = 1, 16 do
-                            -- if getplayer(i) then
-                                -- if rtv_table[getip(i)] == 1 then
-                                    -- rtv_count = rtv_count + 1
-                                -- end
-                            -- end
-                        -- end
-                        -- if rtv_count == 0 then
-                            -- rtv_initiated = 1
-                            -- rtv_table[ip] = 1
-                            -- rtv_count = rtv_count + 1
-                            -- say(name .. " has initiated rtv")
-                            -- say("Type \"rtv\" to join the vote")
-                            -- rtvtimer = timer(120000, "rtvTimer")
-                        -- else
-                            -- if rtv_table[ip] == 1 then
-                                -- privatesay(PlayerIndex, "You have already voted for rtv")
-                            -- elseif rtv_table[ip] == nil then
-                                -- rtv_table[ip] = 1
-                                -- rtv_count = rtv_count + 1
-                                -- say(name .. " has voted for rtv")
-                                -- say(rtv_count .. " of " .. rtv_number .. " votes required for rtv")
-                            -- end
-                        -- end
-                        -- if rtv_count >= rtv_number then
-                            -- if rtvtimer then
-                                -- removetimer(rtvtimer)
-                                -- rtvtimer = nil
-                            -- end
-                            -- rtv_initiated = rtv_timeout
-                            -- say("Enough votes for rtv, game is now ending...")
-                            -- execute_command("sv_map_next")
-                        -- end
-                    -- elseif not gameend then
-                        -- privatesay(PlayerIndex, "You cannot initiate rtv at this time")
-                    -- elseif gameend then
-                        -- privatesay(PlayerIndex, "Game is already ending")
-                    -- end
-                    -- response = false
-                -- elseif count == 1 and not rockthevote then
-                    -- privatesay(PlayerIndex, "Rockthevote is now disabled.")
-                    -- response = false
-                -- end
-            -- end
             if t[1] == "sv_addrcon" then
                 response = false
                 Command_AddRconPassword(PlayerIndex, t[1], t[2], t[3], count)
@@ -1737,6 +1687,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         end
         sendresponse("You are not an admin. Access denied.", t[1], PlayerIndex)
     end
+    if (Environment == 0) then response = true end
     return response
 end
 
@@ -1851,7 +1802,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     gods[getip(victim)] = nil
 
     if respset then
-        local player = get_player(PlayerIndex)
+        local player = getplayer(PlayerIndex)
         write_dword(player + 0x2C, resptime * 33)
     end
 
@@ -2320,7 +2271,7 @@ function Command_Adminrevoke(executor, command, PlayerIndex, count)
     end
 end
 
-function Command_AFK(executor, command, PlayerIndex, count)
+function Command_AFK(executor, command, Expression, count)
     if count == 1 then
         if executor ~= nil then
             local player = tonumber(executor)
@@ -2336,7 +2287,7 @@ function Command_AFK(executor, command, PlayerIndex, count)
             sendresponse("Invalid Player", command, executor)
         end
     elseif count == 2 then
-        local players = getvalidplayers(PlayerIndex, executor)
+        local players = getvalidplayers(Expression, executor)
         if players then
             for i = 1, #players do
                 if player_present(players[i]) then
@@ -3483,20 +3434,19 @@ end
 
 function Command_Hide(executor, command, PlayerIndex, count)
     if count == 1 and executor ~= nil then
-        local player = tonumber(executor)
-        if player ~= -1 and player >= 1 and player < 16 then
-            local id = resolveplayer(executor)
-            if id ~= nil then
-                if hidden[id] == nil then
-                    sendresponse("You are now hidden", command, executor)
-                    hidden[id] = true
-                else
-                    sendresponse("You are already hidden", command, executor)
-                end
+        local id = resolveplayer(executor)
+        if id ~= nil then
+            if hidden[id] == nil then
+                sendresponse("You are now hidden", command, executor)
+                hidden[id] = true
+            else
+                sendresponse("You are already hidden", command, executor)
             end
         else
             sendresponse("The server cannot hide itself", command, executor)
         end
+    elseif count == 1 and executor == nil then
+        sendresponse("The server cannot be hidden", command, executor)
     elseif count == 2 then
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
@@ -7572,9 +7522,10 @@ end
 function getvalidplayers(expression, PlayerIndex)
     if cur_players ~= 0 then
         local players = { }
+        cprint("expression: " .. tostring(expression))
         if expression == "*" then
             for i = 1, 16 do
-                if get_player(i) then
+                if getplayer(i) then
                     table.insert(players, i)
                 end
             end
@@ -7584,13 +7535,13 @@ function getvalidplayers(expression, PlayerIndex)
             end
         elseif string.sub(expression, 1, 3) == "red" then
             for i = 1, 16 do
-                if get_player(i) and getteam(i) == "red" then
+                if getplayer(i) and getteam(i) == "red" then
                     table.insert(players, i)
                 end
             end
         elseif string.sub(expression, 1, 4) == "blue" then
             for i = 1, 16 do
-                if get_player(i) and getteam(i) == "blue" then
+                if getplayer(i) and getteam(i) == "blue" then
                     table.insert(players, i)
                 end
             end
@@ -7607,14 +7558,14 @@ function getvalidplayers(expression, PlayerIndex)
             local bool = false
             while not bool do
                 num = math.random(1, 16)
-                if get_player(num) and num ~= PlayerIndex then
+                if getplayer(num) and num ~= PlayerIndex then
                     bool = true
                 end
             end
             table.insert(players, num)
         else
             for i = 1, 16 do
-                if get_player(i) then
+                if getplayer(i) then
                     if string.wild(getname(i), expression) == true then
                         table.insert(players, i)
                     end
@@ -7628,10 +7579,158 @@ function getvalidplayers(expression, PlayerIndex)
     return false
 end
 
-function hashtoplayer(hash)
-    for i = 1, 16 do
-        if getplayer(i) and gethash(i) == hash then return i end
+function GetValidPlayers(expression, PlayerIndex)
+    if cur_players ~= 0 then
+        local players = { }
+        if expression == '"*"' then
+            for i = 1, 16 do
+                if getplayer(i) then
+                    table.insert(players, i)
+                end
+            end
+        elseif expression == "me" then
+            if PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex then
+                table.insert(players, PlayerIndex)
+            end
+        elseif string.sub(expression, 1, 3) == '"red"' then
+            for i = 1, 16 do
+                if getplayer(i) and getteam(i) == "red" then
+                    table.insert(players, i)
+                end
+            end
+        elseif string.sub(expression, 1, 4) == '"blue"' then
+            for i = 1, 16 do
+                if getplayer(i) and getteam(i) == "blue" then
+                    table.insert(players, i)
+                end
+            end
+        elseif expression == '"1"' then
+            val = 1
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"2"' then
+            val = 2
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"3"' then
+            val = 3
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"4"' then
+            val = 4
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"5"' then
+            val = 5
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"6"' then
+            val = 6
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"7"' then
+            val = 7
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"8"' then
+            val = 8
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"9"' then
+            val = 9
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"10"' then
+            val = 10
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"11"' then
+            val = 11
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"12"' then
+            val = 12
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"13"' then
+            val = 13
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"14"' then
+            val = 14
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"15"' then
+            val = 15
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == '"16"' then
+            val = 16
+        local expression = tonumber(val)
+        if resolveplayer(expression) then
+            table.insert(players, resolveplayer(expression))
+        end
+        elseif expression == "random" or expression == "rand" then
+            if cur_players == 1 and PlayerIndex ~= nil then
+                table.insert(players, PlayerIndex)
+                return players
+            end
+            local bool = false
+            while not bool do
+                num = math.random(1, 16)
+                if getplayer(num) and num ~= PlayerIndex then
+                    bool = true
+                end
+            end
+            table.insert(players, num)
+        else
+            for i = 1, 16 do
+                if getplayer(i) then
+                    if string.wild(getname(i), expression) == true then
+                        table.insert(players, i)
+                    end
+                end
+            end
+        end
+        if players[1] then
+            return players
+        end
     end
+    return false
 end
 
 function Ipban(PlayerIndex, bool)
