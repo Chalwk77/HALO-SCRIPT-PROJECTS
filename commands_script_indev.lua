@@ -4462,7 +4462,7 @@ end
 
 function Command_Mapnext(executor, command, count)
     if count == 1 then
-        if executor  then
+        if executor then
             execute_command("sv_map_next", executor)
         else
             execute_command("sv_map_next", true)
@@ -5247,7 +5247,7 @@ function Command_ScriptLoad(executor, command, count)
         for i = 2, #arg do
             command = command .. " " .. arg[i]
         end
-        if executor  then
+        if executor then
             execute_command(command, executor)
         else
             response = execute_command(command)
@@ -5265,7 +5265,7 @@ function Command_ScriptUnload(executor, command, count)
                 command = command .. " " .. arg[i]
             end
         end
-        if executor  then
+        if executor then
             execute_command(command, executor)
         else
             response = execute_command(command)
@@ -5774,7 +5774,7 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
         if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd"  or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
             Spawn(message, "Cyborg", "bipd", cyborg_tag_id, executor, type)
             object_to_spawn = bipds_table[1][2]
-        elseif object == "captain" or object == "keyes" or object == '"captain"'or object == '"keyes"' then
+        elseif object == "captain" or object == "keyes" or object == '"captain"' or object == '"keyes"' then
             Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
             object_to_spawn = bipds_table[2][2]
         elseif object == "cortana" or object == '"cortana"' then
@@ -7056,7 +7056,7 @@ function DefaultSvTimer()
             temp_lines = defaults_lines
         end
     if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
-    if access_error  then cprint("access.ini is not setup correctly", 4 + 8) end
+    if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
     if use_logo then
         cprint("===================================================================================================", 2 + 8)
         cprint("")
