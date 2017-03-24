@@ -277,6 +277,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
@@ -1815,7 +1816,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (KillerTeam == VictimTeam) and(PlayerIndex ~= KillerIndex) then kill_mode = 5 end
     -- SUICIDE --
     if tonumber(PlayerIndex) == tonumber(KillerIndex) then kill_mode = 6 end
-
     if kill_mode == 4 then
         if tbag_detection then
             tbag[victim] = { }
@@ -1897,32 +1897,38 @@ function OnPlayerCrouch(PlayerIndex)
     return true
 end
 
+function OnPlayerPrespawn(PlayerIndex)
+    -- Not currently used
+end
+
 function OnPlayerSpawn(PlayerIndex)
     TIMER[PlayerIndex] = true
     local PLAYER_ID = get_var(PlayerIndex, "$n")
     players_alive[PLAYER_ID].INVIS_TIME = 0
     local ip = getip(PlayerIndex)
-    local m_objectId = get_dynamic_player(PlayerIndex)
-    if m_objectId then
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object then
         if deathless then
-            local m_object = getobject(m_objectId)
+            local m_object = get_object_memory(player_object)
             write_float(m_object + 0xE0, 9999999999)
             write_float(m_object + 0xE4, 9999999999)
         end
         if noweapons or Noweapons[ip] then
-            local weaponId = read_dword(m_objectId + 0x118)
+            local weaponId = read_dword(player_object + 0x118)
             if weaponId ~= 0 then
                 for j = 0, 3 do
-                    local m_weapon = read_dword(m_objectId + 0x2F8 + j * 4)
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
                     destroy_object(m_weapon)
                 end
             end
         end
         if colorspawn == nil then colorspawn = { } end
         if colorspawn[PlayerIndex] == nil then colorspawn[PlayerIndex] = { } end
-        if colorspawn[PlayerIndex][1] then
-            movobjectcoords(m_objectId, colorspawn[PlayerIndex][1], colorspawn[PlayerIndex][2], colorspawn[PlayerIndex][3])
-            colorspawn[PlayerIndex] = { }
+        if (player_object ~= 0) then
+            if colorspawn[PlayerIndex][1] then
+                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[PlayerIndex][1], colorspawn[PlayerIndex][2], colorspawn[PlayerIndex][3])
+                colorspawn[PlayerIndex] = { }
+            end
         end
         if suspend_table[ip] then
             suspend_table[ip] = nil
@@ -5351,53 +5357,53 @@ function Command_Setcolor(executor, command, PlayerIndex, color, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local m_player = getplayer(players[i])
-                local m_objectId = get_dynamic_player(players[i])
-                if m_objectId then
-                    local x, y, z = getobjectcoords(m_objectId)
+                local player_object = get_dynamic_player(players[i])
+                local player_obj_id = read_dword(get_player(i) + 0x34)
+                if player_object then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
                     if color == "white" then
-                        write_byte(m_player + 0x60, 0)
+                        write_byte(player_object + 0x60, 0)
                     elseif color == "black" then
-                        write_byte(m_player + 0x60, 1)
+                        write_byte(player_object + 0x60, 1)
                     elseif color == "red" then
-                        write_byte(m_player + 0x60, 2)
+                        write_byte(player_object + 0x60, 2)
                     elseif color == "blue" then
-                        write_byte(m_player + 0x60, 3)
+                        write_byte(player_object + 0x60, 3)
                     elseif color == "gray" then
-                        write_byte(m_player + 0x60, 4)
+                        write_byte(player_object + 0x60, 4)
                     elseif color == "yellow" then
-                        write_byte(m_player + 0x60, 5)
+                        write_byte(player_object + 0x60, 5)
                     elseif color == "green" then
-                        write_byte(m_player + 0x60, 6)
+                        write_byte(player_object + 0x60, 6)
                     elseif color == "pink" then
-                        write_byte(m_player + 0x60, 7)
+                        write_byte(player_object + 0x60, 7)
                     elseif color == "purple" then
-                        write_byte(m_player + 0x60, 8)
+                        write_byte(player_object + 0x60, 8)
                     elseif color == "cyan" then
-                        write_byte(m_player + 0x60, 9)
+                        write_byte(player_object + 0x60, 9)
                     elseif color == "cobalt" then
-                        write_byte(m_player + 0x60, 10)
+                        write_byte(player_object + 0x60, 10)
                     elseif color == "orange" then
-                        write_byte(m_player + 0x60, 11)
+                        write_byte(player_object + 0x60, 11)
                     elseif color == "teal" then
-                        write_byte(m_player + 0x60, 12)
+                        write_byte(player_object + 0x60, 12)
                     elseif color == "sage" then
-                        write_byte(m_player + 0x60, 13)
+                        write_byte(player_object + 0x60, 13)
                     elseif color == "brown" then
-                        write_byte(m_player + 0x60, 14)
+                        write_byte(player_object + 0x60, 14)
                     elseif color == "tan" then
-                        write_byte(m_player + 0x60, 15)
+                        write_byte(player_object + 0x60, 15)
                     elseif color == "maroon" then
-                        write_byte(m_player + 0x60, 16)
+                        write_byte(player_object + 0x60, 16)
                     elseif color == "salmon" then
-                        write_byte(m_player + 0x60, 17)
+                        write_byte(player_object + 0x60, 17)
                     else
                         sendresponse("Invalid Color", command, executor)
                         return
                     end
                     sendresponse(getname(players[i]) .. " had their color changed to " .. color .. "", command, executor)
-                    if m_objectId ~= nil then
-                        destroyobject(m_objectId)
+                    if player_obj_id ~= nil then
+                        destroy_object(player_obj_id)
                         if colorspawn == nil then colorspawn = { } end
                         if colorspawn[players[i]] == nil then colorspawn[players[i]] = { } end
                         colorspawn[players[i]][1] = x
