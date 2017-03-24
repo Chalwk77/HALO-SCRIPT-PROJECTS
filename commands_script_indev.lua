@@ -5772,65 +5772,65 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
         bool = true
     --------------------------------------------------------------------------------------------------------------------------------------
         if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd"  or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
-            Spawn(message, "Cyborg", "bipd", cyborg_tag_id, executor, type)
             object_to_spawn = bipds_table[1][2]
+            Spawn(message, "Cyborg", "bipd", object_to_spawn, executor, type)
         elseif object == "captain" or object == "keyes" or object == '"captain"' or object == '"keyes"' then
-            Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
             object_to_spawn = bipds_table[2][2]
+            Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
         elseif object == "cortana" or object == '"cortana"' then
-            Spawn(message, "Cortana", "bipd", cortana_tag_id, executor, type)
             object_to_spawn = bipds_table[3][2]
+            Spawn(message, "Cortana", "bipd", cortana_tag_id, executor, type)
         elseif object == "cortana2" or object == '"cortana2"' then
-            Spawn(message, "Cortana2", "bipd", cortana2_tag_id, executor, type)
             object_to_spawn = bipds_table[4][2]
+            Spawn(message, "Cortana2", "bipd", cortana2_tag_id, executor, type)
         elseif object == "crewman" or object == '"crewman"' then
-            Spawn(message, "Crewman", "bipd", crewman_tag_id, executor, type)
             object_to_spawn = bipds_table[5][2]
+            Spawn(message, "Crewman", "bipd", crewman_tag_id, executor, type)
         elseif object == "elite" or object == '"elite"' then
-            Spawn(message, "elite", "bipd", elite_tag_id, executor, type)
             object_to_spawn = bipds_table[6][2]
+            Spawn(message, "elite", "bipd", elite_tag_id, executor, type)
         elseif object == "elite2" or object == '"elite2"' then
-            Spawn(message, "Elite Special", "bipd", elite2_tag_id, executor, type)
             object_to_spawn = bipds_table[7][2]
+            Spawn(message, "Elite Special", "bipd", elite2_tag_id, executor, type)
         elseif object == "engineer" or bject == '"engineer"' then
-            Spawn(message, "Engineer", "bipd", engineer_tag_id, executor, type)
             object_to_spawn = bipds_table[8][2]
+            Spawn(message, "Engineer", "bipd", engineer_tag_id, executor, type)
         elseif object == "flood" or object == '"flood"' then
-            Spawn(message, "Flood Captain", "bipd", flood_tag_id, executor, type)
             object_to_spawn = bipds_table[9][2]
+            Spawn(message, "Flood Captain", "bipd", flood_tag_id, executor, type)
         elseif object == "flood2" or object == '"flood2"' then
-            Spawn(message, "Flood Infection", "bipd", flood2_tag_id, executor, type)
             object_to_spawn = bipds_table[10][2]
+            Spawn(message, "Flood Infection", "bipd", flood2_tag_id, executor, type)
         elseif object == "flood3" or object == '"flood3"' then
-            Spawn(message, "Flood Carrier", "bipd", "characters\\floodcarrier\\floodcarrier", executor, type)
             object_to_spawn = bipds_table[11][2]
+            Spawn(message, "Flood Carrier", "bipd", "characters\\floodcarrier\\floodcarrier", executor, type)
         elseif object == "floodelite" or object == '"floodelite"' then
-            Spawn(message, "FloodCombat Elite", "bipd", "characters\\floodcombat elite\\floodcombat elite", executor, type)
             object_to_spawn = bipds_table[12][2]
+            Spawn(message, "FloodCombat Elite", "bipd", "characters\\floodcombat elite\\floodcombat elite", executor, type)
         elseif object == "floodhuman" or object == '"floodhuman"' then
-            Spawn(message, "FloodCombat Human", "bipd", "characters\\floodcombat_human\\floodcombat_human", executor, type)
             object_to_spawn = bipds_table[13][2]
+            Spawn(message, "FloodCombat Human", "bipd", "characters\\floodcombat_human\\floodcombat_human", executor, type)
         elseif object == "pedobear" or object == "grunt" or object == '"pedobear"' or object == '"grunt"' then
-            Spawn(message, "Pedobear", "bipd", "characters\\grunt\\grunt", executor, type)
             object_to_spawn = bipds_table[14][2]
+            Spawn(message, "Pedobear", "bipd", "characters\\grunt\\grunt", executor, type)
         elseif object == "hunter" or object == '"hunter"' then
-            Spawn(message, "Hunter", "bipd", "characters\\hunter\\hunter", executor, type)
             object_to_spawn = bipds_table[15][2]
+            Spawn(message, "Hunter", "bipd", "characters\\hunter\\hunter", executor, type)
         elseif object == "marine" or bject == '"marine"' then
-            Spawn(message, "Marine", "bipd", "characters\\marine\\marine", executor, type)
             object_to_spawn = bipds_table[16][2]
+            Spawn(message, "Marine", "bipd", "characters\\marine\\marine", executor, type)
         elseif object == "marinesuicide" or object == "marine2" or object == '"marinesuicide"' or object == '"marine2"' then
-            Spawn(message, "Marine Suicidal", "bipd", "characters\\marine_suicidal\\marine_suicidal", executor, type)
             object_to_spawn = bipds_table[17][2]
+            Spawn(message, "Marine Suicidal", "bipd", "characters\\marine_suicidal\\marine_suicidal", executor, type)
         elseif object == "monitor" or object == '"monitor"' then
-            Spawn(message, "Monitor", "bipd", "characters\\monitor\\monitor", executor, type)
             object_to_spawn = bipds_table[18][2]
+            Spawn(message, "Monitor", "bipd", "characters\\monitor\\monitor", executor, type)
         elseif object == "sentinel" or object == '"sentinel"' then
-            Spawn(message, "Sentinel", "bipd", "characters\\sentinel\\sentinel", executor, type)
             object_to_spawn = bipds_table[19][2]
+            Spawn(message, "Sentinel", "bipd", "characters\\sentinel\\sentinel", executor, type)
         elseif object == "johnson" or object == '"johnson"' then
-            Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
             object_to_spawn = bipds_table[20][2]
+            Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
         --------------------------------------------------------------------------------------------------------------------------------------
         elseif object == "camo" or object == "camouflage" or object == '"camo"' or object == '"camouflage"' then
             object_to_spawn = eqip_table[1][2]
@@ -8418,12 +8418,18 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 local weapid = assign_weapon(spawn_object("weap", object_to_spawn, x, y, z + 0.5), players[i])
                                 sendresponse(objname .. " given to " .. getname(players[i]), message, PlayerIndex)
                                 sendresponse(getname(players[i]) .. " has been given a " .. objname .. ".", "//", players[i])
-                            elseif type == "spawn" then
+                            elseif type == "spawn" and objtype == "vehi" then
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
                                 sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
                                 vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
                                 table.insert(vehicle_drone_table[players[i]], vehicle_id)
                                 drone_obj = get_object_memory(vehicle_id)
+                            elseif type == "spawn" and objtype == "weap" then
+                                local weapon = spawn_object("weap", object_to_spawn, x, y, z)
+                                sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                            elseif type == "spawn" and objtype == "bipd" then
+                                local bipd = spawn_object("bipd", object_to_spawn, x, y, z)
+                                sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
                             elseif type == "enter" then
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
                                 if Multi_Control == true and not isinvehicle(players[i]) then
