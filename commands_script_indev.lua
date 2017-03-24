@@ -1042,8 +1042,6 @@ function OnGameEnd()
 end
 
 function OnPlayerChat(PlayerIndex, Message, chattype)
-    rcon_cmd = false
-    getvalidplayers = getvalidplayers
     local response = nil
     local name = "PlayerIndex"
     local hash = "hash"
@@ -1211,13 +1209,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local rcmd = string.lower(Command)
     if (Environment == 1) then 
         use_console = true
-        rcon_cmd = true
-        getvalidplayers = GetValidPlayers
     end
-    if (Environment == 2) then
-        getvalidplayers = getvalidplayers
+    if (Environment == 2) then 
         use_console = false
-        rcon_cmd = false
     end
     if cmd ~= nil then
         if cmd ~= "cls" then
@@ -2288,14 +2282,14 @@ function Command_AFK(executor, command, Expression, count)
             sendresponse("Invalid Player", command, executor)
         end
     elseif count == 2 then
-        if _players then
-            for i = 1, #_players do
-                cprint(#_players)
-                if player_present(_players[i]) then
-                    local id = get_var(_players[i], "$n")
+        local players = getvalidplayers(Expression, executor)
+        if players then
+            for i = 1, #players do
+                if player_present(players[i]) then
+                    local id = get_var(players[i], "$n")
                     local PLAYER_ID = get_var(id, "$n")
                     players_alive[PLAYER_ID].AFK = id
-                    sendresponse(getname(_players[i]) .. " is now afk", command, executor)
+                    sendresponse(getname(players[i]) .. " is now afk", command, executor)
                 else
                     sendresponse("Invalid Player", command, executor)
                 end
@@ -7526,27 +7520,25 @@ function getvalidformat(command)
 end
 
 function getvalidplayers(expression, PlayerIndex)
-    rcon_cmd = false
-    cprint("getvalidplayers", 2+8)
     if cur_players ~= 0 then
         local players = { }
-        if expression == "*" then
+        if expression == "*" or expression == '"*"' then
             for i = 1, 16 do
                 if getplayer(i) then
                     table.insert(players, i)
                 end
             end
-        elseif expression == "me" then
+        elseif expression == "me" or expression == '"me"' then
             if PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex then
                 table.insert(players, PlayerIndex)
             end
-        elseif string.sub(expression, 1, 3) == "red" then
+        elseif string.sub(expression, 1, 3) == "red" or string.sub(expression, 1, 3) == '"red"' then
             for i = 1, 16 do
                 if getplayer(i) and getteam(i) == "red" then
                     table.insert(players, i)
                 end
             end
-        elseif string.sub(expression, 1, 4) == "blue" then
+        elseif string.sub(expression, 1, 4) == "blue" or string.sub(expression, 1, 4) == '"blue"' then
             for i = 1, 16 do
                 if getplayer(i) and getteam(i) == "blue" then
                     table.insert(players, i)
@@ -7557,164 +7549,57 @@ function getvalidplayers(expression, PlayerIndex)
             if resolveplayer(expression) then
                 table.insert(players, resolveplayer(expression))
             end
-        elseif expression == "random" or expression == "rand" then
-            if cur_players == 1 and PlayerIndex ~= nil then
-                table.insert(players, PlayerIndex)
-                return players
-            end
-            local bool = false
-            while not bool do
-                num = math.random(1, 16)
-                if getplayer(num) and num ~= PlayerIndex then
-                    bool = true
-                end
-            end
-            table.insert(players, num)
-        else
-            for i = 1, 16 do
-                if getplayer(i) then
-                    if string.wild(getname(i), expression) == true then
-                        table.insert(players, i)
-                    end
-                end
-            end
-        end
-        if players[1] then
-            return players
-        end
-    end
-    return false
-end
-
-function GetValidPlayers(expression, PlayerIndex)
-    cprint("GetValidPlayers", 2+8)
-    if cur_players ~= 0 then
-        local players = { }
-        local Format = '"expression"'
-        local Format = '""..expression..""'
-        if expression == '"*"' then
-            for i = 1, 16 do
-                if getplayer(i) then
-                    table.insert(players, i)
-                end
-            end
-        elseif expression == '"me"' then
-            if PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex then
-                table.insert(players, PlayerIndex)
-            end
-        elseif string.sub(expression, 1, 3) == '"red"' then
-            for i = 1, 16 do
-                if getplayer(i) and getteam(i) == "red" then
-                    table.insert(players, i)
-                end
-            end
-        elseif string.sub(expression, 1, 4) == '"blue"' then
-            for i = 1, 16 do
-                if getplayer(i) and getteam(i) == "blue" then
-                    table.insert(players, i)
-                end
-            end
-        elseif expression == '"1"' then
-            val = 1
+        elseif expression == '"1"' then val = 1
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"2"' then
-            val = 2
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"2"' then val = 2
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"3"' then
-            val = 3
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"3"' then val = 3
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"4"' then
-            val = 4
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"4"' then val = 4
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"5"' then
-            val = 5
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"5"' then val = 5
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"6"' then
-            val = 6
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"6"' then val = 6
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"7"' then
-            val = 7
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"7"' then val = 7
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"8"' then
-            val = 8
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"8"' then val = 8
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"9"' then
-            val = 9
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"9"' then val = 9
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"10"' then
-            val = 10
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"10"' then val = 10
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"11"' then
-            val = 11
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"11"' then val = 11
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"12"' then
-            val = 12
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"12"' then val = 12
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"13"' then
-            val = 13
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"13"' then val = 13
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"14"' then
-            val = 14
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"14"' then val = 14
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"15"' then
-            val = 15
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"15"' then val = 15
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == '"16"' then
-            val = 16
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"16"' then val = 16
         local expression = tonumber(val)
-        if resolveplayer(expression) then
-            table.insert(players, resolveplayer(expression))
-        end
-        elseif expression == "random" or expression == "rand" then
+        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == "random" or expression == "rand" or expression == '"random"' or expression == '"rand"' then
             if cur_players == 1 and PlayerIndex ~= nil then
                 table.insert(players, PlayerIndex)
                 return players
@@ -8504,7 +8389,6 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
     local m = tokenizestring(message, " ")
     local count = #m
     if count >= 3 and count <= 6 then
-        cprint("ID: ".. tostring(m[3]) .. "", 2+8)
         local players = getvalidplayers(m[3], PlayerIndex)
         if players then
             for i = 1, #players do
@@ -8535,28 +8419,22 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 sendresponse(objname .. " given to " .. getname(players[i]), message, PlayerIndex)
                                 sendresponse(getname(players[i]) .. " has been given a " .. objname .. ".", "//", players[i])
                             elseif type == "spawn" then
-                                
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
                                 sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
                                 vehicle_drone_table[players[i]] = vehicle_drone_table[players[i]] or { }
                                 table.insert(vehicle_drone_table[players[i]], vehicle_id)
                                 drone_obj = get_object_memory(vehicle_id)
-                                
                             elseif type == "enter" then
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
-                                -- MultiControl ON | Player Not In Vehicle
                                 if Multi_Control == true and not isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
-                                -- MultiControl ON | Player In Vehicle
                                 elseif Multi_Control == true and isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
-                                -- MultiControl OFF | Player Not Vehicle
                                 elseif Multi_Control == false and not isinvehicle(players[i]) then
                                     enter_vehicle(vehicle_id, players[i], 0)
                                     sendresponse(getname(players[i]) .. " was forced to enter a " .. objname, message, PlayerIndex)
-                                -- MultiControl OFF | Player In Vehicle
                                 elseif Multi_Control == false and isinvehicle(players[i]) then
                                     local player_object = get_dynamic_player(players[i])
                                     local Vehicle_ID = read_dword(player_object + 0x11C)
