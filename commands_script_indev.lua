@@ -5359,44 +5359,45 @@ function Command_Setcolor(executor, command, PlayerIndex, color, count)
             for i = 1, #players do
                 local player_object = get_dynamic_player(players[i])
                 local player_obj_id = read_dword(get_player(i) + 0x34)
+                local m_player = getplayer(players[i])
                 if player_object then
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     if color == "white" then
-                        write_byte(player_object + 0x60, 0)
+                        write_byte(m_player + 0x60, 0)
                     elseif color == "black" then
-                        write_byte(player_object + 0x60, 1)
+                        write_byte(m_player + 0x60, 1)
                     elseif color == "red" then
-                        write_byte(player_object + 0x60, 2)
+                        write_byte(m_player + 0x60, 2)
                     elseif color == "blue" then
-                        write_byte(player_object + 0x60, 3)
+                        write_byte(m_player + 0x60, 3)
                     elseif color == "gray" then
-                        write_byte(player_object + 0x60, 4)
+                        write_byte(m_player + 0x60, 4)
                     elseif color == "yellow" then
-                        write_byte(player_object + 0x60, 5)
+                        write_byte(m_player + 0x60, 5)
                     elseif color == "green" then
-                        write_byte(player_object + 0x60, 6)
+                        write_byte(m_player + 0x60, 6)
                     elseif color == "pink" then
-                        write_byte(player_object + 0x60, 7)
+                        write_byte(m_player + 0x60, 7)
                     elseif color == "purple" then
-                        write_byte(player_object + 0x60, 8)
+                        write_byte(m_player + 0x60, 8)
                     elseif color == "cyan" then
-                        write_byte(player_object + 0x60, 9)
+                        write_byte(m_player + 0x60, 9)
                     elseif color == "cobalt" then
-                        write_byte(player_object + 0x60, 10)
+                        write_byte(m_player + 0x60, 10)
                     elseif color == "orange" then
-                        write_byte(player_object + 0x60, 11)
+                        write_byte(m_player + 0x60, 11)
                     elseif color == "teal" then
-                        write_byte(player_object + 0x60, 12)
+                        write_byte(m_player + 0x60, 12)
                     elseif color == "sage" then
-                        write_byte(player_object + 0x60, 13)
+                        write_byte(m_player + 0x60, 13)
                     elseif color == "brown" then
-                        write_byte(player_object + 0x60, 14)
+                        write_byte(m_player + 0x60, 14)
                     elseif color == "tan" then
-                        write_byte(player_object + 0x60, 15)
+                        write_byte(m_player + 0x60, 15)
                     elseif color == "maroon" then
-                        write_byte(player_object + 0x60, 16)
+                        write_byte(m_player + 0x60, 16)
                     elseif color == "salmon" then
-                        write_byte(player_object + 0x60, 17)
+                        write_byte(m_player + 0x60, 17)
                     else
                         sendresponse("Invalid Color", command, executor)
                         return
