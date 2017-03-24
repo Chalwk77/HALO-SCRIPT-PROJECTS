@@ -291,7 +291,7 @@ function OnScriptLoad()
     if rf ~= 0 then
         msga = read_dword(rf + 1)
         safe_write(true)
-        write_byte(msga,0)
+        write_byte(msga, 0)
         safe_write(false)
     end
     team_play = getteamplay()
@@ -718,7 +718,7 @@ function OnScriptUnload()
     end
     if msga ~= nil then
         safe_write(true)
-        write_byte(msga,0x72)
+        write_byte(msga, 0x72)
         safe_write(false)
     end
 end
@@ -842,11 +842,11 @@ function getprofilepath()
 end
 
 function getteamplay()
-    if get_var(0,"$ffa") == "0" then
+    if get_var(0, "$ffa") == "0" then
         return true
-	else
+    else
         return false
-	end
+    end
 end
 
 function PlayerAlive(PlayerIndex)
@@ -917,10 +917,10 @@ function OnPlayerPrejoin(PlayerIndex)
     cprint("---------------------------------------------------------------------------------------------------")
     cprint("              - - |   P L A Y E R   J O I N   | - -")
     cprint("     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-    cprint("Player: " ..name, 2+8)
-    cprint("CD Hash: " ..hash)
-    cprint("IP Address: " ..ip)
-    cprint("IndexID: " ..id)
+    cprint("Player: " .. name, 2 + 8)
+    cprint("CD Hash: " .. hash)
+    cprint("IP Address: " .. ip)
+    cprint("IndexID: " .. id)
     for k, v in pairs(name_bans) do
         if v == name then
             return false, "Player"
@@ -954,10 +954,10 @@ function OnPlayerPrejoin(PlayerIndex)
                 if getplayer(i) and(ipadmins[getip(i)] or admin_table[gethash(i)]) then
                     -- Tell Admins currently in server that this player is banned from BoS
                     privateSay(i, "Rejecting " .. entry_name .. " - banned from BoS.")
-                    privateSay(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - ".. words[3])
+                    privateSay(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - " .. words[3])
                     -- Log to dedicated server console
-                    cprint("Rejecting " .. entry_name .. " - banned from BoS.", 2+8)
-                    cprint("Entry: " .. entry_name .. " - " .. words[2] .. " - ".. words[3], 2+8)
+                    cprint("Rejecting " .. entry_name .. " - banned from BoS.", 2 + 8)
+                    cprint("Entry: " .. entry_name .. " - " .. words[2] .. " - " .. words[3], 2 + 8)
                     -- Send message to banned player.
                     privateSay(PlayerIndex, "Unable to connect. You are currently banned!")
                     execute_command("k" .. " " .. i)
@@ -1207,10 +1207,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local access = getaccess(PlayerIndex)
     local permission
     local rcmd = string.lower(Command)
-    if (Environment == 1) then 
+    if (Environment == 1) then
         use_console = true
     end
-    if (Environment == 2) then 
+    if (Environment == 2) then
         use_console = false
     end
     if cmd ~= nil then
@@ -1251,7 +1251,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
         end
     end
-    if permission then 
+    if permission then
         if not ischatcommand then
             if t[1] == "sv_addrcon" then
                 response = false
@@ -1702,9 +1702,9 @@ function OnPlayerJoin(PlayerIndex)
     players_list[PlayerIndex].hash = hash
     players_list[PlayerIndex].ip = ip
     dmgmultiplier[ip] = 1.0
-    
+
     bos_table[PlayerIndex] = name .. "," .. gethash(PlayerIndex) .. "," .. ip
-    
+
     for k, v in pairs(banned_hashes) do
         if v == hash then
             table.remove(banned_hashes, k)
@@ -1740,7 +1740,7 @@ function OnPlayerJoin(PlayerIndex)
         write_byte(getplayer(PlayerIndex) + 0x20, 0)
     end
     local timestamp = os.date("%A %d %B %Y - %X")
-    cprint("Join Time: " ..timestamp)
+    cprint("Join Time: " .. timestamp)
     cprint("Status: connected successfully.")
     cprint("---------------------------------------------------------------------------------------------------")
 end
@@ -1776,11 +1776,11 @@ function OnPlayerLeave(PlayerIndex)
     local ping = get_var(PlayerIndex, "$ping")
     local timestamp = os.date("%A %d %B %Y - %X")
     cprint("---------------------------------------------------------------------------------------------------")
-    cprint(name.. " quit the game!", 4+8)
-    cprint("CD Hash: " ..hash)
-    cprint("IndexID: " ..id)
-    cprint("Player Ping: " ..ping)
-    cprint("Time: " ..timestamp)
+    cprint(name .. " quit the game!", 4 + 8)
+    cprint("CD Hash: " .. hash)
+    cprint("IndexID: " .. id)
+    cprint("Player Ping: " .. ping)
+    cprint("Time: " .. timestamp)
     cprint("---------------------------------------------------------------------------------------------------")
     cprint("")
 end
@@ -1792,7 +1792,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Player Team --
     KillerTeam = get_var(KillerIndex, "$team")
     VictimTeam = get_var(PlayerIndex, "$team")
-    
+
     hidden[resolveplayer(victim)] = nil
     gods[getip(victim)] = nil
 
@@ -1940,7 +1940,7 @@ function OnClientUpdate(PlayerIndex)
         local m_object = getobject(m_objectId)
         if not scrim_mode then
             if m_object then
-            local x,y,z = getobjectcoords(m_objectId)
+                local x, y, z = getobjectcoords(m_objectId)
                 if x ~= loc[id][1] or y ~= loc[id][2] or z ~= loc[id][3] then
                     if not loc[id][1] then
                         loc[id][1] = x
@@ -1949,28 +1949,28 @@ function OnClientUpdate(PlayerIndex)
                     elseif m_object then
                         local result = OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
                         if result == 0 then
-                        movobjectcoords(m_objectId, loc[id][1], loc[id][2], loc[id][3])
-                    else
-                        loc[id][1] = x
-                        loc[id][2] = y
-                        loc[id][3] = z
+                            movobjectcoords(m_objectId, loc[id][1], loc[id][2], loc[id][3])
+                        else
+                            loc[id][1] = x
+                            loc[id][2] = y
+                            loc[id][3] = z
+                        end
                     end
                 end
             end
         end
-    end
-    if tbag_detection then
-        if tbag[PlayerIndex] == nil then
-            tbag[PlayerIndex] = {}
-        end
-        if tbag[PlayerIndex].name and tbag[PlayerIndex].x then
-            if not isinvehicle(PlayerIndex) then
-                if check_sphere(m_objectId ,tbag[PlayerIndex].x ,tbag[PlayerIndex].y ,tbag[PlayerIndex].z , 5) then
-                local obj_crouch = read_byte(m_object + 0x2A0)
-                    if obj_crouch == 3 and crouch[id] == nil then
-                        crouch[id] = OnPlayerCrouch(PlayerIndex)
-                    elseif obj_crouch ~= 3 and crouch[id] ~= nil then
-                        crouch[id] = nil
+        if tbag_detection then
+            if tbag[PlayerIndex] == nil then
+                tbag[PlayerIndex] = { }
+            end
+            if tbag[PlayerIndex].name and tbag[PlayerIndex].x then
+                if not isinvehicle(PlayerIndex) then
+                    if check_sphere(m_objectId, tbag[PlayerIndex].x, tbag[PlayerIndex].y, tbag[PlayerIndex].z, 5) then
+                        local obj_crouch = read_byte(m_object + 0x2A0)
+                        if obj_crouch == 3 and crouch[id] == nil then
+                            crouch[id] = OnPlayerCrouch(PlayerIndex)
+                        elseif obj_crouch ~= 3 and crouch[id] ~= nil then
+                            crouch[id] = nil
                         end
                     end
                 end
@@ -2002,7 +2002,7 @@ function OnWeaponReload(PlayerIndex, weapon)
 end
 
 function OnVehicleEntry(PlayerIndex, Seat)
-    
+
 end
 
 function OnVehicleEject(PlayerIndex, forceEject, relevant)
@@ -2034,15 +2034,15 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         end
     end
     -- if CauserIndex then
-        -- if PlayerIndex then
-            -- if mode[getip(CauserIndex)] == "destroy" then
-                -- if MetaID ~= 0xE63504C1 then
-                    -- destroy_object(receiver_id)
-                -- end
-            -- elseif mode[getip(CauserIndex)] == "entergun" then
-                -- enter_vehicle(MetaID, PlayerIndex, 0)
-            -- end
-        -- end
+    -- if PlayerIndex then
+    -- if mode[getip(CauserIndex)] == "destroy" then
+    -- if MetaID ~= 0xE63504C1 then
+    -- destroy_object(receiver_id)
+    -- end
+    -- elseif mode[getip(CauserIndex)] == "entergun" then
+    -- enter_vehicle(MetaID, PlayerIndex, 0)
+    -- end
+    -- end
     -- end
 end
 
@@ -2550,8 +2550,8 @@ function Command_Bos(executor, command, PlayerIndex, count)
                 if file then
                     for k, v in pairs(boslog_table) do
                         if v then
-                            cprint("Adding " .. words[1] .. " to BoS.", 2+8)
-                            cprint("Entry: " .. words[1] .. " - " .. words[2] .. " - " .. words[3], 2+8)
+                            cprint("Adding " .. words[1] .. " to BoS.", 2 + 8)
+                            cprint("Entry: " .. words[1] .. " - " .. words[2] .. " - " .. words[3], 2 + 8)
                             file:write(v .. "\n")
                         end
                     end
@@ -5770,8 +5770,8 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type == "spawn" then
         bool = true
-    --------------------------------------------------------------------------------------------------------------------------------------
-        if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd"  or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
+        --------------------------------------------------------------------------------------------------------------------------------------
+        if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd" or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
             object_to_spawn = bipds_table[1][2]
             Spawn(message, "Cyborg", "bipd", object_to_spawn, executor, type)
         elseif object == "captain" or object == "keyes" or object == '"captain"' or object == '"keyes"' then
@@ -5831,7 +5831,7 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
         elseif object == "johnson" or object == '"johnson"' then
             object_to_spawn = bipds_table[20][2]
             Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
-        --------------------------------------------------------------------------------------------------------------------------------------
+            --------------------------------------------------------------------------------------------------------------------------------------
         elseif object == "camo" or object == "camouflage" or object == '"camo"' or object == '"camouflage"' then
             object_to_spawn = eqip_table[1][2]
             Spawn(message, "Camouflage", "eqip", object_to_spawn, executor, type)
@@ -6217,17 +6217,17 @@ end
 
 function Command_Test(executor, command, arg1, arg2, arg3, arg4, count)
     if count == 1 then
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     elseif count == 2 then
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     elseif count == 3 then
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     elseif count == 4 then
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     elseif count == 5 then
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     else
-        cprint("arguments: " ..tostring(count), 2 + 8)
+        cprint("arguments: " .. tostring(count), 2 + 8)
     end
 end
 
@@ -6611,14 +6611,14 @@ function Command_Unsuspend(executor, command, PlayerIndex, count)
 end
 
 function DelayCleanUpDrones(PlayerIndex, command, executor)
-   if getplayer(PlayerIndex) then
+    if getplayer(PlayerIndex) then
         if vehicle_drone_table[PlayerIndex] then
             for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
-                if vehicle_drone_table[PlayerIndex][k] > 0 then 
+                if vehicle_drone_table[PlayerIndex][k] > 0 then
                     if v then
                         if drone_obj then
                             destroy_object(v)
-                            sendresponse("Cleaning up " .. drone_name .."'s vehicles.", command, executor)
+                            sendresponse("Cleaning up " .. drone_name .. "'s vehicles.", command, executor)
                         end
                         vehicle_drone_table[PlayerIndex][k] = nil
                     end
@@ -7016,7 +7016,7 @@ function check_sphere(m_objectId, X, Y, Z, R)
 end
 
 function cleanupdrones(PlayerIndex)
-   if getplayer(PlayerIndex) then
+    if getplayer(PlayerIndex) then
         if vehicle_drone_table[PlayerIndex] then
             for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
                 if v then
@@ -7034,27 +7034,27 @@ function DefaultSvTimer()
     local defaults_lines = #defaulttxt_commands
     local temp_lines = 0
     local temp_commands_executed = { }
-        local file = io.open(profilepath .. 'commands_defaults.txt', "a")
-        if file then
-            for i = 0, defaults_lines + 1 do
-                if defaulttxt_commands[i] then
-                    execute_command(defaulttxt_commands[i])
-                end
+    local file = io.open(profilepath .. 'commands_defaults.txt', "a")
+    if file then
+        for i = 0, defaults_lines + 1 do
+            if defaulttxt_commands[i] then
+                execute_command(defaulttxt_commands[i])
             end
-            file:close()
-            temp_lines = defaults_lines
-        else
-            local file = io.open(profilepath .. 'commands_defaults.txt', "w")
-            cprint("Defaults.txt not found. File will be created.", 4 + 8)
-            for i = 0, defaults_lines + 1 do
-                if defaulttxt_commands[i] then
-                    execute_command(defaulttxt_commands[i])
-                    file:write(defaulttxt_commands[i] .. "\n")
-                end
-            end
-            file:close()
-            temp_lines = defaults_lines
         end
+        file:close()
+        temp_lines = defaults_lines
+    else
+        local file = io.open(profilepath .. 'commands_defaults.txt', "w")
+        cprint("Defaults.txt not found. File will be created.", 4 + 8)
+        for i = 0, defaults_lines + 1 do
+            if defaulttxt_commands[i] then
+                execute_command(defaulttxt_commands[i])
+                file:write(defaulttxt_commands[i] .. "\n")
+            end
+        end
+        file:close()
+        temp_lines = defaults_lines
+    end
     if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
     if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
     if use_logo then
@@ -7183,29 +7183,29 @@ function GetGameAddresses()
         specs_addr = 0x662D04
         hashcheck_addr = 0x59c280
         versioncheck_addr = 0x5152E7
-        --map_pointer = 0x63525c
-        --gametype_base = 0x671340
-        --gametime_base = 0x671420
-        --machine_pointer = 0x745BA0
-        --timelimit_address = 0x626630
-        --special_chars = 0x517D6B
-        --gametype_patch = 0x481F3C
-        --devmode_patch1 = 0x4A4DBF
-        --devmode_patch2 = 0x4A4E7F
-        --hash_duplicate_patch = 0x59C516
-        --obj_header_pointer = 0x744C18
+        -- map_pointer = 0x63525c
+        -- gametype_base = 0x671340
+        -- gametime_base = 0x671420
+        -- machine_pointer = 0x745BA0
+        -- timelimit_address = 0x626630
+        -- special_chars = 0x517D6B
+        -- gametype_patch = 0x481F3C
+        -- devmode_patch1 = 0x4A4DBF
+        -- devmode_patch2 = 0x4A4E7F
+        -- hash_duplicate_patch = 0x59C516
+        -- obj_header_pointer = 0x744C18
     else
         oddball_globals = 0x5BDEB8
         specs_addr = 0x5E6E63
         hashcheck_addr = 0x530130
         obj_header_pointer = 0x6C69F0
-        --versioncheck_addr = 0x4CB587
-        --map_pointer = 0x5B927C
-        --gametype_base = 0x5F5498
-        --gametime_base = 0x5F55BC
-        --machine_pointer = 0x6C7980
-        --timelimit_address = 0x5AA5B0
-        --special_chars = 0x4CE0CD
+        -- versioncheck_addr = 0x4CB587
+        -- map_pointer = 0x5B927C
+        -- gametype_base = 0x5F5498
+        -- gametime_base = 0x5F55BC
+        -- machine_pointer = 0x6C7980
+        -- timelimit_address = 0x5AA5B0
+        -- special_chars = 0x4CE0CD
         -- gametype_patch = 0x45E50C
         -- devmode_patch1 = 0x47DF0C
         -- devmode_patch2 = 0x47DFBC
@@ -7544,61 +7544,77 @@ function getvalidplayers(expression, PlayerIndex)
                     table.insert(players, i)
                 end
             end
-        elseif (tonumber(expression) or 0) >= 1 and (tonumber(expression) or 0) <= 16 then
+        elseif (tonumber(expression) or 0) >= 1 and(tonumber(expression) or 0) <= 16 then
             local expression = tonumber(expression)
             if resolveplayer(expression) then
                 table.insert(players, resolveplayer(expression))
             end
-        elseif expression == '"1"' then val = 1
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"2"' then val = 2
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"3"' then val = 3
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"4"' then val = 4
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"5"' then val = 5
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"6"' then val = 6
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"7"' then val = 7
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"8"' then val = 8
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"9"' then val = 9
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"10"' then val = 10
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"11"' then val = 11
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"12"' then val = 12
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"13"' then val = 13
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"14"' then val = 14
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"15"' then val = 15
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-        elseif expression == '"16"' then val = 16
-        local expression = tonumber(val)
-        if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"1"' then
+            val = 1
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"2"' then
+            val = 2
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"3"' then
+            val = 3
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"4"' then
+            val = 4
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"5"' then
+            val = 5
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"6"' then
+            val = 6
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"7"' then
+            val = 7
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"8"' then
+            val = 8
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"9"' then
+            val = 9
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"10"' then
+            val = 10
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"11"' then
+            val = 11
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"12"' then
+            val = 12
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"13"' then
+            val = 13
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"14"' then
+            val = 14
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"15"' then
+            val = 15
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+        elseif expression == '"16"' then
+            val = 16
+            local expression = tonumber(val)
+            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
         elseif expression == "random" or expression == "rand" or expression == '"random"' or expression == '"rand"' then
             if cur_players == 1 and PlayerIndex ~= nil then
                 table.insert(players, PlayerIndex)
@@ -7691,17 +7707,17 @@ function LoadTags()
     -- engineer_tag_id = get_tag_info("bipd", "characters\\engineer\\engineer")
     -- flood_tag_id = get_tag_info("bipd", "characters\\flood_captain\\flood_captain")
     -- flood2_tag_id = get_tag_info("bipd", "characters\\flood_infection\\flood_infection")
-    
-    bipds_table[1] = {"bipd", "characters\\cyborg_mp\\cyborg_mp"}
-    bipds_table[2] = {"bipd", "tag_here"}
-    bipds_table[3] = {"bipd", "tag_here"}
-    bipds_table[4] = {"bipd", "tag_here"}
-    bipds_table[5] = {"bipd", "tag_here"}
-    bipds_table[6] = {"bipd", "tag_here"}
-    bipds_table[7] = {"bipd", "tag_here"}
-    bipds_table[8] = {"bipd", "tag_here"}
-    bipds_table[9] = {"bipd", "tag_here"}
-    bipds_table[10] = {"bipd", "tag_here"}
+
+    bipds_table[1] = { "bipd", "characters\\cyborg_mp\\cyborg_mp" }
+    bipds_table[2] = { "bipd", "tag_here" }
+    bipds_table[3] = { "bipd", "tag_here" }
+    bipds_table[4] = { "bipd", "tag_here" }
+    bipds_table[5] = { "bipd", "tag_here" }
+    bipds_table[6] = { "bipd", "tag_here" }
+    bipds_table[7] = { "bipd", "tag_here" }
+    bipds_table[8] = { "bipd", "tag_here" }
+    bipds_table[9] = { "bipd", "tag_here" }
+    bipds_table[10] = { "bipd", "tag_here" }
 
     -- Equipment
     -- camouflage_tag_id = get_tag_info("eqip", "powerups\\active camouflage")
@@ -7718,21 +7734,21 @@ function LoadTags()
     -- shotgunammo_tag_id = get_tag_info("eqip", "powerups\\shotgun ammo\\shotgun ammo")
     -- sniperammo_tag_id = get_tag_info("eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo")
     -- flameammo_tag_id = get_tag_info("eqip", "powerups\\flamethrower ammo\\flamethrower ammo")
-    
-    eqip_table[1] = {"eqip", "powerups\\active camouflage"}
-    eqip_table[2] = {"eqip", "powerups\\health pack"}
-    eqip_table[3] = {"eqip", "powerups\\over shield"}
-    eqip_table[4] = {"eqip", "powerups\\double speed"}
-    eqip_table[5] = {"eqip", "powerups\\full-spectrum vision"}
-    eqip_table[6] = {"eqip", "weapons\\frag grenade\\frag grenade"}
-    eqip_table[7] = {"eqip", "weapons\\plasma grenade\\plasma grenade"}
-    eqip_table[8] = {"eqip", "powerups\\assault rifle ammo\\assault rifle ammo"}
-    eqip_table[9] = {"eqip", "powerups\\needler ammo\\needler ammo"}
-    eqip_table[10] = {"eqip", "powerups\\pistol ammo\\pistol ammo"}
-    eqip_table[11] = {"eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo"}
-    eqip_table[12] = {"eqip", "powerups\\shotgun ammo\\shotgun ammo"}
-    eqip_table[13] = {"eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo"}
-    eqip_table[14] = {"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"}
+
+    eqip_table[1] = { "eqip", "powerups\\active camouflage" }
+    eqip_table[2] = { "eqip", "powerups\\health pack" }
+    eqip_table[3] = { "eqip", "powerups\\over shield" }
+    eqip_table[4] = { "eqip", "powerups\\double speed" }
+    eqip_table[5] = { "eqip", "powerups\\full-spectrum vision" }
+    eqip_table[6] = { "eqip", "weapons\\frag grenade\\frag grenade" }
+    eqip_table[7] = { "eqip", "weapons\\plasma grenade\\plasma grenade" }
+    eqip_table[8] = { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo" }
+    eqip_table[9] = { "eqip", "powerups\\needler ammo\\needler ammo" }
+    eqip_table[10] = { "eqip", "powerups\\pistol ammo\\pistol ammo" }
+    eqip_table[11] = { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo" }
+    eqip_table[12] = { "eqip", "powerups\\shotgun ammo\\shotgun ammo" }
+    eqip_table[13] = { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo" }
+    eqip_table[14] = { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo" }
 
     -- Vehicles
     -- banshee_tag_id = get_tag_info("vehi", "vehicles\\banshee\\banshee_mp")
@@ -7744,13 +7760,13 @@ function LoadTags()
     -- wraith_tag_id = get_tag_info("vehi", "vehicles\\wraith\\wraith")
     -- pelican_tag_id = get_tag_info("vehi", "vehicles\\pelican\\pelican")
 
-    vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog"}
-    vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp"}
-    vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog"}
-    vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp"}
-    vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp"}
-    vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp"}
-    
+    vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog" }
+    vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp" }
+    vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog" }
+    vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp" }
+    vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp" }
+    vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp" }
+
     -- Weapons
     -- assaultrifle_tag_id = get_tag_info("weap", "weapons\\assault rifle\\assault rifle")
     -- oddball_tag_id = get_tag_info("weap", "weapons\\ball\\ball")
@@ -7766,18 +7782,18 @@ function LoadTags()
     -- shotgun_tag_id = get_tag_info("weap", "weapons\\shotgun\\shotgun")
     -- sniper_tag_id = get_tag_info("weap", "weapons\\sniper rifle\\sniper rifle")
     -- energysword_tag_id = get_tag_info("weap", "weapons\\energy sword\\energy sword")
-    
-    weapons[1] = { "weap", "weapons\\assault rifle\\assault rifle"}
-    weapons[2] = { "weap", "weapons\\ball\\ball"}
-    weapons[3] = { "weap", "weapons\\flag\\flag"}
-    weapons[4] = { "weap", "weapons\\flamethrower\\flamethrower"}
-    weapons[5] = { "weap", "weapons\\gravity rifle\\gravity rifle"}
-    weapons[6] = { "weap", "weapons\\needler\\mp_needler"}
-    weapons[7] = { "weap", "weapons\\pistol\\pistol"}
-    weapons[8] = { "weap", "weapons\\plasma pistol\\plasma pistol"}
-    weapons[9] = { "weap", "weapons\\plasma rifle\\plasma rifle"}
-    weapons[10] = { "weap", "weapons\\plasma_cannon\\plasma_cannon"}
-    weapons[11] = { "weap", "weapons\\rocket launcher\\rocket launcher"}
+
+    weapons[1] = { "weap", "weapons\\assault rifle\\assault rifle" }
+    weapons[2] = { "weap", "weapons\\ball\\ball" }
+    weapons[3] = { "weap", "weapons\\flag\\flag" }
+    weapons[4] = { "weap", "weapons\\flamethrower\\flamethrower" }
+    weapons[5] = { "weap", "weapons\\gravity rifle\\gravity rifle" }
+    weapons[6] = { "weap", "weapons\\needler\\mp_needler" }
+    weapons[7] = { "weap", "weapons\\pistol\\pistol" }
+    weapons[8] = { "weap", "weapons\\plasma pistol\\plasma pistol" }
+    weapons[9] = { "weap", "weapons\\plasma rifle\\plasma rifle" }
+    weapons[10] = { "weap", "weapons\\plasma_cannon\\plasma_cannon" }
+    weapons[11] = { "weap", "weapons\\rocket launcher\\rocket launcher" }
     weapons[12] = { "weap", "weapons\\shotgun\\shotgun" }
     weapons[13] = { "weap", "weapons\\sniper rifle\\sniper rifle" }
     weapons[14] = { "weap", "weapons\\energy sword\\energy sword" }
@@ -8383,7 +8399,7 @@ function DestroyVehicle(Vehicle_ID)
     end
 end
 
-            -- message | name | "vehi" | tag_id | Player | Type
+-- message | name | "vehi" | tag_id | Player | Type
 function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
     vehicle_id = 0
     local m = tokenizestring(message, " ")
@@ -8398,8 +8414,8 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                     if m_playerObjId then
                         if isinvehicle(players[i]) then
                             VehicleID = read_dword(m_playerObjId + 0x11C)
-                            if (VehicleID == 0xFFFFFFFF) then 
-                                return false 
+                            if (VehicleID == 0xFFFFFFFF) then
+                                return false
                             end
                             local obj_id = get_object_memory(VehicleID)
                             x, y, z = read_vector3d(obj_id + 0x5c)
@@ -8487,9 +8503,9 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 sendresponse("You didn't spawn anything", message, PlayerIndex)
                             end
                         end
-                        elseif type ~= "give" then
-                            sendresponse("Could not spawn next to " .. getname(players[i]) .. ". Player is dead.", message, PlayerIndex)
-                        elseif type == "give" then
+                    elseif type ~= "give" then
+                        sendresponse("Could not spawn next to " .. getname(players[i]) .. ". Player is dead.", message, PlayerIndex)
+                    elseif type == "give" then
                         sendresponse("Could not give " .. getname(players[i]) .. " a " .. objname .. ". Player is dead.", message, PlayerIndex)
                     end
                 else
