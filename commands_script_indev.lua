@@ -4305,42 +4305,36 @@ function Command_Launch(executor, command, PlayerIndex, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             for i = 1, #players do
-                local m_objectId = get_dynamic_player(players[i])
-                if m_objectId then
-                    local m_object = getobject(m_objectId)
-                    if m_object then
-                        local m_vehicleId = read_dword(m_object + 0x11C)
-                        local m_vehicle = getobject(m_vehicleId)
-                        if m_vehicle then
-                            sendresponse(getname(players[i]) .. " has been launched", command, executor)
-                            local tagName = getobjecttag(m_vehicleId)
-                            write_bit(m_vehicle + 0x10, 2, 0)
-                            if tagName == "vehicles\\scorpion\\scorpion_mp" then
-                                write_float(m_vehicle + 0x94, 15)
-                                write_float(m_vehicle + 0x70, 0.35)
-                                write_float(m_vehicle + 0x6C, 0.35)
-                            elseif tagName == "vehicles\\banshee\\banshee_mp" then
-                                write_float(m_vehicle + 0x90, 30)
-                                write_float(m_vehicle + 0x70, 0.35)
-                                write_float(m_vehicle + 0x6C, -0.4)
-                            elseif tagName == "vehicles\\ghost\\ghost_mp" then
-                                write_float(m_vehicle + 0x8C, 7)
-                                write_float(m_vehicle + 0x70, 0.35)
-                            elseif tagName == "vehicles\\warthog\\mp_warthog" then
-                                write_float(m_vehicle + 0x94, 10)
-                                write_float(m_vehicle + 0x70, 0.35)
-                            elseif tagName == "vehicles\\rwarthog\\rwarthog" then
-                                write_float(m_vehicle + 0x94, 15)
-                                write_float(m_vehicle + 0x70, 0.35)
-                            else
-                                write_float(m_vehicle + 0x94, 10)
-                                write_float(m_vehicle + 0x70, 0.35)
-                            end
+                local player_object = get_dynamic_player(players[i])
+                if player_object then
+                    local VehicleID = read_dword(player_object + 0x11C)
+                    local m_vehicle = get_object_memory(VehicleID)
+                    if m_vehicle ~= 0 then
+                        sendresponse(getname(players[i]) .. " has been launched", command, executor)
+                        write_bit(m_vehicle + 0x10, 2, 0)
+                        if GetTagName(m_vehicle) == "vehicles\\scorpion\\scorpion_mp" then
+                            write_float(m_vehicle + 0x94, 15)
+                            write_float(m_vehicle + 0x70, 0.35)
+                            write_float(m_vehicle + 0x6C, 0.35)
+                        elseif GetTagName(m_vehicle) == "vehicles\\banshee\\banshee_mp" then
+                            write_float(m_vehicle + 0x90, 30)
+                            write_float(m_vehicle + 0x70, 0.35)
+                            write_float(m_vehicle + 0x6C, -0.4)
+                        elseif GetTagName(m_vehicle) == "vehicles\\ghost\\ghost_mp" then
+                            write_float(m_vehicle + 0x8C, 7)
+                            write_float(m_vehicle + 0x70, 0.35)
+                        elseif GetTagName(m_vehicle) == "vehicles\\warthog\\mp_warthog" then
+                            write_float(m_vehicle + 0x94, 10)
+                            write_float(m_vehicle + 0x70, 0.35)
+                        elseif GetTagName(m_vehicle) == "vehicles\\rwarthog\\rwarthog" then
+                            write_float(m_vehicle + 0x94, 15)
+                            write_float(m_vehicle + 0x70, 0.35)
                         else
-                            sendresponse(getname(players[i]) .. " is not in a vehicle", command, executor)
+                            write_float(m_vehicle + 0x94, 10)
+                            write_float(m_vehicle + 0x70, 0.35)
                         end
                     else
-                        sendresponse(getname(players[i]) .. " is dead", command, executor)
+                        sendresponse(getname(players[i]) .. " is not in a vehicle", command, executor)
                     end
                 else
                     sendresponse(getname(players[i]) .. " is dead", command, executor)
@@ -4715,7 +4709,8 @@ function Command_Nuke(executor, command, PlayerIndex, count)
                 local name = getname(players[i])
                 local m_objectId = get_dynamic_player(players[i])
                 if m_objectId ~= nil then
-                    local x, y, z = getobjectcoords(m_objectId)
+                    local player_object = get_dynamic_player(players[i])
+                    local x, y, z = read_vector3d(player_object + 0x5C)
                     for j = 1, 5 do
                         local nukeproj = spawn_object("proj", "weapons\\rocket launcher\\rocket", x, y, z + 10)
                         table.insert(nukes, nukeproj)
@@ -4815,14 +4810,6 @@ function Command_Players(executor, command, count)
     else
         sendresponse("Invalid Syntax: " .. command, command, executor)
     end
-end
-
-function getteam(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local team = get_var(PlayerIndex, "$team")
-        return team
-    end
-    return nil
 end
 
 function Command_PlayersMore(executor, command, count)
@@ -5359,44 +5346,45 @@ function Command_Setcolor(executor, command, PlayerIndex, color, count)
             for i = 1, #players do
                 local player_object = get_dynamic_player(players[i])
                 local player_obj_id = read_dword(get_player(i) + 0x34)
+                local m_player = getplayer(players[i])
                 if player_object then
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     if color == "white" then
-                        write_byte(player_object + 0x60, 0)
+                        write_byte(m_player + 0x60, 0)
                     elseif color == "black" then
-                        write_byte(player_object + 0x60, 1)
+                        write_byte(m_player + 0x60, 1)
                     elseif color == "red" then
-                        write_byte(player_object + 0x60, 2)
+                        write_byte(m_player + 0x60, 2)
                     elseif color == "blue" then
-                        write_byte(player_object + 0x60, 3)
+                        write_byte(m_player + 0x60, 3)
                     elseif color == "gray" then
-                        write_byte(player_object + 0x60, 4)
+                        write_byte(m_player + 0x60, 4)
                     elseif color == "yellow" then
-                        write_byte(player_object + 0x60, 5)
+                        write_byte(m_player + 0x60, 5)
                     elseif color == "green" then
-                        write_byte(player_object + 0x60, 6)
+                        write_byte(m_player + 0x60, 6)
                     elseif color == "pink" then
-                        write_byte(player_object + 0x60, 7)
+                        write_byte(m_player + 0x60, 7)
                     elseif color == "purple" then
-                        write_byte(player_object + 0x60, 8)
+                        write_byte(m_player + 0x60, 8)
                     elseif color == "cyan" then
-                        write_byte(player_object + 0x60, 9)
+                        write_byte(m_player + 0x60, 9)
                     elseif color == "cobalt" then
-                        write_byte(player_object + 0x60, 10)
+                        write_byte(m_player + 0x60, 10)
                     elseif color == "orange" then
-                        write_byte(player_object + 0x60, 11)
+                        write_byte(m_player + 0x60, 11)
                     elseif color == "teal" then
-                        write_byte(player_object + 0x60, 12)
+                        write_byte(m_player + 0x60, 12)
                     elseif color == "sage" then
-                        write_byte(player_object + 0x60, 13)
+                        write_byte(m_player + 0x60, 13)
                     elseif color == "brown" then
-                        write_byte(player_object + 0x60, 14)
+                        write_byte(m_player + 0x60, 14)
                     elseif color == "tan" then
-                        write_byte(player_object + 0x60, 15)
+                        write_byte(m_player + 0x60, 15)
                     elseif color == "maroon" then
-                        write_byte(player_object + 0x60, 16)
+                        write_byte(m_player + 0x60, 16)
                     elseif color == "salmon" then
-                        write_byte(player_object + 0x60, 17)
+                        write_byte(m_player + 0x60, 17)
                     else
                         sendresponse("Invalid Color", command, executor)
                         return
@@ -7189,7 +7177,7 @@ function GetGameAddresses()
         specs_addr = 0x662D04
         hashcheck_addr = 0x59c280
         versioncheck_addr = 0x5152E7
-        -- map_pointer = 0x63525c
+        map_pointer = 0x63525c
         -- gametype_base = 0x671340
         -- gametime_base = 0x671420
         -- machine_pointer = 0x745BA0
@@ -7206,7 +7194,7 @@ function GetGameAddresses()
         hashcheck_addr = 0x530130
         obj_header_pointer = 0x6C69F0
         -- versioncheck_addr = 0x4CB587
-        -- map_pointer = 0x5B927C
+        map_pointer = 0x5B927C
         -- gametype_base = 0x5F5498
         -- gametime_base = 0x5F55BC
         -- machine_pointer = 0x6C7980
@@ -7523,6 +7511,14 @@ function getvalidformat(command)
         Command = command
     end
     return Command
+end
+
+function getteam(PlayerIndex)
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local team = get_var(PlayerIndex, "$team")
+        return team
+    end
+    return nil
 end
 
 function getvalidplayers(expression, PlayerIndex)
@@ -8621,6 +8617,14 @@ end
 
 function todec(number)
     return tonumber(number, 16)
+end
+
+function GetTagName(obj)
+	if(obj ~= nil and obj ~= 0) then
+		return read_string(read_dword(read_word(obj) * 32 + 0x40440038))
+	else
+		return ""
+	end
 end
 
 function timetoword(time)
