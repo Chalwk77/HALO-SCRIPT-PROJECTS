@@ -5236,7 +5236,7 @@ end
 function Command_ScriptLoad(executor, command, count)
     if count >= 1 then
         local arg = tokenizestring(command)
-        command = "sv_script_load"
+        command = "lua_load"
         for i = 2, #arg do
             command = command .. " " .. arg[i]
         end
@@ -5252,7 +5252,7 @@ end
 function Command_ScriptUnload(executor, command, count)
     if count >= 1 then
         local arg = tokenizestring(command)
-        command = "sv_script_unload"
+        command = "lua_unload"
         for i = 2, #arg do
             if arg[i] ~= "commands" and arg[i] ~= "command" and arg[i] ~= "cmd" and arg[i] ~= "cmds" then
                 command = command .. " " .. arg[i]
@@ -5275,16 +5275,17 @@ function Command_Setammo(executor, command, PlayerIndex, type, ammo, count)
                 local player_object = get_dynamic_player(players[i])
                 if player_object then
                     local m_weaponId = read_dword(player_object + 0x118)
+                    local weapon_id = get_object_memory(m_weaponId)
                     if m_weaponId then
                         if type == "unloaded" or type == "1" then
                             safe_write(true)
-                            write_dword(m_weaponId + 0x2B6, tonumber(ammo))
+                            write_dword(weapon_id + 0x2B6, tonumber(ammo))
                             safe_write(false)
                             sync_ammo(m_weaponId)
                             sendresponse(getname(players[i]) .. " had their unloaded ammo changed to " .. ammo, command, executor)
                         elseif type == "2" or type == "loaded" then
                             safe_write(true)
-                            write_dword(m_weaponId + 0x2B8, tonumber(ammo))
+                            write_dword(weapon_id + 0x2B8, tonumber(ammo))
                             safe_write(false)
                             sync_ammo(m_weaponId)
                             sendresponse(getname(players[i]) .. " had their loaded ammo changed to " .. ammo, command, executor)
