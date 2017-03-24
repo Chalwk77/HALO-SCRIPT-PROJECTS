@@ -8441,10 +8441,13 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
                                 table.insert(vehicle_drone_table[players[i]], vehicle_id)
                                 drone_obj = get_object_memory(vehicle_id)
                             elseif type == "spawn" and objtype == "weap" then
-                                local weapon = spawn_object("weap", object_to_spawn, x, y, z)
+                                local weap = spawn_object("weap", object_to_spawn, x, y, z)
                                 sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
                             elseif type == "spawn" and objtype == "bipd" then
                                 local bipd = spawn_object("bipd", object_to_spawn, x, y, z)
+                                sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
+                            elseif type == "spawn" and objtype == "eqip" then
+                                local eqip = spawn_object("eqip", object_to_spawn, x, y, z)
                                 sendresponse(objname .. " spawned at " .. getname(players[i]) .. "'s location.", message, PlayerIndex)
                             elseif type == "enter" then
                                 local vehicle_id = spawn_object("vehi", object_to_spawn, x, y, z)
