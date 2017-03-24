@@ -4462,7 +4462,7 @@ end
 
 function Command_Mapnext(executor, command, count)
     if count == 1 then
-        if executor then
+        if executor  then
             execute_command("sv_map_next", executor)
         else
             execute_command("sv_map_next", true)
@@ -5247,7 +5247,7 @@ function Command_ScriptLoad(executor, command, count)
         for i = 2, #arg do
             command = command .. " " .. arg[i]
         end
-        if executor then
+        if executor  then
             execute_command(command, executor)
         else
             response = execute_command(command)
@@ -5265,7 +5265,7 @@ function Command_ScriptUnload(executor, command, count)
                 command = command .. " " .. arg[i]
             end
         end
-        if executor then
+        if executor  then
             execute_command(command, executor)
         else
             response = execute_command(command)
@@ -5771,107 +5771,107 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     if type == "spawn" then
         bool = true
     --------------------------------------------------------------------------------------------------------------------------------------
-        if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd" then
+        if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd"  or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
             Spawn(message, "Cyborg", "bipd", cyborg_tag_id, executor, type)
             object_to_spawn = bipds_table[1][2]
-        elseif object == "captain" or object == "keyes" then
+        elseif object == "captain" or object == "keyes" or object == '"captain"'or object == '"keyes"' then
             Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
             object_to_spawn = bipds_table[2][2]
-        elseif object == "cortana" then
+        elseif object == "cortana" or object == '"cortana"' then
             Spawn(message, "Cortana", "bipd", cortana_tag_id, executor, type)
             object_to_spawn = bipds_table[3][2]
-        elseif object == "cortana2" then
+        elseif object == "cortana2" or object == '"cortana2"' then
             Spawn(message, "Cortana2", "bipd", cortana2_tag_id, executor, type)
             object_to_spawn = bipds_table[4][2]
-        elseif object == "crewman" then
+        elseif object == "crewman" or object == '"crewman"' then
             Spawn(message, "Crewman", "bipd", crewman_tag_id, executor, type)
             object_to_spawn = bipds_table[5][2]
-        elseif object == "elite" then
+        elseif object == "elite" or object == '"elite"' then
             Spawn(message, "elite", "bipd", elite_tag_id, executor, type)
             object_to_spawn = bipds_table[6][2]
-        elseif object == "elite2" then
+        elseif object == "elite2" or object == '"elite2"' then
             Spawn(message, "Elite Special", "bipd", elite2_tag_id, executor, type)
             object_to_spawn = bipds_table[7][2]
-        elseif object == "engineer" then
+        elseif object == "engineer" or bject == '"engineer"' then
             Spawn(message, "Engineer", "bipd", engineer_tag_id, executor, type)
             object_to_spawn = bipds_table[8][2]
-        elseif object == "flood" then
+        elseif object == "flood" or object == '"flood"' then
             Spawn(message, "Flood Captain", "bipd", flood_tag_id, executor, type)
             object_to_spawn = bipds_table[9][2]
-        elseif object == "flood2" then
+        elseif object == "flood2" or object == '"flood2"' then
             Spawn(message, "Flood Infection", "bipd", flood2_tag_id, executor, type)
             object_to_spawn = bipds_table[10][2]
-        elseif object == "flood3" then
+        elseif object == "flood3" or object == '"flood3"' then
             Spawn(message, "Flood Carrier", "bipd", "characters\\floodcarrier\\floodcarrier", executor, type)
             object_to_spawn = bipds_table[11][2]
-        elseif object == "floodelite" then
+        elseif object == "floodelite" or object == '"floodelite"' then
             Spawn(message, "FloodCombat Elite", "bipd", "characters\\floodcombat elite\\floodcombat elite", executor, type)
             object_to_spawn = bipds_table[12][2]
-        elseif object == "floodhuman" then
+        elseif object == "floodhuman" or object == '"floodhuman"' then
             Spawn(message, "FloodCombat Human", "bipd", "characters\\floodcombat_human\\floodcombat_human", executor, type)
             object_to_spawn = bipds_table[13][2]
-        elseif object == "pedobear" or object == "grunt" then
+        elseif object == "pedobear" or object == "grunt" or object == '"pedobear"' or object == '"grunt"' then
             Spawn(message, "Pedobear", "bipd", "characters\\grunt\\grunt", executor, type)
             object_to_spawn = bipds_table[14][2]
-        elseif object == "hunter" then
+        elseif object == "hunter" or object == '"hunter"' then
             Spawn(message, "Hunter", "bipd", "characters\\hunter\\hunter", executor, type)
             object_to_spawn = bipds_table[15][2]
-        elseif object == "marine" then
+        elseif object == "marine" or bject == '"marine"' then
             Spawn(message, "Marine", "bipd", "characters\\marine\\marine", executor, type)
             object_to_spawn = bipds_table[16][2]
-        elseif object == "marinesuicide" or object == "marine2" then
+        elseif object == "marinesuicide" or object == "marine2" or object == '"marinesuicide"' or object == '"marine2"' then
             Spawn(message, "Marine Suicidal", "bipd", "characters\\marine_suicidal\\marine_suicidal", executor, type)
             object_to_spawn = bipds_table[17][2]
-        elseif object == "monitor" then
+        elseif object == "monitor" or object == '"monitor"' then
             Spawn(message, "Monitor", "bipd", "characters\\monitor\\monitor", executor, type)
             object_to_spawn = bipds_table[18][2]
-        elseif object == "sentinel" then
+        elseif object == "sentinel" or object == '"sentinel"' then
             Spawn(message, "Sentinel", "bipd", "characters\\sentinel\\sentinel", executor, type)
             object_to_spawn = bipds_table[19][2]
-        elseif object == "johnson" then
+        elseif object == "johnson" or object == '"johnson"' then
             Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
             object_to_spawn = bipds_table[20][2]
         --------------------------------------------------------------------------------------------------------------------------------------
-        elseif object == "camo" or object == "camouflage" then
+        elseif object == "camo" or object == "camouflage" or object == '"camo"' or object == '"camouflage"' then
             object_to_spawn = eqip_table[1][2]
             Spawn(message, "Camouflage", "eqip", object_to_spawn, executor, type)
-        elseif object == "healthpack" then
+        elseif object == "healthpack" or object == '"healthpack"' then
             object_to_spawn = eqip_table[2][2]
             Spawn(message, "Health Pack", "eqip", object_to_spawn, executor, type)
-        elseif object == "overshield" or object == "os" then
+        elseif object == "overshield" or object == "os" or object == '"overshield"' or object == '"os"' then
             object_to_spawn = eqip_table[3][2]
             Spawn(message, "Overshield", "eqip", object_to_spawn, executor, type)
-        elseif object == "dblspd" then
+        elseif object == "dblspd" or object == '"dblspd"' then
             object_to_spawn = eqip_table[4][2]
             Spawn(message, "Double Speed", "eqip", object_to_spawn, executor, type)
-        elseif object == "fullspec" then
+        elseif object == "fullspec" or object == '"fullspec"' then
             object_to_spawn = eqip_table[5][2]
             Spawn(message, "Full-Spectrum Vision", "eqip", object_to_spawn, executor, type)
-        elseif object == "fnade" or object == "nades" then
+        elseif object == "fnade" or object == "nades" or object == '"fnade"' or object == '"nades"' then
             object_to_spawn = eqip_table[6][2]
             Spawn(message, "Frag Grenade", "eqip", object_to_spawn, executor, type)
-        elseif object == "pnade" then
+        elseif object == "pnade" or object == '"pnade"' then
             object_to_spawn = eqip_table[7][2]
             Spawn(message, "Plasma Grenade", "eqip", object_to_spawn, executor, type)
-        elseif object == "rifleammo" then
+        elseif object == "rifleammo" or object == '"rifleammo"' then
             object_to_spawn = eqip_table[8][2]
             Spawn(message, "Assault Rifle Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "needlerammo" then
+        elseif object == "needlerammo" or object == '"needlerammo"' then
             object_to_spawn = eqip_table[9][2]
             Spawn(message, "Needler Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "pistolammo" then
+        elseif object == "pistolammo" or object == '"pistolammo"' then
             object_to_spawn = eqip_table[10][2]
             Spawn(message, "Pistol Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "rocketammo" then
+        elseif object == "rocketammo" or object == '"rocketammo"' then
             object_to_spawn = eqip_table[11][2]
             Spawn(message, "Rocket Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "shottyammo" then
+        elseif object == "shottyammo" or object == '"shottyammo"' then
             object_to_spawn = eqip_table[12][2]
             Spawn(message, "Shotgun Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "sniperammo" then
+        elseif object == "sniperammo" or object == '"sniperammo"' then
             object_to_spawn = eqip_table[13][2]
             Spawn(message, "Sniper Ammo", "eqip", object_to_spawn, executor, type)
-        elseif object == "flameammo" then
+        elseif object == "flameammo" or object == '"flameammo"' then
             object_to_spawn = eqip_table[14][2]
             Spawn(message, "Flamethrower Ammo", "eqip", object_to_spawn, executor, type)
         else
@@ -5883,46 +5883,46 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type ~= "enter" then
         bool = true
-        if object == "rifle" or object == "arifle" or object == "assaultrifle" then
+        if object == "rifle" or object == "arifle" or object == "assaultrifle" or object == '"rifle"' or object == '"arifle"' or object == '"assaultrifle"' then
             object_to_spawn = weapons[1][2]
             Spawn(message, "Assault Rifle", "weap", object_to_spawn, executor, type)
-        elseif object == "ball" or object == "oddball" then
+        elseif object == "ball" or object == "oddball" or object == '"ball"' or object == '"oddball"' then
             object_to_spawn = weapons[2][2]
             Spawn(message, "Oddball", "weap", object_to_spawn, executor, type)
-        elseif object == "flag" then
+        elseif object == "flag" or object == '"flag"' then
             object_to_spawn = weapons[3][2]
             Spawn(message, "Flag", "weap", object_to_spawn, executor, type)
-        elseif object == "flamethrower" or object == "flame" then
+        elseif object == "flamethrower" or object == "flame" or object == '"flamethrower"' or object == '"flame"' then
             object_to_spawn = weapons[4][2]
             Spawn(message, "Flame Thrower", "weap", object_to_spawn, executor, type)
-        elseif object == "ggun" or object == "gravitygun" then
+        elseif object == "ggun" or object == "gravitygun" or object == '"ggun"' or object == '"gravitygun"' then
             object_to_spawn = weapons[5][2]
             Spawn(message, "Gravity Gun", "weap", object_to_spawn, executor, type)
-        elseif object == "needler" then
+        elseif object == "needler" or object == '"needler"' then
             object_to_spawn = weapons[6][2]
             Spawn(message, "Needler", "weap", object_to_spawn, executor, type)
         elseif object == "pistol" then
             object_to_spawn = weapons[7][2]
             Spawn(message, "Pistol", "weap", object_to_spawn, executor, type)
-        elseif object == "ppistol" or object == "plasmapistol" then
+        elseif object == "ppistol" or object == "plasmapistol" or object == '"ppistol"' or object == '"plasmapistol"' then
             object_to_spawn = weapons[8][2]
             Spawn(message, "Plasma Pistol", "weap", object_to_spawn, executor, type)
-        elseif object == "prifle" or object == "plasmarifle" then
+        elseif object == "prifle" or object == "plasmarifle" or object == '"prifle"' or object == '"plasmarifle"' then
             object_to_spawn = weapons[9][2]
             Spawn(message, "Plasma Rifle", "weap", object_to_spawn, executor, type)
-        elseif object == "frg" or object == "fuelrod" or object == "rod" or object == "plasmacannon" then
+        elseif object == "frg" or object == "fuelrod" or object == "rod" or object == "plasmacannon" or object == '"frg"' or object == '"fuelrod"' or object == '"rod"' or object == '"plasmacannon"' then
             object_to_spawn = weapons[10][2]
             Spawn(message, "Fuel Rod", "weap", object_to_spawn, executor, type)
-        elseif object == "rocket" or object == "rocketlauncher" or object == "rox" then
+        elseif object == "rocket" or object == "rocketlauncher" or object == "rox" or object == '"rocket"' or object == '"rocketlauncher"' or object == '"rox"' then
             object_to_spawn = weapons[11][2]
             Spawn(message, "Rocket Launcher", "weap", object_to_spawn, executor, type)
-        elseif object == "shotty" or object == "shotgun" then
+        elseif object == "shotty" or object == "shotgun" or object == '"shotty"' or object == '"shotgun"' then
             object_to_spawn = weapons[12][2]
             Spawn(message, "Shotgun", "weap", object_to_spawn, executor, type)
-        elseif object == "sniper" then
+        elseif object == "sniper" or object == '"sniper"' then
             object_to_spawn = weapons[13][2]
             Spawn(message, "Sniper Rifle", "weap", object_to_spawn, executor, type)
-        elseif object == "energysword" or object == "esword" then
+        elseif object == "energysword" or object == "esword" or object == '"energysword"' or object == '"esword"' then
             object_to_spawn = weapons[14][2]
             Spawn(message, "Energy Sword", "weap", object_to_spawn, executor, type)
         else
@@ -7056,7 +7056,7 @@ function DefaultSvTimer()
             temp_lines = defaults_lines
         end
     if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
-    if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
+    if access_error  then cprint("access.ini is not setup correctly", 4 + 8) end
     if use_logo then
         cprint("===================================================================================================", 2 + 8)
         cprint("")
