@@ -10,4 +10,4 @@
 > * Click the green button that says "New Issue"
 >    * Use a clear and descriptive title so I can identify your request easily.
 >    * Use the following template: [ADD-ON REQUEST TEMPLATE.md](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/ADD-ON%20REQUEST%20TEMPLATE.md)
->    * Fill out the template and paste it into the new issue you just opened.
+>    * Fill out the template and paste it into the new issue you just opened..
