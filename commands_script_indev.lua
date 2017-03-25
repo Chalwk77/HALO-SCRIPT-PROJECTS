@@ -34,7 +34,18 @@ s_chat_dir = 'sapp\\Server Chat.txt'
 server_prefix = '** SERVER **'
 TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 
+-- OnTick --
+Welcome_Msg_Duration = 30
+message_board = {
+    "Welcome to the TestBench - by Chalwk",
+    "Currently running: Classic CTF (no mods)",
+    "In Development: Commands Script for SAPP",
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+    }
+
 -- Tables
+welcome_timer = { }
+NEW_TIMER = { }
 players_alive = { }
 weapons = { }
 vehicles = { }
@@ -734,7 +745,27 @@ function secondsToTime(seconds, places)
     end
 end
 
+function cls(PlayerIndex)
+    for clear_cls = 1, 25 do
+        rprint(PlayerIndex, " ")
+    end
+end
+
 function OnTick()
+    for i = 1, 16 do
+        if player_present(i) then
+            if (welcome_timer[i] == true) then
+                local PLAYER_ID = get_var(i, "$n")
+                players_alive[PLAYER_ID].NEW_TIMER = players_alive[PLAYER_ID].NEW_TIMER + 0.030
+                cls(i)
+                for k, v in pairs(message_board) do rprint(i, "" .. v) end
+                if players_alive[PLAYER_ID].NEW_TIMER >= math.floor(Welcome_Msg_Duration) then
+                    welcome_timer[i] = false
+                    players_alive[PLAYER_ID].NEW_TIMER = 0
+                end
+            end
+        end
+    end
     for i = 1, 16 do
         if player_present(i) then
             if (player_alive(i)) then
@@ -1006,6 +1037,7 @@ function OnNewGame()
                 players_alive[PLAYER_ID].HIDDEN = nil
                 players_alive[PLAYER_ID].INVIS_TIME = 0
                 players_alive[PLAYER_ID].VEHICLE = nil
+                players_alive[PLAYER_ID].NEW_TIMER = 0
             end
         end
         gameend = false
@@ -1036,6 +1068,7 @@ function OnGameEnd()
             players_alive[PLAYER_ID].HIDDEN = nil
             players_alive[PLAYER_ID].INVIS_TIME = 0
             players_alive[PLAYER_ID].VEHICLE = nil
+            players_alive[PLAYER_ID].NEW_TIMER = 0
             timer(0, "cleanupdrones", i)
         end
     end
@@ -1750,7 +1783,6 @@ function OnPlayerJoin(PlayerIndex)
         file:write(TimeStamp .. "    [JOIN]    Name: " .. s_chat_name .. "    ID: [" .. s_chat_id .. "]    IP: [" .. s_chat_ip .. "]    CD-Key Hash: [" .. s_chat_hash .. "]\n")
         file:close()
     end
-    timer(1000*5, "WelcomeHandler", PlayerIndex)
     cur_players = cur_players + 1
     local name = getname(PlayerIndex)
     local hash = gethash(PlayerIndex)
@@ -1761,6 +1793,9 @@ function OnPlayerJoin(PlayerIndex)
     players_alive[PLAYER_ID].HIDDEN = nil
     players_alive[PLAYER_ID].VEHICLE = nil
     players_alive[PLAYER_ID].INVIS_TIME = 0
+    players_alive[PLAYER_ID].NEW_TIMER = 0
+    players_alive[PLAYER_ID].NEW_TIMER = 0
+    welcome_timer[PlayerIndex] = true
     tbag[PlayerIndex] = { }
     players_list[PlayerIndex].name = name
     players_list[PlayerIndex].hash = hash
@@ -1810,6 +1845,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    welcome_timer[PlayerIndex] = false
     local file = io.open(s_chat_dir, "a+")
     if file ~= nil then
         file:write(TimeStamp .. "    [QUIT]    Name: " .. s_chat_name .. "    ID: [" .. s_chat_id .. "]    IP: [" .. s_chat_ip .. "]    CD-Key Hash: [" .. s_chat_hash .. "]\n")
@@ -1836,6 +1872,7 @@ function OnPlayerLeave(PlayerIndex)
             players_alive[PLAYER_ID].AFK = nil
             players_alive[PLAYER_ID].HIDDEN = nil
             players_alive[PLAYER_ID].INVIS_TIME = 0
+            players_alive[PLAYER_ID].NEW_TIMER = 0
             last_damage[PlayerIndex] = nil
         end
     end
