@@ -6607,7 +6607,7 @@ end
 
 function DelayCleanUpDrones(PlayerIndex, command, executor)
     if getplayer(PlayerIndex) then
-        if vehicle_drone_table[PlayerIndex] then
+        if vehicle_drone_table[PlayerIndex] ~= nil then
             for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
                 if vehicle_drone_table[PlayerIndex][k] > 0 then
                     if v then
@@ -6617,10 +6617,10 @@ function DelayCleanUpDrones(PlayerIndex, command, executor)
                         end
                         vehicle_drone_table[PlayerIndex][k] = nil
                     end
-                else
-                    sendresponse("Nothing to clean up!", command, executor)
                 end
             end
+        else
+            sendresponse("Nothing to clean up!", command, executor)
         end
     end
 end
@@ -8192,7 +8192,6 @@ function string.split(str, ...)
             for x = 1, string.len(str) do
                 table.insert(subs, string.sub(str, x, x))
             end
-
             return subs
         end
     end
