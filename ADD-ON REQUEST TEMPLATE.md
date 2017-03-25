@@ -1,7 +1,7 @@
 * ## [Click Here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/edit/master/ADD-ON%20REQUEST%20TEMPLATE.md) to Edit this template
 
 > Legend: 
-* [ ] Put an X between the brackets to select.
+* [x] Put an X between the brackets to select.
 
 ### Will this add-on be for Halo PC, CE or BOTH?
 * [ ] Halo PC
