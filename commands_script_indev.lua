@@ -1690,7 +1690,7 @@ end
 function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to the TestBench")
-    say(PlayerIndex, "Currently running: Classic CTF/SLAYER (no mods)")
+    say(PlayerIndex, "Currently running: Classic CTF (no mods)")
     say(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
