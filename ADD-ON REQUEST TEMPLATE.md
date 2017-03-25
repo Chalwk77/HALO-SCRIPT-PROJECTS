@@ -23,12 +23,12 @@
   * [ ] 10059
   * [ ] 10058
 
-### Will this add-on be run on a custom map?
+### Will this add-on be run on a custom map? (non stock)
 * [ ] Yes
 * [ ] No
 * [ ] Unsure
 
-### Will the add-on need to be map and/or gametype specific?
+### Will the add-on need to be designed to map and/or gametype specific?
 * [ ] Yes
 * [ ] No
 * [ ] Unsure
