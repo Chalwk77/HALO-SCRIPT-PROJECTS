@@ -3,6 +3,7 @@
 
 - [ ] Put an X between the brackets to select: [X]
 
+- Copy from here, but do not include this line or the 3 above.
 ### Will this add-on be for Halo PC, CE or BOTH?
 * [ ] Halo PC
 * [ ] Halo Custom Edition
