@@ -13,3 +13,20 @@
 
 #### Issues are updated frequently with the latest status.
 > If you need to contact me privately, please send me an email: <jericho.crosby227@gmail.com>
+
+
+Process related labels:
+> ### Currently in development will have the following tag:
+> ![Logo](http://i.imgur.com/DXHEI15.png)
+> ### Next Project to be released will have the following tag:
+> ![Logo](http://i.imgur.com/TXutFVe.png)
+> ### Second in line to be released will have the following tag:
+> ![Logo](http://i.imgur.com/ohXADjS.png)
+> ### Third in line to be released will have the following tag:
+> ![Logo](http://i.imgur.com/FooZi3T.png)
+> ### Projects pending development will have the following tag:
+> ![Logo](http://i.imgur.com/oYEXdL6.png)
+> ### Feature Requests will have the following tag:
+> ![Logo](http://i.imgur.com/tFlNeEN.png)
+> ### Script Bugs will have the following tag:
+> ![Logo](http://i.imgur.com/qhqBlR0.png)
