@@ -2,7 +2,7 @@
 
 ### Prerequisites
     
-> * Create and activate an account on GitHub: [signup](https://github.com/join?source=header-repo)
+> * Create and activate an account on GitHub: [signup here](https://github.com/join?source=header-repo)
 > * Navigate to issue tracker: [Issue Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues)
 > * Click the green button that says "New Issue"
 
