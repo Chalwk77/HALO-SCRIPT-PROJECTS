@@ -13,7 +13,9 @@
   * [ ] 9.8.1
   
 Are you using an earlier version of SAPP?
+
 You can get this information from your sapp.log file. 
+
 When SAPP loads it will create an entry into this file with a line that looks like this: 
   * 2017-03-23 01:30:0 LOAD SAPP was loaded, Version 10.0 CE
 
