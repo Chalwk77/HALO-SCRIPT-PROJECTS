@@ -1,12 +1,12 @@
 * [ ] Put an X between the brackets to select.
 
 
-#### Will this addon be for Halo PC, CE or BOTH?
+### Will this add-on be for Halo PC, CE or BOTH?
 * [ ] Halo PC
 * [ ] Halo Custom Edition
 * [ ] Both (cross compatibility)
 
-#### What server extension are you using?
+### What server extension are you using?
 * [ ] SAPP
   * ##### What version of SAPP are you using?
   * [ ] 10.0 (latest)
