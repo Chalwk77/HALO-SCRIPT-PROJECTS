@@ -1,5 +1,5 @@
 ## [Click Here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/edit/master/ADD-ON%20REQUEST%20TEMPLATE.md) to Edit this template
-> When you're finished editing, copy/paste the contents into your new issue.
+When you're finished editing, copy/paste the contents into your new issue.
 - [ ] To mark a your selection, put an 'x' [x] between the brackets.
 
 
