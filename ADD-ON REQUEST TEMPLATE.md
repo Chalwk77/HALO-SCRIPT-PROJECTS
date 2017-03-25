@@ -25,6 +25,7 @@ When you're finished editing, copy/paste the contents into your new issue.
     * [ ] 2.0+ (latest)
     * [ ] 10059
     * [ ] 10058
+    * [ ] Unsure
 
 ### Will this add-on be run on a custom map? (non stock)
 * [ ] Yes
