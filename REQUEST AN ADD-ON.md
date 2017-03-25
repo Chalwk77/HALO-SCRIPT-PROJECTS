@@ -15,7 +15,7 @@
 > If you need to contact me privately, please send me an email: <jericho.crosby227@gmail.com>
 
 #### Process related labels:
-| labels        |            |
+| LABEL | TAG |
 | ------------- |:-------------:|
 Currently in development    |      ![Logo](http://i.imgur.com/DXHEI15.png)     |
 Next Project to be released |      ![Logo](http://i.imgur.com/TXutFVe.png)     |
