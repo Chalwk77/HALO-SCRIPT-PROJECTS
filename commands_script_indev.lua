@@ -1687,7 +1687,16 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return response
 end
 
+function WelcomeHandler(PlayerIndex)
+    execute_command("msg_prefix \"\"")
+    say(PlayerIndex, "Welcome to the TestBench")
+    say(PlayerIndex, "Currently running: Classic CTF/SLAYER (no mods)")
+    say(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS")
+    execute_command("msg_prefix \"** SERVER ** \"")
+end
+
 function OnPlayerJoin(PlayerIndex)
+    timer(1000*5, "WelcomeHandler", PlayerIndex)
     cur_players = cur_players + 1
     local name = getname(PlayerIndex)
     local hash = gethash(PlayerIndex)
