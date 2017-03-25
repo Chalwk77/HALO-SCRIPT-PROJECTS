@@ -30,7 +30,9 @@ api_version = '1.11.0.0'
 script_version = '1.0'
 processid = ""
 data_folder = 'sapp\\'
+s_chat_dir = 'sapp\\Server Chat.txt'
 server_prefix = '** SERVER **'
+TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 
 -- Tables
 players_alive = { }
@@ -1012,6 +1014,16 @@ function OnNewGame()
         loc[i + 1] = { }
         control_table[i + 1] = { }
     end
+    local file = io.open(s_chat_dir, "a+")
+    if file ~= nil then
+        local map = get_var(0, "$map")
+        local gt = get_var(0, "$mode")
+        local n1 = "\n"
+        local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
+        local n2 = "\n---------------------------------------------------------------------------------------------\n"
+        file:write(n1, t1, n2)
+        file:close()
+    end
 end
 
 function OnGameEnd()
@@ -1040,9 +1052,41 @@ function OnGameEnd()
         end
         file:close()
     end
+    local file = io.open(s_chat_dir, "a+")
+    if file ~= nil then
+        local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+        file:write(data)
+        file:close()
+    end
 end
 
-function OnPlayerChat(PlayerIndex, Message, chattype)
+function OnPlayerChat(PlayerIndex, Message, type)
+    local Message = tostring(Message)
+    local Command = tokenizestring(Message)
+    local name = get_var(PlayerIndex, "$name")
+    iscommand = nil
+    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
+        iscommand = true
+        ChatType = "[COMMAND] "
+    else 
+        iscommand = false
+    end
+    if type == 0 then
+        Type = "[GLOBAL]  "
+    elseif type == 1 then
+        Type = "[TEAM]    "
+    elseif type == 2 then
+        Type = "[VEHICLE] "
+    end    
+    if (player_present(PlayerIndex) ~= nil) then
+        if iscommand then 
+            WriteData(s_chat_dir, "   " .. ChatType .. "     " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message)
+            cprint(ChatType .." " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3+8)
+        else
+            WriteData(s_chat_dir, "   " .. Type .. "     " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message)
+            cprint(Type .." " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3+8)
+        end
+    end
     local response = nil
     local name = "PlayerIndex"
     local hash = "hash"
@@ -1180,7 +1224,7 @@ function OnPlayerChat(PlayerIndex, Message, chattype)
     end
     if spam_max == nil then spam_max = 7 end
     if spam_timeout == nil then spam_timeout = 60 end
-    if response == nil and antispam ~= "off" and spam_max > 0 and spam_timeout > 0 and chattype >= 0 and chattype <= 2 then
+    if response == nil and antispam ~= "off" and spam_max > 0 and spam_timeout > 0 and type >= 0 and type <= 2 then
         if antispam == "all" then
             if not spam_table[ip] then
                 spam_table[ip] = 1
@@ -1696,6 +1740,16 @@ function WelcomeHandler(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
+    s_chat_name = get_var(PlayerIndex, "$name")
+    s_chat_id = get_var(PlayerIndex, "$n")
+    s_chat_ip = get_var(PlayerIndex, "$ip")
+    s_chat_hash = get_var(PlayerIndex, "$hash")
+    local TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+    local file = io.open(s_chat_dir, "a+")
+    if file ~= nil then
+        file:write(TimeStamp .. "    [JOIN]    Name: " .. s_chat_name .. "    ID: [" .. s_chat_id .. "]    IP: [" .. s_chat_ip .. "]    CD-Key Hash: [" .. s_chat_hash .. "]\n")
+        file:close()
+    end
     timer(1000*5, "WelcomeHandler", PlayerIndex)
     cur_players = cur_players + 1
     local name = getname(PlayerIndex)
@@ -1756,6 +1810,11 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    local file = io.open(s_chat_dir, "a+")
+    if file ~= nil then
+        file:write(TimeStamp .. "    [QUIT]    Name: " .. s_chat_name .. "    ID: [" .. s_chat_id .. "]    IP: [" .. s_chat_ip .. "]    CD-Key Hash: [" .. s_chat_hash .. "]\n")
+        file:close()
+    end
     timer(0, "cleanupdrones", PlayerIndex)
     cur_players = cur_players - 1
     local id = resolveplayer(PlayerIndex)
@@ -8685,6 +8744,15 @@ function timetoword(time)
         return returntime
     else
         return -1
+    end
+end
+
+function WriteData(s_chat_dir, value)
+    local file = io.open(s_chat_dir, "a+")
+    if file ~= nil then
+        local chatValue = string.format("%s\t%s\n", TimeStamp, tostring(value))
+        file:write(chatValue)
+        file:close()
     end
 end
 

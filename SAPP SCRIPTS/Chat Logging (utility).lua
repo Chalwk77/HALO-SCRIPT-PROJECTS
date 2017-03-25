@@ -101,6 +101,7 @@ function OnChatMessage(PlayerIndex, Message, type)
     if (player_present(PlayerIndex) ~= nil) then
         if iscommand then 
             WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. Message)
+            cprint(chattype .." " .. name .. " [" .. id .. "]: " .. Message, 3+8)
         else
             WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. Message)
             cprint(Type .." " .. name .. " [" .. id .. "]: " .. Message, 3+8)
