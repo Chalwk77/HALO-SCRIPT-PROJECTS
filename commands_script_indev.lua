@@ -6647,13 +6647,13 @@ function Command_Versioncheck(executor, command, boolean, count)
         safe_write(true)
         write_byte(versioncheck_addr, 0x7D)
         safe_write(false)
-        sendresponse("Version checking is now enabled", command, executor)
+        sendresponse("Version checking is enabled", command, executor)
     elseif (boolean == "0" or boolean == "false" or boolean == '"0"' or boolean == '"false"') and version_check then
         version_check = false
         safe_write(true)
         write_byte(versioncheck_addr, 0xEB)
         safe_write(false)
-        sendresponse("Version checking is now disabled", command, executor)
+        sendresponse("Version checking is disabled", command, executor)
     elseif version_check == nil then
         version_check = false
         safe_write(true)
