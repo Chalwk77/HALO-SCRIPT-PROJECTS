@@ -2,8 +2,8 @@
 When you're finished editing, copy/paste the contents into your new issue.
 - [ ] To mark a your selection, put an 'x' [x] between the brackets.
 
+<sup>copy from line 7 onwards, but do not include this line or the lines above</sup>
 
-`Copy from here, but do not include this line or the 2 above.`
 ### Will this add-on be for Halo PC, CE or BOTH?
 * [ ] Halo PC
 * [ ] Halo Custom Edition
