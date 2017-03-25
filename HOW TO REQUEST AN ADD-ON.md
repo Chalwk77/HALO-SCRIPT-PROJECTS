@@ -12,4 +12,4 @@
 > * Click the green button that says "New Issue"
 
 * **Use a clear and descriptive title** so I can identify the request easily.
-> *In the text field, please be as descriptive as possible so I know how to help you.
+> In the text field, please be as descriptive as possible so I know how to help you.
