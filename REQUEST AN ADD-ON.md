@@ -16,17 +16,17 @@
 
 
 #### Process related labels:
-> ##### Currently in development will have the following tag:
+> ##### Currently in development
 > ![Logo](http://i.imgur.com/DXHEI15.png)
-> ##### Next Project to be released will have the following tag:
+> ##### Next Project to be released
 > ![Logo](http://i.imgur.com/TXutFVe.png)
-> ##### Second in line to be released will have the following tag:
+> ##### Second in line to be released
 > ![Logo](http://i.imgur.com/ohXADjS.png)
-> ##### Third in line to be released will have the following tag:
+> ##### Third in line to be released
 > ![Logo](http://i.imgur.com/FooZi3T.png)
-> ##### Projects pending development will have the following tag:
+> ##### Projects pending development
 > ![Logo](http://i.imgur.com/oYEXdL6.png)
-> ##### Feature Requests will have the following tag:
+> ##### Feature Requests
 > ![Logo](http://i.imgur.com/tFlNeEN.png)
-> ##### Script Bugs will have the following tag:
+> ##### Script Bugs
 > ![Logo](http://i.imgur.com/qhqBlR0.png)
