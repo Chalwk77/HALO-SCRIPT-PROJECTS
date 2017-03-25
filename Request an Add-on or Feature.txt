@@ -1,0 +1,22 @@
+How to request an addon or make a feature request for your server
+
+Option 1:
+> Create and activate an account for GitHub.
+    * Navigate to my issue tracker: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues)
+    * Click the green button that says "New Issue"
+
+-->> If it's an addon request:
+    * In the title please include the following tag: Title - [addon request]
+    e.g, Zombie Script - [addon request]
+
+-->> If it's a feature request for an existing project:
+    * In the title please include the following tag: Title - [feature request]
+    e.g, Chat Logging Utility - [feature request]
+
+    
+In the text field, please be as descriptive as possible so I know how to help you.
+
+Option 2:
+Contact Me: <jericho.crosby227@gmail.com>
+Tell me whether it's a feature request or addon request.
+Provide as much detail as possible.
