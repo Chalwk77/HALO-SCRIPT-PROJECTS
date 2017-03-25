@@ -1,4 +1,4 @@
-* ## [Click Here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/edit/master/ADD-ON%20REQUEST%20TEMPLATE.md) to Edit this template
+## [Click Here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/edit/master/ADD-ON%20REQUEST%20TEMPLATE.md) to Edit this template
 
 > Legend: 
 * [ ] Put an X between the brackets to select: [X]
