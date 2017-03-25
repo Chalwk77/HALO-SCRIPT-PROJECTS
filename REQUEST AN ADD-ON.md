@@ -13,5 +13,4 @@
 
 #### Track Issue Status:
 #### > Issues are updated frequently with the latest status.
-> If you need to contact me privately, please send me an email:
-> <jericho.crosby227@gmail.com>
+> If you need to contact me privately, please send me an email: <jericho.crosby227@gmail.com>
