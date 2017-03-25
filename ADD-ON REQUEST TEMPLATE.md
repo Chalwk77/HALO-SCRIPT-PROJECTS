@@ -37,4 +37,4 @@
 ## Add-on Deatils:
 * Please be as descriptive as possible so I know how to help you.
 
-[write your description here]
+write your description here...
