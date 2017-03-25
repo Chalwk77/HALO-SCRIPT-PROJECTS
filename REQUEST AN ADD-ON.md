@@ -11,7 +11,7 @@
 >   * Use the following template: [ADD-ON REQUEST TEMPLATE.md](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/ADD-ON%20REQUEST%20TEMPLATE.md)
 >   * Fill out the template and paste it into the new issue.
 
-#### Issues are updated frequently with the latest status.
+#### Issues are updated frequently with the latest status including a progress bar: ![Alt text](http://progressed.io/bar/1?title=progress )
 > If you need to contact me privately, please send me an email: <jericho.crosby227@gmail.com>
 
 #### Process related labels:
