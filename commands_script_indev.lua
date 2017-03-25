@@ -34,8 +34,8 @@ s_chat_dir = 'sapp\\Server Chat.txt'
 server_prefix = '** SERVER **'
 TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 
--- OnTick --
-Welcome_Msg_Duration = 15
+-- How long should the message be displayed on screen for? (in seconds) --
+Welcome_Msg_Duration = 30
 message_board = {
     "Welcome to the TestBench - by Chalwk",
     "Currently running: Classic CTF (no mods)",
