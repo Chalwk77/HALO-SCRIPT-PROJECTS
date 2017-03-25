@@ -5,6 +5,9 @@ Script Name: Message Board (utility), for SAPP | (PC\CE)
                  Welcome messages are displayed on the player's console.
                  You can specify how long the messages are displayed on screen.
     
+    This script is also available on my github! Check my github for regular updates on my projects, including this script.
+    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+    
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -76,6 +79,7 @@ function OnGameEnd()
         if player_present(i) then
             local player_id = get_var(i, "$n")
             if player_present(i) then
+                welcome_timer[PlayerIndex] = false
                 players[player_id].new_timer = 0
             end
         end
