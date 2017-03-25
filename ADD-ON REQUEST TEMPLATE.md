@@ -1,6 +1,6 @@
 ## [Click Here to Edit this Template](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/edit/master/ADD-ON%20REQUEST%20TEMPLATE.md)
 When you're finished editing, copy/paste the contents into your new issue.
-- [ ] To mark a your selection, put an 'x' [x] between the brackets.
+- [ ] To mark a your selection, put an 'x' between the brackets: [x]
 
 
 <sub>copy from line 7 onwards, but do not include this line or the lines above</sub>
