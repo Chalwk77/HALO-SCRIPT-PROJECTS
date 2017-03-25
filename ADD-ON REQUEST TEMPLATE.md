@@ -4,7 +4,7 @@ When you're finished editing, copy/paste the contents into your new issue.
 
 
 <sub>copy from line 7 onwards, but do not include this line or the lines above</sub>
-### Will this add-on be for Halo PC, CE or BOTH?
+### Will the add-on be for Halo PC, CE or BOTH?
 * [ ] Halo PC
 * [ ] Halo Custom Edition
 * [ ] Both (cross compatibility)
@@ -27,12 +27,12 @@ When you're finished editing, copy/paste the contents into your new issue.
     * [ ] 10058
     * [ ] Unsure
 
-### Will this add-on be run on a custom map? (non stock)
+### Will the add-on be run on a custom map? (non stock)
 * [ ] Yes
 * [ ] No
 * [ ] Unsure
 
-### Will the add-on need to be designed to map and/or gametype specific?
+### Will the add-on need to be map and/or gametype specific?
 * [ ] Yes
 * [ ] No
 * [ ] Unsure
