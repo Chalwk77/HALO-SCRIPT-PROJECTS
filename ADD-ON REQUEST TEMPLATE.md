@@ -23,7 +23,17 @@
   * [ ] 10059
   * [ ] 10058
 
-### Deatils:
-* Please be as descriptive as possible so I know how to help you.
+### Will this add-on be run on a custom map?
+* [ ] Yes
+* [ ] No
+* [ ] Unsure
 
+### Will the add-on need to be map and/or gametype specific?
+* [ ] Yes
+* [ ] No
+* [ ] Unsure
+
+
+## Add-on Deatils:
+* Please be as descriptive as possible so I know how to help you.
 write your description here...
