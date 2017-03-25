@@ -38,8 +38,8 @@ TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 Welcome_Msg_Duration = 30
 message_board = {
     "Welcome to the TestBench - by Chalwk",
-    "Currently running: Classic CTF (no mods)",
-    "In Development: Commands Script for SAPP",
+    "",
+    "For updates on my current projects or to request an addon for your server, go to:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
     }
 
