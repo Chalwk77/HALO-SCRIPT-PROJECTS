@@ -12,9 +12,9 @@ When you're finished editing, copy/paste the contents into your new issue.
 ### What server extension are you using?
 * [ ] SAPP
   * ##### What version of SAPP are you using?
-  * [ ] 10.0 (latest)
-  * [ ] 9.8.1
-  * [ ] Earlier version?
+   * [ ] 10.0 (latest)
+   * [ ] 9.8.1
+   * [ ] Earlier version?
   
    <sub>You can get this information from your sapp.log file.
    When SAPP loads it will create an entry into this file with a line that looks like this:
@@ -22,9 +22,9 @@ When you're finished editing, copy/paste the contents into your new issue.
 
 * [ ] PHASOR
   * ##### What version of PHASOR are you using?
-  * [ ] 2.0+ (latest)
-  * [ ] 10059
-  * [ ] 10058
+   * [ ] 2.0+ (latest)
+   * [ ] 10059
+   * [ ] 10058
 
 ### Will this add-on be run on a custom map? (non stock)
 * [ ] Yes
