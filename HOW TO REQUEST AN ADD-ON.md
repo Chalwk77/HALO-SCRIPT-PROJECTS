@@ -1,8 +1,8 @@
-The following explains how to request an addon for your server.
+### The following explains how to request an addon for your server.
 
-OPTION 1:
-    Create and activate an account on GitHub: https://github.com/join?source=header-repo
-    * Navigate to my issue tracker: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues
+#### Prerequisites
+    Create and activate an account on GitHub: [signup](https://github.com/join?source=header-repo)
+    * Navigate to issue tracker: [Issue Tracket](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues)
     * Click the green button that says "New Issue"
 
 -->> If it's an addon request:
