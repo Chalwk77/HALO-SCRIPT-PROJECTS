@@ -1653,7 +1653,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 response = false
                 Command_VotekickAction(PlayerIndex, t[1], t[2], count)
             elseif t[1] == "sv_version_check" then
-                Command_Versioncheck(t[2])
+                Command_Versioncheck(PlayerIndex, t[1], t[2], count)
             elseif t[1] == "sv_welcomeback_message" then
                 response = false
                 Command_WelcomeBackMessage(PlayerIndex, t[1], t[2], count)
@@ -6641,22 +6641,29 @@ function Command_Clean(executor, command, PlayerIndex, count)
     end
 end
 
-function Command_Versioncheck(boolean)
-    if count == 2 then
-        if (boolean == "1" or boolean == "true") and version_check ~= true then
-            version_check = true
-            write_byte(versioncheck_addr, 0x7D)
-        elseif (boolean == "0" or boolean == "false") and version_check then
-            version_check = false
-            write_byte(versioncheck_addr, 0xEB)
-        elseif version_check == nil then
-            version_check = false
-            write_byte(versioncheck_addr, 0xEB)
-        end
+function Command_Versioncheck(executor, command, boolean, count)
+    if (boolean == "1" or boolean == "true" or boolean == '"1"' or boolean == '"true"') and version_check ~= true then
+        version_check = true
+        safe_write(true)
+        write_byte(versioncheck_addr, 0x7D)
+        safe_write(false)
+        sendresponse("Version checking is now enabled", command, executor)
+    elseif (boolean == "0" or boolean == "false" or boolean == '"0"' or boolean == '"false"') and version_check then
+        version_check = false
+        safe_write(true)
+        write_byte(versioncheck_addr, 0xEB)
+        safe_write(false)
+        sendresponse("Version checking is now disabled", command, executor)
+    elseif version_check == nil then
+        version_check = false
+        safe_write(true)
+        write_byte(versioncheck_addr, 0xEB)
+        safe_write(false)
+        sendresponse("Version checking is disabled", command, executor)
     end
 end
 
-function Command_Viewadmins(executor, command, count)
+function Command_Viewadmins(executor, command, boolean, count)
     if count == 1 then
         sendresponse("The current admins in the server are listed below:", command, executor)
         sendresponse("[Level] Name: [Admin Type]", command, executor)
@@ -7194,7 +7201,7 @@ function GetGameAddresses()
         specs_addr = 0x5E6E63
         hashcheck_addr = 0x530130
         obj_header_pointer = 0x6C69F0
-        -- versioncheck_addr = 0x4CB587
+        versioncheck_addr = 0x4CB587
         map_pointer = 0x5B927C
         -- gametype_base = 0x5F5498
         -- gametime_base = 0x5F55BC
