@@ -4,6 +4,8 @@
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 
+> ## [REQUEST AN ADDON](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/REQUEST%20AN%20ADD-ON.md)
+
 ### SAPP LINKS
 > * SAPP Lua API: [weblink](http://halo.isimaginary.com/lua_info/)
 > * Sapp Forums: [weblink](http://halo.isimaginary.com/forum/)
