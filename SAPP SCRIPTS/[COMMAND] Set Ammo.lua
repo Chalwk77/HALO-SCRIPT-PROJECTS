@@ -59,12 +59,6 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local response = nil
-    if (Environment == 1) then
-        use_console = true
-    end
-    if (Environment == 2) then
-        use_console = false
-    end
     t = tokenizestring(Command)
     count = #t
     if t[1] == "setammo" then
@@ -187,18 +181,14 @@ function sendresponse(message, command, PlayerIndex)
         PlayerIndex = tonumber(PlayerIndex)
         if command then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-                if not use_console then
-                    execute_command("msg_prefix \"\"")
-                    say(PlayerIndex, message)
-                    execute_command("msg_prefix \"** SERVER ** \"")
-                elseif use_console then
-                    rprint(PlayerIndex, message)
-                end
+                execute_command("msg_prefix \"\"")
+                say(PlayerIndex, message)
+                execute_command("msg_prefix \"** SERVER ** \"")
             else
                 cprint(message .. "", 2 + 8)
             end
         else
-            cprint("Internal Error has Occured", 4 + 8)
+            cprint("Internal Error has Occured.", 4 + 8)
         end
     end
 end
