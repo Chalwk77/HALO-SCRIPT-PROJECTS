@@ -30,6 +30,7 @@ message_board = {
 
 welcome_timer = { }
 new_timer = { }
+players = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -88,14 +89,14 @@ end
 function OnPlayerJoin(PlayerIndex)
     welcome_timer[PlayerIndex] = true
     local player_id = get_var(PlayerIndex, "$n")
-    players_alive[player_id] = { }
-    players_alive[player_id].new_timer = 0
+    players[player_id] = { }
+    players[player_id].new_timer = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
     welcome_timer[PlayerIndex] = false
     local player_id = get_var(PlayerIndex, "$n")
-    players_alive[player_id].new_timer = 0
+    players[player_id].new_timer = 0
 end
 
 function cls(PlayerIndex)
