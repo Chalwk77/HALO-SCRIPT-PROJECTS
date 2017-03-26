@@ -8929,5 +8929,3 @@ function read_widestring(address, length)
     end
     return table.concat(byte_table)
 end
-
--- Zapier | test_run #1
