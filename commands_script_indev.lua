@@ -7680,8 +7680,6 @@ function getvalidplayers(expression, PlayerIndex)
             val = 4
             local expression = tonumber(val)
             if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
-            local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
         elseif expression == '"5"' then
             val = 5
             local expression = tonumber(val)
