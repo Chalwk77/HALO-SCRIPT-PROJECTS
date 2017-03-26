@@ -43,7 +43,7 @@ end
 
 function OnNewGame()
     for i = 1, 16 do
-        if getplayer(i) then
+        if get_player(i) then
             cur_players = cur_players + 1
         end
     end
@@ -91,21 +91,21 @@ function Command_Setammo(executor, command, PlayerIndex, type, ammo, count)
                             write_dword(weapon_id + 0x2B6, tonumber(ammo))
                             safe_write(false)
                             sync_ammo(m_weaponId)
-                            sendresponse(getname(players[i]) .. " had their unloaded ammo changed to " .. ammo, command, executor)
+                            sendresponse(get_var(players[i], "$name") .. " had their unloaded ammo changed to " .. ammo, command, executor)
                         elseif type == "2" or type == "loaded" then
                             safe_write(true)
                             write_dword(weapon_id + 0x2B8, tonumber(ammo))
                             safe_write(false)
                             sync_ammo(m_weaponId)
-                            sendresponse(getname(players[i]) .. " had their loaded ammo changed to " .. ammo, command, executor)
+                            sendresponse(get_var(players[i], "$name") .. " had their loaded ammo changed to " .. ammo, command, executor)
                         else
                             sendresponse("Invalid type: 1 for unloaded, 2 for loaded ammo", command, executor)
                         end
                     else
-                        sendresponse(getname(players[i]) .. " is not holding any weapons", command, executor)
+                        sendresponse(get_var(players[i], "$name") .. " is not holding any weapons", command, executor)
                     end
                 else
-                    sendresponse(getname(players[i]) .. " is dead", command, executor)
+                    sendresponse(get_var(players[i], "$name") .. " is dead", command, executor)
                 end
             end
         else
@@ -131,13 +131,13 @@ function getvalidplayers(expression, PlayerIndex)
             end
         elseif string.sub(expression, 1, 3) == "red" then
             for i = 1, 16 do
-                if getplayer(i) and getteam(i) == "red" then
+                if getplayer(i) and get_var(i, "$team") == "red" then
                     table.insert(players, i)
                 end
             end
         elseif string.sub(expression, 1, 4) == "blue" then
             for i = 1, 16 do
-                if getplayer(i) and getteam(i) == "blue" then
+                if get_player(i) and get_var(i, "$team") == "blue" then
                     table.insert(players, i)
                 end
             end
@@ -154,7 +154,7 @@ function getvalidplayers(expression, PlayerIndex)
             local bool = false
             while not bool do
                 num = math.random(1, 16)
-                if getplayer(num) and num ~= PlayerIndex then
+                if get_player(num) and num ~= PlayerIndex then
                     bool = true
                 end
             end
@@ -165,32 +165,6 @@ function getvalidplayers(expression, PlayerIndex)
         end
     end
     return false
-end
-
-function getplayer(PlayerIndex)
-    if tonumber(PlayerIndex) then
-        if tonumber(PlayerIndex) ~= 0 then
-            local m_player = get_player(PlayerIndex)
-            if m_player ~= 0 then return m_player end
-        end
-    end
-    return nil
-end
-
-function getname(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local name = get_var(PlayerIndex, "$name")
-        return name
-    end
-    return nil
-end
-
-function getteam(PlayerIndex)
-    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local team = get_var(PlayerIndex, "$team")
-        return team
-    end
-    return nil
 end
 
 function resolveplayer(PlayerIndex)
