@@ -250,5 +250,3 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
-/SAPP SCRIPTS/\[COMMAND\] SetNades.lua
-/Command_Set_Ammo.lua
