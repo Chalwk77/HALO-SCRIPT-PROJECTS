@@ -24,6 +24,7 @@ Multi_Control = true
 use_logo = true
 tbag_detection = true
 msga = nil
+object_table_ptr = nil
 
 -- Strings
 api_version = '1.11.0.0'
@@ -297,6 +298,7 @@ function OnScriptLoad()
     profilepath = getprofilepath()
     GetGameAddresses()
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+    object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     if get_var(0, "$gt") ~= "n/a" then end
     local rf = sig_scan("B8????????E8??000000A1????????55")
@@ -5869,68 +5871,66 @@ function Command_Spawn(executor, command, object, PlayerIndex, amount, resptime,
     end
     if type == "spawn" then
         bool = true
-        --------------------------------------------------------------------------------------------------------------------------------------
         if object == "cyborg" or object == "bot" or object == "mastercheif" or object == "biped" or object == "bipd" or object == '"cyborg"' or object == '"bot"' or object == '"mastercheif"' or object == '"biped"' or object == '"bipd"' then
             object_to_spawn = bipds_table[1][2]
             Spawn(message, "Cyborg", "bipd", object_to_spawn, executor, type)
         elseif object == "captain" or object == "keyes" or object == '"captain"' or object == '"keyes"' then
             object_to_spawn = bipds_table[2][2]
-            Spawn(message, "Captain Keyes", "bipd", captain_tag_id, executor, type)
+            Spawn(message, "Captain Keyes", "bipd", object_to_spawn, executor, type)
         elseif object == "cortana" or object == '"cortana"' then
             object_to_spawn = bipds_table[3][2]
-            Spawn(message, "Cortana", "bipd", cortana_tag_id, executor, type)
+            Spawn(message, "Cortana", "bipd", object_to_spawn, executor, type)
         elseif object == "cortana2" or object == '"cortana2"' then
             object_to_spawn = bipds_table[4][2]
-            Spawn(message, "Cortana2", "bipd", cortana2_tag_id, executor, type)
+            Spawn(message, "Cortana2", "bipd", object_to_spawn, executor, type)
         elseif object == "crewman" or object == '"crewman"' then
             object_to_spawn = bipds_table[5][2]
-            Spawn(message, "Crewman", "bipd", crewman_tag_id, executor, type)
+            Spawn(message, "Crewman", "bipd", object_to_spawn, executor, type)
         elseif object == "elite" or object == '"elite"' then
             object_to_spawn = bipds_table[6][2]
-            Spawn(message, "elite", "bipd", elite_tag_id, executor, type)
+            Spawn(message, "elite", "bipd", object_to_spawn, executor, type)
         elseif object == "elite2" or object == '"elite2"' then
             object_to_spawn = bipds_table[7][2]
-            Spawn(message, "Elite Special", "bipd", elite2_tag_id, executor, type)
+            Spawn(message, "Elite Special", "bipd", object_to_spawn, executor, type)
         elseif object == "engineer" or bject == '"engineer"' then
             object_to_spawn = bipds_table[8][2]
-            Spawn(message, "Engineer", "bipd", engineer_tag_id, executor, type)
+            Spawn(message, "Engineer", "bipd", object_to_spawn, executor, type)
         elseif object == "flood" or object == '"flood"' then
             object_to_spawn = bipds_table[9][2]
-            Spawn(message, "Flood Captain", "bipd", flood_tag_id, executor, type)
+            Spawn(message, "Flood Captain", "bipd", object_to_spawn, executor, type)
         elseif object == "flood2" or object == '"flood2"' then
             object_to_spawn = bipds_table[10][2]
-            Spawn(message, "Flood Infection", "bipd", flood2_tag_id, executor, type)
+            Spawn(message, "Flood Infection", "bipd", object_to_spawn, executor, type)
         elseif object == "flood3" or object == '"flood3"' then
             object_to_spawn = bipds_table[11][2]
-            Spawn(message, "Flood Carrier", "bipd", "characters\\floodcarrier\\floodcarrier", executor, type)
+            Spawn(message, "Flood Carrier", "bipd", object_to_spawn, executor, type)
         elseif object == "floodelite" or object == '"floodelite"' then
             object_to_spawn = bipds_table[12][2]
-            Spawn(message, "FloodCombat Elite", "bipd", "characters\\floodcombat elite\\floodcombat elite", executor, type)
+            Spawn(message, "FloodCombat Elite", "bipd", object_to_spawn, executor, type)
         elseif object == "floodhuman" or object == '"floodhuman"' then
             object_to_spawn = bipds_table[13][2]
-            Spawn(message, "FloodCombat Human", "bipd", "characters\\floodcombat_human\\floodcombat_human", executor, type)
+            Spawn(message, "FloodCombat Human", "bipd", object_to_spawn, executor, type)
         elseif object == "pedobear" or object == "grunt" or object == '"pedobear"' or object == '"grunt"' then
             object_to_spawn = bipds_table[14][2]
-            Spawn(message, "Pedobear", "bipd", "characters\\grunt\\grunt", executor, type)
+            Spawn(message, "Pedobear", "bipd", object_to_spawn, executor, type)
         elseif object == "hunter" or object == '"hunter"' then
             object_to_spawn = bipds_table[15][2]
-            Spawn(message, "Hunter", "bipd", "characters\\hunter\\hunter", executor, type)
+            Spawn(message, "Hunter", "bipd", object_to_spawn, executor, type)
         elseif object == "marine" or bject == '"marine"' then
             object_to_spawn = bipds_table[16][2]
-            Spawn(message, "Marine", "bipd", "characters\\marine\\marine", executor, type)
+            Spawn(message, "Marine", "bipd", object_to_spawn, executor, type)
         elseif object == "marinesuicide" or object == "marine2" or object == '"marinesuicide"' or object == '"marine2"' then
             object_to_spawn = bipds_table[17][2]
-            Spawn(message, "Marine Suicidal", "bipd", "characters\\marine_suicidal\\marine_suicidal", executor, type)
+            Spawn(message, "Marine Suicidal", "bipd", object_to_spawn, executor, type)
         elseif object == "monitor" or object == '"monitor"' then
             object_to_spawn = bipds_table[18][2]
-            Spawn(message, "Monitor", "bipd", "characters\\monitor\\monitor", executor, type)
+            Spawn(message, "Monitor", "bipd", object_to_spawn, executor, type)
         elseif object == "sentinel" or object == '"sentinel"' then
             object_to_spawn = bipds_table[19][2]
-            Spawn(message, "Sentinel", "bipd", "characters\\sentinel\\sentinel", executor, type)
+            Spawn(message, "Sentinel", "bipd", object_to_spawn, executor, type)
         elseif object == "johnson" or object == '"johnson"' then
             object_to_spawn = bipds_table[20][2]
-            Spawn(message, "Sgt. Johnson", "bipd", "characters\\johnson\\johnson", executor, type)
-            --------------------------------------------------------------------------------------------------------------------------------------
+            Spawn(message, "Sgt. Johnson", "bipd", object_to_spawn, executor, type)
         elseif object == "camo" or object == "camouflage" or object == '"camo"' or object == '"camouflage"' then
             object_to_spawn = eqip_table[1][2]
             Spawn(message, "Camouflage", "eqip", object_to_spawn, executor, type)
@@ -7809,17 +7809,27 @@ function get_tag_info(tagclass, tagname)
 end
 
 function LoadTags()
-    
+    -- bipd --
     bipds_table[1] = { "bipd", "characters\\cyborg_mp\\cyborg_mp" }
-    bipds_table[2] = { "bipd", "empty" }
-    bipds_table[3] = { "bipd", "empty" }
-    bipds_table[4] = { "bipd", "empty" }
-    bipds_table[5] = { "bipd", "empty" }
-    bipds_table[6] = { "bipd", "empty" }
-    bipds_table[7] = { "bipd", "empty" }
-    bipds_table[8] = { "bipd", "empty" }
-    bipds_table[9] = { "bipd", "empty" }
-    bipds_table[10] = { "bipd", "empty" }
+    bipds_table[2] = { "bipd", "characters\\captain\\captain" }
+    bipds_table[3] = { "bipd", "characters\\cortana\\cortana" }
+    bipds_table[4] = { "bipd", "characters\\cortana\\halo_enhanced\\halo_enhanced" }
+    bipds_table[5] = { "bipd", "characters\\crewman\\crewman" }
+    bipds_table[6] = { "bipd", "characters\\elite\\elite" }
+    bipds_table[7] = { "bipd", "characters\\elite\\elite special" }
+    bipds_table[8] = { "bipd", "characters\\engineer\\engineer" }
+    bipds_table[9] = { "bipd", "characters\\flood_captain\\flood_captain" }
+    bipds_table[10] = { "bipd", "characters\\flood_infection\\flood_infection" }
+    bipds_table[11] = { "bipd", "characters\\floodcarrier\\floodcarrier" }
+    bipds_table[12] = { "bipd", "characters\\floodcombat elite\\floodcombat elite" }
+    bipds_table[13] = { "bipd", "characters\\floodcombat_human\\floodcombat_human" }
+    bipds_table[14] = { "bipd", "characters\\grunt\\grunt" }
+    bipds_table[15] = { "bipd", "characters\\hunter\\hunter" }
+    bipds_table[16] = { "bipd", "characters\\marine\\marine" }
+    bipds_table[17] = { "bipd", "characters\\marine_suicidal\\marine_suicidal" }
+    bipds_table[18] = { "bipd", "characters\\monitor\\monitor" }
+    bipds_table[19] = { "bipd", "characters\\sentinel\\sentinel" }
+    bipds_table[20] = { "bipd", "characters\\johnson\\johnson" }
 
     -- equipment --
     eqip_table[1] = { "eqip", "powerups\\active camouflage" }
@@ -8061,11 +8071,6 @@ function rtvTimer(id, count)
     end
 end
 
-function pack(...)
-    local arg = { ...}
-    return arg
-end
-
 function moveobject(ObjectID, x, y, z)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
@@ -8074,22 +8079,30 @@ function moveobject(ObjectID, x, y, z)
     end
 end
 
-function get_tag_data(obj_type, obj_name)
-	local tag_id = lookup_tag(obj_type, obj_name)
-	return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
-end	
-
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
-    TempObjectTable = { MapID, ParentID, PlayerIndex }
-    local MapID = TempObjectTable[1]
-    local PlayerIndex = TempObjectTable[3]
     if PlayerIndex then
         if mode[getip(PlayerIndex)] == "portalgun" then
-            timer(20, "portalgunTimer", PlayerIndex)
+            timer(20, "portalgunTimer", PlayerIndex, ObjectID)
         elseif mode[getip(PlayerIndex)] == "spawngun" then
             timer(20, "spawngunTimer", PlayerIndex)
         end
     end
+end
+
+function portalgunTimer(PlayerIndex, ObjectID)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local x, y, z = read_vector3d(player_object + 0x5c)
+        local camera_x = read_float(player_object + 0x230)
+        local camera_y = read_float(player_object + 0x234)
+        local distance = 5
+        local height = 0
+        local x = x + camera_x * distance
+        local y = y + camera_y * distance
+        local z = z + height 
+        write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z)
+    end
+    return false
 end
 
 function spawngunTimer(PlayerIndex)
@@ -8104,29 +8117,6 @@ function spawngunTimer(PlayerIndex)
     local z = z + height
     local odj = spawn_object(obj_type, objspawnid[getip(PlayerIndex)], x, y, z)
     return false
-end
-
-function portalgunTimer(id, count, arg)
-    local m_object = arg[1]
-    if count == 100 then
-        return false
-    end
-    if m_object then
-        local obj_x_velocity = read_float(m_object + 0x68)
-        if obj_x_velocity == 0 then
-            local x = read_float(m_object + 0x5C)
-            local y = read_float(m_object + 0x60)
-            local z = read_float(m_object + 0x64)
-            local m_playerobjId = getplayerobjectid(arg[2])
-            if m_playerobjId then
-                moveobject(m_playerobjId, x, y, z)
-            end
-            return false
-        else
-            return true
-        end
-    end
-    return true
 end
 
 function getplayerobjectid(PlayerIndex)
@@ -8228,6 +8218,15 @@ function setscore(PlayerIndex, score)
             end
         end
     end
+end
+
+function pack(...)
+    local arg = { ...}
+    return arg
+end
+
+function math.round(num, idp)
+    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
 end
 
 function string.findchar(str, char)
