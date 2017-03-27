@@ -30,7 +30,6 @@ object_table_ptr = nil
 -- Strings
 api_version = '1.11.0.0'
 script_version = '1.0'
-processid = ""
 data_folder = 'sapp\\'
 s_chat_dir = 'sapp\\Server Chat.txt'
 server_prefix = '** SERVER **'
@@ -205,7 +204,7 @@ command_access = {
     "sv_ban",
 }
 
-defaulttxt_commands = {
+default_commands = {
     "sv_chatcommands 1",
     "sv_adminblocker 0",
     "sv_anticaps false",
@@ -325,9 +324,12 @@ function OnScriptLoad()
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
             local player_id = get_var(i, "$n")
+            players_alive[player_id] = { }
             players_alive[player_id].pl_afk = nil
-            players_alive[player_id].invis_time = 0
             players_alive[player_id].pl_vehicle = nil
+            players_alive[player_id].invis_time = 0
+            players_alive[player_id].new_timer = 0
+            players_alive[player_id].new_timer = 0
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -858,19 +860,22 @@ function OnTick()
                 local obj_forward = read_float(player_object + 0x278)
                 local obj_left = read_float(player_object + 0x27C)
                 local player_id = get_var(i, "$n")
-                if (i == players_alive[player_id].pl_afk) then
-                    local afk_x = x_aim
-                    local afk_y = y_aim
-                    local afk_z = z_aim
-                    write_bit(player_object + 0x10, 7, 1)
-                    if x_aim ~= afk_x or y_aim ~= afk_y or z_aim ~= afk_z or obj_forward ~= 0 or obj_left ~= 0 then
-                        write_bit(player_object + 0x10, 7, 0)
-                        privateSay(i, "You are no longer afk")
-                        players_alive[player_id].pl_afk = nil
-                    else
-                        write_float(m_player + 0x100, z - 1000)
+                if players_alive[player_id] ~= nil then
+                    if (i == players_alive[player_id].pl_afk) then
+                        local afk_x = x_aim
+                        local afk_y = y_aim
+                        local afk_z = z_aim
+                        write_bit(player_object + 0x10, 7, 1)
+                        if x_aim ~= afk_x or y_aim ~= afk_y or z_aim ~= afk_z or obj_forward ~= 0 or obj_left ~= 0 then
+                            write_bit(player_object + 0x10, 7, 0)
+                            privateSay(i, "You are no longer afk")
+                            players_alive[player_id].pl_afk = nil
+                        else
+                            write_float(m_player + 0x100, z - 1000)
+                        end
                     end
-                elseif hidden[id] then
+                end
+                if hidden[id] then
                     write_vector3d(get_player(i) + 0xF8, math.pow(2,10), math.pow(2,10), -math.pow(2,10))
                     local player_object = get_dynamic_player(i)
                     local flags = read_dword(player_object + 0x10)
@@ -1114,6 +1119,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local Message = tostring(Message)
     local Command = tokenizestring(Message)
     local name = get_var(PlayerIndex, "$name")
+    local s_chat_name = get_var(PlayerIndex, "$name")
+    local s_chat_id = get_var(PlayerIndex, "$n")
+    local s_chat_ip = get_var(PlayerIndex, "$ip")
+    local s_chat_hash = get_var(PlayerIndex, "$hash")
     iscommand = nil
     if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
         iscommand = true
@@ -1791,10 +1800,10 @@ end
 
 function OnPlayerJoin(PlayerIndex)
 	if compatible then write_byte(getplayer(PlayerIndex) + 0x20, 0) end
-    s_chat_name = get_var(PlayerIndex, "$name")
-    s_chat_id = get_var(PlayerIndex, "$n")
-    s_chat_ip = get_var(PlayerIndex, "$ip")
-    s_chat_hash = get_var(PlayerIndex, "$hash")
+    local s_chat_name = get_var(PlayerIndex, "$name")
+    local s_chat_id = get_var(PlayerIndex, "$n")
+    local s_chat_ip = get_var(PlayerIndex, "$ip")
+    local s_chat_hash = get_var(PlayerIndex, "$hash")
     local TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
     local file = io.open(s_chat_dir, "a+")
     if file ~= nil then
@@ -1863,6 +1872,10 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     welcome_timer[PlayerIndex] = false
+    local s_chat_name = get_var(PlayerIndex, "$name")
+    local s_chat_id = get_var(PlayerIndex, "$n")
+    local s_chat_ip = get_var(PlayerIndex, "$ip")
+    local s_chat_hash = get_var(PlayerIndex, "$hash")
     local file = io.open(s_chat_dir, "a+")
     if file ~= nil then
         file:write(TimeStamp .. "    [QUIT]    Name: " .. s_chat_name .. "    ID: [" .. s_chat_id .. "]    IP: [" .. s_chat_ip .. "]    CD-Key Hash: [" .. s_chat_hash .. "]\n")
@@ -4787,7 +4800,7 @@ function Command_Nuke(executor, command, PlayerIndex, count)
                 if m_objectId ~= nil then
                     local player_object = get_dynamic_player(players[i])
                     local x, y, z = read_vector3d(player_object + 0x5C)
-                    for j = 1, 5 do
+                    for j = 1, 10 do
                         local nukeproj = spawn_object("proj", "weapons\\rocket launcher\\rocket", x, y, z + 10)
                         table.insert(nukes, nukeproj)
                         local m_proj = get_object_memory(nukeproj)
@@ -6686,12 +6699,12 @@ function DelayCleanUpDrones(PlayerIndex, command, executor)
                     if v then
                         if drone_obj then
                             destroy_object(v)
-                            sendresponse("Cleaning up " .. drone_name .. "'s vehicles.", command, executor)
                         end
                         vehicle_drone_table[PlayerIndex][k] = nil
                     end
                 end
             end
+            sendresponse("Cleaning up " .. drone_name .. "'s vehicles.", command, executor)
         else
             sendresponse("Nothing to clean up!", command, executor)
         end
@@ -7091,29 +7104,27 @@ function check_sphere(m_objectId, X, Y, Z, R)
 end
 
 function cleanupdrones(PlayerIndex)
-    if getplayer(PlayerIndex) then
-        if vehicle_drone_table[PlayerIndex] then
-            for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
-                if v then
-                    if drone_obj then
-                        destroy_object(v)
-                    end
+    if vehicle_drone_table[PlayerIndex] then
+        for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
+            if v then
+                if drone_obj then
+                    destroy_object(v)
                 end
-                vehicle_drone_table[PlayerIndex][k] = nil
             end
+            vehicle_drone_table[PlayerIndex][k] = nil
         end
     end
 end
 
 function DefaultSvTimer()
-    local defaults_lines = #defaulttxt_commands
+    local defaults_lines = #default_commands
     local temp_lines = 0
     local temp_commands_executed = { }
-    local file = io.open(profilepath .. 'commands_defaults.txt', "a")
+    local file = io.open(profilepath .. 'commands_defaults.txt', "r")
     if file then
         for i = 0, defaults_lines + 1 do
-            if defaulttxt_commands[i] then
-                execute_command(defaulttxt_commands[i])
+            if default_commands[i] then
+                execute_command(default_commands[i])
             end
         end
         file:close()
@@ -7122,9 +7133,9 @@ function DefaultSvTimer()
         local file = io.open(profilepath .. 'commands_defaults.txt', "w")
         cprint("Defaults.txt not found. File will be created.", 4 + 8)
         for i = 0, defaults_lines + 1 do
-            if defaulttxt_commands[i] then
-                execute_command(defaulttxt_commands[i])
-                file:write(defaulttxt_commands[i] .. "\n")
+            if default_commands[i] then
+                execute_command(default_commands[i])
+                file:write(default_commands[i] .. "\n")
             end
         end
         file:close()
