@@ -44,7 +44,7 @@ message_board = {
 
 -- Tables
 welcome_timer = { }
-NEW_TIMER = { }
+new_timer = { }
 players_alive = { }
 weapons = { }
 vehicles = { }
@@ -307,6 +307,16 @@ function OnScriptLoad()
         write_byte(msga, 0)
         safe_write(false)
     end
+	if halo_type == "PC" then  
+		gametype_base = 0x671340
+	else 
+		gametype_base = 0x5F5498
+	end
+    if read_byte(gametype_base + 0x34) == 1 then
+		compatible = false
+	else
+		compatible = true
+	end
     team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
@@ -314,11 +324,10 @@ function OnScriptLoad()
             cur_players = cur_players + 1
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
-            local PLAYER_ID = get_var(i, "$n")
-            players_alive[PLAYER_ID].AFK = nil
-            players_alive[PLAYER_ID].HIDDEN = nil
-            players_alive[PLAYER_ID].INVIS_TIME = 0
-            players_alive[PLAYER_ID].VEHICLE = nil
+            local player_id = get_var(i, "$n")
+            players_alive[player_id].pl_afk = nil
+            players_alive[player_id].invis_time = 0
+            players_alive[player_id].pl_vehicle = nil
         end
         gameend = false
         vehicle_drone_table[i] = { }
@@ -754,13 +763,13 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (welcome_timer[i] == true) then
-                local PLAYER_ID = get_var(i, "$n")
-                players_alive[PLAYER_ID].NEW_TIMER = players_alive[PLAYER_ID].NEW_TIMER + 0.030
+                local player_id = get_var(i, "$n")
+                players_alive[player_id].new_timer = players_alive[player_id].new_timer + 0.030
                 cls(i)
                 for k, v in pairs(message_board) do rprint(i, "" .. v) end
-                if players_alive[PLAYER_ID].NEW_TIMER >= math.floor(welcome_msg_duration) then
+                if players_alive[player_id].new_timer >= math.floor(welcome_msg_duration) then
                     welcome_timer[i] = false
-                    players_alive[PLAYER_ID].NEW_TIMER = 0
+                    players_alive[player_id].new_timer = 0
                 end
             end
         end
@@ -790,12 +799,13 @@ function OnTick()
                 elseif ghost_table[ip] and ghost_table[ip] > 0 then
                     camo(i, ghost_table[ip])
                     if (TIMER[i] ~= false and PlayerAlive(i) == true) then
-                        local PLAYER_ID = get_var(i, "$n")
-                        players_alive[PLAYER_ID].INVIS_TIME = players_alive[PLAYER_ID].INVIS_TIME + 0.030
-                        if players_alive[PLAYER_ID].INVIS_TIME >= math.floor(invis_time) then
+                        local player_id = get_var(i, "$n")
+                        players_alive[player_id].invis_time = players_alive[player_id].invis_time + 0.030
+                        if players_alive[player_id].invis_time >= math.floor(invisibility_time) then
                             TIMER[i] = false
                             ghost_table[ip] = nil
-                            invis_time = 0
+                            invisibility_time = 0
+                            privateSay(i, "You are no longer invisible")
                         end
                     end
                 end
@@ -809,8 +819,8 @@ function OnTick()
                 local current_vehicle = read_dword(player + 0x11C)
                 if (current_vehicle ~= 0xFFFFFFFF) then
                     local vehicle = get_object_memory(current_vehicle)
-                    local PLAYER_ID = get_var(i, "$n")
-                    players_alive[PLAYER_ID].VEHICLE = current_vehicle
+                    local player_id = get_var(i, "$n")
+                    players_alive[player_id].pl_vehicle = current_vehicle
                 end
             end
         end
@@ -847,8 +857,8 @@ function OnTick()
                 local z = read_float(m_player + 0x100)
                 local obj_forward = read_float(player_object + 0x278)
                 local obj_left = read_float(player_object + 0x27C)
-                local PLAYER_ID = get_var(i, "$n")
-                if (i == players_alive[PLAYER_ID].AFK) then
+                local player_id = get_var(i, "$n")
+                if (i == players_alive[player_id].pl_afk) then
                     local afk_x = x_aim
                     local afk_y = y_aim
                     local afk_z = z_aim
@@ -856,12 +866,22 @@ function OnTick()
                     if x_aim ~= afk_x or y_aim ~= afk_y or z_aim ~= afk_z or obj_forward ~= 0 or obj_left ~= 0 then
                         write_bit(player_object + 0x10, 7, 0)
                         privateSay(i, "You are no longer afk")
-                        players_alive[PLAYER_ID].AFK = nil
+                        players_alive[player_id].pl_afk = nil
                     else
                         write_float(m_player + 0x100, z - 1000)
                     end
                 elseif hidden[id] then
-                    write_float(m_player + 0x100, z - 1000)
+                    write_vector3d(get_player(i) + 0xF8, math.pow(2,10), math.pow(2,10), -math.pow(2,10))
+                    local player_object = get_dynamic_player(i)
+                    local flags = read_dword(player_object + 0x10)
+                    if(bit.band(flags,1) == 0) then
+                        flags = flags + 1
+                    end
+                    if(bit.band(flags,math.pow(2,24)) ~= 0) then
+                        flags = flags - math.pow(2,24)
+                    end
+                    write_dword(player_object + 0x10, flags)
+                    write_word(player_object + 0x31E, 0x7F7F)
                 end
             end
         end
@@ -1030,13 +1050,12 @@ function OnNewGame()
             cur_players = cur_players + 1
             tbag[i] = { }
             dmgmultiplier[ip] = 1.0
-            local PLAYER_ID = get_var(i, "$n")
+            local player_id = get_var(i, "$n")
             if player_present(i) then
-                players_alive[PLAYER_ID].AFK = nil
-                players_alive[PLAYER_ID].HIDDEN = nil
-                players_alive[PLAYER_ID].INVIS_TIME = 0
-                players_alive[PLAYER_ID].VEHICLE = nil
-                players_alive[PLAYER_ID].NEW_TIMER = 0
+                players_alive[player_id].pl_afk = nil
+                players_alive[player_id].invis_time = 0
+                players_alive[player_id].pl_vehicle = nil
+                players_alive[player_id].new_timer = 0
             end
         end
         gameend = false
@@ -1062,12 +1081,11 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             TIMER[i] = false
-            local PLAYER_ID = get_var(i, "$n")
-            players_alive[PLAYER_ID].AFK = nil
-            players_alive[PLAYER_ID].HIDDEN = nil
-            players_alive[PLAYER_ID].INVIS_TIME = 0
-            players_alive[PLAYER_ID].VEHICLE = nil
-            players_alive[PLAYER_ID].NEW_TIMER = 0
+            local player_id = get_var(i, "$n")
+            players_alive[player_id].pl_afk = nil
+            players_alive[player_id].invis_time = 0
+            players_alive[player_id].pl_vehicle = nil
+            players_alive[player_id].new_timer = 0
             timer(0, "cleanupdrones", i)
         end
     end
@@ -1299,8 +1317,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     end
     t = tokenizestring(Command)
     count = #t
-    invis_time = tonumber(t[3])
-    invis_time = invis_time
+    invisibility_time = tonumber(t[3])
+    invisibility_time = invisibility_time
     if (Environment == 0) then permission = true end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
@@ -1537,7 +1555,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             elseif t[1] == "sv_mute" then
                 response = false
                 Command_Mute(PlayerIndex, t[1], t[2], count)
-            elseif t[1] == "sv_multiteam_vehicles" then
+            elseif t[1] == "sv_multiteam_vehicles" or t[1] == "mtv" then
                 response = false
                 Command_MultiTeamVehicles(PlayerIndex, t[1], t[2], count)
             elseif t[1] == "sv_nameban" or t[1] == "sv_n" then
@@ -1772,7 +1790,7 @@ function WelcomeHandler(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    -- test_run
+	if compatible then write_byte(getplayer(PlayerIndex) + 0x20, 0) end
     s_chat_name = get_var(PlayerIndex, "$name")
     s_chat_id = get_var(PlayerIndex, "$n")
     s_chat_ip = get_var(PlayerIndex, "$ip")
@@ -1787,14 +1805,13 @@ function OnPlayerJoin(PlayerIndex)
     local name = getname(PlayerIndex)
     local hash = gethash(PlayerIndex)
     local ip = getip(PlayerIndex)
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    players_alive[PLAYER_ID] = { }
-    players_alive[PLAYER_ID].AFK = nil
-    players_alive[PLAYER_ID].HIDDEN = nil
-    players_alive[PLAYER_ID].VEHICLE = nil
-    players_alive[PLAYER_ID].INVIS_TIME = 0
-    players_alive[PLAYER_ID].NEW_TIMER = 0
-    players_alive[PLAYER_ID].NEW_TIMER = 0
+    local player_id = get_var(PlayerIndex, "$n")
+    players_alive[player_id] = { }
+    players_alive[player_id].pl_afk = nil
+    players_alive[player_id].pl_vehicle = nil
+    players_alive[player_id].invis_time = 0
+    players_alive[player_id].new_timer = 0
+    players_alive[player_id].new_timer = 0
     welcome_timer[PlayerIndex] = true
     tbag[PlayerIndex] = { }
     players_list[PlayerIndex].name = name
@@ -1868,11 +1885,10 @@ function OnPlayerLeave(PlayerIndex)
         local words = tokenizestring(v, ",")
         if words[3] == ip then
         else
-            local PLAYER_ID = get_var(PlayerIndex, "$n")
-            players_alive[PLAYER_ID].AFK = nil
-            players_alive[PLAYER_ID].HIDDEN = nil
-            players_alive[PLAYER_ID].INVIS_TIME = 0
-            players_alive[PLAYER_ID].NEW_TIMER = 0
+            local player_id = get_var(PlayerIndex, "$n")
+            players_alive[player_id].pl_afk = nil
+            players_alive[player_id].invis_time = 0
+            players_alive[player_id].new_timer = 0
             last_damage[PlayerIndex] = nil
         end
     end
@@ -2008,8 +2024,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     TIMER[PlayerIndex] = true
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    players_alive[PLAYER_ID].INVIS_TIME = 0
+    local player_id = get_var(PlayerIndex, "$n")
+    players_alive[player_id].invis_time = 0
     local ip = getip(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object then
@@ -2144,62 +2160,17 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
         end
     end
-    -- if CauserIndex then
-    -- if PlayerIndex then
-    -- if mode[getip(CauserIndex)] == "destroy" then
-    -- if MetaID ~= 0xE63504C1 then
-    -- destroy_object(receiver_id)
-    -- end
-    -- elseif mode[getip(CauserIndex)] == "entergun" then
-    -- enter_vehicle(MetaID, PlayerIndex, 0)
-    -- end
-    -- end
-    -- end
-end
-
-function OnDamageLookup(receiver_id, causer_id, mapId)
-    if receiver_id and tbag_detection then
-        local PlayerIndex = objectidtoplayer(receiver_id)
+    if CauserIndex then
         if PlayerIndex then
-            local x, y, z = getobjectcoords(receiver_id)
-            if victim_coords[PlayerIndex] == nil then
-                victim_coords[PlayerIndex] = { }
-            end
-            if victim_coords[PlayerIndex] then
-                victim_coords[PlayerIndex].x = x
-                victim_coords[PlayerIndex].y = y
-                victim_coords[PlayerIndex].z = z
-            end
-        end
-    end
-    if causer_id and receiver_id then
-        local c_player = objectidtoplayer(causer_id)
-        local r_player = objectidtoplayer(receiver_id)
-        if r_player and c_player and c_player ~= r_player then
-            local c_ip = getip(c_player)
-            if dmgmultiplier[c_ip] ~= 1 then
-                odl_multiplier(dmgmultiplier[c_ip])
-            end
-            if multiteam_vehicles then
-                local count = r_player
-                while (getteam(c_player) == count) do
-                    count = count + 1
+            if mode[getip(CauserIndex)] == "destroy" then
+                if MetaID ~= 0xE63504C1 then
+                    destroy_object(MetaID)
                 end
-                write_byte(getplayer(r_player) + 0x20, count)
-                timer(100, "multiteamtimer", r_player)
+            elseif mode[getip(CauserIndex)] == "entergun" then
+                enter_vehicle(MetaID, PlayerIndex, 0)
             end
         end
     end
-    local tagname = gettaginfo(mapId)
-    if deathless and tagname ~= "globals\\distance" and tagname ~= "globals\\falling" then
-        return false
-    end
-    if deathless or not falldamage then
-        if (tagname == "globals\\distance" or tagname == "globals\\falling") then
-            odl_multiplier(0.001)
-        end
-    end
-    return nil
 end
 
 function getobject(PlayerIndex)
@@ -2383,8 +2354,8 @@ function Command_AFK(executor, command, Expression, count)
             local player = tonumber(executor)
             if player ~= -1 and player >= 1 and player < 16 then
                 local id = resolveplayer(executor)
-                local PLAYER_ID = get_var(executor, "$n")
-                players_alive[PLAYER_ID].AFK = executor
+                local player_id = get_var(executor, "$n")
+                players_alive[player_id].pl_afk = executor
                 sendresponse("You are now afk", command, executor)
             else
                 sendresponse("The server cannot be afk", command, executor)
@@ -2398,8 +2369,8 @@ function Command_AFK(executor, command, Expression, count)
             for i = 1, #players do
                 if player_present(players[i]) then
                     local id = get_var(players[i], "$n")
-                    local PLAYER_ID = get_var(id, "$n")
-                    players_alive[PLAYER_ID].AFK = id
+                    local player_id = get_var(id, "$n")
+                    players_alive[player_id].pl_afk = id
                     sendresponse(getname(players[i]) .. " is now afk", command, executor)
                 else
                     sendresponse("Invalid Player", command, executor)
@@ -3636,8 +3607,8 @@ end
 
 function resolveplayer(PlayerIndex)
     if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        local player_id = get_var(PlayerIndex, "$n")
-        return player_id
+        local p_id = get_var(PlayerIndex, "$n")
+        return p_id
     else
         -- nil
     end
@@ -3916,7 +3887,7 @@ function Command_Info(executor, command, PlayerIndex, count)
                         else
                             god_boolean = "False"
                         end
-                        if players_alive[player_number].AFK == true then
+                        if players_alive[player_number].pl_afk == true then
                             afk_boolean = "True"
                         else
                             afk_boolean = "False"
@@ -4307,9 +4278,9 @@ function Command_Invis(executor, command, PlayerIndex, time, count)
                 local m_objectId = get_dynamic_player(players[i])
                 if m_objectId then
                     if ghost_table[getip(players[i])] == nil then
-                        ghost_table[getip(players[i])] = invis_time
-                        sendresponse(getname(players[i]) .. " is now invisible for " .. invis_time .. " seconds", command, executor)
-                        privatesay(players[i], "You are now invisible for " .. invis_time .. " seconds.")
+                        ghost_table[getip(players[i])] = invisibility_time
+                        sendresponse(getname(players[i]) .. " is now invisible for " .. invisibility_time .. " seconds", command, executor)
+                        privatesay(players[i], "You are now invisible for " .. invisibility_time .. " seconds.")
                     elseif ghost_table[getip(players[i])] then
                         sendresponse(getname(players[i]) .. " is already invisible", command, executor)
                     else
@@ -4667,7 +4638,7 @@ function Command_MultiTeamVehicles(executor, command, boolean, count)
                 for i = 1, 16 do
                     local m_player = getplayer(i)
                     if m_player then
-                        write_byte(m_player + 0x20, 0)
+                        write_byte(m_player + 0x20, 1)
                     end
                 end
                 sendresponse("Multi Team Vehicles are now enabled", command, executor)
@@ -5088,20 +5059,19 @@ function Command_ResetPlayer(executor, command, PlayerIndex, count)
                 mode[ip] = nil
                 gods[ip] = nil
                 hidden[id] = nil
-                hidden[id] = nil
                 Noweapons[ip] = nil
-                for j = 1, 16 do
-                    for k = 1, 16 do
-                        if control_table[j][k] == players[i] then
-                            control_table[j][k] = nil
-                            bool = true
-                            break
-                        end
-                    end
-                    if bool then
-                        break
-                    end
-                end
+                -- for j = 1, 16 do
+                    -- for k = 1, 16 do
+                        -- if control_table[j][k] == players[i] then
+                            -- control_table[j][k] = nil
+                            -- bool = true
+                            -- break
+                        -- end
+                    -- end
+                    -- if bool then
+                        -- break
+                    -- end
+                -- end
                 sendresponse(getname(players[i]) .. " has been reset.", command, executor)
             end
         end
@@ -5282,7 +5252,6 @@ function Command_ScrimMode(executor, command, boolean, count)
                     ghost_table[ip] = nil
                     mode[ip] = nil
                     gods[ip] = nil
-                    hidden[id] = nil
                     hidden[id] = nil
                     if Noweapons[ip] then Noweapons[ip] = nil end
                     if infammo then
@@ -7290,7 +7259,7 @@ function GetGameAddresses()
         hashcheck_addr = 0x59c280
         versioncheck_addr = 0x5152E7
         map_pointer = 0x63525c
-        -- gametype_base = 0x671340
+        gametype_base = 0x671340
         -- gametime_base = 0x671420
         -- machine_pointer = 0x745BA0
         -- timelimit_address = 0x626630
@@ -7307,7 +7276,7 @@ function GetGameAddresses()
         obj_header_pointer = 0x6C69F0
         versioncheck_addr = 0x4CB587
         map_pointer = 0x5B927C
-        -- gametype_base = 0x5F5498
+        gametype_base = 0x5F5498
         -- gametime_base = 0x5F55BC
         -- machine_pointer = 0x6C7980
         -- timelimit_address = 0x5AA5B0
@@ -7933,11 +7902,10 @@ function isinvehicle(PlayerIndex)
     end
 end
 
-function multiteamtimer(id, count, PlayerIndex)
-    local m_player = getplayer(PlayerIndex)
-    if m_player and multiteam_vehicles then
-        write_byte(m_player + 0x20, 0)
-    end
+function multiteamtimer(player, count)
+	if compatible then
+		write_byte(getplayer(player) + 0x20, 0)
+	end
     return false
 end
 
