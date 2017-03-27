@@ -1771,23 +1771,7 @@ function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
--- How many hyper-space jumps does a player get? Default = 5
-hyperspacejumps = 1000
-
-zoom = {}
-nowzoom = {}
-zpress = {}
-press = {}
-space = {}
-left = {}
-
 function OnPlayerJoin(PlayerIndex)
-    zoom[PlayerIndex] = 0
-	nowzoom[PlayerIndex] = 0
-	zpress[PlayerIndex] = 0
-	press[PlayerIndex] = 1
-	space[PlayerIndex] = hyperspacejumps
-	left[PlayerIndex] = 0
     s_chat_name = get_var(PlayerIndex, "$name")
     s_chat_id = get_var(PlayerIndex, "$n")
     s_chat_ip = get_var(PlayerIndex, "$ip")
