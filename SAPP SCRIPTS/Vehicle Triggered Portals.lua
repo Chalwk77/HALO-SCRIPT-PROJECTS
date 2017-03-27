@@ -18,11 +18,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.11.0.0"
-Exit = nil
 gamesettings = {
     -- Removes the vehicle.
     -- Note, once removed, they will not respawn!
-    ["DestroyVehicle"] = false,
+    ["DestroyVehicle"] = true,
     
     -- Will spawn a new vehicle at the location of "TeleportFrom".
     -- Note, these spawned vehicles will not 'reset' after X seconds when moved.
@@ -50,23 +49,13 @@ TeleportTo[10] = { 83.66, -146.55, 0.02 }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-	register_callback(cb['EVENT_GAME_START'],"OnNewGame")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    if get_var(0, "$gt") ~= "n/a" then
-        mapname = get_var(0, "$map")
-    end
 end
 
-function OnScriptUnload() 
-    Exit = nil
-end
+function OnScriptUnload() end
 
-function OnNewGame(map)
+function OnNewGame()
     mapname = get_var(0, "$map")
-end
-
-function OnGameEnd()
-    Exit = nil
 end
 
 function OnVehicleEntry(PlayerIndex, Seat)
@@ -117,29 +106,29 @@ function InitiateTeleport(PlayerIndex)
         if VehicleObj ~= 0 and seat == 1 then
             local vehicleId = read_dword(player_object + 0x11C)
             player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-            player_obj_id = vehicleId
+            vehicle = vehicleId
             local coordinates = SelectRandomPortal()
             if coordinates then
                 moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
-                Exit = timer(1000*0.955, "exitvehicle", PlayerIndex)
+                timer(1000*0.955, "exitvehicle", PlayerIndex, vehicle)
                 execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[VTP] Teleporting!")
+                say(PlayerIndex, "[VTP] Teleporting to X: " .. tostring(TeleportTo[coordinates][1]) .. ", Y: " .. tostring(TeleportTo[coordinates][2]) .. " Z: " .. tostring(TeleportTo[coordinates][3]))
                 execute_command("msg_prefix \"** SERVER ** \"")
             end
         end
     end
 end
 
-function Destroyvehicle(PlayerIndex, VehicleObj)
+function Destroyvehicle(PlayerIndex, vehicle)
     if not PlayerInVehicle(PlayerIndex) then
-        destroy_object(player_obj_id)
+        destroy_object(vehicle)
     end
 end
 
 function exitvehicle(PlayerIndex)
     exit_vehicle(PlayerIndex)
     if gamesettings["DestroyVehicle"] then
-        timer(1000*1, "Destroyvehicle", PlayerIndex)
+        timer(1000*1.5, "Destroyvehicle", PlayerIndex, vehicle)
     end
     if gamesettings["CreateNewVehicle"] then
         spawn_object("vehi", "vehicles\\warthog\\mp_warthog", VehX, VehY, VehZ, 0.15)
@@ -150,7 +139,7 @@ function moveobject(ObjectID, x, y, z)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
         local veh_obj = get_object_memory(read_dword(object + 0x11C))
-        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
+        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z + 0.3)
     end
 end
 
@@ -196,4 +185,4 @@ end
 
 function OnError(Message)
     print(debug.traceback())
-end     
+end
