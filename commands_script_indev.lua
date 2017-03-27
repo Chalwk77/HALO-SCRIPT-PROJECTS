@@ -1772,6 +1772,7 @@ function WelcomeHandler(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
+    -- test_run
     s_chat_name = get_var(PlayerIndex, "$name")
     s_chat_id = get_var(PlayerIndex, "$n")
     s_chat_ip = get_var(PlayerIndex, "$ip")
