@@ -11,6 +11,7 @@ rcon_passwords_id = 0
 rtv_timeout = 1
 textbanid = 0
 uniques = 0
+welcome_msg_duration = 30
 
 Say = say_all
 privatesay = say
@@ -34,9 +35,6 @@ data_folder = 'sapp\\'
 s_chat_dir = 'sapp\\Server Chat.txt'
 server_prefix = '** SERVER **'
 TimeStamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-
--- OnTick --
-Welcome_Msg_Duration = 30
 message_board = {
     "Welcome to the TestBench - by Chalwk",
     "",
@@ -297,6 +295,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     profilepath = getprofilepath()
     GetGameAddresses()
+    LoadTags()
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -759,7 +758,7 @@ function OnTick()
                 players_alive[PLAYER_ID].NEW_TIMER = players_alive[PLAYER_ID].NEW_TIMER + 0.030
                 cls(i)
                 for k, v in pairs(message_board) do rprint(i, "" .. v) end
-                if players_alive[PLAYER_ID].NEW_TIMER >= math.floor(Welcome_Msg_Duration) then
+                if players_alive[PLAYER_ID].NEW_TIMER >= math.floor(welcome_msg_duration) then
                     welcome_timer[i] = false
                     players_alive[PLAYER_ID].NEW_TIMER = 0
                 end
@@ -1772,7 +1771,23 @@ function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 
+-- How many hyper-space jumps does a player get? Default = 5
+hyperspacejumps = 1000
+
+zoom = {}
+nowzoom = {}
+zpress = {}
+press = {}
+space = {}
+left = {}
+
 function OnPlayerJoin(PlayerIndex)
+    zoom[PlayerIndex] = 0
+	nowzoom[PlayerIndex] = 0
+	zpress[PlayerIndex] = 0
+	press[PlayerIndex] = 1
+	space[PlayerIndex] = hyperspacejumps
+	left[PlayerIndex] = 0
     s_chat_name = get_var(PlayerIndex, "$name")
     s_chat_id = get_var(PlayerIndex, "$n")
     s_chat_ip = get_var(PlayerIndex, "$ip")
@@ -8082,40 +8097,32 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if PlayerIndex then
         if mode[getip(PlayerIndex)] == "portalgun" then
-            timer(20, "portalgunTimer", PlayerIndex, ObjectID)
+            timer(20, "portalgunTimer", PlayerIndex)
         elseif mode[getip(PlayerIndex)] == "spawngun" then
             timer(20, "spawngunTimer", PlayerIndex)
         end
     end
 end
 
-function portalgunTimer(PlayerIndex, ObjectID)
+function portalgunTimer(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local x, y, z = read_vector3d(player_object + 0x5c)
-        local camera_x = read_float(player_object + 0x230)
-        local camera_y = read_float(player_object + 0x234)
-        local distance = 5
-        local height = 0
-        local x = x + camera_x * distance
-        local y = y + camera_y * distance
-        local z = z + height 
-        write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z)
+    local firing_state = read_float(player_object + 0x490)
+    if firing_state and firing_state == 1 then
+        execute_command("boost " .. PlayerIndex)
     end
-    return false
 end
 
 function spawngunTimer(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    local x, y, z = read_vector3d(player_object + 0x5c)
+    local x1, y1, z1 = read_vector3d(player_object + 0x5c)
     local camera_x = read_float(player_object + 0x230)
     local camera_y = read_float(player_object + 0x234)
     local height = 0
     local distance = 5
-    local x = x + camera_x * distance
-    local y = y + camera_y * distance
-    local z = z + height
-    local odj = spawn_object(obj_type, objspawnid[getip(PlayerIndex)], x, y, z)
+    local x2 = x1 + camera_x * distance
+    local y2 = y1 + camera_y * distance
+    local z2 = z1 + height
+    local odj = spawn_object(obj_type, objspawnid[getip(PlayerIndex)], x2, y2, z2)
     return false
 end
 
