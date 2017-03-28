@@ -53,9 +53,9 @@ Check_Radius = 1 -- Radius determining if player is in the scoring area
 
 -- ============== Timed Rewards ============== --
 survivor_rewards = true -- Use rewards? True = yes, False = no
-player_count = 1 -- Minimum amount of players that need to be present to give rewards
+player_count = 2 -- Minimum amount of players that need to be present to give rewards
 allocated_time = 120 -- [in seconds] - If the player survives this amount of time without dying then they're rewarded with ammo and a powerup (camo/overshield)
-progression_timer = 20 -- [in seconds] - If the player survives this amount of time without dying then level them up
+progression_timer = 180 -- [in seconds] - If the player survives this amount of time without dying then level them up
 
 -- 1 random item from this list will be given after surviving "allocated_time" without dying.
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
