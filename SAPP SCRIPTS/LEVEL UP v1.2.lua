@@ -596,7 +596,6 @@ function SPAWN_FLAG()
 end
 
 function FragCheck(PlayerIndex)
-    local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
     safe_read(true)
     local frags = read_byte(player_object + 0x31E)
@@ -608,7 +607,6 @@ function FragCheck(PlayerIndex)
 end
 
 function PlasmaCheck(PlayerIndex)
-    local plasma_bool = false
     local player_object = get_dynamic_player(PlayerIndex)
     safe_read(true)
     local plasmas = read_byte(player_object + 0x31F)
