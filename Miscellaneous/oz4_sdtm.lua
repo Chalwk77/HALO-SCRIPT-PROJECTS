@@ -14,6 +14,7 @@ weapons = { }
 objects = { }
 players = { }
 teleports = { }
+DAMAGE_APPLIED = { }
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 objects = {
@@ -80,16 +81,25 @@ teleports["bloodgulch"] = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
 	register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    for i = 1, 16 do
+        if player_present(i) then
+            DAMAGE_APPLIED[i] = 0
+        end
+    end
+    LoadItems()
 end
 
 function OnScriptUnload()
     weapons = { }
+    DAMAGE_APPLIED = { }
 end
 
 function OnNewGame()
+    LoadItems()
     mapname = get_var(1, "$map")
     if get_var(1,"$gt") == "ctf" then
         _index = 7
@@ -101,6 +111,19 @@ function OnNewGame()
             hpn = objects[i]
             object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
             cprint("Spawning: " ..objects[i][6])
+        end
+    end
+    for i = 1, 16 do
+        if player_present(i) then
+            DAMAGE_APPLIED[i] = 0
+        end
+    end
+end
+
+function OnGameEnd()
+    for i = 1, 16 do
+        if player_present(i) then
+            DAMAGE_APPLIED[i] = 0
         end
     end
 end
@@ -132,12 +155,26 @@ function OnTick()
 	end
 end
 
-function OnPlayerJoin(PlayerIndex)
-    
-end
-
 function OnPlayerSpawn(PlayerIndex)
 	weapon[PlayerIndex] = 0
+    timer(500, "SyncAmmo", PlayerIndex)
+end
+
+function SyncAmmo(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object ~= 0 then
+        local m_weaponId = read_dword(player_object + 0x118)
+        local weapon_id = get_object_memory(m_weaponId)
+        safe_write(true)
+        write_dword(weapon_id + 0x2B8, 200)
+        --write_dword(weapon_id + 0x2B6, 500)
+        safe_write(false)
+        sync_ammo(m_weaponId)
+    end
+end
+
+function OnPlayerLeave(PlayerIndex)
+    DAMAGE_APPLIED[PlayerIndex] = nil
 end
 
 function TeleportPlayer(player, x, y, z)
@@ -172,6 +209,112 @@ function secondsToTime(seconds, places)
     end
 end
 
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    DAMAGE_APPLIED[PlayerIndex] = MetaID
+    if MapID == TagID("proj", "weapons\\sniper rifle\\sniper bullet") then
+        return true, TagID("proj", "vehicles\\scorpion\\tank shell")
+    end
+    -- Pistol Bullet Projectile
+    if MetaID == PISTOL_BULLET then
+        return true, Damage * 4
+    end
+    -- Sniper Rifle Projectile
+    if MetaID == SNIPER_RIFLE_BULLET then
+        return true, Damage * 4
+    end
+    -- Rocket Projectile / Rhog Rocket
+    if MetaID == ROCKET_EXPLODE then
+        if PlayerInVehicle(PlayerIndex) then
+            return true, Damage * 4
+        else
+            return true, Damage * 4
+        end
+    end
+    -- Ghost Bolt Damage --
+    if MetaID == VEHICLE_GHOST_BOLT then
+        return true, Damage * 4
+    end
+    -- Warthog Bullet Damage --
+    if MetaID == WARTHOG_BULLET then
+        return true, Damage * 4
+    end
+    -- Tank Shell Damage --
+    if MetaID == VEHICLE_TANK_SHELL then
+        return true, Damage * 4
+    end
+    -- Tank Bullet Damage --
+    if MetaID == VEHICLE_TANK_BULLET then
+        return true, Damage * 4
+    end
+    -- Banshee Bolt Damage --
+    if MetaID == VEHICLE_BANSHEE_BOLT then
+        return true, Damage * 4
+    end
+    -- Banshee Fuelrod Damage --
+    if MetaID == VEHICLE_BANSHEE_FUEL_ROD then
+        return true, Damage * 4
+    end
+    -- Grenade Damage --
+    if (MetaID == GRENADE_FRAG_EXPLOSION) or (MetaID == GRENADE_PLASMA_ATTACHED) or (MetaID == GRENADE_PLASMA_EXPLOSION) then
+        return true, Damage * 4
+    end
+    -- Melee Damage --
+    if MetaID == MELEE_PISTOL or MetaID == MELEE_SNIPER_RIFLE then
+        return true, Damage * 4
+    end
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    DAMAGE_APPLIED[PlayerIndex] = 0
+end
+
+function LoadItems()
+    -- Melee --
+    MELEE_ASSAULT_RIFLE = TagID("jpt!", "weapons\\assault rifle\\melee")
+    MELEE_ODDBALL = TagID("jpt!", "weapons\\ball\\melee")
+    MELEE_FLAG = TagID("jpt!", "weapons\\flag\\melee")
+    MELEE_FLAME_THROWER = TagID("jpt!", "weapons\\flamethrower\\melee")
+    MELEE_NEEDLER = TagID("jpt!", "weapons\\needler\\melee")
+    MELEE_PISTOL = TagID("jpt!", "weapons\\pistol\\melee")
+    MELEE_PLASMA_PISTOL = TagID("jpt!", "weapons\\plasma pistol\\melee")
+    MELEE_PLASMA_RIFLE = TagID("jpt!", "weapons\\plasma rifle\\melee")
+    MELEE_ROCKET_LAUNCHER = TagID("jpt!", "weapons\\rocket launcher\\melee")
+    MELEE_SHOTGUN = TagID("jpt!", "weapons\\shotgun\\melee")
+    MELEE_SNIPER_RIFLE = TagID("jpt!", "weapons\\sniper rifle\\melee")
+    MELEE_PLASMA_CANNON = TagID("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+    -- Grenades Explosion/Attached --
+    GRENADE_FRAG_EXPLOSION = TagID("jpt!", "weapons\\frag grenade\\explosion")
+    GRENADE_PLASMA_EXPLOSION = TagID("jpt!", "weapons\\plasma grenade\\explosion")
+    GRENADE_PLASMA_ATTACHED = TagID("jpt!", "weapons\\plasma grenade\\attached")
+    -- Vehicles --
+    VEHICLE_GHOST_BOLT = TagID("jpt!", "vehicles\\ghost\\ghost bolt")
+    WARTHOG_BULLET = TagID("proj", "vehicles\\warthog\\bullet")
+    RHOG_ROCKET = TagID("jpt!", "vehicles\\ghost\\ghost bolt")
+    VEHICLE_TANK_BULLET = TagID("jpt!", "vehicles\\scorpion\\bullet")
+    VEHICLE_TANK_SHELL = TagID("jpt!", "vehicles\\scorpion\\tank shell")
+    VEHICLE_BANSHEE_BOLT = TagID("jpt!", "vehicles\\banshee\\banshee bolt")
+    VEHICLE_BANSHEE_FUEL_ROD = TagID("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
+    -- weapon projectiles --
+    PISTOL_BULLET = TagID("jpt!", "weapons\\pistol\\bullet")
+    SNIPER_RIFLE_BULLET = TagID("jpt!", "weapons\\sniper rifle\\sniper bullet")
+    ROCKET_EXPLODE = TagID("jpt!", "weapons\\rocket launcher\\explosion")
+end
+
 function OnError(Message)
     print(debug.traceback())
+end
+
+-- Credits to 002 for this function
+function TagID(tagclass, tagname)
+    local tagarray = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) -1 do
+        local tag = tagarray + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == tagclass) then
+            if (read_string(read_dword(tag + 0x10)) == tagname) then
+                return read_dword(tag + 0xC)
+            end
+        end
+    end
+    return nil
 end
