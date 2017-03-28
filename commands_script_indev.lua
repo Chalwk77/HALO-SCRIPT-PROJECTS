@@ -25,7 +25,6 @@ Multi_Control = true
 use_logo = true
 tbag_detection = true
 msga = nil
-object_table_ptr = nil
 
 -- Strings
 api_version = '1.11.0.0'
@@ -296,7 +295,6 @@ function OnScriptLoad()
     GetGameAddresses()
     LoadTags()
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
-    object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     if get_var(0, "$gt") ~= "n/a" then end
     local rf = sig_scan("B8????????E8??000000A1????????55")
@@ -1547,7 +1545,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             elseif t[1] == "sv_login" or t[1] == "sv_l" then
                 response = false
                 Command_Login(PlayerIndex, t[1], t[2], t[3], count)
-            elseif t[1] == "sv_map" or t[1] == "sv_m" then
+            elseif t[1] == "sv_map" then
                 if command:find("commands") == nil then
                     response = false
                     Command_Map(PlayerIndex, command)
@@ -2069,52 +2067,6 @@ function OnPlayerSpawn(PlayerIndex)
         end
         if ghost_table[ip] then
             ghost_table[ip] = nil
-        end
-    end
-end
-
-function OnClientUpdate(PlayerIndex)
-    local id = resolveplayer(PlayerIndex)
-    local m_objectId = get_dynamic_player(PlayerIndex)
-    if m_objectId then
-        local m_object = getobject(m_objectId)
-        if not scrim_mode then
-            if m_object then
-                local x, y, z = getobjectcoords(m_objectId)
-                if x ~= loc[id][1] or y ~= loc[id][2] or z ~= loc[id][3] then
-                    if not loc[id][1] then
-                        loc[id][1] = x
-                        loc[id][2] = y
-                        loc[id][3] = z
-                    elseif m_object then
-                        local result = OnPositionUpdate(PlayerIndex, m_objectId, x, y, z)
-                        if result == 0 then
-                            movobjectcoords(m_objectId, loc[id][1], loc[id][2], loc[id][3])
-                        else
-                            loc[id][1] = x
-                            loc[id][2] = y
-                            loc[id][3] = z
-                        end
-                    end
-                end
-            end
-        end
-        if tbag_detection then
-            if tbag[PlayerIndex] == nil then
-                tbag[PlayerIndex] = { }
-            end
-            if tbag[PlayerIndex].name and tbag[PlayerIndex].x then
-                if not isinvehicle(PlayerIndex) then
-                    if check_sphere(m_objectId, tbag[PlayerIndex].x, tbag[PlayerIndex].y, tbag[PlayerIndex].z, 5) then
-                        local obj_crouch = read_byte(m_object + 0x2A0)
-                        if obj_crouch == 3 and crouch[id] == nil then
-                            crouch[id] = OnPlayerCrouch(PlayerIndex)
-                        elseif obj_crouch ~= 3 and crouch[id] ~= nil then
-                            crouch[id] = nil
-                        end
-                    end
-                end
-            end
         end
     end
 end
