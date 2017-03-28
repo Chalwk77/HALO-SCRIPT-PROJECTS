@@ -3,7 +3,9 @@
 Script Name: Custom Portal System, for SAPP | (PC\CE)
 
 Description: Teleport from 1 Location to Another. 
-             All original OZ-4 SDTM portals are currently listed.
+             All original OZ-4 SDTM (bloodgulch( portals are currently listed
+             
+             TO DO: Portals on a  per-map basis
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
