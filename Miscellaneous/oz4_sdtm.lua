@@ -14,11 +14,6 @@ weapons = { }
 objects = { }
 players = { }
 teleports = { }
-new_timer = { }
-new_timer_2 = { }
-frag_check = { }
-plasma_check = { }
-allocated_time = 10
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 objects = {
@@ -109,103 +104,14 @@ function OnTick()
             end
         end
 	end
-    for l = 1, 16 do
-        if (player_alive(l)) then
-            if frag_check[l] and FragCheck(l) == false then
-                frag_check[l] = nil
-            elseif FragCheck(l) and frag_check[l] == nil then
-                frag_check[l] = false
-                new_timer[l] = true
-                execute_command("msg_prefix \"\"")
-                say(l, "Grenade Cool Down - You will receive more frags in " .. math.floor(allocated_time) .. " seconds")
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-            if (new_timer[l] ~= false and player_alive(l) == true) then
-                local player_id = get_var(l, "$n")
-                players[player_id].time_alive = players[player_id].time_alive + 0.030
-                if (players[player_id].time_alive >= math.floor(allocated_time)) then
-                    new_timer[l] = false
-                    safe_write(true)
-                    local player = get_dynamic_player(l)
-                    frags = 7
-                    write_word(player + 0x31E, tonumber(frags))
-                    say(l, "Frags replenished.")
-                    safe_write(false)
-                end
-            end
-        end
-    end
-    for m = 1, 16 do
-        if (player_alive(m)) then
-            if plasma_check[m] and PlasmaCheck(m) == false then
-                plasma_check[m] = nil
-            elseif PlasmaCheck(m) and plasma_check[m] == nil then
-                plasma_check[m] = false
-                new_timer_2[m] = true
-                execute_command("msg_prefix \"\"")
-                say(m, "Grenade Cool Down - You will receive more plasmas in " .. math.floor(allocated_time) .. " seconds")
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-            if (new_timer_2[m] ~= false and player_alive(m) == true) then
-                local player_id = get_var(m, "$n")
-                players[player_id].time_alive_2 = players[player_id].time_alive_2 + 0.030
-                if (players[player_id].time_alive_2 >= math.floor(allocated_time)) then
-                    new_timer_2[m] = false
-                    safe_write(true)
-                    local player = get_dynamic_player(m)
-                    plasmas = 7
-                    write_word(player + 0x31F, tonumber(plasmas))
-                    say(m, "Plasmas replenished.")
-                    safe_write(false)
-                end
-            end
-        end
-    end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    local player_id = get_var(PlayerIndex, "$n")
-    players[player_id] = { }
-    players[player_id].time_alive = 0
-    players[player_id].time_alive_2 = 0
+    
 end
 
 function OnPlayerSpawn(PlayerIndex)
 	weapon[PlayerIndex] = 0
-    frag_check[PlayerIndex] = true
-    plasma_check[PlayerIndex] = true
-    new_timer[PlayerIndex] = false
-    new_timer_2[PlayerIndex] = false
-    local player_id = get_var(PlayerIndex, "$n")
-    players[player_id].time_alive = 0
-    players[player_id].time_alive_2 = 0
-    local player = get_dynamic_player(PlayerIndex)
-    write_word(player + 0x31E, 7)
-    write_word(player + 0x31F, 7)
-end
-
-function FragCheck(PlayerIndex)
-    local plasma_bool = false
-    local player_object = get_dynamic_player(PlayerIndex)
-    safe_read(true)
-    local frags = read_byte(player_object + 0x31E)
-    safe_read(false)
-    if tonumber(frags) <= 0 then
-        return true
-    end
-    return false
-end
-
-function PlasmaCheck(PlayerIndex)
-    local plasma_bool = false
-    local player_object = get_dynamic_player(PlayerIndex)
-    safe_read(true)
-    local plasmas = read_byte(player_object + 0x31F)
-    safe_read(false)
-    if tonumber(plasmas) <= 0 then
-        return true
-    end
-    return false
 end
 
 function TeleportPlayer(player, x, y, z)
