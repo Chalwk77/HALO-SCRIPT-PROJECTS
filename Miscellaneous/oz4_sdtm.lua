@@ -9,6 +9,16 @@ Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 ]]--
 
 api_version = "1.11.0.0"
+objects = {
+    { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, -176.802, 3.960, "Red Banshee"},
+    { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, -62.626, 3.758, "Blue Banshee"},
+    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 118.084, -185.346, 6.563, "Red Turret"},
+    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, -53.628, 3.302, "Blue Turret"},
+    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, -154.075, 21.561, "Cliff Turret"},
+    { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, -116.212, 1.797, "Ghost [Mid-Field]"},
+    { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, -129.761, 1.665, "Tank [Knoll]"}
+}
+
 Teleport = { }
 Teleport["bloodgulch"] = {
     { 43.125, - 78.434, - 0.220,        0.5,    15.713, - 102.762, 13.462 },
@@ -47,12 +57,24 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    mapname = get_var(1, "$map")
+    if get_var(1,"$gt") == "ctf" then
+        index = 7
+    elseif get_var(1,"$gt") == "slayer" then
+        index = #objects
+    end
+    for i = 1, index do
+        if objects[i] ~= { } and objects[i] ~= nil then
+            object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
+            cprint("Spawning: " ..objects[i][6])
+        end
+    end
 end
+
 
 function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
+            local mapname = get_var(1, "$map")
             for j = 1, #Teleport[mapname] do
                 if Teleport[mapname] ~= { } and Teleport[mapname][j] ~= nil then
                     local player = read_dword(get_player(i) + 0x34)
