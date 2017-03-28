@@ -85,7 +85,7 @@ function OnTick()
                     if (PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(ALLOCATED_TIME)) then
                         TIMER[i] = false
                         local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
-                        cprint(get_var(o, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
+                        cprint(get_var(i, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
                         -- do something here --
                         
                         -----------------------
