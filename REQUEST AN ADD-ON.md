@@ -24,6 +24,7 @@ Third in line to be released |      ![Logo](http://i.imgur.com/FooZi3T.png)     
 Projects pending development |      ![Logo](http://i.imgur.com/oYEXdL6.png)     |
 Feature Requests |      ![Logo](http://i.imgur.com/tFlNeEN.png)     |
 Script Bugs |      ![Logo](http://i.imgur.com/qhqBlR0.png)     |
+Progress Temporarily Halted |      :heavy_exclamation_mark:     |
 
 # [Click to view Project Tracker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3)
 > ### Check here periodically for updates on my current projects. 
