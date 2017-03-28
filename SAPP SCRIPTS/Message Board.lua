@@ -17,7 +17,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.11.0.0"
+welcome_timer = { }
+new_timer = { }
+players = { }
 
+-- Config Starts --
 -- How long should the message be displayed on screen for? (in seconds) --
 Welcome_Msg_Duration = 30
 
@@ -27,11 +31,9 @@ message_board = {
     "Message Board created by Chalwk (Jericho Crosby)",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
     }
+-- Config Ends --
 
-welcome_timer = { }
-new_timer = { }
-players = { }
-
+-- Do not touch anything below --
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
