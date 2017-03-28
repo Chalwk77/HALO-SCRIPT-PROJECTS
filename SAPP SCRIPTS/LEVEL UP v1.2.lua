@@ -152,9 +152,9 @@ Check_Radius = 1 -- Radius determining if player is in the scoring area
 
 -- ============== Timed Rewards ============== --
 survivor_rewards = true -- Use rewards? True = yes, False = no
-player_count = 2 -- Minimum amount of players that need to be present to give rewards
+player_count = 1 -- Minimum amount of players that need to be present to give rewards
 allocated_time = 120 -- [in seconds] - If the player survives this amount of time without dying then they're rewarded with ammo and a powerup (camo/overshield)
-progression_timer = 180 -- [in seconds] - If the player survives this amount of time without dying then level them up
+progression_timer = 20 -- [in seconds] - If the player survives this amount of time without dying then level them up
 
 -- 1 random item from this list will be given after surviving "allocated_time" without dying.
 REWARDS[1] = { "powerups\\active camouflage", "a camouflage!" }
@@ -349,6 +349,7 @@ WEAPON_TABLE[9] = { "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol" }
 WEAPON_TABLE[10] = { "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle" }
 
 function OnScriptLoad()
+    mapname = get_var(1, "$map")
     CheckType()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
@@ -368,7 +369,7 @@ function OnScriptLoad()
     object_table_ptr = sig_scan("8B0D????????8B513425FFFF00008D")
     -- ==============================================================
     LoadItems()
-    MAP_NAME = get_var(1, "$map")
+    mapname = get_var(1, "$map")
     -- Check if valid GameType
     gametype = get_var(0, "$gt")
     -- set score limit --
@@ -483,11 +484,11 @@ function InfoHandler(PlayerIndex)
 end
 
 function OnNewGame()
+    mapname = get_var(1, "$map")
     CheckType()
+    gametype = get_var(0, "$gt")
     game_over = false
     LoadItems()
-    MAP_NAME = get_var(1, "$map")
-    gametype = get_var(0, "$gt")
     flag_init_respawn = 0
     flag_init_warn = 0
     for i = 1, 16 do
@@ -509,8 +510,8 @@ function OnNewGame()
     end
     for k, v in pairs(Level) do
         local index = k
-        if (MAP_NAME == "bloodgulch") or(MAP_NAME == "timberland") or(MAP_NAME == "sidewinder") or(MAP_NAME == "dangercanyon")
-            or(MAP_NAME == "deathisland") or(MAP_NAME == "icefields") or(MAP_NAME == "infinity") or(MAP_NAME == "gephyrophobia") then
+        if (mapname == "bloodgulch") or(mapname == "timberland") or(mapname == "sidewinder") or(mapname == "dangercanyon")
+            or(mapname == "deathisland") or(mapname == "icefields") or(mapname == "infinity") or(mapname == "gephyrophobia") then
             LargeMapConfiguration = true
             -- debugging --
             -- cprint("Length of the array: " tostring(#Level), 2+8)
@@ -521,9 +522,9 @@ function OnNewGame()
                 v[11] = v[1]
                 v[12] = 0
             end
-        elseif (MAP_NAME == "beavercreek") or(MAP_NAME == "carousel") or(MAP_NAME == "chillout") or(MAP_NAME == "damnation")
-            or(MAP_NAME == "hangemhigh") or(MAP_NAME == "longest") or(MAP_NAME == "prisoner")
-            or(MAP_NAME == "putput") or(MAP_NAME == "ratrace") or(MAP_NAME == "wizard") then
+        elseif (mapname == "beavercreek") or(mapname == "carousel") or(mapname == "chillout") or(mapname == "damnation")
+            or(mapname == "hangemhigh") or(mapname == "longest") or(mapname == "prisoner")
+            or(mapname == "putput") or(mapname == "ratrace") or(mapname == "wizard") then
             LargeMapConfiguration = false
             if (v[7] == false) then
                 Level[index] = Level[index]
@@ -585,10 +586,9 @@ function OnGameEnd()
 end
 
 function SPAWN_FLAG()
-    MAP_NAME = get_var(1, "$map")
-    flag_table = FLAG[MAP_NAME][3]
+    flag_table = FLAG[mapname][3]
     -- Spawn flag at x,y,z
-    if FLAG[MAP_NAME] ~= nil then
+    if FLAG[mapname] ~= nil then
         flag_objId = spawn_object("weap", "weapons\\flag\\flag", flag_table[1], flag_table[2], flag_table[3])
     else
         cprint("Something went wrong! Unable to spawn the flag.", 4 + 8)
@@ -847,19 +847,16 @@ function OnTick()
                     local PLAYER_ID = get_var(j, "$n")
                     PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER =(j)
 
-                    local no_offset = FLAG[MAP_NAME][4][1]
+                    local no_offset = FLAG[mapname][4][1]
                     if use_flag_holder_offset then
                         if current_players >= 1 and current_players <= 5 then
-                            local MAPNAME = get_var(1, "$map")
-                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1]
+                            FlagRunnerSpeed = FLAG[mapname][4][1]
                             -- player's connected: between 5-10
                         elseif current_players >= 5 and current_players <= 10 then
-                            local MAPNAME = get_var(1, "$map")
-                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_1
+                            FlagRunnerSpeed = FLAG[mapname][4][1] + flag_runner_offset_1
                             -- player's connected: between 10-16
                         elseif current_players >= 10 and current_players <= 16 then
-                            local MAPNAME = get_var(1, "$map")
-                            FlagRunnerSpeed = FLAG[MAP_NAME][4][1] + flag_runner_offset_2
+                            FlagRunnerSpeed = FLAG[mapname][4][1] + flag_runner_offset_2
                         end
                         execute_command("s " .. j .. " :" .. tonumber(FlagRunnerSpeed))
                     else
@@ -867,9 +864,9 @@ function OnTick()
                     end
 
                     -- Blue Base
-                    if inSphere(j, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], Check_Radius) == true
+                    if inSphere(j, FLAG[mapname][1][1], FLAG[mapname][1][2], FLAG[mapname][1][3], Check_Radius) == true
                         -- Red Base
-                        or inSphere(j, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], Check_Radius) == true then
+                        or inSphere(j, FLAG[mapname][2][1], FLAG[mapname][2][2], FLAG[mapname][2][3], Check_Radius) == true then
                         if PlayerInVehicle(j) then
                             -- Clear their console
                             cls(j)
@@ -895,7 +892,7 @@ function OnTick()
                         -- do nothing
                     else
                         cls(j)
-                        local speed = flag_runner_speed[MAP_NAME]
+                        local speed = flag_runner_speed[mapname]
                         rprint(j, "|cReturn the flag to a base to gain a level")
                         rprint(j, "|c- " .. tostring(FlagRunnerSpeed) .. "x speed")
                         rprint(j, "|c ")
@@ -1008,7 +1005,6 @@ function OnVehicleExit(PlayerIndex)
         if (player_alive(PlayerIndex)) then
             timer(delay, "AssignTemp", PlayerIndex)
             UpdatePlayerSpeed(PlayerIndex)
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             rprint(PlayerIndex, "|c" .. tostring(PlayerSpeed) .. "x speed")
             execute_command("msg_prefix \"\"")
@@ -1228,7 +1224,6 @@ function OnPlayerJoin(PlayerIndex)
     UpdatePlayerSpeed(PlayerIndex)
     if current_players >= 5 then
         for i = 1, 16 do
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             execute_command("msg_prefix \"\"")
             say(i, current_players .. " players online! Modifying your speed to " .. tostring(PlayerSpeed))
@@ -1438,8 +1433,8 @@ function CheckPlayer(PlayerIndex)
         end
     end
     local radius = 3
-    if inSphere(PlayerIndex, FLAG[MAP_NAME][1][1], FLAG[MAP_NAME][1][2], FLAG[MAP_NAME][1][3], radius) == true
-        or inSphere(PlayerIndex, FLAG[MAP_NAME][2][1], FLAG[MAP_NAME][2][2], FLAG[MAP_NAME][2][3], radius) == true then
+    if inSphere(PlayerIndex, FLAG[mapname][1][1], FLAG[mapname][1][2], FLAG[mapname][1][3], radius) == true
+        or inSphere(PlayerIndex, FLAG[mapname][2][1], FLAG[mapname][2][2], FLAG[mapname][2][3], radius) == true then
         timer(300, "delay_move", PlayerIndex)
     end
 end
@@ -1451,55 +1446,42 @@ function delay_move(PlayerIndex)
     if PlayerInVehicle(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-        local seat = read_word(player_object + 0x2F0)
-        if (VehicleObj ~= 0) and(seat == 0) or(seat == 1) or(seat == 2) or(seat == 3) or(seat == 4) or(seat == 5) then
-            local vehicleId = read_dword(player_object + 0x11C)
-            player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-            player_obj_id = vehicleId
-            local added_height = 0.3
-            local radius = 5
-            -- inSphere Red, else inSphere Blue base
-            if (MAP_NAME == "bloodgulch") then
-                if inSphere(PlayerIndex, 95.687797546387, -159.44900512695, -0.10000000149012, radius) == true then
-                    moveobject(vehicleId, 95.01, -150.62, 0.07 + added_height)
-                else
-                    moveobject(vehicleId, 35.87, -70.73, 0.02 + added_height)
-                end
-            elseif (MAP_NAME == "deathisland") then
-                if inSphere(PlayerIndex, -26.576030731201, -6.9761986732483, 9.6631727218628, radius) == true then
-                    moveobject(vehicleId, -30.59, -1.81, 9.43 + added_height)
-                else
-                    moveobject(vehicleId, 33.06, 11.04, 8.05 + added_height)
-                end
-            elseif (MAP_NAME == "icefields") then
-                if inSphere(PlayerIndex, 24.85000038147, -22.110000610352, 2.1110000610352, radius) == true then
-                    moveobject(vehicleId, 33.98, -25.61, 0.84 + added_height)
-                else
-                    moveobject(vehicleId, -86.37, 83.64, 0.87 + added_height)
-                end
-            elseif (MAP_NAME == "infinity") then
-                if inSphere(PlayerIndex, 0.67973816394806, -164.56719970703, 15.039022445679, radius) == true then
-                    moveobject(vehicleId, 6.54, -160, 13.76 + added_height)
-                else
-                    moveobject(vehicleId, -6.23, 41.98, 10.48 + added_height)
-                end
-            elseif (MAP_NAME == "sidewinder") then
-                if inSphere(PlayerIndex, -32.038, -42.067, -3.831, radius) == true then
-                    moveobject(vehicleId, -32.73, -25.67, -3.81 + added_height)
-                else
-                    moveobject(vehicleId, 30.37, -29.36, -3.59 + added_height)
-                end
-            elseif (MAP_NAME == "timberland") then
-                if inSphere(PlayerIndex, 17.322099685669, -52.365001678467, -17.751399993896, radius) == true then
-                    moveobject(vehicleId, 16.93, -43.98, -18.16 + added_height)
-                else
-                    moveobject(vehicleId, 3 - 15.02, 45.36, -18 + added_height)
-                end
-            elseif (MAP_NAME == "gephyrophobia") then
-                if inSphere(PlayerIndex, 26.884338378906, -144.71551513672, -16.049139022827, radius) == true then
-                    moveobject(vehicleId, 26.79, -119.96, -15.63 + added_height)
-                elseif inSphere(PlayerIndex, 26.727857589722, 0.16621616482735, -16.048349380493, radius) == true then
-                    moveobject(vehicleId, 26.85, -24.26, -15.63 + added_height)
+        if (VehicleObj ~= 0) then
+            local coordinates = { }
+            coordinates["bloodgulch"] = {
+                { 95.688, -159.449, -0.100,     5,      95.01, -150.62, 0.07,   0.3},
+                { 40.241, -79.123, -0.100,      5,      35.87, -70.73, 0.02,    0.3}
+            }
+            coordinates["deathisland"] = {
+                { -26.576, -6.976, 9.663,       5,      -30.59, -1.81, 9.43,    0.3},
+                { 29.843, 15.971, 8.295,        5,      33.06, 11.04, 8.05,     0.3},
+            }
+            coordinates["icefields"] = {
+                { 24.850, -22.110, 2.111,       5,      33.98, -25.61, 0.84,    0.3},
+                { -77.860, 86.550, 2.111,       5,      -86.37, 83.64, 0.87,    0.3},
+            }
+            coordinates["infinity"] = {
+                { 0.680, -164.567, 15.039,      5,      6.54, -160, 13.76,      0.3},
+                { -1.858, 47.780, 11.791,       5,      -6.23, 41.98, 10.48,    0.3},
+            }
+            coordinates["sidewinder"] = {
+                { -32.038, -42.067, -3.700,     5,      -32.73, -25.67, -3.81,   0.3},
+                { 30.351, -46.108, -3.700,      5,      30.37, -29.36, -3.59,    0.3},
+            }
+            coordinates["timberland"] = {
+                { 17.322, -52.365, -17.751,     5,      16.93, -43.98, -18.16,   0.3},
+                { -16.330, 52.360, -17.741,     5,      3 - 15.02, 45.36, -18,   0.3},
+            }
+            coordinates["gephyrophobia"] = {
+                { 26.884, -144.716, -16.049,    5,      26.79, -119.96, -15.63,  0.3},
+                { 26.728, 0.166, -16.048,       5,      26.85, -24.26, -15.63,   0.3},
+            }
+            for j = 1, #coordinates[mapname] do
+                if coordinates[mapname] ~= { } and coordinates[mapname][j] ~= nil then
+                    local player = read_dword(get_player(PlayerIndex) + 0x34)
+                    if inSphere(PlayerIndex, coordinates[mapname][j][1], coordinates[mapname][j][2], coordinates[mapname][j][3], coordinates[mapname][j][4]) == true then
+                        moveobject(player, coordinates[mapname][j][5], coordinates[mapname][j][6], coordinates[mapname][j][7] + coordinates[mapname][j][8])
+                    end
                 end
             end
         end
@@ -1507,25 +1489,25 @@ function delay_move(PlayerIndex)
 end
 
 function CheckGephyrophobia(PlayerIndex)
-    if (MAP_NAME == "gephyrophobia") then
+    if (mapname == "gephyrophobia") then
         local PlayerIndex = tonumber(PlayerIndex)
         if GetLevel(PlayerIndex) == 9 then
             -- If the player levels up to the TANK and they're in a portal room (top platform), teleport them just outside it by the covenant shields.
-            execute_command("msg_prefix \"\"")
-            if inSphere(PlayerIndex, -23.95, -28.26, -1.25, 5) == true then
-                moveobject(vehicleId, -18.2, -30.81, -1.25 + added_height)
-                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
-            elseif inSphere(PlayerIndex, -26.94, -107.25, -1.25, 5) == true then
-                moveobject(vehicleId, -21.16, -107.21, -1.25 + added_height)
-                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
-            elseif inSphere(PlayerIndex, 74, -38.01, -1.06, 5) == true then
-                moveobject(vehicleId, 68.35, -37.64, -1.06 + added_height)
-                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
-            elseif inSphere(PlayerIndex, 74.35, -112.67, -1.06, 5) == true then
-                moveobject(vehicleId, 68.47, -112.25, -1.06 + added_height)
-                say(PlayerIndex, "[Anti-Glitch] - Teleporting!")
+            local coordinates = { }
+            coordinates["gephyrophobia"] = {
+                { -23.95, -28.26, -1.25,        5,      -18.2, -30.81, -1.25,       0.3},
+                { -26.94, -107.25, -1.25,       5,      -21.16, -107.21, -1.25,     0.3},
+                { 74, -38.01, -1.06,            5,      68.35, -37.64, -1.06,       0.3},
+                { 74.35, -112.67, -1.06,        5,      68.47, -112.25, -1.06,      0.3}
+            }
+            for j = 1, #coordinates[mapname] do
+                if coordinates[mapname] ~= { } and coordinates[mapname][j] ~= nil then
+                    local player = read_dword(get_player(PlayerIndex) + 0x34)
+                    if inSphere(PlayerIndex, coordinates[mapname][j][1], coordinates[mapname][j][2], coordinates[mapname][j][3], coordinates[mapname][j][4]) == true then
+                        moveobject(player, coordinates[mapname][j][5], coordinates[mapname][j][6], coordinates[mapname][j][7] + coordinates[mapname][j][8])
+                    end
+                end
             end
-            execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
 end
@@ -1874,7 +1856,6 @@ function UpdatePlayerSpeed(PlayerIndex)
     if use_speed_offset then
         SpeedHandler(PlayerIndex)
     else
-        local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     end
@@ -1883,17 +1864,14 @@ end
 function SpeedHandler(PlayerIndex)
     -- between 1-5
     if current_players >= 1 and current_players <= 5 then
-        local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
         -- between 5-10
     elseif current_players >= 5 and current_players <= 10 then
-        local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_1
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
         -- between 10-16
     elseif current_players >= 10 and current_players <= 16 then
-        local mapname = get_var(1, "$map")
         local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname] + speed_offset_2
         execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
     end
@@ -1922,7 +1900,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             rprint(PlayerIndex, "Vehicle: " .. tostring(Level[players[PlayerIndex][1]][2]))
             rprint(PlayerIndex, "Your Instructions: " .. tostring(Level[players[PlayerIndex][1]][3]))
             rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]) .. " | Plasmas: " .. tostring(nades_tbl[2]))
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             rprint(PlayerIndex, "Speed Boost: " .. tostring(PlayerSpeed) .. " | Grenade Damage Multiplier: " .. grenade_damage[players[PlayerIndex][1]])
             rprint(PlayerIndex, "Melee Damage Multiplier: " .. melee_damage[players[PlayerIndex][1]])
@@ -1932,7 +1909,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             rprint(PlayerIndex, "Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. "  |  Kills Needed to Advance: " .. tostring(Level[players[PlayerIndex][1]][4]))
             rprint(PlayerIndex, "Weapon: " .. tostring(Level[players[PlayerIndex][1]][2]) .. " | Ammo Multiplier: " .. tostring(Level[players[PlayerIndex][1]][6]))
             rprint(PlayerIndex, "Frags: " .. tostring(nades_tbl[1]) .. " | Plasmas: " .. tostring(nades_tbl[2]))
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             rprint(PlayerIndex, "Speed Boost: " .. tostring(PlayerSpeed) .. " | Grenade Damage Multiplier: " .. grenade_damage[players[PlayerIndex][1]])
             rprint(PlayerIndex, "Melee Damage Multiplier: " .. melee_damage[players[PlayerIndex][1]])
@@ -2113,7 +2089,6 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level < #Level then
             players[PlayerIndex][1] = current_Level + 1
             local name = get_var(PlayerIndex, "$name")
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             AnnounceChat(name .. " is now Level " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level) .. " and has the " .. tostring(Level[players[PlayerIndex][1]][2]), PlayerIndex)
             rprint(PlayerIndex, "|c****** LEVEL UP ******")
@@ -2166,7 +2141,6 @@ function cycle_level(PlayerIndex, update, advance)
         if current_Level > Starting_Level then
             local name = get_var(PlayerIndex, "$name")
             local PLAYER_ID = get_var(PlayerIndex, "$n")
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             players[PlayerIndex][1] = current_Level - 1
             if (PlayerIndex == PLAYERS_ALIVE[PLAYER_ID].SUICIDE_VICTIM) then
@@ -2202,7 +2176,6 @@ function cycle_level(PlayerIndex, update, advance)
         if use_speed_offset then
             SpeedHandler(PlayerIndex)
         else
-            local mapname = get_var(1, "$map")
             local PlayerSpeed = player_speed[players[PlayerIndex][1]][mapname]
             execute_command("s " .. PlayerIndex .. " :" .. tonumber(PlayerSpeed))
         end
@@ -2271,7 +2244,7 @@ function WeaponHandler(PlayerIndex)
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls on large maps when flag capturing and leveling up to a Vehicle Level.
-                    added_height = 0.3
+                    local added_height = 0.3
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     timer(0, "delay_gunners_seat", PlayerIndex)
@@ -2280,7 +2253,7 @@ function WeaponHandler(PlayerIndex)
                     local x, y, z = read_vector3d(obj_id + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls.
-                    added_height = 0.3
+                    local added_height = 0.3
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                 end
@@ -2288,7 +2261,7 @@ function WeaponHandler(PlayerIndex)
                 -- If scoring with the flag, make sure Level 8 recipients spawn in the gunner/drivers seat of the rocket hog.
                 if (GetLevel(PlayerIndex) == 8) then
                     local x, y, z = read_vector3d(player_object + 0x5c)
-                    added_height = 0.3
+                    local added_height = 0.3
                     vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + added_height)
                     enter_vehicle(vehicleId, PlayerIndex, 0)
                     timer(0, "delay_gunners_seat", PlayerIndex)
@@ -2297,8 +2270,7 @@ function WeaponHandler(PlayerIndex)
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     -- added_height (important for moving vehicle objects on scoring)
                     -- Can't be higher than 0.3 otherwise players get stuck in walls.
-                    added_height = 0.3
-                    local mapname = get_var(1, "$map")
+                    local added_height = 0.3
                     if (GetLevel(PlayerIndex) == 9) and mapname == "sidewinder" or mapname == "deathisland" then
                         vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.1)
                     elseif (GetLevel(PlayerIndex) == 9) and mapname == "timberland" then
@@ -2474,7 +2446,6 @@ function CheckType()
         cprint("Warning: This script doesn't support CTF, KOTH, ODDBALL, or RACE", 4 + 8)
     end
     local type_is_slayer = get_var(1, "$gt") == "slayer"
-    local mapname = get_var(1, "$map")
     if (type_is_slayer) then
         if not(table.match(valid_maps, mapname)) then
             unregister_callback(cb['EVENT_TICK'])
@@ -2593,7 +2564,6 @@ function LoadItems()
         -- Vehicles --
         VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
         WARTHOG_BULLET = get_tag_info("proj", "vehicles\\warthog\\bullet")
-        RHOG_ROCKET = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
         VEHICLE_TANK_BULLET = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
         VEHICLE_TANK_SHELL = get_tag_info("jpt!", "vehicles\\scorpion\\tank shell")
         VEHICLE_BANSHEE_BOLT = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
@@ -2610,7 +2580,6 @@ function LoadItems()
         -- Blue Base x,y,z
         -- Flag x,y,z
         -- Flag Runner Speed (see "flag_runner_speed" table at the top of the script)
-        local mapname = get_var(1, "$map")
         FLAG["bloodgulch"] = {
             { 95.687797546387, - 159.44900512695, - 0.10000000149012 },
             { 40.240600585938, - 79.123199462891, - 0.10000000149012 },
