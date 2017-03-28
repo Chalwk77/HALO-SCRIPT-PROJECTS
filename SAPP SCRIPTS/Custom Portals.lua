@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
--- Turn Debug mode ON or OFF -  'true' | 'fase' 
+-- Turn Debug mode ON or OFF -  'true' | 'false'
 _debug_ = false
 Teleport = { }
 
@@ -106,7 +106,7 @@ Teleport["wizard"] = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
 function OnScriptUnload()
