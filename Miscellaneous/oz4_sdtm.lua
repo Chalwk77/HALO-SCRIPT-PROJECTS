@@ -110,7 +110,7 @@ function OnNewGame()
         if objects[i] ~= { } and objects[i] ~= nil then
             hpn = objects[i]
             object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
-            cprint("Spawning: " ..objects[i][6])
+            --cprint("Spawning: " ..objects[i][6])
         end
     end
     for i = 1, 16 do
@@ -167,7 +167,6 @@ function SyncAmmo(PlayerIndex)
         local weapon_id = get_object_memory(m_weaponId)
         safe_write(true)
         write_dword(weapon_id + 0x2B8, 200)
-        --write_dword(weapon_id + 0x2B6, 500)
         safe_write(false)
         sync_ammo(m_weaponId)
     end
