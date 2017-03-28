@@ -23,7 +23,32 @@ objects = {
     { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, -53.628, 3.302, "Blue Turret"},
     { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, -154.075, 21.561, "Cliff Turret"},
     { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, -116.212, 1.797, "Ghost [Mid-Field]"},
-    { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, -129.761, 1.665, "Tank [Knoll]"}
+    { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, -129.761, 1.665, "Tank [Knoll]"},
+    { "eqip", "powerups\\health pack", 37.070, -80.068, -0.286, "health pack - bluebase"},
+    { "eqip", "powerups\\health pack", 37.105, -78.421, -0.286, "health pack - bluebase"},
+    { "eqip", "powerups\\health pack", 43.144, -78.442, -0.286, "health pack - bluebase"},
+    { "eqip", "powerups\\health pack", 43.136, -80.072, -0.286, "health pack - bluebase"},
+    { "eqip", "powerups\\health pack", 43.512, -77.153, -0.286, "health pack - bluebase"},
+    { "eqip", "powerups\\health pack", 74.391, -77.651, 5.698, "health pack - blue path"},
+    { "eqip", "powerups\\health pack", 70.650, -61.932, 4.095, "health pack - blue banshee"},
+    { "eqip", "powerups\\health pack", 63.551, -177.337, 4.181, "health pack - red banshee"},
+    { "eqip", "powerups\\health pack", 98.930, -157.614, -0.249, "health pack - redbase"},
+    { "eqip", "powerups\\health pack", 98.498, -158.564, -0.228, "health pack - redbase"},
+    { "eqip", "powerups\\health pack", 98.508, -160.189, -0.228, "health pack - redbase"},
+    { "eqip", "powerups\\health pack", 92.555, -160.193, -0.228, "health pack - redbase"},
+    { "eqip", "powerups\\health pack", 92.560, -158.587, -0.228, "health pack - redbase"},
+    { "eqip", "powerups\\health pack", 120.247, -185.103, 6.495, "health pack - red turret"},
+    { "eqip", "powerups\\health pack", 94.351, -97.615, 5.184, "health pack - Rock between the caves"},
+    { "eqip", "powerups\\health pack", 12.928, -103.277, 13.990, "health pack - Nest"},
+    { "eqip", "powerups\\health pack", 48.060, -153.092, 21.190, "health pack - turret mountain"},
+    { "eqip", "powerups\\health pack", 43.253, -45.376, 20.920, "health pack - rear cliff (blue)"},
+    { "eqip", "powerups\\health pack", 43.253, -45.376, 20.920, "health pack - corner cliff (blue)"},
+    { "eqip", "powerups\\health pack", 77.279, -89.107, 22.571, "health pack - cliff (overlooking mid field)"},
+    { "eqip", "powerups\\health pack", 101.034, -117.048, 14.795, "health pack - platform (overlooking redbase)"},
+    { "eqip", "powerups\\health pack", 118.244, -120.757, 17.229, "cliff - overlooking red (banshee platform)"},
+    { "eqip", "powerups\\health pack", 131.737, -169.891, 15.870, "health pack - rear left-cliff (red)"},
+    { "eqip", "powerups\\health pack", 121.011, -188.595, 13.771, "health pack - rear right-cliff (red)"},
+    { "eqip", "powerups\\health pack", 97.504, -188.913, 15.784, "health pack - platform (behind red)"}
 }
 
 teleports["bloodgulch"] = {
@@ -67,12 +92,13 @@ end
 function OnNewGame()
     mapname = get_var(1, "$map")
     if get_var(1,"$gt") == "ctf" then
-        index = 7
+        _index = 7
     elseif get_var(1,"$gt") == "slayer" then
-        index = #objects
+        _index = #objects
     end
-    for i = 1, index do
+    for i = 1, _index do
         if objects[i] ~= { } and objects[i] ~= nil then
+            hpn = objects[i]
             object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
             cprint("Spawning: " ..objects[i][6])
         end
