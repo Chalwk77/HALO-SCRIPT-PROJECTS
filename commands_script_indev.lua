@@ -304,16 +304,16 @@ function OnScriptLoad()
         write_byte(msga, 0)
         safe_write(false)
     end
-	if halo_type == "PC" then  
-		gametype_base = 0x671340
-	else 
-		gametype_base = 0x5F5498
-	end
-    if read_byte(gametype_base + 0x34) == 1 then
-		compatible = false
-	else
-		compatible = true
-	end
+	-- if halo_type == "PC" then  
+		-- gametype_base = 0x671340
+	-- else 
+		-- gametype_base = 0x5F5498
+	-- end
+    -- if read_byte(gametype_base + 0x34) == 1 then
+		-- compatible = false
+	-- else
+		-- compatible = true
+	-- end
     team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
@@ -7217,12 +7217,12 @@ end
 
 function GetGameAddresses()
     if halo_type == "PC" then
-        oddball_globals = 0x639E18
-        specs_addr = 0x662D04
-        hashcheck_addr = 0x59c280
-        versioncheck_addr = 0x5152E7
-        map_pointer = 0x63525c
-        gametype_base = 0x671340
+        -- oddball_globals = 0x639E18
+        -- specs_addr = 0x662D04
+        --hashcheck_addr = 0x59c280
+        -- versioncheck_addr = 0x5152E7
+        -- map_pointer = 0x63525c
+        -- gametype_base = 0x671340
         -- gametime_base = 0x671420
         -- machine_pointer = 0x745BA0
         -- timelimit_address = 0x626630
@@ -7233,13 +7233,13 @@ function GetGameAddresses()
         -- hash_duplicate_patch = 0x59C516
         -- obj_header_pointer = 0x744C18
     else
-        oddball_globals = 0x5BDEB8
-        specs_addr = 0x5E6E63
-        hashcheck_addr = 0x530130
-        obj_header_pointer = 0x6C69F0
-        versioncheck_addr = 0x4CB587
-        map_pointer = 0x5B927C
-        gametype_base = 0x5F5498
+        --oddball_globals = 0x5BDEB8
+        --specs_addr = 0x5E6E63
+        --hashcheck_addr = 0x530130
+        --obj_header_pointer = 0x6C69F0
+        --versioncheck_addr = 0x4CB587
+        --map_pointer = 0x5B927C
+        --gametype_base = 0x5F5498
         -- gametime_base = 0x5F55BC
         -- machine_pointer = 0x6C7980
         -- timelimit_address = 0x5AA5B0
