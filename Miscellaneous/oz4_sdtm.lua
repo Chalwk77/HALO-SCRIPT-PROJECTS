@@ -9,6 +9,18 @@ Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 ]]--
 
 api_version = "1.11.0.0"
+weapon = { }
+weapons = { }
+objects = { }
+players = { }
+teleports = { }
+new_timer = { }
+new_timer_2 = { }
+frag_check = { }
+plasma_check = { }
+allocated_time = 10
+weapons[1] = "weapons\\pistol\\pistol"
+weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 objects = {
     { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, -176.802, 3.960, "Red Banshee"},
     { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, -62.626, 3.758, "Blue Banshee"},
@@ -19,8 +31,7 @@ objects = {
     { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, -129.761, 1.665, "Tank [Knoll]"}
 }
 
-Teleport = { }
-Teleport["bloodgulch"] = {
+teleports["bloodgulch"] = {
     { 43.125, - 78.434, - 0.220,        0.5,    15.713, - 102.762, 13.462 },
     { 43.112, - 80.069, - 0.253,        0.5,    68.123, - 92.847, 2.167 },
     { 37.105, - 80.069, - 0.255,        0.5,    108.005, - 109.328, 1.924 },
@@ -49,14 +60,17 @@ Teleport["bloodgulch"] = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+	register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
 function OnScriptUnload()
-
+    weapons = { }
 end
 
 function OnNewGame()
+    mapname = get_var(1, "$map")
     if get_var(1,"$gt") == "ctf" then
         index = 7
     elseif get_var(1,"$gt") == "slayer" then
@@ -70,21 +84,128 @@ function OnNewGame()
     end
 end
 
-
 function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
-            local mapname = get_var(1, "$map")
-            for j = 1, #Teleport[mapname] do
-                if Teleport[mapname] ~= { } and Teleport[mapname][j] ~= nil then
+            for j = 1, #teleports[mapname] do
+                if teleports[mapname] ~= { } and teleports[mapname][j] ~= nil then
                     local player = read_dword(get_player(i) + 0x34)
-                    if inSphere(i, Teleport[mapname][j][1], Teleport[mapname][j][2], Teleport[mapname][j][3], Teleport[mapname][j][4]) == true then
-                        TeleportPlayer(player, Teleport[mapname][j][5], Teleport[mapname][j][6], Teleport[mapname][j][7])
+                    if inSphere(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
+                        TeleportPlayer(player, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7])
                     end
                 end
             end
         end
     end
+	for k = 1,16 do
+		if (player_alive(k)) then
+            local player = get_dynamic_player(k)
+            if (weapon[k] == 0) then
+                execute_command("wdel " .. k)
+                local x,y,z = read_vector3d(player + 0x5C)
+                assign_weapon(spawn_object("weap", weapons[1],x,y,z), k)
+                assign_weapon(spawn_object("weap", weapons[2],x,y,z), k)
+                weapon[k] = 1
+            end
+        end
+	end
+    for l = 1, 16 do
+        if (player_alive(l)) then
+            if frag_check[l] and FragCheck(l) == false then
+                frag_check[l] = nil
+            elseif FragCheck(l) and frag_check[l] == nil then
+                frag_check[l] = false
+                new_timer[l] = true
+                execute_command("msg_prefix \"\"")
+                say(l, "Grenade Cool Down - You will receive more frags in " .. math.floor(allocated_time) .. " seconds")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+            if (new_timer[l] ~= false and player_alive(l) == true) then
+                local player_id = get_var(l, "$n")
+                players[player_id].time_alive = players[player_id].time_alive + 0.030
+                if (players[player_id].time_alive >= math.floor(allocated_time)) then
+                    new_timer[l] = false
+                    safe_write(true)
+                    local player = get_dynamic_player(l)
+                    frags = 7
+                    write_word(player + 0x31E, tonumber(frags))
+                    say(l, "Frags replenished.")
+                    safe_write(false)
+                end
+            end
+        end
+    end
+    for m = 1, 16 do
+        if (player_alive(m)) then
+            if plasma_check[m] and PlasmaCheck(m) == false then
+                plasma_check[m] = nil
+            elseif PlasmaCheck(m) and plasma_check[m] == nil then
+                plasma_check[m] = false
+                new_timer_2[m] = true
+                execute_command("msg_prefix \"\"")
+                say(m, "Grenade Cool Down - You will receive more plasmas in " .. math.floor(allocated_time) .. " seconds")
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+            if (new_timer_2[m] ~= false and player_alive(m) == true) then
+                local player_id = get_var(m, "$n")
+                players[player_id].time_alive_2 = players[player_id].time_alive_2 + 0.030
+                if (players[player_id].time_alive_2 >= math.floor(allocated_time)) then
+                    new_timer_2[m] = false
+                    safe_write(true)
+                    local player = get_dynamic_player(m)
+                    plasmas = 7
+                    write_word(player + 0x31F, tonumber(plasmas))
+                    say(m, "Plasmas replenished.")
+                    safe_write(false)
+                end
+            end
+        end
+    end
+end
+
+function OnPlayerJoin(PlayerIndex)
+    local player_id = get_var(PlayerIndex, "$n")
+    players[player_id] = { }
+    players[player_id].time_alive = 0
+    players[player_id].time_alive_2 = 0
+end
+
+function OnPlayerSpawn(PlayerIndex)
+	weapon[PlayerIndex] = 0
+    frag_check[PlayerIndex] = true
+    plasma_check[PlayerIndex] = true
+    new_timer[PlayerIndex] = false
+    new_timer_2[PlayerIndex] = false
+    local player_id = get_var(PlayerIndex, "$n")
+    players[player_id].time_alive = 0
+    players[player_id].time_alive_2 = 0
+    local player = get_dynamic_player(PlayerIndex)
+    write_word(player + 0x31E, 7)
+    write_word(player + 0x31F, 7)
+end
+
+function FragCheck(PlayerIndex)
+    local plasma_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
+    local frags = read_byte(player_object + 0x31E)
+    safe_read(false)
+    if tonumber(frags) <= 0 then
+        return true
+    end
+    return false
+end
+
+function PlasmaCheck(PlayerIndex)
+    local plasma_bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    safe_read(true)
+    local plasmas = read_byte(player_object + 0x31F)
+    safe_read(false)
+    if tonumber(plasmas) <= 0 then
+        return true
+    end
+    return false
 end
 
 function TeleportPlayer(player, x, y, z)
@@ -109,6 +230,14 @@ function inSphere(PlayerIndex, x, y, z, radius)
         end
     end
     return false
+end
+
+function secondsToTime(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
 end
 
 function OnError(Message)
