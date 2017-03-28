@@ -11,9 +11,9 @@ Script Name: Command - Set Ammo, for SAPP | (PC\CE)
     >   me              Set ammo for yourself
     >   1-16            Set ammo for [player number]
     >   *               Set ammo for All players in the server
-    >   red             Server Ammo for everybody on Red Team
-    >   blue            Server Ammo for everybody on Blue Team
-    >   rand|random     Ser ammo for 1 random player
+    >   red             Set Ammo for everybody on Red Team
+    >   blue            Set Ammo for everybody on Blue Team
+    >   rand|random     Set ammo for 1 random player
     
    
 
