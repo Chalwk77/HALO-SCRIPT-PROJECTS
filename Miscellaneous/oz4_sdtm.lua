@@ -70,6 +70,7 @@ function OnNewGame()
     end
 end
 
+
 function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
