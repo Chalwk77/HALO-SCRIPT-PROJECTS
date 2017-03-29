@@ -1036,6 +1036,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- update, level down
         cycle_level(victim, true)
         if Spawn_Where_Killed == true then
+            cprint("SWK - SUICIDE")
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
             PLAYER_LOCATION[victim][1] = xAxis
