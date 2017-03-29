@@ -67,9 +67,9 @@ function OnVehicleEntry(PlayerIndex, Seat)
         local seat = read_word(player_object + 0x2F0)
         local vehicleId = read_dword(player_object + 0x11C)
         for j = 1, #coordiantes[mapname] do
-            if VehicleTagID(VehicleObject) == coordiantes[mapname][j][1] then
-                if seat == coordiantes[mapname][j][10] then
-                    if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
+            if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
+                if VehicleTagID(VehicleObject) == coordiantes[mapname][j][1] then
+                    if seat == coordiantes[mapname][j][10] then
                         if inSphere(PlayerIndex, coordiantes[mapname][j][2], coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5]) == true then
                             TeleportPlayer(vehicleId, coordiantes[mapname][j][6], coordiantes[mapname][j][7], coordiantes[mapname][j][8] + coordiantes[mapname][j][9])
                             timer(1000*0.955, "exitvehicle", PlayerIndex, vehicleId)
@@ -134,8 +134,6 @@ function OnError(Message)
 end
 --[[
     -- ===== REMARKS ===== --
-
-
     -- SEATS --
      Warthog:
      Seat 0 = Drivers Seat
@@ -153,9 +151,7 @@ end
      Scorpion Tank
      Seat 0 = Drivers Seat
      Seat 1 - 5 = Passengers Seat
-     
-     
-     
+    
      -- VEHICLE ID --
     "vehicles\\warthog\\mp_warthog"
     "vehicles\\ghost\\ghost_mp"
@@ -163,14 +159,10 @@ end
     "vehicles\\banshee\\banshee_mp"
     "vehicles\\scorpion\\scorpion_mp"
     "vehicles\\c gun turret\\c gun turret_mp"
-     
-     
-     
+ 
     -- VEHICLE COORDINATES --
                     X Coord   Y Coord   Z Coord   radius
     Example:        33.631,   -65.569,   0.370,     5
-     
-     
      
     -- HEIGHT (#) --
     Sometimes your vehicle will become stuck in the ground upon teleporting. 
