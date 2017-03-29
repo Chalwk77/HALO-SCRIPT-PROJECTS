@@ -1036,7 +1036,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- update, level down
         cycle_level(victim, true)
         if Spawn_Where_Killed == true then
-            cprint("SWK - SUICIDE")
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
             PLAYER_LOCATION[victim][1] = xAxis
@@ -2662,6 +2661,7 @@ function WriteChangeLog()
     file:write("LEVEL UP version 1.3\n")
     file:write("Released on (Wednesday 29 March 2017)\n")
     file:write("  * Tidied up some functions + important bug fixes\n")
+    file:write("  * Added a custom command to toggle SpawnWhereKilled ON|OFF ingame\n")
     file:write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
     file:write("\n")
     file:write("\n")
