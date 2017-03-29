@@ -41,6 +41,12 @@ coordiantes["bloodgulch"] = {
     { "vehicles\\warthog\\mp_warthog",        46.341, -64.700, 1.113,         5,      111.826, -139.331, 0.311,       0.1,        1},
 }
 
+-- To add other maps, repeat the structure above. 
+-- Where    x,y,z|radius|x,y,z|height|seat    is located in the table, replace with data as seen above.
+coordiantes["mapname"] = {
+    { "vehicle_tag_id",     x,y,z,      radius,     x,y,z,      height,     seat},
+}
+
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
