@@ -4,7 +4,9 @@ Script Name: Vehicle Triggered Portals V2, for SAPP - (PC|CE)
 Description: Jump into the passengers seat of a warthog or rocket-hog located at X,Y,Z and it will teleport you to X location.
 See REMARKS at the bottom of the script if you're having trouble configuring.
 
-I have already filled out all standard CTF vehicle spawn coordinates for RHog/Hog
+This is a re-write of version 1. 
+Similar concept except this version does away with choosing a random teleport to go to.
+This version is also a lot more user friendly in the way of configuring. 
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -39,6 +41,12 @@ coordiantes["bloodgulch"] = {
     { "vehicles\\warthog\\mp_warthog",        65.846, -70.301, 1.690,         5,      48.019, -118.214, 0.332,        0.1,        1},
     { "vehicles\\warthog\\mp_warthog",        28.861, -90.757, 0.303,         5,      73.953, -103.604, 4.042,        0.1,        1},
     { "vehicles\\warthog\\mp_warthog",        46.341, -64.700, 1.113,         5,      111.826, -139.331, 0.311,       0.1,        1},
+}
+
+-- To add other maps, repeat the structure above. 
+-- Where    x,y,z|radius|x,y,z|height|seat    is located in the table, replace with data as seen above.
+coordiantes["mapname"] = {
+    { "vehicle_tag_id",     x,y,z,      radius,     x,y,z,      height,     seat},
 }
 
 function OnScriptLoad()
