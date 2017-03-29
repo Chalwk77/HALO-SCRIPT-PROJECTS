@@ -352,8 +352,6 @@ function OnScriptUnload()
     -- ======== sehe's death Message Patch ======== --
     safe_write(true)
     write_dword(disable_killmsg_addr, original_code_1)
-    write_word(disable_speed_decrease_addr, original_code_2)
-    write_word(force_speed_sync_addr, original_code_3)
     safe_write(false)
     -- =======================================================
     -- ======== from Giraffe's auto-vehicle-flip script ======== --
@@ -867,7 +865,6 @@ function OnWeaponDrop(PlayerIndex)
     end
 end
 
-
 -- ======== from Giraffe's auto-vehicle-flip script ======== --
 function flip_vehicle(Object)
     if (read_bit(Object + 0x8B, 7) == 1) then
@@ -878,7 +875,6 @@ function flip_vehicle(Object)
     end
 end
 -- =====================================================================--
-
 
 function OnVehicleExit(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
@@ -1032,6 +1028,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- update, level down
         cycle_level(victim, true)
         if Spawn_Where_Killed == true then
+            cprint("SWK - SUICIDE")
             local player_object = get_dynamic_player(victim)
             local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
             PLAYER_LOCATION[victim][1] = xAxis
@@ -1165,10 +1162,8 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-
     DAMAGE_APPLIED[PlayerIndex] = 0
-
-    if spawn_where_killed == true then
+    if Spawn_Where_Killed == true then
         local victim = tonumber(PlayerIndex)
         if PlayerIndex then
             if PLAYER_LOCATION[victim][1] ~= nil then
@@ -1823,6 +1818,7 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment)
     local response = nil
     local t = tokenizestring(Command)
+    count = #t
     Command = string.lower(Command)
     -- RCON
     if (Environment == 1) then
@@ -1902,6 +1898,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         rprint(PlayerIndex, "Action not defined - up or down")
                     end
                 end
+            elseif tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == "swk") then
+                response = false
+                Command_SpawnWhereKilled(PlayerIndex, t[1], t[2], count)
             end
         end
     end
@@ -1942,6 +1941,36 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         end
     end
     return response
+end
+
+function Command_SpawnWhereKilled(PlayerIndex, command, boolean, count)
+    if count == 1 then
+        if Spawn_Where_Killed then
+            rprint(PlayerIndex, "SpawnWhereKilled is currently on", command)
+        else
+            rprint(PlayerIndex, "SpawnWhereKilled is currently off", command)
+        end
+    elseif count == 2 then
+        if (boolean == "1" or boolean == "true" or boolean == '"1"' or boolean == '"true"') and Spawn_Where_Killed ~= true then
+            Spawn_Where_Killed = true
+            rprint(PlayerIndex, "SpawnWhereKilled is now enabled", command)
+        elseif (boolean == "1" or boolean == "true") and Spawn_Where_Killed == true then
+            rprint(PlayerIndex, "SpawnWhereKilled is already enabled", command)
+        elseif (boolean == "0" or boolean == "false" or boolean == '"0"' or boolean == '"false"') and Spawn_Where_Killed ~= false then
+            Spawn_Where_Killed = false
+            rprint(PlayerIndex, "SpawnWhereKilled is now disabled", command)
+        elseif Spawn_Where_Killed == nil then
+            Spawn_Where_Killed = false
+            rprint(PlayerIndex, "SpawnWhereKilled is now disabled", command)
+        elseif (boolean == "0" or boolean == "false" or boolean == '"0"' or boolean == '"false"') and Spawn_Where_Killed == false then
+            rprint(PlayerIndex, "SpawnWhereKilled is already disabled", command)
+        else
+            rprint(PlayerIndex, "Invalid Boolean: 0 for false, 1 for true", command)
+        end
+    else
+        rprint(PlayerIndex, "Invalid Syntax: " .. command .. " {boolean}", command)
+    end
+    return Spawn_Where_Killed
 end
 
 -- [[ PROGRESSION HANDLER ]] --    
