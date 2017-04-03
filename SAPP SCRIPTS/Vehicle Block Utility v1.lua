@@ -69,8 +69,11 @@ function VehicleTagID(VehicleObject)
 end
 
 function exitvehicle(PlayerIndex)
-    exit_vehicle(PlayerIndex)
+	if player_alive(PlayerIndex) then
+        exit_vehicle(PlayerIndex)
+    end
 end
+
 --[[
 
 DRIVER:     Can they Drive this Vehicle?                Options: true|false
@@ -79,6 +82,7 @@ GUNNER:     Can they be a gunner in this Vehicle?       Options: true|false
 DELAY:      Exit the vehicle after this many seconds.   1000*1.00 = 1 second.
 
 ]]
+
 function VehicleSettings()
     MapSettings["bloodgulch"] = {
 --   VEHICLE ID                                     VEHICLE NAME        DRIVER          PASSENGER      GUNNER         DELAY
