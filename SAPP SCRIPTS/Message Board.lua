@@ -23,7 +23,11 @@ players = { }
 
 -- Config Starts --
 -- How long should the message be displayed on screen for? (in seconds) --
-Welcome_Msg_Duration = 30
+Welcome_Msg_Duration = 10
+
+-- Message Alignment:
+-- Left = l,    Right = r,    Center = c,    Tab: t
+Alignment = "l"
 
 -- SENT TO CONSOLE --
 message_board = {
@@ -55,7 +59,7 @@ function OnTick()
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = players[player_id].new_timer + 0.030
                 cls(i)
-                for k, v in pairs(message_board) do rprint(i, "" .. v) end
+                for k, v in pairs(message_board) do rprint(i, "|" .. Alignment .. " " .. v) end
                 if players[player_id].new_timer >= math.floor(Welcome_Msg_Duration) then
                     welcome_timer[i] = false
                     players[player_id].new_timer = 0
@@ -80,8 +84,8 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             if player_present(i) then
+                welcome_timer[i] = false
                 local player_id = get_var(i, "$n")
-                welcome_timer[PlayerIndex] = false
                 players[player_id].new_timer = 0
             end
         end
