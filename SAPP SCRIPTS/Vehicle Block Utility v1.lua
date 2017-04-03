@@ -246,4 +246,8 @@ function VehicleSettings()
     {"vehicles\\rwarthog\\rwarthog",                "Rocket-Hog",       false,         true,          true,           1000*1.65},
     {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           true,          true,          true,           1000*1.30},
 }
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> 5ecf4753aa88cd035c562bead1f38f0303ecddca
