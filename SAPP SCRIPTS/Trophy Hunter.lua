@@ -1,13 +1,13 @@
 --[[
-Script Name: Kill Confirmed (slayer), for SAPP | (PC|CE)
+Script Name: Trophy Hunter (slayer), for SAPP | (PC|CE)
 
 Description:    When you kill someone, a skull-trophy will fall at your victims death location.
-                To confirm your kill, you have to retrieve the skull.
+                To claim your kill, you have to retrieve the skull.
                 To deny a kill, pick up someone elses skull-trophy.
 
                 To Do: [1] CTF Compatibility
                        [2] Full-Spectrum-Vision cubes instead of oddballs
-
+               
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -113,17 +113,17 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. victim_name .. "!", PlayerIndex, tonumber(v))
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " claimed " .. victim_name .. "'s  trophy!", PlayerIndex, tonumber(v))
             execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "Kill Confirmed on "  .. victim_name)
-            say(v, killer_name .. " confirmed their kill on you!")
+            say(PlayerIndex, "You have claimed "  .. victim_name .. "'s trophy")
+            say(v, killer_name .. " claimed your trophy!")
             execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(confirm_self), true)
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             if get_var(PlayerIndex, "$name") ~= victim_name and get_var(PlayerIndex, "$name") ~= killer_name then
-                AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. killer_name .. "'s kill on " .. victim_name .. "!", PlayerIndex)
+                AnnounceChat(get_var(PlayerIndex, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", PlayerIndex)
                 execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "You have confirmed " .. killer_name .. "'s kill on " .. victim_name .. "!")
+                say(PlayerIndex, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
                 execute_command("msg_prefix \"** SERVER ** \"")
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
             end
@@ -131,8 +131,8 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
             AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. killer_name .. "'s kill on themselves!", PlayerIndex, tonumber(k))
             execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "You have Denied " .. killer_name .. "'s kill on you!")
-            say(k, victim_name .. " denied your kill on them!")
+            say(PlayerIndex, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
+            say(k, victim_name .. " denied your trophy-kill on themselves!")
             execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
