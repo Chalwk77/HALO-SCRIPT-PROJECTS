@@ -61,11 +61,11 @@ function OnVehicleEntry(PlayerIndex, Seat)
 end
 
 function VehicleTagID(VehicleObject)
-	if VehicleObject ~= nil and VehicleObject ~= 0 then
-		return read_string(read_dword(read_word(VehicleObject) * 32 + 0x40440038))
-	else
-		return ""
-	end
+    if VehicleObject ~= nil and VehicleObject ~= 0 then
+        return read_string(read_dword(read_word(VehicleObject) * 32 + 0x40440038))
+    else
+        return ""
+    end
 end
 
 function exitvehicle(PlayerIndex)
@@ -76,6 +76,7 @@ end
 DRIVER:     Can they Drive this Vehicle?                Options: true|false
 PASSENGER:  Can they be a passenger in this Vehicle?    Options: true|false
 GUNNER:     Can they be a gunner in this Vehicle?       Options: true|false
+DELAY:      Exit the vehicle after this many seconds.   1000*1.00 = 1 second.
 
 ]]
 function VehicleSettings()
@@ -126,12 +127,12 @@ function VehicleSettings()
 }
     MapSettings["ratrace"] = {
 --   VEHICLE ID                                     VEHICLE NAME        DRIVER          PASSENGER      GUNNER         DELAY
-    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            false,          false,         true,         1000*1.15},
-    {"vehicles\\scorpion\\scorpion_mp",             "Tank",             false,          true,          true,         1000*2.20},
-    {"vehicles\\warthog\\mp_warthog",               "Warthog",          false,          false,         true,         1000*1.65},
-    {"vehicles\\banshee\\banshee_mp",               "Banshee",          true,           true,          true,         1000*1.00},
-    {"vehicles\\rwarthog\\rwarthog",                "Rocket-Hog",       false,          false,         false,        1000*1.65},
-    {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           false,          true,          true,         1000*1.30},
+    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            false,          false,         true,          1000*1.15},
+    {"vehicles\\scorpion\\scorpion_mp",             "Tank",             false,          true,          true,          1000*2.20},
+    {"vehicles\\warthog\\mp_warthog",               "Warthog",          false,          false,         true,          1000*1.65},
+    {"vehicles\\banshee\\banshee_mp",               "Banshee",          true,           true,          true,          1000*1.00},
+    {"vehicles\\rwarthog\\rwarthog",                "Rocket-Hog",       false,          false,         false,         1000*1.65},
+    {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           false,          true,          true,          1000*1.30},
 }
     MapSettings["timberland"] = {
 --   VEHICLE ID                                     VEHICLE NAME        DRIVER          PASSENGER      GUNNER         DELAY
@@ -189,7 +190,7 @@ function VehicleSettings()
 }
     MapSettings["icefields"] = {
 --   VEHICLE ID                                     VEHICLE NAME        DRIVER          PASSENGER      GUNNER         DELAY
-    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            true,           true,          true,           1000*1.15},
+    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            true,           true,          true,          1000*1.15},
     {"vehicles\\scorpion\\scorpion_mp",             "Tank",             false,          true,          false,         1000*2.20},
     {"vehicles\\warthog\\mp_warthog",               "Warthog",          false,          true,          true,          1000*1.65},
     {"vehicles\\banshee\\banshee_mp",               "Banshee",          true,           false,         true,          1000*1.00},
@@ -233,12 +234,12 @@ function VehicleSettings()
     {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           false,          true,          true,          1000*1.30},
 }
     MapSettings["damnation"] = {
---   VEHICLE ID                                     VEHICLE NAME        DRIVER         PASSENGER      GUNNER         DELAY
-    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            true,          true,          false,         1000*1.15},
-    {"vehicles\\scorpion\\scorpion_mp",             "Tank",             false,         false,         true,          1000*2.20},
-    {"vehicles\\warthog\\mp_warthog",               "Warthog",          true,          true,          true,          1000*1.65},
-    {"vehicles\\banshee\\banshee_mp",               "Banshee",          true,          false,         false,         1000*1.00},
-    {"vehicles\\rwarthog\\rwarthog",                "Rocket-Hog",       false,         true,          true,          1000*1.65},
-    {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           true,          true,          true,          1000*1.30},
+--   VEHICLE ID                                     VEHICLE NAME        DRIVER         PASSENGER      GUNNER          DELAY
+    {"vehicles\\ghost\\ghost_mp",                   "Ghost",            true,          true,          false,          1000*1.15},
+    {"vehicles\\scorpion\\scorpion_mp",             "Tank",             false,         false,         true,           1000*2.20},
+    {"vehicles\\warthog\\mp_warthog",               "Warthog",          true,          true,          true,           1000*1.65},
+    {"vehicles\\banshee\\banshee_mp",               "Banshee",          true,          false,         false,          1000*1.00},
+    {"vehicles\\rwarthog\\rwarthog",                "Rocket-Hog",       false,         true,          true,           1000*1.65},
+    {"vehicles\\c gun turret\\c gun turret_mp",     "Turret",           true,          true,          true,           1000*1.30},
 }
 end
