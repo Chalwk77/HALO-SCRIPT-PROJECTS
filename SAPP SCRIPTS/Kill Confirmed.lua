@@ -96,16 +96,19 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            say_all(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!")
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+            say(PlayerIndex, "Kill Confirmed on "  .. get_var(victim, "$name"))
             updatescore(PlayerIndex, tonumber(confirm_self), true)
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             if get_var(PlayerIndex, "$name") ~= get_var(victim, "$name") and get_var(PlayerIndex, "$name") ~= get_var(killer, "$name") then
-                say_all(get_var(PlayerIndex, "$name") .. " confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!")
+                AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+                say(PlayerIndex, "You have confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!")
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
-            say_all(get_var(PlayerIndex, "$name") .. " denied " .. get_var(killer, "$name") .. "'s kill on themselves!")
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. get_var(killer, "$name") .. "'s kill on themselves!", PlayerIndex)
+            say(PlayerIndex, "Denied " .. get_var(killer, "$name") .. "'s kill on you!")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
     end
@@ -138,6 +141,19 @@ function CheckType()
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
         cprint("Kill-Confirmed Error:", 4 + 8)
         cprint("This script doesn't support " .. get_var(1, "$gt"), 4 + 8)
+    end
+end
+
+function AnnounceChat(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                cls(i)
+                execute_command("msg_prefix \"\"")
+                say(i, " " .. Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
     end
 end
 
