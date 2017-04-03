@@ -42,19 +42,21 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-    CheckType()
-    for i = 1, 16 do
-        if player_present(i) then
-            name_table[i] = { }
+    if (CheckType == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                name_table[i] = { }
+            end
         end
     end
 end
 
 function OnNewGame()
-    CheckType()
-    for i = 1, 16 do
-        if player_present(i) then
-            name_table[i] = { }
+    if (CheckType == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                name_table[i] = { }
+            end
         end
     end
 end
@@ -166,6 +168,9 @@ function CheckType()
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
         cprint("Kill-Confirmed Error:", 4 + 8)
         cprint("This script doesn't support " .. get_var(1, "$gt"), 4 + 8)
+        return false
+    else
+        return true
     end
 end
 
