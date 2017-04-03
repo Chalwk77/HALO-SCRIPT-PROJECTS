@@ -136,7 +136,7 @@ function CheckType()
         unregister_callback(cb['EVENT_JOIN'])
         unregister_callback(cb['EVENT_LEAVE'])
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
-        cprint("Killed Confirmed Error:", 4 + 8)
+        cprint("Kill-Confirmed Error:", 4 + 8)
         cprint("This script doesn't support " .. get_var(1, "$gt"), 4 + 8)
     end
 end
