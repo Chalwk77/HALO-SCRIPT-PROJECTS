@@ -95,24 +95,28 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
     local killer = get_var(killer_id, "$n")
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
-        execute_command("msg_prefix \"\"")
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+            execute_command("msg_prefix \"\"")
             say(PlayerIndex, "Kill Confirmed on "  .. get_var(victim, "$name"))
+            execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(confirm_self), true)
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             if get_var(PlayerIndex, "$name") ~= get_var(victim, "$name") and get_var(PlayerIndex, "$name") ~= get_var(killer, "$name") then
                 AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+                execute_command("msg_prefix \"\"")
                 say(PlayerIndex, "You have confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!")
+                execute_command("msg_prefix \"** SERVER ** \"")
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
             AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. get_var(killer, "$name") .. "'s kill on themselves!", PlayerIndex)
-            say(PlayerIndex, "Denied " .. get_var(killer, "$name") .. "'s kill on you!")
+            execute_command("msg_prefix \"\"")
+            say(PlayerIndex, "You have Denied " .. get_var(killer, "$name") .. "'s kill on you!")
+            execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
-        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
