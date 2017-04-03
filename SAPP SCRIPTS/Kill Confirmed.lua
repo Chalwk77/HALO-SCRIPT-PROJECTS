@@ -36,16 +36,27 @@ deny_kill_self = 3
 drop_delay = 150
 
 tags = { }
+name_table = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     CheckType()
+    for i = 1, 16 do
+        if player_present(i) then
+            name_table[i] = { }
+        end
+    end
 end
 
 function OnNewGame()
     CheckType()
+    for i = 1, 16 do
+        if player_present(i) then
+            name_table[i] = { }
+        end
+    end
 end
 
 function WelcomeHandler(PlayerIndex)
@@ -70,8 +81,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local player_object = get_dynamic_player(victim)
         local x, y, z = read_vector3d(player_object + 0x5C)
         local trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        local Victim_Name = get_var(victim, "$name")
+        local Killer_Name = get_var(killer, "$name")
+        name_table[victim] = name_table[victim] or { }
+        name_table[killer] = name_table[killer] or { }
+        table.insert(name_table[victim], tostring(Victim_Name))
+        table.insert(name_table[killer], tostring(Killer_Name))
         m_object = get_object_memory(trophy)
-        tags[m_object] = get_var(victim, "$hash") .. ":" .. get_var(killer, "$hash") .. ":" .. get_var(victim, "$n") .. ":" .. get_var(killer, "$n")
+        tags[m_object] = get_var(victim, "$hash") .. ":" .. get_var(killer, "$hash") .. ":" .. get_var(victim, "$n") .. ":" .. get_var(killer, "$n") .. ":" .. Killer_Name .. ":" .. Victim_Name .. ":" .. killer .. ":" .. victim
         trophy_obj = trophy
     end
 end
@@ -84,36 +101,38 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if tags[m_object] ~= nil then
             if (WeaponObj == m_object) then
                 local t = tokenizestring(tostring(tags[m_object]), ":")
-                OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4])
+                OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8])
                 timer(drop_delay, "delay_drop", PlayerIndex)
             end
         end
     end
 end
 
-function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id)
+function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, killer_name, victim_name, k, v)
     local killer = get_var(killer_id, "$n")
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. victim_name .. "!", PlayerIndex, tonumber(v))
             execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "Kill Confirmed on "  .. get_var(victim, "$name"))
+            say(PlayerIndex, "Kill Confirmed on "  .. victim_name)
+            say(v, killer_name .. " confirmed their kill on you!")
             execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(confirm_self), true)
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            if get_var(PlayerIndex, "$name") ~= get_var(victim, "$name") and get_var(PlayerIndex, "$name") ~= get_var(killer, "$name") then
-                AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
+            if get_var(PlayerIndex, "$name") ~= victim_name and get_var(PlayerIndex, "$name") ~= killer_name then
+                AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. killer_name .. "'s kill on " .. victim_name .. "!", PlayerIndex)
                 execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "You have confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!")
+                say(PlayerIndex, "You have confirmed " .. killer_name .. "'s kill on " .. victim_name .. "!")
                 execute_command("msg_prefix \"** SERVER ** \"")
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. get_var(killer, "$name") .. "'s kill on themselves!", PlayerIndex)
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. killer_name .. "'s kill on themselves!", PlayerIndex, tonumber(k))
             execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "You have Denied " .. get_var(killer, "$name") .. "'s kill on you!")
+            say(PlayerIndex, "You have Denied " .. killer_name .. "'s kill on you!")
+            say(k, victim_name .. " denied your kill on them!")
             execute_command("msg_prefix \"** SERVER ** \"")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
@@ -150,10 +169,10 @@ function CheckType()
     end
 end
 
-function AnnounceChat(Message, PlayerIndex)
+function AnnounceChat(Message, PlayerIndex, k, v)
     for i = 1, 16 do
         if player_present(i) then
-            if i ~= PlayerIndex then
+            if (i ~= PlayerIndex) and (i ~= k and i ~= v) then
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
