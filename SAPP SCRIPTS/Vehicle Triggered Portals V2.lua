@@ -140,12 +140,7 @@ end
 --[[
     -- ===== REMARKS ===== --
     -- SEATS --
-     Warthog:
-     Seat 0 = Drivers Seat
-     Seat 1 = Passengers Seat
-     Seat 2 = Gunners Seat
-
-     Rocket Hog:
+     Warthog and Rocket Hog:
      Seat 0 = Drivers Seat
      Seat 1 = Passengers Seat
      Seat 2 = Gunners Seat
