@@ -95,6 +95,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
     local killer = get_var(killer_id, "$n")
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
+        execute_command("msg_prefix \"\"")
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
             say(PlayerIndex, "Kill Confirmed on "  .. get_var(victim, "$name"))
@@ -111,6 +112,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
             say(PlayerIndex, "Denied " .. get_var(killer, "$name") .. "'s kill on you!")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
@@ -148,7 +150,6 @@ function AnnounceChat(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
             if i ~= PlayerIndex then
-                cls(i)
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
