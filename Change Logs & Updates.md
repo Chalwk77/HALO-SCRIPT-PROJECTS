@@ -1,5 +1,8 @@
 # Recent Updates and Change Logs
 
+### 04/04/2017
+   > * Added new script! [Trophy Hunter.lua](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/Trophy%20Hunter.lua)
+
 ### 03/04/2017
    > * Updated [Message Board.lua](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/Message%20Board.lua)
    >    * Added message alignment option
