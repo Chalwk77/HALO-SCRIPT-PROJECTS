@@ -129,7 +129,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. killer_name .. "'s kill on themselves!", PlayerIndex, tonumber(k))
+            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", PlayerIndex, tonumber(k))
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
             say(k, victim_name .. " denied your trophy-kill on themselves!")
