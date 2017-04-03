@@ -76,6 +76,7 @@ end
 DRIVER:     Can they Drive this Vehicle?                Options: true|false
 PASSENGER:  Can they be a passenger in this Vehicle?    Options: true|false
 GUNNER:     Can they be a gunner in this Vehicle?       Options: true|false
+DELAY: Exit the vehicle after this many seconds. 1000*1.00 = 1 second.
 
 ]]
 function VehicleSettings()
