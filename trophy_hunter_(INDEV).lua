@@ -162,16 +162,8 @@ function OnNewGame()
             end
         end
         game_over = false
-<<<<<<< HEAD
         if tonumber(death_penalty) > 1 then character1 = "s" elseif tonumber(death_penalty) == 1 then character1 = "" end
         if tonumber(suicide_penalty) > 1 then character2 = "s" elseif tonumber(suicide_penalty) == 1 then character2 = "" end
-=======
-        if tonumber(claim_self) > 1 then character1 = "s" elseif tonumber(claim_self) == 1 then character1 = "" end
-        if tonumber(claim_other) > 1 then character2 = "s" elseif tonumber(claim_other) == 1 then character2 = "" end
-        if tonumber(deny_self) > 1 then character3 = "s" elseif tonumber(deny_self) == 1 then character3 = "" end
-        if tonumber(death_penalty) > 1 then character4 = "s" elseif tonumber(death_penalty) == 1 then character4 = "" end
-        if tonumber(suicide_penalty) > 1 then character5 = "s" elseif tonumber(suicide_penalty) == 1 then character5 = "" end
->>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
     end
 end
 
@@ -281,20 +273,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
-<<<<<<< HEAD
         rprint(PlayerIndex, "Death Penalty: -" .. tostring(death_penalty) .. " point" .. tostring(character1))
-=======
-        rprint(PlayerIndex, "Death Penalty: -" .. tostring(death_penalty) .. " point" .. tostring(character4))
->>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
         
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
         -- Deduct the value of "suicide_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(suicide_penalty), false)
-<<<<<<< HEAD
         rprint(PlayerIndex, "Suicide Penalty: -" .. tostring(suicide_penalty) .. " point" .. tostring(character2))
-=======
-        rprint(PlayerIndex, "Suicide Penalty: -" .. tostring(suicide_penalty) .. " point" .. tostring(character5))
->>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
     end
 end
 
