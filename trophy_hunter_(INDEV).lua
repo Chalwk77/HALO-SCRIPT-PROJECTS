@@ -150,6 +150,7 @@ function OnPlayerJoin(PlayerIndex)
     -- initialize welcome timer --
     welcome_timer[PlayerIndex] = true
     
+    -- Add new player to Current Player Count
     current_players = current_players + 1
     
     -- assign elements to new player and set init to zero --
@@ -163,12 +164,10 @@ function OnPlayerJoin(PlayerIndex)
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
-    end
-    if current_players >= 5 and current_players <= 10 then
+    elseif current_players >= 5 and current_players <= 10 then
         scorelimit = 30
         execute_command("scorelimit " .. scorelimit)
-    end
-    if current_players >= 10 and current_players <= 16 then
+    elseif current_players >= 10 and current_players <= 16 then
         scorelimit = 50
         execute_command("scorelimit " .. scorelimit)
     end
