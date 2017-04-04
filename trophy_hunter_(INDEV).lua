@@ -280,6 +280,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         updatescore(PlayerIndex, tonumber(suicide_penalty), false)
         rprint(PlayerIndex, "Suicide Penalty: -" .. tostring(suicide_penalty) .. " point" .. tostring(character2))
     end
+    -- prevent score from going into negatives
+    if tonumber(get_var(PlayerIndex, "$score")) <= -1 then execute_command("score " .. PlayerIndex .. " 0") end
 end
 
         
@@ -371,6 +373,9 @@ function updatescore(PlayerIndex, number, bool)
                 execute_command("score " .. PlayerIndex .. " -" .. number)
             end
             if not game_over then
+                -- prevent score from going into negatives
+                if tonumber(get_var(PlayerIndex, "$score")) <= -1 then execute_command("score " .. PlayerIndex .. " 0") end
+                
                 rprint(PlayerIndex, "Trophy points needed to win: " .. tonumber(get_var(PlayerIndex, "$score")) .. "/" .. scorelimit)
             end
         end
