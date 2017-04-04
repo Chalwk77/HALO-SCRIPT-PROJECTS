@@ -29,11 +29,11 @@ api_version = "1.11.0.0"
 tag_item = "weapons\\ball\\ball"
 
 -- SCORING -- 
-confirm_self =          1       -- Claim your own trophy
-confirm_kill_other =    1       -- Claim somebody else's trophy
-deny_kill_self =        1       -- Claim someone's kill on yourself
-death_penalty =         2       -- Death Penalty    - PvP
-suicide_penalty =       2       -- Suicice Penalty  - Suicide
+claim_self      =   1       -- Claim your own trophy
+claim_other     =   1       -- Claim somebody else's trophy
+deny_self       =   1       -- Claim someone's kill on yourself
+death_penalty   =   2       -- Death Penalty    - PvP
+suicide_penalty =   2       -- Suicice Penalty  - Suicide
 
 -- MISCELLANEOUS --
 -- If you have issues with weapons being removed when you pick up a trophy, increase this number to between 250-300
@@ -50,9 +50,9 @@ message_board = {
 
 info_board = {
     "|l-- POINTS -- " ,
-    "|lClaim your own trophy:               |r+" .. confirm_self .. " points",
-    "|lClaim somebody else's trophy:        |r+" .. confirm_kill_other .. " points",
-    "|lClaim someone's kill on yourself:    |r+" .. deny_kill_self .. " points",
+    "|lClaim your own trophy:               |r+" .. claim_self .. " points",
+    "|lClaim somebody else's trophy:        |r+" .. claim_other .. " points",
+    "|lClaim someone's kill on yourself:    |r+" .. deny_self .. " points",
     "|lDeath Penalty:                       |r-" .. death_penalty .. " points",
     "|lSuicide Penalty:                     |r-" .. suicide_penalty .. " points",
     }
@@ -89,7 +89,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     -- Check if valid gametype.
-    if (CheckType == true) then
+    if CheckType() == true then
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
@@ -146,7 +146,7 @@ function OnTick()
 end
 
 function OnNewGame()
-    if (CheckType == true) then
+    if CheckType() == true then
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
@@ -162,6 +162,16 @@ function OnNewGame()
             end
         end
         game_over = false
+<<<<<<< HEAD
+        if tonumber(death_penalty) > 1 then character1 = "s" elseif tonumber(death_penalty) == 1 then character1 = "" end
+        if tonumber(suicide_penalty) > 1 then character2 = "s" elseif tonumber(suicide_penalty) == 1 then character2 = "" end
+=======
+        if tonumber(claim_self) > 1 then character1 = "s" elseif tonumber(claim_self) == 1 then character1 = "" end
+        if tonumber(claim_other) > 1 then character2 = "s" elseif tonumber(claim_other) == 1 then character2 = "" end
+        if tonumber(deny_self) > 1 then character3 = "s" elseif tonumber(deny_self) == 1 then character3 = "" end
+        if tonumber(death_penalty) > 1 then character4 = "s" elseif tonumber(death_penalty) == 1 then character4 = "" end
+        if tonumber(suicide_penalty) > 1 then character5 = "s" elseif tonumber(suicide_penalty) == 1 then character5 = "" end
+>>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
     end
 end
 
@@ -271,13 +281,24 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
-        rprint(PlayerIndex, "Death Penalty: -" .. tonumber(death_penalty) .. " point(s)")
+<<<<<<< HEAD
+        rprint(PlayerIndex, "Death Penalty: -" .. tostring(death_penalty) .. " point" .. tostring(character1))
+=======
+        rprint(PlayerIndex, "Death Penalty: -" .. tostring(death_penalty) .. " point" .. tostring(character4))
+>>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
         
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        -- Deduct the value of "suicide_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(suicide_penalty), false)
-        rprint(PlayerIndex, "Suicide Penalty: -" .. tonumber(suicide_penalty) .. " point(s)")
+<<<<<<< HEAD
+        rprint(PlayerIndex, "Suicide Penalty: -" .. tostring(suicide_penalty) .. " point" .. tostring(character2))
+=======
+        rprint(PlayerIndex, "Suicide Penalty: -" .. tostring(suicide_penalty) .. " point" .. tostring(character5))
+>>>>>>> 6702f1fb87a83ee75a37a15af2f58518cc391be8
     end
 end
+
+        
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     local PlayerObj = get_dynamic_player(PlayerIndex)
@@ -306,7 +327,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             local player_id = get_var(killer_id, "$n")
             -- Update player score
-            updatescore(PlayerIndex, tonumber(confirm_self), true)
+            updatescore(PlayerIndex, tonumber(claim_self), true)
             -- Message Handlers
             respond(get_var(killer_id, "$name") .. " claimed " .. victim_name .. "'s  trophy!", tonumber(killer_id), tonumber(victim_id))
             say(killer_id, "You have claimed "  .. victim_name .. "'s trophy")
@@ -317,7 +338,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
             if get_var(PlayerIndex, "$name") ~= victim_name and get_var(PlayerIndex, "$name") ~= killer_name then
                 local player_id = get_var(killer_id, "$n")
                 -- Update player score
-                updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
+                updatescore(PlayerIndex, tonumber(claim_other), true)
                 -- Message Handlers
                 respond(get_var(victim_id, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", tonumber(victim_id))
                 say(victim_id, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
@@ -327,7 +348,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
             local player_id = get_var(killer_id, "$n")
             -- Update player score
-            updatescore(PlayerIndex, tonumber(deny_kill_self), true)
+            updatescore(PlayerIndex, tonumber(deny_self), true)
             -- Message Handlers
             respond(get_var(victim_id, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", tonumber(killer_id), tonumber(victim_id))
             say(victim_id, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
@@ -346,7 +367,6 @@ function updatescore(PlayerIndex, number, bool)
                 execute_command("score " .. PlayerIndex .. " +" .. number)
                 local player_id = get_var(PlayerIndex, "$n")
                 players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
-                cprint(tostring(players[player_id].score))
                 if players[player_id].score >= (scorelimit + 1) then
                     game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
@@ -383,6 +403,7 @@ end
 -- Check if gametype is valid. 
 -- Currently, this add-on only supports slayer gametype
 function CheckType()
+    local bool = nil
     if (get_var(1, "$gt") == "ctf") or (get_var(1, "$gt") == "koth") or (get_var(1, "$gt") == "oddball") or (get_var(1, "$gt") == "race") then
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
@@ -393,10 +414,11 @@ function CheckType()
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
         cprint("Kill-Confirmed Error:", 4 + 8)
         cprint("This script doesn't support " .. get_var(1, "$gt"), 4 + 8)
-        return false
+        bool = false
     else
-        return true
+        bool = true
     end
+    return bool
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
