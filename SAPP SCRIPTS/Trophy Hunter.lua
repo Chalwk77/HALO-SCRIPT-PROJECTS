@@ -115,15 +115,6 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
     local victim = get_var(victim_id, "$n")
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-<<<<<<< HEAD:SAPP SCRIPTS/Kill Confirmed.lua
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed their kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
-            say(PlayerIndex, "Kill Confirmed on "  .. get_var(victim, "$name"))
-            updatescore(PlayerIndex, tonumber(confirm_self), true)
-        elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            if get_var(PlayerIndex, "$name") ~= get_var(victim, "$name") and get_var(PlayerIndex, "$name") ~= get_var(killer, "$name") then
-                AnnounceChat(get_var(PlayerIndex, "$name") .. " confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!", PlayerIndex)
-                say(PlayerIndex, "You have confirmed " .. get_var(killer, "$name") .. "'s kill on " .. get_var(victim, "$name") .. "!")
-=======
             AnnounceChat(get_var(PlayerIndex, "$name") .. " claimed " .. victim_name .. "'s  trophy!", PlayerIndex, tonumber(v))
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You have claimed "  .. victim_name .. "'s trophy")
@@ -136,21 +127,15 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
                 execute_command("msg_prefix \"\"")
                 say(PlayerIndex, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
                 execute_command("msg_prefix \"** SERVER ** \"")
->>>>>>> 6cd3d6d045998751243208240ab005299ba07199:SAPP SCRIPTS/Trophy Hunter.lua
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
-<<<<<<< HEAD:SAPP SCRIPTS/Kill Confirmed.lua
-            AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. get_var(killer, "$name") .. "'s kill on themselves!", PlayerIndex)
-            say(PlayerIndex, "Denied " .. get_var(killer, "$name") .. "'s kill on you!")
-=======
             AnnounceChat(get_var(PlayerIndex, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", PlayerIndex, tonumber(k))
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
             say(k, victim_name .. " denied your trophy-kill on themselves!")
             execute_command("msg_prefix \"** SERVER ** \"")
->>>>>>> 6cd3d6d045998751243208240ab005299ba07199:SAPP SCRIPTS/Trophy Hunter.lua
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
         end
     end
@@ -193,19 +178,6 @@ function AnnounceChat(Message, PlayerIndex, k, v)
     for i = 1, 16 do
         if player_present(i) then
             if (i ~= PlayerIndex) and (i ~= k and i ~= v) then
-                execute_command("msg_prefix \"\"")
-                say(i, " " .. Message)
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-        end
-    end
-end
-
-function AnnounceChat(Message, PlayerIndex)
-    for i = 1, 16 do
-        if player_present(i) then
-            if i ~= PlayerIndex then
-                cls(i)
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
