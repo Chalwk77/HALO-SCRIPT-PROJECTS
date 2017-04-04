@@ -32,16 +32,19 @@ deny_kill_self = 3      -- Deny someone's kill on yourself:
 death_penalty = 1       -- Death Penalty (This many points taken away on death) - PvP only
 
 -- MISCELLANEOUS --
--- If you have issues with weapons being removed when you pick up a trophy, increase this number to between 200-300
-drop_delay = 150
+-- If you have issues with weapons being removed when you pick up a trophy, increase this number to between 250-300
+drop_delay = 200
 
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
 message_board = {
-    "Welcome to Trophy Hunter",
+    "Welcome to Trophy Hunter - IN DEVELOPMENT",
     "A skull-trophy will fall at your victims death location.",
     "To confirm your kill and score, you have to retrieve the skull-trophy.",
     "To deny a kill, pick up someone else's trophy.",
+    " ",
+    "View Development progress at:",
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
     }
     
 -- How long should the message be displayed on screen for? (in seconds) --
@@ -156,6 +159,7 @@ function OnPlayerJoin(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    -- Set scorelimit based on total players currently connected to the server
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
@@ -181,7 +185,8 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].score = 0
     players[player_id].new_timer = 0
     current_players = current_players - 1 
-    if current_players == 0 then 
+    if current_players == 0 then
+        -- reset scorelimit to 15 --
         scorelimit = 15 
         execute_command("scorelimit " .. scorelimit)
     end
