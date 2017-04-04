@@ -474,7 +474,7 @@ function ConsoleClear(PlayerIndex)
     end
 end
 
-function ObjectTagID(object)--	Gets directory + name of the object
+function ObjectTagID(object)
 	if(object ~= nil and object ~= 0) then
 		return read_string(read_dword(read_word(object) * 32 + 0x40440038))
 	else
