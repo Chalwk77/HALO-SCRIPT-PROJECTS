@@ -53,7 +53,7 @@ Alignment = "l"
 tags = { }
 players = { }
 new_timer = { }
-name_table = { }
+stored_data = { }
 welcome_timer = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -67,7 +67,7 @@ function OnScriptLoad()
     if (CheckType == true) then
         for i = 1, 16 do
             if player_present(i) then
-                name_table[i] = { }
+                stored_data[i] = { }
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
@@ -103,7 +103,7 @@ function OnNewGame()
     if (CheckType == true) then
         for i = 1, 16 do
             if player_present(i) then
-                name_table[i] = { }
+                stored_data[i] = { }
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
@@ -176,13 +176,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local x, y, z = read_vector3d(player_object + 0x5C)
         trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
         m_object = get_object_memory(trophy)
-        
-        -- Store killer/victim's names in a table incase it's nil OnPlayerLeave()
-        local names = get_var(PlayerIndex, "$name") .. ":" .. get_var(KillerIndex, "$name")
-        name_table[names] = name_table[names] or { }
-        table.insert(name_table[names], tostring(Killer_Name) .. ":" ..tostring(Victim_Name))
 
         tags[m_object] = Victim_Hash .. ":" .. Killer_Hash .. ":" .. Victim_ID .. ":" .. Killer_ID .. ":" .. Victim_Name .. ":" .. Killer_Name
+        
+        -- Store killer/victim's names in a table incase it's nil OnPlayerLeave()
+        stored_data[tags] = stored_data[tags] or { }
+        table.insert(stored_data[tags], tostring(tags[m_object]))
         
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
@@ -195,7 +194,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
     local weapon = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
     if (weapon == tag_item) then
-        if tags[m_object] ~= nil then
+        if stored_data[tags] ~= nil then
             if (WeaponObj == m_object) then
                 local t = tokenizestring(tostring(tags[m_object]), ":")
                 OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
@@ -267,8 +266,8 @@ end
 function delay_drop(PlayerIndex)
     drop_weapon(PlayerIndex)
     -- destroy trophy --
-    local item = get_object_memory(trophy_obj)
-    destroy_object(trophy_obj)
+    local item = get_object_memory(trophy)
+    destroy_object(trophy)
 end
 
 -- Check if gametype is valid. 
