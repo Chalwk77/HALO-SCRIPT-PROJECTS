@@ -63,10 +63,12 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    -- Check if valid gametype.
     if (CheckType == true) then
         for i = 1, 16 do
             if player_present(i) then
                 name_table[i] = { }
+                -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
@@ -80,11 +82,15 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (welcome_timer[i] == true) then
+                -- init new timer --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = players[player_id].new_timer + 0.030
-                cls(i)
+                -- clear the player's console --
+                ConsoleClear(i)
+                -- print the contents of "message_board" to the player's console
                 for k, v in pairs(message_board) do rprint(i, "|" .. Alignment .. " " .. v) end
                 if players[player_id].new_timer >= math.floor(Welcome_Msg_Duration) then
+                    -- reset welcome timer --
                     welcome_timer[i] = false
                     players[player_id].new_timer = 0
                 end
@@ -98,6 +104,7 @@ function OnNewGame()
         for i = 1, 16 do
             if player_present(i) then
                 name_table[i] = { }
+                -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
@@ -111,7 +118,9 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             if player_present(i) then
+                -- reset welcome timer --
                 welcome_timer[i] = false
+                -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
@@ -122,7 +131,9 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
+    -- initialize welcome timer --
     welcome_timer[PlayerIndex] = true
+    -- assign elements to new player and set init to zero --
     local player_id = get_var(PlayerIndex, "$n")
     players[player_id] = { }
     players[player_id].trophies = 0
@@ -131,7 +142,9 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    -- reset welcome timer --
     welcome_timer[PlayerIndex] = false
+    -- reset table elements --
     local player_id = get_var(PlayerIndex, "$n")
     players[player_id] = { }
     players[player_id].trophies = 0
@@ -149,21 +162,31 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_Hash = get_var(Victim_ID, "$hash")
     local Killer_Hash = get_var(Killer_ID, "$hash")
     
-    
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
+        
+        -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
         execute_command("score " .. Killer_ID .. " -1")
+        
+        -- Keep track of the killer's kill tally
         local player_id = get_var(KillerIndex, "$n")
         players[player_id].kills = players[player_id].kills + 1
+        
+        -- Retrieve XYZ coords of victim and spawn a trophy at that location.
         local player_object = get_dynamic_player(Victim_ID)
         local x, y, z = read_vector3d(player_object + 0x5C)
         local trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        
+        -- Store killer/victim's names in a table incase it's nil OnPlayerLeave()
         name_table[Victim_ID] = name_table[Victim_ID] or { }
         name_table[Killer_ID] = name_table[Killer_ID] or { }
         table.insert(name_table[Victim_ID], tostring(Victim_Name))
         table.insert(name_table[Killer_ID], tostring(Killer_Name))
+        
         m_object = get_object_memory(trophy)
         tags[m_object] = Victim_Hash .. ":" .. Killer_Hash .. ":" .. Victim_ID .. ":" .. Killer_ID .. ":" .. Victim_Name .. ":" .. Killer_Name
         trophy_obj = trophy
+        
+        -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
         rprint(PlayerIndex, "Death Penalty: -" .. tonumber(death_penalty) .. " point(s)")
     end
@@ -245,10 +268,13 @@ end
 
 function delay_drop(PlayerIndex)
     drop_weapon(PlayerIndex)
+    -- destroy trophy --
     local item = get_object_memory(trophy_obj)
     destroy_object(trophy_obj)
 end
 
+-- Check if gametype is valid. 
+-- Currently, this add-on only supports slayer gametype
 function CheckType()
     if (get_var(1, "$gt") == "ctf") or (get_var(1, "$gt") == "koth") or (get_var(1, "$gt") == "oddball") or (get_var(1, "$gt") == "race") then
         unregister_callback(cb['EVENT_DIE'])
@@ -301,7 +327,8 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
 
-function cls(PlayerIndex)
+-- clear the player's console --
+function ConsoleClear(PlayerIndex)
     for clear_cls = 1, 25 do
         rprint(PlayerIndex, " ")
     end
