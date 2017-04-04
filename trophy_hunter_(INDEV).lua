@@ -1,13 +1,16 @@
 --[[
 Script Name: Trophy Hunter (slayer), for SAPP | (PC|CE)
 
-Description:    When you kill someone, a skull-trophy will fall at your victims death location.
-                To claim your kill and score, you have to retrieve the skull.
-                To deny a kill, pick up someone else's skull-trophy.
-
-                To Do: [1] CTF Compatibility
-                       [2] Full-Spectrum-Vision cubes instead of oddballs
-               
+Description:    When you kill someone, a skull-trophy will fall at your victim's death location.
+                In order to actually score, you have to retrieve the skull.
+                
+                -- POINTS --
+                Claim your own trophy:                  +1 point
+                Claim somebody else's trophy:           +1 point
+                Claim someone's kill on yourself:       +1 points
+                Death Penalty:                          -2 points
+                Suicide Penalty:                        -2 points
+                
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -26,10 +29,11 @@ api_version = "1.11.0.0"
 tag_item = "weapons\\ball\\ball"
 
 -- SCORING -- 
-confirm_self = 2        -- Confirm your own kill:
-confirm_kill_other = 1  -- Claim someone else's kill:
-deny_kill_self = 3      -- Deny someone's kill on yourself:
-death_penalty = 1       -- Death Penalty (This many points taken away on death) - PvP only
+confirm_self =          1       -- Claim your own trophy
+confirm_kill_other =    1       -- Claim somebody else's trophy
+deny_kill_self =        1       -- Claim someone's kill on yourself
+death_penalty =         2       -- Death Penalty    - PvP
+suicide_penalty =       2       -- Suicice Penalty  - Suicide
 
 -- MISCELLANEOUS --
 -- If you have issues with weapons being removed when you pick up a trophy, increase this number to between 250-300
@@ -38,18 +42,26 @@ drop_delay = 200
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
 message_board = {
-    "Welcome to Trophy Hunter - IN DEVELOPMENT",
-    "A skull-trophy will fall at your victims death location.",
-    "To confirm your kill and score, you have to retrieve the skull-trophy.",
-    "To deny a kill, pick up someone else's trophy.",
-    " ",
-    "View Development progress at:",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
+    "Welcome to Trophy Hunter",
+    "A skull-trophy will fall at your victim's death location.",
+    "In order to actually score, you have to retrieve the skull.",
+    "Type /info or @info for more information",
+    }
+
+info_board = {
+    "|l-- POINTS -- " ,
+    "|lClaim your own trophy:               |r+" .. confirm_self .. " points",
+    "|lClaim somebody else's trophy:        |r+" .. confirm_kill_other .. " points",
+    "|lClaim someone's kill on yourself:    |r+" .. deny_kill_self .. " points",
+    "|lDeath Penalty:                       |r-" .. death_penalty .. " points",
+    "|lSuicide Penalty:                     |r-" .. suicide_penalty .. " points",
     }
     
 -- How long should the message be displayed on screen for? (in seconds) --
 Welcome_Msg_Duration = 15
--- Message Alignment:
+-- How long should the message be displayed on screen for? (in seconds) --
+Info_Board_Msg_Duration = 15
+-- Message Alignment (welcome messages):
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 --================================= CONFIGURATION ENDS =================================-- 
@@ -58,6 +70,8 @@ Alignment = "l"
 tags = { }
 players = { }
 new_timer = { }
+new_timer2 = { }
+info_timer = { }
 stored_data = { }
 welcome_timer = { }
 
@@ -72,6 +86,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     -- Check if valid gametype.
     if (CheckType == true) then
@@ -110,6 +125,24 @@ function OnTick()
             end
         end
     end
+    for i = 1, 16 do
+        if player_present(i) then
+            if (info_timer[i] == true) then
+                -- init new timer --
+                local player_id = get_var(i, "$n")
+                players[player_id].new_timer2 = players[player_id].new_timer2 + 0.030
+                -- clear the player's console --
+                ConsoleClear(i)
+                -- print the contents of "message_board" to the player's console
+                for k, v in pairs(info_board) do rprint(i, v) end
+                if players[player_id].new_timer2 >= math.floor(Info_Board_Msg_Duration) then
+                    -- reset welcome timer --
+                    info_timer[i] = false
+                    players[player_id].new_timer2 = 0
+                end
+            end
+        end
+    end
 end
 
 function OnNewGame()
@@ -122,6 +155,7 @@ function OnNewGame()
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
+                players[player_id].new_timer2 = 0
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
                 players[player_id].score = 0
@@ -137,9 +171,11 @@ function OnGameEnd()
             if player_present(i) then
                 -- reset welcome timer --
                 welcome_timer[i] = false
+                info_timer[i] = false
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
+                players[player_id].new_timer2 = 0
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
                 players[player_id].score = 0
@@ -152,7 +188,7 @@ end
 function OnPlayerJoin(PlayerIndex)
     -- initialize welcome timer --
     welcome_timer[PlayerIndex] = true
-    
+    info_timer[PlayerIndex] = false
     -- Add new player to Current Player Count
     current_players = current_players + 1
     
@@ -163,6 +199,7 @@ function OnPlayerJoin(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    players[player_id].new_timer2 = 0
     -- Set scorelimit based on total players currently connected to the server
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
@@ -179,6 +216,7 @@ end
 function OnPlayerLeave(PlayerIndex)
     -- reset welcome timer --
     welcome_timer[PlayerIndex] = false
+    info_timer[PlayerIndex] = false
     -- reset table elements --
     local player_id = get_var(PlayerIndex, "$n")
     players[player_id] = { }
@@ -186,6 +224,7 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    players[player_id].new_timer2 = 0
     -- Deduct player from Current Player Count
     current_players = current_players - 1 
     -- If there are no players currently connected to the server, reset the score limit to 15
@@ -233,6 +272,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
         rprint(PlayerIndex, "Death Penalty: -" .. tonumber(death_penalty) .. " point(s)")
+        
+    elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        updatescore(PlayerIndex, tonumber(suicide_penalty), false)
+        rprint(PlayerIndex, "Suicide Penalty: -" .. tonumber(suicide_penalty) .. " point(s)")
     end
 end
 
@@ -344,6 +387,7 @@ function CheckType()
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_CHAT'])
         unregister_callback(cb['EVENT_LEAVE'])
         unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
@@ -352,6 +396,17 @@ function CheckType()
         return false
     else
         return true
+    end
+end
+
+function OnPlayerChat(PlayerIndex, Message, type)
+    local Message = string.lower(Message)
+    if (Message == "/info") or (Message == "/info ") or (Message == "\\info") or (Message == "\\info ") or (Message == "@info") or (Message == "@info ") then
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= -1 then
+            info_timer[PlayerIndex] = true
+            welcome_timer[PlayerIndex] = false
+            return false
+        end
     end
 end
 
