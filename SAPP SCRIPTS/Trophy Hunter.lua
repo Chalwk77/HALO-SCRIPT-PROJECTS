@@ -252,8 +252,10 @@ end
 function CheckType()
     if (get_var(1, "$gt") == "ctf") or (get_var(1, "$gt") == "koth") or (get_var(1, "$gt") == "oddball") or (get_var(1, "$gt") == "race") then
         unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
         unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
         cprint("Kill-Confirmed Error:", 4 + 8)
         cprint("This script doesn't support " .. get_var(1, "$gt"), 4 + 8)
