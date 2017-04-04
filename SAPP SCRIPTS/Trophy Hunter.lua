@@ -49,7 +49,19 @@ Welcome_Msg_Duration = 15
 -- Message Alignment:
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
+<<<<<<< HEAD
 --================================= CONFIGURATION ENDS =================================-- 
+=======
+
+-- SENT TO CONSOLE --
+message_board = {
+    "Welcome to Trophy Hunter",
+    "A skull-trophy will fall at your victims death location.",
+    "To confirm your kill and score, you have to retrieve the skull-trophy.",
+    "To deny a kill, pick up someone elses trophy.",
+    }
+
+>>>>>>> d266e9a05a2db740625c8b25884d061de5ebedae
 tags = { }
 players = { }
 new_timer = { }
