@@ -62,6 +62,7 @@ stored_data = { }
 welcome_timer = { }
 
 -- counts --
+-- Set initial player count to 0
 current_players = 0
 
 function OnScriptLoad()
@@ -77,6 +78,7 @@ function OnScriptLoad()
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
+                -- For all players currently connected to the server, add them to the Current Player Count.
                 current_players = current_players + 1
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
@@ -115,6 +117,7 @@ function OnNewGame()
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
+                -- For all players currently connected to the server, add them to the Current Player Count.
                 current_players = current_players + 1
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
@@ -150,6 +153,7 @@ function OnPlayerJoin(PlayerIndex)
     -- initialize welcome timer --
     welcome_timer[PlayerIndex] = true
     
+    -- Add new player to Current Player Count
     current_players = current_players + 1
     
     -- assign elements to new player and set init to zero --
@@ -163,12 +167,10 @@ function OnPlayerJoin(PlayerIndex)
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
-    end
-    if current_players >= 5 and current_players <= 10 then
+    elseif current_players >= 5 and current_players <= 10 then
         scorelimit = 30
         execute_command("scorelimit " .. scorelimit)
-    end
-    if current_players >= 10 and current_players <= 16 then
+    elseif current_players >= 10 and current_players <= 16 then
         scorelimit = 50
         execute_command("scorelimit " .. scorelimit)
     end
@@ -184,9 +186,10 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    -- Deduct player from Current Player Count
     current_players = current_players - 1 
+    -- If there are no players currently connected to the server, reset the score limit to 15
     if current_players == 0 then
-        -- reset scorelimit to 15 --
         scorelimit = 15 
         execute_command("scorelimit " .. scorelimit)
     end
