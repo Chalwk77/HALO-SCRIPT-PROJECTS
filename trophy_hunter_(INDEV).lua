@@ -50,11 +50,18 @@ Welcome_Msg_Duration = 15
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 --================================= CONFIGURATION ENDS =================================-- 
+
+-- tables --
 tags = { }
+init = { }
 players = { }
 new_timer = { }
 stored_data = { }
 welcome_timer = { }
+
+-- counts --
+current_players = 0
+
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -68,11 +75,13 @@ function OnScriptLoad()
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
+                current_players = current_players + 1
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
+                players[player_id].score = 0
             end
         end
     end
@@ -104,11 +113,13 @@ function OnNewGame()
         for i = 1, 16 do
             if player_present(i) then
                 stored_data[i] = { }
+                current_players = current_players + 1
                 -- reset table elements --
                 local player_id = get_var(i, "$n")
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
+                players[player_id].score = 0
             end
         end
     end
@@ -125,6 +136,9 @@ function OnGameEnd()
                 players[player_id].new_timer = 0
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
+                players[player_id].score = 0
+                
+                init[i] = false
             end
         end
     end
@@ -133,12 +147,31 @@ end
 function OnPlayerJoin(PlayerIndex)
     -- initialize welcome timer --
     welcome_timer[PlayerIndex] = true
+    
+    current_players = current_players + 1
+    
     -- assign elements to new player and set init to zero --
     local player_id = get_var(PlayerIndex, "$n")
     players[player_id] = { }
     players[player_id].trophies = 0
     players[player_id].kills = 0
+    players[player_id].score = 0
     players[player_id].new_timer = 0
+    if current_players >= 1 and current_players <= 5 then
+        scorelimit = 15
+        execute_command("scorelimit " .. scorelimit)
+        say_all("The score limit has been changed to " .. scorelimit)
+    end
+    if current_players >= 5 and current_players <= 10 then
+        scorelimit = 30
+        execute_command("scorelimit " .. scorelimit)
+        say_all("The score limit has been changed to " .. scorelimit)
+    end
+    if current_players >= 10 and current_players <= 16 then
+        scorelimit = 50
+        execute_command("scorelimit " .. scorelimit)
+        say_all("The score limit has been changed to " .. scorelimit)
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -149,6 +182,7 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id] = { }
     players[player_id].trophies = 0
     players[player_id].kills = 0
+    players[player_id].score = 0
     players[player_id].new_timer = 0
 end
 
@@ -168,8 +202,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
         -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
         execute_command("score " .. Killer_ID .. " -1")
-        
-        -- Keep track of the killer's kill tally
+        -- Keep track of the killer's kill-tally
         local player_id = get_var(KillerIndex, "$n")
         players[player_id].kills = players[player_id].kills + 1
         
@@ -197,14 +230,17 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     local PlayerObj = get_dynamic_player(PlayerIndex)
     local WeaponObject = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
+    -- Check if weapon picked up was an oddball
     if (ObjectTagID(WeaponObject) == tag_item) then
+        -- Validate table data
         if stored_data[tags] ~= nil then
+            -- Check if weapon is a trophy
             if (WeaponObject == m_object) then
                 local t = tokenizestring(tostring(tags[m_object]), ":")
                 OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
                 timer(drop_delay, "drop_and_destroy", PlayerIndex)
             else
-                return ""
+                return nil
             end
         end
     end
@@ -265,6 +301,26 @@ function updatescore(PlayerIndex, number, bool)
         if bool ~= nil then
             if (bool == true) then
                 execute_command("score " .. PlayerIndex .. " +" .. number)
+                local player_id = get_var(PlayerIndex, "$n")
+                players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
+                cprint(tostring(players[player_id].score))
+                if players[player_id].score >= (scorelimit + 1) then
+                    -- ON WIN --
+                    OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+                    OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
+                    OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
+                    OnWin(" ", PlayerIndex)
+                    OnWin(" ", PlayerIndex)
+                    OnWin(" ", PlayerIndex)
+                    -------------------------------------------------------------------------
+                    rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+                    rprint(PlayerIndex, "|cYOU WIN!")
+                    rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
+                    rprint(PlayerIndex, "|c ")
+                    rprint(PlayerIndex, "|c ")
+                    rprint(PlayerIndex, "|c ")
+                    execute_command("sv_map_next")
+                end
             elseif (bool == false) then
                 execute_command("score " .. PlayerIndex .. " -" .. number)
             end
@@ -304,6 +360,16 @@ function respond(Message, killer_id, victim_id)
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+end
+
+function OnWin(Message, PlayerIndex)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= PlayerIndex then
+                rprint(i, "|c" .. Message)
             end
         end
     end
