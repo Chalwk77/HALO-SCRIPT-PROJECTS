@@ -180,7 +180,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
         -- Get memory address of trophy
         m_object = get_object_memory(trophy)
-
+        trophy_object = trophy
         -- Pin data to trophy that just dropped
         tags[m_object] = Victim_Hash .. ":" .. Killer_Hash .. ":" .. Victim_ID .. ":" .. Killer_ID .. ":" .. Victim_Name .. ":" .. Killer_Name
         
@@ -197,13 +197,12 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     local PlayerObj = get_dynamic_player(PlayerIndex)
     local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
-    local weapon = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
-    if (weapon == tag_item) then
+    if (GetObject(WeaponObj) == tag_item) then
         if stored_data[tags] ~= nil then
             if (WeaponObj == m_object) then
                 local t = tokenizestring(tostring(tags[m_object]), ":")
                 OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
-                timer(drop_delay, "delay_drop", PlayerIndex)
+                timer(drop_delay, "drop_and_destroy", PlayerIndex)
             end
         end
     end
@@ -260,12 +259,11 @@ function updatescore(PlayerIndex, number, bool)
     end
 end
 
-function delay_drop(PlayerIndex)
+function drop_and_destroy(PlayerIndex)
     -- force player to drop the trophy --
     drop_weapon(PlayerIndex)
     -- destroy trophy --
-    local item = get_object_memory(trophy)
-    destroy_object(trophy)
+    destroy_object(trophy_object)
 end
 
 -- Check if gametype is valid. 
@@ -327,4 +325,13 @@ function ConsoleClear(PlayerIndex)
     for clear_cls = 1, 25 do
         rprint(PlayerIndex, " ")
     end
+end
+
+function GetObject(obj)--	Gets directory + name of the object
+	if(obj ~= nil and obj ~= 0) then
+		return read_string(read_dword(read_word(obj) * 32 + 0x40440038))
+	else
+        cprint("returning nil!", 2+8)
+		return ""
+	end
 end
