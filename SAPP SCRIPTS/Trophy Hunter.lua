@@ -47,9 +47,9 @@ Alignment = "l"
 -- SENT TO CONSOLE --
 message_board = {
     "Welcome to Trophy Hunter",
-    "When you kill someone, a skull-trophy will fall at your victims death location.",
-    "To confirm your kill, you have to retrieve the skull-trophy.",
-    "To deny a kill, pick up someone elses skull-trophy",
+    "A skull-trophy will fall at your victims death location.",
+    "To confirm your kill and score, you have to retrieve the skull-trophy.",
+    "To deny a kill, pick up someone elses trophy.",
     }
 
 tags = { }
@@ -60,6 +60,7 @@ welcome_timer = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -150,9 +151,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_Hash = get_var(Victim_ID, "$hash")
     local Killer_Hash = get_var(Killer_ID, "$hash")
     
-    execute_command("score " .. KillerIndex .. " -1")
     
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
+        execute_command("score " .. Killer_ID .. " -1")
         local player_id = get_var(KillerIndex, "$n")
         players[player_id].kills = players[player_id].kills + 1
         local player_object = get_dynamic_player(Victim_ID)
