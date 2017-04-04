@@ -38,7 +38,7 @@ drop_delay = 150
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
 message_board = {
-    "Welcome to Trophy Hunter",
+    "Welcome to Trophy Hunter - IN DEVELOPMENT",
     "A skull-trophy will fall at your victims death location.",
     "To confirm your kill and score, you have to retrieve the skull-trophy.",
     "To deny a kill, pick up someone else's trophy.",
@@ -156,6 +156,7 @@ function OnPlayerJoin(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    -- Set scorelimit based on total players currently connected to the server
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
@@ -181,7 +182,8 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].score = 0
     players[player_id].new_timer = 0
     current_players = current_players - 1 
-    if current_players == 0 then 
+    if current_players == 0 then
+        -- reset scorelimit to 15 --
         scorelimit = 15 
         execute_command("scorelimit " .. scorelimit)
     end
