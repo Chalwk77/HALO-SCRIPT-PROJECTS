@@ -153,17 +153,19 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
+    
     local Victim_ID = tonumber(PlayerIndex)
     local Killer_ID = tonumber(KillerIndex)
     
+    -- Get Killer/Victim's names
     local Victim_Name = get_var(Victim_ID, "$name")
     local Killer_Name = get_var(Killer_ID, "$name")
     
+    -- Get Killer/Victim's cd-hash 
     local Victim_Hash = get_var(Victim_ID, "$hash")
     local Killer_Hash = get_var(Killer_ID, "$hash")
     
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
-        
         -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
         execute_command("score " .. Killer_ID .. " -1")
         
@@ -174,9 +176,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Retrieve XYZ coords of victim and spawn a trophy at that location.
         local player_object = get_dynamic_player(Victim_ID)
         local x, y, z = read_vector3d(player_object + 0x5C)
-        trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        local trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        
+        -- Get memory address of trophy
         m_object = get_object_memory(trophy)
 
+        -- Pin data to trophy that just dropped
         tags[m_object] = Victim_Hash .. ":" .. Killer_Hash .. ":" .. Victim_ID .. ":" .. Killer_ID .. ":" .. Victim_Name .. ":" .. Killer_Name
         
         -- Store killer/victim's names in a table incase it's nil OnPlayerLeave()
@@ -205,41 +210,39 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 end
 
 function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, victim_name, killer_name)
-    local killer = tonumber(killer_id)
-    local victim = tonumber(victim_id)
-    if (victim_hash and killer_hash) and (victim_id and killer_id) and (killer and victim) then
+    if (victim_hash and killer_hash) and (victim_id and killer_id) and (victim_name and killer_name) then
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
-            AnnounceChat(get_var(killer, "$name") .. " claimed " .. victim_name .. "'s  trophy!", killer, victim)
-            execute_command("msg_prefix \"\"")
-            say(killer, "You have claimed "  .. victim_name .. "'s trophy")
-            say(victim, killer_name .. " claimed your trophy!")
+            local player_id = get_var(killer_id, "$n")
             updatescore(PlayerIndex, tonumber(confirm_self), true)
-            local player_id = get_var(killer, "$n")
             players[player_id].trophies = players[player_id].trophies + tonumber(confirm_self)
-            rprint(killer, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
+            respond(get_var(killer_id, "$name") .. " claimed " .. victim_name .. "'s  trophy!", tonumber(killer_id), tonumber(victim_id))
+            execute_command("msg_prefix \"\"")
+            say(killer_id, "You have claimed "  .. victim_name .. "'s trophy")
+            say(victim_id, killer_name .. " claimed your trophy!")
             execute_command("msg_prefix \"** SERVER ** \"")
+            rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             if get_var(PlayerIndex, "$name") ~= victim_name and get_var(PlayerIndex, "$name") ~= killer_name then
-                AnnounceChat(get_var(victim, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", victim)
-                execute_command("msg_prefix \"\"")
-                say(victim, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
+                local player_id = get_var(killer_id, "$n")
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
-                local player_id = get_var(killer, "$n")
                 players[player_id].trophies = players[player_id].trophies + tonumber(confirm_kill_other)
-                rprint(killer, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
+                respond(get_var(victim_id, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", tonumber(victim_id))
+                execute_command("msg_prefix \"\"")
+                say(victim_id, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
                 execute_command("msg_prefix \"** SERVER ** \"")
+                rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
             end
         end
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
-            AnnounceChat(get_var(victim, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", victim, killer)
-            execute_command("msg_prefix \"\"")
-            say(victim, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
-            say(killer, victim_name .. " denied your trophy-kill on themselves!")
+            local player_id = get_var(killer_id, "$n")
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
-            local player_id = get_var(killer, "$n")
             players[player_id].trophies = players[player_id].trophies + tonumber(deny_kill_self)
-            rprint(killer, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
+            respond(get_var(victim_id, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", tonumber(killer_id), tonumber(victim_id))
+            execute_command("msg_prefix \"\"")
+            say(victim_id, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
+            say(killer_id, victim_name .. " denied your trophy-kill on themselves!")
             execute_command("msg_prefix \"** SERVER ** \"")
+            rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
         end
     end
 end
@@ -258,6 +261,7 @@ function updatescore(PlayerIndex, number, bool)
 end
 
 function delay_drop(PlayerIndex)
+    -- force player to drop the trophy --
     drop_weapon(PlayerIndex)
     -- destroy trophy --
     local item = get_object_memory(trophy)
@@ -282,10 +286,10 @@ function CheckType()
     end
 end
 
-function AnnounceChat(Message, killer, victim)
+function respond(Message, killer_id, victim_id)
     for i = 1, 16 do
         if player_present(i) then
-            if (i ~= killer and i ~= victim) then
+            if (i ~= killer_id and i ~= victim_id) then
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
                 execute_command("msg_prefix \"** SERVER ** \"")
