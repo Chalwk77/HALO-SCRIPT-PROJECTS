@@ -203,6 +203,8 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                 local t = tokenizestring(tostring(tags[m_object]), ":")
                 OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
                 timer(drop_delay, "drop_and_destroy", PlayerIndex)
+            else
+                return ""
             end
         end
     end
@@ -210,39 +212,50 @@ end
 
 function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, victim_name, killer_name)
     if (victim_hash and killer_hash) and (victim_id and killer_id) and (victim_name and killer_name) then
+        -- temporarily remove server message prefix --
+        execute_command("msg_prefix \"\"")
+        -- Check if Player's hash matches the Killer and not Victim's hash
         if get_var(PlayerIndex, "$hash") == (killer_hash) and get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             local player_id = get_var(killer_id, "$n")
+            -- Update player score
             updatescore(PlayerIndex, tonumber(confirm_self), true)
+            -- Add trophy to tally
             players[player_id].trophies = players[player_id].trophies + tonumber(confirm_self)
+            -- Message Handlers
             respond(get_var(killer_id, "$name") .. " claimed " .. victim_name .. "'s  trophy!", tonumber(killer_id), tonumber(victim_id))
-            execute_command("msg_prefix \"\"")
             say(killer_id, "You have claimed "  .. victim_name .. "'s trophy")
             say(victim_id, killer_name .. " claimed your trophy!")
-            execute_command("msg_prefix \"** SERVER ** \"")
             rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
+        -- Check if Player's hash does not match Killer's hash or victim's hash
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
+            -- Check if Player's name does not match Victim's Name or Killer's name
             if get_var(PlayerIndex, "$name") ~= victim_name and get_var(PlayerIndex, "$name") ~= killer_name then
                 local player_id = get_var(killer_id, "$n")
+                -- Update player score
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
+                -- Add trophy to tally
                 players[player_id].trophies = players[player_id].trophies + tonumber(confirm_kill_other)
+                -- Message Handlers
                 respond(get_var(victim_id, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", tonumber(victim_id))
-                execute_command("msg_prefix \"\"")
                 say(victim_id, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
-                execute_command("msg_prefix \"** SERVER ** \"")
                 rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
             end
         end
+        -- Check if Player's hash matches Victim's hash but doesn't match killer's hash
         if get_var(PlayerIndex, "$hash") == (victim_hash) and get_var(PlayerIndex, "$hash") ~= (killer_hash) then
             local player_id = get_var(killer_id, "$n")
+            -- Update player score
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
+            -- Add trophy to tally
             players[player_id].trophies = players[player_id].trophies + tonumber(deny_kill_self)
+            -- Message Handlers
             respond(get_var(victim_id, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", tonumber(killer_id), tonumber(victim_id))
-            execute_command("msg_prefix \"\"")
             say(victim_id, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
             say(killer_id, victim_name .. " denied your trophy-kill on themselves!")
-            execute_command("msg_prefix \"** SERVER ** \"")
             rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
         end
+        -- reset server message prefix --
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
