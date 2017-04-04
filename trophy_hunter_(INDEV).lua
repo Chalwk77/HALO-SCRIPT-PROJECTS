@@ -53,7 +53,6 @@ Alignment = "l"
 
 -- tables --
 tags = { }
-init = { }
 players = { }
 new_timer = { }
 stored_data = { }
@@ -122,6 +121,7 @@ function OnNewGame()
                 players[player_id].score = 0
             end
         end
+        game_over = false
     end
 end
 
@@ -137,10 +137,9 @@ function OnGameEnd()
                 players[player_id].trophies = 0
                 players[player_id].kills = 0
                 players[player_id].score = 0
-                
-                init[i] = false
             end
         end
+        game_over = true
     end
 end
 
@@ -160,17 +159,14 @@ function OnPlayerJoin(PlayerIndex)
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
-        say_all("The score limit has been changed to " .. scorelimit)
     end
     if current_players >= 5 and current_players <= 10 then
         scorelimit = 30
         execute_command("scorelimit " .. scorelimit)
-        say_all("The score limit has been changed to " .. scorelimit)
     end
     if current_players >= 10 and current_players <= 16 then
         scorelimit = 50
         execute_command("scorelimit " .. scorelimit)
-        say_all("The score limit has been changed to " .. scorelimit)
     end
 end
 
@@ -184,6 +180,11 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].kills = 0
     players[player_id].score = 0
     players[player_id].new_timer = 0
+    current_players = current_players - 1 
+    if current_players == 0 then 
+        scorelimit = 15 
+        execute_command("scorelimit " .. scorelimit)
+    end
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -255,13 +256,10 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
             local player_id = get_var(killer_id, "$n")
             -- Update player score
             updatescore(PlayerIndex, tonumber(confirm_self), true)
-            -- Add trophy to tally
-            players[player_id].trophies = players[player_id].trophies + tonumber(confirm_self)
             -- Message Handlers
             respond(get_var(killer_id, "$name") .. " claimed " .. victim_name .. "'s  trophy!", tonumber(killer_id), tonumber(victim_id))
             say(killer_id, "You have claimed "  .. victim_name .. "'s trophy")
             say(victim_id, killer_name .. " claimed your trophy!")
-            rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
         -- Check if Player's hash does not match Killer's hash or victim's hash
         elseif get_var(PlayerIndex, "$hash") ~= (killer_hash) or get_var(PlayerIndex, "$hash") ~= (victim_hash) then
             -- Check if Player's name does not match Victim's Name or Killer's name
@@ -269,12 +267,9 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
                 local player_id = get_var(killer_id, "$n")
                 -- Update player score
                 updatescore(PlayerIndex, tonumber(confirm_kill_other), true)
-                -- Add trophy to tally
-                players[player_id].trophies = players[player_id].trophies + tonumber(confirm_kill_other)
                 -- Message Handlers
                 respond(get_var(victim_id, "$name") .. " claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!", tonumber(victim_id))
                 say(victim_id, "You have claimed " .. killer_name .. "'s trophy-kill on " .. victim_name .. "!")
-                rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
             end
         end
         -- Check if Player's hash matches Victim's hash but doesn't match killer's hash
@@ -282,13 +277,10 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
             local player_id = get_var(killer_id, "$n")
             -- Update player score
             updatescore(PlayerIndex, tonumber(deny_kill_self), true)
-            -- Add trophy to tally
-            players[player_id].trophies = players[player_id].trophies + tonumber(deny_kill_self)
             -- Message Handlers
             respond(get_var(victim_id, "$name") .. " denied " .. killer_name .. "'s trophy-kill on themselves!", tonumber(killer_id), tonumber(victim_id))
             say(victim_id, "You have Denied " .. killer_name .. "'s trophy-kill on yourself!")
             say(killer_id, victim_name .. " denied your trophy-kill on themselves!")
-            rprint(killer_id, "[TROPHIES] You have " .. tonumber(math.floor(players[player_id].trophies)) .. " trophy points and " .. tonumber(math.floor(players[player_id].kills)) .. " kills")
         end
         -- reset server message prefix --
         execute_command("msg_prefix \"** SERVER ** \"")
@@ -305,14 +297,13 @@ function updatescore(PlayerIndex, number, bool)
                 players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
                 cprint(tostring(players[player_id].score))
                 if players[player_id].score >= (scorelimit + 1) then
-                    -- ON WIN --
+                    game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(" ", PlayerIndex)
                     OnWin(" ", PlayerIndex)
                     OnWin(" ", PlayerIndex)
-                    -------------------------------------------------------------------------
                     rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
                     rprint(PlayerIndex, "|cYOU WIN!")
                     rprint(PlayerIndex, "|c-<->-<->-<->-<->-<->-<->-<->")
@@ -323,6 +314,9 @@ function updatescore(PlayerIndex, number, bool)
                 end
             elseif (bool == false) then
                 execute_command("score " .. PlayerIndex .. " -" .. number)
+            end
+            if not game_over then
+                rprint(PlayerIndex, "Trophy points needed to win: " .. tonumber(get_var(PlayerIndex, "$score")) .. "/" .. scorelimit)
             end
         end
     end
