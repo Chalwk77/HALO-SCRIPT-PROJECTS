@@ -2,9 +2,8 @@
 Script Name: Trophy Hunter (slayer), for SAPP | (PC|CE)
 
 Description:    When you kill someone, a skull-trophy will fall at your victims death location.
-                To claim your kill, you have to retrieve the skull.
-                To deny a kill, pick up someone elses skull-trophy.
-                The only way to score is to pickup a trophy.
+                To claim your kill and score, you have to retrieve the skull.
+                To deny a kill, pick up someone else's skull-trophy.
 
                 To Do: [1] CTF Compatibility
                        [2] Full-Spectrum-Vision cubes instead of oddballs
@@ -21,37 +20,36 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 api_version = "1.11.0.0"
 
+--================================= CONFIGURATION STARTS =================================-- 
 -- Full-Spectrum-Vision Cubes will take place of oddballs in a future update.
 -- Item to drop on death
 tag_item = "weapons\\ball\\ball"
 
--- Scoring:
--- Confirm your own kill:
-confirm_self = 2
--- Claim someone elses kill:
-confirm_kill_other = 1
--- Deny someone's kill on yourself:
-deny_kill_self = 3
--- Death Penalty (This many points taken away on death) - PvP only
-death_penalty = 1
+-- SCORING -- 
+confirm_self = 2        -- Confirm your own kill:
+confirm_kill_other = 1  -- Claim someone else's kill:
+deny_kill_self = 3      -- Deny someone's kill on yourself:
+death_penalty = 1       -- Death Penalty (This many points taken away on death) - PvP only
 
--- If you have issues with weapons being removed, increase this number to between 200-300
+-- MISCELLANEOUS --
+-- If you have issues with weapons being removed when you pick up a trophy, increase this number to between 200-300
 drop_delay = 150
 
+-- MESSAGE BOARD --
+-- Messages are sent to the Console environment
+message_board = {
+    "Welcome to Trophy Hunter",
+    "A skull-trophy will fall at your victims death location.",
+    "To confirm your kill and score, you have to retrieve the skull-trophy.",
+    "To deny a kill, pick up someone else's trophy.",
+    }
+    
 -- How long should the message be displayed on screen for? (in seconds) --
 Welcome_Msg_Duration = 15
 -- Message Alignment:
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
-
--- SENT TO CONSOLE --
-message_board = {
-    "Welcome to Trophy Hunter",
-    "When you kill someone, a skull-trophy will fall at your victims death location.",
-    "To confirm your kill, you have to retrieve the skull-trophy.",
-    "To deny a kill, pick up someone elses skull-trophy",
-    }
-
+--================================= CONFIGURATION ENDS =================================-- 
 tags = { }
 players = { }
 new_timer = { }
@@ -60,6 +58,7 @@ welcome_timer = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -150,9 +149,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_Hash = get_var(Victim_ID, "$hash")
     local Killer_Hash = get_var(Killer_ID, "$hash")
     
-    execute_command("score " .. KillerIndex .. " -1")
     
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
+        execute_command("score " .. Killer_ID .. " -1")
         local player_id = get_var(KillerIndex, "$n")
         players[player_id].kills = players[player_id].kills + 1
         local player_object = get_dynamic_player(Victim_ID)
