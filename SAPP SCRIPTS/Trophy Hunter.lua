@@ -174,17 +174,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Retrieve XYZ coords of victim and spawn a trophy at that location.
         local player_object = get_dynamic_player(Victim_ID)
         local x, y, z = read_vector3d(player_object + 0x5C)
-        local trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        trophy = spawn_object("weap", tag_item, x, y, z + 0.3)
+        m_object = get_object_memory(trophy)
         
         -- Store killer/victim's names in a table incase it's nil OnPlayerLeave()
-        name_table[Victim_ID] = name_table[Victim_ID] or { }
-        name_table[Killer_ID] = name_table[Killer_ID] or { }
-        table.insert(name_table[Victim_ID], tostring(Victim_Name))
-        table.insert(name_table[Killer_ID], tostring(Killer_Name))
-        
-        m_object = get_object_memory(trophy)
+        local names = get_var(PlayerIndex, "$name") .. ":" .. get_var(KillerIndex, "$name")
+        name_table[names] = name_table[names] or { }
+        table.insert(name_table[names], tostring(Killer_Name) .. ":" ..tostring(Victim_Name))
+
         tags[m_object] = Victim_Hash .. ":" .. Killer_Hash .. ":" .. Victim_ID .. ":" .. Killer_ID .. ":" .. Victim_Name .. ":" .. Killer_Name
-        trophy_obj = trophy
         
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
@@ -200,7 +198,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if tags[m_object] ~= nil then
             if (WeaponObj == m_object) then
                 local t = tokenizestring(tostring(tags[m_object]), ":")
-                OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8])
+                OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
                 timer(drop_delay, "delay_drop", PlayerIndex)
             end
         end
