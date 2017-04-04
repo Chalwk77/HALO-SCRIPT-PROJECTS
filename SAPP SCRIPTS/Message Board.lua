@@ -57,7 +57,7 @@ function OnTick()
         if player_present(i) then
             if (welcome_timer[i] == true) then
                 local player_id = get_var(i, "$n")
-                players[player_id].new_timer = players[player_id].new_timer + 2*30
+                players[player_id].new_timer = players[player_id].new_timer + 0.030
                 cls(i)
                 for k, v in pairs(message_board) do rprint(i, "|" .. Alignment .. " " .. v) end
                 if players[player_id].new_timer >= math.floor(Welcome_Msg_Duration) then

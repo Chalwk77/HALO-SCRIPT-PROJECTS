@@ -4,6 +4,7 @@ Script Name: Trophy Hunter (slayer), for SAPP | (PC|CE)
 Description:    When you kill someone, a skull-trophy will fall at your victims death location.
                 To claim your kill, you have to retrieve the skull.
                 To deny a kill, pick up someone elses skull-trophy.
+                The only way to score is to pickup a trophy.
 
                 To Do: [1] CTF Compatibility
                        [2] Full-Spectrum-Vision cubes instead of oddballs
@@ -34,22 +35,60 @@ deny_kill_self = 3
 -- Death Penalty (This many points taken away on death) - PvP only
 death_penalty = 1
 
-
 -- If you have issues with weapons being removed, increase this number to between 200-300
 drop_delay = 150
 
+-- How long should the message be displayed on screen for? (in seconds) --
+Welcome_Msg_Duration = 15
+-- Message Alignment:
+-- Left = l,    Right = r,    Center = c,    Tab: t
+Alignment = "l"
+
+-- SENT TO CONSOLE --
+message_board = {
+    "Welcome to Trophy Hunter",
+    "When you kill someone, a skull-trophy will fall at your victims death location.",
+    "To confirm your kill, you have to retrieve the skull-trophy.",
+    "To deny a kill, pick up someone elses skull-trophy",
+    }
+
 tags = { }
-name_table = { }
 players = { }
+new_timer = { }
+name_table = { }
+welcome_timer = { }
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     if (CheckType == true) then
         for i = 1, 16 do
             if player_present(i) then
                 name_table[i] = { }
+                local player_id = get_var(i, "$n")
+                players[player_id].new_timer = 0
+                players[player_id].trophies = 0
+                players[player_id].kills = 0
+            end
+        end
+    end
+end
+
+function OnTick()
+    for i = 1, 16 do
+        if player_present(i) then
+            if (welcome_timer[i] == true) then
+                local player_id = get_var(i, "$n")
+                players[player_id].new_timer = players[player_id].new_timer + 0.030
+                cls(i)
+                for k, v in pairs(message_board) do rprint(i, "|" .. Alignment .. " " .. v) end
+                if players[player_id].new_timer >= math.floor(Welcome_Msg_Duration) then
+                    welcome_timer[i] = false
+                    players[player_id].new_timer = 0
+                end
             end
         end
     end
@@ -60,28 +99,45 @@ function OnNewGame()
         for i = 1, 16 do
             if player_present(i) then
                 name_table[i] = { }
+                local player_id = get_var(i, "$n")
+                players[player_id].new_timer = 0
+                players[player_id].trophies = 0
+                players[player_id].kills = 0
             end
         end
     end
 end
 
-function WelcomeHandler(PlayerIndex)
-    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    ServerName = read_widestring(network_struct + 0x8, 0x42)
-    execute_command("msg_prefix \"\"")
-    say(PlayerIndex, "Welcome to " .. ServerName)
-    say(PlayerIndex, "When you kill someone, a skull-trophy will fall at your victims death location.")
-    say(PlayerIndex, "To confirm your kill, you have to retrieve the skull-trophy.")
-    say(PlayerIndex, "To deny a kill, pick up someone elses skull-trophy")
-    execute_command("msg_prefix \"** SERVER ** \"")
+function OnGameEnd()
+    for i = 1, 16 do
+        if player_present(i) then
+            if player_present(i) then
+                welcome_timer[i] = false
+                local player_id = get_var(i, "$n")
+                players[player_id].new_timer = 0
+                players[player_id].trophies = 0
+                players[player_id].kills = 0
+            end
+        end
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    --timer(1000 * 6, "WelcomeHandler", PlayerIndex)
+    welcome_timer[PlayerIndex] = true
     local player_id = get_var(PlayerIndex, "$n")
     players[player_id] = { }
     players[player_id].trophies = 0
     players[player_id].kills = 0
+    players[player_id].new_timer = 0
+end
+
+function OnPlayerLeave(PlayerIndex)
+    welcome_timer[PlayerIndex] = false
+    local player_id = get_var(PlayerIndex, "$n")
+    players[player_id] = { }
+    players[player_id].trophies = 0
+    players[player_id].kills = 0
+    players[player_id].new_timer = 0
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -93,6 +149,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     local Victim_Hash = get_var(Victim_ID, "$hash")
     local Killer_Hash = get_var(Killer_ID, "$hash")
+    
+    execute_command("score " .. KillerIndex .. " -1")
     
     if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
         local player_id = get_var(KillerIndex, "$n")
@@ -240,4 +298,10 @@ function read_widestring(address, length)
         count = count + 2
     end
     return table.concat(byte_table)
+end
+
+function cls(PlayerIndex)
+    for clear_cls = 1, 25 do
+        rprint(PlayerIndex, " ")
+    end
 end
