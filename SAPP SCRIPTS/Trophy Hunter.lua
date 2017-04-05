@@ -114,6 +114,16 @@ function OnNewGame()
                 players[player_id].new_timer2 = 0
             end
         end
+        if current_players >= 1 and current_players <= 5 then
+            scorelimit = 15
+            execute_command("scorelimit " .. scorelimit)
+        elseif current_players >= 5 and current_players <= 10 then
+            scorelimit = 30
+            execute_command("scorelimit " .. scorelimit)
+        elseif current_players >= 10 and current_players <= 16 then
+            scorelimit = 50
+            execute_command("scorelimit " .. scorelimit)
+        end
         game_over = false
         if tonumber(death_penalty) > 1 then character1 = "s" elseif tonumber(death_penalty) == 1 then character1 = "" end
         if tonumber(suicide_penalty) > 1 then character2 = "s" elseif tonumber(suicide_penalty) == 1 then character2 = "" end
@@ -234,8 +244,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         execute_command("score " .. Killer_ID .. " -1")
         -- Retrieve XYZ coords of victim and spawn a trophy at that location.
         local player_object = get_dynamic_player(PlayerIndex)
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        local object = spawn_object("weap", tag_item, x, y, z + 0.3)
+        if PlayerInVehicle(tonumber(PlayerIndex)) == false then
+            x, y, z  = read_vector3d(player_object + 0x5C)
+            offset = 0.3
+        elseif PlayerInVehicle(tonumber(PlayerIndex)) == true then
+            local vehicleId = read_dword(player_object + 0x11C)
+            local vehicle_object = get_object_memory(vehicleId)
+            offset = 0.5
+            x, y, z = read_vector3d(vehicle_object + 0x5c)
+        end
+        local object = spawn_object("weap", tag_item, x, y, z + offset)
         -- Get memory address of trophy
         local m_object = get_object_memory(object)
         -- Pin data to trophy that just dropped
@@ -359,6 +377,20 @@ function CheckType()
         bool = true
     end
     return bool
+end
+
+function PlayerInVehicle(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
