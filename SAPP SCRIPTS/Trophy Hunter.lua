@@ -3,14 +3,14 @@ Script Name: Trophy Hunter (slayer), for SAPP | (PC|CE)
 
 Description:    When you kill someone, a skull-trophy will fall at your victim's death location.
                 In order to actually score, you have to retrieve the skull.
-                
+
                 -- POINTS --
                 Claim your own trophy:                  +1 point
                 Steal somebody else's trophy:           +1 point
                 Steal someone's kill on yourself:       +1 points
                 Death Penalty:                          -2 points
                 Suicide Penalty:                        -2 points
-                
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -23,16 +23,16 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 api_version = "1.11.0.0"
 
---================================= CONFIGURATION STARTS =================================-- 
+-- ================================= CONFIGURATION STARTS =================================--
 -- Item to drop on death
 tag_item = "weapons\\ball\\ball"
 
 -- SCORING -- 
-claim_self      =   1       -- Claim your own trophy
-steal_other     =   1       -- Steal somebody else's trophy
-steal_self      =   1       -- Steal someone's trophy on yourself
-death_penalty   =   2       -- Death Penalty    - PvP
-suicide_penalty =   2       -- Suicice Penalty  - Suicide
+claim_self = 1       -- Claim your own trophy
+steal_other = 1       -- Steal somebody else's trophy
+steal_self = 1       -- Steal someone's trophy on yourself
+death_penalty = 2       -- Death Penalty    - PvP
+suicide_penalty = 2       -- Suicice Penalty  - Suicide
 
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
@@ -41,16 +41,16 @@ message_board = {
     "A skull-trophy will fall at your victim's death location.",
     "In order to actually score, you have to retrieve the skull.",
     "Type /info or @info for more information",
-    }
+}
 
 info_board = {
-    "|l-- POINTS -- " ,
+    "|l-- POINTS -- ",
     "|lClaim your own trophy:               |r+" .. claim_self .. " points",
     "|lClaim somebody else's trophy:        |r+" .. steal_other .. " points",
     "|lClaim someone's kill on yourself:    |r+" .. steal_self .. " points",
     "|lDeath Penalty:                       |r-" .. death_penalty .. " points",
     "|lSuicide Penalty:                     |r-" .. suicide_penalty .. " points",
-    }
+}
     
 -- How long should the message be displayed on screen for? (in seconds) --
 Welcome_Msg_Duration = 15
@@ -59,7 +59,7 @@ Info_Board_Msg_Duration = 15
 -- Message Alignment (welcome messages):
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
---================================= CONFIGURATION ENDS =================================-- 
+-- ================================= CONFIGURATION ENDS =================================--
 
 -- tables --
 tags = { }
@@ -74,7 +74,7 @@ welcome_timer = { }
 -- Set initial player count to 0
 current_players = 0
 
-function OnScriptLoad() 
+function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
@@ -174,10 +174,10 @@ function OnPlayerLeave(PlayerIndex)
     players[player_id].new_timer = 0
     players[player_id].new_timer2 = 0
     -- Deduct player from Current Player Count
-    current_players = current_players - 1 
+    current_players = current_players - 1
     -- If there are no players currently connected to the server, reset the score limit to 15
     if current_players == 0 then
-        scorelimit = 15 
+        scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
     end
 end
@@ -224,12 +224,12 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_ID = tonumber(PlayerIndex)
     local Killer_ID = tonumber(KillerIndex)
-    
+
     -- Get Killer/Victim's names
     local Victim_Name = get_var(Victim_ID, "$name")
     local Killer_Name = get_var(Killer_ID, "$name")
-    
-    if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
+
+    if (Killer_ID > 0) and(Victim_ID ~= Killer_ID) then
         -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
         execute_command("score " .. Killer_ID .. " -1")
         -- Retrieve XYZ coords of victim and spawn a trophy at that location.
@@ -241,15 +241,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Pin data to trophy that just dropped
         tags[m_object] = get_var(PlayerIndex, "$hash") .. ":" .. get_var(KillerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$n") .. ":" .. get_var(KillerIndex, "$n") .. ":" .. Victim_Name .. ":" .. Killer_Name
         trophy = m_object
-        
+
         -- Store tags[m_object] data in a table to prevent undesirable behavior
         stored_data[tags] = stored_data[tags] or { }
         table.insert(stored_data[tags], tostring(tags[m_object]))
-        
+
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
         rprint(PlayerIndex, "Death Penalty: -" .. tostring(death_penalty) .. " point" .. tostring(character1))
-        
+
     elseif tonumber(PlayerIndex) == tonumber(KillerIndex) then
         -- Deduct the value of "suicide_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(suicide_penalty), false)
@@ -262,14 +262,14 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if tonumber(Type) == 1 then
         local player_object = get_dynamic_player(PlayerIndex)
-        local WeaponObject = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
+        local WeaponObject = get_object_memory(read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
         if (ObjectTagID(WeaponObject) == tag_item) then
             local t = tokenizestring(tostring(tags[trophy]), ":")
             OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
             local weaponId = read_dword(player_object + 0x118)
             -- Check WeaponObject twice to prevent any undesirable behavior
             if weaponId ~= 0 and ObjectTagID(WeaponObject) == tag_item then
-                local weaponId = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) -1) * 4)
+                local weaponId = read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) -1) * 4)
                 destroy_object(weaponId)
             end
         end
@@ -277,31 +277,31 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 end
 
 function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, victim_name, killer_name)
-	if tostring(victim_hash) and tostring(killer_hash) and tonumber(victim_id) and tonumber(killer_id) then
+    if tostring(victim_hash) and tostring(killer_hash) and tonumber(victim_id) and tonumber(killer_id) then
         -- temporarily remove server message prefix --
         execute_command("msg_prefix \"\"")
-		if gethash(PlayerIndex) == killer_hash and getteam(tonumber(victim_id)) ~= getteam(tonumber(killer_id)) then
-			say_all(getname(PlayerIndex) .. " claimed " .. tostring(victim_name) .. "'s trophy!")
+        if gethash(PlayerIndex) == killer_hash and getteam(tonumber(victim_id)) ~= getteam(tonumber(killer_id)) then
+            say_all(getname(PlayerIndex) .. " claimed " .. tostring(victim_name) .. "'s trophy!")
             updatescore(PlayerIndex, tonumber(claim_self), true)
-		elseif gethash(PlayerIndex) ~= killer_hash or gethash(PlayerIndex) ~= victim_hash and getteam(PlayerIndex) == getteam(tonumber(killer_id)) then
-			if getname(PlayerIndex) ~= getname(tonumber(victim_id)) then
-				if getteam(PlayerIndex) ~= getteam(vplayer) then
+        elseif gethash(PlayerIndex) ~= killer_hash or gethash(PlayerIndex) ~= victim_hash and getteam(PlayerIndex) == getteam(tonumber(killer_id)) then
+            if getname(PlayerIndex) ~= getname(tonumber(victim_id)) then
+                if getteam(PlayerIndex) ~= getteam(vplayer) then
                     updatescore(PlayerIndex, tonumber(steal_other), true)
-					say_all(getname(PlayerIndex) .. " stole " .. tostring(killer_name) .. "'s trophy on " .. tostring(victim_name) .. "!")
-				end
-			end
-		end
-		if getteam(PlayerIndex) == getteam(tonumber(victim_id)) and PlayerIndex ~= tonumber(victim_id) then
-			updatescore(PlayerIndex, tonumber(steal_other), true)
+                    say_all(getname(PlayerIndex) .. " stole " .. tostring(killer_name) .. "'s trophy on " .. tostring(victim_name) .. "!")
+                end
+            end
+        end
+        if getteam(PlayerIndex) == getteam(tonumber(victim_id)) and PlayerIndex ~= tonumber(victim_id) then
+            updatescore(PlayerIndex, tonumber(steal_other), true)
             say_all(getname(PlayerIndex) .. " stole " .. tostring(killer_name) .. "'s trophy on " .. tostring(victim_name) .. "!")
-		end
-		if PlayerIndex == tonumber(victim_id) then
+        end
+        if PlayerIndex == tonumber(victim_id) then
             updatescore(PlayerIndex, tonumber(steal_self), true)
-			say_all(getname(PlayerIndex) .. " stole " .. tostring(killer_name) .. "'s trophy on themselves!")
-		end
+            say_all(getname(PlayerIndex) .. " stole " .. tostring(killer_name) .. "'s trophy on themselves!")
+        end
         -- reset server message prefix --
         execute_command("msg_prefix \"** SERVER ** \"")
-	end
+    end
 end
 
 function updatescore(PlayerIndex, number, bool)
@@ -312,7 +312,7 @@ function updatescore(PlayerIndex, number, bool)
                 execute_command("score " .. PlayerIndex .. " +" .. number)
                 local player_id = get_var(PlayerIndex, "$n")
                 players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
-                if players[player_id].score >= (scorelimit + 1) then
+                if players[player_id].score >=(scorelimit + 1) then
                     game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -340,11 +340,11 @@ function updatescore(PlayerIndex, number, bool)
     end
 end
 
--- Check if gametype is valid. 
+-- Check if gametype is valid.
 -- Currently, this add-on only supports slayer gametype
 function CheckType()
     local bool = nil
-    if (get_var(1, "$gt") == "ctf") or (get_var(1, "$gt") == "koth") or (get_var(1, "$gt") == "oddball") or (get_var(1, "$gt") == "race") then
+    if (get_var(1, "$gt") == "ctf") or(get_var(1, "$gt") == "koth") or(get_var(1, "$gt") == "oddball") or(get_var(1, "$gt") == "race") then
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
@@ -363,8 +363,8 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local Message = string.lower(Message)
-    if (Message == "/info") or (Message == "/info ") or (Message == "\\info") or (Message == "\\info ") or (Message == "@info") or (Message == "@info ") then
-        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= -1 then
+    if (Message == "/info") or(Message == "/info ") or(Message == "\\info") or(Message == "\\info ") or(Message == "@info") or(Message == "@info ") then
+        if (tonumber(get_var(PlayerIndex, "$lvl"))) >= -1 then
             info_timer[PlayerIndex] = true
             welcome_timer[PlayerIndex] = false
             return false
@@ -383,11 +383,11 @@ function OnWin(Message, PlayerIndex)
 end
 
 function ObjectTagID(object)
-	if(object ~= nil and object ~= 0) then
-		return read_string(read_dword(read_word(object) * 32 + 0x40440038))
-	else
-		return ""
-	end
+    if (object ~= nil and object ~= 0) then
+        return read_string(read_dword(read_word(object) * 32 + 0x40440038))
+    else
+        return ""
+    end
 end
 
 function ConsoleClear(PlayerIndex)
@@ -397,35 +397,35 @@ function ConsoleClear(PlayerIndex)
 end
 
 function getteam(PlayerIndex)
-	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-		local team = get_var(PlayerIndex, "$team")
-		return team
-	end
-	return nil
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local team = get_var(PlayerIndex, "$team")
+        return team
+    end
+    return nil
 end
 
 function getname(PlayerIndex)
-	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-		local name = get_var(PlayerIndex, "$name")
-		return name
-	end
-	return nil
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local name = get_var(PlayerIndex, "$name")
+        return name
+    end
+    return nil
 end
 
 function resolveplayer(PlayerIndex)
-	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-		local player_id = get_var(PlayerIndex, "$n")
-		return player_id
-	end
-	return nil
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local player_id = get_var(PlayerIndex, "$n")
+        return player_id
+    end
+    return nil
 end
 
 function gethash(PlayerIndex)
-	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-		local hash = get_var(PlayerIndex, "$hash")
-		return hash
-	end
-	return nil
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local hash = get_var(PlayerIndex, "$hash")
+        return hash
+    end
+    return nil
 end
 
 function tokenizestring(inputstr, sep)
