@@ -20,7 +20,7 @@ warning_timer = { }
 players = { }
 kill_timer = { }
 kill_init_timer = { }
-
+-- ===================================================== CONFIGURATION STARTS ===================================================== --
 -- label                =       Kill Zone Label
 -- x,y,z radius         =       Kill Zone coordinates. 
 -- Warning Delay        =       Amount of time until player is warned after entering kil zone. 0 = warn immediately
@@ -28,10 +28,7 @@ kill_init_timer = { }
 
 -- Messages:
 --      Warning! You have entered Kill Zone 1
---      You will be killed in 15 seconds if you don't leave this area
---      You were killed because you didn't leave Kill Zone 1 in time!
-
--- Messages will appear in the RCON console and will remain on screen until they leave the area.
+--      You will be  killed in X seconds if you don't leave this area
 
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
@@ -48,18 +45,19 @@ coordiantes["bloodgulch"] = {
     { "Kill Zone 11",     28.861, -90.757, 0.303,         5,                   0,                  15},
     { "Kill Zone 12",     46.341, -64.700, 1.113,         5,                   0,                  15},
 }
-
+-- ===================================================== CONFIGURATION ENDS ======================================================= --
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     for i = 1,16 do
         if player_present(i) then
             warning_timer[i] = false
-            local player_id = get_var(i, "$n")
-            players[player_id].kill_timer = 0
-            players[player_id].kill_init_timer = 0
+            players[get_var(i, "$n")].kill_timer = 0
+            players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
 end
@@ -71,9 +69,8 @@ function OnNewGame()
     for i = 1,16 do
         if player_present(i) then
             warning_timer[i] = false
-            local player_id = get_var(i, "$n")
-            players[player_id].kill_timer = 0
-            players[player_id].kill_init_timer = 0
+            players[get_var(i, "$n")].kill_timer = 0
+            players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
 end
@@ -82,19 +79,31 @@ function OnGameEnd()
     for i = 1,16 do
         if player_present(i) then
             warning_timer[i] = false
-            local player_id = get_var(i, "$n")
-            players[player_id].kill_timer = 0
-            players[player_id].kill_init_timer = 0
+            players[get_var(i, "$n")].kill_timer = 0
+            players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
     warning_timer[PlayerIndex] = false
-    local player_id = get_var(PlayerIndex, "$n")
-    players[player_id] = { }
-    players[player_id].kill_timer = 0
-    players[player_id].kill_init_timer = 0
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
+end
+
+function OnPlayerLeave(PlayerIndex)
+    warning_timer[PlayerIndex] = false
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    warning_timer[PlayerIndex] = false
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
 end
 
 function OnTick()
@@ -106,25 +115,23 @@ function OnTick()
                     for j = 1, #coordiantes[mapname] do
                         if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
                             if inSphere(i, coordiantes[mapname][j][2], coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5]) == true then
-                                local player_id = get_var(i, "$n")
-                                players[player_id].kill_timer = players[player_id].kill_timer + 0.030
-                                if players[player_id].kill_timer >= math.floor(coordiantes[mapname][j][6]) then
+                                players[get_var(i, "$n")].kill_timer = players[get_var(i, "$n")].kill_timer + 0.030
+                                if players[get_var(i, "$n")].kill_timer >= math.floor(coordiantes[mapname][j][6]) then
                                     ClearConsole(i)
-                                    local minutes, seconds = secondsToTime(players[player_id].kill_timer, 2)
+                                    local minutes, seconds = secondsToTime(players[get_var(i, "$n")].kill_timer, 2)
                                     warning_timer[i] = true
                                     rprint(i, "Warning! You have entered " .. tostring(coordiantes[mapname][j][1]) .. ".")
                                     rprint(i, "You will be killed in " .. coordiantes[mapname][j][7] - math.floor(seconds) .. " seconds if you don't leave this area!")
                                 end
                                 if (warning_timer[i] == true) then
-                                    local player_id = get_var(i, "$n")
-                                    players[player_id].kill_init_timer = players[player_id].kill_init_timer + 0.030
-                                    if players[player_id].kill_init_timer >= math.floor(coordiantes[mapname][j][7]) then
+                                    players[get_var(i, "$n")].kill_init_timer = players[get_var(i, "$n")].kill_init_timer + 0.030
+                                    if players[get_var(i, "$n")].kill_init_timer >= math.floor(coordiantes[mapname][j][7]) then
                                         ClearConsole(i)
                                         warning_timer[i] = false
-                                        players[player_id].kill_timer = 0
-                                        players[player_id].kill_init_timer = 0
+                                        players[get_var(i, "$n")].kill_timer = 0
+                                        players[get_var(i, "$n")].kill_init_timer = 0
                                         execute_command("kill " ..i)
-                                        rprint(i, "You were killed because you didn't leave " .. tostring(coordiantes[mapname][j][1]) .. " in time!")
+                                        rprint(i, "You were killed because you didn't leave the kill zone")
                                     end
                                 end
                             end
