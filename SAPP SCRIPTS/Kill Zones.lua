@@ -16,9 +16,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 coordiantes = { }
-warning_timer = { }
-players = { }
 kill_timer = { }
+players = { }
+warning_timer = { }
 kill_init_timer = { }
 -- ===================================================== CONFIGURATION STARTS ===================================================== --
 -- label                =       Kill Zone Label
@@ -49,14 +49,16 @@ coordiantes["bloodgulch"] = {
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     for i = 1,16 do
         if player_present(i) then
-            warning_timer[i] = false
-            players[get_var(i, "$n")].kill_timer = 0
+            -- reset timers --
+            kill_timer[i] = false
+            players[get_var(i, "$n")].warning_timer = 0
             players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
@@ -68,8 +70,9 @@ function OnNewGame()
     mapname = get_var(0, "$map")
     for i = 1,16 do
         if player_present(i) then
-            warning_timer[i] = false
-            players[get_var(i, "$n")].kill_timer = 0
+            -- reset timers --
+            kill_timer[i] = false
+            players[get_var(i, "$n")].warning_timer = 0
             players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
@@ -78,31 +81,43 @@ end
 function OnGameEnd()
     for i = 1,16 do
         if player_present(i) then
-            warning_timer[i] = false
-            players[get_var(i, "$n")].kill_timer = 0
+            -- reset timers --
+            kill_timer[i] = false
+            players[get_var(i, "$n")].warning_timer = 0
             players[get_var(i, "$n")].kill_init_timer = 0
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    warning_timer[PlayerIndex] = false
+    -- reset timers --
+    kill_timer[PlayerIndex] = false
     players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].warning_timer = 0
     players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
-    warning_timer[PlayerIndex] = false
+    -- reset timers --
+    kill_timer[PlayerIndex] = false
     players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].warning_timer = 0
     players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    warning_timer[PlayerIndex] = false
+    -- reset timers --
+    kill_timer[PlayerIndex] = false
     players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].kill_timer = 0
+    players[get_var(PlayerIndex, "$n")].warning_timer = 0
+    players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    -- reset timers --
+    kill_timer[PlayerIndex] = false
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].warning_timer = 0
     players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
 end
 
@@ -111,29 +126,47 @@ function OnTick()
         if player_present(i) then
             local player_object = get_dynamic_player(i)
             if (player_object ~= 0) then
+                -- validate coordiantes table
                 if coordiantes[mapname] ~= nil then
-                    for j = 1, #coordiantes[mapname] do
-                        if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
+                    if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
+                        for j = 1, #coordiantes[mapname] do
+                            -- check if player is in kill zone
                             if inSphere(i, coordiantes[mapname][j][2], coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5]) == true then
-                                players[get_var(i, "$n")].kill_timer = players[get_var(i, "$n")].kill_timer + 0.030
-                                if players[get_var(i, "$n")].kill_timer >= math.floor(coordiantes[mapname][j][6]) then
+                                -- create new warning timer --
+                                players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
+                                -- monitor warning timer until it reaches the value of "Warning Dealy" (coordiantes[mapname][j][6])
+                                if players[get_var(i, "$n")].warning_timer >= math.floor(coordiantes[mapname][j][6]) then
+                                    -- clear the player's console to prevent duplicate messages (spam)
                                     ClearConsole(i)
-                                    local minutes, seconds = secondsToTime(players[get_var(i, "$n")].kill_timer, 2)
-                                    warning_timer[i] = true
+                                    local minutes, seconds = secondsToTime(players[get_var(i, "$n")].warning_timer, 2)
+                                    -- initiate kill timer
+                                    kill_timer[i] = true
+                                    -- send player the warning
                                     rprint(i, "Warning! You have entered " .. tostring(coordiantes[mapname][j][1]) .. ".")
                                     rprint(i, "You will be killed in " .. coordiantes[mapname][j][7] - math.floor(seconds) .. " seconds if you don't leave this area!")
                                 end
-                                if (warning_timer[i] == true) then
+                                if (kill_timer[i] == true) then
+                                    -- create new kill timer
                                     players[get_var(i, "$n")].kill_init_timer = players[get_var(i, "$n")].kill_init_timer + 0.030
+                                    -- monitor killer timer until it reaches the value of "Seconds until death" (coordiantes[mapname][j][7])
                                     if players[get_var(i, "$n")].kill_init_timer >= math.floor(coordiantes[mapname][j][7]) then
+                                        -- clear the player's console to prevent duplicate messages (spam)
                                         ClearConsole(i)
-                                        warning_timer[i] = false
-                                        players[get_var(i, "$n")].kill_timer = 0
+                                        -- reset timers --
+                                        kill_timer[i] = false
+                                        players[get_var(i, "$n")].warning_timer = 0
                                         players[get_var(i, "$n")].kill_init_timer = 0
+                                        -- kill Player
                                         execute_command("kill " ..i)
+                                        -- send player the unfateful message
                                         rprint(i, "You were killed because you didn't leave the kill zone")
                                     end
                                 end
+                            else
+                                -- reset timers --
+                                kill_timer[i] = false
+                                players[get_var(i, "$n")].warning_timer = 0
+                                players[get_var(i, "$n")].kill_init_timer = 0
                             end
                         end
                     end
@@ -154,12 +187,10 @@ function inSphere(PlayerIndex, x, y, z, radius)
         local z_diff = z - obj_z
         local dist_from_center = math.sqrt(x_diff ^ 2 + y_diff ^ 2 + z_diff ^ 2)
         if dist_from_center <= radius then
-            bool = true
-        else
-            bool = false
+            return true
         end
     end
-    return bool
+    return false
 end
 
 function secondsToTime(seconds, places)
