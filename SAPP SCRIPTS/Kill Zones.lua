@@ -128,8 +128,8 @@ function OnTick()
             if (player_object ~= 0) then
                 -- validate coordiantes table
                 if coordiantes[mapname] ~= nil then
-                    if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
-                        for j = 1, #coordiantes[mapname] do
+                    for j = 1, #coordiantes[mapname] do
+                        if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
                             -- check if player is in kill zone
                             if inSphere(i, coordiantes[mapname][j][2], coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5]) == true then
                                 -- create new warning timer --
@@ -162,11 +162,6 @@ function OnTick()
                                         rprint(i, "You were killed because you didn't leave the kill zone")
                                     end
                                 end
-                            else
-                                -- reset timers --
-                                kill_timer[i] = false
-                                players[get_var(i, "$n")].warning_timer = 0
-                                players[get_var(i, "$n")].kill_init_timer = 0
                             end
                         end
                     end
@@ -176,21 +171,14 @@ function OnTick()
     end
 end
 
-function inSphere(PlayerIndex, x, y, z, radius)
-    if PlayerIndex then
-        local player_static = get_player(PlayerIndex)
-        local obj_x = read_float(player_static + 0xF8)
-        local obj_y = read_float(player_static + 0xFC)
-        local obj_z = read_float(player_static + 0x100)
-        local x_diff = x - obj_x
-        local y_diff = y - obj_y
-        local z_diff = z - obj_z
-        local dist_from_center = math.sqrt(x_diff ^ 2 + y_diff ^ 2 + z_diff ^ 2)
-        if dist_from_center <= radius then
-            return true
-        end
+function inSphere(PlayerIndex, X, Y, Z, R)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local x, y, z = read_vector3d(player_object + 0x5C)
+    if (X - x) ^2 + (Y - y) ^2 + (Z - z) ^2 <= R then
+        return true
+    else
+        return false
     end
-    return false
 end
 
 function secondsToTime(seconds, places)
