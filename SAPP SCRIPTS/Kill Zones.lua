@@ -31,6 +31,8 @@ kill_init_timer = { }
 --      You will be killed in 15 seconds if you don't leave this area
 --      You were killed because you didn't leave Kill Zone 1 in time!
 
+-- Messages will appear in the RCON console and will remain on screen until they leave the area.
+
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
     { "Kill Zone 1",      33.631, -65.569, 0.370,         5,                   0,                  15},
