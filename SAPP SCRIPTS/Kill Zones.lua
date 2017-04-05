@@ -28,7 +28,8 @@ kill_init_timer = { }
 
 -- Messages:
 --      Warning! You have entered Kill Zone 1
---      You will be  killed in X seconds if you don't leave this area
+--      You will be killed in 15 seconds if you don't leave this area
+--      You were killed because you didn't leave Kill Zone 1 in time!
 
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
@@ -121,7 +122,7 @@ function OnTick()
                                         players[player_id].kill_timer = 0
                                         players[player_id].kill_init_timer = 0
                                         execute_command("kill " ..i)
-                                        rprint(i, "You were killed because you didn't leave the kill zone")
+                                        rprint(i, "You were killed because you didn't leave " .. tostring(coordiantes[mapname][j][1]) .. " in time!")
                                     end
                                 end
                             end
