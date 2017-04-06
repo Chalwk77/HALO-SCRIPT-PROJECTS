@@ -28,11 +28,11 @@ api_version = "1.11.0.0"
 tag_item = "weapons\\ball\\ball"
 
 -- SCORING -- 
-claim_self = 1       -- Claim your own trophy
-steal_other = 1       -- Steal somebody else's trophy
-steal_self = 1       -- Steal someone's trophy on yourself
+claim_self = 1          -- Claim your own trophy
+steal_other = 1         -- Steal somebody else's trophy
+steal_self = 1          -- Steal someone's trophy on yourself
 death_penalty = 2       -- Death Penalty    - PvP
-suicide_penalty = 2       -- Suicice Penalty  - Suicide
+suicide_penalty = 2     -- Suicice Penalty  - Suicide
 
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
@@ -114,6 +114,7 @@ function OnNewGame()
                 players[player_id].new_timer2 = 0
             end
         end
+        -- Set scorelimit based on total players currently connected to the server
         if current_players >= 1 and current_players <= 5 then
             scorelimit = 15
             execute_command("scorelimit " .. scorelimit)
@@ -133,6 +134,7 @@ end
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
+            -- check if player is present
             if player_present(i) then
                 -- reset welcome timer --
                 welcome_timer[i] = false
@@ -239,7 +241,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_Name = get_var(Victim_ID, "$name")
     local Killer_Name = get_var(Killer_ID, "$name")
 
-    if (Killer_ID > 0) and(Victim_ID ~= Killer_ID) then
+    -- Check if the player was a killer
+    if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
         -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
         execute_command("score " .. Killer_ID .. " -1")
         -- Retrieve XYZ coords of victim and spawn a trophy at that location.
@@ -280,14 +283,14 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if tonumber(Type) == 1 then
         local player_object = get_dynamic_player(PlayerIndex)
-        local WeaponObject = get_object_memory(read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) -1) * 4))
+        local WeaponObject = get_object_memory(read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) - 1) * 4))
         if (ObjectTagID(WeaponObject) == tag_item) then
             local t = tokenizestring(tostring(tags[trophy]), ":")
             OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
             local weaponId = read_dword(player_object + 0x118)
             -- Check WeaponObject twice to prevent any undesirable behavior
             if weaponId ~= 0 and ObjectTagID(WeaponObject) == tag_item then
-                local weaponId = read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) -1) * 4)
+                local weaponId = read_dword(player_object + 0x2F8 +(tonumber(WeaponIndex) - 1) * 4)
                 destroy_object(weaponId)
             end
         end
@@ -330,7 +333,7 @@ function updatescore(PlayerIndex, number, bool)
                 execute_command("score " .. PlayerIndex .. " +" .. number)
                 local player_id = get_var(PlayerIndex, "$n")
                 players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
-                if players[player_id].score >=(scorelimit + 1) then
+                if players[player_id].score >= (scorelimit + 1) then
                     game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)

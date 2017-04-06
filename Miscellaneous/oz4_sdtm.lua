@@ -101,7 +101,6 @@ function OnNewGame()
     end
     for i = 1, _index do
         if objects[i] ~= { } and objects[i] ~= nil then
-            hpn = objects[i]
             object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
             -- cprint("Spawning: " ..objects[i][6])
         end
