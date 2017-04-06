@@ -33,18 +33,18 @@ kill_init_timer = { }
 
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
-    { "Kill Zone 1",      33.631, -65.569, 0.370,         1,                   0,                  15},
-    { "Kill Zone 2",      41.703, -128.663, 0.247,        1,                   0,                  15},
-    { "Kill Zone 3",      50.655, -87.787, 0.079,         1,                   0,                  15},
-    { "Kill Zone 4",      101.940, -170.440, 0.197,       1,                   0,                  15},
-    { "Kill Zone 5",      81.617, -116.049, 0.486,        1,                   0,                  15},
-    { "Kill Zone 6",      78.208, -152.914, 0.091,        1,                   0,                  15},
-    { "Kill Zone 7",      64.178, -176.802, 3.960,        1,                   0,                  15},
-    { "Kill Zone 8",      102.312, -144.626, 0.580,       1,                   0,                  15},
-    { "Kill Zone 9",      86.825, -172.542, 0.215,        1,                   0,                  15},
-    { "Kill Zone 10",     65.846, -70.301, 1.690,         1,                   0,                  15},
-    { "Kill Zone 11",     28.861, -90.757, 0.303,         1,                   0,                  15},
-    { "Kill Zone 12",     46.341, -64.700, 1.113,         1,                   0,                  15},
+    { "Kill Zone 1",      33.631, -65.569, 0.370,         5,                   0,                  15},
+    { "Kill Zone 2",      41.703, -128.663, 0.247,        5,                   0,                  15},
+    { "Kill Zone 3",      50.655, -87.787, 0.079,         5,                   0,                  15},
+    { "Kill Zone 4",      101.940, -170.440, 0.197,       5,                   0,                  15},
+    { "Kill Zone 5",      81.617, -116.049, 0.486,        5,                   0,                  15},
+    { "Kill Zone 6",      78.208, -152.914, 0.091,        5,                   0,                  15},
+    { "Kill Zone 7",      64.178, -176.802, 3.960,        5,                   0,                  15},
+    { "Kill Zone 8",      102.312, -144.626, 0.580,       5,                   0,                  15},
+    { "Kill Zone 9",      86.825, -172.542, 0.215,        5,                   0,                  15},
+    { "Kill Zone 10",     65.846, -70.301, 1.690,         5,                   0,                  15},
+    { "Kill Zone 11",     28.861, -90.757, 0.303,         5,                   0,                  15},
+    { "Kill Zone 12",     46.341, -64.700, 1.113,         5,                   0,                  15},
 }
 -- ===================================================== CONFIGURATION ENDS ======================================================= --
 function OnScriptLoad()
@@ -164,6 +164,11 @@ function OnTick()
                                             rprint(i, "You were killed because you didn't leave " .. tostring(coordiantes[mapname][j][1]) .. " in time!")
                                         end
                                     end
+                                else
+                                    -- reset timers --
+                                    kill_timer[i] = false
+                                    players[get_var(i, "$n")].warning_timer = 0
+                                    players[get_var(i, "$n")].kill_init_timer = 0
                                 end
                             end
                         end
