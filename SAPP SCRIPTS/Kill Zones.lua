@@ -21,15 +21,15 @@ players = { }
 warning_timer = { }
 kill_init_timer = { }
 -- ===================================================== CONFIGURATION STARTS ===================================================== --
--- label                =       Kill Zone Label
+-- label                =       Kill Zone Label.
 -- x,y,z radius         =       Kill Zone coordinates. 
--- Warning Delay        =       Amount of time until player is warned after entering kil zone. 0 = warn immediately
--- Seconds until death  =       After entering Kill Zone, they have this many seconds to leave otherwise they are killed
+-- Warning Delay        =       Amount of time until player is warned after entering kill zone. 0 = warn immediately
+-- Seconds until death  =       After entering Kill Zone, they have this many seconds to leave otherwise they are killed.
 
 -- Messages:
 --      Warning! You have entered Kill Zone 1
 --      You will be  killed in X seconds if you don't leave this area
---      You were killed because you didn't leave Kill Zone 1in time!
+--      You were killed because you didn't leave Kill Zone 1 in time!
 
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
