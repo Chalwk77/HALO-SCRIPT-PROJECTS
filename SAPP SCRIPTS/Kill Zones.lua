@@ -28,8 +28,8 @@ kill_init_timer = { }
 
 -- Messages:
 --      Warning! You have entered Kill Zone 1
---      You will be  killed in X seconds if you don't leave this area
---      You were killed because you didn't leave Kill Zone 1 in time!
+--      You will be killed in 15 seconds if you don't leave this area!
+--      You have been killed because you were out of bounds!
 
 --      label                      x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
@@ -144,8 +144,13 @@ function OnTick()
                                         -- initiate kill timer
                                         kill_timer[i] = true
                                         -- send player the warning
-                                        rprint(i, "Warning! You have entered " .. tostring(coordiantes[mapname][j][1]) .. ".")
-                                        rprint(i, "You will be killed in " .. coordiantes[mapname][j][7] - math.floor(seconds) .. " seconds if you don't leave this area!")
+                                        rprint(i, "|cWarning! You have entered " .. tostring(coordiantes[mapname][j][1]) .. ".")
+                                        rprint(i, "|cYou will be killed in " .. coordiantes[mapname][j][7] - math.floor(seconds) .. " seconds if you don't leave this area!")
+                                        rprint(i, "|c ")
+                                        rprint(i, "|c ")
+                                        rprint(i, "|c ")
+                                        rprint(i, "|c ")
+                                        rprint(i, "|c ")
                                     end
                                     if (kill_timer[i] == true) then
                                         -- create new kill timer
@@ -161,7 +166,14 @@ function OnTick()
                                             -- kill Player
                                             execute_command("kill " ..i)
                                             -- send player the unfateful message
-                                            rprint(i, "You were killed because you didn't leave " .. tostring(coordiantes[mapname][j][1]) .. " in time!")
+                                            rprint(i, "|c=========================================================")
+                                            rprint(i, "|cYou were killed for being out of bounds!")
+                                            rprint(i, "|c=========================================================")
+                                            rprint(i, "|c ")
+                                            rprint(i, "|c ")
+                                            rprint(i, "|c ")
+                                            rprint(i, "|c ")
+                                            rprint(i, "|c ")
                                         end
                                     end
                                 else
