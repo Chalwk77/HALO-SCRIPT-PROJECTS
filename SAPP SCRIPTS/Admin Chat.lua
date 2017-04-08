@@ -24,6 +24,9 @@ api_version = "1.11.0.0"
 min_admin_level = 1
 prefix = "[ADMIN CHAT] "
 Restore_Previous_State = true
+-- Print message to Rcon Console or Chat?
+-- Valid input: rcon or chat
+Format = "rcon"
 -- configuration ends here --
 
 data = { }
@@ -31,11 +34,12 @@ players = { }
 adminchat = { }
 stored_data = { }
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_CHAT'], "OnAdminChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
@@ -103,18 +107,12 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
-    local message = tokenizestring(Message)
-    if #message == 0 then
-        return nil
-    end
-    local t = tokenizestring(Message)
-    local Message = tostring(Message)
-    if string.sub(t[1], 1, 1) == "/" then
-        cmd = t[1]:gsub("\\", "/")
-        if cmd == "/achat" then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then 
-                if t[2] == "on" or t[2] == "1" or t[2] == "true" then
+function OnServerCommand(PlayerIndex, Command, Environment)
+    local t = tokenizestring(Command)
+    if t[1] == "achat" then
+        if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
+                if t[2] == "on" or t[2] == '"on"' or t[2] == "1" or t[2] == '"1"' or t[2] == "true" or t[2] == '"true"' then
                     rprint(PlayerIndex, "Admin Chat Toggled on!")
                     players[get_var(PlayerIndex, "$name")].adminchat = true
                     return false
@@ -129,9 +127,16 @@ function OnPlayerChat(PlayerIndex, Message)
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
-            return false
+        else
+            cprint("The Server cannot execute this command!", 4+8)
         end
+        return false
     end
+end
+
+function OnAdminChat(PlayerIndex, Message)
+    local message = tokenizestring(Message)
+    if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
         for i = 0, #message do
             if message[i] then
@@ -150,7 +155,15 @@ function AdminChat(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
             if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
-                rprint(i, "|l" .. Message)
+                if (Format == "rcon") then
+                    rprint(i, "|l" .. Message)
+                elseif (Format == "chat") then
+                    execute_command("msg_prefix \"\"")
+                    say(i, Message)
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                else
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 29", 4+8)
+                end
             end
         end
     end
