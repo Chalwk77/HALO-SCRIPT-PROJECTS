@@ -1,14 +1,11 @@
 --[[
 ------------------------------------
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
+    - Version 1
 
-Description: Admin Chat! Chat privately with other admins. 
+Description: Chat privately with other admins. 
              Command: /achat on|off
-    
-    This script is still in development!
-    Please do not download until an "Updated [date]" tag appears in the file name - e,g "HPC AdminChat, for SAPP - updated [xx-10-16]"
-    
+
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -21,17 +18,15 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -----------------------------------
 ]]--
 
+api_version = "1.11.0.0"
+
+-- configuration starts here --
+min_admin_level = 1
+prefix = "[ADMIN CHAT] "
+-- configuration ends here --
+
 players = { }
 adminchat = { }
-
-AdminChannls = {}
-AdminChannls["data"] = {
-    {"4"}, {"ADMIN CHAT"},
-    {"2"}, {"MOD CHAT"},
-    {"1"}, {"STAFF CHAT"},
-}
-
-api_version = "1.11.0.0"
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -53,10 +48,6 @@ function OnNewGame()
             players[get_var(i, "$n")].adminchat = false
         end
     end
-    for j = 1, #AdminChannls["data"] do
-        cprint(tostring(AdminChannls["data"][2][1]))
-    end
-    
 end
 
 function OnGameEnd()
@@ -81,20 +72,13 @@ function OnPlayerChat(PlayerIndex, Message)
     if #message == 0 then
         return nil
     end
-    
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
-        isadmin = true 
-    else 
-        isadmin = false 
-    end  
-    
     local t = tokenizestring(Message)
     count = #t
     local Message = tostring(Message)
     if string.sub(t[1], 1, 1) == "/" then
         cmd = t[1]:gsub("\\", "/")
         if cmd == "/achat" then
-            if isadmin then
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(PlayerIndex, "Admin Chat Toggled on!")
                     players[get_var(PlayerIndex, "$n")].adminchat = true
@@ -107,7 +91,7 @@ function OnPlayerChat(PlayerIndex, Message)
                     rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
                     return false
                 end
-            else 
+            else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             return false
@@ -120,30 +104,14 @@ function OnPlayerChat(PlayerIndex, Message)
                     return true
                 else
                     for i = 1,16 do
-                        for j = 1, #AdminChannls["data"] do
-                            if (tonumber(get_var(i,"$lvl"))) == tonumber(AdminChannls["data"][j][1]) then
-                                if AdminChannls["data"][j][1] == 4 then
-                                    AdminChat(tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                                    rprint(PlayerIndex, tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
-                                elseif AdminChannls["data"][j][1] == 2 then
-                                    AdminChat(tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                                    rprint(PlayerIndex, tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
-                                elseif AdminChannls["data"][j][1] == 1 then
-                                    AdminChat(tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                                    rprint(PlayerIndex, tostring(AdminChannls["data"][j][2]) .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
-                                end
-                                break
-                            end
+                        if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
+                            AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
+                            rprint(PlayerIndex, prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
+                            break
                         end
                     end
                     return false
                 end
-            end
-        end
-    elseif players[get_var(PlayerIndex, "$n")].adminchat == false then
-        for i = 0, #message do
-            if message[i] then
-                return
             end
         end
     end
