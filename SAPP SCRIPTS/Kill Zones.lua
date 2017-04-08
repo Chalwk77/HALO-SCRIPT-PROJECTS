@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 players = { }
 kill_timer = { }
-coordiantes = { }
+coordinates = { }
 warning_timer = { }
 kill_init_timer = { }
 -- ===================================================== CONFIGURATION STARTS ===================================================== --
@@ -39,11 +39,11 @@ local dir = 'sapp\\coordinates.txt'
 --      Blue, Only players on Blue Team will trigger this kill zone.
 --      FFA, all players will trigger this kill zone
 
--- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordiantes.
+-- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordinates.
 -- This data will be saved to a txt file called coordinates.txt located in "<server root directory>/sapp/coordinates.txt".
 
 --      label            team           x,y,z                radius       Warning Dealy         Seconds until death
-coordiantes["bloodgulch"] = {
+coordinates["bloodgulch"] = {
     { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15 },
     { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15 },
     { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15 },
@@ -59,7 +59,7 @@ coordiantes["bloodgulch"] = {
 }
 
 -- To add other maps, simply repeat the structure above, like so:
-coordiantes["mapname_here"] = {
+coordinates["mapname_here"] = {
     { "label", "red", x, y, z, radius, warning_delay, seconds_until_death },
     { "label", "red", x, y, z, radius, warning_delay, seconds_until_death },
     { "label", "blue", x, y, z, radius, warning_delay, seconds_until_death },
@@ -148,27 +148,27 @@ function OnTick()
         if player_present(i) then
             local player_object = get_dynamic_player(i)
             if (player_object ~= 0) then
-                -- validate coordiantes table
-                if coordiantes[mapname] ~= nil then
-                    for j = 1, #coordiantes[mapname] do
+                -- validate coordinates table
+                if coordinates[mapname] ~= nil then
+                    for j = 1, #coordinates[mapname] do
                         if player_alive(i) then
-                            if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
+                            if coordinates[mapname] ~= { } and coordinates[mapname][j] ~= nil then
                                 -- check if player is in kill zone
-                                if GEOinSpherePlayer(i, coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5], coordiantes[mapname][j][6]) == true then
+                                if GEOinSpherePlayer(i, coordinates[mapname][j][3], coordinates[mapname][j][4], coordinates[mapname][j][5], coordinates[mapname][j][6]) == true then
                                     -- Check player's team and varify against table data
-                                    if getteam(i) == tostring(coordiantes[mapname][j][2]) then
+                                    if getteam(i) == tostring(coordinates[mapname][j][2]) then
                                         -- create new warning timer --
                                         players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
-                                        -- monitor warning timer until it reaches the value of "Warning Dealy" (coordiantes[mapname][j][7])
-                                        if players[get_var(i, "$n")].warning_timer >= math.floor(coordiantes[mapname][j][7]) then
+                                        -- monitor warning timer until it reaches the value of "Warning Dealy" (coordinates[mapname][j][7])
+                                        if players[get_var(i, "$n")].warning_timer >= math.floor(coordinates[mapname][j][7]) then
                                             -- clear the player's console to prevent duplicate messages (spam)
                                             ClearConsole(i)
                                             local minutes, seconds = secondsToTime(players[get_var(i, "$n")].warning_timer, 2)
                                             -- initiate kill timer
                                             kill_timer[i] = true
                                             -- send player the warning
-                                            rprint(i, "|cWarning! You have entered " .. tostring(coordiantes[mapname][j][1]) .. ".")
-                                            rprint(i, "|cYou will be killed in " .. coordiantes[mapname][j][8] - math.floor(seconds) .. " seconds if you don't leave this area!")
+                                            rprint(i, "|cWarning! You have entered " .. tostring(coordinates[mapname][j][1]) .. ".")
+                                            rprint(i, "|cYou will be killed in " .. coordinates[mapname][j][8] - math.floor(seconds) .. " seconds if you don't leave this area!")
                                             rprint(i, "|c ")
                                             rprint(i, "|c ")
                                             rprint(i, "|c ")
@@ -178,8 +178,8 @@ function OnTick()
                                         if (kill_timer[i] == true) then
                                             -- create new kill timer
                                             players[get_var(i, "$n")].kill_init_timer = players[get_var(i, "$n")].kill_init_timer + 0.030
-                                            -- monitor killer timer until it reaches the value of "Seconds until death" (coordiantes[mapname][j][8])
-                                            if players[get_var(i, "$n")].kill_init_timer >= math.floor(coordiantes[mapname][j][8]) then
+                                            -- monitor killer timer until it reaches the value of "Seconds until death" (coordinates[mapname][j][8])
+                                            if players[get_var(i, "$n")].kill_init_timer >= math.floor(coordinates[mapname][j][8]) then
                                                 -- clear the player's console to prevent duplicate messages (spam)
                                                 ClearConsole(i)
                                                 -- reset timers --
