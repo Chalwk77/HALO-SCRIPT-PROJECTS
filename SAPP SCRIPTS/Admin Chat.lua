@@ -35,7 +35,7 @@ adminchat = { }
 stored_data = { }
 commandCheck = {}
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnAdminChat")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -146,7 +146,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return response
 end
 
-function OnAdminChat(PlayerIndex, Message)
+function OnPlayerChat(PlayerIndex, Message)
     local message = tokenizestring(Message)
     if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
