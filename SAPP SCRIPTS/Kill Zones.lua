@@ -154,7 +154,7 @@ function OnTick()
                         if player_alive(i) then
                             if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
                                 -- check if player is in kill zone
-                                if inSphere(i, coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5], coordiantes[mapname][j][6]) == true then
+                                if GEOinSpherePlayer(i, coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5], coordiantes[mapname][j][6]) == true then
                                     -- Check player's team and varify against table data
                                     if getteam(i) == tostring(coordiantes[mapname][j][2]) then
                                         -- create new warning timer --
@@ -215,10 +215,10 @@ function OnTick()
     end
 end
 
-function inSphere(PlayerIndex, X, Y, Z, R)
+function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
     local player_object = get_dynamic_player(PlayerIndex)
-    local x, y, z = read_vector3d(player_object + 0x5C)
-    if (X - x) ^2 + (Y - y) ^2 + (Z - z) ^2 <= R then
+    local Xaxis, Yaxis, Zaxis = read_vector3d(player_object + 0x5C)
+    if (posX - Xaxis) ^2 + (posY - Yaxis) ^2 + (posZ - Zaxis) ^2 <= Radius then
         return true
     else
         return false
@@ -269,7 +269,7 @@ function OnServerCommand(PlayerIndex, Command)
     if (Command == "coords") then
         if (tonumber(get_var(PlayerIndex, "$lvl"))) > 0 then
             local x, y, z = GetPlayerCoords(PlayerIndex)
-            local team = get_var(PlayerIndex, "$team")
+            local team = getteam(PlayerIndex)
             local data = ("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(x) .. ", " .. tostring(y) .. ", " .. tostring(z))
             local file = io.open(dir, "a+")
             if file ~= nil then
@@ -289,16 +289,16 @@ end
 function GetPlayerCoords(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+        local posX, posY, posZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
         local VehicleObjID = read_dword(player_object + 0x11C)
         local vehicle = get_object_memory(VehicleObjID)
         if (vehicle ~= 0 and vehicle ~= nil) then
-            local vx, vy, vz = read_vector3d(vehicle + 0x5C)
-            x = x + vx
-            y = y + vy
-            z = z + vz
+            local VehiPosX, VehiPosY, VehiPosZ = read_vector3d(vehicle + 0x5C)
+            posX = posX + VehiPosX
+            posY = posY + VehiPosY
+            posZ = posZ + VehiPosZ
         end
-        return math.round(x, 2), math.round(y, 2), math.round(z, 2)
+        return math.round(posX, 2), math.round(posY, 2), math.round(posZ, 2)
     end
     return nil
 end
