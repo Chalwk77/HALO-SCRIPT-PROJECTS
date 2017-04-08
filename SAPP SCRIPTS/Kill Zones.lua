@@ -155,6 +155,7 @@ function OnTick()
                             if coordiantes[mapname] ~= { } and coordiantes[mapname][j] ~= nil then
                                 -- check if player is in kill zone
                                 if inSphere(i, coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5], coordiantes[mapname][j][6]) == true then
+                                    -- Check player's team and varify against table data
                                     if getteam(i) == tostring(coordiantes[mapname][j][2]) then
                                         -- create new warning timer --
                                         players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
