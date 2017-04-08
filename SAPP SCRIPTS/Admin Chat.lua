@@ -33,6 +33,7 @@ data = { }
 players = { }
 adminchat = { }
 stored_data = { }
+commandCheck = {}
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnAdminChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -109,20 +110,30 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local t = tokenizestring(Command)
+    response = nil
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
-                if t[2] == "on" or t[2] == '"on"' or t[2] == "1" or t[2] == '"1"' or t[2] == "true" or t[2] == '"true"' then
-                    rprint(PlayerIndex, "Admin Chat Toggled on!")
-                    players[get_var(PlayerIndex, "$name")].adminchat = true
-                    return false
-                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
+                response = false
+                if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
+                    if commandCheck[PlayerIndex] == true then 
+                        rprint(PlayerIndex, "Admin Chat is already enabled.")
+                    else
+                        rprint(PlayerIndex, "Admin Chat enabled.")
+                        players[get_var(PlayerIndex, "$name")].adminchat = true
+                        response = false
+                    end
+                elseif commandCheck[PlayerIndex] == false then 
+                    rprint(PlayerIndex, "Admin Chat is already disabled.")
+                    response = false
+                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                    commandCheck[PlayerIndex] = false
                     players[get_var(PlayerIndex, "$name")].adminchat = false
-                    rprint(PlayerIndex, "Admin Chat Toggled off!")
-                    return false
+                    rprint(PlayerIndex, "Admin Chat disabled.")
+                    response = false
                 else
                     rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
-                    return false
+                    response = false
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
@@ -130,14 +141,16 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         else
             cprint("The Server cannot execute this command!", 4+8)
         end
-        return false
+        response = false
     end
+    return response
 end
 
 function OnAdminChat(PlayerIndex, Message)
     local message = tokenizestring(Message)
     if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
+        commandCheck[PlayerIndex] = true
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
