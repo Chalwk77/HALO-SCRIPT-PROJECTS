@@ -103,14 +103,11 @@ function OnPlayerChat(PlayerIndex, Message)
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                     return true
                 else
-                    for i = 1,16 do
-                        if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
-                            AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                            rprint(PlayerIndex, prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
-                            break
-                        end
+                    if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
+                        AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
+                        rprint(PlayerIndex, prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
+                        return false
                     end
-                    return false
                 end
             end
         end
