@@ -3,6 +3,8 @@
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
     - Version 1
 
+    - Version 2 will be much more sophisticated. No release date yet.
+
 Description: Chat privately with other admins. 
              Command: /achat on|off
 
