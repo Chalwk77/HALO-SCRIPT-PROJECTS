@@ -40,7 +40,7 @@ local dir = 'sapp\\coordinates.txt'
 --      FFA, all players will trigger this kill zone
 
 -- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordiantes. 
--- This data will be saved to a txt file called coordinates.txt located in "<server root directory>//sapp".
+-- This data will be saved to a txt file called coordinates.txt located in "<server root directory>/sapp/coordinates.txt".
 
 --      label             team               x,y,z                radius           Warning Dealy      Seconds until death
 coordiantes["bloodgulch"] = {
