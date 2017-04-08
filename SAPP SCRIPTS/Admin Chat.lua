@@ -26,7 +26,7 @@ min_admin_level = 1
 -- Admin Chat prefix
 prefix = "[ADMIN CHAT] "
 
--- If this is enabled, your admin chat will be restored to its previous state when you reconnect.
+-- If this is enabled, your admin chat will be restored to its previous state (ON|OFF) when you reconnect.
 Restore_Previous_State = true
 
 -- Print message to Rcon Console or Chat?
