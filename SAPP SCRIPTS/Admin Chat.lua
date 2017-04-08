@@ -87,14 +87,14 @@ function OnPlayerJoin(PlayerIndex)
         if t[2] == "true" then
             rprint(PlayerIndex, "Your admin chat is on!")
             players[get_var(PlayerIndex, "$name")].adminchat = true
-            commandCheck[PlayerIndex] = true
+            commandCheck[get_var(PlayerIndex, "$name")] = true
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
-            commandCheck[PlayerIndex] = false
+            commandCheck[get_var(PlayerIndex, "$name")] = false
         end
     else
         players[get_var(PlayerIndex, "$name")].adminchat = false
-        commandCheck[PlayerIndex] = false
+        commandCheck[get_var(PlayerIndex, "$name")] = false
     end
 end
 
@@ -119,19 +119,19 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
                 response = false
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                    if commandCheck[PlayerIndex] ~= true then 
+                    if commandCheck[get_var(PlayerIndex, "$name")] ~= true then 
                         rprint(PlayerIndex, "Admin Chat enabled.")
                         players[get_var(PlayerIndex, "$name")].adminchat = true
-                        commandCheck[PlayerIndex] = true
+                        commandCheck[get_var(PlayerIndex, "$name")] = true
                         response = false
                     else
                         rprint(PlayerIndex, "Admin Chat is already enabled.")
                     end
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                    if commandCheck[PlayerIndex] ~= false then
+                    if commandCheck[get_var(PlayerIndex, "$name")] ~= false then
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
-                        commandCheck[PlayerIndex] = false
+                        commandCheck[get_var(PlayerIndex, "$name")] = false
                         response = false
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
