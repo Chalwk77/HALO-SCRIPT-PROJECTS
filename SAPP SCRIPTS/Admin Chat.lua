@@ -2,9 +2,7 @@
 ------------------------------------
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
     - Version 1
-
-    - Version 2 will be much more sophisticated. No release date yet.
-
+    
 Description: Chat privately with other admins. 
              Command: /achat on|off
 
@@ -79,7 +77,7 @@ function OnPlayerChat(PlayerIndex, Message)
     if string.sub(t[1], 1, 1) == "/" then
         cmd = t[1]:gsub("\\", "/")
         if cmd == "/achat" then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then 
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then 
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(PlayerIndex, "Admin Chat Toggled on!")
                     players[get_var(PlayerIndex, "$n")].adminchat = true
@@ -104,11 +102,8 @@ function OnPlayerChat(PlayerIndex, Message)
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                     return true
                 else
-                    if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
-                        AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                        rprint(PlayerIndex, prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message)
-                        return false
-                    end
+                    AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
+                    return false
                 end
             end
         end
@@ -118,10 +113,8 @@ end
 function AdminChat(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
-            if (tonumber(get_var(i,"$lvl"))) >= 0 then
-                if i ~= PlayerIndex then
-                    rprint(i, "|l" .. Message)
-                end
+            if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
+                rprint(i, "|l" .. Message)
             end
         end
     end
