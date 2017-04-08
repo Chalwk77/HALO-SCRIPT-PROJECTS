@@ -3,6 +3,8 @@
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
     - Version 1
 
+    - Version 2 will be much more sophisticated. No release date yet.
+
 Description: Chat privately with other admins. 
              Command: /achat on|off
 
@@ -73,7 +75,6 @@ function OnPlayerChat(PlayerIndex, Message)
         return nil
     end
     local t = tokenizestring(Message)
-    count = #t
     local Message = tostring(Message)
     if string.sub(t[1], 1, 1) == "/" then
         cmd = t[1]:gsub("\\", "/")
