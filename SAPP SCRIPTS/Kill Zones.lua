@@ -62,9 +62,9 @@ coordiantes["bloodgulch"] = {
 coordiantes["mapname_here"] = {
     { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
     { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
+    { "label",      "blue",     x,y,z,      radius,     warning_delay,      seconds_until_death},
+    { "label",      "blue",     x,y,z,      radius,     warning_delay,      seconds_until_death},
+    { "label",      "FFA",      x,y,z,      radius,     warning_delay,      seconds_until_death},
 }
 -- ===================================================== CONFIGURATION ENDS ======================================================= --
 function OnScriptLoad()
