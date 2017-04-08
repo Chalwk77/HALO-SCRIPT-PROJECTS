@@ -87,11 +87,14 @@ function OnPlayerJoin(PlayerIndex)
         if t[2] == "true" then
             rprint(PlayerIndex, "Your admin chat is on!")
             players[get_var(PlayerIndex, "$name")].adminchat = true
+            commandCheck[PlayerIndex] = true
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
+            commandCheck[PlayerIndex] = false
         end
     else
         players[get_var(PlayerIndex, "$name")].adminchat = false
+        commandCheck[PlayerIndex] = false
     end
 end
 
@@ -116,24 +119,26 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
                 response = false
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                    if commandCheck[PlayerIndex] == true then 
-                        rprint(PlayerIndex, "Admin Chat is already enabled.")
-                    else
+                    if commandCheck[PlayerIndex] ~= true then 
                         rprint(PlayerIndex, "Admin Chat enabled.")
                         players[get_var(PlayerIndex, "$name")].adminchat = true
+                        commandCheck[PlayerIndex] = true
+                        response = false
+                    else
+                        rprint(PlayerIndex, "Admin Chat is already enabled.")
+                    end
+                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                    if commandCheck[PlayerIndex] ~= false then
+                        players[get_var(PlayerIndex, "$name")].adminchat = false
+                        rprint(PlayerIndex, "Admin Chat disabled.")
+                        commandCheck[PlayerIndex] = false
+                        response = false
+                    else
+                        rprint(PlayerIndex, "Admin Chat is already disabled.")
                         response = false
                     end
-                elseif commandCheck[PlayerIndex] == false then 
-                    rprint(PlayerIndex, "Admin Chat is already disabled.")
-                    response = false
-                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                    commandCheck[PlayerIndex] = false
-                    players[get_var(PlayerIndex, "$name")].adminchat = false
-                    rprint(PlayerIndex, "Admin Chat disabled.")
-                    response = false
                 else
-                    rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
-                    response = false
+                    rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
@@ -150,7 +155,6 @@ function OnPlayerChat(PlayerIndex, Message)
     local message = tokenizestring(Message)
     if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
-        commandCheck[PlayerIndex] = true
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
