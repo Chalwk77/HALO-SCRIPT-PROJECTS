@@ -114,9 +114,10 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
-    -- reset timers --
     kill_timer[PlayerIndex] = false
+    -- create empty table for this player --
     players[get_var(PlayerIndex, "$n")] = { }
+    -- set initial counters to 0 --
     players[get_var(PlayerIndex, "$n")].warning_timer = 0
     players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
 end
