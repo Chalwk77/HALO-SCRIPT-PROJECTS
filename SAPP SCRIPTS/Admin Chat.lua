@@ -23,10 +23,13 @@ api_version = "1.11.0.0"
 -- configuration starts here --
 min_admin_level = 1
 prefix = "[ADMIN CHAT] "
+Restore_Previous_State = true
 -- configuration ends here --
 
+data = { }
 players = { }
 adminchat = { }
+stored_data = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -35,17 +38,23 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     for i = 1,16 do
         if player_present(i) then
-            players[get_var(i, "$n")].adminchat = false
+            players[get_var(i, "$name")].adminchat = nil
         end
     end
 end
 
-function OnScriptUnload() end
+function OnScriptUnload() 
+    for i = 1,16 do
+        if player_present(i) then
+            players[get_var(i, "$name")].adminchat = false
+        end
+    end
+end
 
 function OnNewGame()
     for i = 1,16 do
         if player_present(i) then
-            players[get_var(i, "$n")].adminchat = false
+            players[get_var(i, "$name")].adminchat = nil
         end
     end
 end
@@ -53,18 +62,45 @@ end
 function OnGameEnd()
     for i = 1,16 do
         if player_present(i) then
-            players[get_var(i, "$n")].adminchat = false
+            if (Restore_Previous_State == true) then
+                if players[get_var(i, "$name")].adminchat == true then bool = "true" else bool = "false" end
+                data[i] = get_var(i, "$name") .. ":" .. bool
+                stored_data[data] = stored_data[data] or { }
+                table.insert(stored_data[data], tostring(data[i]))
+            else
+                players[get_var(i, "$name")].adminchat = false
+            end
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].adminchat = false
+    players[get_var(PlayerIndex, "$name")] = { }
+    players[get_var(PlayerIndex, "$name")].adminchat = nil
+    if (Restore_Previous_State == true) then
+        local t = tokenizestring(tostring(data[PlayerIndex]), ":")
+        if t[2] == "true" then
+            rprint(PlayerIndex, "Your admin chat is on!")
+            players[get_var(PlayerIndex, "$name")].adminchat = true
+        else
+            players[get_var(PlayerIndex, "$name")].adminchat = false
+        end
+    else
+        players[get_var(PlayerIndex, "$name")].adminchat = false
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")].adminchat = false
+    if PlayerIndex ~= 0 then
+        if (Restore_Previous_State == true) then
+            if players[get_var(PlayerIndex, "$name")].adminchat == true then bool = "true" else bool = "false" end
+            data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
+            stored_data[data] = stored_data[data] or { }
+            table.insert(stored_data[data], tostring(data[PlayerIndex]))
+        else
+            players[get_var(PlayerIndex, "$name")].adminchat = false
+        end
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -80,10 +116,10 @@ function OnPlayerChat(PlayerIndex, Message)
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then 
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                     rprint(PlayerIndex, "Admin Chat Toggled on!")
-                    players[get_var(PlayerIndex, "$n")].adminchat = true
+                    players[get_var(PlayerIndex, "$name")].adminchat = true
                     return false
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
-                    players[get_var(PlayerIndex, "$n")].adminchat = false
+                    players[get_var(PlayerIndex, "$name")].adminchat = false
                     rprint(PlayerIndex, "Admin Chat Toggled off!")
                     return false
                 else
@@ -96,7 +132,7 @@ function OnPlayerChat(PlayerIndex, Message)
             return false
         end
     end
-    if players[get_var(PlayerIndex, "$n")].adminchat == true then
+    if players[get_var(PlayerIndex, "$name")].adminchat == true then
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
