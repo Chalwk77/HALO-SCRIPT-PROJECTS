@@ -1,11 +1,10 @@
 --[[
 ------------------------------------
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
-    - Version 1
-    
-Description: Chat privately with other admins. 
-             Command: /achat on|off
 
+Description: Chat privately with other admins. 
+             Command Syntax: /achat on|off
+             
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -21,19 +20,27 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- configuration starts here --
+-- Minimin admin level required to use /achat command
 min_admin_level = 1
+
+-- Admin Chat prefix
 prefix = "[ADMIN CHAT] "
+
+-- If this is enabled, your admin chat will be restored to its previous state when you reconnect.
 Restore_Previous_State = true
+
 -- Print message to Rcon Console or Chat?
 -- Valid input: rcon or chat
 Format = "rcon"
 -- configuration ends here --
 
+-- tables --
 data = { }
 players = { }
 adminchat = { }
 stored_data = { }
 boolean = { }
+
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -181,7 +188,7 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \"** SERVER ** \"")
                 else
-                    cprint("Error in adminchat.lua - Format not defined properly. Line 29", 4+8)
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4+8)
                 end
             end
         end
