@@ -76,7 +76,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    team_play = getteamplay()
+    TeamPlay = CheckIfTeamPlay()
     for i = 1, 16 do
         if player_present(i) then
             -- reset timers --
@@ -91,7 +91,7 @@ function OnScriptUnload() end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
-    team_play = getteamplay()
+    TeamPlay = CheckIfTeamPlay()
     for i = 1, 16 do
         if player_present(i) then
             -- reset timers --
@@ -239,7 +239,7 @@ function ClearConsole(PlayerIndex)
     end
 end
 
-function getteamplay()
+function CheckIfTeamPlay()
     if get_var(0, "$ffa") == "0" then
         return true
     else
@@ -249,7 +249,7 @@ end
 
 function getteam(PlayerIndex)
     if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
-        if team_play then
+        if TeamPlay then
             if get_var(PlayerIndex, "$team") == "red" then
                 team = "red"
             elseif get_var(PlayerIndex, "$team") == "blue" then
@@ -265,12 +265,12 @@ end
 
 function OnServerCommand(PlayerIndex, Command)
     local response = nil
-    local Command = string.lower(Command)
-    if (Command == "coords") then
+    local command = string.lower(Command)
+    if (command == "coords") then
         if (tonumber(get_var(PlayerIndex, "$lvl"))) > 0 then
-            local x, y, z = GetPlayerCoords(PlayerIndex)
+            local posX, posY, posZ = GetObjectCoords(PlayerIndex)
             local team = getteam(PlayerIndex)
-            local data =("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(x) .. ", " .. tostring(y) .. ", " .. tostring(z))
+            local data =("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(posX) .. ", " .. tostring(posY) .. ", " .. tostring(posZ))
             local file = io.open(dir, "a+")
             if file ~= nil then
                 file:write(data .. "\n")
@@ -286,7 +286,7 @@ function OnServerCommand(PlayerIndex, Command)
     return response
 end
 
-function GetPlayerCoords(PlayerIndex)
+function GetObjectCoords(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local posX, posY, posZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
