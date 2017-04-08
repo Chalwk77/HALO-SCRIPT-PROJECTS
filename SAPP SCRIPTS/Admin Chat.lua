@@ -33,7 +33,7 @@ data = { }
 players = { }
 adminchat = { }
 stored_data = { }
-commandCheck = {}
+boolean = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -44,6 +44,7 @@ function OnScriptLoad()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
+            players[get_var(i, "$name")].boolean = nil
         end
     end
 end
@@ -52,6 +53,7 @@ function OnScriptUnload()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = false
+            players[get_var(i, "$name")].boolean = false
         end
     end
 end
@@ -60,6 +62,7 @@ function OnNewGame()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
+            players[get_var(i, "$name")].boolean = nil
         end
     end
 end
@@ -74,6 +77,7 @@ function OnGameEnd()
                 table.insert(stored_data[data], tostring(data[i]))
             else
                 players[get_var(i, "$name")].adminchat = false
+                players[get_var(i, "$name")].boolean = false
             end
         end
     end
@@ -82,19 +86,20 @@ end
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].adminchat = nil
+    players[get_var(PlayerIndex, "$name")].boolean = nil
     if (Restore_Previous_State == true) then
         local t = tokenizestring(tostring(data[PlayerIndex]), ":")
         if t[2] == "true" then
             rprint(PlayerIndex, "Your admin chat is on!")
             players[get_var(PlayerIndex, "$name")].adminchat = true
-            commandCheck[get_var(PlayerIndex, "$name")] = true
+            players[get_var(PlayerIndex, "$name")].boolean = true
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
-            commandCheck[get_var(PlayerIndex, "$name")] = false
+            players[get_var(PlayerIndex, "$name")].boolean = false
         end
     else
         players[get_var(PlayerIndex, "$name")].adminchat = false
-        commandCheck[get_var(PlayerIndex, "$name")] = false
+        players[get_var(PlayerIndex, "$name")].boolean = false
     end
 end
 
@@ -107,6 +112,7 @@ function OnPlayerLeave(PlayerIndex)
             table.insert(stored_data[data], tostring(data[PlayerIndex]))
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
+            players[get_var(PlayerIndex, "$name")].boolean = false
         end
     end
 end
@@ -117,25 +123,21 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
-                response = false
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                    if commandCheck[get_var(PlayerIndex, "$name")] ~= true then 
+                    if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
                         rprint(PlayerIndex, "Admin Chat enabled.")
                         players[get_var(PlayerIndex, "$name")].adminchat = true
-                        commandCheck[get_var(PlayerIndex, "$name")] = true
-                        response = false
+                        players[get_var(PlayerIndex, "$name")].boolean = true
                     else
                         rprint(PlayerIndex, "Admin Chat is already enabled.")
                     end
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                    if commandCheck[get_var(PlayerIndex, "$name")] ~= false then
+                    if players[get_var(PlayerIndex, "$name")].boolean ~= false then
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
-                        commandCheck[get_var(PlayerIndex, "$name")] = false
-                        response = false
+                        players[get_var(PlayerIndex, "$name")].boolean = false
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
-                        response = false
                     end
                 else
                     rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
