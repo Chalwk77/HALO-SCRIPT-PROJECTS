@@ -24,7 +24,7 @@ kill_init_timer = { }
 local dir = 'sapp\\coordinates.txt'
 -- label                =       Kill Zone Label.
 -- team                 =       Player Team: "red", "blue" - "ffa" or "all"
--- x,y,z radius         =       Kill Zone coordinates. 
+-- x,y,z radius         =       Kill Zone coordinates.
 -- Warning Delay        =       Amount of time until player is warned after entering kill zone. 0 = warn immediately
 -- Seconds until death  =       After entering Kill Zone, they have this many seconds to leave otherwise they are killed.
 
@@ -39,32 +39,32 @@ local dir = 'sapp\\coordinates.txt'
 --      Blue, Only players on Blue Team will trigger this kill zone.
 --      FFA, all players will trigger this kill zone
 
--- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordiantes. 
+-- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordiantes.
 -- This data will be saved to a txt file called coordinates.txt located in "<server root directory>/sapp/coordinates.txt".
 
---      label             team               x,y,z                radius           Warning Dealy      Seconds until death
+--      label            team           x,y,z                radius       Warning Dealy         Seconds until death
 coordiantes["bloodgulch"] = {
-    { "Kill Zone 1",      "FFA",    33.631, -65.569, 0.370,         5,                   0,                  15},
-    { "Kill Zone 2",      "FFA",    41.703, -128.663, 0.247,        5,                   0,                  15},
-    { "Kill Zone 3",      "FFA",    50.655, -87.787, 0.079,         5,                   0,                  15},
-    { "Kill Zone 4",      "FFA",    101.940, -170.440, 0.197,       5,                   0,                  15},
-    { "Kill Zone 5",      "FFA",    81.617, -116.049, 0.486,        5,                   0,                  15},
-    { "Kill Zone 6",      "FFA",    78.208, -152.914, 0.091,        5,                   0,                  15},
-    { "Kill Zone 7",      "FFA",    64.178, -176.802, 3.960,        5,                   0,                  15},
-    { "Kill Zone 8",      "FFA",    102.312, -144.626, 0.580,       5,                   0,                  15},
-    { "Kill Zone 9",      "FFA",    86.825, -172.542, 0.215,        5,                   0,                  15},
-    { "Kill Zone 10",     "FFA",    65.846, -70.301, 1.690,         5,                   0,                  15},
-    { "Kill Zone 11",     "FFA",    28.861, -90.757, 0.303,         5,                   0,                  15},
-    { "Kill Zone 12",     "FFA",    46.341, -64.700, 1.113,         5,                   0,                  15},
+    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15 },
+    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15 },
+    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15 },
+    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15 },
+    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15 },
+    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15 },
+    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15 },
+    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15 },
+    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15 },
+    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15 },
+    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15 },
+    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15 },
 }
 
 -- To add other maps, simply repeat the structure above, like so:
 coordiantes["mapname_here"] = {
-    { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "red",      x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "blue",     x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "blue",     x,y,z,      radius,     warning_delay,      seconds_until_death},
-    { "label",      "FFA",      x,y,z,      radius,     warning_delay,      seconds_until_death},
+    { "label", "red", x, y, z, radius, warning_delay, seconds_until_death },
+    { "label", "red", x, y, z, radius, warning_delay, seconds_until_death },
+    { "label", "blue", x, y, z, radius, warning_delay, seconds_until_death },
+    { "label", "blue", x, y, z, radius, warning_delay, seconds_until_death },
+    { "label", "FFA", x, y, z, radius, warning_delay, seconds_until_death },
 }
 -- ===================================================== CONFIGURATION ENDS ======================================================= --
 function OnScriptLoad()
@@ -77,7 +77,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     team_play = getteamplay()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             -- reset timers --
             kill_timer[i] = false
@@ -92,7 +92,7 @@ function OnScriptUnload() end
 function OnNewGame()
     mapname = get_var(0, "$map")
     team_play = getteamplay()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             -- reset timers --
             kill_timer[i] = false
@@ -103,7 +103,7 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             -- reset timers --
             kill_timer[i] = false
@@ -187,7 +187,7 @@ function OnTick()
                                                 players[get_var(i, "$n")].warning_timer = 0
                                                 players[get_var(i, "$n")].kill_init_timer = 0
                                                 -- kill Player
-                                                execute_command("kill " ..i)
+                                                execute_command("kill " .. i)
                                                 -- send player the unfateful message
                                                 rprint(i, "|c=========================================================")
                                                 rprint(i, "|cYou were killed for being out of bounds!")
@@ -218,7 +218,7 @@ end
 function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
     local player_object = get_dynamic_player(PlayerIndex)
     local Xaxis, Yaxis, Zaxis = read_vector3d(player_object + 0x5C)
-    if (posX - Xaxis) ^2 + (posY - Yaxis) ^2 + (posZ - Zaxis) ^2 <= Radius then
+    if (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 <= Radius then
         return true
     else
         return false
@@ -248,7 +248,7 @@ function getteamplay()
 end
 
 function getteam(PlayerIndex)
-	if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
         if team_play then
             if get_var(PlayerIndex, "$team") == "red" then
                 team = "red"
@@ -258,9 +258,9 @@ function getteam(PlayerIndex)
         else
             team = "FFA" or "ffa" or "ALL" or "all"
         end
-            return team
-        end
-	return nil
+        return team
+    end
+    return nil
 end
 
 function OnServerCommand(PlayerIndex, Command)
@@ -270,7 +270,7 @@ function OnServerCommand(PlayerIndex, Command)
         if (tonumber(get_var(PlayerIndex, "$lvl"))) > 0 then
             local x, y, z = GetPlayerCoords(PlayerIndex)
             local team = getteam(PlayerIndex)
-            local data = ("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(x) .. ", " .. tostring(y) .. ", " .. tostring(z))
+            local data =("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(x) .. ", " .. tostring(y) .. ", " .. tostring(z))
             local file = io.open(dir, "a+")
             if file ~= nil then
                 file:write(data .. "\n")
