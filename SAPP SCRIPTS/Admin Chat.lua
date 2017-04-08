@@ -77,6 +77,7 @@ end
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].adminchat = nil
+<<<<<<< HEAD
     if (Restore_Previous_State == true) then
         local t = tokenizestring(tostring(data[PlayerIndex]), ":")
         if t[2] == "true" then
@@ -85,6 +86,12 @@ function OnPlayerJoin(PlayerIndex)
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
         end
+=======
+    local t = tokenizestring(tostring(data[PlayerIndex]), ":")
+    if t[2] == "true" then
+        rprint(PlayerIndex, "Your admin chat is on!")
+        players[get_var(PlayerIndex, "$name")].adminchat = true
+>>>>>>> 12484f99b0ce252bda79a1618ef0c361ac998573
     else
         players[get_var(PlayerIndex, "$name")].adminchat = false
     end
