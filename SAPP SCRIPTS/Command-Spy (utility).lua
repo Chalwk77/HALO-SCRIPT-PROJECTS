@@ -90,7 +90,9 @@ end
 function CommandSpy(Message, AdminIndex) 
     for i = 1,16 do
         if i ~= RegularPlayer then
-            rprint(i, Message)
+            if (tonumber(get_var(i,"$lvl"))) >= 1 then
+                rprint(i, Message)
+            end
         end
     end
 end
