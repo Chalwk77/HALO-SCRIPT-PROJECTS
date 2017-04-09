@@ -148,51 +148,6 @@ function OnTick()
         if player_present(i) then
             local player_object = get_dynamic_player(i)
             if (player_object ~= 0) then
-<<<<<<< HEAD
-                for j = 1, #coordinates[mapname] do
-                    if player_alive(i) then
-                        -- validate coordinates table
-                        if not next(coordinates[mapname]) and coordinates[mapname][j] ~= nil then
-                            -- check if player is in kill zone
-                            if GEOinSpherePlayer(i, coordinates[mapname][j][3], coordinates[mapname][j][4], coordinates[mapname][j][5], coordinates[mapname][j][6]) == true then
-                                -- Check player's team and varify against table data
-                                if getteam(i) == tostring(coordinates[mapname][j][2]) then
-                                    -- create new warning timer --
-                                    players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
-                                    -- monitor warning timer until it reaches the value of "Warning Dealy" (coordinates[mapname][j][7])
-                                    if players[get_var(i, "$n")].warning_timer >= math.floor(coordinates[mapname][j][7]) then
-                                        -- clear the player's console to prevent duplicate messages (spam)
-                                        ClearConsole(i)
-                                        local minutes, seconds = secondsToTime(players[get_var(i, "$n")].warning_timer, 2)
-                                        -- initiate kill timer
-                                        kill_timer[i] = true
-                                        -- send player the warning
-                                        rprint(i, "|cWarning! You have entered " .. tostring(coordinates[mapname][j][1]) .. ".")
-                                        rprint(i, "|cYou will be killed in " .. coordinates[mapname][j][8] - math.floor(seconds) .. " seconds if you don't leave this area!")
-                                        rprint(i, "|c ")
-                                        rprint(i, "|c ")
-                                        rprint(i, "|c ")
-                                        rprint(i, "|c ")
-                                        rprint(i, "|c ")
-                                    end
-                                    if (kill_timer[i] == true) then
-                                        -- create new kill timer
-                                        players[get_var(i, "$n")].kill_init_timer = players[get_var(i, "$n")].kill_init_timer + 0.030
-                                        -- monitor killer timer until it reaches the value of "Seconds until death" (coordinates[mapname][j][8])
-                                        if players[get_var(i, "$n")].kill_init_timer >= math.floor(coordinates[mapname][j][8]) then
-                                            -- clear the player's console to prevent duplicate messages (spam)
-                                            ClearConsole(i)
-                                            -- reset timers --
-                                            kill_timer[i] = false
-                                            players[get_var(i, "$n")].warning_timer = 0
-                                            players[get_var(i, "$n")].kill_init_timer = 0
-                                            -- kill Player
-                                            execute_command("kill " .. i)
-                                            -- send player the unfateful message
-                                            rprint(i, "|c=========================================================")
-                                            rprint(i, "|cYou were killed for being out of bounds!")
-                                            rprint(i, "|c=========================================================")
-=======
                 -- validate coordinates table
                 if coordinates[mapname] ~= nil then
                     for j = 1, #coordinates[mapname] do
@@ -214,7 +169,6 @@ function OnTick()
                                             -- send player the warning
                                             rprint(i, "|cWarning! You have entered " .. tostring(coordinates[mapname][j][1]) .. ".")
                                             rprint(i, "|cYou will be killed in " .. coordinates[mapname][j][8] - math.floor(seconds) .. " seconds if you don't leave this area!")
->>>>>>> a5f3e402bc0d36f39793ea5d334928bc8613a083
                                             rprint(i, "|c ")
                                             rprint(i, "|c ")
                                             rprint(i, "|c ")
