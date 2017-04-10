@@ -28,10 +28,7 @@ prefix = "[ADMIN CHAT] "
 
 -- If this is enabled, your admin chat will be restored to its previous state (ON|OFF) when you reconnect.
 Restore_Previous_State = true
-<<<<<<< HEAD
-=======
 
->>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
 -- Print message to Rcon Console or Chat?
 -- Valid input: rcon or chat
 Format = "rcon"
@@ -45,7 +42,7 @@ stored_data = { }
 boolean = { }
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnAdminChat")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -96,10 +93,7 @@ end
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].adminchat = nil
-<<<<<<< HEAD
-=======
     players[get_var(PlayerIndex, "$name")].boolean = nil
->>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
     if (Restore_Previous_State == true) then
         local t = tokenizestring(tostring(data[PlayerIndex]), ":")
         if t[2] == "true" then
@@ -132,19 +126,6 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local t = tokenizestring(Command)
-<<<<<<< HEAD
-    if t[1] == "achat" then
-        if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
-                if t[2] == "on" or t[2] == '"on"' or t[2] == "1" or t[2] == '"1"' or t[2] == "true" or t[2] == '"true"' then
-                    rprint(PlayerIndex, "Admin Chat Toggled on!")
-                    players[get_var(PlayerIndex, "$name")].adminchat = true
-                    return false
-                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
-                    players[get_var(PlayerIndex, "$name")].adminchat = false
-                    rprint(PlayerIndex, "Admin Chat Toggled off!")
-                    return false
-=======
     response = nil
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
@@ -165,7 +146,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
->>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
                 else
                     rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
                 end
@@ -175,20 +155,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         else
             cprint("The Server cannot execute this command!", 4+8)
         end
-<<<<<<< HEAD
-        return false
-    end
-end
-
-function OnAdminChat(PlayerIndex, Message)
-=======
         response = false
     end
     return response
 end
 
 function OnPlayerChat(PlayerIndex, Message)
->>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
     local message = tokenizestring(Message)
     if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
@@ -216,11 +188,7 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \"** SERVER ** \"")
                 else
-<<<<<<< HEAD
-                    cprint("Error in adminchat.lua - Format not defined properly. Line 29", 4+8)
-=======
                     cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4+8)
->>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
                 end
             end
         end
