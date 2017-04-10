@@ -4,7 +4,6 @@ Description: HPC Custom Messages, Phasor V2+
 Copyright © 2016-2017 Jericho Crosby
 * Author: Jericho Crosby
 * IGN: Chalwk
-* Version: 4.0.1 (Heavily Modified)
 * Written and Created by Jericho Crosby
 --===================================================================--
 ]]--
