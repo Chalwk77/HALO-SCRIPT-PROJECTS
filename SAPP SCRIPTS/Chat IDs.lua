@@ -6,22 +6,8 @@ Script Name: ChatIDs, for SAPP | (PC\CE)
 Description:  This script will modify your players message chat format
               by adding an IndexID in front of their name in square brackets.
 
-eg. Chalwk [1]: This is a test message.
-
-    [!] *WARNING* This script does not respect SAPP's mute system.
-                  If you mute a player while using this script, they can still talk in chat!
-
-    Change Log:
-       [*] Fixed inital bugs
-       [+] Added command support
-       [*] Fixed a bug where chat messages would not appear after typing a command
-
-    Future update features:
-        Make it so only admins can see chat id's (optional)
-        Regular players see default chat.
-
-        To Do List:
-            Protect against potential issues when using a Private Messaging Script (void)
+Team output: [Chalwk] [1]: This is a test message
+Global output: Chalwk [1]: This is a test message
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -37,39 +23,72 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
-function OnScriptUnload() end
-
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    TeamPlay = CheckIfTeamPlay()
 end
 
-function OnChatMessage(PlayerIndex, Message, type)
+function OnScriptUnload() end
+
+function OnNewGame()
+    TeamPlay = CheckIfTeamPlay()
+end
+
+function OnPlayerChat(PlayerIndex, Message, type)
+    local response = nil
     local text = tokenizestring(Message)
-    if #text == 0 then
-        return nil
+    if #text == 0 then 
+        return nil 
     end
-    if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then
-        return true
+    if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then 
+        return true 
     end
     for i = 0, #text do
         if text[i] then
-            local id = get_var(PlayerIndex, "$n")
-            local name = get_var(PlayerIndex, "$name")
-            if type == 0 or type == 2 then
-                ChatFormat = string.format(name .. " [" .. tonumber(id) .. "]: " .. tostring(Message))
-            elseif type == 1 then
-                ChatFormat = string.format("[" .. name .. "] [" .. tonumber(id) .. "]: " .. tostring(Message))
+            if TeamPlay then
+                if type == 0 or type == 2 then
+                    SendToAll(get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
+                    response = false
+                elseif type == 1 then
+                    SendToTeam("[" .. get_var(PlayerIndex, "$name") .. "] [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
+                    response = false
+                end
+            else
+                SendToAll(get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
+                response = false
             end
-            execute_command("msg_prefix \"\"")
-            say_all(ChatFormat)
-            execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    return false
+    return response
 end
 
-function OnError(Message)
-    print(debug.traceback())
+function SendToTeam(Message, PlayerIndex)
+    for i = 1,16 do
+        if player_present(i) then
+            if (get_var(i,"$team")) == (get_var(PlayerIndex,"$team")) then
+                execute_command("msg_prefix \"\"")
+                say(i, Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+end
+
+function SendToAll(Message, PlayerIndex)
+    if player_present(PlayerIndex) then
+        execute_command("msg_prefix \"\"")
+        say_all(Message)
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
+end
+
+function CheckIfTeamPlay()
+    if get_var(0, "$ffa") == "0" then
+        return true
+    else
+        return false
+    end
 end
 
 function tokenizestring(inputstr, sep)
@@ -82,4 +101,8 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+function OnError(Message)
+    print(debug.traceback())
 end

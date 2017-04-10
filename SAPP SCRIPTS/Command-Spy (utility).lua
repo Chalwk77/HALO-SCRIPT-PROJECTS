@@ -38,20 +38,10 @@ commands_to_hide = {
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnChatMessage")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
 end
 
-function OnNewGame()
-    game_started = true
-end
-
-function OnGameEnd()
-    game_started = false
-end
-
-function OnChatMessage(PlayerIndex, Message)
+function OnPlayerChat(PlayerIndex, Message)
     if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
     end
@@ -73,15 +63,12 @@ function OnChatMessage(PlayerIndex, Message)
         end
     end    
     if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-        RegularPlayer = tonumber(PlayerIndex)
-        if player_present(RegularPlayer) ~= nil then
-            if (iscommand and RegularPlayer) then
-                if (settings["HideCommands"] == true and hidden == true) then
-                    return nil
-                elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
-                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", AdminIndex)
-                    return true
-                end
+        if (iscommand and PlayerIndex) then
+            if (settings["HideCommands"] == true and hidden == true) then
+                return false
+            elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
+                CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", PlayerIndex)
+                return true
             end
         end
     end
@@ -89,10 +76,15 @@ end
 
 function CommandSpy(Message, AdminIndex) 
     for i = 1,16 do
+<<<<<<< HEAD
         if i ~= RegularPlayer then
             if (tonumber(get_var(i,"$lvl"))) >= 1 then
                 rprint(i, Message)
             end
+=======
+        if (tonumber(get_var(i,"$lvl"))) >= 1 then
+            rprint(i, Message)
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
         end
     end
 end

@@ -1,11 +1,10 @@
 --[[
 ------------------------------------
 Script Name: AdminChat (utility), for SAPP | (PC\CE)
-    - Version 1
-    
-Description: Chat privately with other admins. 
-             Command: /achat on|off
 
+Description: Chat privately with other admins. 
+             Command Syntax: /achat on|off
+             
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
@@ -21,18 +20,30 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- configuration starts here --
+-- Minimin admin level required to use /achat command
 min_admin_level = 1
+
+-- Admin Chat prefix
 prefix = "[ADMIN CHAT] "
+
+-- If this is enabled, your admin chat will be restored to its previous state (ON|OFF) when you reconnect.
 Restore_Previous_State = true
+<<<<<<< HEAD
+=======
+
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
 -- Print message to Rcon Console or Chat?
 -- Valid input: rcon or chat
 Format = "rcon"
 -- configuration ends here --
 
+-- tables --
 data = { }
 players = { }
 adminchat = { }
 stored_data = { }
+boolean = { }
+
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnAdminChat")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -43,6 +54,7 @@ function OnScriptLoad()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
+            players[get_var(i, "$name")].boolean = nil
         end
     end
 end
@@ -51,6 +63,7 @@ function OnScriptUnload()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = false
+            players[get_var(i, "$name")].boolean = false
         end
     end
 end
@@ -59,6 +72,7 @@ function OnNewGame()
     for i = 1,16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
+            players[get_var(i, "$name")].boolean = nil
         end
     end
 end
@@ -73,6 +87,7 @@ function OnGameEnd()
                 table.insert(stored_data[data], tostring(data[i]))
             else
                 players[get_var(i, "$name")].adminchat = false
+                players[get_var(i, "$name")].boolean = false
             end
         end
     end
@@ -81,16 +96,23 @@ end
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].adminchat = nil
+<<<<<<< HEAD
+=======
+    players[get_var(PlayerIndex, "$name")].boolean = nil
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
     if (Restore_Previous_State == true) then
         local t = tokenizestring(tostring(data[PlayerIndex]), ":")
         if t[2] == "true" then
             rprint(PlayerIndex, "Your admin chat is on!")
             players[get_var(PlayerIndex, "$name")].adminchat = true
+            players[get_var(PlayerIndex, "$name")].boolean = true
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
+            players[get_var(PlayerIndex, "$name")].boolean = false
         end
     else
         players[get_var(PlayerIndex, "$name")].adminchat = false
+        players[get_var(PlayerIndex, "$name")].boolean = false
     end
 end
 
@@ -103,12 +125,14 @@ function OnPlayerLeave(PlayerIndex)
             table.insert(stored_data[data], tostring(data[PlayerIndex]))
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
+            players[get_var(PlayerIndex, "$name")].boolean = false
         end
     end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local t = tokenizestring(Command)
+<<<<<<< HEAD
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
             if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
@@ -120,9 +144,30 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     players[get_var(PlayerIndex, "$name")].adminchat = false
                     rprint(PlayerIndex, "Admin Chat Toggled off!")
                     return false
+=======
+    response = nil
+    if t[1] == "achat" then
+        if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
+                if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
+                    if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
+                        rprint(PlayerIndex, "Admin Chat enabled.")
+                        players[get_var(PlayerIndex, "$name")].adminchat = true
+                        players[get_var(PlayerIndex, "$name")].boolean = true
+                    else
+                        rprint(PlayerIndex, "Admin Chat is already enabled.")
+                    end
+                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                    if players[get_var(PlayerIndex, "$name")].boolean ~= false then
+                        players[get_var(PlayerIndex, "$name")].adminchat = false
+                        rprint(PlayerIndex, "Admin Chat disabled.")
+                        players[get_var(PlayerIndex, "$name")].boolean = false
+                    else
+                        rprint(PlayerIndex, "Admin Chat is already disabled.")
+                    end
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
                 else
-                    rprint(PlayerIndex, "Invalid Syntax! Type /achat on|off")
-                    return false
+                    rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
@@ -130,11 +175,20 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         else
             cprint("The Server cannot execute this command!", 4+8)
         end
+<<<<<<< HEAD
         return false
     end
 end
 
 function OnAdminChat(PlayerIndex, Message)
+=======
+        response = false
+    end
+    return response
+end
+
+function OnPlayerChat(PlayerIndex, Message)
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
     local message = tokenizestring(Message)
     if #message == 0 then return nil end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
@@ -162,7 +216,11 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \"** SERVER ** \"")
                 else
+<<<<<<< HEAD
                     cprint("Error in adminchat.lua - Format not defined properly. Line 29", 4+8)
+=======
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4+8)
+>>>>>>> 453e406b147fa3c926887f1aa73e1377e7ecd955
                 end
             end
         end

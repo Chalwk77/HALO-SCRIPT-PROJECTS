@@ -1220,6 +1220,7 @@ function OnPlayerSpawn(PlayerIndex)
         PLAYERS_ALIVE[PLAYER_ID].CURRENT_FLAGHOLDER = nil
         PLAYERS_ALIVE[PLAYER_ID].FLAG = 0
         UpdatePlayerSpeed(PlayerIndex)
+        timer(300, "delay_move", PlayerIndex)
     end
 end
 
@@ -1372,8 +1373,42 @@ function delay_move(PlayerIndex)
                 { 30.351, -46.108, -3.700,      5,      30.37, -29.36, -3.59,    0.3},
             }
             coordinates["timberland"] = {
+                -- red flag
                 { 17.322, -52.365, -17.751,     5,      16.93, -43.98, -18.16,   0.3},
+                -- blue flag
                 { -16.330, 52.360, -17.741,     5,      3 - 15.02, 45.36, -18,   0.3},
+                 -- red spawn coords
+                { 18.747, -62.282, -13.351,     7,      16.93, -43.98, -18.16,   0.3},
+                { 18.298, -62.983, -13.351,     7,      16.93, -43.98, -18.16,   0.3},
+                { 15.909, -62.275, -13.351,     7,      16.93, -43.98, -18.16,   0.3},
+                { 16.314, -62.985, -13.351,     7,      16.93, -43.98, -18.16,   0.3},
+                { 16.191, -49.338, -17.750,     7,      16.93, -43.98, -18.16,   0.3},
+                { 18.448, -49.338, -17.750,     7,      16.93, -43.98, -18.16,   0.3},
+                { 19.763, -57.533, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 14.749, -56.922, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 18.648, -62.340, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 18.234, -63.120, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 17.285, -64.344, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 16.738, -64.349, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 16.406, -63.097, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                { 15.932, -62.238, -17.751,     7,      16.93, -43.98, -18.16,   0.3},
+                -- blue spawn coords
+                { -16.307, 51.495, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -17.821, 62.268, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -17.434, 63.035, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -15.761, 64.234, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -15.458, 63.018, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -15.037, 62.283, -13.351,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -14.966, 49.391, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -17.577, 49.360, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -18.862, 57.504, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -13.872, 56.951, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -14.851, 62.456, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -15.282, 63.168, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -15.786, 64.287, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -16.352, 64.283, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -17.366, 63.139, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
+                { -17.821, 62.414, -17.751,     7,      3 - 15.02, 45.36, -18,   0.3},
             }
             coordinates["gephyrophobia"] = {
                 { 26.884, -144.716, -16.049,    5,      26.79, -119.96, -15.63,  0.3},
@@ -1911,7 +1946,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
         end
     end
-    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and(t[1] == string.lower("enter")) then
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= -1 and (t[1] == string.lower("enter")) then
         response = false
         if (LargeMapConfiguration == true) then
             if PlayerInVehicle(PlayerIndex) then
@@ -1922,7 +1957,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         if (GetLevel(PlayerIndex) >= 1) and(GetLevel(PlayerIndex) <= 6) then
                             rprint(PlayerIndex, "You're only Level: " .. tostring(players[PlayerIndex][1]) .. "/" .. tostring(#Level))
                             rprint(PlayerIndex, "You must be Level 7 or higher.")
-                        elseif (GetLevel(PlayerIndex) == 8) then
+                        elseif (GetLevel(PlayerIndex) == 8) and player_alive(PlayerIndex) then
                             -- rocket hog (gunner & drivers seat)
                             local player_object = get_dynamic_player(PlayerIndex)
                             local x, y, z = read_vector3d(player_object + 0x5c)
@@ -1931,12 +1966,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             timer(0, "delay_gunners_seat", PlayerIndex)
                             CheckGephyrophobia(PlayerIndex)
                         else
-                            -- all other vehicles --
-                            local player_object = get_dynamic_player(PlayerIndex)
-                            local x, y, z = read_vector3d(player_object + 0x5c)
-                            vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
-                            enter_vehicle(vehicleId, PlayerIndex, 0)
-                            CheckGephyrophobia(PlayerIndex)
+                            if player_alive(PlayerIndex) then
+                                -- all other vehicles --
+                                local player_object = get_dynamic_player(PlayerIndex)
+                                local x, y, z = read_vector3d(player_object + 0x5c)
+                                vehicleId = spawn_object(vehi_type_id, Level[players[PlayerIndex][1]][11], x, y, z + 0.5)
+                                enter_vehicle(vehicleId, PlayerIndex, 0)
+                                CheckGephyrophobia(PlayerIndex)
+                            end
                         end
                     else
                         rprint(PlayerIndex, "Invalid Command. Usage: /enter me")
@@ -2145,7 +2182,9 @@ end
 -- Important to delay this otherwise player's will spawn in the drivers seat 70% of the time.
 function delay_gunners_seat(PlayerIndex)
     -- Gunners Seat --
-    enter_vehicle(vehicleId, PlayerIndex, 2)
+    if player_alive(PlayerIndex) then
+        enter_vehicle(vehicleId, PlayerIndex, 2)
+    end
 end
 
 -- WEAPON / VEHICLE ASSIGNMENT HANDLERS
