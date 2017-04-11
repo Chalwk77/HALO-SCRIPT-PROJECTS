@@ -84,7 +84,7 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
-    timer(1000*1, "SyncAmmo", PlayerIndex)
+    timer(1000 * 1, "SyncAmmo", PlayerIndex)
     execute_command_sequence("w8 1; ammo " .. PlayerIndex .. " 100")
 end
 
@@ -118,15 +118,15 @@ function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
 end
 
 function tokenizestring(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t={} ; i=1
-	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		t[i] = str
-		i = i + 1
-	end
-	return t
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
@@ -191,13 +191,13 @@ end
 
 function LoadItems()
     objects = {
-        { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960, "Red Banshee", 280, -10, 0 },
-        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", -90, -200, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 118.084, - 185.346, 6.563, "Red Turret", -100.00, -20.00, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302, "Blue Turret", 90.00, -150.00, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, - 154.075, 21.561, "Cliff Turret", -100.00, -20.00, 0 },
-        { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, - 116.212, 1.797, "Ghost [Mid-Field]", -100.00, -20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, - 129.761, 1.665, "Tank [Knoll]", -100.00, -20.00, 0 },
+        { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960, "Red Banshee", 280, - 10, 0 },
+        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", - 90, - 200, 0 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 118.084, - 185.346, 6.563, "Red Turret", - 100.00, - 20.00, 0 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302, "Blue Turret", 90.00, - 150.00, 0 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, - 154.075, 21.561, "Cliff Turret", - 100.00, - 20.00, 0 },
+        { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, - 116.212, 1.797, "Ghost [Mid-Field]", - 100.00, - 20.00, 0 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, - 129.761, 1.665, "Tank [Knoll]", - 100.00, - 20.00, 0 },
         { "eqip", "powerups\\health pack", 37.070, - 80.068, - 0.286, "health pack - bluebase" },
         { "eqip", "powerups\\health pack", 37.105, - 78.421, - 0.286, "health pack - bluebase" },
         { "eqip", "powerups\\health pack", 43.144, - 78.442, - 0.286, "health pack - bluebase" },
@@ -250,7 +250,7 @@ function LoadItems()
         { 120.665, - 188.766, 13.752, 0.5, 109.956, - 188.522, 14.437 },
         { 97.476, - 188.912, 15.718, 0.5, 53.653, - 157.885, 21.753 },
         { 48.046, - 153.087, 21.181, 0.5, 23.112, - 59.428, 16.352 },
-        { 118.263, -120.761, 17.192, 0.5, 40.194, -139.990, 2.733 }
+        { 118.263, - 120.761, 17.192, 0.5, 40.194, - 139.990, 2.733 }
     }
     -- Melee --
     MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
