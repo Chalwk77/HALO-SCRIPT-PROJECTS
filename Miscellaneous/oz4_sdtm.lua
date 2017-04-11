@@ -173,20 +173,8 @@ end
 
 function TeleportPlayer(player, x, y, z, fx, fy, fz, index)
     if player ~= 0 then
+        local player_obj_id = read_dword(get_player(index) + 0x34)
         write_vector3d(player + 0x5C, x, y, z + 0.2)
-        write_dword(get_player(index) + 0xF0, 0)
-        write_dword(get_player(index) + 0x164, 0)
-        local px, py, pz = read_vector3d(player + 0x5C)
-        local vx = fx - px
-        local vy = fy - py
-        local vz = fz - pz
-        local mag = math.sqrt(vx * vx + vy * vy + vz * vz)
-        vx = vx / mag
-        vy = vy / mag
-        vz = vz / mag
-        write_float(player + 0x74, vx)
-        write_float(player + 0x78, vy)
-        write_float(player + 0x7c, vz)
     end
 end
 
