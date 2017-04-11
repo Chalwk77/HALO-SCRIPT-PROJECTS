@@ -9,12 +9,15 @@ Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 ]]--
 
 api_version = "1.11.0.0"
+tbag = { }
 weapon = { }
 weapons = { }
 objects = { }
+players = { }
 teleports = { }
 flag_bool = { }
-players = { }
+victim_coords = { }
+crouch = { }
 globals = nil
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
@@ -22,6 +25,7 @@ weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -36,6 +40,7 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$n")].flag_captures = 0
+            tbag[i] = { }
         end
     end
 end
@@ -70,6 +75,7 @@ function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$n")].flag_captures = 0
+            tbag[i] = { }
         end
     end
 end
@@ -154,11 +160,33 @@ function OnTick()
             end
         end
     end
+    for n = 1, 16 do
+        if player_present(n) then
+            if tbag[n] == nil then
+                tbag[n] = { }
+            end
+            if tbag[n].name and tbag[n].x then
+                if not isinvehicle(n) then
+                    if GEOinSpherePlayer(n, tbag[n].x, tbag[n].y, tbag[n].z, 5) then
+                        local player_object = get_dynamic_player(n)
+                        local obj_crouch = read_byte(player_object + 0x2A0)
+                        local id = get_var(n, "$n")
+                        if obj_crouch == 3 and crouch[id] == nil then
+                            crouch[id] = OnPlayerCrouch(n)
+                        elseif obj_crouch ~= 3 and crouch[id] ~= nil then
+                            crouch[id] = nil
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].flag_captures = 0
+    tbag[PlayerIndex] = { }
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
@@ -171,6 +199,36 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    local victim = tonumber(PlayerIndex)
+    local killer = tonumber(KillerIndex)
+    if (killer > 0) and (victim ~= killer) then
+        tbag[victim] = { }
+        tbag[killer] = { }
+        tbag[killer].count = 0
+        tbag[killer].name = get_var(victim, "$name")
+        if victim_coords[victim] == nil then victim_coords[victim] = { } end
+        if victim_coords[victim].x then
+            tbag[killer].x = victim_coords[victim].x
+            tbag[killer].y = victim_coords[victim].y
+            tbag[killer].z = victim_coords[victim].z
+        end
+    end
+end
+
+function OnPlayerCrouch(PlayerIndex)
+    if tbag[PlayerIndex].count == nil then
+        tbag[PlayerIndex].count = 0
+    end
+    tbag[PlayerIndex].count = tbag[PlayerIndex].count + 1
+    if tbag[PlayerIndex].count == 4 then
+        tbag[PlayerIndex].count = 0
+        say_all(get_var(PlayerIndex, "$name") .. " is t-bagging " .. tbag[PlayerIndex].name)
+        tbag[PlayerIndex].name = nil
+    end
+    return true
 end
 
 function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
@@ -255,6 +313,18 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     -- Melee Damage --
     if (MetaID == MELEE_PISTOL) or(MetaID == MELEE_SNIPER_RIFLE) then
         return true, Damage * 4
+    end
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object then
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        if victim_coords[PlayerIndex] == nil then
+            victim_coords[PlayerIndex] = { }
+        end
+        if victim_coords[PlayerIndex] then
+            victim_coords[PlayerIndex].x = x
+            victim_coords[PlayerIndex].y = y
+            victim_coords[PlayerIndex].z = z
+        end
     end
 end
 
@@ -514,6 +584,20 @@ function get_tag_info(tagclass, tagname)
         end
     end
     return nil
+end
+
+function isinvehicle(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
 end
 
 function TagInfo(obj_type, obj_name)
