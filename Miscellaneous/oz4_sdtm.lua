@@ -12,8 +12,8 @@ api_version = "1.11.0.0"
 weapon = { }
 weapons = { }
 objects = { }
-players = { }
 teleports = { }
+flag_bool = { }
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 
@@ -26,10 +26,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    LoadItems()
+    InitSettings()
     for i = 1, 16 do
         if player_present(i) then
-            -- null
+            flag_bool[i] = nil
         end
     end
 end
@@ -40,7 +40,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    LoadItems()
+    InitSettings()
     mapname = get_var(1, "$map")
     for i = 1, #objects do
         if objects[i] ~= nil then
@@ -64,15 +64,16 @@ function OnNewGame()
     end
     for i = 1, 16 do
         if player_present(i) then
-            -- null
+            flag_bool[i] = nil
         end
     end
 end
 
 function OnGameEnd()
+    game_over = true
     for i = 1, 16 do
         if player_present(i) then
-            -- null
+            flag_bool[i] = nil
         end
     end
 end
@@ -102,6 +103,24 @@ function OnTick()
             end
         end
     end
+    for m = 1, 16 do
+        if (player_alive(m)) then
+            if (CheckForFlag(m) == false and flag_bool[m]) then flag_bool[m] = nil end
+            if (CheckForFlag(m) == true) then
+                execute_command("s " .. m .. " : 1.5")
+                if (CheckForFlag(m) and flag_bool[m] == nil) then
+                    flag_bool[m] = true
+                    say_all(get_var(m, "$name") .. " has the flag!")
+                else
+                    execute_command("s " .. m .. " : 1")
+                end
+            end
+        end
+    end
+end
+
+function OnPlayerJoin(PlayerIndex)
+    flag_bool[PlayerIndex] = nil
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
@@ -115,7 +134,7 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    -- null
+    flag_bool[PlayerIndex] = nil
 end
 
 function SyncAmmo(PlayerIndex)
@@ -225,7 +244,28 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
-function LoadItems()
+function CheckForFlag(PlayerIndex)
+    local bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    for i = 0, 3 do
+        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+        if (weapon_id ~= 0xFFFFFFFF) then
+            local weap_object = get_object_memory(weapon_id)
+            if (weap_object ~= 0) then
+                local obj_type = read_byte(weap_object + 0xB4)
+                local tag_address = read_word(weap_object)
+                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tagdata + 0x308, 3) == 1) then
+                    bool = true
+                end
+            end
+        end
+    end
+    return bool
+end
+
+function InitSettings()
+    execute_command("scorelimit 50")
     objects = {
         { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960, "Red Banshee", 280, - 10, 0 },
         { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", - 90, - 200, 0 },
@@ -300,6 +340,7 @@ function LoadItems()
         { 48.046, - 153.087, 21.181, 0.5, 23.112, - 59.428, 16.352 },
         { 118.263, - 120.761, 17.192, 0.5, 40.194, - 139.990, 2.733 }
     }
+    
     -- Melee --
     MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
     MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
