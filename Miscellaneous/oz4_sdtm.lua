@@ -196,9 +196,9 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
-    -- if MapID == TagInfo("proj", "weapons\\sniper rifle\\sniper bullet") then
-        -- return true, TagInfo("proj", "vehicles\\scorpion\\tank shell")
-    -- end
+    if MapID == TagInfo("proj", "weapons\\sniper rifle\\sniper bullet") then
+        return true, TagInfo("proj", "vehicles\\scorpion\\tank shell")
+    end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -387,12 +387,7 @@ function InitSettings()
         if (tag_class == 1651077220 and tag_name == "characters\\cyborg_mp\\cyborg_mp") then
             write_dword(tag_data + 0x2c0, 1097859072)
         end
-    end
-    -- weapons\pistol\pistol.weap
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\pistol\pistol.weap
         if(tag_class == 2003132784 and tag_name == "weapons\\pistol\\pistol") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x71c, 34340864)
@@ -401,14 +396,15 @@ function InitSettings()
             write_dword(tag_data + 0x7a8, 1103626240)
             write_dword(tag_data + 0x7ac, 1103626240)
             write_dword(tag_data + 0x7c4, 0)
-            break
         end
-    end
-    -- weapons\pistol\bullet.jpt!
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\pistol\bullet.proj
+        if(tag_class == 1886547818 and tag_name == "weapons\\pistol\\bullet") then
+            local tag_data = read_dword(tag + 0x14)
+            write_dword(tag_data + 0x1c8, 1148846080)
+            write_dword(tag_data + 0x1e4, 1097859072)
+            write_dword(tag_data + 0x1e8, 1097859072)
+        end
+        -- weapons\pistol\bullet.jpt!
         if(tag_class == 1785754657 and tag_name == "weapons\\pistol\\bullet") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x1d0, 1133903872)
@@ -416,26 +412,14 @@ function InitSettings()
             write_dword(tag_data + 0x1d8, 1133903872)
             write_dword(tag_data + 0x1ec, 1041865114)
             write_dword(tag_data + 0x1f4, 1073741824)
-            break
         end
-    end
-    -- vehicles\scorpion\tank shell.proj
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- vehicles\scorpion\tank shell.proj
         if(tag_class == 1886547818 and tag_name == "vehicles\\scorpion\\tank shell") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x1e4, 1114636288)
             write_dword(tag_data + 0x1e8, 1114636288)
-            break
         end
-    end
-    -- vehicles\scorpion\shell explosion.jpt!
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- vehicles\scorpion\shell explosion.jpt!
         if(tag_class == 1785754657 and tag_name == "vehicles\\scorpion\\shell explosion") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x0, 1073741824)
@@ -443,26 +427,14 @@ function InitSettings()
             write_dword(tag_data + 0x1c8, 33)
             write_dword(tag_data + 0x1d0, 1131413504)
             write_dword(tag_data + 0x1f4, 1092091904)
-            break
         end
-    end
-    -- weapons\frag grenade\shock wave.jpt!
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\frag grenade\shock wave.jpt!
         if(tag_class == 1785754657 and tag_name == "weapons\\frag grenade\\shock wave") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0xd4, 1048576000)
             write_dword(tag_data + 0xd8, 1022739087)
-            break
         end
-    end
-    -- weapons\frag grenade\explosion.jpt!
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\frag grenade\explosion.jpt!
         if(tag_class == 1785754657 and tag_name == "weapons\\frag grenade\\explosion") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x0, 1073741824)
@@ -474,14 +446,8 @@ function InitSettings()
             write_dword(tag_data + 0x1d4, 1135575040)
             write_dword(tag_data + 0x1d8, 1135575040)
             write_dword(tag_data + 0x1f4, 1092091904)
-            break
         end
-    end
-    -- weapons\sniper rifle\sniper rifle.weap
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\sniper rifle\sniper rifle.weap
         if(tag_class == 2003132784 and tag_name == "weapons\\sniper rifle\\sniper rifle") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x3e8, 1128792064)
@@ -491,61 +457,37 @@ function InitSettings()
             write_dword(tag_data + 0x8a8, 12)
             write_dword(tag_data + 0x920, 1075838976)
             write_dword(tag_data + 0x924, 1075838976)
-            break
         end
-    end
-    -- weapons\sniper rifle\sniper bullet.proj
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\sniper rifle\sniper bullet.proj
         if(tag_class == 1886547818 and tag_name == "weapons\\sniper rifle\\sniper bullet") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x180, 65536)
             write_dword(tag_data + 0x1e4, 1114636288)
             write_dword(tag_data + 0x1e8, 1114636288)
-            break
         end
-    end
-    -- weapons\frag grenade\frag grenade.proj
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\frag grenade\frag grenade.proj
         if(tag_class == 1886547818 and tag_name == "weapons\\frag grenade\\frag grenade") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x1bc, 1050253722)
             write_dword(tag_data + 0x1c0, 1050253722)
             write_dword(tag_data + 0x1cc, 1057803469)
-            break
         end
-    end
-    -- weapons\plasma grenade\plasma grenade.proj
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\plasma grenade\plasma grenade.proj
         if(tag_class == 1886547818 and tag_name == "weapons\\plasma grenade\\plasma grenade") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x1bc, 1065353216)
             write_dword(tag_data + 0x1c0, 1065353216)
             write_dword(tag_data + 0x1cc, 1056964608)
-            break
         end
-    end
-    -- weapons\plasma grenade\attached.jpt!
-    for i=0,tag_count-1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
+        -- weapons\plasma grenade\attached.jpt!
         if(tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\attached") then
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x1d0, 1137180672)
             write_dword(tag_data + 0x1d4, 1137180672)
             write_dword(tag_data + 0x1d8, 1137180672)
             write_dword(tag_data + 0x1f4, 1092616192)
-            break
         end
+        break
     end
 end
 
