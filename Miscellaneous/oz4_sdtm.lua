@@ -14,11 +14,14 @@ weapons = { }
 objects = { }
 teleports = { }
 flag_bool = { }
+players = { }
+globals = nil
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
@@ -26,10 +29,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
+    if(gp == 3) then return end
+    globals = read_dword(gp)
     InitSettings()
     for i = 1, 16 do
         if player_present(i) then
-            flag_bool[i] = nil
+            players[get_var(i, "$n")].flag_captures = 0
         end
     end
 end
@@ -64,7 +70,7 @@ function OnNewGame()
     end
     for i = 1, 16 do
         if player_present(i) then
-            flag_bool[i] = nil
+            players[get_var(i, "$n")].flag_captures = 0
         end
     end
 end
@@ -73,7 +79,6 @@ function OnGameEnd()
     game_over = true
     for i = 1, 16 do
         if player_present(i) then
-            flag_bool[i] = nil
         end
     end
 end
@@ -105,22 +110,39 @@ function OnTick()
     end
     for m = 1, 16 do
         if (player_alive(m)) then
-            if (CheckForFlag(m) == false and flag_bool[m]) then flag_bool[m] = nil end
-            if (CheckForFlag(m) == true) then
-                execute_command("s " .. m .. " : 1.5")
-                if (CheckForFlag(m) and flag_bool[m] == nil) then
-                    flag_bool[m] = true
-                    say_all(get_var(m, "$name") .. " has the flag!")
-                else
-                    execute_command("s " .. m .. " : 1")
+            if get_var(m, "$team") == "red" then 
+                if CheckBlueFlag(m) == true and flag_bool[m] then
+                    if GEOinSpherePlayer(m, 95.688, -159.449, -0.100, 1) then
+                        say_all(get_var(m, "$name") .. " scored a flag for the red team!")
+                        players[get_var(m, "$n")].flag_captures = players[get_var(m, "$n")].flag_captures + 1
+                        rprint(m, "You have " .. tonumber(math.floor(players[get_var(m, "$n")].flag_captures)) .. " flag captures!")
+                    end
                 end
+            elseif get_var(m, "$team") == "blue" then 
+                if CheckRedFlag(m) == true and flag_bool[m] then
+                    if GEOinSpherePlayer(m, 40.241, -79.123, -0.100, 1) then
+                        say_all(get_var(m, "$name") .. " scored a flag for the blue team!")
+                        players[get_var(m, "$n")].flag_captures = players[get_var(m, "$n")].flag_captures + 1
+                        rprint(m, "You have " .. tonumber(math.floor(players[get_var(m, "$n")].flag_captures)) .. " flag captures!")
+                    end
+                end
+            end
+            if (CheckBlueFlag(m) and flag_bool[m] == nil) then
+                flag_bool[m] = true
+                say_all(get_var(m, "$name") .. " has the blue teams flag!")
+            elseif (CheckRedFlag(m) and flag_bool[m] == nil) then
+                flag_bool[m] = true
+                say_all(get_var(m, "$name") .. " has the red teams flag!")
+            else
+                execute_command("s " .. m .. " 1")
             end
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    flag_bool[PlayerIndex] = nil
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].flag_captures = 0
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
@@ -134,7 +156,6 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    flag_bool[PlayerIndex] = nil
 end
 
 function SyncAmmo(PlayerIndex)
@@ -244,24 +265,22 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
-function CheckForFlag(PlayerIndex)
-    local bool = false
-    local player_object = get_dynamic_player(PlayerIndex)
-    for i = 0, 3 do
-        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
-        if (weapon_id ~= 0xFFFFFFFF) then
-            local weap_object = get_object_memory(weapon_id)
-            if (weap_object ~= 0) then
-                local obj_type = read_byte(weap_object + 0xB4)
-                local tag_address = read_word(weap_object)
-                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                if (read_bit(tagdata + 0x308, 3) == 1) then
-                    bool = true
-                end
-            end
-        end
+function CheckRedFlag(PlayerIndex)
+    local red_flag = read_dword(globals + 0x8)
+    for t=0,3 do
+        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * t)
+        if (object == red_flag) then return true end
     end
-    return bool
+    return false
+end
+
+function CheckBlueFlag(PlayerIndex)
+    local blue_flag = read_dword(globals + 0xC)
+    for u=0,3 do
+        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * u)
+        if (object == blue_flag) then return true end
+    end
+    return false
 end
 
 function InitSettings()
@@ -362,6 +381,8 @@ function InitSettings()
     PISTOL_BULLET = get_tag_info("jpt!", "weapons\\pistol\\bullet")
     SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
     ROCKET_EXPLODE = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
+    local red_flag = read_dword(globals + 0x8)
+    local blue_flag = read_dword(globals + 0xC)
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
     for i = 0, tag_count - 1 do
