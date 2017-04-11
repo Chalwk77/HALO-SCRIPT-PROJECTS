@@ -465,6 +465,16 @@ function InitSettings()
             write_dword(tag_data + 0x1e4, 1114636288)
             write_dword(tag_data + 0x1e8, 1114636288)
         end
+        -- weapons\plasma grenade\explosion.jpt!
+        if(tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\explosion") then
+            local tag_data = read_dword(tag + 0x14)
+            write_dword(tag_data + 0x4, 1086324736)
+            write_dword(tag_data + 0x1c8, 41)
+            write_dword(tag_data + 0x1d0, 1140457472)
+            write_dword(tag_data + 0x1d4, 1140457472)
+            write_dword(tag_data + 0x1d8, 1140457472)
+            write_dword(tag_data + 0x1f4, 1094713344)
+        end
         -- weapons\frag grenade\frag grenade.proj
         if(tag_class == 1886547818 and tag_name == "weapons\\frag grenade\\frag grenade") then
             local tag_data = read_dword(tag + 0x14)
