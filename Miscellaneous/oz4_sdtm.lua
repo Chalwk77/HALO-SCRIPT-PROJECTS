@@ -88,9 +88,8 @@ function OnTick()
             for j = 1, #teleports[mapname] do
                 if teleports[mapname][j] ~= nil then
                     local player = get_dynamic_player(i)
-                    local index = tonumber(i)
                     if GEOinSpherePlayer(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
-                        TeleportPlayer(player, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7], teleports[mapname][j][8], teleports[mapname][j][9], teleports[mapname][j][10], index)
+                        TeleportPlayer(player, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7])
                     end
                 end
             end
@@ -171,9 +170,8 @@ function SyncAmmo(PlayerIndex)
     end
 end
 
-function TeleportPlayer(player, x, y, z, fx, fy, fz, index)
+function TeleportPlayer(player, x, y, z)
     if player ~= 0 then
-        local player_obj_id = read_dword(get_player(index) + 0x34)
         write_vector3d(player + 0x5C, x, y, z + 0.2)
     end
 end
