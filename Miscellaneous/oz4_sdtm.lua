@@ -19,15 +19,15 @@ weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-	register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-	register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-	register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     LoadItems()
-    for i=1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             -- null
         end
@@ -62,19 +62,19 @@ function OnNewGame()
             end
         end
     end
-	for i=1,16 do
-		if player_present(i) then	
+    for i = 1, 16 do
+        if player_present(i) then
             -- null
-		end
-	end	
+        end
+    end
 end
 
 function OnGameEnd()
-	for i=1,16 do
-		if player_present(i) then		
+    for i = 1, 16 do
+        if player_present(i) then
             -- null
-		end
-	end	
+        end
+    end
 end
 
 function OnTick()
