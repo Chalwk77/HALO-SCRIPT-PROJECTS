@@ -88,8 +88,25 @@ function OnTick()
             for j = 1, #teleports[mapname] do
                 if teleports[mapname][j] ~= nil then
                     local player = get_dynamic_player(i)
-                    if GEOinSpherePlayer(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
-                        TeleportPlayer(player, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7])
+                    if player ~= 0 then
+                        if GEOinSpherePlayer(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
+                            write_vector3d(player + 0x5C, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7] + 0.2)
+                            write_dword(get_player(i) + 0xF0, 0)
+                            write_dword(get_player(i) + 0x164, 0)
+                            -- camera rotation
+                            local rx, ry, rz = teleports[mapname][j][8], teleports[mapname][j][9], teleports[mapname][j][10]
+                            local x, y, z = read_vector3d(player + 0x5C)
+                            local vx = rx - x
+                            local vy = ry - y
+                            local vz = rz - z
+                            local mag = math.sqrt(vx * vx + vy * vy + vz * vz)
+                            vx = vx / mag
+                            vy = vy / mag
+                            vz = vz / mag
+                            write_float(player + 0x74, vx)
+                            write_float(player + 0x78, vy)
+                            write_float(player + 0x7c, vz)
+                        end
                     end
                 end
             end
@@ -167,12 +184,6 @@ function SyncAmmo(PlayerIndex)
         write_dword(weapon_id + 0x2B8, 200)
         safe_write(false)
         sync_ammo(m_weaponId)
-    end
-end
-
-function TeleportPlayer(player, x, y, z)
-    if player ~= 0 then
-        write_vector3d(player + 0x5C, x, y, z + 0.2)
     end
 end
 
