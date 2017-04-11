@@ -19,15 +19,24 @@ weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
+	register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+	register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+	register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     LoadItems()
+    for i=1,16 do
+        if player_present(i) then
+            -- null
+        end
+    end
 end
 
 function OnScriptUnload()
     weapons = { }
+    -- null
 end
 
 function OnNewGame()
@@ -53,6 +62,19 @@ function OnNewGame()
             end
         end
     end
+	for i=1,16 do
+		if player_present(i) then	
+            -- null
+		end
+	end	
+end
+
+function OnGameEnd()
+	for i=1,16 do
+		if player_present(i) then		
+            -- null
+		end
+	end	
 end
 
 function OnTick()
@@ -82,10 +104,18 @@ function OnTick()
     end
 end
 
+function OnPlayerPreSpawn(PlayerIndex)
+    -- null
+end
+
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
     timer(1000 * 1, "SyncAmmo", PlayerIndex)
     execute_command_sequence("w8 1; ammo " .. PlayerIndex .. " 100")
+end
+
+function OnPlayerLeave(PlayerIndex)
+    -- null
 end
 
 function SyncAmmo(PlayerIndex)
@@ -139,6 +169,12 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    -- Prevent Tank Shell explosion suicide
+    if PlayerIndex == CauserIndex then
+        if (MetaID == VEHICLE_TANK_SHELL_EXPLOSION) then
+            return true, Damage * 0
+        end
+    end
     -- Pistol Bullet Projectile
     if (MetaID == PISTOL_BULLET) then
         return true, Damage * 4
@@ -262,12 +298,13 @@ function LoadItems()
     PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
     PLASMA_SHOCKWAVE = get_tag_info("jpt!", "weapons\\plasma grenade\\shock wave")
     -- Vehicles --
-    VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
     WARTHOG_BULLET = get_tag_info("proj", "vehicles\\warthog\\bullet")
+    VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
     VEHICLE_TANK_BULLET = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
     VEHICLE_TANK_SHELL = get_tag_info("jpt!", "vehicles\\scorpion\\tank shell")
     VEHICLE_BANSHEE_BOLT = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
     VEHICLE_BANSHEE_FUEL_ROD = get_tag_info("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
+    VEHICLE_TANK_SHELL_EXPLOSION = get_tag_info("jpt!", "vehicles\\scorpion\\shell explosion")
     -- weapon projectiles --
     PISTOL_BULLET = get_tag_info("jpt!", "weapons\\pistol\\bullet")
     SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
