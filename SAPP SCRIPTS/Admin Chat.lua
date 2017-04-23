@@ -141,8 +141,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
                     if players[get_var(PlayerIndex, "$name")].boolean ~= false then
                         players[get_var(PlayerIndex, "$name")].adminchat = false
-                        rprint(PlayerIndex, "Admin Chat disabled.")
                         players[get_var(PlayerIndex, "$name")].boolean = false
+                        rprint(PlayerIndex, "Admin Chat disabled.")
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
