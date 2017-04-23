@@ -1,6 +1,6 @@
 --[[
 ------------------------------------
-Script Name: {ØZ}-4 Snipers Dream Team Mod
+Script Name: {Ã˜Z}-4 Snipers Dream Team Mod
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * IGN: Chalwk
