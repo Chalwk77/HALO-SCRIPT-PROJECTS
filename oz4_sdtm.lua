@@ -5,7 +5,7 @@ Script Name: {ØZ}-4 Snipers Dream Team Mod
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * IGN: Chalwk
 * Written by Jericho Crosby
------------------------------------
+------------------------------------
 ]]--
 
 api_version = "1.11.0.0"
