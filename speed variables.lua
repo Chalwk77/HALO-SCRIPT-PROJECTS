@@ -24,7 +24,7 @@ level 10 = SpeedMin = 1/10 * 1 + 0.075 or SpeedMax = 2/10 * 1 + 0.075
 
 speedFactor = 1
 
-randomSpeed = function( )
+getRandomSpeed = function( )
     if gameHasStarted then 
         return math.random(speedMin, speedMax) / 10 * speedFactor + offset
     else
