@@ -21,3 +21,13 @@ level 7 = SpeedMin = 1/10 * 1 + 0.06 or SpeedMax = 2/10 * 1 + 0.06
 level 8 = SpeedMin = 1/10 * 1 + 0.065 or SpeedMax = 2/10 * 1 + 0.065
 level 9 = SpeedMin = 1/10 * 1 + 0.07 or SpeedMax = 2/10 * 1 + 0.07
 level 10 = SpeedMin = 1/10 * 1 + 0.075 or SpeedMax = 2/10 * 1 + 0.075
+
+speedFactor = 1
+
+randomSpeed = function( )
+    if gameHasStarted then 
+        return math.random(speedMin, speedMax) / 10 * speedFactor + offset
+    else
+        return math.random(1, 2) / 10 * speedFactor
+    end
+end
