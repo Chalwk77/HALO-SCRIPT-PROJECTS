@@ -1,24 +1,24 @@
 --[[
-	--=====================================================================================================--
-	Script Name: Set Respawn Time, for SAPP | (PC\CE)
-	
-	- Implementing API version: 1.11.0.0
-	
-	Description: This script will allow you to set the (global) player-respawn-time (in seconds)
-	
-	* When you start your server, the script will set the default respawn time to "RespawnTime" - (see line 27) indefinitely, 
-	unless an admins changes the respawn time manually with the custom command.
-	
-	Command Syntax: /respawntime <number>
-	
-	
-	Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
-	* Notice: You can use this document subject to the following conditions:
-	https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-	
-	* IGN: Chalwk
-	* Written by Jericho Crosby (Chalwk)
-	--=====================================================================================================--
+--=====================================================================================================--
+Script Name: Set Respawn Time, for SAPP | (PC & CE)
+
+- Implementing API version: 1.11.0.0
+
+Description: This script will allow you to set the (global) player-respawn-time (in seconds)
+
+* When you start your server, the script will set the default respawn time to "RespawnTime" - (see line 27) indefinitely, 
+unless an admins changes the respawn time manually with the custom command.
+
+Command Syntax: /respawntime <number>
+
+
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* IGN: Chalwk
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
 ]]-- 
 
 api_version = "1.11.0.0"
