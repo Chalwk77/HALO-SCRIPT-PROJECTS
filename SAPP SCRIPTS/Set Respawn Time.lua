@@ -1,24 +1,24 @@
 --[[
---=====================================================================================================--
-  Script Name: Set Respawn Time, for SAPP | (PC\CE)
-
-- Implementing API version: 1.11.0.0
-
-Description: This script will allow you to set the (global) player-respawn-time (in seconds)
-
+	--=====================================================================================================--
+	Script Name: Set Respawn Time, for SAPP | (PC\CE)
+	
+	- Implementing API version: 1.11.0.0
+	
+	Description: This script will allow you to set the (global) player-respawn-time (in seconds)
+	
 	* When you start your server, the script will set the default respawn time to "RespawnTime" - (see line 27) indefinitely, 
-	   unless an admins changes the respawn time manually with the custom command.
-
-Command Syntax: /respawntime <number>
-
-
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
---=====================================================================================================--
+	unless an admins changes the respawn time manually with the custom command.
+	
+	Command Syntax: /respawntime <number>
+	
+	
+	Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+	* Notice: You can use this document subject to the following conditions:
+	https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+	
+	* IGN: Chalwk
+	* Written by Jericho Crosby (Chalwk)
+	--=====================================================================================================--
 ]]-- 
 
 api_version = "1.11.0.0"
@@ -61,7 +61,7 @@ function OnServerCommand(PlayerIndex, Command)
 				response = false
 				if not string.match(t[2], "%d") then
 					say(PlayerIndex, "Please enter a number!")
-				else
+					else
 					value = tonumber(t[2])
 					unregister_callback(cb['EVENT_DIE'])
 					register_callback(cb['EVENT_DIE'], "setRespawnTime")
@@ -78,7 +78,7 @@ function OnServerCommand(PlayerIndex, Command)
 					end
 				end
 			end
-		else
+			else
 			response = false
 			say(PlayerIndex, no_permission)
 		end
@@ -94,12 +94,12 @@ end
 function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
-    end
+	end
     local t = { }; i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
-    end
+	end
     return t
 end
 
