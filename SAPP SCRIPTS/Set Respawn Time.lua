@@ -3,10 +3,10 @@
 Script Name: Set Respawn Time, for SAPP | (PC\CE)
     - Implementing API version: 1.11.0.0
 
-Description: This script will allow you to set player respawn time (in seconds)
+Description: This script will allow you to set (global) player-respawn-time (in seconds)
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+<Optional> Command Syntax: /respawntime <number>
+
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,20 +18,86 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]-- 
 
 api_version = "1.11.0.0"
-RespawnTime = 2.5 -- 2.5 seconds
+
+-- Configuration Starts --
+RespawnTime = 5 -- (in seconds) | This will be the default respawn time when the script is initialized.
+-- Minimum admin level required to use /respawntime command
+ADMIN_LEVEL = 1
+-- Command to type
+command = "respawntime"
+
+-- Publically announce that the respawn time has been changed manually via command? Values: true|false, true = yes, false = no
+ANNOUNCE_CHANGE = true
+message = "Attention: The respawn time is now $VALUE second(s)"
+
+-- Message to send non-admins
+no_permission = "You do not have permission to execute that command!"
+-- Configuration Ends -
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
 function OnScriptUnload()
-
+	unregister_callback(cb['EVENT_DIE'])
 end
 
 function OnPlayerKill(player_index)
-    local player = get_player(player_index)
-    write_dword(player + 0x2C, RespawnTime * 33)
-end	
+	local player = get_player(player_index)
+	write_dword(player + 0x2C, RespawnTime * 33)
+end
+
+function OnServerCommand(PlayerIndex, Command)
+    local response = nil
+    local t = tokenizestring(Command)
+    if t[1] ~= nil then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
+			if (t[1] == string.lower(command)) then
+				response = false
+				if not string.match(t[2], "%d") then
+					say(PlayerIndex, "Please enter a number!")
+				else
+					value = tonumber(t[2])
+					unregister_callback(cb['EVENT_DIE'])
+					register_callback(cb['EVENT_DIE'], "setRespawnTime")
+					say(PlayerIndex, "Respawn Time set to " .. tostring(value))
+					if (ANNOUNCE_CHANGE == true) then
+						for i = 1, 16 do
+							if player_present(i) then
+								if i ~= PlayerIndex then
+									say(i, string.gsub(message,"$VALUE",value))
+								end
+							end
+						end
+						
+					end
+				end
+			end
+		else
+			response = false
+			say(PlayerIndex, no_permission)
+		end
+	end
+	return response
+end
+
+function setRespawnTime(player_index)
+	local player = get_player(player_index)
+	write_dword(player + 0x2C, value * 33)
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
+end
 
 function OnError(Message)
     print(debug.traceback())
