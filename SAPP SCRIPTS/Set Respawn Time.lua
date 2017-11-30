@@ -61,7 +61,7 @@ function OnServerCommand(PlayerIndex, Command)
 				response = false
 				if not string.match(t[2], "%d") then
 					say(PlayerIndex, "Please enter a number!")
-					else
+                else
 					value = tonumber(t[2])
 					unregister_callback(cb['EVENT_DIE'])
 					register_callback(cb['EVENT_DIE'], "setRespawnTime")
@@ -71,18 +71,18 @@ function OnServerCommand(PlayerIndex, Command)
 							if player_present(i) then
 								if i ~= PlayerIndex then
 									say(i, string.gsub(message,"$VALUE",value))
-								end
-							end
-						end
+                                end
+                            end
+                        end
 						
-					end
-				end
-			end
-			else
+                    end
+                end
+            end
+        else
 			response = false
 			say(PlayerIndex, no_permission)
-		end
-	end
+        end
+    end
 	return response
 end
 
@@ -94,12 +94,12 @@ end
 function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
-	end
+    end
     local t = { }; i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
-	end
+    end
     return t
 end
 
