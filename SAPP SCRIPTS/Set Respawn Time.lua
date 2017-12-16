@@ -7,7 +7,7 @@ Script Name: Set Respawn Time, for SAPP | (PC & CE)
 Description: This script will allow you to set the (global) player-respawn-time (in seconds)
 
 * When you start your server, the script will set the default respawn time to "RespawnTime" - (see line 27) indefinitely, 
-unless an admins changes the respawn time manually with the custom command.
+unless an admin changes the respawn time manually with the custom command.
 
 Command Syntax: /respawntime <number>
 
