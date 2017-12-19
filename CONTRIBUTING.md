@@ -1,4 +1,4 @@
-Contributors to [code]
+Contributors to projects and code
 ============================================
 
 * **[urbanyoung](https://github.com/urbanyoung)**
