@@ -1,5 +1,4 @@
 [![Logo](http://www.andreas-rozek.de/Lua/Lua-Logo_128x128.png)
-[![Logo](http://i.imgur.com/0ouykdp.png)](https://github.com/Chalwk77)
 > # Halo PC|CE Add-ons for Phasor V2+ and SAPP
 
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
