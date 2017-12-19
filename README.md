@@ -7,8 +7,9 @@
 > ## [REQUEST AN ADDON](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/REQUEST%20AN%20ADD-ON.md)
 
 ### SAPP LINKS
-> * SAPP Lua API: [weblink](http://halo.isimaginary.com/lua_info/) NO LONGER AVAILALBE
-> * Sapp Forums: [weblink](http://halo.isimaginary.com/forum/) NO LONGER AVAILALBE
+> * SAPP Lua API: [weblink](https://docs.google.com/document/d/1RAnl68RN8z0RAvJcPqnv94ngzWZ6xavaX1EHsAqHeJU/edit)
+#### SAPP Documentation by 002
+> * Sapp Forums: NO LONGER AVAILALBE
 
 ### PHASOR LINKS
 > * Phasor Lua API: [weblink](http://69.162.101.202/~phasor/docs/200/group___phasor_a_p_i.html)
