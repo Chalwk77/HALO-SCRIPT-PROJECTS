@@ -5,7 +5,7 @@
     * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
     * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
     
-> * Create and activate an account on GitHub: [signup here](https://github.com/join?source=header-repo)
+> * Create and activate an account on GitHub: [signup here](https://github.com/join?source=header-home)
 > * Click [here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new) to create a new issue (ticket)
 >   * Use a clear and descriptive title so I can identify your request easily.
 >   * Use the following template: [ADD-ON REQUEST TEMPLATE.md](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/ADD-ON%20REQUEST%20TEMPLATE.md)
