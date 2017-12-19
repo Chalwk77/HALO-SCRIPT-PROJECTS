@@ -8,7 +8,6 @@
 
 ### SAPP LINKS
 > * SAPP Lua API: [weblink](https://docs.google.com/document/d/1RAnl68RN8z0RAvJcPqnv94ngzWZ6xavaX1EHsAqHeJU/edit)
-> SAPP Documentation by 002
 > * Sapp Forums: NO LONGER AVAILALBE
 
 ### PHASOR LINKS
