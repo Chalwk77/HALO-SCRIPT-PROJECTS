@@ -21,7 +21,6 @@ Contributors to projects and code
 
   * Co-Creator of commands script (4.2)
         - http://pastebin.com/gHiz0A51
-        - https://pastebin.com/z4eqrjVN
   * Providing the Addresses and Offsets list
         - https://pastebin.com/z4eqrjVN
 
