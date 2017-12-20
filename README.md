@@ -24,3 +24,8 @@
 
 Contact Me:
 <jericho.crosby227@gmail.com>
+
+
+
+
+![Logo](https://i.imgur.com/YI8iuLr.png)
