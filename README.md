@@ -1,6 +1,4 @@
-![Logo](http://www.andreas-rozek.de/Lua/Lua-Logo_128x128.png)
-
-> # Halo PC|CE Add-ons for Phasor V2+ and SAPP
+![Logo](https://i.imgur.com/OXWbJtT.png)
 
 - - - - 
 
