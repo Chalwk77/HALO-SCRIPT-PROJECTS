@@ -12,7 +12,8 @@
 > * Sapp Forums: NO LONGER AVAILALBE
 
 ### PHASOR LINKS
-> * Phasor Lua API: NO LONGER AVAILALBE
+> * Phasor Lua API for v057: [weblink](https://phasor.protonnebula.com/_phasor/docs/200/index.html)
+###### V2 API weblink no longer available.
 > * Phasor Forums: [weblink](http://phasor.proboards.com/)
 
 #### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
