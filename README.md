@@ -12,7 +12,7 @@
 > * Sapp Forums: NO LONGER AVAILALBE
 
 ### PHASOR LINKS
-> * Phasor Lua API: [weblink](http://69.162.101.202/~phasor/docs/200/group___phasor_a_p_i.html)
+> * Phasor Lua API: NO LONGER AVAILALBE
 > * Phasor Forums: [weblink](http://phasor.proboards.com/)
 
 #### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
