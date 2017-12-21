@@ -1,24 +1,21 @@
 --[[
-    Script Name: Give Overshield, for SAPP | (PC\CE)
-    Implementing API version: 1.11.0.0
+--=====================================================================================================--
+Script Name: Give Overshield (command), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description: Give yourself (or others) an overshield
+Command Syntax:
+    /os [player# 1-16]
+    /os me
 
-    Description: Give yourself (or others) an overshiled
-                 Minimum admin level required is 1 by default.
 
-                 Command Syntax:
-                                    /os [player# 1-16]
-                                    /os me
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]-- 
 
 api_version = "1.11.0.0"
 ADMIN_LEVEL = 1

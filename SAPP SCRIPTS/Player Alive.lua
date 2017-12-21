@@ -1,24 +1,25 @@
 --[[
-Script Name: Player Alive (timer), for SAPP | (PC\CE)
+--=====================================================================================================--
+Script Name: Player Alive (timer), for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
-
-    Description: While playerX is alive, if the timer reaches the elapsed "ALLOCATED_TIME" before they die, do something special.
-                 It's up to you to code in your "something special" of choice.
+Description:    While playerX is alive, if the timer reaches the elapsed "ALLOCATED_TIME" before they die, do something special.
+                It's up to you to code in your "something special" of choice.
                  
-                    Timer for playerX will reset when:
+                Timer for playerX will reset when:
                     - They quit the game (handled by OnTick)
                     - On Death (handled by PlayerAlive)
                     - Game Ends
                     
                     When the timer reaches the elapsed ALLOCATED_TIME threshold, 
-                    it will reset to 0 seconds but not continue counting down until they respawn/rejoin.
+                    it will reset to 0 seconds but not continue counting down until they respawn or rejoin.
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]--
 
 -- Config --
 USE_TIMER = true

@@ -1,27 +1,24 @@
 --[[
-Script Name: Killer Reward, for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
-
-    Description: This script will drop 1 of 20 (configurable) random items at your victims death location.
+--=====================================================================================================--
+Script Name: Killer Reward, for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description:    This script will drop 1 of 20 (configurable) random items at your victims death location.
     
-    MODES:
-    Kills Not Required:
-        Your victim will drop 1 random "weapon" or "equipment" item (indefinitely), by default.
+                MODES:
+                Kills Not Required:
+                    Your victim will drop 1 random "weapon" or "equipment" item (indefinitely), by default.
 
-    Kills Required:
-        Your victim will drop 1 random "weapon" or "equipment" item when you reach a specific kill threashold.
-        For every 5 (non-consecutive) kills, your victim will drop an item.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+                Kills Required:
+                    Your victim will drop 1 random "weapon" or "equipment" item when you reach a specific kill threashold.
+                    For every 5 (non-consecutive) kills, your victim will drop an item.
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]--
 
 api_version = "1.11.0.0"
 -- ==============================================--

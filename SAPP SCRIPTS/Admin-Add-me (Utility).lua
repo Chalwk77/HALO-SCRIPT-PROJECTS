@@ -1,23 +1,19 @@
 --[[
-Script Name: HPC Admin-Add-Me (utility), for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
-
-    Description: Type "/admin me" in chat to add yourself as an admin - (level 4 by default)
-                 This was particuarly useful to me when testing other scripts.
-                 I'm sure you can think of some creative reasons to use this.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+--=====================================================================================================--
+Script Name: HPC Admin-Add-Me (utility), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description:    Type "/admin me" in chat to add yourself as an admin - (level 4 by default)
+                This was particularly useful to me when testing other scripts.
+                I'm sure you can think of some creative reasons to use this.
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]--
 
--- Admin level
 level = "4"
 api_version = "1.11.0.0"
 

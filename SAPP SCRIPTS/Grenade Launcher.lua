@@ -1,21 +1,16 @@
 --[[
-------------------------------------
-Script Name: Grenade Launcher, for SAPP | (PC\CE)
-    - Implementing API version: 1.10.0.0
-
-    Description: When you fire your pistol, this script will change the Pistol Bullet projectile and turn it into a greande.
-                 You can change the Grenade Velocity and Distance on lines 23 and 24.
+--=====================================================================================================--
+Script Name: Grenade Launcher, for SAPP (PC & CE)
+Implementing API version: 1.10.0.0
+Description:    When you fire your pistol, this script will change the Pistol Bullet projectile and turn it into a grenade.
+                You can change the Grenade Velocity and Distance on lines 23 and 24.
                 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
-* Written by Jericho Crosby
------------------------------------
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
 ]]--
 
 api_version = "1.11.0.0"

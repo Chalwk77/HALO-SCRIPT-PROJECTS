@@ -1,7 +1,7 @@
 --[[
--------------------------------------
-Script Name: Chat Logging (utility), for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
+--=====================================================================================================--
+Script Name: Chat Logging (utility), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
     
 Description: This script will log player chat to <sapp server>/Server Chat.txt
 
@@ -9,18 +9,14 @@ Description: This script will log player chat to <sapp server>/Server Chat.txt
         [+] Added Command Logging
         [+] Added Quit/Join logging
         [*] Reformatted file output so all the text aligns properly.
-        [^] Seperated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
+        [^] Separated Command/Chat logging. Commands appear in Magenta by default, and Chat in Cyan
         
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
------------------------------------
+--=====================================================================================================--
 ]]--
 
 

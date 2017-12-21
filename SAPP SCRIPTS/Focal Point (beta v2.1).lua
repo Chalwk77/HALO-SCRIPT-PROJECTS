@@ -1,15 +1,17 @@
 --[[
-    Script Name: Focal Point (beta v2.1), for SAPP | (PC\CE)
-    Implementing API version: 1.11.0.0
+--=====================================================================================================--
+Script Name: Focal Point (beta v2.1), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description:    This is my extension of a progression based game that was for Phasor, originally by SlimJim.
+                Re-written and converted to SAPP.
 
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-    This script is also available on my github! Check my github for regular updates on my projects, including this script.
-    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
-    * IGN: Chalwk
-    * This is my extension of another "progression based game" that was for Phasor, by SlimJim
-    * Re-written and converted to sapp by Jericho Crosby (Chalwk)
-]]
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
 
 api_version = "1.11.0.0"
 AnnounceRank = true

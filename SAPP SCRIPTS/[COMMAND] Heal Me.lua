@@ -1,28 +1,24 @@
 --[[
-    Script Name: Heal Me! (command), for SAPP | (PC\CE)
-    Implementing API version: 1.11.0.0
-
-    Description: Heal yourself or others
-                 Minimum admin level required is 1 by default.
-
-                 Command Syntax:
-                                    /heal [player# 1-16] [0.001-1000]
-                                    /heal [player# 1-16]
-                                    /heal me [0.001-1000]
-                                    /heal me
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+--=====================================================================================================--
+Script Name: Heal Me (command), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description: Heal yourself or others
+Command Syntax:
+    /heal [player# 1-16] [0.001-1000]
+    /heal [player# 1-16]
+    /heal me [0.001-1000]
+    /heal me
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]-- 
 
 api_version = "1.11.0.0"
+-- Minimum admin level required to execute /heal command.
 ADMIN_LEVEL = 1
 COMMAND = "heal"
 

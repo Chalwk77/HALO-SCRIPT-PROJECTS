@@ -1,21 +1,23 @@
 --[[
-Script Name: LEVEL UP v1.3, for SAPP | (PC & CE)
-
+--=====================================================================================================--
+Script Name: LEVEL UP v1.3, for SAPP, for SAPP (PC & CE)
 See Level Up Wiki for details: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/wiki/LEVEL-UP-wiki
+Description: This is my extension of a "progression based game" that was for Phasor, by OZ Clan, Inspired by the works of someone called Mitch.
 
 Acknowledgments
 Credits to "Giraffe" for his AutoVehicle-Flip functions.
 Credits to 002 for his get_tag_info function (returns metaid)
 Credits to sehe for his death message patch
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
-* This is my extension of a "progression based game" that was for Phasor, by OZ Clan, Inspired by the works of someone called Mitch.
 * Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
+
 --========== CHANGE LOG AT THE BOTTOM OF THE SCRIPT ========= --
-]]
 
 api_version = "1.11.0.0"
 Script_Version = "1.3"

@@ -1,6 +1,6 @@
 --[[    
 ------------------------------------
-Script Name: vm315 - Game Settings, for SAPP | (PC\CE)
+Script Name: vm315 - Game Settings, for SAPP (PC & CE)
     - Implementing API version: 1.10.0.0
 
 Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>

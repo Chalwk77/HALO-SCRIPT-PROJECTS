@@ -1,20 +1,15 @@
 --[[
-------------------------------------
-Script Name: Vehicle Triggered Portals, for SAPP | (PC\CE)
-    - Implementing API version: 1.10.0.0
-
+--=====================================================================================================--
+Script Name: Vehicle Triggered Portals, for SAPP (PC & CE)
+Implementing API version: 1.10.0.0
 Description: Jump into the passengers seat of the warthog located at X,Y,Z and it will teleport you to X location.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
-* Written by Jericho Crosby
------------------------------------
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
 ]]--
 
 api_version = "1.11.0.0"

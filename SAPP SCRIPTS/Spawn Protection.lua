@@ -1,8 +1,8 @@
 --[[
-Script Name: Spawn Protection, for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
-
-Description: By default, you will spawn with an Overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
+--=====================================================================================================--
+Script Name: Spawn Protection, for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description: By default, you will spawn with an overshield, invisibility(7s), godmode(7s), and a speed boost(7s/1.3+) for every 10 consecutive deaths.
     
     This script will allow you to optionally toggle:
         * godmode (invulnerability)
@@ -21,16 +21,13 @@ Description: By default, you will spawn with an Overshield, invisibility(7s), go
         - Punish Killer
         * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
         
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]--
 
 api_version = "1.11.0.0"
 -- Mode 1 = consecutive deaths (editable)

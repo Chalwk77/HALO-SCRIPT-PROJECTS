@@ -1,11 +1,10 @@
 --[[
-Script Name: Command - Set Ammo, for SAPP | (PC\CE)
-    
-    -- Description --
-    > Set loaded/unloaded ammo for yourself (or others)
-    > Minimum admin level required is 1 by default.
+--=====================================================================================================--
+Script Name: Set Ammo (command), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description: Set loaded|unloaded ammo for yourself (or others)
 
-    Command Syntax: /setammo [player] [type] [ammo]
+Command Syntax: /setammo [player] [type] [ammo]
     
     Valid Arguments:
     >   me              Set ammo for yourself
@@ -14,19 +13,15 @@ Script Name: Command - Set Ammo, for SAPP | (PC\CE)
     >   red             Set Ammo for everybody on Red Team
     >   blue            Set Ammo for everybody on Blue Team
     >   rand|random     Set ammo for 1 random player
-    
-   
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]-- 
 
 api_version = "1.11.0.0"
 cur_players = 0

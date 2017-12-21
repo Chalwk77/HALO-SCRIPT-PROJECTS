@@ -1,10 +1,9 @@
 --[[
-------------------------------------
-Script Name: Sync-Admins (utility), for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
-
-Description: This script will sync your admins.txt and users.txt files with a remote server.
-An automatic backup solution will kick in if the host is offline/unavailable.
+--=====================================================================================================--
+Script Name: Sync-Admins (utility), for SAPP (PC & CE)
+Implementing API version: 1.11.0.0
+Description:    This script will sync your admins.txt and users.txt files with a remote server.
+                An automatic backup solution will kick in if the host is offline/unavailable.
 
     Change Log:
         [+] Added sync commands: /sync admins|users|all
@@ -20,7 +19,7 @@ An automatic backup solution will kick in if the host is offline/unavailable.
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
 
--------------------------------
+-------------------------------------------------------------------------------------------------------------
 TO DO LIST:
 
 [!] Currently, this script cannot decode a file that is encoded in UCS-2 LE BOM. 
@@ -31,18 +30,14 @@ TO DO LIST:
 . Minor Tweaking
 
 This code will work fine if you are importing data from a file that is encoded in UTF-8 or ANSI.
--------------------------------
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
+-------------------------------------------------------------------------------------------------------------
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
------------------------------------
+--=====================================================================================================--
 ]]--
 
 api_version = "1.11.0.0"

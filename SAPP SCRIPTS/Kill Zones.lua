@@ -1,17 +1,14 @@
 --[[
-Script Name: Kill Zones, for SAPP - (PC|CE)
-
+--=====================================================================================================--
+Script Name: Kill Zones, for SAPP (PC & CE)
 Description: When a player enters a kill zone, they have 15 seconds to exit otherwise they are killed.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
-* Written by Jericho Crosby (chalwk)
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
 ]]--
 
 api_version = "1.11.0.0"
@@ -33,7 +30,7 @@ local dir = 'sapp\\coordinates.txt'
 --      You will be killed in 15 seconds if you don't leave this area!
 --      You have been killed because you were out of bounds!
 
--- Lables can be anything you like.
+-- Labels can be anything you like.
 -- Teams:
 --      Red, Only players on Red Team will trigger this kill zone.
 --      Blue, Only players on Blue Team will trigger this kill zone.

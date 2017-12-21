@@ -1,9 +1,11 @@
 --[[
-------------------------------------
-Script Name: Spawn Fixes, for SAPP | (PC\CE)
-    - Implementing API version: 1.11.0.0
-    
-Written for FIG Community
+--=====================================================================================================--
+Script Name: Spawn Fixes, for SAPP (PC & CE)
+Implementing API version: 1.11.0.0  
+Description:    The maps listed below each have one or more broken spawn points.
+                For example, the map emt_inverno has one known spawn point that spawns you on the side of a cliff - you slide down and die from fall damage.
+                This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
+                This script will also take into account the gametype, i.e, Slayer, CTF, Team Slayer, etc.
 
 --  MAPS THIS SCRIPT FIXES
     emt_inverno
@@ -12,22 +14,14 @@ Written for FIG Community
     municipality
     sniperbluff
 
-Description:
-    The maps listed above each have 1 or more broken spawn points.
-    For example, the map emt_inverno has one known spawn point that spawns you on the side of a cliff - you slide down and die from fall damage.
-    This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
-    This script will also take into account the gametype, i.e, Slayer, CTF, Team Slayer, etc.
-
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* IGN: Chalwk
 * Written by Jericho Crosby (Chalwk)
-]]
+--=====================================================================================================--
+]]--
+
 api_version = "1.11.0.0"
 
 -- Known broken spawn points
