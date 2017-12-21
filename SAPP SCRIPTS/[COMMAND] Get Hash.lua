@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Get Hash, for SAPP (PC & CE)
+Script Name: Get Hash (command), for SAPP (PC & CE)
 Description: Check yours or someone else's hash
 
     Command Syntax: /hash me|1-16
