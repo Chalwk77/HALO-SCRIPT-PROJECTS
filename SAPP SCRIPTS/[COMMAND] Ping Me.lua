@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Ping Me, for SAPP (PC & CE)
+Script Name: Ping Me (command), for SAPP (PC & CE)
 Description: Check yours or someone else's ping
 
     Command Syntax: /ping me|1-16
