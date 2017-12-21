@@ -24,7 +24,7 @@ respondWith2 = "$PLAYER_NAME's ping is $PING"
 PERMISSION_LEVEL = -1
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
 function OnScriptUnload() end
@@ -37,7 +37,7 @@ function OnServerCommand(PlayerIndex, Command)
             execute_command("msg_prefix \"\"")
             if tonumber(get_var(PlayerIndex, "$lvl")) >= PERMISSION_LEVEL then
                 local index = tonumber(t[2])
-                if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then 
+                if (t[2] == nil) or(t[2] ~= nil and t[2] == "me") then
                     silent_UnknownCMD = false
                     say(PlayerIndex, string.gsub(respondWith1, "$PING", get_var(PlayerIndex, "$ping")))
                 elseif (t[2] ~= nil and t[2] ~= "me") then
@@ -67,17 +67,17 @@ function OnServerCommand(PlayerIndex, Command)
 end
 
 function tokenizestring(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t = { }; i = 1
-	for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-		t[i] = str
-		i = i + 1
-	end
-	return t
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function OnError(Message)
-	print(debug.traceback())
+    print(debug.traceback())
 end
