@@ -19,8 +19,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 custom_command = "ping"
-responseWith1 = "Your ping is $PING"
-responseWith2 = "$PLAYER_NAME's ping is $PING"
+respondWith1 = "Your ping is $PING"
+respondWith2 = "$PLAYER_NAME's ping is $PING"
 PERMISSION_LEVEL = -1
 
 function OnScriptLoad()
@@ -30,7 +30,7 @@ end
 function OnScriptUnload() end
 
 function OnServerCommand(PlayerIndex, Command)
-    local response = nil
+    local silent_UnknownCMD = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
         if t[1] == string.lower(custom_command) then
@@ -38,32 +38,32 @@ function OnServerCommand(PlayerIndex, Command)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= PERMISSION_LEVEL then
                 local index = tonumber(t[2])
                 if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then 
-                    response = false
-                    say(PlayerIndex, string.gsub(responseWith1, "$PING", get_var(PlayerIndex, "$ping")))
+                    silent_UnknownCMD = false
+                    say(PlayerIndex, string.gsub(respondWith1, "$PING", get_var(PlayerIndex, "$ping")))
                 elseif (t[2] ~= nil and t[2] ~= "me") then
                     if not string.match(t[2], "%d") then
-                        response = false
+                        silent_UnknownCMD = false
                         say(PlayerIndex, "Arg2 was not a number!")
                     else
                         if index ~= nil and index > 0 and index < 17 then
                             if player_present(index) then
-                                response = false
-                                say(PlayerIndex, string.gsub(string.gsub(responseWith2, "$PLAYER_NAME", get_var(PlayerIndex, "$name")), "$PING", get_var(PlayerIndex, "$ping")))
+                                silent_UnknownCMD = false
+                                say(PlayerIndex, string.gsub(string.gsub(respondWith2, "$PLAYER_NAME", get_var(PlayerIndex, "$name")), "$PING", get_var(PlayerIndex, "$ping")))
                             else
-                                response = false
+                                silent_UnknownCMD = false
                                 say(PlayerIndex, "Invalid Player ID!")
                             end
                         end
                     end
                 end
             else
-                response = false
+                silent_UnknownCMD = false
                 say(PlayerIndex, "You do not have permission to execute that command")
             end
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    return response
+    return silent_UnknownCMD
 end
 
 function tokenizestring(inputstr, sep)
