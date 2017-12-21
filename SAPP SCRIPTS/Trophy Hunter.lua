@@ -15,7 +15,7 @@ This script is also available on my github! Check my github for regular updates 
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
 
 * IGN: Chalwk
-* This is my extension of Kill Confirmed ~ re-written and converted for SAPP (PC|CE)
+* This is my extension of Kill Confirmed ~ re-written and converted to SAPP for PC and CE
 * Credits to Kennan for the original Kill Confirmed add-on for Phasor.
 * Written by Jericho Crosby (Chalwk)
 ------------------------------------
