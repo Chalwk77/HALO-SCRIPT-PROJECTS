@@ -30,17 +30,18 @@ MapIsListed = nil
 bool = nil
 -- counts --
 current_players = 0
+
+--============= CONFIGURATION STARTS HERE =============--
 -- Points received for killing the juggernaut
 bonus = 5
 -- points received for every kill as juggernaut
 points = 1
-
---============= CONFIGURATION STARTS HERE =============--
 -- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
 player_count_threashold = 3
--- Message to send to all players when a new Juggernaut is assigned.
+-- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
+-- Juggernaut Weapon Layout --
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"
