@@ -48,8 +48,9 @@ end
 
 function OnTick()
     if (current_players == 2) then
-        for i = 1, 16 do
+        for i = 1, 2 do
             if player_present(i) then
+                -- if neither player is the current Juggernaut, remove the nav markers
                 if (i ~= players[get_var(i, "$n")].current_juggernaut) then
                     local m_player = get_player(i)
                     local player = to_real_index(i)
@@ -66,7 +67,7 @@ function OnTick()
 end
 
 function OnScriptUnload()
-    gamestarted = false
+    -- do nothing
 end
 
 function OnPlayerJoin(PlayerIndex)
