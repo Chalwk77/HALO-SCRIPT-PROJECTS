@@ -290,12 +290,12 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    -- Killer is Juggernaut | Victim is Not Juggernaut | Update Score
+    -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
     if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         setscore(killer, points)
         rprint(KillerIndex, "|" .. Alignment .. "+3")
     end
-    -- Neither Killer or Victim are the Juggernaut | Make Killer Juggernaut | Update Score
+    -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
@@ -308,7 +308,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    -- Killer is not Juggernaut | Victim is Current Juggernaut | Make Killer Juggernaut (only if there is 2 or more players online) | Update with bonus Score
+    -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
         if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
