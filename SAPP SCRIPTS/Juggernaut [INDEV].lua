@@ -144,7 +144,7 @@ function OnScriptLoad()
             players[get_var(i, "$n")].current_juggernaut = nil
         end
     end
-    if get_var(0, "$gt") ~= "n/a" then
+    if (get_var(0, "$gt") ~= "n/a") then
         mapname = get_var(0, "$map")
         GrenadeTable()
         LoadMaps()
@@ -168,7 +168,7 @@ function OnNewGame()
         end
     end
     -- If there are 3 or more players, select a random Juggernaut
-    if current_players >= player_count_threashold then
+    if (current_players >= player_count_threashold) then
         SelectNewJuggernaut()
     end
     if (table.match(mapnames, mapname) == nil) then
@@ -235,9 +235,9 @@ function OnTick()
         end
     end
     for j = 1, 16 do
-        if (player_alive(j)) then
+        if player_alive(j) then
             if (j == players[get_var(j, "$n")].current_juggernaut) then
-                if MapIsListed == false then
+                if (MapIsListed == false) then
                     return false
                 else
                     local player = get_dynamic_player(j)
@@ -273,7 +273,7 @@ function SelectNewJuggernaut()
             if player_present(i) then
                 if player_alive(i) then
                     table.insert(players_available, i)
-                    if #players_available > 0 then
+                    if (#players_available > 0) then
                         if (i ~= players[get_var(i, "$n")].current_juggernaut) then
                             local number = math.random(1, current_players)
                             players[get_var(i, "$n")].current_juggernaut = nil
@@ -367,7 +367,7 @@ function SetNavMarker(Juggernaut)
                 local m_player = get_player(i)
                 local player = to_real_index(i)
                 if m_player ~= 0 then
-                    if Juggernaut ~= nil then
+                    if (Juggernaut ~= nil) then
                         write_word(m_player + 0x88, to_real_index(Juggernaut))
                     else
                         write_word(m_player + 0x88, player)
