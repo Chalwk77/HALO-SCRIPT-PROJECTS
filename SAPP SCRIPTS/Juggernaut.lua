@@ -27,6 +27,7 @@ plasmas = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
 MapIsListed = nil
+resetplayer = nil
 bool = nil
 -- counts --
 current_players = 0
@@ -36,6 +37,11 @@ current_players = 0
 bonus = 5
 -- points received for every kill as juggernaut
 points = 1
+-- (0 to 99999) (Normal = 1)
+juggernaut_health = 2
+-- (0 to 3) (Normal = 1) (Full overshield = 3)
+juggernaut_shields = 3
+
 -- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
 player_count_threashold = 3
 -- Message to send all players when a new Juggernaut is assigned.
@@ -51,7 +57,9 @@ Alignment = "l"
 
 gamesettings = {
     ["AssignFragGrenades"] = true,
-    ["AssignPlasmaGrenades"] = true
+    ["AssignPlasmaGrenades"] = true,
+    ["GiveExtraHealth"] = true,
+    ["GiveOvershield"] = true
 }
 
 function GrenadeTable()
@@ -129,6 +137,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$n")].current_juggernaut = nil
@@ -145,6 +155,15 @@ end
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
     mapname = get_var(0, "$map")
+end
+
+function OnPlayerPrespawn(PlayerIndex)
+    if (resetplayer == true) then
+        if PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut then
+            players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
+            resetplayer = false
+        end
+    end
 end
 
 function AssignGrenades(PlayerIndex)
@@ -197,6 +216,7 @@ function OnTick()
                     return false
                 else
                     local player = get_dynamic_player(j)
+                    --local p = get_player(j)
                     if (weapon[j] == 0) then
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
@@ -208,6 +228,12 @@ function OnTick()
                             if (bool == true) then
                                 AssignGrenades(j)
                                 bool = false
+                            end
+                            if (gamesettings["GiveExtraHealth"] == true) then
+                                write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
+                            end
+                            if (gamesettings["GiveOvershield"] == true) then
+                                write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
                             end
                         end
                     end
@@ -233,7 +259,7 @@ function OnPlayerLeave(PlayerIndex)
         if (current_players == 2) then
             -- say something
         elseif (current_players >= 3) then
-            timer(1000 * 3, "SelectNewJuggernaut")
+            timer(1000 * 1, "SelectNewJuggernaut")
         end
     end
 end
@@ -251,7 +277,7 @@ function OnNewGame()
     end
     -- If there are 3 or more players, select a random Juggernaut
     if current_players >= player_count_threashold then
-        timer(1000 * 3, "SelectNewJuggernaut")
+        timer(1000 * 1, "SelectNewJuggernaut")
     end
     if (table.match(mapnames, mapname) == nil) then 
         MapIsListed = false
@@ -272,18 +298,48 @@ function SelectNewJuggernaut()
     if (gamestarted == true) then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(players_available, i)
-                if #players_available > 0 then
-                    local number = math.random(1, #players_available)
-                    players[get_var(i, "$n")].current_juggernaut = (number)
-                    SetNavMarker(i)
-                    -- Clear the Table
-                    players_available = { }
-                    bool = true
+                if player_alive(i) then
+                    table.insert(players_available, i)
+                    if #players_available > 0 then
+                        local number = math.random(1, current_players)
+                        if (i ~= players[get_var(number, "$n")].current_juggernaut) then
+                            players[get_var(i, "$n")].current_juggernaut = (number)
+                            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
+                            SetNavMarker(i)
+                            bool = true
+                            -- Clear the Table
+                            players_available = { }
+                            break
+                        end
+                    end
                 end
             end
         end
     end
+end
+
+function OnServerCommand(PlayerIndex, Command, Environment)
+    local UnknownCMD = nil
+    local t = tokenizestring(Command)
+    if t[1] ~= nil then
+        if t[1] == string.lower("j") then
+            SelectNewJuggernaut()
+            UnknownCMD = false
+        end
+    end
+    return UnknownCMD
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -319,18 +375,24 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
+    if tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        SelectNewJuggernaut()
+        resetplayer = true
+    end
 end
 
 function SetNavMarker(Juggernaut)
     for i = 1, 16 do
         if player_present(i) then
-            local m_player = get_player(i)
-            local player = to_real_index(i)
-            if m_player ~= 0 then
-                if Juggernaut ~= nil then
-                    write_word(m_player + 0x88, to_real_index(Juggernaut))
-                else
-                    write_word(m_player + 0x88, player)
+            if player_alive(i) then
+                local m_player = get_player(i)
+                local player = to_real_index(i)
+                if m_player ~= 0 then
+                    if Juggernaut ~= nil then
+                        write_word(m_player + 0x88, to_real_index(Juggernaut))
+                    else
+                        write_word(m_player + 0x88, player)
+                    end
                 end
             end
         end
