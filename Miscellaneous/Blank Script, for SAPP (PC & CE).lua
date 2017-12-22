@@ -38,7 +38,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'],              "OnPlayerPrejoin")
     register_callback(cb['EVENT_PRESPAWN'],             "OnPlayerPrespawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'],   "OnDamageApplication")
-
 end
 
 function OnEcho()
@@ -105,7 +104,7 @@ function OnPlayerJoin(PlayerIndex)
 
 end
 
-function OnPlayerChat(PlayerIndex, Message, type)
+function OnPlayerChat(PlayerIndex, Message, Type)
 
 end
 
