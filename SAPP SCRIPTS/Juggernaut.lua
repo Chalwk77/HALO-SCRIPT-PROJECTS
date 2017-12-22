@@ -18,14 +18,18 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]-- 
 
 api_version = "1.11.0.0"
+-- Tables --
 players = { }
 players_available = { }
+-- Counts --
 current_players = 0
 
--- configuration starts here --
+--============= CONFIGURATION STARTS HERE =============--
+-- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
 player_count_threashold = 3
+-- Message to send to all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
--- configuration ends here --
+--============= CONFIGURATION ENDS HERE =============--
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
