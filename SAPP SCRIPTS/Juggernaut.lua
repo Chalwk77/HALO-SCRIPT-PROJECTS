@@ -4,7 +4,7 @@ Script Name: Juggernaut, for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
 Description: Custom Game
 
-    To Do List: 
+    To Do List:
                     - When the current juggernaut leaves the server, select someone else to be the juggernaut.
                     - When a second player joins the server, the player to get "First Blood" becomes the Juggernaut.
                     - If only two players online, and no one is the Juggernaut yet, remove everybody's nav markers
@@ -77,12 +77,12 @@ end
 
 function SelectNewJuggernaut()
     if (gamestarted == true) then
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 table.insert(players_available, i)
                 if #players_available > 0 then
                     local number = math.random(1, #players_available)
-                    players[get_var(number, "$n")].current_juggernaut = (i)
+                    players[get_var(number, "$n")].current_juggernaut =(i)
                     SetNavMarker(i)
                     -- Clear the Table
                     players_available = { }
@@ -97,7 +97,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     -- Neither Killer or Victim are the current Juggernaut >> Make Killer the new Juggernaut - (first person to kill becomes the Juggernaut)
     if (current_players == 2) then
-        if killer ~= players[get_var(killer, "$n")].current_juggernaut and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if killer ~= players[get_var(killer, "$n")].current_juggernaut and(victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             SetNavMarker(KillerIndex)
             execute_command("msg_prefix \"\"")
@@ -107,7 +107,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- Killer annihilates the current Juggernaut > Make them the new Juggernaut (only if there is 3 or more players online)
     if (current_players > 2) then
-        if killer ~= players[get_var(killer, "$n")].current_juggernaut and (victim == players[get_var(PlayerIndex, "$n")].current_juggernaut) then 
+        if killer ~= players[get_var(killer, "$n")].current_juggernaut and(victim == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             SetNavMarker(KillerIndex)
             execute_command("msg_prefix \"\"")
@@ -118,19 +118,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function SetNavMarker(Juggernaut)
-	for i = 1,16 do
-		if player_present(i) then
-			local m_player = get_player(i)
-			local player = to_real_index(i)
-			if m_player ~= 0 then
-				if Juggernaut ~= nil then
-					write_word(m_player + 0x88, to_real_index(Juggernaut))
-				else
-					write_word(m_player + 0x88, player)
-				end
-			end
-		end
-	end
+    for i = 1, 16 do
+        if player_present(i) then
+            local m_player = get_player(i)
+            local player = to_real_index(i)
+            if m_player ~= 0 then
+                if Juggernaut ~= nil then
+                    write_word(m_player + 0x88, to_real_index(Juggernaut))
+                else
+                    write_word(m_player + 0x88, player)
+                end
+            end
+        end
+    end
 end
 
 
