@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
 Description: Custom Game
 
     To Do List:
-                    - Set up weapon variables, health, shields
+                    - health, shields
 
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
