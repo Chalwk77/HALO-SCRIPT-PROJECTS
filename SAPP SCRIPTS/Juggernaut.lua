@@ -46,7 +46,7 @@ weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"
 
--- Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
+-- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 
 gamesettings = {
