@@ -7,6 +7,7 @@ Script Name: Blank Script, for SAPP (PC & CE)
 api_version = "1.11.0.0"
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_ECHO'],                 "OnEcho")
     register_callback(cb['EVENT_SNAP'],                 "OnSnap")
     register_callback(cb['EVENT_CAMP'],                 "OnCamp")
     register_callback(cb['EVENT_WARP'],                 "OnWarp")
@@ -17,6 +18,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SUICIDE'],              "OnSuicide")
     register_callback(cb['EVENT_GAME_END'],             "OnGameEnd")
     register_callback(cb['EVENT_GAME_START'],           "OnNewGame")
+    register_callback(cb['EVENT_MAP_RESET'],            "OnMapReset")
     register_callback(cb['EVENT_AREA_EXIT'],            "OnAreaExit")
     register_callback(cb['EVENT_AREA_ENTER'],           "OnAreaEnter")
     register_callback(cb['EVENT_TEAM_SWITCH'],          "OnTeamSwitch")
@@ -37,6 +39,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'],             "OnPlayerPrespawn")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'],   "OnDamageApplication")
 
+end
+
+function OnEcho()
+    
 end
 
 function OnSnap(PlayerIndex, SnapScore) 
@@ -76,6 +82,10 @@ function OnGameEnd()
 end
 
 function OnNewGame() 
+
+end
+
+function OnMapReset() 
 
 end
 
