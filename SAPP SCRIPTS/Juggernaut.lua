@@ -28,6 +28,7 @@ weapons[00000] = "nil\\nil\\nil"
 -- booleans --
 MapIsListed = nil
 bool = nil
+tick_bool = nil
 -- counts --
 current_players = 0
 
@@ -47,9 +48,9 @@ player_count_threashold = 3
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
 -- Juggernaut Weapon Layout --
-weapons[1] = "weapons\\pistol\\pistol"
-weapons[2] = "weapons\\sniper rifle\\sniper rifle"
-weapons[3] = "weapons\\rocket launcher\\rocket launcher"
+weapons[1] = "weapons\\pistol\\pistol" -- Primary
+weapons[2] = "weapons\\sniper rifle\\sniper rifle" -- Secondary
+weapons[3] = "weapons\\rocket launcher\\rocket launcher" -- Tertiary
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
@@ -197,10 +198,13 @@ function OnTick()
                     local player = to_real_index(i)
                     if m_player ~= 0 then
                         if i ~= nil then
-                            -- Remove NAV marker (it points to red base for some reason)
-                            write_word(m_player + 0x88, player + 10)
+                            if (tick_bool) == nil then
+                                -- No body is the Juggernaut. Remove the NAV Markers. (it points to red base for some reason)
+                                write_word(m_player + 0x88, player + 10)
+                            end
                         end
                     end
+                    -- Someone is now the Juggernaut
                 end
             end
         end
@@ -216,9 +220,9 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
                             assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -252,9 +256,9 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-            -- to do
+            -- two players remain | first blood becomes juggernaut
         elseif (current_players >= 3) then
-            timer(1000 * 1, "SelectNewJuggernaut")
+            SelectNewJuggernaut()
         end
     end
 end
@@ -272,7 +276,7 @@ function OnNewGame()
     end
     -- If there are 3 or more players, select a random Juggernaut
     if current_players >= player_count_threashold then
-        timer(1000 * 1, "SelectNewJuggernaut")
+        SelectNewJuggernaut()
     end
     if (table.match(mapnames, mapname) == nil) then 
         MapIsListed = false
@@ -296,8 +300,8 @@ function SelectNewJuggernaut()
                 if player_alive(i) then
                     table.insert(players_available, i)
                     if #players_available > 0 then
-                        local number = math.random(1, current_players)
-                        if (i ~= players[get_var(number, "$n")].current_juggernaut) then
+                        if (i ~= players[get_var(i, "$n")].current_juggernaut) then
+                            local number = math.random(1, current_players)
                             players[get_var(i, "$n")].current_juggernaut = nil
                             players[get_var(i, "$n")].current_juggernaut = (number)
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
@@ -351,6 +355,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
+            tick_bool = false
             SetNavMarker(KillerIndex)
             setscore(killer, points)
             rprint(KillerIndex, "|" .. Alignment .. tostring(bonus))
@@ -371,8 +376,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    if tonumber(PlayerIndex) == tonumber(KillerIndex) then
+    
+    -- fix this
+    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
+        cprint("suicide - was jug", 2+8)
     end
 end
 
