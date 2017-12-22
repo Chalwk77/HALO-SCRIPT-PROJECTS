@@ -322,13 +322,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         setscore(killer, points)
         rprint(KillerIndex, "|" .. Alignment .. "+3")
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
-        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
             tick_bool = false
@@ -342,7 +342,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
-        if (victim == players[get_var(victim, "$n")].current_juggernaut) and(killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+        if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
             SetNavMarker(KillerIndex)
@@ -354,7 +354,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
 
     -- fix this
-    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
         cprint("suicide - was jug", 2 + 8)
     end
