@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
 Description: Custom Game [INDEV]
 
     To Do List:
-                    - health, shields
+                    - health, shields and other miscellaneous variables
 
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
