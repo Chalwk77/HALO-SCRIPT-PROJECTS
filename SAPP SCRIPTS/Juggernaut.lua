@@ -27,7 +27,6 @@ plasmas = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
 MapIsListed = nil
-resetplayer = nil
 bool = nil
 -- counts --
 current_players = 0
@@ -158,11 +157,8 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    if (resetplayer == true) then
-        if PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut then
-            players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
-            resetplayer = false
-        end
+    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     end
 end
 
@@ -377,7 +373,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     if tonumber(PlayerIndex) == tonumber(KillerIndex) then
         SelectNewJuggernaut()
-        resetplayer = true
     end
 end
 
