@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Juggernaut, for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
-Description: Custom Game
+Description: Custom Game [INDEV]
 
     To Do List:
                     - health, shields
