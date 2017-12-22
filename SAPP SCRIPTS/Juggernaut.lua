@@ -152,6 +152,57 @@ function OnScriptLoad()
     current_players = 0
 end
 
+function OnScriptUnload()
+    -- to do
+end
+
+function OnNewGame()
+    gamestarted = true
+    mapname = get_var(0, "$map")
+    GrenadeTable()
+    LoadMaps()
+    for i = 1, 16 do
+        if player_present(i) then
+            current_players = current_players + 1
+            players[get_var(i, "$n")].current_juggernaut = nil
+        end
+    end
+    -- If there are 3 or more players, select a random Juggernaut
+    if current_players >= player_count_threashold then
+        SelectNewJuggernaut()
+    end
+    if (table.match(mapnames, mapname) == nil) then 
+        MapIsListed = false
+        Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 110'
+        cprint(Error, 4+8)
+        execute_command("log_note \""..Error.."\"")
+    else
+        MapIsListed = true
+    end
+end
+
+function OnGameEnd()
+    gamestarted = false
+    current_players = 0
+end
+
+function OnPlayerJoin(PlayerIndex)
+    current_players = current_players + 1
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
+end
+
+function OnPlayerLeave(PlayerIndex)
+    current_players = current_players - 1
+    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if (current_players == 2) then
+            -- two players remain | first blood becomes juggernaut
+        elseif (current_players >= 3) then
+            SelectNewJuggernaut()
+        end
+    end
+end
+
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
     mapname = get_var(0, "$map")
@@ -160,32 +211,6 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
-    end
-end
-
-function AssignGrenades(PlayerIndex)
-    if player_alive(PlayerIndex) then
-        local player_object = get_dynamic_player(PlayerIndex)
-        if (player_object ~= 0) then
-            if (gamesettings["AssignFragGrenades"] == true) then
-                if (frags[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 55 | Unable to set frags.'
-                    cprint(Error, 4+8)
-                    execute_command("log_note \""..Error.."\"")
-                else
-                    write_word(player_object + 0x31E, frags[mapname])
-                end
-            end
-            if (gamesettings["AssignPlasmaGrenades"] == true) then
-                if (plasmas[mapname] == nil) then 
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 75 | Unable to set plasmas.'
-                    cprint(Error, 4+8)
-                    execute_command("log_note \""..Error.."\"")
-                else
-                    write_word(player_object + 0x31F, plasmas[mapname])
-                end
-            end
-        end
     end
 end
 
@@ -242,57 +267,6 @@ function OnTick()
     end
 end
 
-function OnScriptUnload()
-    -- to do
-end
-
-function OnPlayerJoin(PlayerIndex)
-    current_players = current_players + 1
-    players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
-end
-
-function OnPlayerLeave(PlayerIndex)
-    current_players = current_players - 1
-    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
-        if (current_players == 2) then
-            -- two players remain | first blood becomes juggernaut
-        elseif (current_players >= 3) then
-            SelectNewJuggernaut()
-        end
-    end
-end
-
-function OnNewGame()
-    gamestarted = true
-    mapname = get_var(0, "$map")
-    GrenadeTable()
-    LoadMaps()
-    for i = 1, 16 do
-        if player_present(i) then
-            current_players = current_players + 1
-            players[get_var(i, "$n")].current_juggernaut = nil
-        end
-    end
-    -- If there are 3 or more players, select a random Juggernaut
-    if current_players >= player_count_threashold then
-        SelectNewJuggernaut()
-    end
-    if (table.match(mapnames, mapname) == nil) then 
-        MapIsListed = false
-        Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 98'
-        cprint(Error, 4+8)
-        execute_command("log_note \""..Error.."\"")
-    else
-        MapIsListed = true
-    end
-end
-
-function OnGameEnd()
-    gamestarted = false
-    current_players = 0
-end
-
 function SelectNewJuggernaut()
     if (gamestarted == true) then
         for i = 1, 16 do
@@ -318,28 +292,30 @@ function SelectNewJuggernaut()
     end
 end
 
-function OnServerCommand(PlayerIndex, Command, Environment)
-    local UnknownCMD = nil
-    local t = tokenizestring(Command)
-    if t[1] ~= nil then
-        if t[1] == string.lower("j") then
-            SelectNewJuggernaut()
-            UnknownCMD = false
+function AssignGrenades(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if (player_object ~= 0) then
+            if (gamesettings["AssignFragGrenades"] == true) then
+                if (frags[mapname] == nil) then 
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 67 | Unable to set frags.'
+                    cprint(Error, 4+8)
+                    execute_command("log_note \""..Error.."\"")
+                else
+                    write_word(player_object + 0x31E, frags[mapname])
+                end
+            end
+            if (gamesettings["AssignPlasmaGrenades"] == true) then
+                if (plasmas[mapname] == nil) then 
+                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 87 | Unable to set plasmas.'
+                    cprint(Error, 4+8)
+                    execute_command("log_note \""..Error.."\"")
+                else
+                    write_word(player_object + 0x31F, plasmas[mapname])
+                end
+            end
         end
     end
-    return UnknownCMD
-end
-
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -402,12 +378,16 @@ function SetNavMarker(Juggernaut)
     end
 end
 
-function table.match(table, value)
-    for k,v in pairs(table) do
-        if v == value then
-            return k
+function OnServerCommand(PlayerIndex, Command, Environment)
+    local UnknownCMD = nil
+    local t = tokenizestring(Command)
+    if t[1] ~= nil then
+        if t[1] == string.lower("j") then
+            SelectNewJuggernaut()
+            UnknownCMD = false
         end
     end
+    return UnknownCMD
 end
 
 function setscore(PlayerIndex, score)
@@ -422,6 +402,26 @@ function setscore(PlayerIndex, score)
             end
         end
     end
+end
+
+function table.match(table, value)
+    for k,v in pairs(table) do
+        if v == value then
+            return k
+        end
+    end
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 
