@@ -31,6 +31,10 @@ MapIsListed = nil
 bool = nil
 -- counts --
 current_players = 0
+-- Points received for killing the juggernaut
+bonus = 5
+-- points received for every kill as juggernaut
+points = 1
 
 --============= CONFIGURATION STARTS HERE =============--
 -- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
@@ -288,30 +292,29 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is Not Juggernaut | Update Score
     if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
-        increment = 1
-        setscore(killer, increment)
+        setscore(killer, points)
         rprint(KillerIndex, "|" .. Alignment .. "+3")
     end
-    -- Neither Killer or Victim are the Juggernaut | Make Killer Juggernaut
+    -- Neither Killer or Victim are the Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
             SetNavMarker(KillerIndex)
-            increment = 1
-            setscore(killer, increment)
-            rprint(KillerIndex, "|" .. Alignment .. "+3")
+            setscore(killer, points)
+            rprint(KillerIndex, "|" .. Alignment .. tostring(bonus))
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    -- Killer is not Juggernaut | Victim is Current Juggernaut | Make Killer Juggernaut (only if there is 2 or more players online)
+    -- Killer is not Juggernaut | Victim is Current Juggernaut | Make Killer Juggernaut (only if there is 2 or more players online) | Update with bonus Score
     if (current_players >= 2) then
         if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
             SetNavMarker(KillerIndex)
+            setscore(killer, bonus)
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
             execute_command("msg_prefix \"** SERVER ** \"")
