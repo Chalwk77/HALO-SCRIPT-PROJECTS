@@ -6,7 +6,6 @@ Description: Custom Game
 
     To Do List:
                     - Set up weapon variables, health, shields
-                    - Scoring System
 
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
