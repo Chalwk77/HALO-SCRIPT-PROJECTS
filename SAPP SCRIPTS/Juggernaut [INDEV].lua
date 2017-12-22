@@ -32,7 +32,7 @@ tick_bool = nil
 -- counts --
 current_players = 0
 
---============= CONFIGURATION STARTS HERE =============--
+-- ============= CONFIGURATION STARTS HERE =============--
 -- Points received for killing the juggernaut
 bonus = 5
 -- points received for every kill as juggernaut
@@ -63,8 +63,8 @@ gamesettings = {
 }
 
 function GrenadeTable()
---  frag grenade table --
-    frags = {    
+    --  frag grenade table --
+    frags = {
         beavercreek = 4,
         bloodgulch = 4,
         boardingaction = 4,
@@ -83,7 +83,7 @@ function GrenadeTable()
         prisoner = 4,
         wizard = 4
     }
---  plasma grenades table --
+    --  plasma grenades table --
     plasmas = {
         beavercreek = 4,
         bloodgulch = 4,
@@ -127,7 +127,7 @@ function LoadMaps()
         "wizard"
     }
 end
---============= CONFIGURATION ENDS HERE =============--
+-- ============= CONFIGURATION ENDS HERE =============--
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -171,11 +171,11 @@ function OnNewGame()
     if current_players >= player_count_threashold then
         SelectNewJuggernaut()
     end
-    if (table.match(mapnames, mapname) == nil) then 
+    if (table.match(mapnames, mapname) == nil) then
         MapIsListed = false
         Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 110'
-        cprint(Error, 4+8)
-        execute_command("log_note \""..Error.."\"")
+        cprint(Error, 4 + 8)
+        execute_command("log_note \"" .. Error .. "\"")
     else
         MapIsListed = true
     end
@@ -277,7 +277,7 @@ function SelectNewJuggernaut()
                         if (i ~= players[get_var(i, "$n")].current_juggernaut) then
                             local number = math.random(1, current_players)
                             players[get_var(i, "$n")].current_juggernaut = nil
-                            players[get_var(i, "$n")].current_juggernaut = (number)
+                            players[get_var(i, "$n")].current_juggernaut =(number)
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                             SetNavMarker(i)
                             bool = true
@@ -297,19 +297,19 @@ function AssignGrenades(PlayerIndex)
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["AssignFragGrenades"] == true) then
-                if (frags[mapname] == nil) then 
+                if (frags[mapname] == nil) then
                     Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 67 | Unable to set frags.'
-                    cprint(Error, 4+8)
-                    execute_command("log_note \""..Error.."\"")
+                    cprint(Error, 4 + 8)
+                    execute_command("log_note \"" .. Error .. "\"")
                 else
                     write_word(player_object + 0x31E, frags[mapname])
                 end
             end
             if (gamesettings["AssignPlasmaGrenades"] == true) then
-                if (plasmas[mapname] == nil) then 
+                if (plasmas[mapname] == nil) then
                     Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 87 | Unable to set plasmas.'
-                    cprint(Error, 4+8)
-                    execute_command("log_note \""..Error.."\"")
+                    cprint(Error, 4 + 8)
+                    execute_command("log_note \"" .. Error .. "\"")
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
                 end
@@ -322,13 +322,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         setscore(killer, points)
         rprint(KillerIndex, "|" .. Alignment .. "+3")
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
-        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
             tick_bool = false
@@ -342,7 +342,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
-        if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+        if (victim == players[get_var(victim, "$n")].current_juggernaut) and(killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
             SetNavMarker(KillerIndex)
@@ -352,11 +352,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    
+
     -- fix this
-    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
-        cprint("suicide - was jug", 2+8)
+        cprint("suicide - was jug", 2 + 8)
     end
 end
 
@@ -405,7 +405,7 @@ function setscore(PlayerIndex, score)
 end
 
 function table.match(table, value)
-    for k,v in pairs(table) do
+    for k, v in pairs(table) do
         if v == value then
             return k
         end
