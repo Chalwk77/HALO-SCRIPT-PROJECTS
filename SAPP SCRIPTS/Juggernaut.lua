@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
 Description: Custom Game [INDEV]
 
     To Do List:
-                    - health, shields and other miscellaneous variables
+                    - weapon | selection variables
 
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -212,7 +212,6 @@ function OnTick()
                     return false
                 else
                     local player = get_dynamic_player(j)
-                    --local p = get_player(j)
                     if (weapon[j] == 0) then
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
@@ -240,7 +239,7 @@ function OnTick()
 end
 
 function OnScriptUnload()
-    -- do nothing
+    -- to do
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -253,7 +252,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-            -- say something
+            -- to do
         elseif (current_players >= 3) then
             timer(1000 * 1, "SelectNewJuggernaut")
         end
@@ -299,6 +298,7 @@ function SelectNewJuggernaut()
                     if #players_available > 0 then
                         local number = math.random(1, current_players)
                         if (i ~= players[get_var(number, "$n")].current_juggernaut) then
+                            players[get_var(i, "$n")].current_juggernaut = nil
                             players[get_var(i, "$n")].current_juggernaut = (number)
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                             SetNavMarker(i)
