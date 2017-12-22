@@ -5,9 +5,8 @@ Implementing API version: 1.11.0.0
 Description: Custom Game
 
     To Do List:
-                    - When the current juggernaut leaves the server, select someone else to be the juggernaut.
-                    - When a second player joins the server, the player to get "First Blood" becomes the Juggernaut.
-                    - If only two players online, and no one is the Juggernaut yet, remove everybody's nav markers
+                    - Set up weapon variables, health, shields
+                    - Scoring System
 
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -29,6 +28,7 @@ JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 -- configuration ends here --
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -40,6 +40,25 @@ function OnScriptLoad()
         end
     end
     current_players = 0
+end
+
+function OnTick()
+    if (current_players == 2) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= players[get_var(i, "$n")].current_juggernaut) then
+                    local m_player = get_player(i)
+                    local player = to_real_index(i)
+                    if m_player ~= 0 then
+                        if i ~= nil then
+                            -- Remove NAV marker (it points to red base for some reason)
+                            write_word(m_player + 0x88, player + 10)
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnScriptUnload()
@@ -54,6 +73,13 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
+    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if (current_players == 2) then
+            -- say something
+        elseif (current_players >= 3) then
+            timer(1000 * 3, "SelectNewJuggernaut")
+        end
+    end
 end
 
 function OnNewGame()
@@ -82,7 +108,7 @@ function SelectNewJuggernaut()
                 table.insert(players_available, i)
                 if #players_available > 0 then
                     local number = math.random(1, #players_available)
-                    players[get_var(number, "$n")].current_juggernaut =(i)
+                    players[get_var(i, "$n")].current_juggernaut = (number)
                     SetNavMarker(i)
                     -- Clear the Table
                     players_available = { }
