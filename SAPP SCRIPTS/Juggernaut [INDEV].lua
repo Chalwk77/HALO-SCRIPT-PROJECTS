@@ -8,7 +8,6 @@ Description: Custom Game [INDEV]
 					- [!] Remove|hide nav markers? (currently repositioned)
 					- [+] Regenerating shields
 					- [+] Regenerating Health
-					- [~] Fix block of code associated with suicide
 					- [~] Fix Scoring System
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -51,11 +50,10 @@ player_count_threashold = 3
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
 -- Juggernaut Weapon Layout --
--- See Remakrs at the bottom of the script for help setting this up if you need to.
-weapons[1] = "weapons\\pistol\\pistol"						-- Primary
-weapons[2] = "weapons\\sniper rifle\\sniper rifle"			-- Secondary
-weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
-weapons[4] = "weapons\\assault rifle\\assault rifle"		-- Quaternary
+-- Copy & Paste a Weapon Tag (see remarks at bottom of script) between the double quotes to change the weapon
+weapons[1] = "weapons\\sniper rifle\\sniper rifle"	        -- Primary      | WEAPON SLOT 1
+weapons[2] = "weapons\\pistol\\pistol"						-- Secondary    | WEAPON SLOT 2
+weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WEAPON SLOT 3
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "c"
@@ -234,8 +232,8 @@ function OnTick()
                     if m_player ~= 0 then
                         if i ~= nil then
                             if (tick_bool) == nil then
-                                -- No body is the Juggernaut. Reposition NAV Markers; not sure how to remove them completely.
-                                -- to do: Completely remove|hide nav markers?
+                                -- No body is the Juggernaut | Reposition NAV Markers (not sure how to remove them completely)
+                                -- to do: Figure out how to remove|hide nav markers
                                 write_word(m_player + 0x88, player + 10)
                             end
                         end
@@ -256,15 +254,9 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                            
-                            -- ========= PROBLEM ========= --
-                            -- to do: figure out why this weapon isn't being assigned.
-                            -- assign_weapon(spawn_object("weap", weapons[4], x, y, z + 1), j)
-                            
-                            
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j) -- SLOT 1
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j) -- SLOT 2
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j) -- SLOT 3
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -300,16 +292,11 @@ function SelectNewJuggernaut()
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                             SetNavMarker(i)
                             bool = true
-                            -- Find another way to clear the table.
                             players_available = { }
-                            
-                            -- Solution? --------------------------------------
-                            -- for k,v in pairs(players_available) do
-                                -- k = nil
-                            -- end
-                            ---------------------------------------------------
                             break
                         end
+                    else
+                        return nil
                     end
                 end
             end
@@ -347,9 +334,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) then
-        setscore(killer, points)
-        rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
+    if (killer ~= -1) then -- Killer was not SERVER.
+        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= -1) then
+            setscore(killer, points)
+            rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
+        end
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
@@ -378,10 +367,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    -- to do: fix this block of code
     -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
     if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-        say_all(get_var(killer, "$name") .. " is no longer the juggernaut. Selecting a random juggernaut.")
+        say_all(get_var(killer, "$name") .. " is no longer the juggernaut")
         SelectNewJuggernaut()
     end
 end
@@ -456,21 +444,22 @@ end
 ==========================================================================================================================
 		S C R I P T   R E M A R K S
 
-[!] The Juggernaut can only carry 4 weapons at a time.
+[!] The Juggernaut can only carry 3 weapons at a time; the 4th Weapon Slot is reserved for Oddball or Flag.
 
 -------------- Available Weapon Tags --------------
-"weapons\\assault rifle\\assault rifle"
-"weapons\\ball\\ball"
-"weapons\\flag\\flag"
-"weapons\\flamethrower\\flamethrower"
-"weapons\\gravity rifle\\gravity rifle"
-"weapons\\needler\\mp_needler"
-"weapons\\pistol\\pistol"
-"weapons\\plasma pistol\\plasma pistol"
-"weapons\\plasma rifle\\plasma rifle"
-"weapons\\plasma_cannon\\plasma_cannon"
-"weapons\\rocket launcher\\rocket launcher"
-"weapons\\shotgun\\shotgun"
-"weapons\\sniper rifle\\sniper rifle"
+
+ITEM NAME               WEAPON TAG                                             TYPE
+Assault Rifle           "weapons\\assault rifle\\assault rifle"                  weap
+Oddball                 "weapons\\ball\\ball"	                                 weap
+Flag	                "weapons\\flag\\flag"	                                 weap
+Flamethrower	        "weapons\\flamethrower\\flamethrower"	                 weap
+Fuel rod gun	        "weapons\\plasma_cannon\\plasma_cannon"                  weap
+Needler	                "weapons\\needler\\mp_needler"                           weap
+Pistol                  "weapons\\pistol\\pistol"                                weap
+Plasma Pistol	        "weapons\\plasma pistol\\plasma pistol"                  weap
+Plasma Rifle	        "weapons\\plasma rifle\\plasma rifle"                    weap
+Rocket Launcher	        "weapons\\rocket launcher\\rocket launcher"              weap
+Shotgun	                "weapons\\shotgun\\shotgun"                              weap
+Sniper Rifle	        "weapons\\sniper rifle\\sniper rifle"                    weap
 ==========================================================================================================================
- ]]
+]]
