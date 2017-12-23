@@ -261,12 +261,9 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                            -- SLOT 1
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                            -- SLOT 2
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
-                            -- SLOT 3
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j) -- SLOT 1
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j) -- SLOT 2
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j) -- SLOT 3
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
