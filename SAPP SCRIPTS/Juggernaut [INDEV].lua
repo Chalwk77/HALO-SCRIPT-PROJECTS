@@ -157,12 +157,12 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-	players_available = { }
-	players = { }
-	weapons = { }
-	weapon = { }
-	frags = { }
-	plasmas = { }
+    players_available = { }
+    players = { }
+    weapons = { }
+    weapon = { }
+    frags = { }
+    plasmas = { }
 end
 
 function OnNewGame()
@@ -205,7 +205,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-		-- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
+            -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 3) then
             SelectNewJuggernaut()
         end
@@ -234,7 +234,7 @@ function OnTick()
                         if i ~= nil then
                             if (tick_bool) == nil then
                                 -- No body is the Juggernaut. Reposition NAV Markers; not sure how to remove them completely.
-								-- to do: Completely remove|hide nav markers?
+                                -- to do: Completely remove|hide nav markers?
                                 write_word(m_player + 0x88, player + 10)
                             end
                         end
@@ -269,7 +269,7 @@ function OnTick()
 
                             if (gamesettings["GiveOvershield"] == true) then
                                 write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
-								-- to do: regenerating shields
+                                -- to do: regenerating shields
                             end
                         end
                     end
@@ -333,13 +333,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         setscore(killer, points)
         rprint(KillerIndex, "|" .. Alignment .. "+3")
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
-        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
             tick_bool = false
@@ -353,7 +353,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
-        if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+        if (victim == players[get_var(victim, "$n")].current_juggernaut) and(killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
             SetNavMarker(KillerIndex)
@@ -363,8 +363,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-	-- to do: fix this block of code
-    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+    -- to do: fix this block of code
+    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
     end
 end
@@ -437,7 +437,7 @@ end
 
 --[[
 ==========================================================================================================================
-		S C R I P T   R E M A R K S 
+		S C R I P T   R E M A R K S
 
 		-- WEAPONS --
 "weapons\\assault rifle\\assault rifle"
