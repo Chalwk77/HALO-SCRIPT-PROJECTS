@@ -5,8 +5,10 @@ Implementing API version: 1.11.0.0
 Description: Custom Game [INDEV]
 
     To Do List:
-                    - weapon | selection variables
-
+                    - [!] Remove|hide nav markers? (currently repositioned)
+					- [+] Regenerating shields
+					- [+] Regenerating Health
+					- [~] Fix block of code associated with suicide
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -37,9 +39,9 @@ current_players = 0
 bonus = 5
 -- points received for every kill as juggernaut
 points = 1
--- (0 to 99999) (Normal = 1)
+-- Health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
--- (0 to 3) (Normal = 1) (Full overshield = 3)
+-- Shields: (0 to 3) (Normal = 1) (Full overshield = 3)
 juggernaut_shields = 3
 
 -- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
@@ -48,9 +50,11 @@ player_count_threashold = 3
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
 -- Juggernaut Weapon Layout --
-weapons[1] = "weapons\\pistol\\pistol" -- Primary
-weapons[2] = "weapons\\sniper rifle\\sniper rifle" -- Secondary
-weapons[3] = "weapons\\rocket launcher\\rocket launcher" -- Tertiary
+-- See Remakrs at the bottom of the script for help setting this up.
+weapons[1] = "weapons\\pistol\\pistol"						-- Primary
+weapons[2] = "weapons\\sniper rifle\\sniper rifle"			-- Secondary
+weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
+weapons[4] = "weapons\\assault rifle\\assault rifle"		-- Quaternary
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
@@ -153,7 +157,12 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    -- to do
+	players_available = { }
+	players = { }
+	weapons = { }
+	weapon = { }
+	frags = { }
+	plasmas = { }
 end
 
 function OnNewGame()
@@ -196,7 +205,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-            -- two players remain | first blood becomes juggernaut
+		-- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 3) then
             SelectNewJuggernaut()
         end
@@ -224,7 +233,8 @@ function OnTick()
                     if m_player ~= 0 then
                         if i ~= nil then
                             if (tick_bool) == nil then
-                                -- No body is the Juggernaut. Remove the NAV Markers. (it points to red base for some reason)
+                                -- No body is the Juggernaut. Reposition NAV Markers; not sure how to remove them completely.
+								-- to do: Completely remove|hide nav markers?
                                 write_word(m_player + 0x88, player + 10)
                             end
                         end
@@ -256,8 +266,10 @@ function OnTick()
                             if (gamesettings["GiveExtraHealth"] == true) then
                                 write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
                             end
+
                             if (gamesettings["GiveOvershield"] == true) then
                                 write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
+								-- to do: regenerating shields
                             end
                         end
                     end
@@ -281,7 +293,6 @@ function SelectNewJuggernaut()
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                             SetNavMarker(i)
                             bool = true
-                            -- Clear the Table
                             players_available = { }
                             break
                         end
@@ -352,11 +363,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-
-    -- fix this
+	-- to do: fix this block of code
     if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
-        cprint("suicide - was jug", 2 + 8)
     end
 end
 
@@ -426,7 +435,23 @@ end
 
 
 
+--[[
+==========================================================================================================================
+		S C R I P T   R E M A R K S 
 
-
-
-
+		-- WEAPONS --
+"weapons\\assault rifle\\assault rifle"
+"weapons\\ball\\ball"
+"weapons\\flag\\flag"
+"weapons\\flamethrower\\flamethrower"
+"weapons\\gravity rifle\\gravity rifle"
+"weapons\\needler\\mp_needler"
+"weapons\\pistol\\pistol"
+"weapons\\plasma pistol\\plasma pistol"
+"weapons\\plasma rifle\\plasma rifle"
+"weapons\\plasma_cannon\\plasma_cannon"
+"weapons\\rocket launcher\\rocket launcher"
+"weapons\\shotgun\\shotgun"
+"weapons\\sniper rifle\\sniper rifle"
+==========================================================================================================================
+ ]]
