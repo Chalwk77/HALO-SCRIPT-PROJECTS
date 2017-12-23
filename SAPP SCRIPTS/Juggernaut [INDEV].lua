@@ -207,7 +207,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-            -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
+		-- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 3) then
             SelectNewJuggernaut()
         end
