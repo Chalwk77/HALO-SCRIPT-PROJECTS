@@ -212,7 +212,7 @@ function OnPlayerLeave(PlayerIndex)
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
             -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
-        elseif (current_players >= 3) then
+        elseif (current_players >= 2) then
             SelectNewJuggernaut()
         end
     end
@@ -292,22 +292,22 @@ function SelectNewJuggernaut(PlayerIndex)
                 if player_alive(i) then
                     table.insert(players_available, i)
                     if (#players_available > 0) then
-						-- PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
+						-- (suicide) PLAYER WAS PREVIOUS JUGGERNAUT | NO LONGER JUGGERNAUT
                         if (players[get_var(i, "$n")].previous_juggernaut == true) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
 							if (current_players > 1) then
-                                local exclude = get_var(i, "$n")
-                                local num = math.random(1, current_players)
-                                if (num == tonumber(exclude)) then
-                                    while (num == tonumber(exclude)) do
-                                        local newNum = math.random(1, current_players)
-                                        if newNum ~= tonumber(exclude) then
+                                local excludeIndex = get_var(i, "$n")
+                                local index = math.random(1, current_players)
+                                if (index == tonumber(excludeIndex)) then
+                                    while (index == tonumber(excludeIndex)) do
+                                        local newNumber = math.random(1, current_players)
+                                        if newNumber ~= tonumber(excludeIndex) then
                                             players[get_var(i, "$n")].current_juggernaut = nil
-                                            players[get_var(i, "$n")].current_juggernaut = (newNum)
+                                            players[get_var(i, "$n")].current_juggernaut = (newNumber)
                                             SetNavMarker(i)
                                             bool = true
                                             players_available = { }
                                             execute_command("msg_prefix \"\"")
-                                            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(newNum, "$name")))
+                                            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(newNumber, "$name")))
                                             execute_command("msg_prefix \"** SERVER ** \"")
                                             break
                                         end
