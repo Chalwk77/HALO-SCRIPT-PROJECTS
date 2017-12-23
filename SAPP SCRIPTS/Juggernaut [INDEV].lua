@@ -10,9 +10,7 @@ Description: Custom Game [INDEV]
 					- [+] Regenerating Health
 					- [~] Fix block of code associated with suicide
 					- [~] Fix Scoring System
-					- [~] Remove Jug Weapons on death
-
-					- Live update!
+					- Figure out why this weapon isn't being assigned.
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -58,16 +56,16 @@ JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 weapons[1] = "weapons\\pistol\\pistol"						-- Primary
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"			-- Secondary
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
-weapons[4] = "weapons\\needler\\mp_needler"					-- Quaternary
+weapons[4] = "weapons\\assault rifle\\assault rifle"		-- Quaternary
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 
 gamesettings = {
-    ["AssignFragGrenades"] = true,
-    ["AssignPlasmaGrenades"] = true,
-    ["GiveExtraHealth"] = true,
-    ["GiveOvershield"] = true
+    ["AssignFragGrenades"]          = true,
+    ["AssignPlasmaGrenades"]        = true,
+    ["GiveExtraHealth"]             = true,
+    ["GiveOvershield"]              = true
 }
 
 function GrenadeTable()
@@ -89,7 +87,7 @@ function GrenadeTable()
         damnation = 4,
         putput = 4,
         prisoner = 4,
-        wizard = 4
+        wizard = 4 -- do not add a comma on the last entry
     }
     --  plasma grenades table --
     plasmas = {
@@ -209,7 +207,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-		-- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
+        -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 3) then
             SelectNewJuggernaut()
         end
@@ -259,9 +257,11 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
                             assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
                             assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                            -- to do: figure out why this weapon isn't being assigned.
+                            -- assign_weapon(spawn_object("weap", weapons[4], x, y, z), j)
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -368,7 +368,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     -- to do: fix this block of code
-    if (tonumber(PlayerIndex) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
+    -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
+    if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         SelectNewJuggernaut()
     end
 end
