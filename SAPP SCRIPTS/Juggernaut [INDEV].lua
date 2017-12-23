@@ -62,11 +62,11 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WE
 Alignment = "c"
 
 gamesettings = {
-    ["AssignFragGrenades"]          = true,
-    ["AssignPlasmaGrenades"]        = true,
-    ["GiveExtraHealth"]             = true,
-    ["GiveOvershield"]              = true,
-    ["JuggernautReselection"]		= true
+    ["AssignFragGrenades"] = true,
+    ["AssignPlasmaGrenades"] = true,
+    ["GiveExtraHealth"] = true,
+    ["GiveOvershield"] = true,
+    ["JuggernautReselection"] = true
 }
 
 function GrenadeTable()
@@ -88,7 +88,7 @@ function GrenadeTable()
         damnation = 4,
         putput = 4,
         prisoner = 4,
-        wizard = 4 -- do not add a comma on the last entry
+        wizard = 4-- do not add a comma on the last entry
     }
     --  plasma grenades table --
     plasmas = {
@@ -211,7 +211,7 @@ function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-        -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
+            -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 3) then
             SelectNewJuggernaut()
         end
@@ -261,9 +261,12 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j) -- SLOT 1
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j) -- SLOT 2
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j) -- SLOT 3
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                            -- SLOT 1
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
+                            -- SLOT 2
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
+                            -- SLOT 3
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -292,26 +295,26 @@ function SelectNewJuggernaut(PlayerIndex)
                 if player_alive(i) then
                     table.insert(players_available, i)
                     if (#players_available > 0) then
-						if (players[get_var(i, "$n")].previous_juggernaut == true) then 
-							-- reselection code here ..
-							for k,v in pairs[players_available] do
-								-- remove their index from the table.
+                        if (players[get_var(i, "$n")].previous_juggernaut == true) then
+                            -- reselection code here ..
+                            for k, v in pairs[players_available] do
+                                -- remove their index from the table.
 
-	--							<to do>
-							end
-						else
-							if (i ~= players[get_var(i, "$n")].current_juggernaut) then
-								local number = math.random(1, current_players)
-								players[get_var(i, "$n")].current_juggernaut = nil
-								players[get_var(i, "$n")].current_juggernaut =(number)
-								execute_command("msg_prefix \"\"")
-								say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
-								execute_command("msg_prefix \"** SERVER ** \"")
-								SetNavMarker(i)
-								bool = true
-								players_available = { }
-								break
-							end
+                                -- 						<to do>
+                            end
+                        else
+                            if (i ~= players[get_var(i, "$n")].current_juggernaut) then
+                                local number = math.random(1, current_players)
+                                players[get_var(i, "$n")].current_juggernaut = nil
+                                players[get_var(i, "$n")].current_juggernaut =(number)
+                                execute_command("msg_prefix \"\"")
+                                say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
+                                execute_command("msg_prefix \"** SERVER ** \"")
+                                SetNavMarker(i)
+                                bool = true
+                                players_available = { }
+                                break
+                            end
                         end
                     else
                         return nil
@@ -352,10 +355,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
-    if (killer ~= -1) then -- Killer was not SERVER.
-        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= -1) then
+    if (killer ~= -1) then
+        -- Killer was not SERVER.
+        if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) and(killer ~= -1) then
             setscore(KillerIndex, tonumber(points))
-            rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
+            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
         end
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
@@ -366,7 +370,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             tick_bool = false
             SetNavMarker(KillerIndex)
             setscore(KillerIndex, tonumber(points))
-            rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
+            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
             execute_command("msg_prefix \"** SERVER ** \"")
@@ -381,24 +385,24 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             setscore(KillerIndex, tonumber(bonus))
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-            rprint(killer, "|" .. Alignment .. " You received +".. tostring(bonus) .. " points")
+            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
     -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
-    if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (tonumber(victim) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
         execute_command("msg_prefix \"\"")
         say_all(get_var(killer, "$name") .. " is no longer the juggernaut")
         say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
         execute_command("msg_prefix \"** SERVER ** \"")
         timer(1000 * SuicideSelectDelay, "SelectNewJuggernaut")
-		
-		-- Previous Juggernaut Handler --
-		if (gamesettings["JuggernautReselection"] == true) then
-			players[get_var(victim, "$n")].previous_juggernaut = true
-		else
-			players[get_var(victim, "$n")].previous_juggernaut = false
-		end
+
+        -- Previous Juggernaut Handler --
+        if (gamesettings["JuggernautReselection"] == true) then
+            players[get_var(victim, "$n")].previous_juggernaut = true
+        else
+            players[get_var(victim, "$n")].previous_juggernaut = false
+        end
     end
 end
 
