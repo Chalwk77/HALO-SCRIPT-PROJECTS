@@ -261,12 +261,9 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                            -- SLOT 1
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                            -- SLOT 2
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
-                            -- SLOT 3
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j) -- SLOT 1
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j) -- SLOT 2
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j) -- SLOT 3
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -295,34 +292,34 @@ function SelectNewJuggernaut(PlayerIndex)
                 if player_alive(i) then
                     table.insert(players_available, i)
                     if (#players_available > 0) then
-                        -- PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
-                        if (players[get_var(i, "$n")].previous_juggernaut == true) and(i ~= players[get_var(i, "$n")].current_juggernaut) then
-                            if (current_players > 1) then
-                                ----------------------------------------------------------------------------------------------------------------------------------------------------------
-                                local exclude = get_var(i, "$n")
-                                local num = math.random(1, current_players)
-                                if (num == tonumber(exclude)) then
-                                    while (num == tonumber(exclude)) do
-                                        local newNum = math.random(1, current_players)
-                                        if newNum ~= tonumber(exclude) then
-                                            players[get_var(i, "$n")].current_juggernaut = nil
-                                            players[get_var(i, "$n")].current_juggernaut =(newNum)
-                                            SetNavMarker(i)
-                                            bool = true
-                                            players_available = { }
-                                            execute_command("msg_prefix \"\"")
-                                            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
-                                            execute_command("msg_prefix \"** SERVER ** \"")
-                                            break
-                                        end
-                                    end
-                                end
-                                ----------------------------------------------------------------------------------------------------------------------------------------------------------
-                            else
-                                say(i, "There are not enough players to select a new Juggernaut!")
-                            end
+						-- PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
+                        if (players[get_var(i, "$n")].previous_juggernaut == true) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
+							if (current_players > 1) then
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+							local exclude = get_var(i, "$n")
+							local num = math.random(1, current_players)
+							if (num == tonumber(exclude)) then
+								while (num == tonumber(exclude)) do
+									local newNum = math.random(1, current_players)
+									if newNum ~= tonumber(exclude) then
+										players[get_var(i, "$n")].current_juggernaut = nil
+										players[get_var(i, "$n")].current_juggernaut = (newNum)
+										SetNavMarker(i)
+										bool = true
+										players_available = { }
+										execute_command("msg_prefix \"\"")
+										say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(newNum, "$name")))
+										execute_command("msg_prefix \"** SERVER ** \"")
+										break
+									end
+								end
+							end
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+							else
+								say(i, "There are not enough players to select a new Juggernaut!")
+							end
                         else
-                            -- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
+							-- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
                             if (i ~= players[get_var(i, "$n")].current_juggernaut) then
                                 local number = math.random(1, current_players)
                                 players[get_var(i, "$n")].current_juggernaut = nil
@@ -410,7 +407,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
-    if (tonumber(victim) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         execute_command("msg_prefix \"\"")
         say_all(get_var(killer, "$name") .. " is no longer the juggernaut")
         say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
