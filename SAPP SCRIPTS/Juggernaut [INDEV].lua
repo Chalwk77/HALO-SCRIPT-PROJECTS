@@ -10,7 +10,6 @@ Description: Custom Game [INDEV]
 					- [+] Regenerating Health
 					- [~] Fix block of code associated with suicide
 					- [~] Fix Scoring System
-					- Figure out why this weapon isn't being assigned.
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -59,7 +58,7 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
 weapons[4] = "weapons\\assault rifle\\assault rifle"		-- Quaternary
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
-Alignment = "l"
+Alignment = "c"
 
 gamesettings = {
     ["AssignFragGrenades"]          = true,
@@ -260,8 +259,12 @@ function OnTick()
                             assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
                             assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
                             assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                            
+                            -- ========= PROBLEM ========= --
                             -- to do: figure out why this weapon isn't being assigned.
-                            -- assign_weapon(spawn_object("weap", weapons[4], x, y, z), j)
+                            -- assign_weapon(spawn_object("weap", weapons[4], x, y, z + 1), j)
+                            
+                            
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -297,7 +300,14 @@ function SelectNewJuggernaut()
                             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                             SetNavMarker(i)
                             bool = true
+                            -- Find another way to clear the table.
                             players_available = { }
+                            
+                            -- Solution? --------------------------------------
+                            -- for k,v in pairs(players_available) do
+                                -- k = nil
+                            -- end
+                            ---------------------------------------------------
                             break
                         end
                     end
@@ -339,7 +349,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
     if (killer == players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         setscore(killer, points)
-        rprint(KillerIndex, "|" .. Alignment .. "+3")
+        rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
@@ -349,7 +359,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             tick_bool = false
             SetNavMarker(KillerIndex)
             setscore(killer, points)
-            rprint(KillerIndex, "|" .. Alignment .. tostring(bonus))
+            rprint(killer, "|" .. Alignment .. " You received +".. tostring(points) .. " points")
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
             execute_command("msg_prefix \"** SERVER ** \"")
@@ -364,12 +374,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             setscore(killer, bonus)
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+            rprint(killer, "|" .. Alignment .. " You received +".. tostring(bonus) .. " points")
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
     -- to do: fix this block of code
     -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
     if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+        say_all(get_var(killer, "$name") .. " is no longer the juggernaut. Selecting a random juggernaut.")
         SelectNewJuggernaut()
     end
 end
