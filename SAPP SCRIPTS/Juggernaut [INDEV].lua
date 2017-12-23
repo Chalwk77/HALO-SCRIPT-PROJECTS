@@ -51,7 +51,7 @@ player_count_threashold = 3
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
 -- Juggernaut Weapon Layout --
--- See Remakrs at the bottom of the script for help setting this up.
+-- See Remakrs at the bottom of the script for help setting this up if you need to.
 weapons[1] = "weapons\\pistol\\pistol"						-- Primary
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"			-- Secondary
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
@@ -422,12 +422,12 @@ function table.match(table, value)
     end
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
+function tokenizestring(inputString, separator)
+    if separator == nil then
+        separator = "%s"
     end
     local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    for str in string.gmatch(inputString, "([^" .. separator .. "]+)") do
         t[i] = str
         i = i + 1
     end
@@ -440,7 +440,9 @@ end
 ==========================================================================================================================
 		S C R I P T   R E M A R K S
 
-		-- WEAPONS --
+[!] The Juggernaut can only carry 4 weapons at a time.
+
+-------------- Available Weapon Tags --------------
 "weapons\\assault rifle\\assault rifle"
 "weapons\\ball\\ball"
 "weapons\\flag\\flag"
