@@ -12,6 +12,8 @@ Description: Custom Game [INDEV]
 					- [~] Fix Scoring System
 					- [~] Remove Jug Weapons on death
 
+					- Live update!
+
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -56,7 +58,7 @@ JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 weapons[1] = "weapons\\pistol\\pistol"						-- Primary
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"			-- Secondary
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"	-- Tertiary
-weapons[4] = "weapons\\assault rifle\\assault rifle"		-- Quaternary
+weapons[4] = "weapons\\needler\\mp_needler"					-- Quaternary
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
