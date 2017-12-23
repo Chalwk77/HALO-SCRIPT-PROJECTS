@@ -9,6 +9,7 @@ Description: Custom Game [INDEV]
 					- [+] Regenerating shields
 					- [+] Regenerating Health
 					- [~] Fix block of code associated with suicide
+					- [~] Fix Scoring System
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
