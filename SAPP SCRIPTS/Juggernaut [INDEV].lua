@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
 Description: Custom Game [INDEV]
 
     To Do List:
-                    - [!] Remove|hide nav markers? (currently repositioned)
+					- [!] Remove|hide nav markers? (currently repositioned)
 					- [+] Regenerating shields
 					- [+] Regenerating Health
 					- [~] Fix block of code associated with suicide
