@@ -503,7 +503,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Killer was not SERVER.
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and(killer ~= -1) then
             execute_command("score " .. KillerIndex .. " +"..tostring(points))
-            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
+            rprint(killer, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
         end
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
