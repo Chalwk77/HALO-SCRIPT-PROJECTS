@@ -5,10 +5,8 @@ Implementing API version: 1.11.0.0
 Description: Custom Game [INDEV]
 
     To Do List:
-					- [!] Remove|hide nav markers? (currently repositioned)
-					- [+] Regenerating shields
-					- [+] Regenerating Health
-					- [~] Fix Scoring System
+    - death messages
+
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -41,6 +39,9 @@ bonus = 5
 points = 1
 -- Health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
+-- Amount of health regenerated every 30 ticks 
+juggernaut_health_increment = 0.0005
+
 -- Shields: (0 to 3) (Normal = 1) (Full overshield = 3)
 juggernaut_shields = 3
 
@@ -158,6 +159,11 @@ function OnScriptLoad()
         LoadMaps()
     end
     current_players = 0
+    deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
+    original = read_dword(deathmessages)
+    safe_write(true)
+    write_dword(deathmessages, 0x03EB01B1)
+    safe_write(false)
 end
 
 function OnScriptUnload()
@@ -167,6 +173,9 @@ function OnScriptUnload()
     weapon = { }
     frags = { }
     plasmas = { }
+    safe_write(true)
+    write_dword(deathmessages, original)
+    safe_write(false)
 end
 
 function OnNewGame()
@@ -286,6 +295,20 @@ function OnTick()
             end
         end
     end
+	for k = 1,16 do
+        if player_alive(k) then
+            if (k == players[get_var(k, "$n")].current_juggernaut) then
+                local player_object = get_dynamic_player(k)
+                if (player_object ~= 0) then
+                    if (player_alive(k)) then
+                        if read_float(player_object + 0xE0) < 1 then 
+                            write_float(player_object + 0xE0, read_float(player_object + 0xE0) + juggernaut_health_increment)
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function SelectNewJuggernaut(PlayerIndex)
@@ -317,7 +340,9 @@ function SelectNewJuggernaut(PlayerIndex)
                                     end
                                 end
                             else
-                                say(i, "There are not enough players to select a new Juggernaut!")
+                                execute_command("msg_prefix \"\"")
+                                say_all("There are not enough players to select a new Juggernaut!")
+                                execute_command("msg_prefix \"** SERVER ** \"")
                             end
                         else
                             -- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
@@ -372,6 +397,19 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    -- Prevent Juggernaut from dropping weapons and grenades --
+    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        local weaponId = read_dword(player_object + 0x118)
+        write_word(player_object + 0x31E, 0)
+        write_word(player_object + 0x31F, 0)
+        if weaponId ~= 0 then
+            for j = 0, 3 do
+                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                destroy_object(m_weapon)
+            end
+        end
+    end
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
     if (killer ~= -1) then
         -- Killer was not SERVER.
@@ -407,20 +445,37 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
-    -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
+    -- suicide | victim was juggernaut | SelectNewJuggernaut()
     if (tonumber(victim) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
         execute_command("msg_prefix \"\"")
-        say_all(get_var(killer, "$name") .. " is no longer the juggernaut")
+        say_all(get_var(killer, "$name") .. " committed suicide and is no longer the Juggernaut!")
         say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
         execute_command("msg_prefix \"** SERVER ** \"")
         timer(1000 * SuicideSelectDelay, "SelectNewJuggernaut")
-
         -- Previous Juggernaut Handler --
         if (gamesettings["JuggernautReselection"] == true) then
             players[get_var(victim, "$n")].previous_juggernaut = true
         else
             players[get_var(victim, "$n")].previous_juggernaut = false
         end
+    end
+    -- suicide | victim was no juggernaut
+    if (tonumber(PlayerIndex) == tonumber(KillerIndex) and (PlayerIndex ~= players[get_var(PlayerIndex, "$n")].current_juggernaut)) then
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, get_var(PlayerIndex, "$name") .. " committed suicide")
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
+    -- pvp --
+    if (killer > 0) and (victim ~= killer) then
+        execute_command("msg_prefix \"\"")
+        say_all(get_var(PlayerIndex, "$name") .. " was killed by " .. get_var(KillerIndex, "$name"))
+        execute_command("msg_prefix \"** SERVER ** \"")
+    end
+    -- Killed by Server, Vehicle, or Glitch|Unknown
+    if (killer == 0) or (killer == nil) or (killer == -1) then
+        execute_command("msg_prefix \"\"")
+        say_all(get_var(PlayerIndex, "$name") .. " died")
+        execute_command("msg_prefix \"** SERVER ** \"")
     end
 end
 
@@ -519,3 +574,5 @@ Shotgun	                "weapons\\shotgun\\shotgun"                             
 Sniper Rifle	        "weapons\\sniper rifle\\sniper rifle"                    weap
 ==========================================================================================================================
 ]]
+
+-- [!] acknowledgements: sehe's death message patch
