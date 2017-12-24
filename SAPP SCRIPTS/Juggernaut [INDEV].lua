@@ -98,7 +98,7 @@ weapons[2] = "weapons\\pistol\\pistol"						-- Secondary    | WEAPON SLOT 2
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WEAPON SLOT 3
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
-Alignment = "c"
+Alignment = "l"
 
 gamesettings = {
     ["AssignFragGrenades"] = true,
