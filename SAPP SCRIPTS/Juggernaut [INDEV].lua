@@ -631,51 +631,43 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local arg2 = tonumber(t[2])
     if t[1] ~= nil then
         if t[1] == string.lower("j") then
-            if (gamesettings["DEBUG_COMMAND"]) then
-                if (current_players > 0) then
-                    if player_alive(executor) then
-                        if player_present(executor) then
-                            if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then
-                                if (executor ~= players[get_var(executor, "$n")].current_juggernaut) then
-                                    SetNewJuggernaut(executor)
-                                elseif (executor == players[get_var(executor, "$n")].current_juggernaut) then
-                                    rprint(executor, "You're already the Juggernaut!")
-                                end
-                            elseif (t[2] ~= nil and t[2] ~= "me") then
-                                if not string.match(t[2], "%d") then
-                                    rprint(executor, "|" .. Alignment .. "Arg2 was not a number!")
-                                else
-                                    if player_present(arg2) then
-                                        if player_alive(arg2) then
-                                            if (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
-                                                SetNewJuggernaut(arg2)
-                                            elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
-                                                rprint(executor, get_var(arg2, "$name") .. " is already the Juggernaut!")
-                                            elseif (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
-                                                SetNewJuggernaut(arg2)
-                                            elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
-                                                rprint(executor, "You're already the Juggernaut!")
-                                            end
-                                        else
-                                            rprint(executor, "Player is dead.")
-                                        end
-                                    else
-                                        rprint(executor, "Player number #" .. arg2 .. " is not in the server!")
+            if player_alive(executor) then
+                if player_present(executor) then
+                    if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then
+                        if (executor ~= players[get_var(executor, "$n")].current_juggernaut) then
+                            SetNewJuggernaut(executor)
+                        elseif (executor == players[get_var(executor, "$n")].current_juggernaut) then
+                            rprint(executor, "You're already the Juggernaut!")
+                        end
+                    elseif (t[2] ~= nil and t[2] ~= "me") then
+                        if not string.match(t[2], "%d") then
+                            rprint(executor, "|" .. Alignment .. "Arg2 was not a number!")
+                        else
+                            if player_present(arg2) then
+                                if player_alive(arg2) then
+                                    if (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                        SetNewJuggernaut(arg2)
+                                    elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                        rprint(executor, get_var(arg2, "$name") .. " is already the Juggernaut!")
+                                    elseif (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
+                                        SetNewJuggernaut(arg2)
+                                    elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
+                                        rprint(executor, "You're already the Juggernaut!")
                                     end
+                                else
+                                    rprint(executor, "Player is dead.")
                                 end
+                            else
+                                rprint(executor, "Player number #" .. arg2 .. " is not in the server!")
                             end
                         end
-                    else
-                        rprint(executor, "Player is dead.")
                     end
-                else
-                    rprint(executor, "There are not enough players!", 2+8)
                 end
             else
-                rprint(executor, "Debug Command Disabled | Unable to execute!")
+                rprint(executor, "You are dead!")
             end
-            UnknownCMD = false
         end
+        UnknownCMD = false
     end
     return UnknownCMD
 end
