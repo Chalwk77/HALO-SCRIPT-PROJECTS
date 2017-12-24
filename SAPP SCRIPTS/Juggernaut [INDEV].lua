@@ -261,9 +261,12 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j) -- SLOT 1
-                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j) -- SLOT 2
-                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j) -- SLOT 3
+                            assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                            -- SLOT 1
+                            assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
+                            -- SLOT 2
+                            assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
+                            -- SLOT 3
                             weapon[j] = 1
                             if (bool == true) then
                                 AssignGrenades(j)
@@ -292,9 +295,9 @@ function SelectNewJuggernaut(PlayerIndex)
                 if player_alive(i) then
                     table.insert(players_available, i)
                     if (#players_available > 0) then
-						-- (suicide) PLAYER WAS PREVIOUS JUGGERNAUT | NO LONGER JUGGERNAUT
-                        if (players[get_var(i, "$n")].previous_juggernaut == true) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
-							if (current_players > 1) then
+                        -- (suicide) PLAYER WAS PREVIOUS JUGGERNAUT | NO LONGER JUGGERNAUT
+                        if (players[get_var(i, "$n")].previous_juggernaut == true) and(i ~= players[get_var(i, "$n")].current_juggernaut) then
+                            if (current_players > 1) then
                                 local excludeIndex = get_var(i, "$n")
                                 local index = math.random(1, current_players)
                                 if (index == tonumber(excludeIndex)) then
@@ -302,7 +305,7 @@ function SelectNewJuggernaut(PlayerIndex)
                                         local newNumber = math.random(1, current_players)
                                         if newNumber ~= tonumber(excludeIndex) then
                                             players[get_var(i, "$n")].current_juggernaut = nil
-                                            players[get_var(i, "$n")].current_juggernaut = (newNumber)
+                                            players[get_var(i, "$n")].current_juggernaut =(newNumber)
                                             SetNavMarker(i)
                                             bool = true
                                             players_available = { }
@@ -315,9 +318,9 @@ function SelectNewJuggernaut(PlayerIndex)
                                 end
                             else
                                 say(i, "There are not enough players to select a new Juggernaut!")
-							end
+                            end
                         else
-							-- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
+                            -- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT
                             if (i ~= players[get_var(i, "$n")].current_juggernaut) then
                                 local number = math.random(1, current_players)
                                 players[get_var(i, "$n")].current_juggernaut = nil
@@ -405,7 +408,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     -- SUICIDE | Victim Was Juggernaut | Select new Juggernaut
-    if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (tonumber(victim) == tonumber(KillerIndex)) and(victim == players[get_var(victim, "$n")].current_juggernaut) then
         execute_command("msg_prefix \"\"")
         say_all(get_var(killer, "$name") .. " is no longer the juggernaut")
         say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
