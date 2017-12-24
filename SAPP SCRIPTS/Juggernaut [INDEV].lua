@@ -646,16 +646,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     rprint(executor, "|" .. Alignment .. "Arg2 was not a number!")
                                 else
                                     if player_present(arg2) then
-                                        if get_player(arg2) ~= nil then
-                                            if (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
-                                                SetNewJuggernaut(arg2)
-                                            elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
-                                                rprint(executor, get_var(arg2, "$name") .. " is already the Juggernaut!")
-                                            else
-                                                cprint("Something Went Wrong!", 4+8)
-                                            end
-                                        else
-                                            cprint("Player is not valid!")
+                                        if (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                            SetNewJuggernaut(arg2)
+                                        elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                            rprint(executor, get_var(arg2, "$name") .. " is already the Juggernaut!")
+                                        elseif (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
+                                            SetNewJuggernaut(arg2)
+                                        elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 == executor) then
+                                            rprint(executor, "You're already the Juggernaut!")
                                         end
                                     else
                                         rprint(executor, "Player number #" .. arg2 .. " is not in the server!")
