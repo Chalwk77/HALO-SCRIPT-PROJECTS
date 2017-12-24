@@ -384,7 +384,6 @@ function OnTick()
                     if (player_alive(k)) then
                         if read_float(player_object + 0xE0) < 1 then
                             write_float(player_object + 0xE0, read_float(player_object + 0xE0) + juggernaut_health_increment)
-                            say_all("Health Is regenerating")
                         end
                     end
                 end
@@ -429,8 +428,7 @@ function SelectNewJuggernaut(PlayerIndex)
                                         if newNumber ~= tonumber(excludeIndex) then
                                             players[get_var(i, "$n")].current_juggernaut = nil
                                             players[get_var(i, "$n")].current_juggernaut =(newNumber)
-                                            local running_speed = juggernaut_running_speed[mapname]
-                                            execute_command("s " .. i .. " :" .. tonumber(running_speed))
+                                            execute_command("s " .. i .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                                             SetNavMarker(i)
                                             bool = true
                                             players_available = { }
@@ -458,8 +456,7 @@ function SelectNewJuggernaut(PlayerIndex)
                                 execute_command("msg_prefix \"\"")
                                 say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                                 execute_command("msg_prefix \"** SERVER ** \"")
-                                local running_speed = juggernaut_running_speed[mapname]
-                                execute_command("s " .. i .. " :" .. tonumber(running_speed))
+                                execute_command("s " .. i .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                                 break
                             end
                         end
@@ -539,8 +536,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- Set NAV Markers
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
-            local running_speed = juggernaut_running_speed[mapname]
-            execute_command("s " .. KillerIndex .. " :" .. tonumber(running_speed))
+            execute_command("s " .. KillerIndex .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             -- Update Score
             execute_command("score " .. KillerIndex .. " +" .. tostring(points))
             -- Send Messages
@@ -558,8 +554,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- Set NAV Markers
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
-            local running_speed = juggernaut_running_speed[mapname]
-            execute_command("s " .. KillerIndex .. " :" .. tonumber(running_speed))
+            execute_command("s " .. KillerIndex .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             -- Update their score
             execute_command("score " .. KillerIndex .. " +" .. tostring(bonus))
             -- Send Messages
@@ -609,12 +604,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("sv_map_next")
         end
     end
-    
-    -- nil check on all other players (temp) ----------------------------------------------------
-    for i = 1,16 do
-        cprint(tonumber(players[get_var(killer, "$n")].current_juggernaut))
-    end
-    
 end
 
 function SetNavMarker(Juggernaut)
@@ -638,49 +627,72 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
-    Executor = tonumber(PlayerIndex)
+    local executor = tonumber(PlayerIndex)
+    local arg2 = tonumber(t[2])
     if t[1] ~= nil then
         if t[1] == string.lower("j") then
             if (gamesettings["DEBUG_COMMAND"]) then
-                temp_player_count_Bool = 0
-                if (current_players > temp_player_count_Bool --[[2]]) then
-                    if player_alive(PlayerIndex) then
-                        for i = 1,16 do
-                            if player_present(i) then
-                                if (i == players[get_var(i, "$n")].current_juggernaut) then
-                                    rprint(PlayerIndex, get_var(i, "$name") .. " is already the current Juggernaut!")
+                if (current_players > 0) then
+                    if player_alive(executor) then
+                        if player_present(executor) then
+                            if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then
+                                if (executor ~= players[get_var(executor, "$n")].current_juggernaut) then
+                                    SetNewJuggernaut(executor)
+                                elseif (executor == players[get_var(executor, "$n")].current_juggernaut) then
+                                    rprint(executor, "You're already the Juggernaut!")
+                                end
+                            elseif (t[2] ~= nil and t[2] ~= "me") then
+                                if not string.match(t[2], "%d") then
+                                    rprint(executor, "|" .. Alignment .. "Arg2 was not a number!")
                                 else
-                                    -- Update and Reflect changes
-                                    players[get_var(PlayerIndex, "$n")].current_juggernaut = (PlayerIndex)
-                                    -- Set NAV Marker
-                                    SetNavMarker(PlayerIndex)
-                                    bool = true
-                                    -- Clear the table --
-                                    players_available = { }
-                                    -- Send Messages
-                                    rprint(PlayerIndex, "You're now the Juggernaut!")
-                                    execute_command("msg_prefix \"\"")
-                                    say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(tonumber(PlayerIndex), "$name")))
-                                    execute_command("msg_prefix \"** SERVER ** \"")
-                                    -- Set running speed
-                                    local running_speed = juggernaut_running_speed[mapname]
-                                    execute_command("s " .. PlayerIndex .. " :" .. tonumber(running_speed))
+                                    if player_present(arg2) then
+                                        if get_player(arg2) ~= nil then
+                                            if (arg2 ~= players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                                SetNewJuggernaut(arg2)
+                                            elseif (arg2 == players[get_var(arg2, "$n")].current_juggernaut) and (arg2 ~= executor) then
+                                                rprint(executor, get_var(arg2, "$name") .. " is already the Juggernaut!")
+                                            else
+                                                cprint("Something Went Wrong!", 4+8)
+                                            end
+                                        else
+                                            cprint("Player is not valid!")
+                                        end
+                                    else
+                                        rprint(executor, "Player number #" .. arg2 .. " is not in the server!")
+                                    end
                                 end
                             end
                         end
                     else
-                        rprint(PlayerIndex, "Player is dead.")
+                        rprint(executor, "Player is dead.")
                     end
                 else
-                    rprint(PlayerIndex, "There are not enough players!", 2+8)
+                    rprint(executor, "There are not enough players!", 2+8)
                 end
             else
-                rprint(PlayerIndex, "Debug Command Disabled | Unable to execute!")
+                rprint(executor, "Debug Command Disabled | Unable to execute!")
             end
             UnknownCMD = false
         end
     end
     return UnknownCMD
+end
+
+function SetNewJuggernaut(player)
+    -- Update and Reflect changes
+    players[get_var(player, "$n")].current_juggernaut = (player)
+    -- Set NAV Marker
+    SetNavMarker(player)
+    bool = true
+    -- Clear the table --
+    players_available = { }
+    -- Send Messages
+    rprint(player, "You're now the Juggernaut!")
+    execute_command("msg_prefix \"\"")
+    say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(tonumber(player), "$name")))
+    execute_command("msg_prefix \"** SERVER ** \"")
+    -- Set running speed
+    execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed[mapname]))
 end
 
 function table.match(table, value)
