@@ -126,13 +126,20 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WE
 Alignment = "l"
 
 gamesettings = {
+    -- Values: true|false (yes, no)
+    -- Assign extra frags|plasmas to Juggernaut?
     ["AssignFragGrenades"] = true,
     ["AssignPlasmaGrenades"] = true,
+    -- Give extra health & Overshield to Juggernaut?
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
+    -- When the Juggernaut commits suicide, a timer is initiated and someone is randomly selected to become the new Juggernaut. 
+    -- If this is true, should the juggernaut who just committed suicide have a chance at being reselected for this life? 
     ["JuggernautReselection"] = true,
+    -- If this is true, the script will award X points every X seconds to the Juggernaut
     ["AliveTimer"] = true,
-    ["DEBUG_COMMAND"] = true
+    -- Should the Juggernaut's weapons be deleted when they die?
+    ["DeleteWeapons"] = true
 }
 
 function GrenadeTable()
@@ -516,15 +523,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
     end
     -- Prevent Juggernaut from dropping weapons and grenades --
-    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
-        local player_object = get_dynamic_player(PlayerIndex)
-        local weaponId = read_dword(player_object + 0x118)
-        write_word(player_object + 0x31E, 0)
-        write_word(player_object + 0x31F, 0)
-        if weaponId ~= 0 then
-            for j = 0, 3 do
-                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-                destroy_object(m_weapon)
+    if (gamesettings["DeleteWeapons"] == true) then
+        if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+            local player_object = get_dynamic_player(PlayerIndex)
+            local weaponId = read_dword(player_object + 0x118)
+            write_word(player_object + 0x31E, 0)
+            write_word(player_object + 0x31F, 0)
+            if weaponId ~= 0 then
+                for j = 0, 3 do
+                    local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                    destroy_object(m_weapon)
+                end
             end
         end
     end
