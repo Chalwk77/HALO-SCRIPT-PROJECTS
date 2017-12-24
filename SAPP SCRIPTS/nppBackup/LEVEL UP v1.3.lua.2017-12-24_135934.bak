@@ -967,7 +967,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     -- PvP --
-    if (killer > 0) and (victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
+    if (killer > 0) and(victim ~= killer)--[[ and get_var(victim, "$team") ~= get_var(killer, "$team") ]] then
         say_all(VictimName .. " was killed by " .. KillerName)
         local PLAYER_ID = get_var(victim, "$n")
         if ctf_mode then
