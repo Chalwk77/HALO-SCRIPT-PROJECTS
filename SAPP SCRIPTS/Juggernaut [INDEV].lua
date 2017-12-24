@@ -8,12 +8,15 @@ Description:    When the game begins a random player is selected to become the J
                 Everybody else's objective is to kill the Juggernaut. 
                 
                 Scoring:
-                For every minute that you're alive as the Juggernaut, you will receive 1 score point.
+                For every minute that you're alive as the Juggernaut you will receive 1 score point.
                 Killing the Juggernaut rewards you 5 points.
                 As the Juggernaut you will be rewarded 2 points for every kill.
                 The first player to reach 50 kills as Juggernaut wins.
                 - subject to change in support of a balanced game.
                 
+                TO DO: 
+                Prevent Juggernaut from picking up items
+                Write Juggernaut Killer Counter
                 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -52,7 +55,9 @@ juggernaut_health = 2
 juggernaut_health_increment = 0.0005
 -- Shields: (0 to 3) (Normal = 1) (Full overshield = 3)
 juggernaut_shields = 3
--- determine player speed for current flag holder --
+-- End the game once the Juggernaut has this many kills
+killLimit = 50
+
 juggernaut_running_speed = {
     -- large maps --
     infinity = 1.45,
@@ -194,11 +199,14 @@ function OnScriptLoad()
         LoadMaps()
     end
     current_players = 0
+    execute_command("scorelimit 250")
+    --- sehe's death message patch ------------------------------
     deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
     original = read_dword(deathmessages)
     safe_write(true)
     write_dword(deathmessages, 0x03EB01B1)
     safe_write(false)
+    -------------------------------------------------------------
 end
 
 function OnScriptUnload()
@@ -208,9 +216,11 @@ function OnScriptUnload()
     weapon = { }
     frags = { }
     plasmas = { }
+    --- sehe's death message patch ------------------------------
     safe_write(true)
     write_dword(deathmessages, original)
     safe_write(false)
+    -------------------------------------------------------------
 end
 
 function OnNewGame()
@@ -323,11 +333,8 @@ function OnTick()
                         execute_command("wdel " .. j)
                         local x, y, z = read_vector3d(player + 0x5C)
                         if (mapname == "bloodgulch") then
-                            -- WEAPON SLOT 1
                             assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                            -- WEAPON SLOT 2
                             assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                            -- WEAPON SLOT 3
                             assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
                             weapon[j] = 1
                             if (bool == true) then
@@ -554,6 +561,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(get_var(PlayerIndex, "$name") .. " died")
         execute_command("msg_prefix \"** SERVER ** \"")
     end
+    -- -- END THE GAME --
+    -- if (KillerIndex == players[get_var(KillerIndex, "$n")].current_juggernaut) then
+        -- local kills = tonumber(get_var(KillerIndex, "$kills"))
+        -- if (kills == tonumber(killLimit)) then
+            -- execute_command("sv_map_next")
+        -- end
+    -- end
 end
 
 function SetNavMarker(Juggernaut)
