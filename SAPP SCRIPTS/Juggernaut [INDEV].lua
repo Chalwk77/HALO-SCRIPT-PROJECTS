@@ -16,7 +16,6 @@ Description:    When the game begins a random player is selected to become the J
                 
                 TO DO: 
                 Prevent Juggernaut from picking up items
-                Write Juggernaut Killer Counter
                 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -35,6 +34,7 @@ weapon = { }
 frags = { }
 plasmas = { }
 score_timer = { }
+players = { }
 players_alive = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
@@ -191,6 +191,7 @@ function OnScriptLoad()
         if player_present(i) then
             players[get_var(i, "$n")].current_juggernaut = nil
             players[get_var(i, "$n")].previous_juggernaut = nil
+            players[get_var(i, "$n")].kills = 0
         end
     end
     if (get_var(0, "$gt") ~= "n/a") then
@@ -211,6 +212,7 @@ end
 
 function OnScriptUnload()
     players_available = { }
+    players = { }
     players = { }
     weapons = { }
     weapon = { }
@@ -233,6 +235,7 @@ function OnNewGame()
             current_players = current_players + 1
             players[get_var(i, "$n")].current_juggernaut = nil
             players[get_var(i, "$n")].previous_juggernaut = nil
+            players[get_var(i, "$n")].kills = 0
         end
     end
     -- If there are 3 or more players, select a random Juggernaut
@@ -264,12 +267,14 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].previous_juggernaut = nil
+    players[get_var(PlayerIndex, "$n")].kills = 0
     players_alive[get_var(PlayerIndex, "$n")] = { }
     players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
+    players[get_var(PlayerIndex, "$n")].kills = 0
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
             -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
@@ -473,6 +478,9 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) then
+        players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
+    end
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         score_timer[PlayerIndex] = false
         players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
@@ -561,13 +569,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(get_var(PlayerIndex, "$name") .. " died")
         execute_command("msg_prefix \"** SERVER ** \"")
     end
-    -- -- END THE GAME --
-    -- if (KillerIndex == players[get_var(KillerIndex, "$n")].current_juggernaut) then
-        -- local kills = tonumber(get_var(KillerIndex, "$kills"))
-        -- if (kills == tonumber(killLimit)) then
-            -- execute_command("sv_map_next")
-        -- end
-    -- end
+    -- END THE GAME --
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) then
+        local kills = tonumber(players[get_var(killer, "$n")].kills)
+        if (kills >= tonumber(killLimit)) then
+            execute_command("sv_map_next")
+        end
+    end
 end
 
 function SetNavMarker(Juggernaut)
