@@ -19,6 +19,9 @@ Your objective as the Juggernaut is stay alive for as long as possible and wreak
 
 Everybody else's objective is to kill the Juggernaut.
 
+When the game starts, if there are 3 (or more) players online, a random player will be selected as the juggernaut (player is selected 5 seconds after the game starts)
+If there are only 2 players when the game starts, no one will be selected. Instead, the player to get "First Blood" will become the Juggernaut.
+
 Scoring:
 For every minute that you're alive as the Juggernaut you will receive 1 score point.
 Killing the Juggernaut rewards you 5 points.
@@ -74,6 +77,8 @@ juggernaut_health_increment = 0.0005
 juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
+-- On game Start: How many seconds until someone is chosen to be the Juggernaut
+start_delay = 5
 
 juggernaut_running_speed = {
     -- large maps --
@@ -203,7 +208,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    --register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     for i = 1, 16 do
         if player_present(i) then
@@ -248,18 +253,6 @@ function OnNewGame()
     mapname = get_var(0, "$map")
     GrenadeTable()
     LoadMaps()
-    for i = 1, 16 do
-        if player_present(i) then
-            current_players = current_players + 1
-            players[get_var(i, "$n")].current_juggernaut = nil
-            players[get_var(i, "$n")].previous_juggernaut = nil
-            players[get_var(i, "$n")].kills = 0
-        end
-    end
-    -- If there are 3 or more players, select a random Juggernaut
-    if (current_players >= player_count_threashold) then
-        SelectNewJuggernaut()
-    end
     if (table.match(mapnames, mapname) == nil) then
         MapIsListed = false
         Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 110'
@@ -267,6 +260,16 @@ function OnNewGame()
         execute_command("log_note \"" .. Error .. "\"")
     else
         MapIsListed = true
+    end
+    timer(1000*2, "delayStart")
+    execute_command("map_skip 1")
+end
+
+function delayStart()
+    if (current_players >= 3) then
+        cprint("Selecting random player to be Juggernaut in " .. tonumber(start_delay) .. " seconds", 2+8)
+        timer(1000 * start_delay, "SelectNewJuggernaut")
+        say_all("Selecting random player to be Juggernaut in " .. tonumber(start_delay) .. " seconds")
     end
 end
 
@@ -276,6 +279,9 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             score_timer[i] = false
+            players[get_var(i, "$n")].current_juggernaut = nil
+            players[get_var(i, "$n")].previous_juggernaut = nil
+            players[get_var(i, "$n")].kills = 0
         end
     end
 end
