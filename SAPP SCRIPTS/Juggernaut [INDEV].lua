@@ -34,7 +34,6 @@ weapon = { }
 frags = { }
 plasmas = { }
 score_timer = { }
-players = { }
 players_alive = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
