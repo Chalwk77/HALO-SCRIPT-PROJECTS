@@ -479,6 +479,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     if (killer == players[get_var(killer, "$n")].current_juggernaut) then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
+        rprint(killer, "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills)
     end
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         score_timer[PlayerIndex] = false
