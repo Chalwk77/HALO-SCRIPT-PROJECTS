@@ -454,6 +454,8 @@ function SelectNewJuggernaut(PlayerIndex)
                                 execute_command("msg_prefix \"\"")
                                 say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                                 execute_command("msg_prefix \"** SERVER ** \"")
+								local running_speed = juggernaut_running_speed[mapname]
+								execute_command("s " .. i .. " :" .. tonumber(running_speed))
                                 break
                             end
                         end
@@ -495,7 +497,7 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) then
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
         rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills)
     end
@@ -519,21 +521,25 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Killer is Juggernaut | Victim is not Juggernaut | Update Score
     if (killer ~= -1) then
         -- Killer was not SERVER.
-        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and(killer ~= -1) then
+        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= -1) then
             execute_command("score " .. KillerIndex .. " +"..tostring(points))
             rprint(killer, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
         end
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
-        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and(victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
-            players[get_var(killer, "$n")].current_juggernaut = killer
+        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
+			players[get_var(killer, "$n")].current_juggernaut = killer
             bool = true
             tick_bool = false
+			-- Set NAV Markers
             SetNavMarker(KillerIndex)
+			-- Set Player Running Speed
             local running_speed = juggernaut_running_speed[mapname]
             execute_command("s " .. i .. " :" .. tonumber(running_speed))
+			-- Update Score
             execute_command("score " .. KillerIndex .. " +"..tostring(points))
+			-- Send Messages
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
@@ -545,13 +551,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
             players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
+			-- Set NAV Markers
             SetNavMarker(KillerIndex)
+			-- Set Player Running Speed
             local running_speed = juggernaut_running_speed[mapname]
             execute_command("s " .. i .. " :" .. tonumber(running_speed))
+			-- Update their score
             execute_command("score " .. KillerIndex .. " +"..tostring(bonus))
+			-- Send Messages
+            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
             execute_command("msg_prefix \"** SERVER ** \"")
         end
     end
@@ -561,6 +571,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(get_var(killer, "$name") .. " committed suicide and is no longer the Juggernaut!")
         say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
         execute_command("msg_prefix \"** SERVER ** \"")
+		-- Call SelectNewJuggernaut() | Select someone else as the new Juggernaut
         timer(1000 * SuicideSelectDelay, "SelectNewJuggernaut")
         -- Previous Juggernaut Handler --
         if (gamesettings["JuggernautReselection"] == true) then
@@ -569,7 +580,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             players[get_var(victim, "$n")].previous_juggernaut = false
         end
     end
-    -- suicide | victim was no juggernaut
+    -- suicide | victim was not juggernaut
     if (tonumber(PlayerIndex) == tonumber(KillerIndex) and (PlayerIndex ~= players[get_var(PlayerIndex, "$n")].current_juggernaut)) then
         execute_command("msg_prefix \"\"")
         say(PlayerIndex, get_var(PlayerIndex, "$name") .. " committed suicide")
@@ -661,7 +672,7 @@ function secondsToTime(seconds, places)
 end
 
 --[[
-==========================================================================================================================
+===========================================================================================================================
 		S C R I P T   R E M A R K S
 
 [!] The Juggernaut can only carry 3 weapons at a time; the 4th Weapon Slot is reserved for Oddball or Flag.
@@ -681,7 +692,7 @@ Plasma Rifle	        "weapons\\plasma rifle\\plasma rifle"                    we
 Rocket Launcher	        "weapons\\rocket launcher\\rocket launcher"              weap
 Shotgun	                "weapons\\shotgun\\shotgun"                              weap
 Sniper Rifle	        "weapons\\sniper rifle\\sniper rifle"                    weap
-==========================================================================================================================
+===========================================================================================================================
 ]]
 
 -- [!] acknowledgements: sehe's death message patch
