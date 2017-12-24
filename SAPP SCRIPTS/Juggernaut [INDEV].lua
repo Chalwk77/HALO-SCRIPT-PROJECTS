@@ -13,6 +13,8 @@ Description:    When the game begins a random player is selected to become the J
                 As the Juggernaut you will be rewarded 2 points for every kill.
                 The first player to reach 50 kills as Juggernaut wins.
                 - subject to change in support of a balanced game.
+
+TO DO: Time Alive (timer)
                 
                 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
