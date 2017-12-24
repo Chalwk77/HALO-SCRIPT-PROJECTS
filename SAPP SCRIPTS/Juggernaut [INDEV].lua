@@ -13,8 +13,6 @@ Description:    When the game begins a random player is selected to become the J
                 As the Juggernaut you will be rewarded 2 points for every kill.
                 The first player to reach 50 kills as Juggernaut wins.
                 - subject to change in support of a balanced game.
-
-TO DO: Time Alive (timer)
                 
                 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -33,6 +31,8 @@ weapons = { }
 weapon = { }
 frags = { }
 plasmas = { }
+score_timer = { }
+players_alive = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
 MapIsListed = nil
@@ -80,9 +80,12 @@ juggernaut_running_speed = {
 player_count_threashold = 3
 -- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
-
 -- When Juggernaut commits suicide, how long (in seconds) until someone is chosen to be Juggernaut.
 SuicideSelectDelay = 5
+-- Receive 1 score point every X seconds (60 by default)
+allocated_time = 60
+-- points received every "allocated_time" seconds
+alive_points = 1
 
 -- Juggernaut Weapon Layout --
 -- Copy & Paste a Weapon Tag (see remarks at bottom of script) between the double quotes to change the weapon
@@ -98,7 +101,8 @@ gamesettings = {
     ["AssignPlasmaGrenades"] = true,
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
-    ["JuggernautReselection"] = true
+    ["JuggernautReselection"] = true,
+    ["AliveTimer"] = true
 }
 
 function GrenadeTable()
@@ -238,6 +242,11 @@ end
 function OnGameEnd()
     gamestarted = false
     current_players = 0
+    for i = 1, 16 do
+        if player_present(i) then
+            score_timer[i] = false
+        end
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -245,6 +254,8 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].previous_juggernaut = nil
+    players_alive[get_var(PlayerIndex, "$n")] = { }
+    players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -261,11 +272,22 @@ end
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = 0
     mapname = get_var(0, "$map")
+    players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
 end
 
 function OnPlayerPrespawn(PlayerIndex)
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
+    end
+end
+
+function PlayerAlive(PlayerIndex)
+    if player_present(PlayerIndex) then
+        if (player_alive(PlayerIndex)) then
+            return true
+        else
+            return false
+        end
     end
 end
 
@@ -332,6 +354,22 @@ function OnTick()
                     if (player_alive(k)) then
                         if read_float(player_object + 0xE0) < 1 then 
                             write_float(player_object + 0xE0, read_float(player_object + 0xE0) + juggernaut_health_increment)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if (gamesettings["AliveTimer"] == true) then
+        for l = 1, 16 do
+            if player_present(l) then
+                if (score_timer[l] ~= false and PlayerAlive(l) == true) then
+                    if (l == players[get_var(l, "$n")].current_juggernaut) then
+                        players_alive[get_var(l, "$n")].time_alive = players_alive[get_var(l, "$n")].time_alive + 0.030
+                        if (players_alive[get_var(l, "$n")].time_alive >= math.floor(allocated_time)) then
+                            local minutes, seconds = secondsToTime(players_alive[get_var(l, "$n")].time_alive, 2)
+                            execute_command("score " .. l .. " +"..tostring(alive_points))
+                            players_alive[get_var(l, "$n")].time_alive = 0
                         end
                     end
                 end
@@ -428,6 +466,10 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        score_timer[PlayerIndex] = false
+        players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
+    end
     -- Prevent Juggernaut from dropping weapons and grenades --
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -445,7 +487,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer ~= -1) then
         -- Killer was not SERVER.
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and(killer ~= -1) then
-            setscore(KillerIndex, tonumber(points))
+            execute_command("score " .. KillerIndex .. " +"..tostring(points))
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
         end
     end
@@ -458,7 +500,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SetNavMarker(KillerIndex)
             local running_speed = juggernaut_running_speed[mapname]
             execute_command("s " .. i .. " :" .. tonumber(running_speed))
-            setscore(KillerIndex, tonumber(points))
+            execute_command("score " .. KillerIndex .. " +"..tostring(points))
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
@@ -473,7 +515,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SetNavMarker(KillerIndex)
             local running_speed = juggernaut_running_speed[mapname]
             execute_command("s " .. i .. " :" .. tonumber(running_speed))
-            setscore(KillerIndex, tonumber(bonus))
+            execute_command("score " .. KillerIndex .. " +"..tostring(bonus))
             execute_command("msg_prefix \"\"")
             say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
@@ -550,20 +592,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return UnknownCMD
 end
 
-function setscore(PlayerIndex, score)
-    if tonumber(score) then
-        if get_var(0, "$gt") == "slayer" then
-            if score >= 0x7FFF then
-                execute_command("score " .. PlayerIndex .. " +1")
-            elseif score <= -0x7FFF then
-                execute_command("score " .. PlayerIndex .. " -1")
-            else
-                execute_command("score " .. PlayerIndex .. " " .. score)
-            end
-        end
-    end
-end
-
 function table.match(table, value)
     for k, v in pairs(table) do
         if v == value then
@@ -584,6 +612,13 @@ function tokenizestring(inputString, separator)
     return t
 end
 
+function secondsToTime(seconds, places)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+    if places == 2 then
+        return minutes, seconds
+    end
+end
 
 
 --[[
