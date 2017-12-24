@@ -24,7 +24,7 @@ When you're finished editing, copy/paste the contents into your new issue.
 
 * [ ] PHASOR
   * ##### What version of PHASOR are you using?
-    * [ ] 2.0+ (latest)
+     * [ ] 2.0+ (latest)
     * [ ] 10059
     * [ ] 10058
     * [ ] 10057
