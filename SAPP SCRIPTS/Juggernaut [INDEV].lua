@@ -133,9 +133,9 @@ gamesettings = {
     -- Give extra health & Overshield to Juggernaut?
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
-    -- When the Juggernaut commits suicide, a timer is initiated and someone is randomly selected to become the new Juggernaut. 
-    -- If this is true, should the juggernaut who just committed suicide have a chance at being reselected for this life? 
-    ["JuggernautReselection"] = true,
+    -- When the Juggernaut commits suicide, a timer is initiated and someone is randomly selected (after X seconds) to become the new Juggernaut. 
+    -- Should the Juggernaut who just committed suicide have a chance at being reselected when they respawn? 
+    ["JuggernautReselection"] = false,
     -- If this is true, the script will award X points every X seconds to the Juggernaut
     ["AliveTimer"] = true,
     -- Should the Juggernaut's weapons be deleted when they die?
@@ -432,7 +432,7 @@ function SelectNewJuggernaut(PlayerIndex)
             if player_present(i) then
                 if player_alive(i) then
                     -- (suicide) PLAYER WAS PREVIOUS JUGGERNAUT | NO LONGER JUGGERNAUT | SELECT NEW PLAYER AS JUGGERNAUT
-                    if (players[get_var(i, "$n")].previous_juggernaut == true) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
+                    if (players[get_var(i, "$n")].previous_juggernaut == false) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
                         if (current_players > 1) then
                             local excludeIndex = get_var(i, "$n")
                             local index = math.random(1, current_players)
@@ -594,10 +594,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Call SelectNewJuggernaut() | Select someone else as the new Juggernaut
         timer(1000 * SuicideSelectDelay, "SelectNewJuggernaut")
         -- Previous Juggernaut Handler --
-        if (gamesettings["JuggernautReselection"] == true) then
-            players[get_var(victim, "$n")].previous_juggernaut = true
-        else
+        if (gamesettings["JuggernautReselection"] == false) then
+            -- Don't allow reselection
             players[get_var(victim, "$n")].previous_juggernaut = false
+        else
+            -- Allow reselection
+            players[get_var(victim, "$n")].previous_juggernaut = true
         end
     end
     -- suicide | victim was not juggernaut
