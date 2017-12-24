@@ -124,7 +124,8 @@ gamesettings = {
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
     ["JuggernautReselection"] = true,
-    ["AliveTimer"] = true
+    ["AliveTimer"] = true,
+    ["DEBUG_COMMAND"] = true
 }
 
 function GrenadeTable()
@@ -383,6 +384,7 @@ function OnTick()
                     if (player_alive(k)) then
                         if read_float(player_object + 0xE0) < 1 then
                             write_float(player_object + 0xE0, read_float(player_object + 0xE0) + juggernaut_health_increment)
+                            say_all("Health Is regenerating")
                         end
                     end
                 end
@@ -417,7 +419,7 @@ function SelectNewJuggernaut(PlayerIndex)
                     table.insert(players_available, i)
                     if (#players_available > 0) then
                         -- (suicide) PLAYER WAS PREVIOUS JUGGERNAUT | NO LONGER JUGGERNAUT | SELECT NEW PLAYER AS JUGGERNAUT
-                        if (players[get_var(i, "$n")].previous_juggernaut == true) and(i ~= players[get_var(i, "$n")].current_juggernaut) then
+                        if (players[get_var(i, "$n")].previous_juggernaut == true) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
                             if (current_players > 1) then
                                 local excludeIndex = get_var(i, "$n")
                                 local index = math.random(1, current_players)
@@ -499,7 +501,7 @@ end
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
+    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) and (killer ~= -1) then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
         rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills)
     end
@@ -538,7 +540,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
             local running_speed = juggernaut_running_speed[mapname]
-            execute_command("s " .. i .. " :" .. tonumber(running_speed))
+            execute_command("s " .. KillerIndex .. " :" .. tonumber(running_speed))
             -- Update Score
             execute_command("score " .. KillerIndex .. " +" .. tostring(points))
             -- Send Messages
@@ -557,7 +559,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
             local running_speed = juggernaut_running_speed[mapname]
-            execute_command("s " .. i .. " :" .. tonumber(running_speed))
+            execute_command("s " .. KillerIndex .. " :" .. tonumber(running_speed))
             -- Update their score
             execute_command("score " .. KillerIndex .. " +" .. tostring(bonus))
             -- Send Messages
@@ -607,6 +609,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("sv_map_next")
         end
     end
+    
+    -- nil check on all other players (temp) ----------------------------------------------------
+    for i = 1,16 do
+        cprint(tonumber(players[get_var(killer, "$n")].current_juggernaut))
+    end
+    
 end
 
 function SetNavMarker(Juggernaut)
@@ -630,14 +638,44 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
+    Executor = tonumber(PlayerIndex)
     if t[1] ~= nil then
         if t[1] == string.lower("j") then
-            if player_alive(PlayerIndex) then
-                SelectNewJuggernaut()
+            if (gamesettings["DEBUG_COMMAND"]) then
+                temp_player_count_Bool = 0
+                if (current_players > temp_player_count_Bool --[[2]]) then
+                    if player_alive(PlayerIndex) then
+                        for i = 1,16 do
+                            if player_present(i) then
+                                if (i == players[get_var(i, "$n")].current_juggernaut) then
+                                    rprint(PlayerIndex, get_var(i, "$name") .. " is already the current Juggernaut!")
+                                else
+                                    -- Update and Reflect changes
+                                    players[get_var(PlayerIndex, "$n")].current_juggernaut = (PlayerIndex)
+                                    -- Set NAV Marker
+                                    SetNavMarker(PlayerIndex)
+                                    bool = true
+                                    -- Clear the table --
+                                    players_available = { }
+                                    -- Send Messages
+                                    rprint(PlayerIndex, "You're now the Juggernaut!")
+                                    execute_command("msg_prefix \"\"")
+                                    say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(tonumber(PlayerIndex), "$name")))
+                                    execute_command("msg_prefix \"** SERVER ** \"")
+                                    -- Set running speed
+                                    local running_speed = juggernaut_running_speed[mapname]
+                                    execute_command("s " .. PlayerIndex .. " :" .. tonumber(running_speed))
+                                end
+                            end
+                        end
+                    else
+                        rprint(PlayerIndex, "Player is dead.")
+                    end
+                else
+                    rprint(PlayerIndex, "There are not enough players!", 2+8)
+                end
             else
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "Player is dead.")
-                execute_command("msg_prefix \"** SERVER ** \"")
+                rprint(PlayerIndex, "Debug Command Disabled | Unable to execute!")
             end
             UnknownCMD = false
         end
