@@ -35,8 +35,6 @@ Regenerating Health (editable)
 Speed Boost (editable)
 Editable custom Weapon Layout
 --><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><--
-    TO DO:
-    Prevent Juggernaut from picking up items
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -522,7 +520,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         score_timer[PlayerIndex] = false
         players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
     end
-    -- Prevent Juggernaut from dropping weapons and grenades --
+    -- Prevent Juggernaut from dropping weapons and grenades on death--
     if (gamesettings["DeleteWeapons"] == true) then
         if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             local player_object = get_dynamic_player(PlayerIndex)
@@ -646,6 +644,8 @@ function SetNavMarker(Juggernaut)
         end
     end
 end
+
+-- to do: iterate through players and check if someone is juggernaut
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
