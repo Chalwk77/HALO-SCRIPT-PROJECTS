@@ -22,9 +22,7 @@ new_timer = { }
 players = { }
 --[[ 
     
-Configuration Starts
-
-
+------------- Configuration Starts -------------
 Message Board: 
 Use $SERVER_NAME variable to output the server name.
 Use $PLAYER_NAME variable to output the joining player's name.
