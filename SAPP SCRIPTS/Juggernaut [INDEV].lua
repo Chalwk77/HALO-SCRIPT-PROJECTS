@@ -1,6 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Juggernaut, for SAPP (PC & CE)
+Version: beta v1.0
 Implementing API version: 1.11.0.0
 
 -- G A M E   I N F O R M A T I O N --
@@ -137,7 +138,7 @@ Message_Alignment = "l"
 
 -- messages --
 message_board = {
-    "Welcome to $SERVER_NAME",
+    "Welcome to $SERVER_NAME (beta v1.0)",
     "This custom game is still in development and may contain bugs.",
     "If you discover any, please report them on the following issue tracker:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
