@@ -584,7 +584,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) and (killer ~= -1) then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
-        rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills)
+        rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
     end
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         score_timer[PlayerIndex] = false
