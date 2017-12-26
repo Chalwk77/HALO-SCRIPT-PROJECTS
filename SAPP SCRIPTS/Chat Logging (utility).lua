@@ -20,7 +20,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 local dir = 'sapp\\Server Chat.txt'
 local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
 

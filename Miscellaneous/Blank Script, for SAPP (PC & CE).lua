@@ -4,7 +4,7 @@ Script Name: Blank Script, for SAPP (PC & CE)
 --=====================================================================================================--
 ]]-- 
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_ECHO'],                 "OnEcho")

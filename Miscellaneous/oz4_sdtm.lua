@@ -8,7 +8,7 @@ Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 -----------------------------------
 ]]--
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 tbag = { }
 weapon = { }
 weapons = { }

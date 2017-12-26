@@ -30,7 +30,7 @@ ALLOCATED_TIME = 60
 -- Do not touch anything below unless you know what you're doing --
 TIMER = { }
 PLAYERS_ALIVE = { }
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")

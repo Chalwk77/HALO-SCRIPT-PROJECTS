@@ -12,7 +12,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 MapSettings = {}
 function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")

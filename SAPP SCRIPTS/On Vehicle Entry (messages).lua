@@ -29,7 +29,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --      Seat 0 = Drivers Seat
 --      Seat 1 - 5 = Passengers Seat
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 
 --[[
     

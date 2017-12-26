@@ -15,7 +15,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 
 Time = 10 -- time (in seconds) between each incremental increase in health
 increment = 0.1116 -- amount of health regenerated. (1 is full health)

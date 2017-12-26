@@ -11,7 +11,7 @@ You do not have permission to use this script.
 * Written by Jericho Crosby (Chalwk)
 -----------------------------------
 ]]-- 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 delay = 1000*7
 
 function OnScriptLoad()

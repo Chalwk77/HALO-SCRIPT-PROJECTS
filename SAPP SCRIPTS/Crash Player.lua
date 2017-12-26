@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 CRASH_COMMAND = "crash"
 LEVEL = 1 -- Min admin level required to use /crash command
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 rocket_hog = "vehicles\\rwarthog\\rwarthog"
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")

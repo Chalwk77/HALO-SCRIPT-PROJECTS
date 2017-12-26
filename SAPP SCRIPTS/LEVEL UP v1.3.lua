@@ -19,7 +19,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 --========== CHANGE LOG AT THE BOTTOM OF THE SCRIPT ========= --
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 Script_Version = "1.3"
 Level = { }
 melee_damage = { }
