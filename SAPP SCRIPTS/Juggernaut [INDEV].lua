@@ -480,10 +480,10 @@ function OnTick()
                         if string.find(message_board[j], "$SERVER_NAME") then
                             message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
                         elseif string.find(message_board[j], "$PLAYER_NAME") then
-                            message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(i, "$name"))
+                            message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(m, "$name"))
                         end
                     end
-                    rprint(i, "|" .. Message_Alignment .. " " .. v)
+                    rprint(m, "|" .. Message_Alignment .. " " .. v)
                 end
                 if players[get_var(m, "$n")].join_timer >= math.floor(Message_Duration) then
                     welcome_timer[m] = false
