@@ -125,7 +125,6 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WE
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 
--- Config Starts --
 -- How long should the message be displayed on screen for? (in seconds) --
 Welcome_Msg_Duration = 10
 
