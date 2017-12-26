@@ -488,6 +488,7 @@ end
 
 function SelectNewJuggernaut(PlayerIndex)
     if (gamestarted == true) then
+        execute_command("msg_prefix \"\"")
         for i = 1, 16 do
             if player_present(i) then
                 if player_alive(i) then
@@ -505,17 +506,13 @@ function SelectNewJuggernaut(PlayerIndex)
                                         execute_command("s " .. i .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                                         SetNavMarker(i)
                                         bool = true
-                                        execute_command("msg_prefix \"\"")
                                         say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(newNumber, "$name")))
-                                        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                                         break
                                     end
                                 end
                             end
                         else
-                            execute_command("msg_prefix \"\"")
                             say_all("There are not enough players to select a new Juggernaut!")
-                            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                         end
                     else
                         -- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT | (make them juggernaut)
@@ -526,18 +523,14 @@ function SelectNewJuggernaut(PlayerIndex)
                                 SetNavMarker(number)
                                 bool = true
                                 if (i ~= tonumber(number)) then
-                                    execute_command("msg_prefix \"\"")
                                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                                     say(number, "You're now the Juggernaut!")
-                                    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                                     execute_command("s " .. number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                                 end
                                 break
                             end
                         else
-                            execute_command("msg_prefix \"\"")
                             say_all("There are not enough players to select a new Juggernaut!")
-                            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                         end
                     end
                 else
@@ -545,6 +538,7 @@ function SelectNewJuggernaut(PlayerIndex)
                 end
             end
         end
+        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     end
 end
 
@@ -763,6 +757,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
 end
 
 function SetNewJuggernaut(player)
+    execute_command("msg_prefix \"\"")
     -- Update and Reflect changes
     players[get_var(player, "$n")].current_juggernaut = (player)
     -- Set NAV Marker
@@ -772,14 +767,13 @@ function SetNewJuggernaut(player)
     rprint(player, "You're now the Juggernaut!")
     for i = 1, current_players do
         if i ~= player then
-            execute_command("msg_prefix \"\"")
             say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
             say(player, "You're now the Juggernaut!")
-            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
         end
     end
     -- Set running speed
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
 function cls(PlayerIndex)
