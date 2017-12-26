@@ -46,6 +46,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 -- tables --
+welcome_timer = { }
+join_timer = { }
 players = { }
 weapons = { }
 weapon = { }
@@ -122,6 +124,22 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WE
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
+
+-- Config Starts --
+-- How long should the message be displayed on screen for? (in seconds) --
+Welcome_Msg_Duration = 10
+
+-- Join Message Alignment:
+-- Left = l,    Right = r,    Center = c,    Tab: t
+Message_Alignment = "l"
+
+-- JOIN MESSAGES SENT TO RCON CONSOLE --
+message_board = {
+    "Welcome to $SERVER_NAME",
+    "This custom game is still in development and may contain bugs.",
+    "If you discover any bugs, please report them on the following issue tracker:",
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
+    }
 
 gamesettings = {
     -- Values: true|false (yes, no)
@@ -219,9 +237,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     for i = 1, 16 do
         if player_present(i) then
-            players[get_var(i, "$n")].current_juggernaut = nil
-            players[get_var(i, "$n")].previous_juggernaut = nil
-            players[get_var(i, "$n")].kills = 0
+            if player_present(i) then
+                players[get_var(i, "$n")].current_juggernaut = nil
+                players[get_var(i, "$n")].previous_juggernaut = nil
+                players[get_var(i, "$n")].kills = 0
+                players[get_var(i, "$n")].join_timer = 0
+                players_alive[get_var(i, "$n")].time_alive = 0
+            end
         end
     end
     if (get_var(0, "$gt") ~= "n/a") then
@@ -270,6 +292,19 @@ function OnNewGame()
     end
     timer(0, "delayStart")
     execute_command("map_skip 1")
+    for i = 1, 16 do
+        if player_present(i) then
+            if player_present(i) then
+                players_alive[get_var(i, "$n")].time_alive = 0
+                players[get_var(i, "$n")].current_juggernaut = nil
+                players[get_var(i, "$n")].previous_juggernaut = nil
+                players[get_var(i, "$n")].kills = 0
+                players[get_var(i, "$n")].join_timer = 0
+            end
+        end
+    end
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    servername = read_widestring(network_struct + 0x8, 0x42)
 end
 
 function delayStart()
@@ -284,10 +319,14 @@ function OnGameEnd()
     current_players = 0
     for i = 1, 16 do
         if player_present(i) then
-            score_timer[i] = false
-            players[get_var(i, "$n")].current_juggernaut = nil
-            players[get_var(i, "$n")].previous_juggernaut = nil
-            players[get_var(i, "$n")].kills = 0
+            if player_present(i) then
+                welcome_timer[i] = false
+                players_alive[get_var(i, "$n")].time_alive = 0
+                players[get_var(i, "$n")].current_juggernaut = nil
+                players[get_var(i, "$n")].previous_juggernaut = nil
+                players[get_var(i, "$n")].kills = 0
+                players[get_var(i, "$n")].join_timer = 0
+            end
         end
     end
 end
@@ -298,13 +337,20 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].previous_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].kills = 0
+    players[get_var(PlayerIndex, "$n")].join_timer = 0
     players_alive[get_var(PlayerIndex, "$n")] = { }
     players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
+    -- In the unlikely event that the player is juggernaut upon joining, only display the welcome message if they're not the juggernaut
+    if (PlayerIndex ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) then
+        welcome_timer[PlayerIndex] = true
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
+    welcome_timer[PlayerIndex] = false
     current_players = current_players - 1
     players[get_var(PlayerIndex, "$n")].kills = 0
+    players[get_var(PlayerIndex, "$n")].join_timer = 0
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
             -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
@@ -421,6 +467,22 @@ function OnTick()
             end
         end
 	-----------------------------------------------------------------------------------------------------------------------------------
+    end
+    for m = 1, 16 do
+        if player_present(m) then
+            if (welcome_timer[m] == true) then
+                players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
+                cls(m)
+                for k, v in pairs(message_board) do
+                    message_board[1] = string.gsub(message_board[1], "$SERVER_NAME", servername)
+                    rprint(m, "|" .. Message_Alignment .. " " .. v)
+                end
+                if players[get_var(m, "$n")].join_timer >= math.floor(Welcome_Msg_Duration) then
+                    welcome_timer[m] = false
+                    players[get_var(m, "$n")].join_timer = 0
+                end
+            end
+        end
     end
 end
 
@@ -710,6 +772,12 @@ function SetNewJuggernaut(player)
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed[mapname]))
 end
 
+function cls(PlayerIndex)
+    for clear_cls = 1, 25 do
+        rprint(PlayerIndex, " ")
+    end
+end
+
 function table.match(table, value)
     for k, v in pairs(table) do
         if v == value then
@@ -736,6 +804,18 @@ function secondsToTime(seconds, places)
     if places == 2 then
         return minutes, seconds
     end
+end
+
+function read_widestring(address, length)
+    local count = 0
+    local byte_table = {}
+    for i = 1,length do
+        if read_byte(address + count) ~= 0 then
+            byte_table[i] = string.char(read_byte(address + count))
+        end
+        count = count + 2
+    end
+    return table.concat(byte_table)
 end
 
 function OnError(Message)
