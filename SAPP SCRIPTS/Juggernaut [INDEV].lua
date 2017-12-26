@@ -80,7 +80,7 @@ juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
-start_delay = 10
+start_delay = 15
 
 juggernaut_running_speed = {
     -- large maps --
@@ -158,7 +158,7 @@ gamesettings = {
     ["AliveTimer"] = true,
     -- Should the Juggernaut's weapons be deleted when they die?
     ["DeleteWeapons"] = true,
-    ["UseWelcomeMessages"] = true
+    ["UseWelcomeMessages"] = false
 }
 
 function GrenadeTable()
@@ -475,21 +475,23 @@ function OnTick()
         for m = 1, 16 do
             if player_present(m) then
                 if (welcome_timer[m] == true) then
-                    players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
-                    cls(m)
-                    for k, v in pairs(message_board) do
-                        for j=1, #message_board do
-                            if string.find(message_board[j], "$SERVER_NAME") then
-                                message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
-                            elseif string.find(message_board[j], "$PLAYER_NAME") then
-                                message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(m, "$name"))
+                    if (m ~= players[get_var(m, "$n")].current_juggernaut) then
+                        players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
+                        cls(m)
+                        for k, v in pairs(message_board) do
+                            for j=1, #message_board do
+                                if string.find(message_board[j], "$SERVER_NAME") then
+                                    message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
+                                elseif string.find(message_board[j], "$PLAYER_NAME") then
+                                    message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(m, "$name"))
+                                end
                             end
+                            rprint(m, "|" .. Message_Alignment .. " " .. v)
                         end
-                        rprint(m, "|" .. Message_Alignment .. " " .. v)
-                    end
-                    if players[get_var(m, "$n")].join_timer >= math.floor(Message_Duration) then
-                        welcome_timer[m] = false
-                        players[get_var(m, "$n")].join_timer = 0
+                        if players[get_var(m, "$n")].join_timer >= math.floor(Message_Duration) then
+                            welcome_timer[m] = false
+                            players[get_var(m, "$n")].join_timer = 0
+                        end
                     end
                 end
             end
@@ -536,10 +538,13 @@ function SelectNewJuggernaut(PlayerIndex)
                                 players[get_var(number, "$n")].current_juggernaut = (number)
                                 SetNavMarker(number)
                                 bool = true
-                                execute_command("msg_prefix \"\"")
-                                say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
-                                execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
-                                execute_command("s " .. number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+                                if (i ~= tonumber(number)) then
+                                    execute_command("msg_prefix \"\"")
+                                    say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
+                                    say(number, "You're now the Juggernaut!")
+                                    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+                                    execute_command("s " .. number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+                                end
                                 break
                             end
                         else
@@ -776,9 +781,14 @@ function SetNewJuggernaut(player)
     bool = true
     -- Send Messages
     rprint(player, "You're now the Juggernaut!")
-    execute_command("msg_prefix \"\"")
-    say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(tonumber(player), "$name")))
-    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+    for (i = 1, current_players) do
+        if (i ~= player) then
+            execute_command("msg_prefix \"\"")
+            say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
+            say(player, "You're now the Juggernaut!")
+            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+        end
+    end
     -- Set running speed
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed[mapname]))
 end
