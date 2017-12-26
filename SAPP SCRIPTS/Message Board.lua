@@ -1,8 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Message Board (utility), for SAPP (PC & CE)
-Description:    This add-on will announce welcome messages to the newly joined player. 
-                These welcome messages are displayed on the player's console and you can specify how long the messages are displayed on screen.
+Description:    This mod will announce welcome messages to the newly joined player. 
+                These welcome messages are displayed in the rcon console. You can specify how long the messages are displayed on screen.
+                
+				Change Log [26/12/2017]
+                [+] Added custom message board output variables: $SERVER_NAME, $PLAYER_NAME
+                
     
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -38,9 +42,8 @@ Message_Duration = 10
 -- Message Alignment:
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Message_Alignment = "l"
-
 -- Configuration Ends --
---======================================================================================--
+--=====================================================================================================--
 
 -- Do not touch anything below (unless you know what you're doing) --
 function OnScriptLoad()
