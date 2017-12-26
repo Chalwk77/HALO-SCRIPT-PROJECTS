@@ -343,7 +343,9 @@ function OnPlayerLeave(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].join_timer = 0
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         if (current_players == 2) then
-            -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
+        -- to do
+        ------------------------------
+        -- Two players remain | Neither player are Juggernaut | First player to kill becomes the juggernaut
         elseif (current_players >= 2) then
             SelectNewJuggernaut()
         end
@@ -393,6 +395,7 @@ function OnTick()
             end
         end
     end
+    -- Juggernaut weapon, health & shield handler
     for j = 1, 16 do
         if player_present(j) then
             if player_alive(j) then
@@ -426,6 +429,7 @@ function OnTick()
             end
         end
     end
+    -- Juggernaut Health Regeneration handler
     for k = 1, 16 do
         if player_alive(k) then
             if (k == players[get_var(k, "$n")].current_juggernaut) then
@@ -440,7 +444,7 @@ function OnTick()
             end
         end
     end
-	-- Problem | Hiding and/or camping Exploit ------------------------------------------------------------------------------------------
+    -- Timed Points Handler
     if (gamesettings["AliveTimer"] == true) then
         for l = 1, 16 do
             if player_present(l) then
@@ -456,8 +460,8 @@ function OnTick()
                 end
             end
         end
-	-----------------------------------------------------------------------------------------------------------------------------------
     end
+    -- Message Board Handler
     if (gamesettings["UseWelcomeMessages"] == true) then 
         for m = 1, 16 do
             if player_present(m) then
