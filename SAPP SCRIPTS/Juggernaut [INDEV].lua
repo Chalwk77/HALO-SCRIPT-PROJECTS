@@ -67,7 +67,7 @@ juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
-start_delay = 15
+start_delay = 10
 
 juggernaut_running_speed = {
     -- large maps --
@@ -115,7 +115,7 @@ Alignment = "l"
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
-Message_Duration = 15
+Message_Duration = 5
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Message_Alignment = "l"
 
@@ -244,7 +244,6 @@ function OnScriptLoad()
         LoadMaps()
     end
     current_players = 0
-    execute_command("scorelimit 250")
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     --- sehe's death message patch ------------------------------
     deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
@@ -304,6 +303,7 @@ function delayStart()
     say_all("The Juggernaut will be selected in " .. tonumber(start_delay) .. " seconds")
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     timer(1000 * start_delay, "SelectNewJuggernaut")
+    execute_command("scorelimit 250")
 end
 
 function OnGameEnd()
@@ -508,7 +508,6 @@ function SelectNewJuggernaut(PlayerIndex)
                                     math.randomseed(os.time())
                                     local newNumber = math.random(1, current_players)
                                     if newNumber ~= tonumber(excludeIndex) then
-                                        -- null current_juggernaut in the event of an error
                                         players[get_var(i, "$n")].current_juggernaut = (newNumber)
                                         execute_command("s " .. i .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                                         SetNavMarker(i)
