@@ -128,7 +128,7 @@ Alignment = "l"
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
-Message_Duration = 10
+Message_Duration = 15
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Message_Alignment = "l"
 
@@ -137,9 +137,9 @@ Message_Alignment = "l"
 
 -- messages --
 message_board = {
-    "Welcome to $SERVER_NAME",
+    "Welcome to $SERVER_NAME | JUGGERNAUT",
     "This custom game is still in development and may contain bugs.",
-    "If you discover any bugs, please report them on the following issue tracker:",
+    "If you discover any, please report them on the following issue tracker:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
     }
 
