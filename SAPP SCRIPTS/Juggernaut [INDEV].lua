@@ -1,27 +1,18 @@
 --[[
 --=====================================================================================================--
-Script Name: Juggernaut, for SAPP (PC & CE)
-Version: beta v1.0
+Script Name: Juggernaut, for SAPP (PC & CE), beta v1.0
 Implementing API version: 1.11.0.0
-
--- G A M E   I N F O R M A T I O N --
---><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><--
 Compatible Game Modes: Slayer (Free for All)
 Juggernaut will only run on default maps (for now).
 
-The following game type rules must be set.
-KILL IN ORDER: YES
-OBJECTIVES INDICATOR: NAV POINTS
+About:
+When the game beings, if there are 3 (or more) players online, a random player will be selected as the Juggernaut.
+There is a 5 second selection delay after the game beings. 
+However, if there are only 2 players online when the game beings, no one will be selected. 
+Instead, the player to get "First Blood" will become the Juggernaut.
 
-Game Play:
-When the game begins a random player is selected to become the Juggernaut.
 Juggernaut's are very powerful, wield 3 weapons, and have regenerating health and extra speed.
-Your objective as the Juggernaut is stay alive for as long as possible and wreak havoc upon your enemies.
-
-Everybody else's objective is to kill the Juggernaut.
-
-When the game starts, if there are 3 (or more) players online, a random player will be selected as the juggernaut (player is selected 5 seconds after the game starts)
-If there are only 2 players when the game starts, no one will be selected. Instead, the player to get "First Blood" will become the Juggernaut.
+Your objective as the Juggernaut is stay alive for as long as possible and wreak havoc upon your enemies; everybody else's objective is to kill the Juggernaut.
 
 Scoring:
 For every minute that you're alive as the Juggernaut you will receive 1 score point.
@@ -29,13 +20,8 @@ Killing the Juggernaut rewards you 5 points.
 As the Juggernaut you will be rewarded 2 points for every kill.
 The first player to reach 50 kills as Juggernaut wins.
 
-Game mechanics
-Custom Scoring System (editable)
-Target Indicators
-Regenerating Health (editable)
-Speed Boost (editable)
-Editable custom Weapon Layout
---><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><--
+
+This mod is highly editable. See Configuration section below.
 
 Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
