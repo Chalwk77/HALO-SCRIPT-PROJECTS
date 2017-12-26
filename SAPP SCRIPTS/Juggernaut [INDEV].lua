@@ -600,7 +600,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         score_timer[PlayerIndex] = false
         players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
     end
-    -- Prevent Juggernaut from dropping weapons and grenades on death--
+    -- Prevent Juggernaut from dropping weapons and grenades on death --
     if (gamesettings["DeleteWeapons"] == true) then
         if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
             local player_object = get_dynamic_player(PlayerIndex)
@@ -648,8 +648,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
         if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
-            players[get_var(killer, "$n")].current_juggernaut = killer
             players[get_var(victim, "$n")].current_juggernaut = nil
+            players[get_var(killer, "$n")].current_juggernaut = killer
             -- Set NAV Markers
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
