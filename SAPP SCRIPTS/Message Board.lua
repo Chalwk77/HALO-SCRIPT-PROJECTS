@@ -106,9 +106,9 @@ function OnTick()
 end
 
 function OnPlayerJoin(PlayerIndex)
-    welcome_timer[PlayerIndex] = true
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].new_timer = 0
+    welcome_timer[PlayerIndex] = true
 end
 
 function OnPlayerLeave(PlayerIndex)
