@@ -125,16 +125,17 @@ weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WE
 -- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
 Alignment = "l"
 
--- How long should the message be displayed on screen for? (in seconds) --
-Welcome_Msg_Duration = 10
 
--- Join Message Alignment:
+-- Message Board Settings --
+-- How long should the message be displayed on screen for? (in seconds) --
+Message_Duration = 10
 -- Left = l,    Right = r,    Center = c,    Tab: t
 Message_Alignment = "l"
 
--- JOIN MESSAGES SENT TO RCON CONSOLE --
+-- Use $SERVER_NAME variable to output the server name.
+-- Use $PLAYER_NAME variable to output the joining player's name.
 
--- Use $SERVER_NAME to output the server name
+-- messages --
 message_board = {
     "Welcome to $SERVER_NAME",
     "This custom game is still in development and may contain bugs.",
@@ -475,14 +476,16 @@ function OnTick()
                 players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
                 cls(m)
                 for k, v in pairs(message_board) do
-                    if string.find(message_board[1], "$SERVER_NAME") then
-                        message_board[1] = string.gsub(message_board[1], "$SERVER_NAME", servername)
-                        rprint(m, "|" .. Message_Alignment .. " " .. v)
-                    else
-                        rprint(m, "|" .. Message_Alignment .. " " .. v)
+                    for j=1, #message_board do
+                        if string.find(message_board[j], "$SERVER_NAME") then
+                            message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
+                        elseif string.find(message_board[j], "$PLAYER_NAME") then
+                            message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(i, "$name"))
+                        end
                     end
+                    rprint(i, "|" .. Message_Alignment .. " " .. v)
                 end
-                if players[get_var(m, "$n")].join_timer >= math.floor(Welcome_Msg_Duration) then
+                if players[get_var(m, "$n")].join_timer >= math.floor(Message_Duration) then
                     welcome_timer[m] = false
                     players[get_var(m, "$n")].join_timer = 0
                 end
