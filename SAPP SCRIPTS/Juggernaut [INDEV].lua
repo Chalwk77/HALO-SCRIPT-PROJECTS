@@ -773,7 +773,6 @@ function SetNewJuggernaut(player)
     SetNavMarker(player)
     bool = true
     -- Send Messages
-    rprint(player, "You're now the Juggernaut!")
     for i = 1, current_players do
         if i ~= player then
             say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
