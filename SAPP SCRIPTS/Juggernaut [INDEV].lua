@@ -782,8 +782,8 @@ function SetNewJuggernaut(player)
     bool = true
     -- Send Messages
     rprint(player, "You're now the Juggernaut!")
-    for (i = 1, current_players) do
-        if (i ~= player) then
+    for i = 1, current_players do
+        if i ~= player then
             execute_command("msg_prefix \"\"")
             say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
             say(player, "You're now the Juggernaut!")
