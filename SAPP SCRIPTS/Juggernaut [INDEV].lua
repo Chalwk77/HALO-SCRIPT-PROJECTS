@@ -133,6 +133,8 @@ Welcome_Msg_Duration = 10
 Message_Alignment = "l"
 
 -- JOIN MESSAGES SENT TO RCON CONSOLE --
+
+-- Use $SERVER_NAME to output the server name
 message_board = {
     "Welcome to $SERVER_NAME",
     "This custom game is still in development and may contain bugs.",
@@ -473,8 +475,12 @@ function OnTick()
                 players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
                 cls(m)
                 for k, v in pairs(message_board) do
-                    message_board[1] = string.gsub(message_board[1], "$SERVER_NAME", servername)
-                    rprint(m, "|" .. Message_Alignment .. " " .. v)
+                    if string.find(message_board[1], "$SERVER_NAME") then
+                        message_board[1] = string.gsub(message_board[1], "$SERVER_NAME", servername)
+                        rprint(m, "|" .. Message_Alignment .. " " .. v)
+                    else
+                        rprint(m, "|" .. Message_Alignment .. " " .. v)
+                    end
                 end
                 if players[get_var(m, "$n")].join_timer >= math.floor(Welcome_Msg_Duration) then
                     welcome_timer[m] = false
