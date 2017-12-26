@@ -67,7 +67,7 @@ juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
-start_delay = 10
+start_delay = 15
 
 juggernaut_running_speed = {
     -- large maps --
@@ -148,6 +148,8 @@ gamesettings = {
     ["UseWelcomeMessages"] = true
 }
 
+
+-- You can only set a maximum of 7 grenades!
 function GrenadeTable()
     --  frag grenade table --
     frags = {
@@ -385,7 +387,6 @@ function OnTick()
                         if i ~= nil then
                             if (tick_bool) == nil then
                                 -- Nobody is the Juggernaut | Reposition NAV Markers (not sure how to remove them completely)
-                                -- to do: Figure out how to remove|hide nav markers
                                 write_word(m_player + 0x88, player + 10)
                             end
                         end
@@ -500,9 +501,11 @@ function SelectNewJuggernaut(PlayerIndex)
                     if (players[get_var(i, "$n")].previous_juggernaut == false) and (i ~= players[get_var(i, "$n")].current_juggernaut) then
                         if (current_players > 1) then
                             local excludeIndex = get_var(i, "$n")
+                            math.randomseed(os.time())
                             local index = math.random(1, current_players)
                             if (index == tonumber(excludeIndex)) then
                                 while (index == tonumber(excludeIndex)) do
+                                    math.randomseed(os.time())
                                     local newNumber = math.random(1, current_players)
                                     if newNumber ~= tonumber(excludeIndex) then
                                         -- null current_juggernaut in the event of an error
@@ -521,11 +524,13 @@ function SelectNewJuggernaut(PlayerIndex)
                     else
                         -- NOT PREVIOUS JUGGERNAUT | NOT CURRENT JUGGERNAUT | (make them juggernaut)
                         if (current_players >= 2) then
+                            math.randomseed(os.time())
                             local number = math.random(1, tonumber(current_players))
                             if (number ~= players[get_var(i, "$n")].current_juggernaut) then
                                 players[get_var(number, "$n")].current_juggernaut = (number)
                                 SetNavMarker(number)
                                 bool = true
+                                tick_bool = false
                                 if (i ~= tonumber(number)) then
                                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(number, "$name")))
                                     say(number, "You're now the Juggernaut!")
