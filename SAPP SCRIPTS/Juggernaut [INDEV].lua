@@ -589,6 +589,7 @@ function AssignGrenades(PlayerIndex)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
+    execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) and (killer ~= -1) then
@@ -624,11 +625,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- Neither Killer or Victim are Juggernaut | Make Killer Juggernaut | Update Score
     if (current_players == 2) then
-        cprint("2 players")
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
-            
             players[get_var(killer, "$n")].current_juggernaut = killer
-            
             bool = true
             tick_bool = false
             -- Set NAV Markers
@@ -639,9 +637,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("score " .. KillerIndex .. " +" .. tostring(points))
             -- Send Messages
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
-            execute_command("msg_prefix \"\"")
-            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+            for i = 1, current_players do
+                if i ~= killer then
+                    say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+                end
+            end
+            say(KillerIndex, "You're now the Juggernaut!")
         end
     end
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
@@ -657,17 +658,23 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("score " .. KillerIndex .. " +" .. tostring(bonus))
             -- Send Messages
             rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
-            execute_command("msg_prefix \"\"")
-            say_all(string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-            execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+            for i = 1, current_players do
+                if i ~= killer then
+                    say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+                end
+            end
+            say(KillerIndex, "You're now the Juggernaut!")
         end
     end
     -- suicide | victim was juggernaut | SelectNewJuggernaut()
     if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-        execute_command("msg_prefix \"\"")
-        say_all(get_var(killer, "$name") .. " committed suicide and is no longer the Juggernaut!")
-        say_all("A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
-        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+        for i = 1, current_players do
+            if i ~= victim then
+                say(i, get_var(killer, "$name") .. " committed suicide and is no longer the Juggernaut!")
+                say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
+            end
+        end
+        say(KillerIndex, "You are no longer the Juggernaut!")
         -- Call SelectNewJuggernaut() | Select someone else as the new Juggernaut
         timer(1000 * SuicideSelectDelay, "SelectNewJuggernaut")
         -- Previous Juggernaut Handler --
@@ -681,21 +688,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- suicide | victim was not juggernaut
     if (tonumber(PlayerIndex) == tonumber(KillerIndex) and (PlayerIndex ~= players[get_var(PlayerIndex, "$n")].current_juggernaut)) then
-        execute_command("msg_prefix \"\"")
         say(PlayerIndex, get_var(PlayerIndex, "$name") .. " committed suicide")
-        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     end
     -- pvp --
     if (killer > 0) and(victim ~= killer) then
-        execute_command("msg_prefix \"\"")
         say_all(get_var(PlayerIndex, "$name") .. " was killed by " .. get_var(KillerIndex, "$name"))
-        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     end
     -- Killed by Server, Vehicle, or Glitch|Unknown
     if (killer == 0) or(killer == nil) or(killer == -1) then
-        execute_command("msg_prefix \"\"")
         say_all(get_var(PlayerIndex, "$name") .. " died")
-        execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     end
     -- END THE GAME --
     if (killer == players[get_var(killer, "$n")].current_juggernaut) then
@@ -704,6 +705,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("sv_map_next")
         end
     end
+    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
 function SetNavMarker(Juggernaut)
