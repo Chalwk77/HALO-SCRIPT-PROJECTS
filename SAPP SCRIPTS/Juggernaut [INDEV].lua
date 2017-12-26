@@ -80,7 +80,7 @@ juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
-start_delay = 15
+start_delay = 10
 
 juggernaut_running_speed = {
     -- large maps --
@@ -137,7 +137,7 @@ Message_Alignment = "l"
 
 -- messages --
 message_board = {
-    "Welcome to $SERVER_NAME | JUGGERNAUT",
+    "Welcome to $SERVER_NAME",
     "This custom game is still in development and may contain bugs.",
     "If you discover any, please report them on the following issue tracker:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
@@ -158,7 +158,7 @@ gamesettings = {
     ["AliveTimer"] = true,
     -- Should the Juggernaut's weapons be deleted when they die?
     ["DeleteWeapons"] = true,
-    ["UseWelcomeMessages"] = false
+    ["UseWelcomeMessages"] = true
 }
 
 function GrenadeTable()
@@ -256,7 +256,7 @@ function OnScriptLoad()
     end
     current_players = 0
     execute_command("scorelimit 250")
-    execute_command("msg_prefix \"** JUGGERNAUT ** \"")
+    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     --- sehe's death message patch ------------------------------
     deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
     original = read_dword(deathmessages)
