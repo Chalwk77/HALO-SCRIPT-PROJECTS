@@ -471,7 +471,7 @@ function OnTick()
         end
 	-----------------------------------------------------------------------------------------------------------------------------------
     end
-    if (gamesettings("UseWelcomeMessages") == true) then 
+    if (gamesettings["UseWelcomeMessages"] == true) then 
         for m = 1, 16 do
             if player_present(m) then
                 if (welcome_timer[m] == true) then
