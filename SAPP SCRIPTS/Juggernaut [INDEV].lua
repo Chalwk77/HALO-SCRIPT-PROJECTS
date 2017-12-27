@@ -596,7 +596,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    if (killer == players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) and (killer ~= -1) then
+    if killer == players[get_var(killer, "$n")].current_juggernaut and victim ~= killer then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
         rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
     end
