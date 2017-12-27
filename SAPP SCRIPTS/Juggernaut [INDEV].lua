@@ -108,15 +108,16 @@ alive_points = 1
 weapons[1] = "weapons\\sniper rifle\\sniper rifle"	        -- Primary      | WEAPON SLOT 1
 weapons[2] = "weapons\\pistol\\pistol"						-- Secondary    | WEAPON SLOT 2
 weapons[3] = "weapons\\rocket launcher\\rocket launcher"    -- Tertiary     | WEAPON SLOT 3
+weapons[4] = "weapons\\shotgun\\shotgun"                    -- Quaternary   | WEAPON SLOT 3
 
--- Scoring Message Alignment | Left = l,    Right = r,    Center = c,    Tab: t
+-- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
 
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
 Message_Duration = 5
--- Left = l,    Right = r,    Center = c,    Tab: t
+-- Left = l,    Right = r,    Centre = c,    Tab: t
 Message_Alignment = "l"
 
 -- Use $SERVER_NAME variable to output the server name.
@@ -125,8 +126,7 @@ Message_Alignment = "l"
 -- messages --
 message_board = {
     "Welcome to $SERVER_NAME (beta v1.0)",
-    "This custom game is still in development and may contain bugs.",
-    "If you discover any, please report them on the following issue tracker:",
+    "Bug reports and suggestions:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
     }
 
@@ -216,6 +216,9 @@ function LoadMaps()
     }
 end
 -- ============= CONFIGURATION ENDS HERE =============--
+
+-- do not touch --
+tertiary_quaternary_delay = 100 -- (in ms)
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -355,7 +358,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    weapon[PlayerIndex] = 0
+    weapon[PlayerIndex] = true
     mapname = get_var(0, "$map")
     players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
 end
@@ -376,7 +379,54 @@ function PlayerAlive(PlayerIndex)
     end
 end
 
+function TertiaryDelay(x,y,z, player)
+    -- SLOT 3
+    assign_weapon(spawn_object("weap", weapons[1], x, y, z), player)
+    timer(100, "QuaternaryDelay", x, y, z, player)
+end
+
+function QuaternaryDelay(x,y,z, player)
+    -- SLOT 4
+    assign_weapon(spawn_object("weap", weapons[4], x, y, z), player)
+end
+
 function OnTick()
+    -- Juggernaut weapon, health & shield handler
+    for j = 1, 16 do
+        if player_present(j) then
+            if player_alive(j) then
+                if (j == players[get_var(j, "$n")].current_juggernaut) then
+                    if (MapIsListed == false) then
+                        return false
+                    else
+                        local player = get_dynamic_player(j)
+                        if (weapon[j] == true) then
+                            execute_command("wdel " .. j)
+                            local x, y, z = read_vector3d(player + 0x5C)
+                            if (mapname == "bloodgulch") then
+                                -- SLOT 1
+                                assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                                -- SLOT 2
+                                assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
+                                timer(tertiary_quaternary_delay, "TertiaryDelay", x, y, z, j)
+                                weapon[j] = false
+                                if (bool == true) then
+                                    AssignGrenades(j)
+                                    bool = false
+                                end
+                                if (gamesettings["GiveExtraHealth"] == true) then
+                                    write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
+                                end
+                                if (gamesettings["GiveOvershield"] == true) then
+                                    write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
     if (current_players == 2) then
         for i = 1, current_players do
             if player_present(i) then
@@ -392,40 +442,6 @@ function OnTick()
                         end
                     end
                     -- Someone is now the Juggernaut
-                end
-            end
-        end
-    end
-    -- Juggernaut weapon, health & shield handler
-    for j = 1, 16 do
-        if player_present(j) then
-            if player_alive(j) then
-                if (j == players[get_var(j, "$n")].current_juggernaut) then
-                    if (MapIsListed == false) then
-                        return false
-                    else
-                        local player = get_dynamic_player(j)
-                        if (weapon[j] == 0) then
-                            execute_command("wdel " .. j)
-                            local x, y, z = read_vector3d(player + 0x5C)
-                            if (mapname == "bloodgulch") then
-                                assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                                assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                                assign_weapon(spawn_object("weap", weapons[1], x, y, z), j)
-                                weapon[j] = 1
-                                if (bool == true) then
-                                    AssignGrenades(j)
-                                    bool = false
-                                end
-                                if (gamesettings["GiveExtraHealth"] == true) then
-                                    write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
-                                end
-                                if (gamesettings["GiveOvershield"] == true) then
-                                    write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
-                                end
-                            end
-                        end
-                    end
                 end
             end
         end
@@ -831,6 +847,7 @@ end
 
 function OnError(Message)
     print(debug.traceback())
+    execute_command_sequence("beep 1200 150; beep 1200 150; beep 1200 150")
 end
 
 --[[
