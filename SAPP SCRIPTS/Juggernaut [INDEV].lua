@@ -39,11 +39,9 @@ weapons = { }
 weapon = { }
 frags = { }
 plasmas = { }
-coordinates = { }
 score_timer = { }
 players_alive = { }
 weapons[00000] = "nil\\nil\\nil"
-for i = 1, 16 do coordinates[i] = { } end
 -- booleans --
 MapIsListed = nil
 bool = nil
