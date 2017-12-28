@@ -30,7 +30,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]-- 
-
 api_version = "1.12.0.0"
 -- tables --
 welcome_timer = { }
@@ -40,9 +39,11 @@ weapons = { }
 weapon = { }
 frags = { }
 plasmas = { }
+coordinates = { }
 score_timer = { }
 players_alive = { }
 weapons[00000] = "nil\\nil\\nil"
+for i = 1, 16 do coordinates[i] = { } end
 -- booleans --
 MapIsListed = nil
 bool = nil
@@ -67,7 +68,7 @@ juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
-start_delay = 10
+start_delay = 5
 
 juggernaut_running_speed = {
     -- large maps --
@@ -218,7 +219,7 @@ end
 -- ============= CONFIGURATION ENDS HERE =============--
 
 -- do not touch --
-tertiary_quaternary_delay = 100 -- (in ms)
+tertiary_quaternary_delay = 50 -- (in ms)
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -229,10 +230,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPreSpawn")
+    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     for i = 1, 16 do
         if player_present(i) then
             if player_present(i) then
+                players[get_var(i, "$n")].weapon_trigger = false
                 players[get_var(i, "$n")].current_juggernaut = nil
                 players[get_var(i, "$n")].previous_juggernaut = nil
                 players[get_var(i, "$n")].kills = 0
@@ -290,6 +294,7 @@ function OnNewGame()
         if player_present(i) then
             if player_present(i) then
                 players_alive[get_var(i, "$n")].time_alive = 0
+                players[get_var(i, "$n")].weapon_trigger = false
                 players[get_var(i, "$n")].current_juggernaut = nil
                 players[get_var(i, "$n")].previous_juggernaut = nil
                 players[get_var(i, "$n")].kills = 0
@@ -317,6 +322,7 @@ function OnGameEnd()
             if player_present(i) then
                 welcome_timer[i] = false
                 players_alive[get_var(i, "$n")].time_alive = 0
+                players[get_var(i, "$n")].weapon_trigger = false
                 players[get_var(i, "$n")].current_juggernaut = nil
                 players[get_var(i, "$n")].previous_juggernaut = nil
                 players[get_var(i, "$n")].kills = 0
@@ -329,6 +335,7 @@ end
 function OnPlayerJoin(PlayerIndex)
     current_players = current_players + 1
     players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].weapon_trigger = false
     players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].previous_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].kills = 0
@@ -363,9 +370,10 @@ function OnPlayerSpawn(PlayerIndex)
     players_alive[get_var(PlayerIndex, "$n")].time_alive = 0
 end
 
-function OnPlayerPrespawn(PlayerIndex)
+function OnPreSpawn(PlayerIndex)
     if (PlayerIndex == players[get_var(PlayerIndex, "$n")].current_juggernaut) then
         players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
+        players[get_var(PlayerIndex, "$n")].weapon_trigger = false
     end
 end
 
@@ -380,14 +388,53 @@ function PlayerAlive(PlayerIndex)
 end
 
 function TertiaryDelay(x,y,z, player)
-    -- SLOT 3
     assign_weapon(spawn_object("weap", weapons[1], x, y, z), player)
-    timer(100, "QuaternaryDelay", x, y, z, player)
+    assign_weapon(spawn_object("weap", weapons[4], x, y, z), player)
 end
 
-function QuaternaryDelay(x,y,z, player)
-    -- SLOT 4
-    assign_weapon(spawn_object("weap", weapons[4], x, y, z), player)
+function OnVehicleExit(PlayerIndex)
+    if players[get_var(PlayerIndex, "$n")].current_juggernaut then
+        if players[get_var(PlayerIndex, "$n")].weapon_trigger == true then
+            weapon[PlayerIndex] = false
+            local player_object = get_dynamic_player(PlayerIndex)
+            if player_object ~= 0 then
+                local PlayerObj = get_dynamic_player(PlayerIndex)
+                local VehicleObj = get_object_memory(read_dword(PlayerObj + 0x11c))
+                local vehicle_tag = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
+                if vehicle_tag == "vehicles\\warthog\\mp_warthog" then
+                    assign_delay = 1000
+                elseif vehicle_tag == "vehicles\\rwarthog\\rwarthog" then
+                    assign_delay = 1000 * 1.1
+                elseif vehicle_tag == "vehicles\\scorpion\\scorpion_mp" then
+                    assign_delay = 1000 * 2
+                elseif vehicle_tag == "vehicles\\ghost\\ghost_mp" then
+                    assign_delay = 800
+                elseif vehicle_tag == "vehicles\\banshee\\banshee_mp" then
+                    assign_delay = 1000 * 1.1
+                elseif vehicle_tag == "vehicles\\c gun turret\\c gun turret_mp" then
+                    assign_delay = 1000 * 1.1
+                end
+                if (player_alive(PlayerIndex)) then
+                    timer(assign_delay, "delayGive", PlayerIndex)
+                end
+            end
+            players[get_var(PlayerIndex, "$n")].weapon_trigger = false
+        end
+    end
+end
+
+function delayGive(PlayerIndex)
+    local player = get_dynamic_player(PlayerIndex)
+    local x, y, z = read_vector3d(player + 0x5C)
+    assign_weapon(spawn_object("weap", weapons[2], x, y, z), PlayerIndex)
+    assign_weapon(spawn_object("weap", weapons[3], x, y, z), PlayerIndex)
+    timer(tertiary_quaternary_delay, "TertiaryDelay", x, y, z, PlayerIndex)
+end
+
+function OnVehicleEntry(PlayerIndex)
+    if players[get_var(PlayerIndex, "$n")].current_juggernaut then
+        players[get_var(PlayerIndex, "$n")].weapon_trigger = false
+    end
 end
 
 function OnTick()
@@ -400,16 +447,17 @@ function OnTick()
                         return false
                     else
                         local player = get_dynamic_player(j)
+                        local x, y, z = read_vector3d(player + 0x5C)
                         if (weapon[j] == true) then
                             execute_command("wdel " .. j)
-                            local x, y, z = read_vector3d(player + 0x5C)
                             if (mapname == "bloodgulch") then
-                                -- SLOT 1
-                                assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
-                                -- SLOT 2
-                                assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
-                                timer(tertiary_quaternary_delay, "TertiaryDelay", x, y, z, j)
-                                weapon[j] = false
+                                -- not in vehicle
+                                if not PlayerInVehicle(j) then
+                                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), j)
+                                    assign_weapon(spawn_object("weap", weapons[3], x, y, z), j)
+                                    timer(tertiary_quaternary_delay, "TertiaryDelay", x, y, z, j)
+                                    weapon[j] = false
+                                end
                                 if (bool == true) then
                                     AssignGrenades(j)
                                     bool = false
@@ -500,6 +548,9 @@ function OnTick()
                             welcome_timer[m] = false
                             players[get_var(m, "$n")].join_timer = 0
                         end
+                    else
+                        cls(m)
+                        welcome_timer[m] = true
                     end
                 end
             end
@@ -596,7 +647,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    if killer == players[get_var(killer, "$n")].current_juggernaut and victim ~= killer then
+    if killer == players[get_var(KillerIndex, "$n")].current_juggernaut and tonumber(victim) ~= tonumber(killer) then
         players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
         rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
     end
@@ -631,6 +682,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (current_players == 2) then
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
             players[get_var(killer, "$n")].current_juggernaut = killer
+            if PlayerInVehicle(KillerIndex) then
+                players[get_var(killer, "$n")].weapon_trigger = true
+            else
+                players[get_var(killer, "$n")].weapon_trigger = false
+            end
             bool = true
             tick_bool = false
             -- Set NAV Markers
@@ -652,6 +708,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- Killer is not Juggernaut | Victim is Juggernaut | Make Killer Juggernaut (only if there is 2 or more players) | Update with bonus Score
     if (current_players >= 2) then
         if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+            if PlayerInVehicle(KillerIndex) then
+                players[get_var(killer, "$n")].weapon_trigger = true
+            else
+                players[get_var(killer, "$n")].weapon_trigger = false
+            end
             players[get_var(victim, "$n")].current_juggernaut = nil
             players[get_var(killer, "$n")].current_juggernaut = killer
             -- Set NAV Markers
@@ -730,8 +791,6 @@ function SetNavMarker(Juggernaut)
     end
 end
 
--- to do: iterate through players and check if someone is juggernaut
-
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
@@ -797,6 +856,20 @@ function SetNewJuggernaut(player)
     -- Set running speed
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed[mapname]))
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+end
+
+function PlayerInVehicle(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
 end
 
 function cls(PlayerIndex)
