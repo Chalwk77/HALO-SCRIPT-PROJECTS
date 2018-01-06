@@ -149,6 +149,7 @@ function OnScriptUnload()
     HashList = { }
 end
 
+-- ANTI IMPERSONATOR
 function LoadTables( )
     NameList = {"Chalwk"}	
     HashList = {"6c8f0bc306e0108b4904812110185edd"}
