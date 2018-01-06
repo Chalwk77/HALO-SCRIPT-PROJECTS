@@ -66,24 +66,25 @@ weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
 weapons[3] = "weapons\\rocket launcher\\rocket launcher" 
 weapons[4] = "weapons\\shotgun\\shotgun"
-
-function LoadMaps()
-    mapnames = {
-        "bloodgulch",
-    }
-end
-
-function GrenadeTable()
-    frags = {
-        bloodgulch = 7,
-		}
-    plasmas = {
-        bloodgulch = 7,
-    }
-end
-
 tertiary_quaternary_delay = 50
----------------------------------------------------------------------------------------------------------
+mapnames = {
+    "bloodgulch",
+}
+frags = {
+    bloodgulch = 7,
+    }
+plasmas = {
+    bloodgulch = 7,
+}
+
+-- ANTI IMPERSONATOR
+response = {
+    ["kick"] = true,
+    ["ban"] = false
+}
+
+BANTIME = 10
+REASON = "Impersonating"
 
 function OnScriptLoad()
     -- Console Output
@@ -117,9 +118,15 @@ function OnScriptLoad()
     if general_settings["UseCustomWeapons"] == true then
         if get_var(0, "$gt") ~= "n/a" then
             mapname = get_var(0, "$map")
-            GrenadeTable()
-            LoadMaps()
         end
+    end
+    -- ANTI IMPERSONATOR
+    LoadTables( )
+    if (response["ban"] == true) and (response["kick"] == true) then
+        cprint("Script Error: AntiImpersonator.lua", 4+8)
+        cprint("Only one option should be enabled! [punishment configuration] - (line 73/74)", 4+8)
+        unregister_callback(cb['OnPlayerJoin'])
+        unregister_callback(cb['OnGameEnd'])
     end
 end
 
@@ -137,6 +144,14 @@ function OnScriptUnload()
     weapon = { }
     weapons = { }
     maps = { }
+    -- ANTI IMPERSONATOR
+    NameList = { }
+    HashList = { }
+end
+
+function LoadTables( )
+    NameList = {"Chalwk"}	
+    HashList = {"6c8f0bc306e0108b4904812110185edd"}
 end
 
 function OnNewGame()
@@ -172,11 +187,9 @@ function OnNewGame()
     -- WEAPON SETTINGS
     if general_settings["UseCustomWeapons"] == true then
         mapname = get_var(0, "$map")
-        GrenadeTable()
-        LoadMaps()
         if (table.match(mapnames, mapname) == nil) then 
             MapIsListed = false
-            Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 38'
+            Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 615'
             cprint(Error, 4+8)
             execute_command("log_note \""..Error.."\"")
         else
@@ -217,6 +230,9 @@ function OnGameEnd(PlayerIndex)
             end
         end
     end
+    -- ANTI IMPERSONATOR
+    NameList = { }
+    HashList = { }
 end
 
 -- WEAPON SETTINGS
@@ -328,6 +344,20 @@ function OnPlayerJoin(PlayerIndex)
     mb_players[get_var(PlayerIndex, "$n")] = { }
     mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
     welcome_timer[PlayerIndex] = true
+    -- ANTI IMPERSONATOR
+    local Name = get_var(PlayerIndex,"$name")
+    local Hash = get_var(PlayerIndex,"$hash")
+    local Index = get_var(PlayerIndex, "$n")
+    if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
+        if (response["kick"] == true) and (response["ban"] == false) then 
+            execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
+        end
+        if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
+            execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+        elseif (BANTIME == 0) then
+            execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
+        end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -339,7 +369,7 @@ function OnPlayerSpawn(PlayerIndex)
             if (player_object ~= 0) then
                 if (general_settings["AssignFrags"] == true) then
                     if (frags[mapname] == nil) then 
-                        Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 228 | Unable to set frags.'
+                        Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 73 | Unable to set frags.'
                         cprint(Error, 4+8)
                         execute_command("log_note \""..Error.."\"")
                     else
@@ -348,7 +378,7 @@ function OnPlayerSpawn(PlayerIndex)
                 end
                 if (general_settings["AssignPlasmas"] == true) then
                     if (plasmas[mapname] == nil) then 
-                        Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 373 | Unable to set plasmas.'
+                        Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 76 | Unable to set plasmas.'
                         cprint(Error, 4+8)
                         execute_command("log_note \""..Error.."\"")
                     else
@@ -569,7 +599,7 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \"** SERVER ** \"")
                 else
-                    cprint("Error in base_game_settings.lua - Format not defined properly. Line 16", 4+8)
+                    cprint("Error in base_game_settings.lua - Format not defined properly. Line 26", 4+8)
                 end
             end
         end
