@@ -1,7 +1,7 @@
 --[[
 ------------------------------------
 Description: HPC Server Authentication System (standalone), Phasor V2+
-Copyright © 2016-2017 Jericho Crosby
+Copyright (c) 2016-2018
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Written and Created by Jericho Crosby

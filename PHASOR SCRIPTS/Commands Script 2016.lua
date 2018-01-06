@@ -1,7 +1,7 @@
 --[[
 ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<- ] COMMANDS SCRIPT 2016 [ ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<-
 
-Description: HPC Commands Script 2016, Phasor V2+
+Description: HPC Commands Script 2018, Phasor V2+
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Re-Written and heavily modified by Jericho Crosby

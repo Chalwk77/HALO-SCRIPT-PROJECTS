@@ -21,7 +21,7 @@ Description: By default, you will spawn with an overshield, invisibility(7s), go
         - Punish Killer
         * Suggestions? https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/5
         
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

@@ -13,7 +13,7 @@ Description:    While playerX is alive, if the timer reaches the elapsed "ALLOCA
                     When the timer reaches the elapsed ALLOCATED_TIME threshold, 
                     it will reset to 0 seconds but not continue counting down until they respawn or rejoin.
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

@@ -6,7 +6,7 @@ Description:    This script will display 1-30 random taunting messages
                 from a lua table to your players under two events:
                 events: OnGameEnd | OnPlayerDie
              
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

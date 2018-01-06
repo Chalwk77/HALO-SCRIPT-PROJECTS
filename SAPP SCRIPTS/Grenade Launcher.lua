@@ -5,7 +5,7 @@ Implementing API version: 1.10.0.0
 Description:    When you fire your pistol, this script will change the Pistol Bullet projectile and turn it into a grenade.
                 You can change the Grenade Velocity and Distance on lines 23 and 24.
                 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

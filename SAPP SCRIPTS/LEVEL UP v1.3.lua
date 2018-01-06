@@ -9,7 +9,7 @@ Credits to "Giraffe" for his AutoVehicle-Flip functions.
 Credits to 002 for his get_tag_info function (returns metaid)
 Credits to sehe for his death message patch
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

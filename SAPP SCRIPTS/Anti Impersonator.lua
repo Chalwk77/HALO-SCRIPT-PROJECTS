@@ -6,7 +6,7 @@ Description:    Prevent others from impersonating your community members.
                 This works by comparing the impersonators name to a table of official member hash's.
                 Assuming your members all have legit copies of Halo and are not using a shared hash.
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

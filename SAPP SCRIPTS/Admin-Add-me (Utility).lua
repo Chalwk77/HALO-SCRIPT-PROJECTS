@@ -6,7 +6,7 @@ Description:    Type "/admin me" in chat to add yourself as an admin - (level 4 
                 This was particularly useful to me when testing other scripts.
                 I'm sure you can think of some creative reasons to use this.
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

@@ -12,7 +12,7 @@ Description:    This script will drop 1 of 20 (configurable) random items at you
                     Your victim will drop 1 random "weapon" or "equipment" item when you reach a specific kill threashold.
                     For every 5 (non-consecutive) kills, your victim will drop an item.
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

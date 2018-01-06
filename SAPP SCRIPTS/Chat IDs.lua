@@ -8,7 +8,7 @@ Description:    This script will modify your players message chat format
 Team output: [Chalwk] [1]: This is a test message
 Global output: Chalwk [1]: This is a test message
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

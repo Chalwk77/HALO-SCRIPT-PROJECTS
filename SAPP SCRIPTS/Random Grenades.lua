@@ -17,7 +17,7 @@ Description:    Every time you spawn, this script will generate a random number
     then the script will throw an error and you will spawn with the default amount of grenades, rather than a custom amount.
     When adding maps to the grenade table(s), note that the map names themselves are character/case sensitive.
                     
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

@@ -5,7 +5,7 @@ Implementing API version: 1.11.0.0
 Description: Check yours or someone else's hash
 Command Syntax: /hash me|1-16
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

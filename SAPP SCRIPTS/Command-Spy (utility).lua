@@ -6,7 +6,7 @@ Description:    Spy on your players commands!
                 This script will show commands typed by non-admins (to admins). 
                 Admins wont see their own commands (:
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

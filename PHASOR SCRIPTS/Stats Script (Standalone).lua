@@ -1,7 +1,7 @@
 --[[
 --===================================================================--
 Description: HPC Stats Script (Standalone), Phasor V2+
-Copyright © 2016-2017 Jericho Crosby
+Copyright (c) 2016-2018
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Version: 4.0.1 (Heavily Modified)

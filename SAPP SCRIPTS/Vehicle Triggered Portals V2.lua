@@ -9,7 +9,7 @@ This is a re-write of version 1.
 Similar concept except this version does away with choosing a random teleport to go to.
 This version is also a lot more user friendly in the way of configuring. 
 
-Copyright (c) 2016-2017, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 

@@ -5,7 +5,7 @@ Script Name: HPC Zombies Stats Script, for PhasorV2+
 Heavily Modified version by Jericho Crosby
 * Credits to the original creator(s): SlimJim | Kennan
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
