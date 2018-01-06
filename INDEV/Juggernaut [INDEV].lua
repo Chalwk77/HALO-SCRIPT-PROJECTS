@@ -31,6 +31,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]-- 
 api_version = "1.12.0.0"
+script_version = "  |  beta v1.0"
 -- tables --
 welcome_timer = { }
 join_timer = { }
@@ -124,7 +125,7 @@ Message_Alignment = "l"
 
 -- messages --
 message_board = {
-    "Welcome to $SERVER_NAME (beta v1.0)",
+    "Welcome to $SERVER_NAME" .. script_version,
     "Bug reports and suggestions:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
     }
