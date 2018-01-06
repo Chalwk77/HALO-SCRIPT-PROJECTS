@@ -12,10 +12,10 @@ api_version = "1.12.0.0"
 
 -- SCRIPT SETTINGS --
 script_settings = {
-    -- Message Board
-    ["UseMessageBoard"] = false,
     -- General
     ["AnnouncePlayerIsAdmin"] = false,
+    -- Message Board
+    ["UseMessageBoard"] = false,
     -- Weapon Settings
     ["UseCustomWeapons"] = false,
     ["AssignFrags"] = true,
