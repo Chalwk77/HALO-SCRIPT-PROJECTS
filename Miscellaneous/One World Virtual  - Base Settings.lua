@@ -10,13 +10,24 @@ You do not have permission to use this document.
 ]]-- 
 api_version = "1.12.0.0"
 
--- GENERAL SETTINGS --
-general_settings = {
+-- SCRIPT SETTINGS --
+script_settings = {
+    -- Message Board
+    ["UseMessageBoard"] = false,
+    -- General
     ["AnnouncePlayerIsAdmin"] = false,
     -- Weapon Settings
     ["UseCustomWeapons"] = false,
     ["AssignFrags"] = true,
-    ["AssignPlasmas"] = true
+    ["AssignPlasmas"] = true,
+    -- Admin Chat
+    ["UseAdminChat"] = true,
+    -- Chat Logging
+    ["UseChatLogging"] = true,
+    -- Command Spy
+    ["UseCommandSpy"] = true,
+    -- Anti Impersonator
+    ["UseAntiImpersonator"] = true
 }
 
 -- ADMIN CHAT --
@@ -49,8 +60,8 @@ new_timer = { }
 mb_players = { }
 message_board = {
     "Welcome to $SERVER_NAME",
-    "Message Board created by Chalwk (Jericho Crosby)",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+    "Bug reports and suggestions:",
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
     }
 Message_Duration = 10
 Message_Alignment = "l"
@@ -82,7 +93,6 @@ response = {
     ["kick"] = true,
     ["ban"] = false
 }
-
 BANTIME = 10
 REASON = "Impersonating"
 
@@ -102,51 +112,63 @@ function OnScriptLoad()
     if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     -- ADMIN CHAT
-    for i = 1,16 do
-        if player_present(i) then
-            players[get_var(i, "$name")].adminchat = nil
-            players[get_var(i, "$name")].boolean = nil
+    if script_settings["UseAdminChat"] == true then
+        for i = 1,16 do
+            if player_present(i) then
+                players[get_var(i, "$name")].adminchat = nil
+                players[get_var(i, "$name")].boolean = nil
+            end
         end
     end
     -- MESSAGE BOARD
-    for i = 1, 16 do
-        if player_present(i) then
-            mb_players[get_var(i, "$n")].new_timer = 0
+    if script_settings["UseMessageBoard"] == true then
+        for i = 1, 16 do
+            if player_present(i) then
+                mb_players[get_var(i, "$n")].new_timer = 0
+            end
         end
     end
     -- WEAPON SETTINGS
-    if general_settings["UseCustomWeapons"] == true then
+    if script_settings["UseCustomWeapons"] == true then
         if get_var(0, "$gt") ~= "n/a" then
             mapname = get_var(0, "$map")
         end
     end
     -- ANTI-IMPERSONATOR
-    LoadTables( )
-    if (response["ban"] == true) and (response["kick"] == true) then
-        cprint("Script Error: AntiImpersonator.lua", 4+8)
-        cprint("Only one option should be enabled! [punishment configuration] - (line 73/74)", 4+8)
-        unregister_callback(cb['OnPlayerJoin'])
-        unregister_callback(cb['OnGameEnd'])
+    if script_settings["UseAntiImpersonator"] == true then
+        LoadTables( )
+        if (response["ban"] == true) and (response["kick"] == true) then
+            cprint("Script Error: AntiImpersonator.lua", 4+8)
+            cprint("Only one option should be enabled! [punishment configuration] - (line 73/74)", 4+8)
+            unregister_callback(cb['OnPlayerJoin'])
+            unregister_callback(cb['OnGameEnd'])
+        end
     end
 end
 
 function OnScriptUnload()
     -- ADMIN CHAT
-    for i = 1,16 do
-        if player_present(i) then
-            players[get_var(i, "$name")].adminchat = false
-            players[get_var(i, "$name")].boolean = false
+    if script_settings["UseAdminChat"] == true then
+        for i = 1,16 do
+            if player_present(i) then
+                players[get_var(i, "$name")].adminchat = false
+                players[get_var(i, "$name")].boolean = false
+            end
         end
     end
     -- WEAPON SETTINGS
-    frags = { }
-    plasmas = { }
-    weapon = { }
-    weapons = { }
-    maps = { }
+    if script_settings["UseCustomWeapons"] == true then
+        frags = { }
+        plasmas = { }
+        weapon = { }
+        weapons = { }
+        maps = { }
+    end
     -- ANTI-IMPERSONATOR
-    NameList = { }
-    HashList = { }
+    if script_settings["UseAntiImpersonator"] == true then
+        NameList = { }
+        HashList = { }
+    end
 end
 
 -- ANTI-IMPERSONATOR
@@ -158,35 +180,41 @@ end
 function OnNewGame()
     cprint("A new game has started.", 2+8)
     -- ADMIN CHAT
-    for i = 1,16 do
-        if player_present(i) then
-            players[get_var(i, "$name")].adminchat = nil
-            players[get_var(i, "$name")].boolean = nil
-        end
-    end
-    -- CHAT LOGGING
-    local file = io.open(dir, "a+")
-    if file ~= nil then
-        local map = get_var(0, "$map")
-        local gt = get_var(0, "$mode")
-        local n1 = "\n"
-        local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
-        local n2 = "\n---------------------------------------------------------------------------------------------\n"
-        file:write(n1, t1, n2)
-        file:close()
-    end
-    -- MESSAGE BOARD
-    for i = 1, 16 do
-        if player_present(i) then
+    if script_settings["UseAdminChat"] == true then
+        for i = 1,16 do
             if player_present(i) then
-                mb_players[get_var(i, "$n")].new_timer = 0
+                players[get_var(i, "$name")].adminchat = nil
+                players[get_var(i, "$name")].boolean = nil
             end
         end
     end
-    local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    server_name = rws(ns + 0x8, 0x42)
+    -- CHAT LOGGING
+    if script_settings["UseChatLogging"] == true then
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local map = get_var(0, "$map")
+            local gt = get_var(0, "$mode")
+            local n1 = "\n"
+            local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
+            local n2 = "\n---------------------------------------------------------------------------------------------\n"
+            file:write(n1, t1, n2)
+            file:close()
+        end
+    end
+    -- MESSAGE BOARD
+    if script_settings["UseMessageBoard"] == true then
+        for i = 1, 16 do
+            if player_present(i) then
+                if player_present(i) then
+                    mb_players[get_var(i, "$n")].new_timer = 0
+                end
+            end
+        end
+        local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+        server_name = rws(ns + 0x8, 0x42)
+    end
     -- WEAPON SETTINGS
-    if general_settings["UseCustomWeapons"] == true then
+    if script_settings["UseCustomWeapons"] == true then
         mapname = get_var(0, "$map")
         if (table.match(mapnames, mapname) == nil) then 
             MapIsListed = false
@@ -202,38 +230,46 @@ end
 function OnGameEnd(PlayerIndex)
     cprint("The game is ending...", 4+8)
     -- ADMIN CHAT
-    for i = 1,16 do
-        if player_present(i) then
-            if (Restore_Previous_State == true) then
-                if players[get_var(i, "$name")].adminchat == true then bool = "true" else bool = "false" end
-                data[i] = get_var(i, "$name") .. ":" .. bool
-                stored_data[data] = stored_data[data] or { }
-                table.insert(stored_data[data], tostring(data[i]))
-            else
-                players[get_var(i, "$name")].adminchat = false
-                players[get_var(i, "$name")].boolean = false
+    if script_settings["UseAdminChat"] == true then
+        for i = 1,16 do
+            if player_present(i) then
+                if (Restore_Previous_State == true) then
+                    if players[get_var(i, "$name")].adminchat == true then bool = "true" else bool = "false" end
+                    data[i] = get_var(i, "$name") .. ":" .. bool
+                    stored_data[data] = stored_data[data] or { }
+                    table.insert(stored_data[data], tostring(data[i]))
+                else
+                    players[get_var(i, "$name")].adminchat = false
+                    players[get_var(i, "$name")].boolean = false
+                end
             end
         end
     end
     -- CHAT LOGGING
-    local file = io.open(dir, "a+")
-    if file ~= nil then
-        local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
-        file:write(data)
-        file:close()
+    if script_settings["UseChatLogging"] == true then
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+            file:write(data)
+            file:close()
+        end
     end
     -- MESSAGE BOARD
-    for i = 1, 16 do
-        if player_present(i) then
+    if script_settings["UseMessageBoard"] == true then
+        for i = 1, 16 do
             if player_present(i) then
-                welcome_timer[i] = false
-                mb_players[get_var(i, "$n")].new_timer = 0
+                if player_present(i) then
+                    welcome_timer[i] = false
+                    mb_players[get_var(i, "$n")].new_timer = 0
+                end
             end
         end
     end
     -- ANTI-IMPERSONATOR
-    NameList = { }
-    HashList = { }
+    if script_settings["UseAntiImpersonator"] == true then
+        NameList = { }
+        HashList = { }
+    end
 end
 
 -- WEAPON SETTINGS
@@ -243,30 +279,33 @@ function TertiaryDelay(x,y,z, player)
 end
 
 function OnTick()
-    for i = 1, 16 do
-        if player_present(i) then
-            if (welcome_timer[i] == true) then
-                mb_players[get_var(i, "$n")].new_timer = mb_players[get_var(i, "$n")].new_timer + 0.030
-                cls(i)
-                for k, v in pairs(message_board) do
-                    for j=1, #message_board do
-                        if string.find(message_board[j], "$SERVER_NAME") then
-                            message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", server_name)
-                        elseif string.find(message_board[j], "$PLAYER_NAME") then
-                            message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(i, "$name"))
+    -- MESSAGE BOARD
+    if script_settings["UseMessageBoard"] == true then
+        for i = 1, 16 do
+            if player_present(i) then
+                if (welcome_timer[i] == true) then
+                    mb_players[get_var(i, "$n")].new_timer = mb_players[get_var(i, "$n")].new_timer + 0.030
+                    cls(i)
+                    for k, v in pairs(message_board) do
+                        for j=1, #message_board do
+                            if string.find(message_board[j], "$SERVER_NAME") then
+                                message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", server_name)
+                            elseif string.find(message_board[j], "$PLAYER_NAME") then
+                                message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(i, "$name"))
+                            end
                         end
+                        rprint(i, "|" .. Message_Alignment .. " " .. v)
                     end
-                    rprint(i, "|" .. Message_Alignment .. " " .. v)
-                end
-                if mb_players[get_var(i, "$n")].new_timer >= math.floor(Message_Duration) then
-                    welcome_timer[i] = false
-                    mb_players[get_var(i, "$n")].new_timer = 0
+                    if mb_players[get_var(i, "$n")].new_timer >= math.floor(Message_Duration) then
+                        welcome_timer[i] = false
+                        mb_players[get_var(i, "$n")].new_timer = 0
+                    end
                 end
             end
         end
     end
     -- WEAPON SETTINGS
-    if general_settings["UseCustomWeapons"] == true then
+    if script_settings["UseCustomWeapons"] == true then
         for i = 1, 16 do
             if (player_alive(i)) then
                 if MapIsListed == false then
@@ -306,7 +345,7 @@ function OnPlayerJoin(PlayerIndex)
     cprint("Status: connected successfully.")
     cprint("--------------------------------------------------------------------------------")
     -- GENERAL SETTINGS
-    if general_settings["AnnouncePlayerIsAdmin"] == true then
+    if script_settings["AnnouncePlayerIsAdmin"] == true then
         if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then
             execute_command("msg_prefix \"\"")
             say_all("Server Admin: " .. get_var(PlayerIndex, "$name"))
@@ -314,61 +353,69 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
     -- ADMIN CHAT
-    players[get_var(PlayerIndex, "$name")] = { }
-    players[get_var(PlayerIndex, "$name")].adminchat = nil
-    players[get_var(PlayerIndex, "$name")].boolean = nil
-    if (Restore_Previous_State == true) then
-        local t = tokenizestring(tostring(data[PlayerIndex]), ":")
-        if t[2] == "true" then
-            rprint(PlayerIndex, "Your admin chat is on!")
-            players[get_var(PlayerIndex, "$name")].adminchat = true
-            players[get_var(PlayerIndex, "$name")].boolean = true
+    if script_settings["UseAdminChat"] == true then
+        players[get_var(PlayerIndex, "$name")] = { }
+        players[get_var(PlayerIndex, "$name")].adminchat = nil
+        players[get_var(PlayerIndex, "$name")].boolean = nil
+        if (Restore_Previous_State == true) then
+            local t = tokenizestring(tostring(data[PlayerIndex]), ":")
+            if t[2] == "true" then
+                rprint(PlayerIndex, "Your admin chat is on!")
+                players[get_var(PlayerIndex, "$name")].adminchat = true
+                players[get_var(PlayerIndex, "$name")].boolean = true
+            else
+                players[get_var(PlayerIndex, "$name")].adminchat = false
+                players[get_var(PlayerIndex, "$name")].boolean = false
+            end
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
             players[get_var(PlayerIndex, "$name")].boolean = false
         end
-    else
-        players[get_var(PlayerIndex, "$name")].adminchat = false
-        players[get_var(PlayerIndex, "$name")].boolean = false
     end
     -- CHAT LOGGING
-    local name = get_var(PlayerIndex, "$name")
-    local id = get_var(PlayerIndex, "$n")
-    local ip = get_var(PlayerIndex, "$ip")
-    local hash = get_var(PlayerIndex, "$hash")
-    local file = io.open(dir, "a+")
-    if file ~= nil then
-        file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
-        file:close()
+    if script_settings["UseChatLogging"] == true then
+        local name = get_var(PlayerIndex, "$name")
+        local id = get_var(PlayerIndex, "$n")
+        local ip = get_var(PlayerIndex, "$ip")
+        local hash = get_var(PlayerIndex, "$hash")
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
+        end
     end
     -- MESSAGE BOARD
-    mb_players[get_var(PlayerIndex, "$n")] = { }
-    mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
-    welcome_timer[PlayerIndex] = true
+    if script_settings["UseMessageBoard"] == true then
+        mb_players[get_var(PlayerIndex, "$n")] = { }
+        mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
+        welcome_timer[PlayerIndex] = true
+    end
     -- ANTI-IMPERSONATOR
-    local Name = get_var(PlayerIndex,"$name")
-    local Hash = get_var(PlayerIndex,"$hash")
-    local Index = get_var(PlayerIndex, "$n")
-    if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
-        if (response["kick"] == true) and (response["ban"] == false) then 
-            execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
-        end
-        if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
-            execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
-        elseif (BANTIME == 0) then
-            execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
+    if script_settings["UseAntiImpersonator"] == true then
+        local Name = get_var(PlayerIndex,"$name")
+        local Hash = get_var(PlayerIndex,"$hash")
+        local Index = get_var(PlayerIndex, "$n")
+        if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
+            if (response["kick"] == true) and (response["ban"] == false) then 
+                execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
+            end
+            if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
+                execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
+            elseif (BANTIME == 0) then
+                execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
+            end
         end
     end
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    if general_settings["UseCustomWeapons"] == true then
+    if script_settings["UseCustomWeapons"] == true then
         weapon[PlayerIndex] = true
         mapname = get_var(0, "$map")
         if player_alive(PlayerIndex) then
             local player_object = get_dynamic_player(PlayerIndex)
             if (player_object ~= 0) then
-                if (general_settings["AssignFrags"] == true) then
+                if (script_settings["AssignFrags"] == true) then
                     if (frags[mapname] == nil) then 
                         Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 73 | Unable to set frags.'
                         cprint(Error, 4+8)
@@ -377,7 +424,7 @@ function OnPlayerSpawn(PlayerIndex)
                         write_word(player_object + 0x31E, frags[mapname])
                     end
                 end
-                if (general_settings["AssignPlasmas"] == true) then
+                if (script_settings["AssignPlasmas"] == true) then
                     if (plasmas[mapname] == nil) then 
                         Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 76 | Unable to set plasmas.'
                         cprint(Error, 4+8)
@@ -406,26 +453,32 @@ function OnPlayerLeave(PlayerIndex)
     cprint("--------------------------------------------------------------------------------")
     cprint("")
     -- ADMIN CHAT
-    if PlayerIndex ~= 0 then
-        if (Restore_Previous_State == true) then
-            if players[get_var(PlayerIndex, "$name")].adminchat == true then bool = "true" else bool = "false" end
-            data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
-            stored_data[data] = stored_data[data] or { }
-            table.insert(stored_data[data], tostring(data[PlayerIndex]))
-        else
-            players[get_var(PlayerIndex, "$name")].adminchat = false
-            players[get_var(PlayerIndex, "$name")].boolean = false
+    if script_settings["UseAdminChat"] == true then
+        if PlayerIndex ~= 0 then
+            if (Restore_Previous_State == true) then
+                if players[get_var(PlayerIndex, "$name")].adminchat == true then bool = "true" else bool = "false" end
+                data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
+                stored_data[data] = stored_data[data] or { }
+                table.insert(stored_data[data], tostring(data[PlayerIndex]))
+            else
+                players[get_var(PlayerIndex, "$name")].adminchat = false
+                players[get_var(PlayerIndex, "$name")].boolean = false
+            end
         end
     end
-    -- CHAT LOGGING --------------------------------------------------
-    local file = io.open(dir, "a+")
-    if file ~= nil then
-        file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
-        file:close()
+    -- CHAT LOGGING
+    if script_settings["UseChatLogging"] == true then
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
+        end
     end
     -- MESSAGE BOARD
-    welcome_timer[PlayerIndex] = false
-    mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
+    if script_settings["UseMessageBoard"] == true then
+        welcome_timer[PlayerIndex] = false
+        mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
+    end
 end
 
 -- MESSAGE BOARD
@@ -456,40 +509,43 @@ function consoleLogo()
 end
 
 function OnServerCommand(PlayerIndex, Command)
-    Command = string.lower(Command)
-    local t = tokenizestring(Command)
-    response = nil
-    if t[1] == "achat" then
-        if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
-                if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                    if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
-                        rprint(PlayerIndex, "Admin Chat enabled.")
-                        players[get_var(PlayerIndex, "$name")].adminchat = true
-                        players[get_var(PlayerIndex, "$name")].boolean = true
+    -- ADMIN CHAT
+    if script_settings["UseAdminChat"] == true then
+        Command = string.lower(Command)
+        local t = tokenizestring(Command)
+        response = nil
+        if t[1] == "achat" then
+            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+                if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
+                    if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
+                        if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
+                            rprint(PlayerIndex, "Admin Chat enabled.")
+                            players[get_var(PlayerIndex, "$name")].adminchat = true
+                            players[get_var(PlayerIndex, "$name")].boolean = true
+                        else
+                            rprint(PlayerIndex, "Admin Chat is already enabled.")
+                        end
+                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                        if players[get_var(PlayerIndex, "$name")].boolean ~= false then
+                            players[get_var(PlayerIndex, "$name")].adminchat = false
+                            players[get_var(PlayerIndex, "$name")].boolean = false
+                            rprint(PlayerIndex, "Admin Chat disabled.")
+                        else
+                            rprint(PlayerIndex, "Admin Chat is already disabled.")
+                        end
                     else
-                        rprint(PlayerIndex, "Admin Chat is already enabled.")
-                    end
-                elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                    if players[get_var(PlayerIndex, "$name")].boolean ~= false then
-                        players[get_var(PlayerIndex, "$name")].adminchat = false
-                        players[get_var(PlayerIndex, "$name")].boolean = false
-                        rprint(PlayerIndex, "Admin Chat disabled.")
-                    else
-                        rprint(PlayerIndex, "Admin Chat is already disabled.")
+                        rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
+                    rprint(PlayerIndex, "You do not have permission to execute that command!")
                 end
             else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
+                cprint("The Server cannot execute this command!", 4+8)
             end
-        else
-            cprint("The Server cannot execute this command!", 4+8)
+            response = false
         end
-        response = false
+        return response
     end
-    return response
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -514,74 +570,80 @@ function OnPlayerChat(PlayerIndex, Message, type)
         end
     end
     -- ADMIN CHAT
-    local message = tokenizestring(Message)
-    if #message == 0 then return nil end
-    if players[get_var(PlayerIndex, "$name")].adminchat == true then
-        for i = 0, #message do
-            if message[i] then
-                if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                    return true
-                else
-                    AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
-                    return false
+    if script_settings["UseAdminChat"] == true then
+        local message = tokenizestring(Message)
+        if #message == 0 then return nil end
+        if players[get_var(PlayerIndex, "$name")].adminchat == true then
+            for i = 0, #message do
+                if message[i] then
+                    if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                        return true
+                    else
+                        AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
+                        return false
+                    end
                 end
             end
         end
     end
     -- CHAT LOGGING
-    local Message = tostring(Message)
-    local Command = tokenizestring(Message)
-    local iscommand = nil
-    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
-        iscommand = true
-        chattype = "[COMMAND] "
-    else 
-        iscommand = false
-    end
-    if type == 0 then
-        Type = "[GLOBAL]  "
-    elseif type == 1 then
-        Type = "[TEAM]    "
-    elseif type == 2 then
-        Type = "[VEHICLE] "
-    end    
-    if (player_present(PlayerIndex) ~= nil) then
-        if iscommand then 
-            WriteData(dir, "   " .. chattype .. "     " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
-            cprint(chattype .." " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message, 3+8)
-        else
-            WriteData(dir, "   " .. Type .. "     " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
-            cprint(Type .." " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message, 3+8)
+    if script_settings["UseChatLogging"] == true then
+        local Message = tostring(Message)
+        local Command = tokenizestring(Message)
+        local iscommand = nil
+        if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
+            iscommand = true
+            chattype = "[COMMAND] "
+        else 
+            iscommand = false
+        end
+        if type == 0 then
+            Type = "[GLOBAL]  "
+        elseif type == 1 then
+            Type = "[TEAM]    "
+        elseif type == 2 then
+            Type = "[VEHICLE] "
+        end    
+        if (player_present(PlayerIndex) ~= nil) then
+            if iscommand then 
+                WriteData(dir, "   " .. chattype .. "     " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
+                cprint(chattype .." " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message, 3+8)
+            else
+                WriteData(dir, "   " .. Type .. "     " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
+                cprint(Type .." " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message, 3+8)
+            end
         end
     end
     -- COMMAND SPY
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
-        AdminIndex = tonumber(PlayerIndex)
-    end
-    local cSpy_iscommand = nil
-    local Message = tostring(Message)
-    local command = tokenizestring(Message)
-    if string.sub(command[1], 1, 1) == "/" then
-        cmd = command[1]:gsub("\\", "/")
-        cSpy_iscommand = true
-    else 
-        cSpy_iscommand = false
-    end
-    for k, v in pairs(commands_to_hide) do
-        if (cmd == v) then
-            hidden = true
-            break
-        else
-            hidden = false
+    if script_settings["UseCommandSpy"] == true then
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+            AdminIndex = tonumber(PlayerIndex)
         end
-    end    
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
-        if (cSpy_iscommand and PlayerIndex) then
-            if (settings["HideCommands"] == true and hidden == true) then
-                return false
-            elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
-                CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", PlayerIndex)
-                return true
+        local cSpy_iscommand = nil
+        local Message = tostring(Message)
+        local command = tokenizestring(Message)
+        if string.sub(command[1], 1, 1) == "/" then
+            cmd = command[1]:gsub("\\", "/")
+            cSpy_iscommand = true
+        else 
+            cSpy_iscommand = false
+        end
+        for k, v in pairs(commands_to_hide) do
+            if (cmd == v) then
+                hidden = true
+                break
+            else
+                hidden = false
+            end
+        end    
+        if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+            if (cSpy_iscommand and PlayerIndex) then
+                if (settings["HideCommands"] == true and hidden == true) then
+                    return false
+                elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
+                    CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", PlayerIndex)
+                    return true
+                end
             end
         end
     end
