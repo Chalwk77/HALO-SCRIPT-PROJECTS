@@ -537,7 +537,7 @@ function OnScriptUnload()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    weapon[PlayerIndex] = 0
+    weapon[PlayerIndex] = true
     mapname = get_var(0, "$map")
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -609,7 +609,7 @@ function OnTick()
                 return false
             else
                 local player = get_dynamic_player(i)
-                if (weapon[i] == 0) then
+                if (weapon[i] == true) then
                     execute_command("wdel " .. i)
                     local x, y, z = read_vector3d(player + 0x5C)
 --                  ====== INFO ======
@@ -620,554 +620,554 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "snowdrop") then
                         assign_weapon(spawn_object("weap", weapons[27], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[24], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1                    
+                        weapon[i] = false                    
 -----------------------------------------------------------------------------------------------------
 -- =================================== D E F A U L T   M A P S =================================== --
                     elseif (mapname == "beavercreek") then
                         assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
                         assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) -- Plasma Cannon
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "bloodgulch") then
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "boardingaction") then
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "carousel") then
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "dangercanyon") then
                         assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "deathisland") then
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "gephyrophobia") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "icefields") then
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
                         assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "infinity") then
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Assault Rifle
                         assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "sidewinder") then
                         assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "timberland") then
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         assign_weapon(spawn_object("weap", weapons[10], x, y, z), i) -- Shotgun
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "hangemhigh") then
                         assign_weapon(spawn_object("weap", weapons[2], x, y, z), i) -- Sniper Rifle
                         assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "ratrace") then
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
                         assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) -- Plasma Cannon
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "damnation") then
                         assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
                         assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "putput") then
                         assign_weapon(spawn_object("weap", weapons[4], x, y, z), i) -- Rocket Launcher
                         assign_weapon(spawn_object("weap", weapons[5], x, y, z), i) -- Plasma Pistol
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "prisoner") then
                         assign_weapon(spawn_object("weap", weapons[7], x, y, z), i) -- Assault Rifle
                         assign_weapon(spawn_object("weap", weapons[9], x, y, z), i) -- Needler
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "wizard") then
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
-                        weapon[i] = 1
+                        weapon[i] = false
 -----------------------------------------------------------------------------------------------------
 -- =================================== C U S T O M   M A P S =================================== --
 --[[
                     elseif (mapname == "Homestead") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[H2]_Ivory_Tower") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "dmt_racing") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "deltaruined_intense") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tension") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Armageddon") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tactics") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "nitra") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Garden_CE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "lucidity_rc_b") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "ewok") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "bc_Carousel_mp") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "bounce_arena") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "church") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "smallprawn") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Cell2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Bridge_crossing") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "lavaflows") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Crimson_Woods") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "DMT-Goldeneye_Stack-BETA") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "sniperbluff") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "helix_canyon") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "UMT_Archive") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "fission_point") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Nyctophobia") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "FeelGoodInc") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[Z-5]-chillout_alpha") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "CMT_V2_Dissolution") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "siege") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Dredwerkz_PB2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "EMT_Inverno") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tm_immolate") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "destiny") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "corrupted") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Division") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Hornets_Nest") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "headquarters_beta_v2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "hmf_marecage") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Ambush") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "sidewinder_v2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "TrainingDay") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[h3] core") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "pass_bridge") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Serenity(ADB)") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "old_cemetery") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "river") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Dance") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Claustrophobia2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "ancient_sanctuary_beta") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "municipality") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "paranoia") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "CMT_G3_Augur") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Train.Station") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "fates_gulch") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tower") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Bigass") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "aquarii_final") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "OverGrown") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "huh-what_3") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Lake_Serenity") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Orion_final") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "fissurefall") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "deagle6_texture") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "disco") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "obelisk") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[H4-beta]re-damnation") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "CMT_G3_MouseTrap") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "No_Remorse") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[H2]_ascension") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tempo") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "infested") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "treehouse") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "fox_condensedGAMMA") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Enigma") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Dead_End") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "confined") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "complex") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Seclusion_redux") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "combat_arena") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "camden_place") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "ivory_tower_final") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "bacon") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "amysroom_beta") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "dioptase") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "airball") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "aboveandbelow") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "tunnel") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "triduct") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "xbox_decidia_h1.5_rc_final") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Powerhouse") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Toys_In_The_Warehouse") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "extermination") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "windfall_island") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "lolcano") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "xbox_hotbox_h1.5_rc_final") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "pac-man") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Valis") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "revolutions") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Zanzibar_INTENSE") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "longest") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[halo4-reach]re-prisoner") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "hydroxide") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "mermaids_plaza") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "newgulch_5") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "H2_Momentum") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "[CoD]Templo-En-Guerra") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "CMT_Tensity") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "battlecreek_v2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "pipeline") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "carnage_springs") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "CnR_Island") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "chaos_zanzibar") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Falujah_1.2") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "pacman") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Sniper_Training") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
                     elseif (mapname == "Medical Block") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = 1
+                        weapon[i] = false
 ]]
                     end
                 end
