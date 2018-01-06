@@ -77,7 +77,7 @@ plasmas = {
     bloodgulch = 7,
 }
 
--- ANTI IMPERSONATOR
+-- ANTI-IMPERSONATOR
 response = {
     ["kick"] = true,
     ["ban"] = false
@@ -120,7 +120,7 @@ function OnScriptLoad()
             mapname = get_var(0, "$map")
         end
     end
-    -- ANTI IMPERSONATOR
+    -- ANTI-IMPERSONATOR
     LoadTables( )
     if (response["ban"] == true) and (response["kick"] == true) then
         cprint("Script Error: AntiImpersonator.lua", 4+8)
@@ -144,12 +144,12 @@ function OnScriptUnload()
     weapon = { }
     weapons = { }
     maps = { }
-    -- ANTI IMPERSONATOR
+    -- ANTI-IMPERSONATOR
     NameList = { }
     HashList = { }
 end
 
--- ANTI IMPERSONATOR
+-- ANTI-IMPERSONATOR
 function LoadTables( )
     NameList = {"Chalwk"}	
     HashList = {"6c8f0bc306e0108b4904812110185edd"}
@@ -231,7 +231,7 @@ function OnGameEnd(PlayerIndex)
             end
         end
     end
-    -- ANTI IMPERSONATOR
+    -- ANTI-IMPERSONATOR
     NameList = { }
     HashList = { }
 end
@@ -345,7 +345,7 @@ function OnPlayerJoin(PlayerIndex)
     mb_players[get_var(PlayerIndex, "$n")] = { }
     mb_players[get_var(PlayerIndex, "$n")].new_timer = 0
     welcome_timer[PlayerIndex] = true
-    -- ANTI IMPERSONATOR
+    -- ANTI-IMPERSONATOR
     local Name = get_var(PlayerIndex,"$name")
     local Hash = get_var(PlayerIndex,"$hash")
     local Index = get_var(PlayerIndex, "$n")
@@ -626,7 +626,7 @@ function WriteData(dir, value)
     end
 end
 
--- WEAPON SETTINGS
+-- WEAPON SETTINGS | ANTI-IMPERSONATOR
 function table.match(table, value)
     for k,v in pairs(table) do
         if v == value then
