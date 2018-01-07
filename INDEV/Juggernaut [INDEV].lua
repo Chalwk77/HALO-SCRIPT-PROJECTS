@@ -442,6 +442,8 @@ function OnTick()
         if player_present(i) then
             if player_alive(i) then
                 if (players[get_var(i, "$n")].current_juggernaut) then
+                    initiate_timer[i] = true
+                    -- debugging
                     cprint("current_juggernaut: " .. get_var(i, "$name").. " [" .. players[get_var(i, "$n")].current_juggernaut .. "]")
                     if (MapIsListed == false) then
                         return false
@@ -564,23 +566,30 @@ function OnTick()
             for n = 1, current_players do
                 if player_present(n) then
                     if initiate_timer[n] == true then
+                    
+                        -- debugging
                         cprint(get_var(n, "$name") .. ": initiate_timer == true")
+                        
                         if n == players[get_var(n, "$n")].current_juggernaut then
                             players[get_var(n, "$n")].turn_timer = players[get_var(n, "$n")].turn_timer + 0.030
+                            
+                            -- debugging
                             local minutes, seconds = secondsToTime(players[get_var(n, "$n")].turn_timer, 2)
                             cprint(get_var(n, "$name") .. ": " .. TurnTime - math.floor(seconds) .. " seconds")
+                            
                             if players[get_var(n, "$n")].turn_timer >= math.floor(TurnTime) then
-                                -- Load equipment held before they became Juggernaut
-                                if player_alive(n) then 
-                                    LoadEquipment(n)
-                                end
                                 -- reset timers and select new juggernaut
                                 players[get_var(n, "$n")].turn_timer = 0
                                 local exclude = tonumber(players[get_var(n, "$n")].current_juggernaut)
                                 players[get_var(n, "$n")].current_juggernaut = nil
                                 SelectionHandler(exclude)
                                 initiate_timer[n] = false
+                                
+                                -- debugging
                                 cprint(get_var(n, "$name") .. ": initiate_timer == false", 4+8)
+                                
+                                -- Load equipment held before they became Juggernaut
+                                if player_alive(n) then LoadEquipment(n) end
                             end
                         end
                     end
@@ -611,9 +620,7 @@ function SelectionHandler(player)
             while selectedIndex == tonumber(indexToExclude) do
                 local newNumber = math.random(1, current_players)
                 players[get_var(newNumber, "$n")].current_juggernaut = (newNumber)
-                initiate_timer[newNumber] = true
                 execute_command("s " .. newNumber .. " :" .. tonumber(juggernaut_running_speed[mapname]))
-                say(newNumber, "You're now the Juggernaut!")
                 SetNavMarker(newNumber)
                 bool = true
                 for i=1,16 do
@@ -626,7 +633,6 @@ function SelectionHandler(player)
         -- number chosen does not match the selectedIndex id of the previous juggernaut
         elseif (selectedIndex ~= tonumber(indexToExclude)) then
             players[get_var(selectedIndex, "$n")].current_juggernaut = (selectedIndex)
-            initiate_timer[selectedIndex] = true
             execute_command("s " .. selectedIndex .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(selectedIndex, "You're now the Juggernaut!")
             SetNavMarker(selectedIndex)
@@ -730,7 +736,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
             bool = true
             tick_bool = false
-            initiate_timer[killer] = true
             -- Set NAV Markers
             SetNavMarker(KillerIndex)
             -- Set Player Running Speed
@@ -900,7 +905,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             LoadEquipment(executor)
             say(executor, "Equipment Loaded")
             for i = 1,current_players do
-                players[get_var(i, "$n")].current_juggernaut = {}
+                players[get_var(i, "$n")].current_juggernaut = nil
             end
             UnknownCMD = false
         end
