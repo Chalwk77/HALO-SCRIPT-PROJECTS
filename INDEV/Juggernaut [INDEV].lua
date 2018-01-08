@@ -44,7 +44,6 @@ frags = { }
 plasmas = { }
 turn_timer = { }
 score_timer = { }
-save_equipment = { }
 weapons[00000] = "nil\\nil\\nil"
 -- booleans --
 MapIsListed = nil
@@ -57,9 +56,9 @@ current_players = 0
 -- Custom Server Prefix
 SERVER_PREFIX = "JUGGERNAUT"
 
--- Points received for killing the juggernaut
+-- Bonus points rewarded for killing the juggernaut
 bonus = 5
--- points received for every kill as juggernaut
+-- points rewarded for every kill as juggernaut
 points = 2
 -- Health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
@@ -71,41 +70,15 @@ juggernaut_shields = 3
 killLimit = 50
 -- On game Start: How many seconds until someone is chosen to be the Juggernaut
 start_delay = 5
--- Player's can only be the Juggernaut for a limited amount of time.
+-- Juggernaut Turn-Duration (in seconds)
 TurnTime = 5
-
-juggernaut_running_speed = {
-    -- large maps --
-    infinity = 1.45,
-    icefields = 1.25,
-    bloodgulch = 1.35,
-    timberland = 1.35,
-    sidewinder = 1.30,
-    deathisland = 1.45,
-    dangercanyon = 1.15,
-    gephyrophobia = 1.20,
-    -- small maps --
-    wizard = 1.10,
-    putput = 1.10,
-    longest = 1.05,
-    ratrace = 1.10,
-    carousel = 1.15,
-    prisoner = 1.10,
-    damnation = 1.10,
-    hangemhigh = 1.10,
-    beavercreek = 1.10,
-    boardingaction = 1.10
-}
-
--- When a new game starts, if there are this many (or more) players online, select a random Juggernaut.
-player_count_threashold = 3
 -- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
--- When Juggernaut commits suicide, how long (in seconds) until someone is chosen to be Juggernaut.
+-- When Juggernaut commits suicide, how long (in seconds) until someone else is chosen to be Juggernaut.
 SuicideSelectDelay = 5
--- Receive 1 score point every X seconds (30 by default)
+-- Juggernaut is rewarded this many points every X seconds (30 by default)
 allocated_time = 30
--- points received every "allocated_time" seconds
+-- points rewarded every "allocated_time" seconds
 alive_points = 1
 
 -- Juggernaut Weapon Layout --
@@ -117,7 +90,6 @@ weapons[4] = "weapons\\shotgun\\shotgun"                    -- Quaternary   | WE
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
-
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
@@ -163,7 +135,30 @@ weapon_settings = {
     }
 ---------------------------------------------------
     
-
+-- Juggernaut Running Speed | On a per map basis. (1 is default speed)
+juggernaut_running_speed = {
+    -- large maps --
+    infinity = 1.45,
+    icefields = 1.25,
+    bloodgulch = 1.35,
+    timberland = 1.35,
+    sidewinder = 1.30,
+    deathisland = 1.45,
+    dangercanyon = 1.15,
+    gephyrophobia = 1.20,
+    -- small maps --
+    wizard = 1.10,
+    putput = 1.10,
+    longest = 1.05,
+    ratrace = 1.10,
+    carousel = 1.15,
+    prisoner = 1.10,
+    damnation = 1.10,
+    hangemhigh = 1.10,
+    beavercreek = 1.10,
+    boardingaction = 1.10
+}
+    
 -- You can only set a maximum of 7 grenades!
 function GrenadeTable()
     --  frag grenade table --
@@ -207,7 +202,8 @@ function GrenadeTable()
         wizard = 4
     }
 end
-    
+
+-- This is a list of valid maps that this game is designed to run on. 
 function LoadMaps()
     -- mapnames table --
     mapnames = {
@@ -252,7 +248,7 @@ function OnScriptLoad()
                 players[get_var(i, "$n")].previous_juggernaut = nil
                 players[get_var(i, "$n")].kills = 0
                 players[get_var(i, "$n")].join_timer = 0
-                players[get_var(o, "$n")].turn_timer = 0
+                players[get_var(i, "$n")].turn_timer = 0
                 players[get_var(i, "$n")].time_alive = 0
             end
         end
@@ -489,7 +485,8 @@ function OnTick()
             end
         end
     end
-    if (current_players == 2) then
+    --if (current_players == 2) then
+    if (current_players >= 2) then
         for j = 1, current_players do
             if player_present(j) then
                 if (j ~= players[get_var(j, "$n")].current_juggernaut) then
@@ -857,9 +854,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if victim == players[get_var(PlayerIndex, "$n")].current_juggernaut then
         execute_command("s " .. victim .. " 1")
     end
-    
-    -- debugging
-    save_equipment[PlayerIndex] = false
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
@@ -933,7 +927,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 UnknownCMD = false
             end
         elseif t[1] == string.lower("e") then
-            save_equipment[PlayerIndex] = false
             CommandTrigger = false
             debugging = false
             LoadEquipment(executor)
