@@ -131,8 +131,8 @@ Message_Alignment = "l"
 -- messages --
 message_board = {
     "Welcome to $SERVER_NAME",
-    "Bug reports and suggestions:",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
+    "For live updates on the development of this game:",
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/projects/3"
     }
 
 gamesettings = {
