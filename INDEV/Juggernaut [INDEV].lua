@@ -155,6 +155,15 @@ gamesettings = {
     ["UseTurnTimer"] = true
 }
 
+-- TO DO
+-- Weapon Damage Modifier Settings
+weapon_settings = {
+        ["Sniper_DamageModifier"] = false,
+        ["Pistol_DamageModifier"] = false
+    }
+---------------------------------------------------
+    
+
 -- You can only set a maximum of 7 grenades!
 function GrenadeTable()
     --  frag grenade table --
@@ -252,6 +261,7 @@ function OnScriptLoad()
         mapname = get_var(0, "$map")
         GrenadeTable()
         LoadMaps()
+        CheckType()
     end
     current_players = 0
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
@@ -282,6 +292,7 @@ function OnNewGame()
     mapname = get_var(0, "$map")
     GrenadeTable()
     LoadMaps()
+    CheckType()
     if (table.match(mapnames, mapname) == nil) then
         MapIsListed = false
         Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 110'
@@ -357,6 +368,7 @@ function OnPlayerLeave(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].kills = 0
     players[get_var(PlayerIndex, "$n")].join_timer = 0
     players[get_var(PlayerIndex, "$n")].turn_timer = 0
+    players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -776,6 +788,27 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             say(KillerIndex, "You're now the Juggernaut!")
         end
     end
+    
+    -- prototype | reset nav markers
+    if (killer == -1 and victim == players[get_var(victim, "$n")].current_juggernaut) then
+        for j = 1, current_players do
+            if player_present(j) then
+                if (j == players[get_var(j, "$n")].current_juggernaut) then
+                    local m_player = get_player(j)
+                    local player = to_real_index(j)
+                    if m_player ~= 0 then
+                        if j ~= nil then
+                            if (tick_bool) == nil then
+                                write_word(m_player + 0x88, player + 10)
+                                players[get_var(victim, "$n")].current_juggernaut = nil
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
     -- suicide | victim was juggernaut | SelectNewJuggernaut()
     if (tonumber(victim) == tonumber(KillerIndex)) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         for i = 1, current_players do
@@ -784,6 +817,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
             end
         end
+        -- remove their juggernaut status
+        players[get_var(victim, "$n")].current_juggernaut = nil
+        
         say(KillerIndex, "You are no longer the Juggernaut!")
         -- Call SelectNewJuggernaut() | Select someone else as the new Juggernaut
         SelectionHandler(victim)
@@ -969,6 +1005,45 @@ function secondsToTime(seconds, places)
     seconds = seconds % 60
     if places == 2 then
         return minutes, seconds
+    end
+end
+
+function CheckType()
+    local type_is_ctf = get_var(1, "$gt") == "ctf"
+    local type_is_koth = get_var(1, "$gt") == "koth"
+    local type_is_oddball = get_var(1, "$gt") == "oddball"
+    local type_is_race = get_var(1, "$gt") == "race"
+    if (type_is_ctf) or (type_is_koth) or (type_is_oddball) or (type_is_race) then
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_GAME_START'])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_PRESPAWN'])
+        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+        unregister_callback(cb['EVENT_VEHICLE_EXIT'])
+        cprint("Warning: This script doesn't support CTF, KOTH, ODDBALL, or RACE", 4 + 8)
+    end
+    local type_is_slayer = get_var(1, "$gt") == "slayer"
+    if (type_is_slayer) then
+        if not(table.match(mapnames, mapname)) then
+            unregister_callback(cb['EVENT_TICK'])
+            unregister_callback(cb['EVENT_JOIN'])
+            unregister_callback(cb['EVENT_DIE'])
+            unregister_callback(cb['EVENT_GAME_END'])
+            unregister_callback(cb['EVENT_LEAVE'])
+            unregister_callback(cb['EVENT_GAME_START'])
+            unregister_callback(cb['EVENT_SPAWN'])
+            unregister_callback(cb['EVENT_COMMAND'])
+            unregister_callback(cb['EVENT_PRESPAWN'])
+            unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+            unregister_callback(cb['EVENT_VEHICLE_EXIT'])
+            cprint("juggernaut.lua does not support the map " .. mapname, 4 + 8)
+            cprint("Script cannot be used.", 4 + 8)
+        end
     end
 end
 
