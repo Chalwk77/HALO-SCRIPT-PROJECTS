@@ -121,7 +121,7 @@ Alignment = "l"
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
-Message_Duration = 5
+Message_Duration = 10
 -- Left = l,    Right = r,    Centre = c,    Tab: t
 Message_Alignment = "l"
 
@@ -132,9 +132,7 @@ Message_Alignment = "l"
 message_board = {
     "Welcome to $SERVER_NAME",
     "Bug reports and suggestions:",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25",
-    "",
-    "WARNING: The Current Game is under heavy development and is buggy."
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
     }
 
 gamesettings = {
@@ -631,7 +629,7 @@ function SelectionHandler(player)
                 break
             end
         -- number chosen does not match the selectedIndex id of the previous juggernaut
-        elseif (selectedIndex ~= tonumber(indexToExclude)) then
+        else
             players[get_var(selectedIndex, "$n")].current_juggernaut = (selectedIndex)
             execute_command("s " .. selectedIndex .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(selectedIndex, "You're now the Juggernaut!")
