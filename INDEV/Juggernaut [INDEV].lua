@@ -18,7 +18,7 @@ script_version = "  |  beta v1.0"
 player_equipment = { }
 initiate_timer = { }
 welcome_timer = { }
-kill_bool = { }
+saving_equipment = { }
 join_timer = { }
 players = { }
 weapons = { }
@@ -359,7 +359,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    kill_bool[PlayerIndex] = true
+    saving_equipment[PlayerIndex] = true
     weapon[PlayerIndex] = true
     mapname = get_var(0, "$map")
     players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
@@ -439,33 +439,35 @@ function OnTick()
     for i = 1, current_players do
         if player_present(i) then
             if player_alive(i) then
+                if saving_equipment[i] == true then SaveEquipment(i) end
                 if (players[get_var(i, "$n")].current_juggernaut) then
                     initiate_timer[i] = true
-                    -- debugging
-                    --cprint("current_juggernaut: " .. get_var(i, "$name").. " [" .. players[get_var(i, "$n")].current_juggernaut .. "]")
-                    if (MapIsListed == false) then
-                        return false
-                    else
-                        local player = get_dynamic_player(i)
-                        local x, y, z = read_vector3d(player + 0x5C)
-                        if (weapon[i] == true) then
-                            execute_command("wdel " .. i)
-                            if (mapname == "bloodgulch") then
-                                if not PlayerInVehicle(i) then
-                                    assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
-                                    assign_weapon(spawn_object("weap", weapons[3], x, y, z), i)
-                                    timer(50, "TertiaryDelay", x,y,z, i)
-                                    weapon[i] = false
-                                end
-                                if (bool == true) then
-                                    AssignGrenades(i)
-                                    bool = false
-                                end
-                                if (gamesettings["GiveExtraHealth"] == true) then
-                                    write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
-                                end
-                                if (gamesettings["GiveOvershield"] == true) then
-                                    write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
+                    if not saving_equipment[i] then
+                        if (MapIsListed == false) then
+                            return false
+                        else
+                            local player = get_dynamic_player(i)
+                            local x, y, z = read_vector3d(player + 0x5C)
+                            if (weapon[i] == true) then
+                                cprint("deleting weapons!")
+                                execute_command("wdel " .. i)
+                                if (mapname == "bloodgulch") then
+                                    if not PlayerInVehicle(i) then
+                                        assign_weapon(spawn_object("weap", weapons[2], x, y, z), i)
+                                        assign_weapon(spawn_object("weap", weapons[3], x, y, z), i)
+                                        timer(50, "TertiaryDelay", x,y,z, i)
+                                        weapon[i] = false
+                                    end
+                                    if (bool == true) then
+                                        AssignGrenades(i)
+                                        bool = false
+                                    end
+                                    if (gamesettings["GiveExtraHealth"] == true) then
+                                        write_float(player + 0xE0, math.floor(tonumber(juggernaut_health)))
+                                    end
+                                    if (gamesettings["GiveOvershield"] == true) then
+                                        write_float(player + 0xE4, math.floor(tonumber(juggernaut_shields)))
+                                    end
                                 end
                             end
                         end
@@ -473,9 +475,6 @@ function OnTick()
                 else
                     -- set default running speed for all non-juggernauts
                     execute_command("s " .. i .. " 1")
-                    if kill_bool[i] == true then
-                        SaveEquipment(i)
-                    end
                 end
             end
         end
@@ -598,12 +597,9 @@ function OnTick()
                                 SelectionHandler(exclude)
                                 initiate_timer[n] = false
                                 -- Load equipment held before they became Juggernaut
-                                if player_alive(n) then
-                                    if not players[get_var(n, "$n")].current_juggernaut then
-                                        say(n, "You're no longer the Juggernaut. Restoring previous weapon loadout.")
-                                        LoadEquipment(n)
-                                    end
-                                end
+                                say(n, "You're no longer the Juggernaut. Restoring previous weapon loadout.")
+                                -- [!] Possible Cause: weapons are being deleted somewhere else!
+                                LoadEquipment(n)
                             end
                         end
                     end
@@ -718,6 +714,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if killer == players[get_var(KillerIndex, "$n")].current_juggernaut and tonumber(victim) ~= tonumber(killer) then
             players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
             rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
+            saving_equipment[killer] = false
         end
     end
     -- victim was juggernaut | reset score timers
@@ -735,6 +732,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- neither killer or victim are juggernaut | make killer juggernaut | update Score
     if (current_players >= 2) then
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(PlayerIndex, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(KillerIndex)) then
+            saving_equipment[killer] = false
             players[get_var(killer, "$n")].current_juggernaut = killer
             if PlayerInVehicle(KillerIndex) then
                 players[get_var(killer, "$n")].weapon_trigger = true
