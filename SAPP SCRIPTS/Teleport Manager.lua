@@ -79,30 +79,30 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         local teleport_name = v:match("[%a%d_]*")
                         if t[2] == teleport_name then
                             local data = v
-                            local regex_1 = ("(%d+), (%d+), (%d+)")
-                            local regex_2 = ("(-)(%d+), (-)(%d+), (-)(%d+)")
-                            local regex_3 = ("(-)(%d+), (%d+), (%d+)")
-                            local regex_4 = ("(%d+), (-)(%d+), (%d+)")
-                            local regex_5 = ("(%d+), (%d+), (-)(%d+)")
-                            local regex_6 = ("(-)(%d+), (-)(%d+), (%d+)")
-                            local regex_7 = ("(-)(%d+), (%d+), (-)(%d+)")
-                            local regex_8 = ("(%d+), (-)(%d+), (-)(%d+)")
-                            if data:match(regex_1) then 
-                                cprint(data:match(regex_1) .. "", 2+8)
+                            local regex_1 = ("(%d+)(,) (%d+)(,) (%d+)")
+                            local regex_2 = ("(-)(%d+)(,) (-)(%d+)(,) (-)(%d+)")
+                            local regex_3 = ("(-)(%d+)(,) (%d+)(,) (%d+)")
+                            local regex_4 = ("(%d+)(,) (-)(%d+)(,) (%d+)")
+                            local regex_5 = ("(%d+)(,) (%d+)(,) (-)(%d+)")
+                            local regex_6 = ("(-)(%d+)(,) (-)(%d+)(,) (%d+)")
+                            local regex_7 = ("(-)(%d+)(,) (%d+(,) (-)(%d+)")
+                            local regex_8 = ("(%d+)(,) (-)(%d+)(,) (-)(%d+)")
+                            if data:match(regex_1) then
+                                cprint(data:match(regex_1) .. "     [1] ", 2+8)
                             elseif data:match(regex_2) then 
-                                cprint(data:match(regex_2) .. "", 2+8)
+                                cprint(data:match(regex_2) .. "     [2] ", 2+8)
                             elseif data:match(regex_3) then 
-                                cprint(data:match(regex_3) .. "", 2+8)
+                                cprint(data:match(regex_3) .. "     [3] ", 2+8)
                             elseif data:match(regex_4) then 
-                                cprint(data:match(regex_4) .. "", 2+8)
+                                cprint(data:match(regex_4) .. "     [4] ", 2+8)
                             elseif data:match(regex_5) then 
-                                cprint(data:match(regex_5) .. "", 2+8)
+                                cprint(data:match(regex_5) .. "     [5] ", 2+8)
                             elseif data:match(regex_6) then 
-                                cprint(data:match(regex_6) .. "", 2+8)
+                                cprint(data:match(regex_6) .. "     [6] ", 2+8)
                             elseif data:match(regex_7) then 
-                                cprint(data:match(regex_7) .. "", 2+8)
+                                cprint(data:match(regex_7) .. "     [7] ", 2+8)
                             elseif data:match(regex_8) then 
-                                cprint(data:match(regex_8) .. "", 2+8)
+                                cprint(data:match(regex_8) .. "     [8] ", 2+8)
                             else
                                 cprint("does not match!", 4+8)
                             end
