@@ -6,7 +6,7 @@ Description: Allows the user to create custom teleports and warp to them on dema
 Use this command to set a new teleport location
 /setportal [teleport name]
 
-Use this command to teleport
+Use this command to teleport to the desired coordinates
 /tpo [teleport name]
 
 Use this command to list all custom portals
