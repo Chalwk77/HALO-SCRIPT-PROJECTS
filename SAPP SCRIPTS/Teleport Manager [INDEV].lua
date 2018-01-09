@@ -133,7 +133,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
-                            if (v ~= nil and ) then
+                            if (v ~= nil) then
                                 -- write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tostring(coordinates))
                             end
                         end
