@@ -78,37 +78,54 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     for k, v in pairs(lines) do
                         local teleport_name = v:match("[%a%d_]*")
                         if t[2] == teleport_name then
-                            local regex_1 = ("(%d+)(,) (%d+)(,) (%d+)")
-                            local regex_2 = ("(-)(%d+)(,) (-)(%d+)(,) (-)(%d+)")
-                            local regex_3 = ("(-)(%d+)(,) (%d+)(,) (%d+)")
-                            local regex_4 = ("(%d+)(,) (-)(%d+)(,) (%d+)")
-                            local regex_5 = ("(%d+)(,) (%d+)(,) (-)(%d+)")
-                            local regex_6 = ("(-)(%d+)(,) (-)(%d+)(,) (%d+)")
-                            local regex_7 = ("(-)(%d+)(,) (%d+(,) (-)(%d+)")
-                            local regex_8 = ("(%d+)(,) (-)(%d+)(,) (-)(%d+)")
-                            if v:match(regex_1) then
-                                cprint("regex_1         data found:         " .. v:match(regex_1), 2+8)
-                            elseif v:match(regex_2) then 
-                                cprint("regex_2         data found:         " .. v:match(regex_2), 2+8)
-                            elseif v:match(regex_3) then 
-                                cprint("regex_3         data found:         " .. v:match(regex_3), 2+8)
-                            elseif v:match(regex_4) then 
-                                cprint("regex_4         data found:         " .. v:match(regex_4), 2+8)
-                            elseif v:match(regex_5)     then 
-                                cprint("regex_5         data found:         " .. v:match(regex_5), 2+8)
-                            elseif v:match(regex_6) then 
-                                cprint("regex_6         data found:         " .. v:match(regex_6), 2+8)
-                            elseif v:match(regex_7) then 
-                                cprint("regex_7         data found:         " .. v:match(regex_7), 2+8)
-                            elseif v:match(regex_8) then 
-                                cprint("regex_8         data found:         " .. v:match(regex_8), 2+8)
+                            local regex_1 = ("%d,%s*%d,%s*%d")
+                            local regex_2 = ("-%d,%s*-%d,%s*-%d")
+                            local regex_3 = ("-%d,%s*%d,%s*%d")
+                            local regex_4 = ("%d,%s*-%d,%s*%d")
+                            local regex_5 = ("%d,%s*%d,%s*-%d")
+                            local regex_6 = ("-%d,%s*-%d,%s*%d")
+                            local regex_7 = ("-%d,%s*%d,%s*-%d")
+                            local regex_8 = ("%d,%s*-%d,%s*-%d")
+                            local coordinates = nil
+                            -- to do:
+                            -- split "coordinates" and declare x,y,z variables for each set of numbers
+                            if string.match(v, regex_1) then
+                                cprint(string.match(v, regex_1))
+                                coordinates = string.match(v, regex_1)
+                                
+                            elseif string.match(v, regex_2) then 
+                                cprint(string.match(v, regex_2))
+                                coordinates = string.match(v, regex_2)
+
+                            elseif string.match(v, regex_3) then 
+                                cprint(string.match(v, regex_3))
+                                coordinates = string.match(v, regex_3)
+                                
+                            elseif string.match(v, regex_4) then 
+                                cprint(string.match(v, regex_4))
+                                coordinates = string.match(v, regex_4)
+                                
+                            elseif string.match(v, regex_5) then 
+                                cprint(string.match(v, regex_5))
+                                coordinates = string.match(v, regex_5)
+                                
+                            elseif string.match(v, regex_6) then 
+                                cprint(string.match(v, regex_6))
+                                coordinates = string.match(v, regex_6)
+                                
+                            elseif string.match(v, regex_7) then 
+                                cprint(string.match(v, regex_7))
+                                coordinates = string.match(v, regex_7)
+                                
+                            elseif string.match(v, regex_8) then 
+                                cprint(string.match(v, regex_8))
+                                coordinates = string.match(v, regex_8)
                             else
-                                cprint("does not match!", 4+8)
+                                cprint("nothing matches the regex expression!", 4+8)
                             end
-                            -- local x = v:match("expression")
-                            -- local y = v:match("expression")
-                            -- local z = v:match("expression")
-                            -- write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
+                            if v ~= nil then
+                                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tostring(coordinates))
+                            end
                         end
                     end
                     UnknownCMD = false
