@@ -54,10 +54,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     local player = get_dynamic_player(PlayerIndex)
                     local x, y, z = read_vector3d(player + 0x5C)
                     local file = io.open(sapp_dir, "a+")
-                    local line = t[2] .. ": " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z)
+                    local line = t[2] .. ": " .. x .. ", " .. y .. ", " .. z
                     file:write(line, "\n")
                     file:close()
-                    say(PlayerIndex, "Teleport location set to: " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
+                    say(PlayerIndex, "Teleport location set to: " .. x .. ", " .. y .. ", " .. z)
                 else
                     say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
                 end
@@ -75,16 +75,41 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 if t[2] ~= nil then
                     local file = sapp_dir
                     local lines = lines_from(file)
-                    for k,v in pairs(lines) do
+                    for k, v in pairs(lines) do
                         local teleport_name = v:match("[%a%d_]*")
                         if t[2] == teleport_name then
-                        
-                            -- to do:
-                            local x =  -- Need first set of numbers
-                            local y =  -- second set of numbers
-                            local z =  -- third set of numbers
-                            
-                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z)
+                            local data = v
+                            local regex_1 = ("(%d+), (%d+), (%d+)")
+                            local regex_2 = ("(-)(%d+), (-)(%d+), (-)(%d+)")
+                            local regex_3 = ("(-)(%d+), (%d+), (%d+)")
+                            local regex_4 = ("(%d+), (-)(%d+), (%d+)")
+                            local regex_5 = ("(%d+), (%d+), (-)(%d+)")
+                            local regex_6 = ("(-)(%d+), (-)(%d+), (%d+)")
+                            local regex_7 = ("(-)(%d+), (%d+), (-)(%d+)")
+                            local regex_8 = ("(%d+), (-)(%d+), (-)(%d+)")
+                            if data:match(regex_1) then 
+                                cprint(data:match(regex_1) .. "", 2+8)
+                            elseif data:match(regex_2) then 
+                                cprint(data:match(regex_2) .. "", 2+8)
+                            elseif data:match(regex_3) then 
+                                cprint(data:match(regex_3) .. "", 2+8)
+                            elseif data:match(regex_4) then 
+                                cprint(data:match(regex_4) .. "", 2+8)
+                            elseif data:match(regex_5) then 
+                                cprint(data:match(regex_5) .. "", 2+8)
+                            elseif data:match(regex_6) then 
+                                cprint(data:match(regex_6) .. "", 2+8)
+                            elseif data:match(regex_7) then 
+                                cprint(data:match(regex_7) .. "", 2+8)
+                            elseif data:match(regex_8) then 
+                                cprint(data:match(regex_8) .. "", 2+8)
+                            else
+                                cprint("does not match!", 4+8)
+                            end
+                            -- local x = v:match("expression")
+                            -- local y = v:match("expression")
+                            -- local z = v:match("expression")
+                            -- write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
                         end
                     end
                     UnknownCMD = false
