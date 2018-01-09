@@ -76,10 +76,15 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     local file = sapp_dir
                     local lines = lines_from(file)
                     for k,v in pairs(lines) do
-                        if t[2] == (v:match("[%a_]+[%a%d_]*")) then
-                            cprint("working", 2+8)
+                        local teleport_name = v:match("[%a_]+[%a%d_]*")
+                        if t[2] == teleport_name then
+                            local x = -- first set of numbers
+                            local y = -- second set of numbers
+                            local z = -- third set of numbers
+                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z)
                         end
                     end
+                    UnknownCMD = false
                 else
                     say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. goto_command .. " <teleport name>")
                 end
