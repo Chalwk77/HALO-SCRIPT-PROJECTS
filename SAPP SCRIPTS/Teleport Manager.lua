@@ -76,7 +76,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     local file = sapp_dir
                     local lines = lines_from(file)
                     for k,v in pairs(lines) do
-                        local teleport_name = v:match("[%a_]+[%a%d_]*")
+                        local teleport_name = v:match("[%a%d_]*")
                         if t[2] == teleport_name then
                             local x = nil -- first set of numbers
                             local y = nil -- second set of numbers
