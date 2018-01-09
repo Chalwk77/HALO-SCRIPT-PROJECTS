@@ -3,13 +3,8 @@
 Script Name: Teleport Management (utility), for SAPP (PC & CE)
 Description: Allows the user to create custom teleports and warp to them on demand.
 
-Command Syntax:     /settp [name]
-                    /tpo [name]
-                    /tplist
-
-
 Use this command to set a new teleport location
-/settp [teleport name]
+/setportal [teleport name]
 
 Use this command to teleport
 /tpo [teleport name]
