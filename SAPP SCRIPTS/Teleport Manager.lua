@@ -86,70 +86,55 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             local regex_6 = ("-%d+,%s*-%d+,%s*%d+")
                             local regex_7 = ("-%d+,%s*%d+,%s*-%d+")
                             local regex_8 = ("%d+,%s*-%d+,%s*-%d+")
-                            local regex_decimal_1 = ("%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
-                            local regex_decimal_2 = ("-%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
-                            local regex_decimal_3 = ("-%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
-                            local regex_decimal_4 = ("%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
-                            local regex_decimal_5 = ("%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
-                            local regex_decimal_6 = ("-%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
-                            local regex_decimal_7 = ("-%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
-                            local regex_decimal_8 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
+                            local regex_9 = ("%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
+                            local regex_10 = ("-%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
+                            local regex_11 = ("-%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
+                            local regex_12 = ("%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
+                            local regex_13 = ("%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
+                            local regex_14 = ("-%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
+                            local regex_15 = ("-%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
+                            local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
                             local coordinates = nil
                             -- to do:
                             -- split "coordinates" and declare x,y,z variables for each set of numbers
                             if string.match(v, regex_1) then
-                                cprint(string.match(v, regex_1))
                                 coordinates = string.match(v, regex_1)
                             elseif string.match(v, regex_2) then 
-                                cprint(string.match(v, regex_2))
                                 coordinates = string.match(v, regex_2)
                             elseif string.match(v, regex_3) then 
-                                cprint(string.match(v, regex_3))
                                 coordinates = string.match(v, regex_3)
                             elseif string.match(v, regex_4) then 
-                                cprint(string.match(v, regex_4))
                                 coordinates = string.match(v, regex_4)
                             elseif string.match(v, regex_5) then 
-                                cprint(string.match(v, regex_5))
                                 coordinates = string.match(v, regex_5)
                             elseif string.match(v, regex_6) then 
-                                cprint(string.match(v, regex_6))
                                 coordinates = string.match(v, regex_6)
                             elseif string.match(v, regex_7) then 
-                                cprint(string.match(v, regex_7))
                                 coordinates = string.match(v, regex_7)
                             elseif string.match(v, regex_8) then 
-                                cprint(string.match(v, regex_8))
                                 coordinates = string.match(v, regex_8)
-                            elseif string.match(v, regex_decimal_1) then
-                                cprint(string.match(v, regex_decimal_1))
-                                coordinates = string.match(v, regex_decimal_1)
-                            elseif string.match(v, regex_decimal_2) then
-                                cprint(string.match(v, regex_decimal_2))
-                                coordinates = string.match(v, regex_decimal_2)
-                            elseif string.match(v, regex_decimal_3) then
-                                cprint(string.match(v, regex_decimal_3))
-                                coordinates = string.match(v, regex_decimal_3)
-                            elseif string.match(v, regex_decimal_4) then
-                                cprint(string.match(v, regex_decimal_4))
-                                coordinates = string.match(v, regex_decimal_4)
-                            elseif string.match(v, regex_decimal_5) then
-                                cprint(string.match(v, regex_decimal_5))
-                                coordinates = string.match(v, regex_decimal_5)
-                            elseif string.match(v, regex_decimal_6) then
-                                cprint(string.match(v, regex_decimal_6))
-                                coordinates = string.match(v, regex_decimal_6)
-                            elseif string.match(v, regex_decimal_7) then
-                                cprint(string.match(v, regex_decimal_7))
-                                coordinates = string.match(v, regex_decimal_7)
-                            elseif string.match(v, regex_decimal_8) then
-                                cprint(string.match(v, regex_decimal_8))
-                                coordinates = string.match(v, regex_decimal_8)
+                            elseif string.match(v, regex_9) then
+                                coordinates = string.match(v, regex_9)
+                            elseif string.match(v, regex_10) then
+                                coordinates = string.match(v, regex_10)
+                            elseif string.match(v, regex_11) then
+                                coordinates = string.match(v, regex_11)
+                            elseif string.match(v, regex_12) then
+                                coordinates = string.match(v, regex_12)
+                            elseif string.match(v, regex_13) then
+                                coordinates = string.match(v, regex_13)
+                            elseif string.match(v, regex_14) then
+                                coordinates = string.match(v, regex_14)
+                            elseif string.match(v, regex_15) then
+                                coordinates = string.match(v, regex_15)
+                            elseif string.match(v, regex_16) then
+                                coordinates = string.match(v, regex_16)
                             else
-                                cprint("nothing matches the regex expression!", 4+8)
+                                rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
+                                cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
-                            if v ~= nil then
-                                --write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tostring(coordinates))
+                            if (v ~= nil and ) then
+                                -- write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tostring(coordinates))
                             end
                         end
                     end
