@@ -78,9 +78,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     for k,v in pairs(lines) do
                         local teleport_name = v:match("[%a_]+[%a%d_]*")
                         if t[2] == teleport_name then
-                            local x = -- first set of numbers
-                            local y = -- second set of numbers
-                            local z = -- third set of numbers
+                            local x = nil -- first set of numbers
+                            local y = nil -- second set of numbers
+                            local z = nil -- third set of numbers
                             write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z)
                         end
                     end
@@ -113,7 +113,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return UnknownCMD
 end
 
--- Check if file exists
 function file_exists(file)
     local File = io.open(file, "rb")
     if File then 
