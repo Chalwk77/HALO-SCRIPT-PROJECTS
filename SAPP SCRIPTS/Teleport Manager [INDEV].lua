@@ -45,11 +45,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] ~= nil then
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
+                -- do to:
+                -- check if portal name already exists
                 if t[2] ~= nil then
                     local player = get_dynamic_player(PlayerIndex)
                     local x, y, z = read_vector3d(player + 0x5C)
                     local file = io.open(sapp_dir, "a+")
-                    local line = t[2] .. ": " .. x .. ", " .. y .. ", " .. z
+                    local line = t[2] .. ": X" .. x .. ", Y" .. y .. ", Z" .. z
                     file:write(line, "\n")
                     file:close()
                     say(PlayerIndex, "Teleport location set to: " .. x .. ", " .. y .. ", " .. z)
@@ -87,13 +89,24 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             local regex_12 = ("%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
                             local regex_13 = ("%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
                             local regex_14 = ("-%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
-                            local regex_15 = ("-%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
+                                               
+                            local regex_15 = ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")
+                            
                             local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
                             local coordinates = nil
                             -- to do:
                             -- split "coordinates" and declare x,y,z variables for each set of numbers
-                            if string.match(v, regex_1) then
-                                coordinates = string.match(v, regex_1)
+                            if string.match(v, regex_15) then
+                            
+                                x1 = tostring(string.match(v, "X%s*-%d+.%d+,"))
+                                x2 = x1
+                                string.gsub(x2, "-%d+.%d+")
+                                cprint(x1 .. "", 2+8)
+                                --local x = string.gsub(tostring*(x1), "-%d+.%d+")
+                                --cprint("x " .. tostring(x) .. "", 2+8)
+  
+                                
+                                
                             elseif string.match(v, regex_2) then 
                                 coordinates = string.match(v, regex_2)
                             elseif string.match(v, regex_3) then 
