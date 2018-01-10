@@ -54,6 +54,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
+                    file_status()
                     if empty_file == false then
                         local lines = lines_from(sapp_dir)
                         for k, v in pairs(lines) do
@@ -256,18 +257,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     return UnknownCMD
 end
 
-function file_exists(file)
-    local File = io.open(file, "rb")
-    if File then 
-        File:close()
-    end
-    return File ~= nil
-end
-
 function lines_from(file)
-    if not file_exists(file) then 
-        return {} 
-    end
     lines = {}
     for line in io.lines(file) do 
         lines[#lines + 1] = line
@@ -276,22 +266,25 @@ function lines_from(file)
 end
 
 function file_status()
-    if not file_exists(sapp_dir) then 
-        local file = io.open(sapp_dir, "a+")
-        if file then file:close() end
+    local fileX = io.open(sapp_dir, "rb")
+    if fileX then 
+        fileX:close()
+        file_exists = true
+    else
+        file_exists = false
+        local fileY = io.open(sapp_dir, "a+")
+        if fileY then fileY:close() end
         cprint(sapp_dir .. " doesn't exist. Creating...")
+        file_exists = true
     end
-    if file_exists(sapp_dir) then 
-        local File = io.open(sapp_dir, "r")
-        local line = File:read()
-        if line == nil then
-            empty_file = true
-        else
-            empty_file = false
-        end
-        File:close()
+    local fileZ = io.open(sapp_dir, "r")
+    local line = fileZ:read()
+    if line == nil then
+        empty_file = true
+    else
+        empty_file = false
     end
-    return status
+    fileZ:close()
 end
 
 function tokenizestring(inputString, separator)
@@ -308,9 +301,7 @@ end
 
 function delete_from_file(filename, starting_line, num_lines, player)
     local fp = io.open(filename, "r")
-    if fp == nil then 
-        return nil 
-    end
+    if fp == nil then file_status() end
     content = {}
     i = 1;
     for line in fp:lines() do
