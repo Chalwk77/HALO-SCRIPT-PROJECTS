@@ -97,45 +97,75 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
                             
                             if string.match(v, regex_1) then
+                                valid = true
+                                local x1 = tostring(string.match(v, "X%s*%d+.%d+"))
+                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
+                                local z1 = tostring(string.match(v, "Z%s*%d+.%d+"))
+                                x = string.gsub(x1, "X%s*%d+.%d+", string.match(x1, "%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*%d+.%d+", string.match(z1, "%d+.%d+"))
                             elseif string.match(v, regex_2) then 
+                                valid = true
+                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
+                                local y1 = tostring(string.match(v, "Y%s*-%d+.%d+"))
+                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
+                                x = string.gsub(x1, "X%s*-%d+.%d+", string.match(x1, "-%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*-%d+.%d+", string.match(y1, "-%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*-%d+.%d+", string.match(z1, "-%d+.%d+"))
                             elseif string.match(v, regex_3) then 
+                                -- to do
                             elseif string.match(v, regex_4) then 
+                                -- to do
                             elseif string.match(v, regex_5) then 
-                            elseif string.match(v, regex_6) then 
-                            elseif string.match(v, regex_7) then 
+                                -- to do
+                            elseif string.match(v, regex_6) then
+                                -- to do 
+                            elseif string.match(v, regex_7) then
+                                -- to do 
                             elseif string.match(v, regex_8) then 
+                                -- to do
                             elseif string.match(v, regex_9) then
+                                -- to do
                             elseif string.match(v, regex_10) then
+                                -- to do
                             elseif string.match(v, regex_11) then
                                 valid = true
                                 local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                local x2 = tostring(string.match(x1, "-%d+.%d+"))
-                                x = string.gsub(x1, "X%s*-%d+.%d+", x2)
-                                
                                 local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local y2 = tostring(string.match(y1, "%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", y2)
-                                
                                 local z1 = tostring(string.match(v, "Z%s*%d+.%d+"))
-                                local z2 = tostring(string.match(z1, "%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*%d+.%d+", z2)
+                                x = string.gsub(x1, "X%s*-%d+.%d+", string.match(x1, "-%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*%d+.%d+", string.match(z1, "%d+.%d+"))
                             elseif string.match(v, regex_12) then
+                                -- to do
                             elseif string.match(v, regex_13) then
+                                -- to do
                             elseif string.match(v, regex_14) then
+                                -- to do
                             elseif string.match(v, regex_15) then
+                                -- to do
+----------------------------------------------------------------------------------------------------------------------
+                                valid = true
+                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
+                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
+                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
+                                x = string.gsub(x1, "X%s*-%d+.%d+", string.match(x1, "-%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*-%d+.%d+", string.match(z1, "-%d+.%d+"))
                             elseif string.match(v, regex_16) then
+                                -- to do
                             else
                                 rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
-                        end
-                        if (v ~= nil and valid == true) then
-                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
-                            rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
-                            valid = false
-                        else
-                            cprint("That teleport name is not valid!", 4+8)
-                            rprint(PlayerIndex, "That teleport name is not valid!")
+                            if (v ~= nil and valid == true) then
+                                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
+                                rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
+                                valid = false
+                            else
+                                cprint("That teleport name is not valid!", 4+8)
+                                rprint(PlayerIndex, "That teleport name is not valid!")
+                            end
                         end
                     end
                     UnknownCMD = false
