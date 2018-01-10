@@ -178,12 +178,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
                                     valid = false
                                 else
-                                    local player_object = get_dynamic_player(PlayerIndex)
-                                    if (player_object ~= 0) then
-                                        local vehicleId = read_dword(player_object + 0x11C)
-                                        TeleportPlayer(vehicleId, tonumber(x), tonumber(y), tonumber(z) + 0.5)
-                                        valid = false
-                                    end
+                                    TeleportPlayer(read_dword(get_dynamic_player(PlayerIndex) + 0x11C), tonumber(x), tonumber(y), tonumber(z) + 0.5)
+                                    rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
+                                    valid = false
                                 end
                             else
                                 cprint("That teleport name is not valid!", 4+8)
