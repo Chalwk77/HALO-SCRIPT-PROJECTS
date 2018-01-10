@@ -54,7 +54,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     local player = get_dynamic_player(PlayerIndex)
                     local x, y, z = read_vector3d(player + 0x5C)
                     local file = io.open(sapp_dir, "a+")
-                    local line = t[2] .. ": X" .. x .. ", Y" .. y .. ", Z" .. z
+                    local line = t[2] .. ": X " .. x .. ", Y " .. y .. ", Z " .. z
                     file:write(line, "\n")
                     file:close()
                     say(PlayerIndex, "Teleport location set to: " .. x .. ", " .. y .. ", " .. z)
@@ -77,6 +77,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     local lines = lines_from(file)
                     for k, v in pairs(lines) do
                         local teleport_name = v:match("[%a%d+_]*")
+                        local valid = nil
                         if t[2] == teleport_name then
                             local regex_1 = ("%d+,%s*%d+,%s*%d+")
                             local regex_2 = ("-%d+,%s*-%d+,%s*-%d+")
@@ -88,70 +89,52 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             local regex_8 = ("%d+,%s*-%d+,%s*-%d+")
                             local regex_9 = ("%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
                             local regex_10 = ("-%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
-                            local regex_11 = ("-%d+.%d+,%s*%d+.%d+,%s*%d+.%d+")
+                            local regex_11 = ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")
                             local regex_12 = ("%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
                             local regex_13 = ("%d+.%d+,%s*%d+.%d+,%s*-%d+.%d+")
                             local regex_14 = ("-%d+.%d+,%s*-%d+.%d+,%s*%d+.%d+")
-                                               
                             local regex_15 = ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")
-                            
                             local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
-                            local coordinates = nil
                             
-                            -- note to self: return regex_15 back to regex_1 when finished!
-                            if string.match(v, regex_15) then
-                                -- x
-                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                local x2 = tostring(string.match(v, "-%d+.%d+"))
-                                x = string.gsub(x1, "X%s*-%d+.%d+", x2)
-                                -- y
-                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local y2 = tostring(string.match(v, "%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", y2)
-                                -- z
-                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
-                                local z2 = tostring(string.match(v, "-%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*-%d+.%d+", z2)
-                                
-                                cprint(x .. ", " .. y .. ", " .. z)
-                                
+                            if string.match(v, regex_1) then
                             elseif string.match(v, regex_2) then 
-                                coordinates = string.match(v, regex_2)
                             elseif string.match(v, regex_3) then 
-                                coordinates = string.match(v, regex_3)
                             elseif string.match(v, regex_4) then 
-                                coordinates = string.match(v, regex_4)
                             elseif string.match(v, regex_5) then 
-                                coordinates = string.match(v, regex_5)
                             elseif string.match(v, regex_6) then 
-                                coordinates = string.match(v, regex_6)
                             elseif string.match(v, regex_7) then 
-                                coordinates = string.match(v, regex_7)
                             elseif string.match(v, regex_8) then 
-                                coordinates = string.match(v, regex_8)
                             elseif string.match(v, regex_9) then
-                                coordinates = string.match(v, regex_9)
                             elseif string.match(v, regex_10) then
-                                coordinates = string.match(v, regex_10)
                             elseif string.match(v, regex_11) then
-                                coordinates = string.match(v, regex_11)
+                                valid = true
+                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
+                                local x2 = tostring(string.match(x1, "-%d+.%d+"))
+                                x = string.gsub(x1, "X%s*-%d+.%d+", x2)
+                                
+                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
+                                local y2 = tostring(string.match(y1, "%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*%d+.%d+", y2)
+                                
+                                local z1 = tostring(string.match(v, "Z%s*%d+.%d+"))
+                                local z2 = tostring(string.match(z1, "%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*%d+.%d+", z2)
                             elseif string.match(v, regex_12) then
-                                coordinates = string.match(v, regex_12)
                             elseif string.match(v, regex_13) then
-                                coordinates = string.match(v, regex_13)
                             elseif string.match(v, regex_14) then
-                                coordinates = string.match(v, regex_14)
                             elseif string.match(v, regex_15) then
-                                coordinates = string.match(v, regex_15)
                             elseif string.match(v, regex_16) then
-                                coordinates = string.match(v, regex_16)
                             else
                                 rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
-                            if (v ~= nil) then
-                                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
-                            end
+                        end
+                        if (v ~= nil and valid == true) then
+                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
+                            valid = false
+                        else
+                            cprint("That teleport name is not valid!", 4+8)
+                            rprint(PlayerIndex, "That teleport name is not valid!")
                         end
                     end
                     UnknownCMD = false
