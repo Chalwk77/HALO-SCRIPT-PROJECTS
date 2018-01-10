@@ -36,9 +36,14 @@ api_version = "1.12.0.0"
 canset = {}
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
 end
 
 function OnScriptUnload() end
+
+function OnGameStart()
+    file_status()
+end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
@@ -49,15 +54,19 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    local lines = lines_from(sapp_dir)
-                    for k, v in pairs(lines) do
-                        if t[2] == v:match("[%a%d+_]*") then
-                            say(PlayerIndex, "That portal name already exists!")
-                            canset[PlayerIndex] = false
-                            break
-                        else
-                            canset[PlayerIndex] = true
+                    if empty_file == false then
+                        local lines = lines_from(sapp_dir)
+                        for k, v in pairs(lines) do
+                            if t[2] == v:match("[%a%d+_]*") then
+                                say(PlayerIndex, "That portal name already exists!")
+                                canset[PlayerIndex] = false
+                                break
+                            else
+                                canset[PlayerIndex] = true
+                            end
                         end
+                    else
+                        canset[PlayerIndex] = true
                     end
                     if canset[PlayerIndex] == true then
                         if PlayerInVehicle(PlayerIndex) then
@@ -206,9 +215,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] ~= nil then
         if t[1] == string.lower(list_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                local lines = lines_from(sapp_dir)
-                for k,v in pairs(lines) do
-                    rprint(PlayerIndex, "["..k.."] " .. v)
+                if empty_file then
+                    rprint(PlayerIndex, "The list is empty!")
+                else
+                    local lines = lines_from(sapp_dir)
+                    for k,v in pairs(lines) do
+                        rprint(PlayerIndex, "["..k.."] " .. v)
+                    end
                 end
             else
                 say(PlayerIndex, "You're not allowed to execute /" .. list_command)
@@ -246,7 +259,7 @@ end
 function file_exists(file)
     local File = io.open(file, "rb")
     if File then 
-        File:close() 
+        File:close()
     end
     return File ~= nil
 end
@@ -260,6 +273,25 @@ function lines_from(file)
         lines[#lines + 1] = line
     end
     return lines
+end
+
+function file_status()
+    if not file_exists(sapp_dir) then 
+        local file = io.open(sapp_dir, "a+")
+        if file then file:close() end
+        cprint(sapp_dir .. " doesn't exist. Creating...")
+    end
+    if file_exists(sapp_dir) then 
+        local File = io.open(sapp_dir, "r")
+        local line = File:read()
+        if line == nil then
+            empty_file = true
+        else
+            empty_file = false
+        end
+        File:close()
+    end
+    return status
 end
 
 function tokenizestring(inputString, separator)
