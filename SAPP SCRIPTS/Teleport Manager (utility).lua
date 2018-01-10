@@ -230,7 +230,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         rprint(PlayerIndex, "["..k.."] " .. v)
                     end
                 else
-                    rprint(PlayerIndex, "The teleport list is empty!")
+                rprint(PlayerIndex, "The teleport list is empty!")
                 end
             else
                 rprint(PlayerIndex, "You're not allowed to execute /" .. list_command)
@@ -284,16 +284,13 @@ function check_file_status()
     local fileX = io.open(sapp_dir, "rb")
     if fileX then 
         fileX:close()
-        file_exists = true
     else
-        file_exists = false
         local fileY = io.open(sapp_dir, "a+")
         if fileY then 
             fileY:close() 
         end
         rprint(PlayerIndex, sapp_dir .. " doesn't exist. Creating...")
         cprint(sapp_dir .. " doesn't exist. Creating...")
-        file_exists = true
     end
     local fileZ = io.open(sapp_dir, "r")
     local line = fileZ:read()
