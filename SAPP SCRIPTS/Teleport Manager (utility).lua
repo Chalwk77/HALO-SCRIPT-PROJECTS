@@ -14,10 +14,6 @@ Use this command to teleport to the desired teleport location
 
 Use this command to list all custom portals
 /tplist
-
-
-                -- do to:
-                -- check if "portal name" already exists when creating
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -28,7 +24,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]-- 
 
 -- configuration starts --
-
 set_command = "setportal"
 goto_command = "tpo"
 list_command = "tplist"
@@ -38,7 +33,7 @@ permission_level = -1
 -- configuration ends  --
 
 api_version = "1.12.0.0"
-
+canset = {}
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
@@ -58,21 +53,26 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     for k, v in pairs(lines) do
                         if t[2] == v:match("[%a%d+_]*") then
                             say(PlayerIndex, "That portal name already exists!")
+                            canset[PlayerIndex] = false
+                            break
                         else
-                            if PlayerInVehicle(PlayerIndex) then
-                                x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
-                            else
-                                x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-                            end
-                            local file = io.open(sapp_dir, "a+")
-                            local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
-                            file:write(line, "\n")
-                            file:close()
-                            say(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
-                        else
-                            say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
+                            canset[PlayerIndex] = true
                         end
                     end
+                    if canset[PlayerIndex] == true then
+                        if PlayerInVehicle(PlayerIndex) then
+                            x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
+                        else
+                            x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                        end
+                        local file = io.open(sapp_dir, "a+")
+                        local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
+                        file:write(line, "\n")
+                        file:close()
+                        say(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
+                    end
+                else
+                    say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
                 end
             else
                 say(PlayerIndex, "You're not allowed to execute /" .. set_command)
@@ -179,6 +179,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             end
                             if (v ~= nil and valid == true) then
                                 if not PlayerInVehicle(PlayerIndex) then
+                                    cprint("Teleporting!")
                                     write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
                                     rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
                                     valid = false
