@@ -131,6 +131,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         end
                         if (v ~= nil and valid == true) then
                             write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
+                            rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
                             valid = false
                         else
                             cprint("That teleport name is not valid!", 4+8)
