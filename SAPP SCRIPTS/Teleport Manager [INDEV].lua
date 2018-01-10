@@ -149,44 +149,32 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             -- decimal -----------------------------------------------------------------------------
                             elseif string.match(v, regex_9) then
                                 valid = true
-                                local x1 = tostring(string.match(v, "X%s*%d+.%d+"))
-                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local z1 = tostring(string.match(v, "Z%s*%d+.%d+"))
-                                x = string.gsub(x1, "X%s*%d+.%d+", string.match(x1, "%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*%d+.%d+", string.match(z1, "%d+.%d+"))
+                                x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
+                                y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
+                                z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
                             elseif string.match(v, regex_10) then
-                                -- to do
+--===============================================================
                             elseif string.match(v, regex_11) then
                                 valid = true
-                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local z1 = tostring(string.match(v, "Z%s*%d+.%d+"))
-                                x = string.gsub(x1, "X%s*-%d+.%d+", string.match(x1, "-%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*%d+.%d+", string.match(z1, "%d+.%d+"))
+                                x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
+                                y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
+                                z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
                             elseif string.match(v, regex_12) then
-                                -- to do
+--===============================================================
                             elseif string.match(v, regex_13) then
                                 valid = true
-                                local x1 = tostring(string.match(v, "X%s*%d+.%d+"))
-                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
-                                x = string.gsub(x1, "X%s*%d+.%d+", string.match(x1, "%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*-%d+.%d+", string.match(z1, "-%d+.%d+"))
+                                x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
+                                y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
+                                z = string.gsub(tostring(string.match(v, "Z%s*-%d+.%d+")), "Z%s*-%d+.%d+", string.match(tostring(string.match(v, "Z%s*-%d+.%d+")), "-%d+.%d+"))
                             elseif string.match(v, regex_14) then
-                                -- to do
+--===============================================================
                             elseif string.match(v, regex_15) then
                                 valid = true
-                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
-                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
-                                x = string.gsub(x1, "X%s*-%d+.%d+", string.match(x1, "-%d+.%d+"))
-                                y = string.gsub(y1, "Y%s*%d+.%d+", string.match(y1, "%d+.%d+"))
-                                z = string.gsub(z1, "Z%s*-%d+.%d+", string.match(z1, "-%d+.%d+"))
+                                x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
+                                y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
+                                z = string.gsub(tostring(string.match(v, "Z%s*-%d+.%d+")), "Z%s*-%d+.%d+", string.match(tostring(string.match(v, "Z%s*-%d+.%d+")), "-%d+.%d+"))
                             elseif string.match(v, regex_16) then
-                                -- to do
+--===============================================================
                             else
                                 rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
