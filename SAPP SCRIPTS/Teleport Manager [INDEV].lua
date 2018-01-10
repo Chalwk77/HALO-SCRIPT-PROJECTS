@@ -14,6 +14,12 @@ Use this command to teleport to the desired teleport location
 
 Use this command to list all custom portals
 /tplist
+
+
+                -- do to:
+                -- check if portal name already exists when creating
+                -- check if player in vehicle when teleporting
+                -- check if player in vehicle creating portal
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
