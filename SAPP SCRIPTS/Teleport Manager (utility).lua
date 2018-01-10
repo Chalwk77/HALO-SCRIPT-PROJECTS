@@ -14,6 +14,9 @@ Use this command to teleport to the desired teleport location
 
 Use this command to list all custom portals
 /tplist
+
+Use this command to delete specified teleport entry
+/tpdelete <index id>
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
