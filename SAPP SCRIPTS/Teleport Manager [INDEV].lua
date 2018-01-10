@@ -94,17 +94,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             
                             local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
                             local coordinates = nil
-                            -- to do:
-                            -- split "coordinates" and declare x,y,z variables for each set of numbers
+
                             if string.match(v, regex_15) then
                             
-                                x1 = tostring(string.match(v, "X%s*-%d+.%d+,"))
-                                x2 = x1
-                                string.gsub(x2, "-%d+.%d+")
-                                cprint(x1 .. "", 2+8)
-                                --local x = string.gsub(tostring*(x1), "-%d+.%d+")
-                                --cprint("x " .. tostring(x) .. "", 2+8)
-  
+                                local data = tostring(string.match(v, "X%s*-%d+.%d+"))
+                                local data2 = tostring(string.match(v, "-%d+.%d+"))
+                                
+                                local x = string.gsub(data, "X%s*-%d+.%d+", data2)
+                                cprint(x .. "", 2+8)
                                 
                                 
                             elseif string.match(v, regex_2) then 
