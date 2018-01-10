@@ -3,20 +3,18 @@
 Script Name: Teleport Manager (utility), for SAPP (PC & CE)
 Description: Allows the user to create custom teleports and warp to them on demand.
 
-Warning: This script implements a heavy use of pattern matching (regex) and is extremely complicated. 
-         Modify only if you know what you're doing!
+Warning: 
+This script implements a heavy use of pattern matching (regex) - which is moderately complicated.
+Modify only if you know what you're doing!
 
 Use this command to set a new teleport location
 /setportal [teleport name]
-
 Use this command to teleport to the desired teleport location
 /tpo [teleport name]
-
 Use this command to list all custom portals
 /tplist
-
-Use this command to delete specified teleport entry
-/tpdelete <index id>
+Use this command to delete the specified teleport entry
+/tpdelete [index id]
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
