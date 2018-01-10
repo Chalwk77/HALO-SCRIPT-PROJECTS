@@ -54,18 +54,25 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    if PlayerInVehicle(PlayerIndex) then
-                        x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
-                    else
-                        x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                    local lines = lines_from(sapp_dir)
+                    for k, v in pairs(lines) do
+                        if t[2] == v:match("[%a%d+_]*") then
+                            say(PlayerIndex, "That portal name already exists!")
+                        else
+                            if PlayerInVehicle(PlayerIndex) then
+                                x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
+                            else
+                                x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                            end
+                            local file = io.open(sapp_dir, "a+")
+                            local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
+                            file:write(line, "\n")
+                            file:close()
+                            say(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
+                        else
+                            say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
+                        end
                     end
-                    local file = io.open(sapp_dir, "a+")
-                    local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
-                    file:write(line, "\n")
-                    file:close()
-                    say(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
-                else
-                    say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
                 end
             else
                 say(PlayerIndex, "You're not allowed to execute /" .. set_command)
@@ -79,12 +86,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(goto_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    local file = sapp_dir
-                    local lines = lines_from(file)
+                    local lines = lines_from(sapp_dir)
                     for k, v in pairs(lines) do
-                        local teleport_name = v:match("[%a%d+_]*")
                         local valid = nil
-                        if t[2] == teleport_name then
+                        if t[2] == v:match("[%a%d+_]*") then
                             -- numbers without decimal points -----------------------------------------------------------------------------
                             if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                 cprint("Match", 2+8)
@@ -203,8 +208,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] ~= nil then
         if t[1] == string.lower(list_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                local file = sapp_dir
-                local lines = lines_from(file)
+                local lines = lines_from(sapp_dir)
                 for k,v in pairs(lines) do
                     rprint(PlayerIndex, "["..k.."] " .. v)
                 end
@@ -220,12 +224,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(delete_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    local file = sapp_dir
-                    local lines = lines_from(file)
+                    local lines = lines_from(sapp_dir)
                     for k, v in pairs(lines) do
                         if k ~= nil then
                             if t[2] == v:match(k) then
-                                delete_from_file( file, k, 1 , PlayerIndex)
+                                delete_from_file(sapp_dir, k, 1 , PlayerIndex)
                                 say(PlayerIndex, "Successfully deleted teleport id #" ..k)
                             end
                         else
