@@ -130,7 +130,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             end
                         end
                         if (v ~= nil and valid == true) then
-                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
+                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
                             rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
                             valid = false
                         else
