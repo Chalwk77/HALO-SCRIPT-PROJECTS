@@ -230,7 +230,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     end
                 end
             else
-                say(PlayerIndex, "You're not allowed to execute /" .. list_command)
+                say(PlayerIndex, "You're not allowed to execute /" .. delete_command)
             end
             UnknownCMD = false
         end
