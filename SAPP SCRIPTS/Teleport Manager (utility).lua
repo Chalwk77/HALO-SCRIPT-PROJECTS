@@ -92,7 +92,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         if t[2] == v:match("[%a%d+_]*") then
                             -- numbers without decimal points -----------------------------------------------------------------------------
                             if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
-                                cprint("Match", 2+8)
                                 valid = true -- 0
                                 x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
                                 y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
@@ -179,7 +178,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             end
                             if (v ~= nil and valid == true) then
                                 if not PlayerInVehicle(PlayerIndex) then
-                                    cprint("Teleporting!")
                                     write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
                                     rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
                                     valid = false
@@ -189,7 +187,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     valid = false
                                 end
                             else
-                                cprint("That teleport name is not valid!", 4+8)
                                 rprint(PlayerIndex, "That teleport name is not valid!")
                             end
                         end
