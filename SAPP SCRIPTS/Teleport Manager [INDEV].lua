@@ -17,9 +17,10 @@ Use this command to list all custom portals
 
 
                 -- do to:
-                -- check if portal name already exists when creating
-                -- check if player in vehicle when teleporting
-                -- check if player in vehicle creating portal
+                -- check if "portal name" already exists when creating
+                -- check if "player in vehicle" when teleporting
+                -- check if "player in vehicle" when creating 
+                -- add delete command
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
