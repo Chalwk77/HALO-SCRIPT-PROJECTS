@@ -86,15 +86,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         local teleport_name = v:match("[%a%d+_]*")
                         local valid = nil
                         if t[2] == teleport_name then
-                            -- decimal
-                            local regex_9 = ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")
-                            local regex_10 = ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")
-                            local regex_11 = ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")
-                            local regex_12 = ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")
-                            local regex_13 = ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")
-                            local regex_14 = ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")
-                            local regex_15 = ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")
-                            local regex_16 = ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")
                             -- numbers without decimal points -----------------------------------------------------------------------------
                             if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                 valid = true -- 0
@@ -137,42 +128,42 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 y = string.gsub(tostring(string.match(v, "Y%s*-%d+")), "Y%s*-%d+", string.match(tostring(string.match(v, "Y%s*-%d+")), "-%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*-%d+")), "Z%s*-%d+", string.match(tostring(string.match(v, "Z%s*-%d+")), "-%d+")) 
                             -- numbers with decimal points -----------------------------------------------------------------------------
-                            elseif string.match(v, regex_9) then
+                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
                                 valid = true -- 0
                                 x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
-                            elseif string.match(v, regex_10) then
+                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                 valid = true -- *
                                 x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*-%d+.%d+")), "Y%s*-%d+.%d+", string.match(tostring(string.match(v, "Y%s*-%d+.%d+")), "-%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*-%d+.%d+")), "Z%s*-%d+.%d+", string.match(tostring(string.match(v, "Z%s*-%d+.%d+")), "-%d+.%d+"))
-                            elseif string.match(v, regex_11) then
+                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
                                 valid = true -- 1
                                 x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
-                            elseif string.match(v, regex_12) then
+                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
                                 valid = true -- 2
                                 x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*-%d+.%d+")), "Y%s*-%d+.%d+", string.match(tostring(string.match(v, "Y%s*-%d+.%d+")), "-%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
-                            elseif string.match(v, regex_13) then
+                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                 valid = true -- 3
                                 x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*-%d+.%d+")), "Z%s*-%d+.%d+", string.match(tostring(string.match(v, "Z%s*-%d+.%d+")), "-%d+.%d+"))
-                            elseif string.match(v, regex_14) then
+                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
                                 valid = true -- 1 & 2
                                 x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*-%d+.%d+")), "Y%s*-%d+.%d+", string.match(tostring(string.match(v, "Y%s*-%d+.%d+")), "-%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*%d+.%d+")), "Z%s*%d+.%d+", string.match(tostring(string.match(v, "Z%s*%d+.%d+")), "%d+.%d+"))
-                            elseif string.match(v, regex_15) then
+                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                 valid = true -- 1 & 3
                                 x = string.gsub(tostring(string.match(v, "X%s*-%d+.%d+")), "X%s*-%d+.%d+", string.match(tostring(string.match(v, "X%s*-%d+.%d+")), "-%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*%d+.%d+")), "Y%s*%d+.%d+", string.match(tostring(string.match(v, "Y%s*%d+.%d+")), "%d+.%d+"))
                                 z = string.gsub(tostring(string.match(v, "Z%s*-%d+.%d+")), "Z%s*-%d+.%d+", string.match(tostring(string.match(v, "Z%s*-%d+.%d+")), "-%d+.%d+"))
-                            elseif string.match(v, regex_16) then
+                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                 valid = true  -- 2 & 3
                                 x = string.gsub(tostring(string.match(v, "X%s*%d+.%d+")), "X%s*%d+.%d+", string.match(tostring(string.match(v, "X%s*%d+.%d+")), "%d+.%d+"))
                                 y = string.gsub(tostring(string.match(v, "Y%s*-%d+.%d+")), "Y%s*-%d+.%d+", string.match(tostring(string.match(v, "Y%s*-%d+.%d+")), "-%d+.%d+"))
