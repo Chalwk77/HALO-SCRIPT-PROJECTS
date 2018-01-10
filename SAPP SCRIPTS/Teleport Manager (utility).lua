@@ -58,7 +58,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
                     check_file_status()
-                    if empty_file == false then
+                    if not empty_file then
                         local lines = lines_from(sapp_dir)
                         for k, v in pairs(lines) do
                             if t[2] == v:match("[%a%d+_]*") then
@@ -224,13 +224,13 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(list_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 check_file_status()
-                if empty_file then
-                    rprint(PlayerIndex, "The teleport list is empty!")
-                else
+                if not empty_file then
                     local lines = lines_from(sapp_dir)
                     for k,v in pairs(lines) do
                         rprint(PlayerIndex, "["..k.."] " .. v)
                     end
+                else
+                    rprint(PlayerIndex, "The teleport list is empty!")
                 end
             else
                 rprint(PlayerIndex, "You're not allowed to execute /" .. list_command)
