@@ -3,6 +3,9 @@
 Script Name: Teleport Management (utility), for SAPP (PC & CE)
 Description: Allows the user to create custom teleports and warp to them on demand.
 
+Warning: This script implements a heavy use of pattern matching (regex) and is extremely complicated. 
+         Modify only if you know what you're doing!
+
 Use this command to set a new teleport location
 /setportal [teleport name]
 
@@ -97,10 +100,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
 
                             if string.match(v, regex_15) then
                             
-                                local data = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                local data2 = tostring(string.match(v, "-%d+.%d+"))
-                                
-                                local x = string.gsub(data, "X%s*-%d+.%d+", data2)
+                                -- identifier for X
+                                local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
+                                -- replacement for X
+                                local x2 = tostring(string.match(v, "-%d+.%d+"))
+                                -- swap the identifier with the replacement
+                                local x = string.gsub(x1, "X%s*-%d+.%d+", x2)
                                 cprint(x .. "", 2+8)
                                 
                                 
