@@ -18,8 +18,6 @@ Use this command to list all custom portals
 
                 -- do to:
                 -- check if "portal name" already exists when creating
-                -- check if "player in vehicle" when teleporting
-                -- check if "player in vehicle" when creating 
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -55,16 +53,17 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] ~= nil then
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                -- do to:
-                -- check if portal name already exists
                 if t[2] ~= nil then
-                    local player = get_dynamic_player(PlayerIndex)
-                    local x, y, z = read_vector3d(player + 0x5C)
+                    if PlayerInVehicle(PlayerIndex) then
+                        x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
+                    else
+                        x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                    end
                     local file = io.open(sapp_dir, "a+")
-                    local line = t[2] .. ": X " .. x .. ", Y " .. y .. ", Z " .. z
+                    local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
                     file:write(line, "\n")
                     file:close()
-                    say(PlayerIndex, "Teleport location set to: " .. x .. ", " .. y .. ", " .. z)
+                    say(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
                 else
                     say(PlayerIndex, "Invalid Syntax. Command Usage: /" .. set_command .. " <teleport name>")
                 end
@@ -174,9 +173,18 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
                             if (v ~= nil and valid == true) then
-                                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
-                                rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
-                                valid = false
+                                if not PlayerInVehicle(PlayerIndex) then
+                                    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
+                                    rprint(PlayerIndex, "Teleporting to X: " .. x .. " Y: " .. y .. " Z: " .. z)
+                                    valid = false
+                                else
+                                    local player_object = get_dynamic_player(PlayerIndex)
+                                    if (player_object ~= 0) then
+                                        local vehicleId = read_dword(player_object + 0x11C)
+                                        TeleportPlayer(vehicleId, tonumber(x), tonumber(y), tonumber(z) + 0.5)
+                                        valid = false
+                                    end
+                                end
                             else
                                 cprint("That teleport name is not valid!", 4+8)
                                 rprint(PlayerIndex, "That teleport name is not valid!")
@@ -291,4 +299,24 @@ function delete_from_file(filename, starting_line, num_lines, player)
         fp:write(string.format("%s\n", content[i]))
     end
     fp:close()
+end
+
+function PlayerInVehicle(PlayerIndex)
+    if (get_dynamic_player(PlayerIndex) ~= 0) then
+        local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
+
+function TeleportPlayer(ObjectID, x, y, z)
+    if get_object_memory(ObjectID) ~= 0 then
+        local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
+        write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
+    end
 end
