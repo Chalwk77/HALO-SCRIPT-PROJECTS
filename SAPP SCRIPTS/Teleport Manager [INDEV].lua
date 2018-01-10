@@ -221,7 +221,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     for k, v in pairs(lines) do
                         if k ~= nil then
                             if t[2] == v:match(k) then
-                                delete_from_file( file, k, 1 )
+                                delete_from_file( file, k, 1 , PlayerIndex)
                                 say(PlayerIndex, "Successfully deleted teleport id #" ..k)
                             end
                         else
@@ -269,8 +269,8 @@ function tokenizestring(inputString, separator)
     return t
 end
 
-function delete_from_file( filename, starting_line, num_lines )
-    local fp = io.open( filename, "r" )
+function delete_from_file(filename, starting_line, num_lines, player)
+    local fp = io.open(filename, "r")
     if fp == nil then 
         return nil 
     end
@@ -283,12 +283,13 @@ function delete_from_file( filename, starting_line, num_lines )
         i = i + 1
     end
     if i > starting_line and i < starting_line + num_lines then
-        cprint( "Warning: Tried to remove lines after EOF." )
+        say(player, "Warning: End of File! No entries to delete.")
+        cprint("Warning: End of File! No entries to delete.")
     end
     fp:close()
-    fp = io.open( filename, "w+" )
+    fp = io.open( filename, "w+")
     for i = 1, #content do
-        fp:write( string.format( "%s\n", content[i] ) )
+        fp:write( string.format("%s\n", content[i]))
     end
     fp:close()
 end
