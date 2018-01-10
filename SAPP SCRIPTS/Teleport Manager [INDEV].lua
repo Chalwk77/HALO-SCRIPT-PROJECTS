@@ -97,17 +97,23 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             
                             local regex_16 = ("%d+.%d+,%s*-%d+.%d+,%s*-%d+.%d+")
                             local coordinates = nil
-
-                            if string.match(v, regex_15) then
                             
-                                -- identifier for X
+                            -- note to self: return regex_15 back to regex_1 when finished!
+                            if string.match(v, regex_15) then
+                                -- x
                                 local x1 = tostring(string.match(v, "X%s*-%d+.%d+"))
-                                -- replacement for X
                                 local x2 = tostring(string.match(v, "-%d+.%d+"))
-                                -- swap the identifier with the replacement
-                                local x = string.gsub(x1, "X%s*-%d+.%d+", x2)
-                                cprint(x .. "", 2+8)
+                                x = string.gsub(x1, "X%s*-%d+.%d+", x2)
+                                -- y
+                                local y1 = tostring(string.match(v, "Y%s*%d+.%d+"))
+                                local y2 = tostring(string.match(v, "%d+.%d+"))
+                                y = string.gsub(y1, "Y%s*%d+.%d+", y2)
+                                -- z
+                                local z1 = tostring(string.match(v, "Z%s*-%d+.%d+"))
+                                local z2 = tostring(string.match(v, "-%d+.%d+"))
+                                z = string.gsub(z1, "Z%s*-%d+.%d+", z2)
                                 
+                                cprint(x .. ", " .. y .. ", " .. z)
                                 
                             elseif string.match(v, regex_2) then 
                                 coordinates = string.match(v, regex_2)
@@ -144,7 +150,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
                             end
                             if (v ~= nil) then
-                                -- write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tostring(coordinates))
+                                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z)
                             end
                         end
                     end
