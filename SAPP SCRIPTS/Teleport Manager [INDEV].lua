@@ -20,7 +20,6 @@ Use this command to list all custom portals
                 -- check if "portal name" already exists when creating
                 -- check if "player in vehicle" when teleporting
                 -- check if "player in vehicle" when creating 
-                -- add delete command
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -35,6 +34,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 set_command = "setportal"
 goto_command = "tpo"
 list_command = "tplist"
+delete_command = "tpdelete"
 sapp_dir = "sapp\\teleports.txt"
 permission_level = -1
 -- configuration ends  --
@@ -210,6 +210,31 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             UnknownCMD = false
         end
     end
+    ---------------------------------------------------------
+    -- DELETE COMMAND --
+    if t[1] ~= nil then
+        if t[1] == string.lower(delete_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
+                if t[2] ~= nil then
+                    local file = sapp_dir
+                    local lines = lines_from(file)
+                    for k, v in pairs(lines) do
+                        if k ~= nil then
+                            if t[2] == v:match(k) then
+                                delete_from_file( file, k, 1 )
+                                say(PlayerIndex, "Successfully deleted teleport id #" ..k)
+                            end
+                        else
+                            say(PlayerIndex, "Index ID does not exist!")
+                        end
+                    end
+                end
+            else
+                say(PlayerIndex, "You're not allowed to execute /" .. list_command)
+            end
+            UnknownCMD = false
+        end
+    end
     return UnknownCMD
 end
 
@@ -242,4 +267,26 @@ function tokenizestring(inputString, separator)
         i = i + 1
     end
     return t
+end
+
+function delete_from_file( filename, starting_line, num_lines )
+    local fp = io.open( filename, "r" )
+    if fp == nil then return nil end
+    content = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < starting_line or i >= starting_line + num_lines then
+	    content[#content+1] = line
+	end
+	i = i + 1
+    end
+    if i > starting_line and i < starting_line + num_lines then
+        cprint( "Warning: Tried to remove lines after EOF." )
+    end
+    fp:close()
+    fp = io.open( filename, "w+" )
+    for i = 1, #content do
+        fp:write( string.format( "%s\n", content[i] ) )
+    end
+    fp:close()
 end
