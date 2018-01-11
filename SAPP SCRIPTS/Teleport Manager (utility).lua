@@ -31,7 +31,8 @@ In chat, type YES or NO to confirm/deny this operation.
 
 
 Note: You don't really have to type /tplist or /tplistall every time you want to teleport to, or delete a portal.
-      It's there so you can retrieve the index if of the portal you want to work with, in case you don't keep track. 
+      It's there so you can retrieve the Index ID of the portal you want to work with, 
+      in case you don't happen to keep track, and can't remember the index id of a specific portal.
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
