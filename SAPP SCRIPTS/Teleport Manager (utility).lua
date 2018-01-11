@@ -153,10 +153,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
                     if not empty_file then
+                        local found = nil
                         local lines = lines_from(sapp_dir)
                         for k, v in pairs(lines) do
                             local valid = nil
                             if t[2] == v:match("[%a%d+_]*") then
+                                found = true
                                 -- numbers without decimal points -----------------------------------------------------------------------------
                                 if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                     valid = true -- 0
@@ -254,9 +256,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         valid = false
                                     end
                                 end
-                            else
-                                rprint(PlayerIndex, "That teleport name is not valid!")
                             end
+                        end
+                        if found ~= true then
+                            rprint(PlayerIndex, "That teleport name is not valid!")
                         end
                     else
                         rprint(PlayerIndex, "The teleport list is empty!")
