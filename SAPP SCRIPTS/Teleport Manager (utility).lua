@@ -3,18 +3,31 @@
 Script Name: Teleport Manager (utility), for SAPP (PC & CE)
 Description: Allows the user to create custom teleports and warp to them on demand.
 
-Warning: 
-This script implements a heavy use of pattern matching (regex) - which is moderately complicated.
-Modify only if you know what you're doing!
+What this mod does:
+This mod allows you to create custom teleport locationa. You can then warp to those locations on demand from anywhere on the map with a simple command.
 
-Use this command to set a new teleport location
-/setportal [teleport name]
-Use this command to teleport to the desired teleport location
-/tpo [teleport name]
-Use this command to list all custom portals
-/tplist
-Use this command to delete the specified teleport entry
-/tpdelete [index id]
+To create a new custom teleport location, simple type /setportal [portal name]
+
+When a teleport location is set, the mod will save some data to a text file called teleports.txt.
+The data saved is:
+- Portal Name
+- Map Name
+- x,y,z coordinates
+
+To teleport to the new location, type /tpo [portal name]
+
+To view a list of portals linked to the current map you are on, type /tplist
+To view all portals including teleports that aren't associated with the current map you're on, type /tplistall
+
+To delete a portal linked with the current map, first type /tplist. 
+To the left of the portal name you will see an index id in square brackets - this is the number you will type when deleting that teleport location.
+Now type /tpdelete [number]
+
+If you wish to delete a teleport that isn't linked to the current map, type /tplistall to display the entire contents of the teleports.txt file.
+
+Do the same as above, /tpdelete [number]
+This time you will be prompted to confirm or cancel this operation as you have chosen to delete a portal that isn't linked to the current map.
+In chat, type YES or NO to confirm/deny this operation.
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
