@@ -316,9 +316,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     check_file_status()
                     if not empty_file then
                         local lines = lines_from(sapp_dir)
+                        local del_found = nil
                         for k, v in pairs(lines) do
                             if k ~= nil then
                                 if t[2] == v:match(k) then
+                                    del_found = true
                                     response_starting_line = nil
                                     response_num_lines = nil
                                     if string.find(v, mapname) then
@@ -332,9 +334,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         response_num_lines = 1
                                     end
                                 end
-                            else
-                                rprint(PlayerIndex, "Teleport Index ID does not exist!", 2+8)
                             end
+                        end
+                        if del_found ~= true then
+                            rprint(PlayerIndex, "Teleport Index ID does not exist!", 2+8)
                         end
                     else
                         rprint(PlayerIndex, "The teleport list is empty!")
