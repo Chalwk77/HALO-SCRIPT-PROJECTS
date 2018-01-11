@@ -23,20 +23,26 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]-- 
-
 -- configuration starts --
 set_command = "setportal"
 goto_command = "tpo"
 list_command = "tplist"
-delete_command = "tpdelete"
+list_all_command = "tplistall"
+
+delete_command = {}
+delete_command[1] = { "tpdelete", "tpd"}
+
 sapp_dir = "sapp\\teleports.txt"
 permission_level = -1
 -- configuration ends  --
 
 api_version = "1.12.0.0"
 canset = {}
+wait_for_response = {}
+
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
 end
 
@@ -44,6 +50,23 @@ function OnScriptUnload() end
 
 function OnGameStart()
     check_file_status()
+    mapname = get_var(0, "$map")
+end
+
+function OnPlayerChat(PlayerIndex, Message, type)
+    if wait_for_response[PlayerIndex] then
+        local t = tokenizestring(Message)
+        if t[1] == string.lower("yes") or t[1] == string.upper("yes") then
+            delete_from_file(sapp_dir, response_starting_line, response_num_lines , PlayerIndex)
+            rprint(PlayerIndex, "Successfully deleted teleport id #" ..response_starting_line)
+            wait_for_response[PlayerIndex] = false
+            return false
+        elseif t[1] == string.lower("no") or t[1] == string.upper("no") then
+            rprint(PlayerIndex, "Process Cancelled")
+            wait_for_response[PlayerIndex] = false
+            return false
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
@@ -70,6 +93,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     else
                         canset[PlayerIndex] = true
                     end
+                    if t[2] == t[2]:match(mapname) then
+                        rprint(PlayerIndex, "Teleport name cannot be the same as the current map name!")
+                        canset[PlayerIndex] = false
+                    end
                     if canset[PlayerIndex] == true then
                         if PlayerInVehicle(PlayerIndex) then
                             x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
@@ -77,7 +104,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
                         end
                         local file = io.open(sapp_dir, "a+")
-                        local line = t[2] .. ": X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
+                        local line = t[2] .. " [Map: " .. mapname .. "] X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
                         file:write(line, "\n")
                         file:close()
                         rprint(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
@@ -214,12 +241,28 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You're not allowed to execute /" .. goto_command)
             end
             UnknownCMD = false
-        end
-    end
-    ---------------------------------------------------------
-    -- LIST COMMAND --
-    if t[1] ~= nil then
-        if t[1] == string.lower(list_command) then
+        ---------------------------------------------------------
+        -- LIST COMMAND --
+        elseif t[1] == string.lower(list_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
+                check_file_status()
+                if not empty_file then
+                    local lines = lines_from(sapp_dir)
+                    for k,v in pairs(lines) do
+                        if v:match(mapname) then
+                            rprint(PlayerIndex, "["..k.."] " .. v)
+                        end
+                    end
+                else
+                    rprint(PlayerIndex, "The teleport list is empty!")
+                end
+            else
+                rprint(PlayerIndex, "You're not allowed to execute /" .. list_command)
+            end
+            UnknownCMD = false
+        ---------------------------------------------------------
+        -- LIST ALL COMMAND --
+        elseif t[1] == string.lower(list_all_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 check_file_status()
                 if not empty_file then
@@ -228,18 +271,16 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         rprint(PlayerIndex, "["..k.."] " .. v)
                     end
                 else
-                rprint(PlayerIndex, "The teleport list is empty!")
+                    rprint(PlayerIndex, "The teleport list is empty!")
                 end
             else
-                rprint(PlayerIndex, "You're not allowed to execute /" .. list_command)
+                rprint(PlayerIndex, "You're not allowed to execute /" .. list_all_command)
             end
             UnknownCMD = false
-        end
-    end
-    ---------------------------------------------------------
-    -- DELETE COMMAND --
-    if t[1] ~= nil then
-        if t[1] == string.lower(delete_command) then
+        ---------------------------------------------------------
+        -- DELETE COMMAND --
+        elseif t[1] == string.lower(delete_command[1][1]) or t[1] == string.lower(delete_command[1][2]) then
+            local command = t[1]
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
                     check_file_status()
@@ -248,21 +289,31 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         for k, v in pairs(lines) do
                             if k ~= nil then
                                 if t[2] == v:match(k) then
-                                    delete_from_file(sapp_dir, k, 1 , PlayerIndex)
-                                    rprint(PlayerIndex, "Successfully deleted teleport id #" ..k)
-                                else
-                                    rprint(PlayerIndex, "Teleport Index ID does not exist!", 2+8)
+                                    response_starting_line = nil
+                                    response_num_lines = nil
+                                    if string.find(v, mapname) then
+                                        delete_from_file(sapp_dir, k, 1 , PlayerIndex)
+                                        rprint(PlayerIndex, "Successfully deleted teleport id #" ..k)
+                                    else
+                                        wait_for_response[PlayerIndex] = true
+                                        rprint(PlayerIndex, "Warning: That teleport is not linked to this map.")
+                                        rprint(PlayerIndex, "Type 'YES' to delete, type 'NO' to cancel.")
+                                        response_starting_line = k
+                                        response_num_lines = 1
+                                    end
                                 end
+                            else
+                                rprint(PlayerIndex, "Teleport Index ID does not exist!", 2+8)
                             end
                         end
                     else
                         rprint(PlayerIndex, "The teleport list is empty!")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid Syntax. Command Usage: /" .. delete_command .. " <teleport name>")
+                    rprint(PlayerIndex, "Invalid Syntax. Command Usage: /" .. command .. " <index id>")
                 end
             else
-                rprint(PlayerIndex, "You're not allowed to execute /" .. delete_command)
+                rprint(PlayerIndex, "You're not allowed to execute /" .. command)
             end
             UnknownCMD = false
         end
