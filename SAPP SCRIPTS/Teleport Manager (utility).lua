@@ -6,7 +6,7 @@ Description: Allows the user to create custom teleports and warp to them on dema
 What this mod does:
 This mod allows you to create custom teleport locations. You can then warp to those locations on demand from anywhere on the map with a simple command.
 
-To create a new custom teleport location, simple type /setportal [portal name]
+To create a new custom teleport location, simply type /setportal [portal name]
 
 When a teleport location is set, the mod will save some data to a text file called teleports.txt.
 The data saved is:
