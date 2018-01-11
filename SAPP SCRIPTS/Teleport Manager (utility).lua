@@ -337,7 +337,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             end
                         end
                         if del_found ~= true then
-                            rprint(PlayerIndex, "Teleport Index ID does not exist!", 2+8)
+                            rprint(PlayerIndex, "Teleport Index ID does not exist!")
                         end
                     else
                         rprint(PlayerIndex, "The teleport list is empty!")
