@@ -41,9 +41,10 @@ canset = {}
 wait_for_response = {}
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
 function OnScriptUnload() end
@@ -53,17 +54,25 @@ function OnGameStart()
     mapname = get_var(0, "$map")
 end
 
+function OnPlayerLeave(PlayerIndex)
+    wait_for_response[PlayerIndex] = false
+end
+
 function OnPlayerChat(PlayerIndex, Message, type)
     if wait_for_response[PlayerIndex] then
-        local t = tokenizestring(Message)
-        if t[1] == string.lower("yes") or t[1] == string.upper("yes") then
+        if Message == ("yes") then
             delete_from_file(sapp_dir, response_starting_line, response_num_lines , PlayerIndex)
             rprint(PlayerIndex, "Successfully deleted teleport id #" ..response_starting_line)
             wait_for_response[PlayerIndex] = false
             return false
-        elseif t[1] == string.lower("no") or t[1] == string.upper("no") then
+        elseif Message == ("no") then
             rprint(PlayerIndex, "Process Cancelled")
             wait_for_response[PlayerIndex] = false
+            return false
+        end
+        if Message ~= "yes" or Message ~= "no" then
+            rprint(PlayerIndex, "That is not a valid response, please try again. Type YES|NO")
+            wait_for_response[PlayerIndex] = true
             return false
         end
     end
