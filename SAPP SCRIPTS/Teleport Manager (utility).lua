@@ -28,6 +28,10 @@ If you wish to delete a teleport that isn't linked to the current map, type /tpl
 Do the same as above, /tpdelete [number]
 This time you will be prompted to confirm or cancel this operation as you have chosen to delete a portal that isn't linked to the current map.
 In chat, type YES or NO to confirm/deny this operation.
+
+
+Note: You don't really have to type /tplist or /tplistall every time you want to teleport to, or delete a portal.
+      It's there so you can retrieve the index if of the portal you want to work with, in case you don't keep track. 
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
