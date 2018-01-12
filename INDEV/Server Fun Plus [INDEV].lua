@@ -481,11 +481,10 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
                     x[player] = 0
                     y[player] = 0
                     z[player] = 0.75
-                    if ypr[player] then
-                        yaw[player] = 1
-                        pitch[player] = 1
-                        roll[player] = 15
-                    end
+                    yaw[player] = 1
+                    pitch[player] = 1
+                    roll[player] = 15
+                    ypr[player] = true
                 end
                 write_float(VehicleObj + 0x68, x[player])
                 write_float(VehicleObj + 0x6C, y[player])
