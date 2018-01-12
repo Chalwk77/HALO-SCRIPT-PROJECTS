@@ -226,10 +226,6 @@ function OnServerCommand(PlayerIndex, Command)
             UnknownCMD = false
         end
     end
-    
-    -- Welcome [name]
-    -- [name] Quit
-    
     if t[1] ~= nil then
         if t[1] == string.lower(fake_join_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
@@ -248,7 +244,7 @@ function OnServerCommand(PlayerIndex, Command)
                         rprint(PlayerIndex, "The name can only be one word!")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_join_command .. " [index id]")
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_join_command .. " [name]")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
@@ -271,7 +267,7 @@ function OnServerCommand(PlayerIndex, Command)
                         rprint(PlayerIndex, "The name can only be one word!")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_quit_command .. " [index id]")
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_quit_command .. " [name]")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
