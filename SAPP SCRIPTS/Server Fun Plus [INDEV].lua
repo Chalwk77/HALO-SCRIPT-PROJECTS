@@ -41,9 +41,9 @@ api_version = "1.12.0.0"
 rocket_command = "r"
 rocket_permission_level = 1
 values_specified = {}
-x1 = {}
-y1 = {}
-z1 = {}
+x = {}
+y = {}
+z = {}
 yaw = {}
 pitch = {}
 roll = {}
@@ -268,8 +268,8 @@ function OnServerCommand(PlayerIndex, Command)
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
                                     if not PlayerInVehicle(index) then
-                                        local x, y, z = read_vector3d(get_dynamic_player(index) + 0x5C)
-                                        write_vector3d(get_dynamic_player(index) + 0x5C, x + 0.50, y + 0.50, z + 4)
+                                        local xC, yC, zC = read_vector3d(get_dynamic_player(index) + 0x5C)
+                                        write_vector3d(get_dynamic_player(index) + 0x5C, xC + 0.50, yC + 0.50, zC + 4)
                                         rprint(executor, "You slapped " .. get_var(index, "$name"))
                                         rprint(index, "You were slapped by " .. get_var(executor, "$name"))
                                     else
@@ -353,27 +353,27 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
             if VehicleObj ~= nil then
                 write_bit(VehicleObj + 0x10, 2, 0)
                 if values_specified[player] then
-                    x1[player] = X
-                    y1[player] = Y
-                    z1[player] = Z
+                    x[player] = X
+                    y[player] = Y
+                    z[player] = Z
                     if ypr[player] then 
                         yaw[player] = Yaw
                         pitch[player] = Pitch
                         roll[player] = Roll
                     end
                 else
-                    x1[player] = 0
-                    y1[player] = 0
-                    z1[player] = 0.75
+                    x[player] = 0
+                    y[player] = 0
+                    z[player] = 0.75
                     if ypr[player] then
                         yaw[player] = 1
                         pitch[player] = 1
                         roll[player] = 15
                     end
                 end
-                write_float(VehicleObj + 0x68, x1[player])
-                write_float(VehicleObj + 0x6C, y1[player])
-                write_float(VehicleObj + 0x70, z1[player])
+                write_float(VehicleObj + 0x68, x[player])
+                write_float(VehicleObj + 0x6C, y[player])
+                write_float(VehicleObj + 0x70, z[player])
                 if ypr[player] then
                     write_float(VehicleObj + 0x90, yaw[player])
                     write_float(VehicleObj + 0x8C, pitch[player])
