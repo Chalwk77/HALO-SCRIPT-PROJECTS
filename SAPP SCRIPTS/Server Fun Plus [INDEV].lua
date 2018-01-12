@@ -4,14 +4,14 @@ Script Name: Server Fun Plus, for SAPP (PC & CE)
 
 Features: 
     rocket:             turn a player into a rocket (player's in vehicles only)
-    force chat:         force a player to say something
-    fake join:          pretend player joins the game
-    fake quit:          pretend player left the game
+*   force chat:         force a player to say something
+*   fake join:          pretend player joins the game
+*   fake quit:          pretend player left the game
     random tp:          teleport player to a random location on the map
-    slap:               slap target player
+*   slap:               slap target player
     spam:               spam a message to the designated player
     zap:                zap target player (deals X damage)
-    god:                broadcast a message as god
+*   god:                broadcast a message as god
     explode:            explode the target player
     colour changer:     change a player's colour
     
@@ -60,6 +60,10 @@ fake_join_command = "fakejoin"
 fake_quit_command = "fakequit"
 fake_permission_level = 1
 
+-- BROADCAST AS GOD --
+god_command = "bgod"
+god_permission_level = 1
+
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -81,8 +85,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 if index ~= nil and index > 0 and index < 17 then
                                     if player_present(index) then
                                         execute_command("msg_prefix \"\"")
-                                        Message = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
-                                        say_all(get_var(index, "$name") .. ": " .. Message)
+                                        local broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
+                                        say_all(get_var(index, "$name") .. ":" .. broadcast)
                                         execute_command("msg_prefix \"** SERVER ** \"")
                                         return false
                                     else
@@ -106,10 +110,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
             else
                 rprint(executor, "You do not have permission to execute that command!")
                 return false
+        end
+    elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
+            if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
+                if t[2] ~= nil then
+                    execute_command("msg_prefix \"\"")
+                    local broadcast = string.gsub(Message, "/" .. god_command, "")
+                    say_all("God:" .. broadcast)
+                    execute_command("msg_prefix \"** SERVER ** \"")
+                    return false
+                end
             end
         end
-        return true
     end
+    return true
 end
 
 function OnServerCommand(PlayerIndex, Command)
