@@ -195,8 +195,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     end
                                 end
                             else
-                                rprint(executor, "You cannot spam yourself!")
-                                return false
+                               rprint(executor, "You cannot spam yourself!")
+                               return false
                             end
                         else
                             rprint(executor, "You didn't type a message!")
@@ -422,7 +422,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
-                    --if index ~= tonumber(executor) then
+                    if index ~= tonumber(executor) then
                         if string.match(t[2], "%d") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
@@ -481,9 +481,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 end
                             end
                         end
-                    --else
-                        --rprint(executor, "You cannot nuke yourself!")
-                    --end
+                    else
+                        rprint(executor, "You cannot nuke yourself!")
+                    end
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. nuke_command .. " [index id]")
                 end
