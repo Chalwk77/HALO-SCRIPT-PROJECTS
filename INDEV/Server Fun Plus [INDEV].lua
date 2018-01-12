@@ -12,7 +12,7 @@ Features:
     spam:               spam a message to the designated player
     zap:                zap target player (deals X damage)
 *   god:                broadcast a message as god
-    explode:            explode the target player
+*   nuke:               nuke the target player
     colour changer:     change a player's colour
     
     IN DEVELOPMENT
@@ -69,6 +69,10 @@ fake_permission_level = 1
 -- BROADCAST AS GOD --
 god_command = "bgod"
 god_permission_level = 1
+
+-- EXPLODE --
+nuke_command = "nuke"
+nuke_permission_level = 1
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -339,6 +343,42 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
+        elseif t[1] == string.lower(nuke_command) then
+            local executor = get_var(PlayerIndex, "$n")
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
+                if t[2] ~= nil then
+                    local index = tonumber(t[2])
+                    if index ~= tonumber(executor) then
+                        if string.match(t[2], "%d") then
+                            if index ~= nil and index > 0 and index < 17 then
+                                if player_present(index) then
+                                    if (player_alive(PlayerIndex)) then
+                                        local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
+                                        local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
+                                        for i = 1, math.random(1,15) do
+                                            local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(5,10))
+                                            local projectile = get_object_memory(rocket)
+                                            write_float(projectile + 0x70, - math.random(1, 5))
+                                            spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 3.5), y1 + math.random(0.1, 3.5), z1 + math.random(0.1, 3.5))
+                                        end
+                                    else
+                                        rprint(PlayerIndex, get_var(index, "$name") .. " is dead!")
+                                    end
+                                else
+                                    rprint(PlayerIndex, "Invalid Player ID!")
+                                end
+                            end
+                        end
+                    else
+                        rprint(executor, "You cannot nuke yourself!")
+                    end
+                else
+                    rprint(executor, "Invalid Syntax. Type /" .. nuke_command .. " [index id]")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
         end
     end
     return UnknownCMD
@@ -418,4 +458,18 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+function get_tag_info(tagclass, tagname)
+    local tagarray = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) -1 do
+        local tag = tagarray + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == tagclass) then
+            if (read_string(read_dword(tag + 0x10)) == tagname) then
+                return read_dword(tag + 0xC)
+            end
+        end
+    end
+    return nil
 end
