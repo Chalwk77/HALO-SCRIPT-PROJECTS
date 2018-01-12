@@ -610,6 +610,7 @@ function tokenizestring(inputstr, sep)
     return t
 end
 
+-- credits to 002 for this function.
 function get_tag_info(tagclass, tagname)
     local tagarray = read_dword(0x40440000)
     for i = 0, read_word(0x4044000C) -1 do
