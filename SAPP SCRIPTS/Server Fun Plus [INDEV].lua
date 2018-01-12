@@ -151,7 +151,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor)
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = false
-                        ypr[index] = false
+                        ypr[PlayerIndex] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me
@@ -160,7 +160,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor)
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = false
-                        ypr[index] = false
+                        ypr[PlayerIndex] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket x,y,z
@@ -169,7 +169,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
-                        ypr[index] = false
+                        ypr[PlayerIndex] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me x,y,z
@@ -178,7 +178,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
-                        ypr[index] = false
+                        ypr[PlayerIndex] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me x,y,z,yaw,pitch,roll
