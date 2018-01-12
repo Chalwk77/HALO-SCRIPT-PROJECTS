@@ -29,10 +29,15 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- ROCKET --
--- /rocket null|me
--- /rocket null|me x, y, z, (optional: yaw, pitch, roll)
--- /rocket [index id]
--- /rocket [index id] x, y, z, (optional: yaw, pitch, roll)
+-- /rocket
+-- /rocket me
+-- /rocket x,y,z
+-- /rocket me x,y,z
+-- /rocket me x,y,z,yaw,pitch,roll
+-- /rocket x,y,z,yaw,pitch,roll
+-- /rocket index
+-- /rocket index x,y,z
+-- /rocket index x,y,z,yaw,pitch,roll
 rocket_command = "r"
 rocket_permission_level = 1
 values_specified = {}
