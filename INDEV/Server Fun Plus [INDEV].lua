@@ -295,7 +295,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 end
                 UnknownCMD = false
             else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
+                rprint(executor, "You do not have permission to execute that command!")
             end
         end
     end
@@ -318,7 +318,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         rprint(executor, get_var(index, "$name") .. " is in a vehicle!")
                                     end
                                 else
-                                    rprint(PlayerIndex, "Invalid Player ID!")
+                                    rprint(executor, "Invalid Player ID!")
                                 end
                             end
                         end
@@ -329,7 +329,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     rprint(executor, "Invalid Syntax. Type /" .. slap_command .. " [index id]")
                 end
             else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
+                rprint(executor, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
         end
