@@ -33,7 +33,7 @@ api_version = "1.12.0.0"
 -- /rocket null|me x, y, z, (optional: yaw, pitch, roll)
 -- /rocket [index id]
 -- /rocket [index id] x, y, z, (optional: yaw, pitch, roll)
-rocket_command = "rocket"
+rocket_command = "r"
 rocket_permission_level = 1
 values_specified = {}
 x1 = {}
@@ -138,76 +138,60 @@ function OnServerCommand(PlayerIndex, Command)
         if t[1] == string.lower(rocket_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
                 local index = tonumber(t[2])
-                local executor = PlayerIndex
-                -- t 1-2
-                -- /rocket null|me x, y, z
-                if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then
-                    Rocket(executor, executor, X, Y, Z, Yaw, Pitch, Roll)
-                    if PlayerInVehicle(executor) then 
-                        values_specified[executor] = false
-                        rprint(executor, "You have been rocketed!") 
+                local executor = get_var(PlayerIndex, "$n")
+                -- /rocket
+                if t[2] == nil then
+                    cprint("/rocket")
+                    Rocket(PlayerIndex, executor)
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = false
+                        rprint(PlayerIndex, "You have been rocketed!") 
                     end
-                elseif (t[2] ~= nil and t[2] ~= "me") and (t[3] == nil) and (t[4] == nil) and (t[5] == nil) then
-                    if player_present(index) then
-                        Rocket(index, executor, X, Y, Z, Yaw, Pitch, Roll)
-                        if PlayerInVehicle(index) then 
-                            values_specified[index] = false
-                            rprint(index, "You have been rocketed!") 
-                        end
-                    else
-                        rprint(PlayerIndex, "Invalid Player ID!")
+                -- /rocket me
+                elseif t[2] == "me" and t[3] == nil then
+                    cprint("/rocket me")
+                    Rocket(PlayerIndex, executor)
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = false
+                        rprint(PlayerIndex, "You have been rocketed!") 
                     end
-                -- t 1-4
-                -- /rocket x, y, z 
-                elseif (t[2] ~= nil and t[2] ~= "me") and (t[3] ~= nil) and (t[4] ~= nil) and (t[5] == nil) then
-                    X = t[2]
-                    Y = t[3]
-                    Z = t[4]
-                    Rocket(executor, executor, X, Y, Z, Yaw, Pitch, Roll)
-                    if PlayerInVehicle(executor) then 
-                        values_specified[executor] = true
-                        rprint(executor, "You have been rocketed!") 
+                -- /rocket x,y,z
+                elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] == nil then
+                    cprint("/rocket x,y,z")
+                    Rocket(PlayerIndex, executor, t[2], t[3], t[4])
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = true
+                        rprint(PlayerIndex, "You have been rocketed!") 
                     end
-                -- t 1-2  
-                -- /rocket [id]
-                -- t 1-5
-                -- /rocket [id] x, y, z 
-                elseif (t[2] ~= nil and t[2] ~= "me") and (t[3] ~= nil) and (t[4] ~= nil) and (t[5] ~= nil) then
-                    if string.match(t[2], "%d") then
-                        if index ~= nil and index > 0 and index < 17 then
-                            if t[3] ~= nil and t[4] ~= nil and t[5] ~= nil then
-                                X = t[3]
-                                Y = t[4]
-                                Z = t[5]
-                                values_specified[index] = true
-                            else
-                                values_specified[index] = false
-                            end
-                            if player_present(index) then
-                                if index == get_var(executor, "$n") then
-                                    Rocket(executor, X, Y, Z, Yaw, Pitch, Roll)
-                                    if PlayerInVehicle(executor) then
-                                        rprint(executor, "You have been rocketed!")
-                                    end
-                                else
-                                    Rocket(index, executor, X, Y, Z, Yaw, Pitch, Roll)
-                                    if PlayerInVehicle(index) then
-                                        rprint(index, "You have been rocketed!")
-                                        rprint(executor, get_var(index, "$name") .. " has been rocketed!")
-                                    end
-                                end
-                            else
-                                rprint(PlayerIndex, "Invalid Player ID!")
-                            end
-                        end
-                    else
-                        rprint(PlayerIndex, "Invalid Player Index!")
+                -- /rocket me x,y,z
+                elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
+                    cprint("/rocket me x,y,z")
+                    Rocket(PlayerIndex, executor, t[3], t[4], t[5])
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = true
+                        rprint(PlayerIndex, "You have been rocketed!") 
+                    end
+                -- /rocket me x,y,z,yaw,pitch,roll
+                elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
+                    cprint("/rocket me x,y,z,yaw,pitch,roll")
+                    Rocket(PlayerIndex, executor, t[3], t[4], t[5], t[6], t[7], t[8])
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = true
+                        rprint(PlayerIndex, "You have been rocketed!") 
+                    end
+                -- /rocket x,y,z,yaw,pitch,roll
+                elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] == nil then
+                    cprint("/rocket x,y,z,yaw,pitch,roll")
+                    Rocket(PlayerIndex, executor, t[2], t[3], t[4], t[5], t[6], t[7])
+                    if PlayerInVehicle(PlayerIndex) then 
+                        values_specified[PlayerIndex] = true
+                        rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 end
+                UnknownCMD = false
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
-            UnknownCMD = false
         end
     end
     if t[1] ~= nil then
@@ -297,41 +281,41 @@ function OnServerCommand(PlayerIndex, Command)
     return UnknownCMD
 end
 
-function Rocket(index, executor, X, Y, Z, Yaw, Pitch, Roll)
-    local player_object = get_dynamic_player(index)
+function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
+    local player_object = get_dynamic_player(player)
     if player_object then
-        if PlayerInVehicle(index) then
+        if PlayerInVehicle(player) then
             local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
             local vehicle_tag = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
             if VehicleObj ~= nil then
                 write_bit(VehicleObj + 0x10, 2, 0)
-                if values_specified[index] then
-                    x1[index] = X
-                    y1[index] = Y
-                    z1[index] = Z
-                    yaw[index] = Yaw
-                    pitch[index] = Pitch
-                    roll[index] = Roll
+                if values_specified[player] then
+                    x1[player] = X
+                    y1[player] = Y
+                    z1[player] = Z
+                    yaw[player] = Yaw
+                    pitch[player] = Pitch
+                    roll[player] = Roll
                 else
-                    x1[index] = 0
-                    y1[index] = 0
-                    z1[index] = 0.75
-                    yaw[index] = 1
-                    pitch[index] = 1
-                    roll[index] = 15
+                    x1[player] = 0
+                    y1[player] = 0
+                    z1[player] = 0.75
+                    yaw[player] = 1
+                    pitch[player] = 1
+                    roll[player] = 15
                 end
-                write_float(VehicleObj + 0x68, x1[index])
-                write_float(VehicleObj + 0x6C, y1[index])
-                write_float(VehicleObj + 0x70, z1[index])
-                write_float(VehicleObj + 0x90, yaw[index])
-                write_float(VehicleObj + 0x8C, pitch[index])
-                write_float(VehicleObj + 0x94, roll[index])
+                write_float(VehicleObj + 0x68, x1[player])
+                write_float(VehicleObj + 0x6C, y1[player])
+                write_float(VehicleObj + 0x70, z1[player])
+                write_float(VehicleObj + 0x90, yaw[player])
+                write_float(VehicleObj + 0x8C, pitch[player])
+                write_float(VehicleObj + 0x94, roll[player])
             end
         else
-            if get_var(index, "$n") == get_var(executor, "$n") then
+            if get_var(player, "$n") == get_var(executor, "$n") then
                 rprint(executor, "You're not in a vehicle!")
             else
-                rprint(executor, get_var(index, "$name") .. " is not in a vehicle!")
+                rprint(executor, get_var(player, "$name") .. " is not in a vehicle!")
             end
         end
     end
