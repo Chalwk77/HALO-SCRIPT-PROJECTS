@@ -109,7 +109,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
-                return false
+            return false
         end
     elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
             if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
@@ -119,7 +119,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     say_all("God:" .. broadcast)
                     execute_command("msg_prefix \"** SERVER ** \"")
                     return false
+                else
+                    rprint(executor, "Invalid Syntax. Type /" .. god_command .. " (message)")
+                    return false
                 end
+            else
+                rprint(executor, "You do not have permission to execute that command!")
             end
         end
     end
