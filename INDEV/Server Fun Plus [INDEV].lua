@@ -74,12 +74,51 @@ god_permission_level = 1
 nuke_command = "nuke"
 nuke_permission_level = 1
 
+-- SPAM --
+spam_command = "spam"
+spam_permission_level = 1
+spam_duration = 10
+spam_victim = {}
+spam = {}
+
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
 function OnScriptUnload() end
+
+function OnPlayerJoin(PlayerIndex)
+    spam_victim[get_var(PlayerIndex, "$n")] = { }
+    spam_victim[get_var(PlayerIndex, "$n")].spam_timer = 0
+    spam[PlayerIndex] = false
+end
+
+function OnPlayerLeave(PlayerIndex)
+    spam_victim[get_var(PlayerIndex, "$n")].spam_timer = 0
+    spam[PlayerIndex] = false
+end
+
+function OnTick()
+    for i = 1, 16 do
+        if player_present(i) then
+            if (spam[i] == true) then
+                clear_console(i)
+                spam_victim[get_var(i, "$n")].spam_timer = spam_victim[get_var(i, "$n")].spam_timer + 0.030
+                Spam(i, spam_broadcast)
+                if spam_victim[get_var(i, "$n")].spam_timer >= math.floor(spam_duration) then
+                    spam_victim[get_var(i, "$n")].spam_timer = 0
+                    spam[i] = false
+                    clear_console(i)
+                    rprint(i, "|c" .. "Y O U   W E R E   S P A M M E D!")
+                end
+            end
+        end
+    end
+end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local t = tokenizestring(Message)
@@ -119,9 +158,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
-            return false
-        end
-    elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
+            end
+        elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
             if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
                 if t[2] ~= nil then
                     execute_command("msg_prefix \"\"")
@@ -131,6 +169,42 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     return false
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. god_command .. " (message)")
+                    return false
+                end
+            else
+                rprint(executor, "You do not have permission to execute that command!")
+            end
+        elseif t[1] == ("/" .. string.lower(spam_command)) or t[1] == ("\\" .. string.lower(spam_command)) then
+            if tonumber(get_var(executor, "$lvl")) >= spam_permission_level then
+                if t[2] ~= nil then
+                    local index = tonumber(t[2])
+                    if string.match(t[2], "%d") then
+                        if t[3] ~= nil then
+                            if index ~= tonumber(executor) then
+                                if index ~= nil and index > 0 and index < 17 then
+                                    if player_present(index) then
+                                        execute_command("msg_prefix \"\"")
+                                        spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d", "")
+                                        spam[index] = true
+                                        say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
+                                        execute_command("msg_prefix \"** SERVER ** \"")
+                                        return false
+                                    else
+                                        rprint(executor, "Invalid Player Index")
+                                        return false
+                                    end
+                                end
+                            else
+                                rprint(executor, "You cannot spam yourself!")
+                                return false
+                            end
+                        else
+                            rprint(executor, "You didn't type a message!")
+                            return false
+                        end
+                    end
+                else
+                    rprint(executor, "Invalid Syntax. Type /" .. spam_command .. " [index id] (message)")
                     return false
                 end
             else
@@ -469,6 +543,78 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
         if get_var(player, "$n") ~= get_var(executor, "$n") then
             rprint(executor, "You launched " .. get_var(player, "$name"))
         end
+    end
+end
+
+function Spam(player, broadcast)
+    for i = 1,math.random(1,10) do
+        if i == 1 then
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+        elseif i == 1 then
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+        elseif i == 3 then
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+        elseif i == 4 then
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+        elseif i == 5 then
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+        elseif i == 5 then
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+        elseif i == 6 then
+            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
+            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|l" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
+            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
+        elseif i == 7 then
+            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
+            rprint(player, "|r" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|r" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
+            rprint(player, "|r" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
+        elseif i == 8 then
+            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
+            rprint(player, "|t" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|t" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
+            rprint(player, "|t" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
+        elseif i == 9 then
+            rprint(player, "|l" .. " --------------------------------------------- " .. broadcast)
+            rprint(player, "|l" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|l" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
+            rprint(player, "|l" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|l" .. " --------------------------------------------- " .. broadcast)
+        elseif i == 10 then
+            rprint(player, "|c" .. " --------------------------------------------- " .. broadcast)
+            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|c" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
+            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|c" .. " --------------------------------------------- " .. broadcast)
+        end
+    end
+end
+
+function clear_console(PlayerIndex)
+    for i = 1, 1 do
+        rprint(PlayerIndex, " ")
     end
 end
 
