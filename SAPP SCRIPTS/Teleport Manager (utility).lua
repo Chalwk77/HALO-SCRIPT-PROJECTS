@@ -263,6 +263,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         rprint(PlayerIndex, "That warp is not linked to this map!")
                                     end
                                 else
+                                    found = true
                                     rprint(PlayerIndex, "You cannot teleport when dead!")
                                 end
                             end
