@@ -38,7 +38,7 @@ api_version = "1.12.0.0"
 -- /rocket index
 -- /rocket index x,y,z
 -- /rocket index x,y,z,yaw,pitch,roll
-rocket_command = "r"
+rocket_command = "rocket"
 rocket_permission_level = 1
 values_specified = {}
 x = {}
