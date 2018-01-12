@@ -3,7 +3,7 @@
 Script Name: Server Fun Plus, for SAPP (PC & CE)
 
 Features: 
-    rocket:             turn a player into a rocket (player's in vehicles only)
+*   rocket:             turn a player into a rocket (player's in vehicles only)
 *   force chat:         force a player to say something
 *   fake join:          pretend player joins the game
 *   fake quit:          pretend player left the game
@@ -137,7 +137,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return true
 end
 
-function OnServerCommand(PlayerIndex, Command)
+function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
