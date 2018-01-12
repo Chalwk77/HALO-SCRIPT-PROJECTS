@@ -15,8 +15,6 @@ Features:
     explode:            explode the target player
     colour changer:     change a player's colour
     
-    
-    
     IN DEVELOPMENT
     
              
@@ -30,7 +28,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- rocket --
+-- ROCKET --
+-- /rocket null|me
+-- /rocket null|me x, y, z, (optional: yaw, pitch, roll)
+-- /rocket [index id]
+-- /rocket [index id] x, y, z, (optional: yaw, pitch, roll)
 rocket_command = "rocket"
 rocket_permission_level = 1
 values_specified = {}
@@ -41,9 +43,22 @@ yaw = {}
 pitch = {}
 roll = {}
 
--- force chat --
+-- FORCE CHAT --
+-- /fchat [index id] (message)
 force_chat_command = "fchat"
 fc_permission_level = 1
+
+-- SLAP --
+-- /slap [index id]
+slap_command = "slap"
+slap_permission_level = 1
+
+-- FAKE JOIN | FAKE QUIT --
+-- /fakejoin [name]
+-- /fakequit [name]
+fake_join_command = "fakejoin"
+fake_quit_command = "fakequit"
+fake_permission_level = 1
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -85,7 +100,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         end
                     end
                 else
-                    rprint(executor, "Invalid Syntax. Type " .. force_chat_command .. " [index id]")
+                    rprint(executor, "Invalid Syntax. Type /" .. force_chat_command .. " [index id]")
                     return false
                 end
             else
@@ -169,6 +184,94 @@ function OnServerCommand(PlayerIndex, Command)
                     else
                         rprint(PlayerIndex, "Invalid Player Index!")
                     end
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
+        end
+    end
+    if t[1] ~= nil then
+        if t[1] == string.lower(slap_command) then
+            local executor = get_var(PlayerIndex, "$n")
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= slap_permission_level then
+                if t[2] ~= nil then
+                    local index = tonumber(t[2])
+                    if index ~= tonumber(executor) then
+                        if string.match(t[2], "%d") then
+                            if index ~= nil and index > 0 and index < 17 then
+                                if player_present(index) then
+                                    if not PlayerInVehicle(index) then
+                                        local x, y, z = read_vector3d(get_dynamic_player(index) + 0x5C)
+                                        write_vector3d(get_dynamic_player(index) + 0x5C, x + 0.50, y + 0.50, z + 4)
+                                        rprint(executor, "You slapped " .. get_var(index, "$name"))
+                                        rprint(index, "You were slapped by " .. get_var(executor, "$name"))
+                                    else
+                                        rprint(executor, get_var(index, "$name") .. " is in a vehicle!")
+                                    end
+                                else
+                                    rprint(PlayerIndex, "Invalid Player ID!")
+                                end
+                            end
+                        end
+                    else
+                        rprint(executor, "You cannot slap yourself!")
+                    end
+                else
+                    rprint(executor, "Invalid Syntax. Type /" .. slap_command .. " [index id]")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
+        end
+    end
+    
+    -- Welcome [name]
+    -- [name] Quit
+    
+    if t[1] ~= nil then
+        if t[1] == string.lower(fake_join_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
+                if t[2] ~= nil then
+                    if t[3] == nil then
+                        local fake_name = tostring(t[2])
+                        local char_len = string.len(fake_name)
+                        if char_len > 11 then 
+                            rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
+                        else
+                            execute_command("msg_prefix \"\"")
+                            say_all("Welcome " .. fake_name)
+                            execute_command("msg_prefix \"** SERVER ** \"")
+                        end
+                    else
+                        rprint(PlayerIndex, "The name can only be one word!")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_join_command .. " [index id]")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
+        elseif t[1] == string.lower(fake_quit_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
+                if t[2] ~= nil then
+                    if t[3] == nil then
+                        local fake_name = tostring(t[2])
+                        local char_len = string.len(fake_name)
+                        if char_len > 11 then 
+                            rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
+                        else
+                            execute_command("msg_prefix \"\"")
+                            say_all(fake_name .. " Quit")
+                            execute_command("msg_prefix \"** SERVER ** \"")
+                        end
+                    else
+                        rprint(PlayerIndex, "The name can only be one word!")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_quit_command .. " [index id]")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
