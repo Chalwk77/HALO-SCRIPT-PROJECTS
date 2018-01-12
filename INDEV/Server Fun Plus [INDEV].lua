@@ -348,7 +348,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
-                    if index ~= tonumber(executor) then
+                    --if index ~= tonumber(executor) then
                         if string.match(t[2], "%d") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
@@ -356,10 +356,48 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
                                         local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
                                         for i = 1, math.random(1,15) do
-                                            local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(5,10))
-                                            local projectile = get_object_memory(rocket)
-                                            write_float(projectile + 0x70, - math.random(1, 5))
-                                            spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 3.5), y1 + math.random(0.1, 3.5), z1 + math.random(0.1, 3.5))
+                                            -- frag grenade
+                                            spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 5.5), y1 + math.random(0.1, 5.5), z1 + math.random(0.1, 1))
+                                            -- rocket launcher projectile
+                                            local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(1, 20))
+                                            local rocket_projectile = get_object_memory(rocket)
+                                            write_float(rocket_projectile + 0x70, - math.random(1, 3))
+                                            -- plasma cannon projectile
+                                            local plasma_cannon = spawn_object("proj", "weapons\\plasma_cannon\\plasma_cannon", x1, y1, z1 + math.random(1, 20))
+                                            local plasma_cannon_projectile = get_object_memory(plasma_cannon)
+                                            write_float(plasma_cannon_projectile + 0x70, - math.random(1, 3))
+                                            -- needle projectile
+                                            local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1,5))
+                                            local needle_projectile = get_object_memory(needle)
+                                            write_float(needle_projectile + 0x70, - math.random(1, 3))
+                                            -- banshee plasma bolt
+                                            local banshee_bolt = spawn_object("proj", "vehicles\\banshee\\banshee bolt", x1, y1, z1 + math.random(1, 20))
+                                            local banshee_bolt_projectile = get_object_memory(banshee_bolt)
+                                            write_float(banshee_bolt_projectile + 0x70, - math.random(1, 3))
+                                            -- banshee fuel rod
+                                            local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
+                                            local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
+                                            write_float(banshee_fuel_rod_projectile + 0x70, - math.random(1, 3))
+                                            -- tank shell 
+                                            local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
+                                            local tank_shell_projectile = get_object_memory(tank_shell)
+                                            write_float(tank_shell_projectile + 0x70, - math.random(1, 3))
+                                            -- flames
+                                            local flames = spawn_object("proj", "weapons\\flamethrower\\flame", x1, y1, z1 + 0.2)
+                                            local flame_projectile = get_object_memory(flames)
+                                            write_float(flame_projectile + 0x70, - math.random(0.2, 0.5))
+                                            -- sniper bullet projectile
+                                            local sniper = spawn_object("proj", "weapons\\sniper rifle\\sniper bullet", x1, y1, z1 + math.random(1, 20))
+                                            local sniper_projectile = get_object_memory(sniper)
+                                            write_float(sniper_projectile + 0x70, - math.random(1, 3))
+                                            -- plasma rile charged bolt projectile
+                                            local plasma_rile_bolt = spawn_object("proj", "weapons\\plasma rifle\\charged bolt", x1, y1, z1 + math.random(1, 20))
+                                            local plasma_rile_bolt_projectile = get_object_memory(plasma_rile_bolt)
+                                            write_float(plasma_rile_bolt_projectile + 0x70, - math.random(1, 3))
+                                            -- ghost bolt projectile
+                                            local ghost_bolt = spawn_object("proj", "vehicles\\ghost\\ghost bolt", x1, y1, z1 + math.random(1, 20))
+                                            local ghost_bolt_projectile = get_object_memory(ghost_bolt)
+                                            write_float(ghost_bolt_projectile + 0x70, - math.random(1, 3))
                                         end
                                     else
                                         rprint(PlayerIndex, get_var(index, "$name") .. " is dead!")
@@ -369,9 +407,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 end
                             end
                         end
-                    else
-                        rprint(executor, "You cannot nuke yourself!")
-                    end
+                    --else
+                        --rprint(executor, "You cannot nuke yourself!")
+                    --end
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. nuke_command .. " [index id]")
                 end
