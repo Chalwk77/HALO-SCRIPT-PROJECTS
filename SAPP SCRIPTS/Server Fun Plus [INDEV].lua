@@ -42,6 +42,7 @@ z1 = {}
 yaw = {}
 pitch = {}
 roll = {}
+ypr = {}
 
 -- FORCE CHAT --
 -- /fchat [index id] (message)
@@ -145,6 +146,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor)
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = false
+                        ypr[index] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me
@@ -153,6 +155,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor)
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = false
+                        ypr[index] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket x,y,z
@@ -161,6 +164,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
+                        ypr[index] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me x,y,z
@@ -169,6 +173,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
+                        ypr[index] = false
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket me x,y,z,yaw,pitch,roll
@@ -177,6 +182,7 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5], t[6], t[7], t[8])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
+                        ypr[PlayerIndex] = true
                         rprint(PlayerIndex, "You have been rocketed!") 
                     end
                 -- /rocket x,y,z,yaw,pitch,roll
@@ -185,7 +191,59 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4], t[5], t[6], t[7])
                     if PlayerInVehicle(PlayerIndex) then 
                         values_specified[PlayerIndex] = true
+                        ypr[PlayerIndex] = true
                         rprint(PlayerIndex, "You have been rocketed!") 
+                    end
+                -- /rocket index
+                elseif t[2] ~= nil and t[2] ~= "me" and t[3] == nil then
+                    if string.match(t[2], "%d") then
+                        if player_present(index) then
+                            if index > 0 and index < 17 then
+                                cprint("/rocket index")
+                                Rocket(index, executor)
+                                if PlayerInVehicle(index) then 
+                                    values_specified[index] = false
+                                    ypr[index] = false
+                                    rprint(index, "You have been rocketed!") 
+                                end
+                            end
+                        else
+                            rprint(executor, "Invalid Player ID") 
+                        end
+                    end
+                -- /rocket index x,y,z
+                elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
+                    if string.match(t[2], "%d") then
+                        if player_present(index) then
+                            if index > 0 and index < 17 then
+                                cprint("/rocket index x,y,z")
+                                Rocket(index, executor, t[3], t[4], t[5])
+                                if PlayerInVehicle(index) then 
+                                    values_specified[index] = true
+                                    ypr[index] = false
+                                    rprint(index, "You have been rocketed!") 
+                                end
+                            end
+                        else
+                            rprint(executor, "Invalid Player ID") 
+                        end
+                    end
+                -- /rocket index x,y,z,yaw,pitch,roll
+                elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
+                    if string.match(t[2], "%d") then
+                        if player_present(index) then
+                            if index > 0 and index < 17 then
+                                cprint("/rocket index x,y,z,yaw,pitch,roll")
+                                Rocket(index, executor, t[3], t[4], t[5], t[6], t[7], t[8])
+                                if PlayerInVehicle(index) then 
+                                    values_specified[index] = true
+                                    ypr[index] = true
+                                    rprint(index, "You have been rocketed!") 
+                                end
+                            end
+                        else
+                            rprint(executor, "Invalid Player ID") 
+                        end
                     end
                 end
                 UnknownCMD = false
@@ -293,23 +351,30 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
                     x1[player] = X
                     y1[player] = Y
                     z1[player] = Z
-                    yaw[player] = Yaw
-                    pitch[player] = Pitch
-                    roll[player] = Roll
+                    if ypr[player] then 
+                        yaw[player] = Yaw
+                        pitch[player] = Pitch
+                        roll[player] = Roll
+                    end
                 else
                     x1[player] = 0
                     y1[player] = 0
                     z1[player] = 0.75
-                    yaw[player] = 1
-                    pitch[player] = 1
-                    roll[player] = 15
+                    if ypr[player] then
+                        yaw[player] = 1
+                        pitch[player] = 1
+                        roll[player] = 15
+                    end
                 end
                 write_float(VehicleObj + 0x68, x1[player])
                 write_float(VehicleObj + 0x6C, y1[player])
                 write_float(VehicleObj + 0x70, z1[player])
-                write_float(VehicleObj + 0x90, yaw[player])
-                write_float(VehicleObj + 0x8C, pitch[player])
-                write_float(VehicleObj + 0x94, roll[player])
+                if ypr[player] then
+                    write_float(VehicleObj + 0x90, yaw[player])
+                    write_float(VehicleObj + 0x8C, pitch[player])
+                    write_float(VehicleObj + 0x94, roll[player])
+                end
+                ypr[player] = false
             end
         else
             if get_var(player, "$n") == get_var(executor, "$n") then
@@ -317,6 +382,9 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
             else
                 rprint(executor, get_var(player, "$name") .. " is not in a vehicle!")
             end
+        end
+        if get_var(player, "$n") ~= get_var(executor, "$n") then
+            rprint(executor, "You launched " .. get_var(player, "$name"))
         end
     end
 end
