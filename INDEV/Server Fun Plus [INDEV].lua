@@ -9,7 +9,7 @@ Features:
 *   fake quit:          pretend player left the game
     random tp:          teleport player to a random location on the map
 *   slap:               slap target player
-    spam:               spam a message to the designated player
+*   spam:               spam a message to the designated player
     zap:                zap target player (deals X damage)
 *   god:                broadcast a message as god
 *   nuke:               nuke the target player
