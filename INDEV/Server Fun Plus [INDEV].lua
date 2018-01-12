@@ -472,11 +472,9 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
                     x[player] = X
                     y[player] = Y
                     z[player] = Z
-                    if ypr[player] then 
-                        yaw[player] = Yaw
-                        pitch[player] = Pitch
-                        roll[player] = Roll
-                    end
+                    yaw[player] = Yaw
+                    pitch[player] = Pitch
+                    roll[player] = Roll
                 else
                     x[player] = 0
                     y[player] = 0
@@ -494,7 +492,6 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
                     write_float(VehicleObj + 0x8C, pitch[player])
                     write_float(VehicleObj + 0x94, roll[player])
                 end
-                ypr[player] = false
             end
         else
             if get_var(player, "$n") == get_var(executor, "$n") then
