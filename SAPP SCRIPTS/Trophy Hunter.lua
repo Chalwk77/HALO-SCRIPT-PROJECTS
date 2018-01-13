@@ -40,7 +40,7 @@ message_board = {
 
 info_board = {
     "|l-- POINTS -- ",
-    "|lCollect your trophy:                   |r+" .. claim .. " points",
+    "|lCollect your victims trophy:           |r+" .. claim .. " points",
     "|lCollect somebody else's trophy:        |r+" .. claim_other .. " points",
     "|lCollect your killer's trophy:          |r+" .. steal_self .. " points",
     "|lDeath Penalty:                         |r-" .. death_penalty .. " points",
@@ -55,6 +55,8 @@ info_board_message_duration = 7
 -- If a player quits the game and their trophies are still on the playing field, how long until they are removed (destroyed/despawned)?
 destroy_duration = 15
 
+scorelimit = 15
+
 -- Message alignment (welcome messages):
 -- Left = l,    Right = r,    Center = c,    Tab: t
 alignment = "l"
@@ -67,6 +69,7 @@ new_timer = { }
 info_board_timer = { }
 info_timer = { }
 trophy_count = { }
+despawn_bool = { }
 welcome_timer = { }
 destroy_timer = { }
 trophy_drone_table = { }
@@ -104,16 +107,6 @@ function OnNewGame()
                 players[get_var(i, "$n")].info_board_timer = 0
             end
         end
-        if current_players >= 1 and current_players <= 5 then
-            scorelimit = 15
-            execute_command("scorelimit " .. scorelimit)
-        elseif current_players >= 5 and current_players <= 10 then
-            scorelimit = 30
-            execute_command("scorelimit " .. scorelimit)
-        elseif current_players >= 10 and current_players <= 16 then
-            scorelimit = 50
-            execute_command("scorelimit " .. scorelimit)
-        end
         game_over = false
         if tonumber(death_penalty) > 1 then character1 = "s" elseif tonumber(death_penalty) == 1 then character1 = "" end
         if tonumber(suicide_penalty) > 1 then character2 = "s" elseif tonumber(suicide_penalty) == 1 then character2 = "" end
@@ -146,17 +139,6 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].new_timer = 0
     players[get_var(PlayerIndex, "$n")].info_board_timer = 0
     
-    if current_players >= 1 and current_players <= 5 then
-        scorelimit = 15
-        execute_command("scorelimit " .. scorelimit)
-    elseif current_players >= 5 and current_players <= 10 then
-        scorelimit = 30
-        execute_command("scorelimit " .. scorelimit)
-    elseif current_players >= 10 and current_players <= 16 then
-        scorelimit = 50
-        execute_command("scorelimit " .. scorelimit)
-    end
-    
     for i = 1,16 do trophy_drone_table[i] = { } end
     trophy_count[PlayerIndex] = 0
 end
@@ -172,24 +154,23 @@ function OnPlayerLeave(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].info_board_timer = 0
     current_players = current_players - 1
     
-    if current_players == 0 then
-        scorelimit = 15
-        execute_command("scorelimit " .. scorelimit)
-    end
-    
     drone_player_id = tonumber(PlayerIndex)
     
     for k, v in pairs(trophy_drone_table[drone_player_id]) do
         if trophy_drone_table[drone_player_id][k] > 0 then
+            despawn_bool[PlayerIndex] = true
             destroy_timer[PlayerIndex] = true
             drone_player_id_name = get_var(drone_player_id, "$name")
-            execute_command("msg_prefix \"\"")
-            say_all(get_var(drone_player_id, "$name") .. "'s trophy/trophies will expire in " .. destroy_duration .. " seconds!")
-            execute_command("msg_prefix \"** SERVER ** \"")
         else
+            despawn_bool[PlayerIndex] = false
             destroy_timer[PlayerIndex] = true
         end
     end
+    execute_command("msg_prefix \"\"")
+    if despawn_bool[PlayerIndex] == true then
+        say_all(get_var(drone_player_id, "$name") .. "'s trophy/trophies will despawn in " .. destroy_duration .. " seconds!")
+    end
+    execute_command("msg_prefix \"** SERVER ** \"")
 end
 
 function OnTick()
