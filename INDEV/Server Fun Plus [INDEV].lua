@@ -106,14 +106,15 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (spam[i] == true) then
-                clear_console(i)
+                for s = 1, 1 do rprint(i, " ") end
                 spam_victim[get_var(i, "$n")].spam_timer = spam_victim[get_var(i, "$n")].spam_timer + 0.030
                 Spam(i, spam_broadcast)
                 if spam_victim[get_var(i, "$n")].spam_timer >= math.floor(spam_duration) then
                     spam_victim[get_var(i, "$n")].spam_timer = 0
                     spam[i] = false
-                    clear_console(i)
+                    for t = 1, 30 do rprint(i, " ") end
                     rprint(i, "|c" .. "Y O U   W E R E   S P A M M E D!")
+                    for u = 1, 10 do rprint(i, "|c" .. " ") end
                 end
             end
         end
@@ -158,6 +159,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
+                return false
             end
         elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
             if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
@@ -173,33 +175,39 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
+                return false
             end
         elseif t[1] == ("/" .. string.lower(spam_command)) or t[1] == ("\\" .. string.lower(spam_command)) then
             if tonumber(get_var(executor, "$lvl")) >= spam_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
                     if string.match(t[2], "%d") then
-                        if t[3] ~= nil then
-                            if index ~= tonumber(executor) then
-                                if index ~= nil and index > 0 and index < 17 then
-                                    if player_present(index) then
-                                        execute_command("msg_prefix \"\"")
-                                        spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d", "")
-                                        spam[index] = true
-                                        say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
-                                        execute_command("msg_prefix \"** SERVER ** \"")
-                                        return false
-                                    else
-                                        rprint(executor, "Invalid Player Index")
-                                        return false
+                        if spam[index] == false then 
+                            if t[3] ~= nil then
+                                if index ~= tonumber(executor) then
+                                    if index ~= nil and index > 0 and index < 17 then
+                                        if player_present(index) then
+                                            execute_command("msg_prefix \"\"")
+                                            spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d", "")
+                                            spam[index] = true
+                                            say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
+                                            execute_command("msg_prefix \"** SERVER ** \"")
+                                            return false
+                                        else
+                                            rprint(executor, "Invalid Player Index")
+                                            return false
+                                        end
                                     end
+                                else
+                                  rprint(executor, "You cannot spam yourself!")
+                                  return false
                                 end
                             else
-                               rprint(executor, "You cannot spam yourself!")
-                               return false
+                                rprint(executor, "You didn't type a message!")
+                                return false
                             end
                         else
-                            rprint(executor, "You didn't type a message!")
+                            rprint(executor, get_var(index, "$name") .. " is already being spammed!")
                             return false
                         end
                     end
@@ -209,6 +217,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
+                return false
             end
         end
     end
@@ -293,10 +302,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         end
                     end
                 end
-                UnknownCMD = false
             else
                 rprint(executor, "You do not have permission to execute that command!")
             end
+            UnknownCMD = false
         end
     end
     if t[1] ~= nil then
@@ -509,74 +518,62 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
 end
 
 function Spam(player, broadcast)
-    for i = 1,math.random(1,10) do
+    for i = 1,math.random(1,6) do
         if i == 1 then
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
-        elseif i == 1 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
+            for j = 1, math.random(1,4) do 
+                if j == 1 then alignment = "|l" end
+                if j == 2 then alignment = "|r" end
+                if j == 3 then alignment = "|c" end
+                if j == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+        elseif i == 2 then
+            for k = 1, math.random(1,4) do 
+                if k == 1 then alignment = "|l" end
+                if k == 2 then alignment = "|r" end
+                if k == 3 then alignment = "|c" end
+                if k == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
         elseif i == 3 then
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
+            for l = 1, math.random(1,4) do 
+                if l == 1 then alignment = "|l" end
+                if l == 2 then alignment = "|r" end
+                if l == 3 then alignment = "|c" end
+                if l == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
         elseif i == 4 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
+            for m = 1, math.random(1,4) do 
+                if m == 1 then alignment = "|l" end
+                if m == 2 then alignment = "|r" end
+                if m == 3 then alignment = "|c" end
+                if m == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
         elseif i == 5 then
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
-        elseif i == 5 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
+            for n = 1, math.random(1,4) do 
+                if n == 1 then alignment = "|l" end
+                if n == 2 then alignment = "|r" end
+                if n == 3 then alignment = "|c" end
+                if n == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
         elseif i == 6 then
-            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
-            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|l" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
-            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
-        elseif i == 7 then
-            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
-            rprint(player, "|r" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|r" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
-            rprint(player, "|r" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|r" .. " --------------------------------------------- " .. broadcast)
-        elseif i == 8 then
-            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
-            rprint(player, "|t" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|t" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
-            rprint(player, "|t" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|t" .. " --------------------------------------------- " .. broadcast)
-        elseif i == 9 then
-            rprint(player, "|l" .. " --------------------------------------------- " .. broadcast)
-            rprint(player, "|l" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|l" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
-            rprint(player, "|l" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|l" .. " --------------------------------------------- " .. broadcast)
-        elseif i == 10 then
-            rprint(player, "|c" .. " --------------------------------------------- " .. broadcast)
-            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|c" .. " 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9" .. broadcast)
-            rprint(player, "|c" .. " <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|c" .. " --------------------------------------------- " .. broadcast)
+            for j = 1, math.random(1,4) do 
+                if o == 1 then alignment = "|l" end
+                if o == 2 then alignment = "|r" end
+                if o == 3 then alignment = "|c" end
+                if o == 4 then alignment = "|t" end
+            end
+            rprint(player, alignment .. " " .. broadcast)
+            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
         end
-    end
-end
-
-function clear_console(PlayerIndex)
-    for i = 1, 1 do
-        rprint(PlayerIndex, " ")
     end
 end
 
