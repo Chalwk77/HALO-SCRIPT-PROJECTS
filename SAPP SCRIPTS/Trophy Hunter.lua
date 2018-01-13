@@ -23,28 +23,29 @@ api_version = "1.12.0.0"
 trophy_tag_id = "weapons\\ball\\ball"
 
 -- SCORING -- 
-claim = 1               -- Claim your own trophy
-claim_other = 1         -- Steal somebody else's trophy
-steal_self = 1          -- Steal someone's trophy on yourself
-death_penalty = 2       -- Death Penalty    - PvP
-suicide_penalty = 2     -- Suicice Penalty  - Suicide
+claim = 1               -- Collect your trophy
+claim_other = 1         -- Collect somebody else's trophy
+steal_self = 1          -- Collect your killer's trophy
+death_penalty = 2       -- death penalty [number of points deducted]
+suicide_penalty = 2     -- suicide penalty [number of points deducted]
 
 -- MESSAGE BOARD --
 -- Messages are sent to the Console environment
 message_board = {
     "Welcome to Trophy Hunter",
-    "A trophy will fall at your victim's death location.",
-    "Retrieve this trophy to score!",
+    "Your victim will drop a trophy when they die!",
+    "Collect this trophy to score!",
     "Type /info or @info for more information",
 }
 
 info_board = {
     "|l-- POINTS -- ",
-    "|lClaim your trophy:                   |r+" .. claim .. " points",
-    "|lClaim somebody else's trophy:        |r+" .. claim_other .. " points",
-    "|lClaim your killers trophy:           |r+" .. steal_self .. " points",
-    "|lDeath Penalty:                       |r-" .. death_penalty .. " points",
-    "|lSuicide Penalty:                     |r-" .. suicide_penalty .. " points",
+    "|lCollect your trophy:                   |r+" .. claim .. " points",
+    "|lCollect somebody else's trophy:        |r+" .. claim_other .. " points",
+    "|lCollect your killer's trophy:          |r+" .. steal_self .. " points",
+    "|lDeath Penalty:                         |r-" .. death_penalty .. " points",
+    "|lSuicide Penalty:                       |r-" .. suicide_penalty .. " points",
+    "|lCollecting trophies is the only way to score.",
 }
     
 -- How long should the messages be displayed on screen for? (in seconds)
@@ -310,7 +311,7 @@ function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id
         execute_command("msg_prefix \"\"")
         -- killer claimed their trophy
         if get_var(PlayerIndex, "$hash") == killer_hash then
-            say_all(get_var(PlayerIndex, "$name") .. " claimed " .. tostring(victim_name) .. "'s trophy!")
+            say_all(get_var(PlayerIndex, "$name") .. " collected " .. tostring(victim_name) .. "'s trophy!")
             updatescore(PlayerIndex, tonumber(claim), true)
         -- player stole killer's trophy
         elseif get_var(PlayerIndex, "$hash") ~= killer_hash or get_var(PlayerIndex, "$hash") ~= victim_hash then
