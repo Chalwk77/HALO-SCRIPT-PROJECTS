@@ -2,17 +2,11 @@
 --=====================================================================================================--
 Script Name: Trophy Hunter (slayer), for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
-Description:    When you kill someone, a skull-trophy will fall at your victim's death location.
-                In order to actually score, you have to retrieve the skull.
+Description:    When you kill someone, a trophy will fall at your victim's death location.
+                In order to actually score you have to collect the trophy.
 
-                -- POINTS --
-                Claim your own trophy:                  +1 point
-                Steal somebody else's trophy:           +1 point
-                Steal someone's kill on yourself:       +1 points
-                Death Penalty:                          -2 points
-                Suicide Penalty:                        -2 points
-
-* Credits to Kennan for the original Kill Confirmed add-on for Phasor.
+* Credits to Kennan for his version of the Kill-Confirmed add-on for Phasor V2. 
+* Trophy Hunter (for SAPP) is an adaptation of and inspired by Kill-Confirmed. 
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -46,36 +40,37 @@ message_board = {
 
 info_board = {
     "|l-- POINTS -- ",
-    "|lClaim your own trophy:               |r+" .. claim .. " points",
+    "|lClaim your trophy:                   |r+" .. claim .. " points",
     "|lClaim somebody else's trophy:        |r+" .. claim_other .. " points",
-    "|lClaim someone's kill on yourself:    |r+" .. steal_self .. " points",
+    "|lClaim your killers trophy:           |r+" .. steal_self .. " points",
     "|lDeath Penalty:                       |r-" .. death_penalty .. " points",
     "|lSuicide Penalty:                     |r-" .. suicide_penalty .. " points",
 }
     
 -- How long should the messages be displayed on screen for? (in seconds)
-Welcome_Msg_Duration = 15
-Info_Board_Msg_Duration = 15
--- Message Alignment (welcome messages):
+welcome_message_duration = 7
+info_board_message_duration = 7
+
+-- If a player quits the game and their trophies are still on the playing field, how long until they are removed (destroyed/despawned)?
+destroy_duration = 15
+
+-- Message alignment (welcome messages):
 -- Left = l,    Right = r,    Center = c,    Tab: t
-Alignment = "l"
+alignment = "l"
 -- ================================= CONFIGURATION ENDS =================================--
 
 -- tables --
 tags = { }
 players = { }
 new_timer = { }
-new_timer2 = { }
+info_board_timer = { }
 info_timer = { }
-stored_data = { }
+trophy_count = { }
 welcome_timer = { }
+destroy_timer = { }
 trophy_drone_table = { }
-destroy_timer = {}
--- counts --
--- Set initial player count to 0
 current_players = 0
 timer_delay_destroy = 0
-destroy_duration = 15
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -89,12 +84,10 @@ function OnScriptLoad()
     if CheckType() == true then
         for i = 1, 16 do
             if player_present(i) then
-                stored_data[i] = { }
                 current_players = current_players + 1
-                local player_id = get_var(i, "$n")
-                players[player_id].score = 0
-                players[player_id].new_timer = 0
-                players[player_id].new_timer2 = 0
+                players[get_var(i, "$n")].score = 0
+                players[get_var(i, "$n")].new_timer = 0
+                players[get_var(i, "$n")].info_board_timer = 0
             end
         end
     end
@@ -104,17 +97,12 @@ function OnNewGame()
     if CheckType() == true then
         for i = 1, 16 do
             if player_present(i) then
-                stored_data[i] = { }
-                -- For all players currently connected to the server, add them to the Current Player Count.
                 current_players = current_players + 1
-                -- reset table elements --
-                local player_id = get_var(i, "$n")
-                players[player_id].score = 0
-                players[player_id].new_timer = 0
-                players[player_id].new_timer2 = 0
+                players[get_var(i, "$n")].score = 0
+                players[get_var(i, "$n")].new_timer = 0
+                players[get_var(i, "$n")].info_board_timer = 0
             end
         end
-        -- Set scorelimit based on total players currently connected to the server
         if current_players >= 1 and current_players <= 5 then
             scorelimit = 15
             execute_command("scorelimit " .. scorelimit)
@@ -134,16 +122,12 @@ end
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
-            -- check if player is present
             if player_present(i) then
-                -- reset welcome timer --
                 welcome_timer[i] = false
                 info_timer[i] = false
-                -- reset table elements --
-                local player_id = get_var(i, "$n")
-                players[player_id].score = 0
-                players[player_id].new_timer = 0
-                players[player_id].new_timer2 = 0
+                players[get_var(i, "$n")].score = 0
+                players[get_var(i, "$n")].new_timer = 0
+                players[get_var(i, "$n")].info_board_timer = 0
             end
         end
     end
@@ -151,18 +135,16 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
-    -- initialize welcome timer --
+    
     welcome_timer[PlayerIndex] = true
     info_timer[PlayerIndex] = false
-    -- Add new player to Current Player Count
     current_players = current_players + 1
-    -- assign elements to new player and set init to zero --
-    local player_id = get_var(PlayerIndex, "$n")
-    players[player_id] = { }
-    players[player_id].score = 0
-    players[player_id].new_timer = 0
-    players[player_id].new_timer2 = 0
-    -- Set scorelimit based on total players currently connected to the server
+    
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].score = 0
+    players[get_var(PlayerIndex, "$n")].new_timer = 0
+    players[get_var(PlayerIndex, "$n")].info_board_timer = 0
+    
     if current_players >= 1 and current_players <= 5 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
@@ -173,34 +155,36 @@ function OnPlayerJoin(PlayerIndex)
         scorelimit = 50
         execute_command("scorelimit " .. scorelimit)
     end
-    for i = 1,16 do
-        trophy_drone_table[i] = { }
-    end
+    
+    for i = 1,16 do trophy_drone_table[i] = { } end
+    trophy_count[PlayerIndex] = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
-    -- reset welcome timer --
+    
     welcome_timer[PlayerIndex] = false
     info_timer[PlayerIndex] = false
-    -- reset table elements --
-    local player_id = get_var(PlayerIndex, "$n")
-    players[player_id] = { }
-    players[player_id].score = 0
-    players[player_id].new_timer = 0
-    players[player_id].new_timer2 = 0
-    -- Deduct player from Current Player Count
+    
+    players[get_var(PlayerIndex, "$n")] = { }
+    players[get_var(PlayerIndex, "$n")].score = 0
+    players[get_var(PlayerIndex, "$n")].new_timer = 0
+    players[get_var(PlayerIndex, "$n")].info_board_timer = 0
     current_players = current_players - 1
-    -- If there are no players currently connected to the server, reset the score limit to 15
+    
     if current_players == 0 then
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
     end
+    
     drone_player_id = tonumber(PlayerIndex)
+    
     for k, v in pairs(trophy_drone_table[drone_player_id]) do
         if trophy_drone_table[drone_player_id][k] > 0 then
             destroy_timer[PlayerIndex] = true
             drone_player_id_name = get_var(drone_player_id, "$name")
+            execute_command("msg_prefix \"\"")
             say_all(get_var(drone_player_id, "$name") .. "'s trophy/trophies will expire in " .. destroy_duration .. " seconds!")
+            execute_command("msg_prefix \"** SERVER ** \"")
         else
             destroy_timer[PlayerIndex] = true
         end
@@ -209,6 +193,7 @@ end
 
 function OnTick()
     if (destroy_timer[drone_player_id] == true) then
+        if trophy_count[victim_drone] == 0 then destroy_timer[drone_player_id] = false end
         timer_delay_destroy = timer_delay_destroy + 0.030
         if timer_delay_destroy >= math.floor(destroy_duration) then
             for k, v in pairs(trophy_drone_table[drone_player_id]) do
@@ -221,7 +206,9 @@ function OnTick()
                     trophy_drone_table[drone_player_id][k] = nil
                 end
             end
-            say_all(drone_player_id_name .. "'s trophy has expired!")
+            execute_command("msg_prefix \"\"")
+            say_all(drone_player_id_name .. "'s trophies have despawned!")
+            execute_command("msg_prefix \"** SERVER ** \"")
             timer_delay_destroy = 0
             destroy_timer[drone_player_id] = false
         end
@@ -229,35 +216,25 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (welcome_timer[i] == true) then
-                -- init new timer --
-                local player_id = get_var(i, "$n")
-                players[player_id].new_timer = players[player_id].new_timer + 0.030
-                -- clear the player's console --
-                ConsoleClear(i)
-                -- print the contents of "message_board" to the player's console
-                for k, v in pairs(message_board) do rprint(i, "|" .. Alignment .. " " .. v) end
-                if players[player_id].new_timer >= math.floor(Welcome_Msg_Duration) then
-                    -- reset welcome timer --
+                players[get_var(i, "$n")].new_timer = players[get_var(i, "$n")].new_timer + 0.030
+                ClearConsole(i)
+                for k, v in pairs(message_board) do rprint(i, "|" .. alignment .. " " .. v) end
+                if players[get_var(i, "$n")].new_timer >= math.floor(welcome_message_duration) then
                     welcome_timer[i] = false
-                    players[player_id].new_timer = 0
+                    players[get_var(i, "$n")].new_timer = 0
                 end
             end
         end
     end
-    for i = 1, 16 do
-        if player_present(i) then
-            if (info_timer[i] == true) then
-                -- init new timer --
-                local player_id = get_var(i, "$n")
-                players[player_id].new_timer2 = players[player_id].new_timer2 + 0.030
-                -- clear the player's console --
-                ConsoleClear(i)
-                -- print the contents of "message_board" to the player's console
-                for k, v in pairs(info_board) do rprint(i, v) end
-                if players[player_id].new_timer2 >= math.floor(Info_Board_Msg_Duration) then
-                    -- reset welcome timer --
-                    info_timer[i] = false
-                    players[player_id].new_timer2 = 0
+    for j = 1, 16 do
+        if player_present(j) then
+            if (info_timer[j] == true) then
+                players[get_var(j, "$n")].info_board_timer = players[get_var(j, "$n")].info_board_timer + 0.030
+                ClearConsole(j)
+                for k, v in pairs(info_board) do rprint(j, v) end
+                if players[get_var(j, "$n")].info_board_timer >= math.floor(info_board_message_duration) then
+                    info_timer[j] = false
+                    players[get_var(j, "$n")].info_board_timer = 0
                 end
             end
         end
@@ -265,23 +242,18 @@ function OnTick()
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    local Victim_ID = tonumber(PlayerIndex)
+    
+    -- used to handle trophy despawning
     victim_drone = tonumber(PlayerIndex)
-    local Killer_ID = tonumber(KillerIndex)
     
-    -- Get Killer/Victim's names
-    local Victim_Name = get_var(Victim_ID, "$name")
-    local Killer_Name = get_var(Killer_ID, "$name")
+    local victim = tonumber(PlayerIndex)
+    local killer = tonumber(KillerIndex)
     
-    -- Check if the player was a killer
-    if (Killer_ID > 0) and (Victim_ID ~= Killer_ID) then
-        -- Deduct 1 point off the killer's score tally. The only way to score is to pickup a trophy.
-        
-        if get_var(1, "$gt") == "slayer" then
-            execute_command("score " .. Killer_ID .. " -1")
-        end
-        
-        -- Retrieve XYZ coords of victim and spawn a trophy at that location.
+    local victim_name = get_var(victim, "$name")
+    local killer_name = get_var(killer, "$name")
+    
+    if (killer > 0) and (victim ~= killer) then
+        if get_var(1, "$gt") == "slayer" then execute_command("score " .. killer .. " -1") end
         if PlayerInVehicle(tonumber(PlayerIndex)) == false then
             x, y, z  = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
             offset = 0.3
@@ -289,12 +261,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             offset = 0.5
             x, y, z = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
         end
-        
+
         local trophy_object = spawn_object("weap", trophy_tag_id, x, y, z + offset)
+        trophy_count[victim_drone] = trophy_count[victim_drone] + 1
         
+        -- used to handle trophy despawning
         trophy_object_drone = trophy_object
-        --trophy_object_drone = get_object_memory(trophy_object)
-        
         trophy_drone_table[PlayerIndex] = trophy_drone_table[PlayerIndex] or { }
         table.insert(trophy_drone_table[PlayerIndex], trophy_object)
         trophy_drone = get_object_memory(trophy_object)
@@ -302,12 +274,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Get memory address of trophy
         local m_object = get_object_memory(trophy_object)
         -- Pin data to trophy that just spawned
-        tags[m_object] = get_var(PlayerIndex, "$hash") .. ":" .. get_var(KillerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$n") .. ":" .. get_var(KillerIndex, "$n") .. ":" .. Victim_Name .. ":" .. Killer_Name
+        tags[m_object] = get_var(PlayerIndex, "$hash") .. ":" .. get_var(KillerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$n") .. ":" .. get_var(KillerIndex, "$n") .. ":" .. victim_name .. ":" .. killer_name
         trophy = m_object
-        
-        -- Store tags[m_object] data in a table to prevent undesirable behaviour
-        stored_data[tags] = stored_data[tags] or { }
-        table.insert(stored_data[tags], tostring(tags[m_object]))
         
         -- Deduct the value of "death_penalty" from victim's score
         updatescore(PlayerIndex, tonumber(death_penalty), false)
@@ -328,17 +296,16 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if (ObjectTagID(WeaponObject) == trophy_tag_id) then
             local t = tokenizestring(tostring(tags[trophy]), ":")
             OnTagPickup(PlayerIndex, t[1], t[2], t[3], t[4], t[5], t[6])
-            local weaponId = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
-            if weaponId ~= 0 and ObjectTagID(WeaponObject) == trophy_tag_id then
-                local weaponId = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 +(tonumber(WeaponIndex) - 1) * 4)
-                destroy_object(weaponId)
-                table.remove(trophy_drone_table[victim_drone], 1)
-            end
+            local weaponId = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 +(tonumber(WeaponIndex) - 1) * 4)
+            destroy_object(weaponId)
+            table.remove(trophy_drone_table[victim_drone], 1)
+            trophy_count[victim_drone] = trophy_count[victim_drone] - 1
         end
     end
 end
 
 function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, victim_name, killer_name)
+    -- PlayerIndex is the player who picked up the victims tag
     if tostring(victim_hash) and tostring(killer_hash) and tonumber(victim_id) and tonumber(killer_id) then
         execute_command("msg_prefix \"\"")
         -- killer claimed their trophy
@@ -367,9 +334,8 @@ function updatescore(PlayerIndex, number, bool)
         if bool ~= nil then
             if (bool == true) then
                 execute_command("score " .. PlayerIndex .. " +" .. number)
-                local player_id = get_var(PlayerIndex, "$n")
-                players[player_id].score = tonumber(get_var(PlayerIndex, "$score"))
-                if players[player_id].score >= (scorelimit + 1) then
+                players[get_var(PlayerIndex, "$n")].score = tonumber(get_var(PlayerIndex, "$score"))
+                if players[get_var(PlayerIndex, "$n")].score >= (scorelimit + 1) then
                     game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
@@ -460,8 +426,8 @@ function ObjectTagID(object)
     end
 end
 
-function ConsoleClear(PlayerIndex)
-    for clear_cls = 1, 25 do
+function ClearConsole(PlayerIndex)
+    for clear_cls = 1, 15 do
         rprint(PlayerIndex, " ")
     end
 end
