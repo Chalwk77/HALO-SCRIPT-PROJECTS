@@ -69,10 +69,13 @@ new_timer2 = { }
 info_timer = { }
 stored_data = { }
 welcome_timer = { }
-
+trophy_drone_table = { }
+destroy_timer = {}
 -- counts --
 -- Set initial player count to 0
 current_players = 0
+timer_delay_destroy = 0
+destroy_duration = 15
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -170,6 +173,9 @@ function OnPlayerJoin(PlayerIndex)
         scorelimit = 50
         execute_command("scorelimit " .. scorelimit)
     end
+    for i = 1,16 do
+        trophy_drone_table[i] = { }
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -189,9 +195,37 @@ function OnPlayerLeave(PlayerIndex)
         scorelimit = 15
         execute_command("scorelimit " .. scorelimit)
     end
+    drone_player_id = tonumber(PlayerIndex)
+    for k, v in pairs(trophy_drone_table[drone_player_id]) do
+        if trophy_drone_table[drone_player_id][k] > 0 then
+            destroy_timer[PlayerIndex] = true
+            drone_player_id_name = get_var(drone_player_id, "$name")
+            say_all(get_var(drone_player_id, "$name") .. "'s trophy/trophies will expire in " .. destroy_duration .. " seconds!")
+        else
+            destroy_timer[PlayerIndex] = true
+        end
+    end
 end
 
 function OnTick()
+    if (destroy_timer[drone_player_id] == true) then
+        timer_delay_destroy = timer_delay_destroy + 0.030
+        if timer_delay_destroy >= math.floor(destroy_duration) then
+            for k, v in pairs(trophy_drone_table[drone_player_id]) do
+                if trophy_drone_table[drone_player_id][k] > 0 then
+                    if v then
+                        if trophy_drone then
+                            destroy_object(v)
+                        end
+                    end
+                    trophy_drone_table[drone_player_id][k] = nil
+                end
+            end
+            say_all(drone_player_id_name .. "'s trophy has expired!")
+            timer_delay_destroy = 0
+            destroy_timer[drone_player_id] = false
+        end
+    end
     for i = 1, 16 do
         if player_present(i) then
             if (welcome_timer[i] == true) then
@@ -232,6 +266,7 @@ end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     local Victim_ID = tonumber(PlayerIndex)
+    victim_drone = tonumber(PlayerIndex)
     local Killer_ID = tonumber(KillerIndex)
     
     -- Get Killer/Victim's names
@@ -255,14 +290,22 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             x, y, z = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
         end
         
-        local object = spawn_object("weap", trophy_tag_id, x, y, z + offset)
+        local trophy_object = spawn_object("weap", trophy_tag_id, x, y, z + offset)
+        
+        trophy_object_drone = trophy_object
+        --trophy_object_drone = get_object_memory(trophy_object)
+        
+        trophy_drone_table[PlayerIndex] = trophy_drone_table[PlayerIndex] or { }
+        table.insert(trophy_drone_table[PlayerIndex], trophy_object)
+        trophy_drone = get_object_memory(trophy_object)
         
         -- Get memory address of trophy
-        local m_object = get_object_memory(object)
-        -- Pin data to trophy that just dropped
+        local m_object = get_object_memory(trophy_object)
+        -- Pin data to trophy that just spawned
         tags[m_object] = get_var(PlayerIndex, "$hash") .. ":" .. get_var(KillerIndex, "$hash") .. ":" .. get_var(PlayerIndex, "$n") .. ":" .. get_var(KillerIndex, "$n") .. ":" .. Victim_Name .. ":" .. Killer_Name
         trophy = m_object
-        -- Store tags[m_object] data in a table to prevent undesirable behavior
+        
+        -- Store tags[m_object] data in a table to prevent undesirable behaviour
         stored_data[tags] = stored_data[tags] or { }
         table.insert(stored_data[tags], tostring(tags[m_object]))
         
@@ -289,6 +332,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
             if weaponId ~= 0 and ObjectTagID(WeaponObject) == trophy_tag_id then
                 local weaponId = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 +(tonumber(WeaponIndex) - 1) * 4)
                 destroy_object(weaponId)
+                table.remove(trophy_drone_table[victim_drone], 1)
             end
         end
     end
@@ -297,15 +341,18 @@ end
 function OnTagPickup(PlayerIndex, victim_hash, killer_hash, victim_id, killer_id, victim_name, killer_name)
     if tostring(victim_hash) and tostring(killer_hash) and tonumber(victim_id) and tonumber(killer_id) then
         execute_command("msg_prefix \"\"")
+        -- killer claimed their trophy
         if get_var(PlayerIndex, "$hash") == killer_hash then
             say_all(get_var(PlayerIndex, "$name") .. " claimed " .. tostring(victim_name) .. "'s trophy!")
             updatescore(PlayerIndex, tonumber(claim), true)
+        -- player stole killer's trophy
         elseif get_var(PlayerIndex, "$hash") ~= killer_hash or get_var(PlayerIndex, "$hash") ~= victim_hash then
             if get_var(PlayerIndex, "$name") ~= get_var(victim_id, "$name") then
                 updatescore(PlayerIndex, tonumber(claim_other), true)
                 say_all(get_var(PlayerIndex, "$name") .. " stole " .. tostring(killer_name) .. "'s trophy on " .. tostring(victim_name) .. "!")
             end
         end
+        -- victim claimed killer's trophy on themselves
         if PlayerIndex == tonumber(victim_id) then
             updatescore(PlayerIndex, tonumber(steal_self), true)
             say_all(get_var(PlayerIndex, "$name") .. " stole " .. tostring(killer_name) .. "'s trophy on themselves!")
