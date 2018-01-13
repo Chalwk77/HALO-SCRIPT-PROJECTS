@@ -518,61 +518,61 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
 end
 
 function Spam(player, broadcast)
-    for i = 1,math.random(1,6) do
+    for i = 1,math.random(1,10) do
         if i == 1 then
-            for j = 1, math.random(1,4) do 
-                if j == 1 then alignment = "|l" end
-                if j == 2 then alignment = "|r" end
-                if j == 3 then alignment = "|c" end
-                if j == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
         elseif i == 2 then
-            for k = 1, math.random(1,4) do 
-                if k == 1 then alignment = "|l" end
-                if k == 2 then alignment = "|r" end
-                if k == 3 then alignment = "|c" end
-                if k == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
         elseif i == 3 then
-            for l = 1, math.random(1,4) do 
-                if l == 1 then alignment = "|l" end
-                if l == 2 then alignment = "|r" end
-                if l == 3 then alignment = "|c" end
-                if l == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
         elseif i == 4 then
-            for m = 1, math.random(1,4) do 
-                if m == 1 then alignment = "|l" end
-                if m == 2 then alignment = "|r" end
-                if m == 3 then alignment = "|c" end
-                if m == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
         elseif i == 5 then
-            for n = 1, math.random(1,4) do 
-                if n == 1 then alignment = "|l" end
-                if n == 2 then alignment = "|r" end
-                if n == 3 then alignment = "|c" end
-                if n == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
         elseif i == 6 then
-            for j = 1, math.random(1,4) do 
-                if o == 1 then alignment = "|l" end
-                if o == 2 then alignment = "|r" end
-                if o == 3 then alignment = "|c" end
-                if o == 4 then alignment = "|t" end
-            end
-            rprint(player, alignment .. " " .. broadcast)
-            rprint(player, alignment .. " --------------------- --------------------- " .. broadcast)
+            rprint(player, "|t" .. " " .. broadcast)
+            rprint(player, "|c" .. " " .. broadcast)
+            rprint(player, "|l" .. " " .. broadcast)
+            rprint(player, "|r" .. " " .. broadcast)
+        elseif i == 7 then
+            rprint(player, "|t" .. "@r^ (]= ()n d*# =(e dzd #v/ fiv *$= c-( g** ges -/& 'w] qh/" .. broadcast)
+            rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
+            rprint(player, "|l" .. "$w z.m qch j*= sp) )f* =&y m#v $-- axl" .. broadcast)
+            rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
+            rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
+        elseif i == 8 then
+            rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
+            rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
+            rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
+            rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
+        elseif i == 9 then
+            rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
+            rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
+            rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
+            rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
+            rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
+        elseif i == 10 then
+            rprint(player, "|l" .. "v,b b'w r*[ ox* ..$ z-/ %)( (w[ d[. wl] v-( k*o qts [gi pyb" .. broadcast)
+            rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
+            rprint(player, "|l" .. "$q) z*w xr[ oz$ p.d *ux -&% *&; #g/ /yu ,!i ;za ezx .*p *l," .. broadcast)
+            rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
+            rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
         end
     end
 end
