@@ -152,6 +152,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             rprint(executor, "You didn't type a message!")
                             return false
                         end
+                    else
+                        rprint(executor, "Invalid Syntax!")
+                        return false
                     end
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. force_chat_command .. " [index id]")
@@ -210,6 +213,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             rprint(executor, get_var(index, "$name") .. " is already being spammed!")
                             return false
                         end
+                    else
+                        rprint(executor, "Invalid Syntax!")
+                        return false
                     end
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. spam_command .. " [index id] (message)")
@@ -274,6 +280,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             rprint(executor, "Invalid Player ID") 
                         end
+                    else
+                        rprint(executor, "Invalid Syntax!")
                     end
                 -- /rocket index x,y,z
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
@@ -287,6 +295,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             rprint(executor, "Invalid Player ID") 
                         end
+                    else
+                        rprint(executor, "Invalid Syntax!")
                     end
                 -- /rocket index x,y,z,yaw,pitch,roll
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
@@ -300,6 +310,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             rprint(executor, "Invalid Player ID") 
                         end
+                    else
+                        rprint(executor, "Invalid Syntax!")
                     end
                 end
             else
@@ -330,6 +342,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     rprint(executor, "Invalid Player ID!")
                                 end
                             end
+                        else
+                            rprint(executor, "Invalid Syntax!")
                         end
                     else
                         rprint(executor, "You cannot slap yourself!")
@@ -399,7 +413,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         if string.match(t[2], "%d") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
-                                    if (player_alive(PlayerIndex)) then
+                                    if (player_alive(index)) then
                                         local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
                                         local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
                                         for i = 1, math.random(1,15) do
@@ -447,12 +461,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             write_float(ghost_bolt_projectile + 0x70, - math.random(1, 3))
                                         end
                                     else
-                                        rprint(PlayerIndex, get_var(index, "$name") .. " is dead!")
+                                        rprint(executor, get_var(index, "$name") .. " is dead!")
                                     end
                                 else
-                                    rprint(PlayerIndex, "Invalid Player ID!")
+                                    rprint(executor, "Invalid Player ID!")
                                 end
                             end
+                        else
+                            rprint(executor, "Invalid Syntax.")
                         end
                     else
                         rprint(executor, "You cannot nuke yourself!")
@@ -461,7 +477,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     rprint(executor, "Invalid Syntax. Type /" .. nuke_command .. " [index id]")
                 end
             else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
+                rprint(executor, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
         end
