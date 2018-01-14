@@ -30,19 +30,37 @@ enable_launcher_command = "launcher"
 change_vd_command = "vd"
 -- command to change projectile type.           Syntax: /nadetype frag|plasma or 1|2
 change_projectile_type = "nadetype"
+-- commadn to reset velocity|distance to default values
+reset_command = "reset"
 -- configuration ends --
 
 -- do not touch --
 values_specified = { }
 launcher_mode = {}
+reset_values = nil
 
 function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnScriptUnload() end
+
+function OnNewGame()
+    if reset_values == true then
+        velocity = velocity
+        distance = distance
+        projectile_type = projectile_type
+        grenade_type_changed = false
+    end
+end
+
+function OnGameEnd()
+    reset_values = true
+end
 
 function OnPlayerJoin(PlayerIndex)
     values_specified[PlayerIndex] = false
@@ -83,6 +101,18 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
             UnknownCMD = false
         end
+     -- reset velocity|distance to default values
+    elseif t[1] == string.lower(reset_command) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
+            velocity = velocity
+            distance = distance
+            projectile_type = projectile_type
+            rprint(PlayerIndex, "Values reset to default")
+            UnknownCMD = false
+        else
+            rprint(PlayerIndex, "You do not have permission to execute /" .. t[1])
+            UnknownCMD = false
+        end
      -- set projectile velocity|distance
     elseif t[1] == string.lower(change_vd_command) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
@@ -113,12 +143,14 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if t[2] ~= nil then
                 if launcher_mode[PlayerIndex] == true then
                     if string.match(t[2], "frag") or string.match(t[2], "1") then
-                        projectile_type = "weapons\\frag grenade\\frag grenade"
+                        new_projectile_type = "weapons\\frag grenade\\frag grenade"
                         rprint(PlayerIndex, "Now shooting Frag Grenades")
+                        grenade_type_changed = true
                         UnknownCMD = false
                     elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
-                        projectile_type = "weapons\\plasma grenade\\plasma grenade"
+                        new_projectile_type = "weapons\\plasma grenade\\plasma grenade"
                         rprint(PlayerIndex, "Now shooting Plasma Grenades")
+                        grenade_type_changed = true
                         UnknownCMD = false
                     end
                 else
@@ -165,7 +197,13 @@ function ChangeProjectile(PlayerIndex, ParentID)
                 distance = new_distance
                 velocity = new_velocity
             end
-
+            
+            if not (grenade_type_changed) then
+                projectile_type = projectile_type
+            else
+                projectile_type = new_projectile_type
+            end
+            
             proj_x = x + distance * math.sin(x_aim)
             proj_y = y + distance * math.sin(y_aim)
             proj_z = z + distance * math.sin(z_aim) + 0.5
