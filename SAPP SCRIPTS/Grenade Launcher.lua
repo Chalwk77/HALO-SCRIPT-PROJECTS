@@ -14,12 +14,11 @@ api_version = "1.12.0.0"
 
 -- configuration starts --
 -- default projectile
-projectile_type = "weapons\\frag grenade\\frag grenade"
-
+default_projectile = "weapons\\frag grenade\\frag grenade"
 -- velocity to launch projectile
-velocity = 0.6
+default_velocity = 0.6
 -- distance from player to spawn projectile
-distance = 0.5
+default_distance = 0.5
 
 -- minimum admin level required to execute custom commands
 command_permission_level = 1
@@ -50,44 +49,37 @@ weapons = {
 -- configuration ends --
 
 -- do not touch --
-values_specified = { }
+reset_values = { } 
 launcher_mode = { }
-reset_values = nil
-grenade_type_changed = nil
-game_strted = nil
+values_specified = { }
+grenade_type_changed = { }
+
+velocity = { }
+distance = { }
+projectile_type = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnScriptUnload() end
 
-function OnNewGame()
-    game_started = true
-end
-
 function OnGameEnd()
-    reset_values = true
-    game_started = false
-    projectile_type = projectile_type
+    for i = 1,16 do
+        reset_values[i] = true
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
     values_specified[PlayerIndex] = false
     launcher_mode[PlayerIndex] = false
-    if game_started then 
-        if reset_values == true then
-            velocity = velocity
-            distance = distance
-            projectile_type = projectile_type
-            cprint(projectile_type .. "", 2+8)
-            grenade_type_changed = false
-        end
-    end
+    -- reset to default settings --
+    velocity[PlayerIndex] = default_velocity
+    distance[PlayerIndex] = default_distance
+    projectile_type[PlayerIndex] = default_projectile
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
@@ -127,10 +119,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
      -- reset velocity|distance to default values
     elseif t[1] == string.lower(reset_command) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            velocity = velocity
-            distance = distance
-            projectile_type = projectile_type
-            values_specified[PlayerIndex] = false
+            reset_values[PlayerIndex] = true
             rprint(PlayerIndex, "Values reset to default")
             UnknownCMD = false
         else
@@ -169,12 +158,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     if string.match(t[2], "frag") or string.match(t[2], "1") then
                         new_projectile = "weapons\\frag grenade\\frag grenade"
                         rprint(PlayerIndex, "Now shooting Frag Grenades")
-                        grenade_type_changed = true
+                        grenade_type_changed[PlayerIndex] = true
                         UnknownCMD = false
                     elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
                         new_projectile = "weapons\\plasma grenade\\plasma grenade"
                         rprint(PlayerIndex, "Now shooting Plasma Grenades")
-                        grenade_type_changed = true
+                        grenade_type_changed[PlayerIndex] = true
                         UnknownCMD = false
                     end
                 else
@@ -219,32 +208,42 @@ function GrenadeLauncher(PlayerIndex, ParentID)
             local y = read_float(object_id + 0x60)
             local z = read_float(object_id + 0x64)
             
-            if not (values_specified[PlayerIndex]) then
-                distance = distance
-                velocity = velocity
-            else
-                distance = new_distance
-                velocity = new_velocity
+            velocity[PlayerIndex] = nil
+            distance[PlayerIndex] = nil
+            projectile_type[PlayerIndex] = nil
+            
+            if (reset_values[PlayerIndex] == true) then 
+                values_specified[PlayerIndex] = false
+                grenade_type_changed[PlayerIndex] = false
+                reset_values[PlayerIndex] = false
             end
             
-            if not (grenade_type_changed) then
-                projectile_type = projectile_type
+            if (values_specified[PlayerIndex] == true) then
+                velocity[PlayerIndex] = new_distance
+                distance[PlayerIndex] = new_velocity
             else
-                projectile_type = new_projectile
+                velocity[PlayerIndex] = default_velocity
+                distance[PlayerIndex] = default_distance
             end
             
-            local proj_x = x + distance * math.sin(x_aim)
-            local proj_y = y + distance * math.sin(y_aim)
-            local proj_z = z + distance * math.sin(z_aim) + 0.5
+            if (grenade_type_changed[PlayerIndex] == true) then
+                projectile_type[PlayerIndex] = new_projectile
+            else
+                projectile_type[PlayerIndex] = default_projectile
+            end
+            
+            local proj_x = x + distance[PlayerIndex] * math.sin(x_aim)
+            local proj_y = y + distance[PlayerIndex] * math.sin(y_aim)
+            local proj_z = z + distance[PlayerIndex] * math.sin(z_aim) + 0.5
                 
-            local tag_id = TagInfo("proj", projectile_type)
+            local tag_id = TagInfo("proj", projectile_type[PlayerIndex])
             local frag_projectile = spawn_projectile(tag_id, PlayerIndex, proj_x, proj_y, proj_z)
             local frag = get_object_memory(frag_projectile)
             
             if frag then
-                write_float(frag + 0x68, velocity * math.sin(x_aim))
-                write_float(frag + 0x6C, velocity * math.sin(y_aim))
-                write_float(frag + 0x70, velocity * math.sin(z_aim))
+                write_float(frag + 0x68, velocity[PlayerIndex] * math.sin(x_aim))
+                write_float(frag + 0x6C, velocity[PlayerIndex] * math.sin(y_aim))
+                write_float(frag + 0x70, velocity[PlayerIndex] * math.sin(z_aim))
             end
         end
     end
