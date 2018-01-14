@@ -28,17 +28,33 @@ command_permission_level = 1
 enable_launcher_command = "launcher"
 -- command to change velocity and distance.     Syntax: /vd [velocity] [distance]
 change_vd_command = "vd"
--- command to change projectile type.           Syntax: /nadetype frag|plasma or 1|2
+-- command to change projectile type.           Syntax: /nadetype frag|plasma or 1|2 (1 = frag, 2 = plasma)
 change_projectile_type = "nadetype"
--- commadn to reset velocity|distance to default values
+-- command to reset velocity|distance to default values
 reset_command = "reset"
+
+weapons = { }
+-- grenade launcher will be enabled for these weapons. Set 'true' to 'false' to disable grenade launcher for that weapon
+weapons = {
+    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet"},
+    { "weap", "weapons\\flamethrower\\flamethrower",            true,       "proj", "weapons\\flamethrower\\flame"},
+    { "weap", "weapons\\needler\\mp_needler",                   true,       "proj", "weapons\\needler\\mp_needle"},
+    { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet"},
+    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma rifle\\bolt"},
+    { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\charged bolt"},
+    { "weap", "weapons\\rocket launcher\\rocket launcher",      true,       "proj", "weapons\\rocket launcher\\rocket"},
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          true,       "proj", "weapons\\plasma_cannon\\plasma_cannon"},
+    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet"},
+    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet"},
+}
 -- configuration ends --
 
 -- do not touch --
 values_specified = { }
-launcher_mode = {}
+launcher_mode = { }
 reset_values = nil
 grenade_type_changed = nil
+game_strted = nil
 
 function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
@@ -51,25 +67,27 @@ end
 function OnScriptUnload() end
 
 function OnNewGame()
-    if reset_values == true then
-        velocity = velocity
-        distance = distance
-        projectile_type = projectile_type
-        grenade_type_changed = false
-    end
+    game_started = true
 end
 
 function OnGameEnd()
     reset_values = true
-    velocity = velocity
-    distance = distance
+    game_started = false
     projectile_type = projectile_type
-    grenade_type_changed = false
 end
 
 function OnPlayerJoin(PlayerIndex)
     values_specified[PlayerIndex] = false
     launcher_mode[PlayerIndex] = false
+    if game_started then 
+        if reset_values == true then
+            velocity = velocity
+            distance = distance
+            projectile_type = projectile_type
+            cprint(projectile_type .. "", 2+8)
+            grenade_type_changed = false
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
@@ -112,6 +130,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             velocity = velocity
             distance = distance
             projectile_type = projectile_type
+            values_specified[PlayerIndex] = false
             rprint(PlayerIndex, "Values reset to default")
             UnknownCMD = false
         else
@@ -148,12 +167,12 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if t[2] ~= nil then
                 if launcher_mode[PlayerIndex] == true then
                     if string.match(t[2], "frag") or string.match(t[2], "1") then
-                        new_projectile_type = "weapons\\frag grenade\\frag grenade"
+                        new_projectile = "weapons\\frag grenade\\frag grenade"
                         rprint(PlayerIndex, "Now shooting Frag Grenades")
                         grenade_type_changed = true
                         UnknownCMD = false
                     elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
-                        new_projectile_type = "weapons\\plasma grenade\\plasma grenade"
+                        new_projectile = "weapons\\plasma grenade\\plasma grenade"
                         rprint(PlayerIndex, "Now shooting Plasma Grenades")
                         grenade_type_changed = true
                         UnknownCMD = false
@@ -176,13 +195,18 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (launcher_mode[PlayerIndex] == true) then
-        if MapID == TagInfo("proj", "weapons\\pistol\\bullet") or MapID == TagInfo("proj", "weapons\\assault rifle\\bullet") then
-            return false, ChangeProjectile(PlayerIndex, ParentID)
+        local tag_id = weapons[1], tostring(weapons[2])
+        for k,v in pairs(weapons) do
+            if MapID == TagInfo(tostring(v[4]), tostring(v[5])) then
+                if v[3] == true then
+                    return false, GrenadeLauncher(PlayerIndex, ParentID)
+                end
+            end
         end
     end
 end
 
-function ChangeProjectile(PlayerIndex, ParentID)
+function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
         local object_id = get_object_memory(ParentID)
         if object_id ~= nil then
@@ -206,7 +230,7 @@ function ChangeProjectile(PlayerIndex, ParentID)
             if not (grenade_type_changed) then
                 projectile_type = projectile_type
             else
-                projectile_type = new_projectile_type
+                projectile_type = new_projectile
             end
             
             local proj_x = x + distance * math.sin(x_aim)
@@ -242,28 +266,3 @@ function tokenizestring(inputstr, sep)
     end
     return t
 end
-
-
--- valid projectiles
--- "weapons\\plasma grenade\\plasma grenade"
--- "weapons\\frag grenade\\frag grenade"
-
--- "vehicles\\banshee\\banshee bolt"
--- "vehicles\\banshee\\mp_banshee fuel rod"
--- "vehicles\\c gun turret\\mp gun turret"
--- "vehicles\\ghost\\ghost bolt"
--- "vehicles\\scorpion\\bullet"
--- "vehicles\\scorpion\\tank shell"
--- "vehicles\\warthog\\bullet"
-
--- "weapons\\assault rifle\\bullet"
--- "weapons\\flamethrower\\flame"
--- "weapons\\needler\\mp_needle"
--- "weapons\\pistol\\bullet"
--- "weapons\\plasma pistol\\bolt"
--- "weapons\\plasma rifle\\bolt"
--- "weapons\\plasma rifle\\charged bolt"
--- "weapons\\rocket launcher\\rocket"
--- "weapons\\shotgun\\pellet"
--- "weapons\\sniper rifle\\sniper bullet"
--- "weapons\\plasma_cannon\\plasma_cannon"    
