@@ -38,6 +38,7 @@ reset_command = "reset"
 values_specified = { }
 launcher_mode = {}
 reset_values = nil
+grenade_type_changed = nil
 
 function OnScriptLoad()
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
@@ -60,6 +61,10 @@ end
 
 function OnGameEnd()
     reset_values = true
+    velocity = velocity
+    distance = distance
+    projectile_type = projectile_type
+    grenade_type_changed = false
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -204,9 +209,9 @@ function ChangeProjectile(PlayerIndex, ParentID)
                 projectile_type = new_projectile_type
             end
             
-            proj_x = x + distance * math.sin(x_aim)
-            proj_y = y + distance * math.sin(y_aim)
-            proj_z = z + distance * math.sin(z_aim) + 0.5
+            local proj_x = x + distance * math.sin(x_aim)
+            local proj_y = y + distance * math.sin(y_aim)
+            local proj_z = z + distance * math.sin(z_aim) + 0.5
                 
             local tag_id = TagInfo("proj", projectile_type)
             local frag_projectile = spawn_projectile(tag_id, PlayerIndex, proj_x, proj_y, proj_z)
