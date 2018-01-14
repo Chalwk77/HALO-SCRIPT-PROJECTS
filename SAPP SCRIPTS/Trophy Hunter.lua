@@ -25,8 +25,8 @@ trophy_tag_id = "weapons\\ball\\ball"
 -- SCORING -- 
 claim = 1               -- Collect your trophy
 claim_other = 1         -- Collect somebody else's trophy
-steal_self = 1          -- Collect your killer's trophy
-death_penalty = 2       -- death penalty [number of points deducted]
+steal_self = 2          -- Collect your killer's trophy
+death_penalty = 1       -- death penalty [number of points deducted]
 suicide_penalty = 2     -- suicide penalty [number of points deducted]
 
 -- MESSAGE BOARD --
@@ -317,7 +317,7 @@ function updatescore(PlayerIndex, number, bool)
             if (bool == true) then
                 execute_command("score " .. PlayerIndex .. " +" .. number)
                 players[get_var(PlayerIndex, "$n")].score = tonumber(get_var(PlayerIndex, "$score"))
-                if players[get_var(PlayerIndex, "$n")].score >= (scorelimit + 1) then
+                if players[get_var(PlayerIndex, "$n")].score >= (scorelimit) then
                     game_over = true
                     OnWin("--<->--<->--<->--<->--<->--<->--<->--", PlayerIndex)
                     OnWin(get_var(PlayerIndex, "$name") .. " WON THE GAME!", PlayerIndex)
