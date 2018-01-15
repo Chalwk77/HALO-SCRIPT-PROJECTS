@@ -35,37 +35,48 @@ reset_command = "reset"
 weapons = { }
 -- grenade launcher will be enabled for these weapons. Set 'true' to 'false' to disable grenade launcher for that weapon
 weapons = {
-    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet"},
-    { "weap", "weapons\\flamethrower\\flamethrower",            true,       "proj", "weapons\\flamethrower\\flame"},
-    { "weap", "weapons\\needler\\mp_needler",                   true,       "proj", "weapons\\needler\\mp_needle"},
-    { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet"},
-    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma rifle\\bolt"},
-    { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\charged bolt"},
-    { "weap", "weapons\\rocket launcher\\rocket launcher",      true,       "proj", "weapons\\rocket launcher\\rocket"},
-    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          true,       "proj", "weapons\\plasma_cannon\\plasma_cannon"},
-    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet"},
-    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet"},
+    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",           10},
+    { "weap", "weapons\\flamethrower\\flamethrower",            true,       "proj", "weapons\\flamethrower\\flame",             10},
+    { "weap", "weapons\\needler\\mp_needler",                   true,       "proj", "weapons\\needler\\mp_needle",              10},
+    { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                  10},
+    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma rifle\\bolt",              10},
+    { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\charged bolt",      10},
+    { "weap", "weapons\\rocket launcher\\rocket launcher",      true,       "proj", "weapons\\rocket launcher\\rocket",         10},
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          true,       "proj", "weapons\\plasma_cannon\\plasma_cannon",    10},
+    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet",                 10},
+    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",     10}
 }
 -- configuration ends --
 
 -- do not touch --
 reset_values = { } 
 launcher_mode = { }
+available_shots = { }
 values_specified = { }
 grenade_type_changed = { }
-
 velocity = { }
 distance = { }
+shots_available = { }
 projectile_type = { }
+new_projectile = { }
+new_velocity = { }
+new_distance = { }
+current_players = 0
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 end
 
 function OnScriptUnload() end
+
+function OnTick()
+    -- for a future update
+end
 
 function OnGameEnd()
     for i = 1,16 do
@@ -80,6 +91,15 @@ function OnPlayerJoin(PlayerIndex)
     velocity[PlayerIndex] = default_velocity
     distance[PlayerIndex] = default_distance
     projectile_type[PlayerIndex] = default_projectile
+    current_players = current_players + 1
+    -- for a future update
+    for k,v in pairs(weapons) do
+        shots_available[PlayerIndex] = v[6]
+    end
+end
+
+function OnPlayerLeave(PlayerIndex)
+    current_players = current_players - 1
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment)
@@ -133,8 +153,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 if launcher_mode[PlayerIndex] == true then
                     if string.match(t[2], "%d+") and string.match(t[3], "%d+") then
                         values_specified[PlayerIndex] = true
-                        new_velocity = tonumber(t[2])
-                        new_distance = tonumber(t[3])
+                        new_velocity[PlayerIndex] = tonumber(t[2])
+                        new_distance[PlayerIndex] = tonumber(t[3])
                         rprint(PlayerIndex, "Velocity set to: " .. t[2] .. "    Distance set to: " .. t[3])
                         UnknownCMD = false
                     end
@@ -156,13 +176,18 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             if t[2] ~= nil then
                 if launcher_mode[PlayerIndex] == true then
                     if string.match(t[2], "frag") or string.match(t[2], "1") then
-                        new_projectile = "weapons\\frag grenade\\frag grenade"
+                        new_projectile[PlayerIndex] = "weapons\\frag grenade\\frag grenade"
                         rprint(PlayerIndex, "Now shooting Frag Grenades")
                         grenade_type_changed[PlayerIndex] = true
                         UnknownCMD = false
                     elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
-                        new_projectile = "weapons\\plasma grenade\\plasma grenade"
+                        new_projectile[PlayerIndex] = "weapons\\plasma grenade\\plasma grenade"
                         rprint(PlayerIndex, "Now shooting Plasma Grenades")
+                        grenade_type_changed[PlayerIndex] = true
+                        UnknownCMD = false
+                    elseif string.match(t[2], "rocket") or string.match(t[2], "3") then
+                        new_projectile[PlayerIndex] = "weapons\\rocket launcher\\rocket"
+                        rprint(PlayerIndex, "Now shooting Rocket Projectiles")
                         grenade_type_changed[PlayerIndex] = true
                         UnknownCMD = false
                     end
@@ -197,54 +222,60 @@ end
 
 function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
-        local object_id = get_object_memory(ParentID)
-        if object_id ~= nil then
+    
+        -- shots_available[PlayerIndex] = shots_available[PlayerIndex] - 1
+        -- if shots_available[PlayerIndex] < 1 then 
+            -- launcher_mode[PlayerIndex] = false
+        -- end
         
-            local x_aim = read_float(object_id + 0x230)
-            local y_aim = read_float(object_id + 0x234)
-            local z_aim = read_float(object_id + 0x238)
+        --if (launcher_mode[PlayerIndex] == true) then
+            local object_id = get_object_memory(ParentID)
+            if object_id ~= nil then
+            
+                local x_aim = read_float(object_id + 0x230)
+                local y_aim = read_float(object_id + 0x234)
+                local z_aim = read_float(object_id + 0x238)
 
-            local x = read_float(object_id + 0x5C)
-            local y = read_float(object_id + 0x60)
-            local z = read_float(object_id + 0x64)
-            
-            velocity[PlayerIndex] = nil
-            distance[PlayerIndex] = nil
-            projectile_type[PlayerIndex] = nil
-            
-            if (reset_values[PlayerIndex] == true) then 
-                values_specified[PlayerIndex] = false
-                grenade_type_changed[PlayerIndex] = false
-                reset_values[PlayerIndex] = false
-            end
-            
-            if (values_specified[PlayerIndex] == true) then
-                velocity[PlayerIndex] = new_distance
-                distance[PlayerIndex] = new_velocity
-            else
-                velocity[PlayerIndex] = default_velocity
-                distance[PlayerIndex] = default_distance
-            end
-            
-            if (grenade_type_changed[PlayerIndex] == true) then
-                projectile_type[PlayerIndex] = new_projectile
-            else
-                projectile_type[PlayerIndex] = default_projectile
-            end
-            
-            local proj_x = x + distance[PlayerIndex] * math.sin(x_aim)
-            local proj_y = y + distance[PlayerIndex] * math.sin(y_aim)
-            local proj_z = z + distance[PlayerIndex] * math.sin(z_aim) + 0.5
+                local x = read_float(object_id + 0x5C)
+                local y = read_float(object_id + 0x60)
+                local z = read_float(object_id + 0x64)
                 
-            local tag_id = TagInfo("proj", projectile_type[PlayerIndex])
-            local frag_projectile = spawn_projectile(tag_id, PlayerIndex, proj_x, proj_y, proj_z)
-            local frag = get_object_memory(frag_projectile)
-            
-            if frag then
-                write_float(frag + 0x68, velocity[PlayerIndex] * math.sin(x_aim))
-                write_float(frag + 0x6C, velocity[PlayerIndex] * math.sin(y_aim))
-                write_float(frag + 0x70, velocity[PlayerIndex] * math.sin(z_aim))
-            end
+                local z_offset = 0.5
+                
+                if (reset_values[PlayerIndex] == true) then 
+                    values_specified[PlayerIndex] = false
+                    grenade_type_changed[PlayerIndex] = false
+                    reset_values[PlayerIndex] = false
+                end
+                
+                if (values_specified[PlayerIndex] == true) then
+                    velocity[PlayerIndex] = new_distance[PlayerIndex]
+                    distance[PlayerIndex] = new_velocity[PlayerIndex]
+                else
+                    velocity[PlayerIndex] = default_velocity
+                    distance[PlayerIndex] = default_distance
+                end
+                
+                if (grenade_type_changed[PlayerIndex] == true) then
+                    projectile_type[PlayerIndex] = new_projectile[PlayerIndex]
+                else
+                    projectile_type[PlayerIndex] = default_projectile
+                end
+                
+                local proj_x = x + distance[PlayerIndex] * math.sin(x_aim)
+                local proj_y = y + distance[PlayerIndex] * math.sin(y_aim)
+                local proj_z = z + distance[PlayerIndex] * math.sin(z_aim) + z_offset
+                    
+                local tag_id = TagInfo("proj", projectile_type[PlayerIndex])
+                local frag_projectile = spawn_projectile(tag_id, PlayerIndex, proj_x, proj_y, proj_z)
+                local frag = get_object_memory(frag_projectile)
+                
+                if frag then
+                    write_float(frag + 0x68, velocity[PlayerIndex] * math.sin(x_aim))
+                    write_float(frag + 0x6C, velocity[PlayerIndex] * math.sin(y_aim))
+                    write_float(frag + 0x70, velocity[PlayerIndex] * math.sin(z_aim))
+                end
+            --end
         end
     end
 end
