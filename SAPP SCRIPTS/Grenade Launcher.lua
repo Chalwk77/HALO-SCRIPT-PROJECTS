@@ -35,32 +35,37 @@ reset_command = "reset"
 weapons = { }
 -- grenade launcher will be enabled for these weapons. Set 'true' to 'false' to disable grenade launcher for that weapon
 weapons = {
-    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",           10},
-    { "weap", "weapons\\flamethrower\\flamethrower",            true,       "proj", "weapons\\flamethrower\\flame",             10},
-    { "weap", "weapons\\needler\\mp_needler",                   true,       "proj", "weapons\\needler\\mp_needle",              10},
+    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",           160},
+    { "weap", "weapons\\flamethrower\\flamethrower",            false,       "proj", "weapons\\flamethrower\\flame",            99999},
+    { "weap", "weapons\\needler\\mp_needler",                   false,       "proj", "weapons\\needler\\mp_needle",             99999},
     { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                  10},
     { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma rifle\\bolt",              10},
     { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\charged bolt",      10},
-    { "weap", "weapons\\rocket launcher\\rocket launcher",      true,       "proj", "weapons\\rocket launcher\\rocket",         10},
-    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          true,       "proj", "weapons\\plasma_cannon\\plasma_cannon",    10},
-    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet",                 10},
-    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",     10}
+    { "weap", "weapons\\rocket launcher\\rocket launcher",      false,       "proj", "weapons\\rocket launcher\\rocket",        10},
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          false,       "proj", "weapons\\plasma_cannon\\plasma_cannon",   10},
+    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet",                 150},
+    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",     5}
 }
 -- configuration ends --
 
 -- do not touch --
 reset_values = { } 
 launcher_mode = { }
-available_shots = { }
 values_specified = { }
-grenade_type_changed = { }
+
+
 velocity = { }
 distance = { }
-shots_available = { }
-projectile_type = { }
-new_projectile = { }
 new_velocity = { }
 new_distance = { }
+new_projectile = { }
+projectile_type = { }
+grenade_type_changed = { }
+
+has_ammo = { }
+shot_fired = { }
+available_shots = { }
+
 current_players = 0
 
 function OnScriptLoad()
@@ -68,14 +73,51 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 end
 
 function OnScriptUnload() end
 
+function OnPlayerSpawn(PlayerIndex)
+    local current_weapon = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x118))
+    if current_weapon ~= 0 then
+        local weapon_tag_id = read_string(read_dword(read_word(current_weapon) * 32 + 0x40440038))
+        for k,v in pairs(weapons) do
+            if string.find(weapon_tag_id, v[2]) then
+                available_shots[PlayerIndex] = v[6]
+                break
+            end
+        end
+    end
+end
+
 function OnTick()
-    -- for a future update
+    for i =1,current_players do
+        if player_alive(i) then
+            if launcher_mode[i] == true then
+                local weapon = get_object_memory(read_dword(get_dynamic_player(i) + 0x118))
+                if weapon ~= 0 then
+                    local current_weapon = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+                    for k,v in pairs(weapons) do
+                        if string.find(current_weapon, v[2]) then
+                            if shot_fired[i] then
+                                v[6] = v[6] -1
+                                available_shots[i] = v[6]
+                                shot_fired[i] = false
+                            end
+                            if available_shots[i] >= 1 and available_shots[i] <= v[6] then
+                                has_ammo[i] = true
+                            else
+                                has_ammo[i] = false
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnGameEnd()
@@ -92,9 +134,8 @@ function OnPlayerJoin(PlayerIndex)
     distance[PlayerIndex] = default_distance
     projectile_type[PlayerIndex] = default_projectile
     current_players = current_players + 1
-    -- for a future update
     for k,v in pairs(weapons) do
-        shots_available[PlayerIndex] = v[6]
+        available_shots[PlayerIndex] = v[6]
     end
 end
 
@@ -213,6 +254,7 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
         for k,v in pairs(weapons) do
             if MapID == TagInfo(tostring(v[4]), tostring(v[5])) then
                 if v[3] == true then
+                    shot_fired[PlayerIndex] = true
                     return false, GrenadeLauncher(PlayerIndex, ParentID)
                 end
             end
@@ -223,12 +265,16 @@ end
 function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
     
-        -- shots_available[PlayerIndex] = shots_available[PlayerIndex] - 1
-        -- if shots_available[PlayerIndex] < 1 then 
-            -- launcher_mode[PlayerIndex] = false
-        -- end
+        -- to do:
+        -- filter shots available on a per weapon basis
+    
+        --available_shots[PlayerIndex] = available_shots[PlayerIndex] - 1
         
-        --if (launcher_mode[PlayerIndex] == true) then
+        if available_shots[PlayerIndex] < 1 then 
+            rprint(PlayerIndex, "No shots available!")
+        end
+        
+        if (has_ammo[PlayerIndex] == true) then
             local object_id = get_object_memory(ParentID)
             if object_id ~= nil then
             
@@ -275,9 +321,19 @@ function GrenadeLauncher(PlayerIndex, ParentID)
                     write_float(frag + 0x6C, velocity[PlayerIndex] * math.sin(y_aim))
                     write_float(frag + 0x70, velocity[PlayerIndex] * math.sin(z_aim))
                 end
-            --end
+            end
         end
     end
+end
+
+function CheckWeapon(PlayerIndex)
+    for i = 0,3 do
+        local weapon = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * i)
+        if (weapon == weapon_id) then 
+            return true 
+        end
+    end
+    return false
 end
 
 function TagInfo(obj_type, obj_name)
