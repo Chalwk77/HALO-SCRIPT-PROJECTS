@@ -81,8 +81,15 @@ end
 function OnScriptUnload() end
 
 function OnPlayerSpawn(PlayerIndex)
-    for k,v in pairs(weapons) do
-        available_shots[PlayerIndex] = v[6]
+    local current_weapon = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x118))
+    if current_weapon ~= 0 then
+        local weapon_tag_id = read_string(read_dword(read_word(current_weapon) * 32 + 0x40440038))
+        for k,v in pairs(weapons) do
+            if string.find(weapon_tag_id, v[2]) then
+                available_shots[PlayerIndex] = v[6]
+                break
+            end
+        end
     end
 end
 
