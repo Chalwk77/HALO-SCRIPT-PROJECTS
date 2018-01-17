@@ -83,7 +83,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-    --register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 end
 
 function OnScriptUnload() 
@@ -91,11 +91,13 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    -- for k,v in pairs(weapons) do
-        -- if v[6] ~= nil then
-            -- table.insert(original_data, v[6])
-        -- end
-    -- end
+    for i = 1,16 do
+        for k,v in pairs(weapons[i]) do
+            if v[6] ~= nil then
+                table.insert(original_data, v[6])
+            end
+        end
+    end
 end
 
 function OnGameEnd()
@@ -139,16 +141,21 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if (launcher_mode[PlayerIndex] == true) then
-        local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
-        local weapon_object = get_object_memory(weapon_id)
-        if weapon_object ~= 0 then
-            local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-            for k,v in pairs(weapons) do
-                if string.find(weapon_name, v[2]) then
-                    for K,V in pairs(original_data) do
-                        v[6] = original_data[k]
-                        available_shots[PlayerIndex] = tonumber(original_data[k])
-                    end
+        timer(1000, "delay_update_ammo", PlayerIndex)
+    end
+end
+
+function delay_update_ammo(PlayerIndex)
+    local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
+    local weapon_object = get_object_memory(weapon_id)
+    if weapon_object ~= 0 then
+        local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+        for k,v in pairs(weapons[tonumber(PlayerIndex)]) do
+            if string.find(weapon_name, v[2]) then
+                for K,V in pairs(original_data) do
+                    v[6] = original_data[k]
+                    available_shots[PlayerIndex] = v[6]
+                    has_ammo[PlayerIndex] = true
                 end
             end
         end
