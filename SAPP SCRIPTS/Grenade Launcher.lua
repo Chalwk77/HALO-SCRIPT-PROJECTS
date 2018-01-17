@@ -34,18 +34,21 @@ reset_command = "reset"
 
 weapons = { }
 -- grenade launcher will be enabled for these weapons. Set 'true' to 'false' to disable grenade launcher for that weapon
-weapons = {
-    { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",          60},
-    { "weap", "weapons\\flamethrower\\flamethrower",            false,      "proj", "weapons\\flamethrower\\flame",            50},
-    { "weap", "weapons\\needler\\mp_needler",                   false,      "proj", "weapons\\needler\\mp_needle",             40},
-    { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                 10},
-    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma pistol\\bolt",            10},
-    { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\bolt",             30},
-    { "weap", "weapons\\rocket launcher\\rocket launcher",      false,      "proj", "weapons\\rocket launcher\\rocket",        10},
-    { "weap", "weapons\\plasma_cannon\\plasma_cannon",          false,      "proj", "weapons\\plasma_cannon\\plasma_cannon",   10},
-    { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet",                12},
-    { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",    16}
-}
+
+for i = 1, 16 do weapons[i] = {
+        { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",          60},
+        { "weap", "weapons\\flamethrower\\flamethrower",            false,      "proj", "weapons\\flamethrower\\flame",            50},
+        { "weap", "weapons\\needler\\mp_needler",                   false,      "proj", "weapons\\needler\\mp_needle",             40},
+        { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                 10},
+        { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma pistol\\bolt",            10},
+        { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\bolt",             30},
+        { "weap", "weapons\\rocket launcher\\rocket launcher",      false,      "proj", "weapons\\rocket launcher\\rocket",        10},
+        { "weap", "weapons\\plasma_cannon\\plasma_cannon",          false,      "proj", "weapons\\plasma_cannon\\plasma_cannon",   10},
+        { "weap", "weapons\\shotgun\\shotgun",                      true,       "proj", "weapons\\shotgun\\pellet",                12},
+        { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",    16}
+    }
+end
+
 -- configuration ends --
 
 -- do not touch --
@@ -66,6 +69,9 @@ shot_fired = { }
 available_shots = { }
 
 set_initial = { }
+
+original_data = { }
+
 current_players = 0
 
 function OnScriptLoad()
@@ -77,21 +83,19 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    --register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 end
 
 function OnScriptUnload() 
     --
 end
 
-original_data = { }
-
 function OnNewGame()
-    for k,v in pairs(weapons) do
-        if v[6] ~= nil then
-            table.insert(original_data, v[6])
-        end
-    end
+    -- for k,v in pairs(weapons) do
+        -- if v[6] ~= nil then
+            -- table.insert(original_data, v[6])
+        -- end
+    -- end
 end
 
 function OnGameEnd()
@@ -108,17 +112,22 @@ function OnPlayerJoin(PlayerIndex)
     distance[PlayerIndex] = default_distance
     projectile_type[PlayerIndex] = default_projectile
     current_players = current_players + 1
-    timer(1000 * 3, "delay_assign_ammo", PlayerIndex)
+    timer(1000 * 3, "set_initial_ammo", PlayerIndex)
     set_initial[PlayerIndex] = true
 end
 
-function delay_assign_ammo(PlayerIndex)
-    local current_weapon = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x118))
-    if current_weapon ~= 0 then
-        local weapon_tag_id = read_string(read_dword(read_word(current_weapon) * 32 + 0x40440038))
-        for k,v in pairs(weapons) do
-            if string.find(weapon_tag_id, v[2]) then
-                available_shots[PlayerIndex] = v[6]
+function set_initial_ammo(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if player_object ~= 0 then
+            local current_weapon = get_object_memory(read_dword(player_object + 0x118))
+            if current_weapon ~= 0 then
+                local weapon_tag_id = read_string(read_dword(read_word(current_weapon) * 32 + 0x40440038))
+                for k,v in pairs(weapons[tonumber(PlayerIndex)]) do
+                    if string.find(weapon_tag_id, v[2]) then
+                        available_shots[tonumber(PlayerIndex)] = v[6]
+                    end
+                end
             end
         end
     end
@@ -129,7 +138,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    if (launcher_mode[PlayerIndex] == true) then 
+    if (launcher_mode[PlayerIndex] == true) then
         local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
         local weapon_object = get_object_memory(weapon_id)
         if weapon_object ~= 0 then
@@ -162,7 +171,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             local weapon_object = get_object_memory(weapon_id)
                             if weapon_object ~= 0 then
                                 local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-                                for k,v in pairs(weapons) do
+                                for k,v in pairs(weapons[PlayerIndex]) do
                                     if string.find(weapon_name, v[2]) then
                                         for K,V in pairs(original_data) do
                                             v[6] = original_data[k]
@@ -274,10 +283,10 @@ function OnTick()
                 local weapon = get_object_memory(read_dword(get_dynamic_player(i) + 0x118))
                 if weapon ~= 0 then
                     local current_weapon = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
-                    for k,v in pairs(weapons) do
+                    for k,v in pairs(weapons[i]) do
                         if string.find(current_weapon, v[2]) then
                             if shot_fired[i] then
-                                v[6] = v[6] -1
+                                v[6] = v[6] - 1
                                 available_shots[i] = v[6]
                                 if has_ammo[i] then
                                     for j = 1,30 do rprint(i, " ") end
@@ -304,7 +313,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if (launcher_mode[PlayerIndex] == true) then 
             local weapon_object = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
             local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-            for k,v in pairs(weapons) do
+            for k,v in pairs(weapons[PlayerIndex]) do
                 if string.find(weapon_name, v[2]) then
                     for K,V in pairs(original_data) do
                         v[6] = original_data[k]
@@ -319,7 +328,7 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (launcher_mode[PlayerIndex] == true) then
         local tag_id = weapons[1], tostring(weapons[2])
-        for k,v in pairs(weapons) do
+        for k,v in pairs(weapons[PlayerIndex]) do
             if MapID == TagInfo(tostring(v[4]), tostring(v[5])) then
                 if v[3] == true then
                     shot_fired[PlayerIndex] = true
@@ -333,7 +342,7 @@ end
 function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
         
-        if available_shots[PlayerIndex] < 1 then
+        if available_shots[tonumber(PlayerIndex)] < 1 then
             for i = 1,30 do rprint(PlayerIndex, " ") end
             rprint(PlayerIndex, "No shots available!")
         end
