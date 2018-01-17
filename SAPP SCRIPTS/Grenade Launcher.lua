@@ -39,7 +39,7 @@ weapons = {
     { "weap", "weapons\\flamethrower\\flamethrower",            false,      "proj", "weapons\\flamethrower\\flame",            50},
     { "weap", "weapons\\needler\\mp_needler",                   false,      "proj", "weapons\\needler\\mp_needle",             40},
     { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                 10},
-    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma rifle\\bolt",             10},
+    { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma pistol\\bolt",            10},
     { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\bolt",             30},
     { "weap", "weapons\\rocket launcher\\rocket launcher",      false,      "proj", "weapons\\rocket launcher\\rocket",        10},
     { "weap", "weapons\\plasma_cannon\\plasma_cannon",          false,      "proj", "weapons\\plasma_cannon\\plasma_cannon",   10},
@@ -108,10 +108,8 @@ function OnPlayerJoin(PlayerIndex)
     distance[PlayerIndex] = default_distance
     projectile_type[PlayerIndex] = default_projectile
     current_players = current_players + 1
-    timer(1000, "delay_assign_ammo", PlayerIndex)
-    
+    timer(1000 * 3, "delay_assign_ammo", PlayerIndex)
     set_initial[PlayerIndex] = true
-    
 end
 
 function delay_assign_ammo(PlayerIndex)
