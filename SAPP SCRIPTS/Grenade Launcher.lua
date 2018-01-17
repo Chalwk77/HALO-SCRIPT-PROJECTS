@@ -71,6 +71,7 @@ available_shots = { }
 set_initial = { }
 
 original_data = { }
+reset_bool = { }
 
 current_players = 0
 
@@ -215,7 +216,22 @@ function OnServerCommand(PlayerIndex, Command, Environment)
      -- reset velocity|distance to default values
     elseif t[1] == string.lower(reset_command) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            reset_values[PlayerIndex] = true
+            local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
+            local weapon_object = get_object_memory(weapon_id)
+            if weapon_object ~= 0 then
+                local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+                for k,v in pairs(weapons[tonumber(PlayerIndex)]) do
+                    if string.find("weap", v[1]) then
+                        for K,V in pairs(original_data) do
+                            v[6] = original_data[k]
+                            available_shots[PlayerIndex] = v[6]
+                            has_ammo[PlayerIndex] = true
+                            reset_values[PlayerIndex] = true
+                            reset_bool[PlayerIndex] = true
+                        end
+                    end
+                end
+            end
             rprint(PlayerIndex, "Values reset to default")
             UnknownCMD = false
         else
@@ -306,6 +322,10 @@ function OnTick()
                             else
                                 has_ammo[i] = false
                             end
+                            if reset_bool[i] == true then
+                                available_shots[i] = v[6]
+                                reset_bool[i] = false
+                            end
                             if v[6] < 1 then v[6] = 1 end                            
                         end
                     end
@@ -348,7 +368,7 @@ end
 
 function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
-        
+    
         if available_shots[tonumber(PlayerIndex)] < 1 then
             for i = 1,30 do rprint(PlayerIndex, " ") end
             rprint(PlayerIndex, "No shots available!")
