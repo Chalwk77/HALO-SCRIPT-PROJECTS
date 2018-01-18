@@ -269,18 +269,21 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 if launcher_mode[PlayerIndex] == true then
                     if string.match(t[2], "frag") or string.match(t[2], "1") then
                         new_projectile[PlayerIndex] = "weapons\\frag grenade\\frag grenade"
-                        rprint(PlayerIndex, "Now shooting Frag Grenades")
                         grenade_type_changed[PlayerIndex] = true
+                        reset_values[PlayerIndex] = false
+                        rprint(PlayerIndex, "Now shooting Frag Grenades")
                         UnknownCMD = false
                     elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
                         new_projectile[PlayerIndex] = "weapons\\plasma grenade\\plasma grenade"
-                        rprint(PlayerIndex, "Now shooting Plasma Grenades")
                         grenade_type_changed[PlayerIndex] = true
+                        reset_values[PlayerIndex] = false
+                        rprint(PlayerIndex, "Now shooting Plasma Grenades")
                         UnknownCMD = false
                     elseif string.match(t[2], "rocket") or string.match(t[2], "3") then
                         new_projectile[PlayerIndex] = "weapons\\rocket launcher\\rocket"
-                        rprint(PlayerIndex, "Now shooting Rocket Projectiles")
                         grenade_type_changed[PlayerIndex] = true
+                        reset_values[PlayerIndex] = false
+                        rprint(PlayerIndex, "Now shooting Rocket Projectiles")
                         UnknownCMD = false
                     end
                 else
@@ -388,7 +391,7 @@ function GrenadeLauncher(PlayerIndex, ParentID)
                 
                 local z_offset = 0.5
                 
-                if (reset_values[PlayerIndex] == true) then 
+                if (reset_values[PlayerIndex] == true) then
                     values_specified[PlayerIndex] = false
                     grenade_type_changed[PlayerIndex] = false
                     reset_values[PlayerIndex] = false
