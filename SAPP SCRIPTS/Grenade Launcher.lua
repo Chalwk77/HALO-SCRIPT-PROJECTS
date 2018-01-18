@@ -20,14 +20,14 @@ default_velocity = 0.6
 -- distance from player to spawn projectile
 default_distance = 0.5
 
--- minimum admin level required to execute custom commands
+-- minimum admin level required to execute custom commands (set to -1 for all players. 1-4 admins)
 command_permission_level = 1
 
 -- command to enable the grenade launcher       Syntax: /launcher on|off or 1|2 or true|false
 enable_launcher_command = "launcher"
 -- command to change velocity and distance.     Syntax: /vd [velocity] [distance]
 change_vd_command = "vd"
--- command to change projectile type.           Syntax: /nadetype frag|plasma or 1|2 (1 = frag, 2 = plasma)
+-- command to change projectile type.           Syntax: /nadetype frag|plasma or 1|2|3 (1 = frag, 2 = plasma, 3 = rocket)
 change_projectile_type = "nadetype"
 -- command to reset velocity|distance to default values
 reset_command = "reset"
@@ -210,7 +210,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 UnknownCMD = false
             end
         else
-            rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
+            rprint(PlayerIndex, "You do not have permission to execute /" .. t[1] .. " " .. t[2])
             UnknownCMD = false
         end
      -- reset velocity|distance to default values
