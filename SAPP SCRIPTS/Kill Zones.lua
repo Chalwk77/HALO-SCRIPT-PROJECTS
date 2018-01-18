@@ -3,9 +3,6 @@
 Script Name: Kill Zones, for SAPP (PC & CE)
 Description: When a player enters a kill zone, they have 15 seconds to exit otherwise they are killed.
 
-    change log: 18/01/2018: [FIX] - kill timer will now reset upon leaving the kill zone.
-    
-
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -44,18 +41,18 @@ local dir = 'sapp\\coordinates.txt'
 
 --      label            team           x,y,z                radius       Warning Delay         Seconds until death
 coordinates["bloodgulch"] = {
-    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15, true},
-    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15, true},
-    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15, true},
-    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15, true},
-    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15, true},
-    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15, true},
-    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15, true},
-    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15, true},
-    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15, true},
-    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15, true},
-    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15, true},
-    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15, true}
+    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15},
+    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15},
+    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15},
+    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15},
+    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15},
+    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15},
+    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15},
+    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15},
+    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15},
+    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15},
+    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15},
+    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15}
 }
 
 -- To add other maps, simply repeat the structure above, like so:
