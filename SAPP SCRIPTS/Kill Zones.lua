@@ -3,6 +3,9 @@
 Script Name: Kill Zones, for SAPP (PC & CE)
 Description: When a player enters a kill zone, they have 15 seconds to exit otherwise they are killed.
 
+    change log: 18/01/2018: [FIX] - kill timer will now reset upon leaving the kill zone.
+    
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -39,20 +42,20 @@ local dir = 'sapp\\coordinates.txt'
 -- To customize your own kill zone coordinates, Type "/coords" in-game to retrieve your current coordinates.
 -- This data will be saved to a txt file called coordinates.txt located in "<server root directory>/sapp/coordinates.txt".
 
---      label            team           x,y,z                radius       Warning Dealy         Seconds until death
+--      label            team           x,y,z                radius       Warning Delay         Seconds until death
 coordinates["bloodgulch"] = {
-    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15 },
-    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15 },
-    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15 },
-    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15 },
-    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15 },
-    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15 },
-    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15 },
-    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15 },
-    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15 },
-    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15 },
-    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15 },
-    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15 },
+    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15, true},
+    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15, true},
+    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15, true},
+    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15, true},
+    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15, true},
+    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15, true},
+    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15, true},
+    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15, true},
+    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15, true},
+    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15, true},
+    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15, true},
+    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15, true}
 }
 
 -- To add other maps, simply repeat the structure above, like so:
@@ -63,6 +66,7 @@ coordinates["mapname_here"] = {
     { "label", "blue", x, y, z, radius, warning_delay, seconds_until_death },
     { "label", "FFA", x, y, z, radius, warning_delay, seconds_until_death },
 }
+
 -- ===================================================== CONFIGURATION ENDS ======================================================= --
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -155,7 +159,7 @@ function OnTick()
                                 if getteam(i) == tostring(coordinates[mapname][j][2]) then
                                     -- create new warning timer --
                                     players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
-                                    -- monitor warning timer until it reaches the value of "Warning Dealy" (coordinates[mapname][j][7])
+                                    -- monitor warning timer until it reaches the value of "Warning Delay" (coordinates[mapname][j][7])
                                     if players[get_var(i, "$n")].warning_timer >= math.floor(coordinates[mapname][j][7]) then
                                         -- clear the player's console to prevent duplicate messages (spam)
                                         ClearConsole(i)
@@ -195,11 +199,6 @@ function OnTick()
                                             rprint(i, "|c ")
                                         end
                                     end
-                                else
-                                    -- reset timers --
-                                    kill_timer[i] = false
-                                    players[get_var(i, "$n")].warning_timer = 0
-                                    players[get_var(i, "$n")].kill_init_timer = 0
                                 end
                             end
                         end
@@ -211,12 +210,16 @@ function OnTick()
 end
 
 function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local Xaxis, Yaxis, Zaxis = read_vector3d(player_object + 0x5C)
-    if (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 <= Radius then
+    local Xaxis, Yaxis, Zaxis = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+    if (posX - Xaxis) ^ 2 + (posY - Yaxis) ^ 2 + (posZ - Zaxis) ^ 2 <= Radius then
         return true
-    else
+    elseif (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 > Radius + 1 then
         return false
+    else
+        -- returns false
+        kill_timer[PlayerIndex] = false
+        players[get_var(PlayerIndex, "$n")].warning_timer = 0
+        players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
     end
 end
 
