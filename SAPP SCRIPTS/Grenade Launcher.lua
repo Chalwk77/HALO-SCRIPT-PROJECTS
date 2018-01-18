@@ -36,10 +36,10 @@ weapons = { }
 -- grenade launcher will be enabled for these weapons. Set 'true' to 'false' to disable grenade launcher for that weapon
 
 for i = 1, 16 do weapons[i] = {
-        { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",          60},
-        { "weap", "weapons\\flamethrower\\flamethrower",            false,      "proj", "weapons\\flamethrower\\flame",            50},
-        { "weap", "weapons\\needler\\mp_needler",                   false,      "proj", "weapons\\needler\\mp_needle",             40},
-        { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                 10},
+        { "weap", "weapons\\assault rifle\\assault rifle",          true,       "proj", "weapons\\assault rifle\\bullet",          120},
+        { "weap", "weapons\\flamethrower\\flamethrower",            false,      "proj", "weapons\\flamethrower\\flame",            130},
+        { "weap", "weapons\\needler\\mp_needler",                   false,      "proj", "weapons\\needler\\mp_needle",             70},
+        { "weap", "weapons\\pistol\\pistol",                        true,       "proj", "weapons\\pistol\\bullet",                 24},
         { "weap", "weapons\\plasma pistol\\plasma pistol",          true,       "proj", "weapons\\plasma pistol\\bolt",            10},
         { "weap", "weapons\\plasma rifle\\plasma rifle",            true,       "proj", "weapons\\plasma rifle\\bolt",             30},
         { "weap", "weapons\\rocket launcher\\rocket launcher",      false,      "proj", "weapons\\rocket launcher\\rocket",        10},
@@ -48,6 +48,12 @@ for i = 1, 16 do weapons[i] = {
         { "weap", "weapons\\sniper rifle\\sniper rifle",            true,       "proj", "weapons\\sniper rifle\\sniper bullet",    16}
     }
 end
+
+ammo_pack_locations = { }
+ammo_pack_locations = {
+--                                                     X                 Y                 X          R
+    { "eqip", "powerups\\full-spectrum vision", 28.018934249878, -19.682806015015, -18.641296386719, 0.2, true},
+}
 
 -- configuration ends --
 
@@ -97,6 +103,11 @@ function OnNewGame()
             if v[6] ~= nil then
                 table.insert(original_data, v[6])
             end
+        end
+    end
+    for i = 1, #ammo_pack_locations do
+        if ammo_pack_locations[i] ~= nil then
+            ammo_pack = spawn_object(ammo_pack_locations[i][1], ammo_pack_locations[i][2], ammo_pack_locations[i][3], ammo_pack_locations[i][4], ammo_pack_locations[i][5] + 0.1)
         end
     end
 end
@@ -335,6 +346,55 @@ function OnTick()
                 end
             end
         end
+    end
+    for m = 1, 16 do
+        if (player_alive(m)) then
+            if (launcher_mode[m] == true) then
+                for j = 1, #ammo_pack_locations do
+                    if ammo_pack_locations[j] ~= nil then
+                        local player = get_dynamic_player(m)
+                        if player ~= 0 then
+--                                                         X                          Y                          Z                          R
+                            if getPlayerCoords(m, ammo_pack_locations[j][3], ammo_pack_locations[j][4], ammo_pack_locations[j][5], ammo_pack_locations[j][6]) == true then
+                                if ammo_pack_locations[j][7] == true then
+                                    table.insert(ammo_pack_locations[j], tonumber(ammo_pack))
+                                    local ammo_pack_object = get_object_memory(tonumber(ammo_pack_locations[j][8]))
+                                    if ammo_pack_object ~= nil then
+                                        local weapon_id = read_dword(get_dynamic_player(m) + 0x118)
+                                        local weapon_object = get_object_memory(weapon_id)
+                                        if weapon_object ~= 0 then
+                                            local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+                                            for k,v in pairs(weapons[tonumber(m)]) do
+                                                if string.find(weapon_name, v[2]) then
+                                                    for key,value in pairs(original_data) do
+                                                        v[6] = original_data[k]
+                                                        available_shots[tonumber(m)] = v[6]
+                                                        has_ammo[m] = true
+                                                        destroy_object(ammo_pack_object)
+                                                        table.insert(ammo_pack_locations[j], 7, false)
+                                                        rprint(m, "New Ammo: " .. tostring(available_shots[m]))
+                                                        break
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
+    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+    if (posX - x) ^ 2 +(posY - y) ^ 2 +(posZ - z) ^ 2 <= radius then
+        return true
+    else
+        return false
     end
 end
 
