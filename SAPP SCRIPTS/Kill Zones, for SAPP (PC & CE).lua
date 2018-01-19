@@ -41,18 +41,18 @@ local dir = 'sapp\\coordinates.txt'
 
 --      label            team           x,y,z                radius       Warning Delay         Seconds until death
 coordinates["bloodgulch"] = {
-    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         5,              0,                      15},
-    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        5,              0,                      15},
-    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         5,              0,                      15},
-    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       5,              0,                      15},
-    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        5,              0,                      15},
-    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        5,              0,                      15},
-    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        5,              0,                      15},
-    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       5,              0,                      15},
-    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        5,              0,                      15},
-    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         5,              0,                      15},
-    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         5,              0,                      15},
-    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         5,              0,                      15}
+    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         10,             0,                      15},
+    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        10,             0,                      15},
+    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         10,             0,                      15},
+    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       10,             0,                      15},
+    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        10,             0,                      15},
+    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        10,             0,                      15},
+    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        10,             0,                      15},
+    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       10,             0,                      15},
+    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        10,             0,                      15},
+    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         10,             0,                      15},
+    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         10,             0,                      15},
+    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         10,             0,                      15}
 }
 
 -- To add other maps, simply repeat the structure above, like so:
@@ -152,7 +152,7 @@ function OnTick()
                         if player_alive(i) then
                             -- check if player is in kill zone
                             if GEOinSpherePlayer(i, coordinates[mapname][j][3], coordinates[mapname][j][4], coordinates[mapname][j][5], coordinates[mapname][j][6]) == true then
-                                -- Check player's team and varify against table data
+                                -- check player's team and verify against table data
                                 if getteam(i) == tostring(coordinates[mapname][j][2]) then
                                     -- create new warning timer --
                                     players[get_var(i, "$n")].warning_timer = players[get_var(i, "$n")].warning_timer + 0.030
@@ -185,7 +185,7 @@ function OnTick()
                                             players[get_var(i, "$n")].kill_init_timer = 0
                                             -- kill Player
                                             execute_command("kill " .. i)
-                                            -- send player the unfateful message
+                                            -- send player the kill message
                                             rprint(i, "|c=========================================================")
                                             rprint(i, "|cYou were killed for being out of bounds!")
                                             rprint(i, "|c=========================================================")
@@ -213,10 +213,10 @@ function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
     elseif (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 > Radius + 1 then
         return false
     else
-        -- returns false
         kill_timer[PlayerIndex] = false
         players[get_var(PlayerIndex, "$n")].warning_timer = 0
         players[get_var(PlayerIndex, "$n")].kill_init_timer = 0
+        ClearConsole(PlayerIndex)
     end
 end
 
