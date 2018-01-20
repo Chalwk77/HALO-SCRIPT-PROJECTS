@@ -44,19 +44,23 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -- configuration starts --
 set_command = "setwarp"
 goto_command = "warp"
+goback_command = "back"
 list_command = "warplist"
 list_all_command = "warplistall"
 
-delete_command = {}
-delete_command[1] = { "delwarp", "tpd"}
+delete_command = { }
+delete_command[1] = {"delwarp", "tpd"}
 
 sapp_dir = "sapp\\teleports.txt"
 permission_level = -1
 -- configuration ends  --
 
 api_version = "1.12.0.0"
-canset = {}
+canset = { }
 wait_for_response = {}
+
+previous_location = { }
+for i = 1, 16 do previous_location[i] = { } end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -74,6 +78,9 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     wait_for_response[PlayerIndex] = false
+    for i = 1, 3 do
+        previous_location[PlayerIndex][i] = nil
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -249,6 +256,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                         end
                                         if (v ~= nil and valid == true) then
                                             if not PlayerInVehicle(PlayerIndex) then
+                                                local prevX, prevY, prevZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                                                previous_location[PlayerIndex][1] = prevX
+                                                previous_location[PlayerIndex][2] = prevY
+                                                previous_location[PlayerIndex][3] = prevZ
                                                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
                                                 rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y).. ", " .. math.floor(z))
                                                 valid = false
@@ -279,6 +290,23 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 end
             else
                 rprint(PlayerIndex, "You're not allowed to execute /" .. goto_command)
+            end
+            UnknownCMD = false
+        ---------------------------------------------------------
+        -- BACK COMMAND --
+        elseif t[1] == string.lower(goback_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
+                if not PlayerInVehicle(PlayerIndex) then
+                    if previous_location[PlayerIndex][1] ~= nil then
+                        write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, previous_location[PlayerIndex][1], previous_location[PlayerIndex][2], previous_location[PlayerIndex][3])
+                        rprint(PlayerIndex, "Returning to previous location!")
+                        for i = 1, 3 do
+                            previous_location[PlayerIndex][i] = nil
+                        end
+                    end
+                end
+            else
+                rprint(PlayerIndex, "You're not allowed to execute /" .. goback_command)
             end
             UnknownCMD = false
         ---------------------------------------------------------
@@ -449,4 +477,9 @@ function TeleportPlayer(ObjectID, x, y, z)
         local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
+end
+
+function OnError(Message)
+    cprint(debug.traceback() .. "", 2+8)
+    print(debug.traceback())
 end
