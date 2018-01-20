@@ -68,9 +68,9 @@ function OnTick()
     if (strike_timer >= math.random(min_interval, max_interval)) then
         local index = math.random(1, #strike_locations[get_var(0, "$map")])
         if index ~= nil then
-            posX = strike_locations[get_var(0, "$map")][index][1]
-            posY = strike_locations[get_var(0, "$map")][index][2]
-            posZ = strike_locations[get_var(0, "$map")][index][3]
+            local posX = strike_locations[get_var(0, "$map")][index][1]
+            local posY = strike_locations[get_var(0, "$map")][index][2]
+            local posZ = strike_locations[get_var(0, "$map")][index][3]
         end
         InitiateStrike(posX, posY, posZ)
         strike_timer = 0
