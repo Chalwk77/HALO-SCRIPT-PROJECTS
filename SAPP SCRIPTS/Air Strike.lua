@@ -23,17 +23,22 @@ local max_proj = 10
 local min_interval = 1
 local max_interval = 30
 
--- projectile x,y,z velocity
-local proj_x_vel = math.random(-0.5, 0.5)
-local proj_y_vel = math.random(-0.5, 0.5)
-local proj_z_vel = math.random(-10, -0.5)
+-- minimum|maximum height the projectile is spawned from the ground
+local min_height = 5
+local max_height = 20
 
--- height the projectile is spawned from the ground
-local height = 15
+-- minimum|maximum projectile velocities
+local min_x_vel = -5
+local max_x_vel = 5
 
+local min_y_vel = -10
+local max_y_vel = 5
+
+local min_z_vel = 10
+local max_z_vel = 3
 
 strike_locations = {}
--- projectile x,y,z spawn coordinates
+-- projectile x,y,z initial spawn coordinates
 strike_locations["bloodgulch"] = {
     {64, -112.09, 2.21},
     {52.96, -93.79, 0.47},
@@ -79,9 +84,16 @@ end
 
 function InitiateStrike(x, y, z)
     for i = min_proj,max_proj do
+        -- projectile x,y,z velocity
+        local projectile_x_vel = math.random(min_x_vel, max_x_vel)
+        local projectile_y_vel = math.random(min_y_vel, max_y_vel)
+        local projectile_z_vel = math.random(min_z_vel, max_z_vel)
+        -- height the projectile is spawned from the ground
+        local height = math.random(min_height,max_height)
+        -- spawn projectile and update velocity
         local payload = spawn_object("proj", projectile, x, y, z + height)
-		write_float(get_object_memory(payload) + 0x68, proj_x_vel)
-        write_float(get_object_memory(payload) + 0x6C, proj_y_vel)
-        write_float(get_object_memory(payload) + 0x70, proj_z_vel)
+		write_float(get_object_memory(payload) + 0x68, projectile_x_vel)
+        write_float(get_object_memory(payload) + 0x6C, projectile_y_vel)
+        write_float(get_object_memory(payload) + 0x70, - projectile_z_vel)
     end
 end
