@@ -34,7 +34,7 @@ local max_x_vel = 5
 local min_y_vel = -10
 local max_y_vel = 5
 
-local min_z_vel = 10
+local min_z_vel = -10
 local max_z_vel = 3
 
 strike_locations = {}
@@ -94,6 +94,6 @@ function InitiateStrike(x, y, z)
         local payload = spawn_object("proj", projectile, x, y, z + height)
 		write_float(get_object_memory(payload) + 0x68, projectile_x_vel)
         write_float(get_object_memory(payload) + 0x6C, projectile_y_vel)
-        write_float(get_object_memory(payload) + 0x70, - projectile_z_vel)
+        write_float(get_object_memory(payload) + 0x70, projectile_z_vel)
     end
 end
