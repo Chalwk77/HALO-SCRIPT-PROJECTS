@@ -71,9 +71,9 @@ function OnTick()
             local posX = strike_locations[get_var(0, "$map")][index][1]
             local posY = strike_locations[get_var(0, "$map")][index][2]
             local posZ = strike_locations[get_var(0, "$map")][index][3]
+            InitiateStrike(posX, posY, posZ)
+            strike_timer = 0
         end
-        InitiateStrike(posX, posY, posZ)
-        strike_timer = 0
     end
 end
 
