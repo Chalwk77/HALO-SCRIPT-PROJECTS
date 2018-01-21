@@ -21,7 +21,7 @@ local max_proj = 10
 
 -- interval between airstrikes
 local min_interval = 1
-local max_interval = 30
+local max_interval = 300
 
 -- minimum|maximum height the projectile is spawned from the ground
 local min_height = 5
@@ -35,7 +35,7 @@ local min_y_vel = -10
 local max_y_vel = 5
 
 local min_z_vel = -10
-local max_z_vel = 3
+local max_z_vel = -0.5
 
 strike_locations = {}
 -- projectile x,y,z initial spawn coordinates
