@@ -177,6 +177,7 @@ function OnPlayerDeath(victim, killer)
         end
         destroy_object(read_dword(get_player(victim) + 0x34))
         write_dword(get_player(victim) + 0x2C, 0)
+        execute_command("deaths " .. victim .. " -1")
     end
 end
 
