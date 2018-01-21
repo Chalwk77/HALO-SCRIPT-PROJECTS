@@ -449,7 +449,6 @@ function OnTick()
                             local player = get_dynamic_player(i)
                             local x, y, z = read_vector3d(player + 0x5C)
                             if (weapon[i] == true) then
-                                cprint("deleting weapons!")
                                 execute_command("wdel " .. i)
                                 if (mapname == "bloodgulch") then
                                     if not PlayerInVehicle(i) then
@@ -588,7 +587,6 @@ function OnTick()
                             players[get_var(n, "$n")].turn_timer = players[get_var(n, "$n")].turn_timer + 0.030
                             -- debugging
                             local minutes, seconds = secondsToTime(players[get_var(n, "$n")].turn_timer, 2)
-                            cprint(get_var(n, "$name") .. ": " .. TurnTime - math.floor(seconds) .. " seconds")
                             if players[get_var(n, "$n")].turn_timer >= math.floor(TurnTime) then
                                 -- reset timers and select new juggernaut
                                 players[get_var(n, "$n")].turn_timer = 0
