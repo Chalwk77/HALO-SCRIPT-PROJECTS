@@ -82,19 +82,6 @@ function OnTick()
                     if player ~= 0 then
                         if getPlayerCoords(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
                             write_vector3d(player + 0x5C, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7] + 0.3)
-                            -- camera rotation
-                            local rx, ry, rz = teleports[mapname][j][8], teleports[mapname][j][9], teleports[mapname][j][10]
-                            local x, y, z = read_vector3d(player + 0x5C)
-                            local vx = rx - x
-                            local vy = ry - y
-                            local vz = rz - z
-                            local mag = math.sqrt(vx * vx + vy * vy + vz * vz)
-                            vx = vx / mag
-                            vy = vy / mag
-                            vz = vz / mag
-                            write_float(player + 0x74, vx)
-                            write_float(player + 0x78, vy)
-                            write_float(player + 0x7c, vz)
                         end
                     end
                 end
@@ -148,9 +135,7 @@ function OnTick()
     end
     for n = 1, 16 do
         if player_present(n) then
-            if tbag[n] == nil then
-                tbag[n] = { }
-            end
+            if tbag[n] == nil then tbag[n] = { } end
             if tbag[n].name and tbag[n].x then
                 if not PlayerInVehicle(n) then
                     if getPlayerCoords(n, tbag[n].x, tbag[n].y, tbag[n].z, 5) then
@@ -215,27 +200,6 @@ function OnPlayerCrouch(PlayerIndex)
         tbag[PlayerIndex].name = nil
     end
     return true
-end
-
-function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
-    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-    if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
-        return true
-    else
-        return false
-    end
-end
-
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
@@ -315,8 +279,8 @@ end
 
 function CheckRedFlag(PlayerIndex)
     local red_flag = read_dword(globals + 0x8)
-    for t=0,3 do
-        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * t)
+    for i=0,3 do
+        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * i)
         if (object == red_flag) then return true end
     end
     return false
@@ -324,8 +288,8 @@ end
 
 function CheckBlueFlag(PlayerIndex)
     local blue_flag = read_dword(globals + 0xC)
-    for u=0,3 do
-        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * u)
+    for i=0,3 do
+        local object = read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + 4 * i)
         if (object == blue_flag) then return true end
     end
     return false
@@ -582,4 +546,25 @@ end
 function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
+    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+    if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
+        return true
+    else
+        return false
+    end
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
