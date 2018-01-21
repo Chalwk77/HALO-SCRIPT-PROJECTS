@@ -19,8 +19,8 @@ flag_bool = { }
 victim_coords = { }
 crouch = { }
 globals = nil
-weapons[1] = "weapons\\pistol\\pistol"
-weapons[2] = "weapons\\sniper rifle\\sniper rifle"
+weapons[1] = {"weap", "weapons\\pistol\\pistol", true}
+weapons[2] = {"weap", "weapons\\sniper rifle\\sniper rifle", true}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -54,22 +54,7 @@ function OnNewGame()
     mapname = get_var(1, "$map")
     for i = 1, #objects do
         if objects[i] ~= nil then
-            local object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5])
-            if tostring(objects[i][1]) == "vehi" then
-                local obj_id = get_object_memory(object)
-                local fx, fy, fz = objects[i][7], objects[i][8], objects[i][9]
-                local px, py, pz = read_vector3d(obj_id + 0x5c)
-                local ox = fx - px
-                local oy = fy - py
-                local oz = fz - pz
-                local mag = math.sqrt(ox * ox + oy * oy + oz * oz)
-                ox = ox / mag
-                oy = oy / mag
-                oz = oz / mag
-                write_float(obj_id + 0x74, ox)
-                write_float(obj_id + 0x78, oy)
-                write_float(obj_id + 0x7c, oz)
-            end
+            local object = spawn_object(objects[i][1], objects[i][2], objects[i][3], objects[i][4], objects[i][5], objects[i][7])
         end
     end
     for i = 1, 16 do
@@ -95,10 +80,8 @@ function OnTick()
                 if teleports[mapname][j] ~= nil then
                     local player = get_dynamic_player(i)
                     if player ~= 0 then
-                        if GEOinSpherePlayer(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
-                            write_vector3d(player + 0x5C, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7] + 0.2)
-                            write_dword(get_player(i) + 0xF0, 0)
-                            write_dword(get_player(i) + 0x164, 0)
+                        if getPlayerCoords(i, teleports[mapname][j][1], teleports[mapname][j][2], teleports[mapname][j][3], teleports[mapname][j][4]) == true then
+                            write_vector3d(player + 0x5C, teleports[mapname][j][5], teleports[mapname][j][6], teleports[mapname][j][7] + 0.3)
                             -- camera rotation
                             local rx, ry, rz = teleports[mapname][j][8], teleports[mapname][j][9], teleports[mapname][j][10]
                             local x, y, z = read_vector3d(player + 0x5C)
@@ -121,12 +104,15 @@ function OnTick()
     for k = 1, 16 do
         if (player_alive(k)) then
             local player = get_dynamic_player(k)
-            if (weapon[k] == 0) then
+            if (weapon[k] == false) then
                 execute_command("wdel " .. k)
                 local x, y, z = read_vector3d(player + 0x5C)
-                assign_weapon(spawn_object("weap", weapons[1], x, y, z), k)
-                assign_weapon(spawn_object("weap", weapons[2], x, y, z), k)
-                weapon[k] = 1
+                for i = 1,#weapons do
+                    if weapons[i][3] == true then
+                        assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), k)
+                    end
+                end
+                weapon[k] = true
             end
         end
     end
@@ -134,7 +120,7 @@ function OnTick()
         if (player_alive(m)) then
             if get_var(m, "$team") == "red" then 
                 if CheckBlueFlag(m) == true and flag_bool[m] then
-                    if GEOinSpherePlayer(m, 95.688, -159.449, -0.100, 1) then
+                    if getPlayerCoords(m, 95.688, -159.449, -0.100, 1) then
                         say_all(get_var(m, "$name") .. " scored a flag for the red team!")
                         players[get_var(m, "$n")].flag_captures = players[get_var(m, "$n")].flag_captures + 1
                         rprint(m, "You have " .. tonumber(math.floor(players[get_var(m, "$n")].flag_captures)) .. " flag captures!")
@@ -142,7 +128,7 @@ function OnTick()
                 end
             elseif get_var(m, "$team") == "blue" then 
                 if CheckRedFlag(m) == true and flag_bool[m] then
-                    if GEOinSpherePlayer(m, 40.241, -79.123, -0.100, 1) then
+                    if getPlayerCoords(m, 40.241, -79.123, -0.100, 1) then
                         say_all(get_var(m, "$name") .. " scored a flag for the blue team!")
                         players[get_var(m, "$n")].flag_captures = players[get_var(m, "$n")].flag_captures + 1
                         rprint(m, "You have " .. tonumber(math.floor(players[get_var(m, "$n")].flag_captures)) .. " flag captures!")
@@ -166,8 +152,8 @@ function OnTick()
                 tbag[n] = { }
             end
             if tbag[n].name and tbag[n].x then
-                if not isinvehicle(n) then
-                    if GEOinSpherePlayer(n, tbag[n].x, tbag[n].y, tbag[n].z, 5) then
+                if not PlayerInVehicle(n) then
+                    if getPlayerCoords(n, tbag[n].x, tbag[n].y, tbag[n].z, 5) then
                         local player_object = get_dynamic_player(n)
                         local obj_crouch = read_byte(player_object + 0x2A0)
                         local id = get_var(n, "$n")
@@ -194,7 +180,7 @@ function OnPlayerPreSpawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    weapon[PlayerIndex] = 0
+    weapon[PlayerIndex] = false
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -231,10 +217,9 @@ function OnPlayerCrouch(PlayerIndex)
     return true
 end
 
-function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local Xaxis, Yaxis, Zaxis = read_vector3d(player_object + 0x5C)
-    if (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 <= Radius then
+function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
+    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+    if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
         return true
     else
         return false
@@ -349,50 +334,59 @@ end
 function InitSettings()
     execute_command("scorelimit 50")
     objects = {
-        { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960, "Red Banshee", 280, - 10, 0 },
-        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", - 90, - 200, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 118.084, - 185.346, 6.563, "Red Turret", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302, "Blue Turret", 90.00, - 150.00, 0 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, - 154.075, 21.561, "Cliff Turret", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, - 116.212, 1.797, "Ghost | Mid-Field", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, - 129.761, 1.665, "Tank | Dark-Side [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 97.117, -173.132, 0.744, "Tank - Immediate Rear [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 81.150, -169.359, 0.158, "Tank - Right-Rear [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 23.598, -102.343, 2.163, "Tank | Ramp [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 38.119, -64.898, 0.617, "Tank | Immediate-Rear [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 51.349, -61.517, 1.759, "Tank | Right-Rear [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\rwarthog\\rwarthog", 50.655, -87.787, 0.079, "RHog | Right-Front [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\rwarthog\\rwarthog", 62.745, -72.406, 1.031, "RHog | Far-Right [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\rwarthog\\rwarthog", 106.885, -169.245, 0.091, "RHog | Left-Rear [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\warthog\\mp_warthog", 67.961, -171.002, 1.428, "Hog | Far Right [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\warthog\\mp_warthog", 102.312, -144.626, 0.580, "Hog | Left-Front [Red]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\warthog\\mp_warthog", 28.854, -90.193, 0.434, "Hog | Left-Front [Blue]", - 100.00, - 20.00, 0 },
-        { "vehi", "vehicles\\warthog\\mp_warthog", 43.559, -64.809, 1.113, "Hog | Immediate-Rear", - 100.00, - 20.00, 0 },
-        -- { "eqip", "powerups\\health pack", 37.070, - 80.068, - 0.286, "health pack - bluebase" },
-        -- { "eqip", "powerups\\health pack", 37.105, - 78.421, - 0.286, "health pack - bluebase" },
-        -- { "eqip", "powerups\\health pack", 43.144, - 78.442, - 0.286, "health pack - bluebase" },
-        -- { "eqip", "powerups\\health pack", 43.136, - 80.072, - 0.286, "health pack - bluebase" },
-        -- { "eqip", "powerups\\health pack", 43.512, - 77.153, - 0.286, "health pack - bluebase" },
-        -- { "eqip", "powerups\\health pack", 74.391, - 77.651, 5.698, "health pack - blue path" },
-        -- { "eqip", "powerups\\health pack", 70.650, - 61.932, 4.095, "health pack - blue banshee" },
-        -- { "eqip", "powerups\\health pack", 63.551, - 177.337, 4.181, "health pack - red banshee" },
-        -- { "eqip", "powerups\\health pack", 98.930, - 157.614, - 0.249, "health pack - redbase" },
-        -- { "eqip", "powerups\\health pack", 98.498, - 158.564, - 0.228, "health pack - redbase" },
-        -- { "eqip", "powerups\\health pack", 98.508, - 160.189, - 0.228, "health pack - redbase" },
-        -- { "eqip", "powerups\\health pack", 92.555, - 160.193, - 0.228, "health pack - redbase" },
-        -- { "eqip", "powerups\\health pack", 92.560, - 158.587, - 0.228, "health pack - redbase" },
-        -- { "eqip", "powerups\\health pack", 120.247, - 185.103, 6.495, "health pack - red turret" },
-        -- { "eqip", "powerups\\health pack", 94.351, - 97.615, 5.184, "health pack - Rock between the caves" },
-        -- { "eqip", "powerups\\health pack", 12.928, - 103.277, 13.990, "health pack - Nest" },
-        -- { "eqip", "powerups\\health pack", 48.060, - 153.092, 21.190, "health pack - turret mountain" },
-        -- { "eqip", "powerups\\health pack", 43.253, - 45.376, 20.920, "health pack - rear cliff (blue)" },
-        -- { "eqip", "powerups\\health pack", 43.253, - 45.376, 20.920, "health pack - corner cliff (blue)" },
-        -- { "eqip", "powerups\\health pack", 77.279, - 89.107, 22.571, "health pack - cliff (overlooking mid field)" },
-        -- { "eqip", "powerups\\health pack", 101.034, - 117.048, 14.795, "health pack - platform (overlooking redbase)" },
-        -- { "eqip", "powerups\\health pack", 118.244, - 120.757, 17.229, "cliff - overlooking red (banshee platform)" },
-        -- { "eqip", "powerups\\health pack", 131.737, - 169.891, 15.870, "health pack - rear left-cliff (red)" },
-        -- { "eqip", "powerups\\health pack", 121.011, - 188.595, 13.771, "health pack - rear right-cliff (red)" },
-        -- { "eqip", "powerups\\health pack", 97.504, - 188.913, 15.784, "health pack - platform (behind red)" }
+        -- blue vehicles
+        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758,                 "Blue Banshee", 10 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302,       "Blue Turret", 124.5 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 23.598, -102.343, 2.163,               "Blue Tank [Ramp]", 90 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 38.119, -64.898, 0.617,                "Blue Tank [Immediate Rear of Base]", 90 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 51.349, -61.517, 1.759,                "Blue Tank [Rear-Right of Base]", 90 },
+        { "vehi", "vehicles\\rwarthog\\rwarthog", 50.655, -87.787, 0.079,                   "Blue Rocket Hog [Front-Right of Base]", -90 },
+        { "vehi", "vehicles\\rwarthog\\rwarthog", 62.745, -72.406, 1.031,                   "Blue Rocket Hog [Far-Right of Base]", 90 },
+        { "vehi", "vehicles\\warthog\\mp_warthog", 28.854, -90.193, 0.434,                  "Blue Chain Gun Hog [Front-Left of Base]", 90 },
+        
+        -- red vehicles
+        { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960,                "Red Banshee", 120 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 118.084, - 185.346, 6.563,     "Red Turret", 90 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 104.017, - 129.761, 1.665,             "Red Tank [Dark-Side]", 90 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 97.117, -173.132, 0.744,               "Red Tank [Immediate Rear of Base]", 90 },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", 81.150, -169.359, 0.158,               "Red Tank [Rear-Right of Base]", 90 },
+        { "vehi", "vehicles\\rwarthog\\rwarthog", 106.885, -169.245, 0.091,                 "Red Rocket Hog [Left-Rear of Base]", 90 },
+        { "vehi", "vehicles\\warthog\\mp_warthog", 67.961, -171.002, 1.428,                 "Red Chain Gun Hog [Far Right of Base]", 90 },
+        { "vehi", "vehicles\\warthog\\mp_warthog", 102.312, -144.626, 0.580,                "Red Chain Gun Hog [Front-Left of Base]", 90 },
+        { "vehi", "vehicles\\warthog\\mp_warthog", 43.559, -64.809, 1.113,                  "Red Chain Gun Hog [Immediate Rear of Base]", 90 },
+        
+        -- other vehicles
+        { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, - 116.212, 1.797,                    "Ghost [Mid-Field]", 90 },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, - 154.075, 21.561,     "Cliff Turret", 90 },
+        
+        -- health packs [these designate portal locations]
+        { "eqip", "powerups\\health pack", 37.070, - 80.068, - 0.286, "health pack - bluebase", 90},
+        { "eqip", "powerups\\health pack", 37.105, - 78.421, - 0.286, "health pack - bluebase", 90},
+        { "eqip", "powerups\\health pack", 43.144, - 78.442, - 0.286, "health pack - bluebase", 90},
+        { "eqip", "powerups\\health pack", 43.136, - 80.072, - 0.286, "health pack - bluebase", 90},
+        { "eqip", "powerups\\health pack", 43.512, - 77.153, - 0.286, "health pack - bluebase", 90},
+        
+        { "eqip", "powerups\\health pack", 98.930, - 157.614, - 0.249, "health pack - redbase", 90},
+        { "eqip", "powerups\\health pack", 98.498, - 158.564, - 0.228, "health pack - redbase", 90},
+        { "eqip", "powerups\\health pack", 98.508, - 160.189, - 0.228, "health pack - redbase", 90},
+        { "eqip", "powerups\\health pack", 92.555, - 160.193, - 0.228, "health pack - redbase", 90},
+        { "eqip", "powerups\\health pack", 92.560, - 158.587, - 0.228, "health pack - redbase", 90}
+        
+        -- { "eqip", "powerups\\health pack", 74.391, - 77.651, 5.698, "health pack - blue path", 90},
+        -- { "eqip", "powerups\\health pack", 70.650, - 61.932, 4.095, "health pack - blue banshee", 90},
+        -- { "eqip", "powerups\\health pack", 63.551, - 177.337, 4.181, "health pack - red banshee", 90},
+        -- { "eqip", "powerups\\health pack", 120.247, - 185.103, 6.495, "health pack - red turret", 90},
+        -- { "eqip", "powerups\\health pack", 94.351, - 97.615, 5.184, "health pack - Rock between the caves", 90},
+        -- { "eqip", "powerups\\health pack", 12.928, - 103.277, 13.990, "health pack - Nest", 90},
+        -- { "eqip", "powerups\\health pack", 48.060, - 153.092, 21.190, "health pack - turret mountain", 90},
+        -- { "eqip", "powerups\\health pack", 43.253, - 45.376, 20.920, "health pack - rear cliff (blue)", 90},
+        -- { "eqip", "powerups\\health pack", 43.253, - 45.376, 20.920, "health pack - corner cliff (blue)", 90},
+        -- { "eqip", "powerups\\health pack", 77.279, - 89.107, 22.571, "health pack - cliff (overlooking mid field)", 90},
+        -- { "eqip", "powerups\\health pack", 101.034, - 117.048, 14.795, "health pack - platform (overlooking redbase)", 90},
+        -- { "eqip", "powerups\\health pack", 118.244, - 120.757, 17.229, "cliff - overlooking red (banshee platform)", 90},
+        -- { "eqip", "powerups\\health pack", 131.737, - 169.891, 15.870, "health pack - rear left-cliff (red)", 90},
+        -- { "eqip", "powerups\\health pack", 121.011, - 188.595, 13.771, "health pack - rear right-cliff (red)", 90},
+        -- { "eqip", "powerups\\health pack", 97.504, - 188.913, 15.784, "health pack - platform (behind red)", 90}
     }
 
     teleports["bloodgulch"] = {
@@ -424,26 +418,26 @@ function InitSettings()
     }
     
     -- Melee --
-    MELEE_PISTOL = get_tag_info("jpt!", "weapons\\pistol\\melee")
-    MELEE_SNIPER_RIFLE = get_tag_info("jpt!", "weapons\\sniper rifle\\melee")
+    MELEE_PISTOL = TagInfo("jpt!", "weapons\\pistol\\melee")
+    MELEE_SNIPER_RIFLE = TagInfo("jpt!", "weapons\\sniper rifle\\melee")
     -- Grenades Explosion/Attached --
-    FRAG_EXPLOSION = get_tag_info("jpt!", "weapons\\frag grenade\\explosion")
-    FRAG_SHOCKWAVE = get_tag_info("jpt!", "weapons\\frag grenade\\shock wave")
-    PLASMA_ATTACHED = get_tag_info("jpt!", "weapons\\plasma grenade\\attached")
-    PLASMA_EXPLOSION = get_tag_info("jpt!", "weapons\\plasma grenade\\explosion")
-    PLASMA_SHOCKWAVE = get_tag_info("jpt!", "weapons\\plasma grenade\\shock wave")
+    FRAG_EXPLOSION = TagInfo("jpt!", "weapons\\frag grenade\\explosion")
+    FRAG_SHOCKWAVE = TagInfo("jpt!", "weapons\\frag grenade\\shock wave")
+    PLASMA_ATTACHED = TagInfo("jpt!", "weapons\\plasma grenade\\attached")
+    PLASMA_EXPLOSION = TagInfo("jpt!", "weapons\\plasma grenade\\explosion")
+    PLASMA_SHOCKWAVE = TagInfo("jpt!", "weapons\\plasma grenade\\shock wave")
     -- Vehicles --
-    WARTHOG_BULLET = get_tag_info("proj", "vehicles\\warthog\\bullet")
-    VEHICLE_GHOST_BOLT = get_tag_info("jpt!", "vehicles\\ghost\\ghost bolt")
-    VEHICLE_TANK_BULLET = get_tag_info("jpt!", "vehicles\\scorpion\\bullet")
-    VEHICLE_TANK_SHELL = get_tag_info("jpt!", "vehicles\\scorpion\\tank shell")
-    VEHICLE_BANSHEE_BOLT = get_tag_info("jpt!", "vehicles\\banshee\\banshee bolt")
-    VEHICLE_BANSHEE_FUEL_ROD = get_tag_info("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
-    VEHICLE_TANK_SHELL_EXPLOSION = get_tag_info("jpt!", "vehicles\\scorpion\\shell explosion")
+    WARTHOG_BULLET = TagInfo("proj", "vehicles\\warthog\\bullet")
+    VEHICLE_GHOST_BOLT = TagInfo("jpt!", "vehicles\\ghost\\ghost bolt")
+    VEHICLE_TANK_BULLET = TagInfo("jpt!", "vehicles\\scorpion\\bullet")
+    VEHICLE_TANK_SHELL = TagInfo("jpt!", "vehicles\\scorpion\\tank shell")
+    VEHICLE_BANSHEE_BOLT = TagInfo("jpt!", "vehicles\\banshee\\banshee bolt")
+    VEHICLE_BANSHEE_FUEL_ROD = TagInfo("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
+    VEHICLE_TANK_SHELL_EXPLOSION = TagInfo("jpt!", "vehicles\\scorpion\\shell explosion")
     -- weapon projectiles --
-    PISTOL_BULLET = get_tag_info("jpt!", "weapons\\pistol\\bullet")
-    SNIPER_RIFLE_BULLET = get_tag_info("jpt!", "weapons\\sniper rifle\\sniper bullet")
-    ROCKET_EXPLODE = get_tag_info("jpt!", "weapons\\rocket launcher\\explosion")
+    PISTOL_BULLET = TagInfo("jpt!", "weapons\\pistol\\bullet")
+    SNIPER_RIFLE_BULLET = TagInfo("jpt!", "weapons\\sniper rifle\\sniper bullet")
+    ROCKET_EXPLODE = TagInfo("jpt!", "weapons\\rocket launcher\\explosion")
     local red_flag = read_dword(globals + 0x8)
     local blue_flag = read_dword(globals + 0xC)
     local tag_address = read_dword(0x40440000)
@@ -571,22 +565,7 @@ function InitSettings()
     end
 end
 
-function get_tag_info(tagclass, tagname)
-    -- Credits to 002 for this function
-    local tagarray = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) -1 do
-        local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == tagclass) then
-            if (read_string(read_dword(tag + 0x10)) == tagname) then
-                return read_dword(tag + 0xC)
-            end
-        end
-    end
-    return nil
-end
-
-function isinvehicle(PlayerIndex)
+function PlayerInVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local VehicleID = read_dword(player_object + 0x11C)
@@ -603,8 +582,4 @@ end
 function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
-end
-
-function OnError(Message)
-    print(debug.traceback())
 end
