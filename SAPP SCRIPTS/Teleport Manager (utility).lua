@@ -57,7 +57,7 @@ permission_level = -1
 
 api_version = "1.12.0.0"
 canset = { }
-wait_for_response = {}
+wait_for_response = { }
 
 previous_location = { }
 for i = 1, 16 do previous_location[i] = { } end
@@ -303,6 +303,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         for i = 1, 3 do
                             previous_location[PlayerIndex][i] = nil
                         end
+                    else
+                        rprint(PlayerIndex, "Unable to teleport back! You haven't been anywhere!")
                     end
                 end
             else
