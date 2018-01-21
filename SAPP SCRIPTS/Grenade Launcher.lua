@@ -264,10 +264,10 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     if equipment_saved ~= 0 then
                                         inventory.loadout[i+1] = {
                                             ["id"] = read_dword(equipment_saved),
-                                            ["primary_ammo"] = read_word(equipment_saved + 0x2B6),
-                                            ["primary_clip"] = read_word(equipment_saved + 0x2B8),
-                                            ["secondary_ammo"] = read_word(equipment_saved + 0x2C6),
-                                            ["secondary_clip"] = read_word(equipment_saved + 0x2C8),
+                                            ["ammo"] = read_word(equipment_saved + 0x2B6),
+                                            ["clip"] = read_word(equipment_saved + 0x2B8),
+                                            ["ammo2"] = read_word(equipment_saved + 0x2C6),
+                                            ["clip2"] = read_word(equipment_saved + 0x2C8),
                                             ["age"] = read_float(equipment_saved + 0x240)
                                         }
                                     end
@@ -306,20 +306,15 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 elseif string.match(t[2], "0") or string.match(t[2], "off") or string.match(t[2], "false") then
                     if launcher_mode[PlayerIndex] ~= false then
                         launcher_mode[PlayerIndex] = false
-                        
-                        -- get coords
-                        local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-                        death_location[PlayerIndex][1] = x
-                        death_location[PlayerIndex][2] = y
-                        death_location[PlayerIndex][3] = z
-                        
-                        -- delete old weapons (bool for OnPlayerDeath)
-                        DeleteWeapons[PlayerIndex] = true
-                        
-                        -- kill
-                        execute_command("kill " .. PlayerIndex)
-                        -- assign weapon 
-                        AssignWeapon[PlayerIndex] = true
+                        if use_weapon_assignment then
+                            local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                            death_location[PlayerIndex][1] = x
+                            death_location[PlayerIndex][2] = y
+                            death_location[PlayerIndex][3] = z
+                            DeleteWeapons[PlayerIndex] = true
+                            execute_command("kill " .. PlayerIndex)
+                            AssignWeapon[PlayerIndex] = true
+                        end
                         rprint(PlayerIndex, "Grenade Launcher Deactivated")
                         UnknownCMD = false
                     else
@@ -435,10 +430,10 @@ function OnTick()
                 for _, equipment_saved in pairs(inventory.loadout) do
                     local saved_weapons = spawn_object("null","null", x, y, z + 0.3, 90, equipment_saved.id)
                     local weapon_object = get_object_memory(saved_weapons)
-                    write_word(weapon_object + 0x2B6, equipment_saved.primary_ammo)
-                    write_word(weapon_object + 0x2B8, equipment_saved.primary_clip)
-                    write_word(weapon_object + 0x2C6, equipment_saved.secondary_ammo)
-                    write_word(weapon_object + 0x2C8, equipment_saved.secondary_clip)
+                    write_word(weapon_object + 0x2B6, equipment_saved.ammo)
+                    write_word(weapon_object + 0x2B8, equipment_saved.clip)
+                    write_word(weapon_object + 0x2C6, equipment_saved.ammo2)
+                    write_word(weapon_object + 0x2C8, equipment_saved.clip2)
                     write_float(weapon_object + 0x240, equipment_saved.age)
                     sync_ammo(saved_weapons)
                     assign_weapon(saved_weapons, eq)
