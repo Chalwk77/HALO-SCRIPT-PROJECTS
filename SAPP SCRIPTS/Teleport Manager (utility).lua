@@ -72,7 +72,7 @@ end
 function OnScriptUnload() end
 
 function OnGameStart()
-    check_file_status()
+    check_file_status(PlayerIndex)
     mapname = get_var(0, "$map")
 end
 
@@ -112,7 +112,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         if t[1] == string.lower(set_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    check_file_status()
+                    check_file_status(PlayerIndex)
                     if not empty_file then
                         local lines = lines_from(sapp_dir)
                         for k, v in pairs(lines) do
@@ -156,7 +156,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     -- GO TO COMMAND --
     if t[1] ~= nil then
         if t[1] == string.lower(goto_command) then
-            check_file_status()
+            check_file_status(PlayerIndex)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
                     if not empty_file then
@@ -315,7 +315,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         -- LIST COMMAND --
         elseif t[1] == string.lower(list_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                check_file_status()
+                check_file_status(PlayerIndex)
                 if not empty_file then
                     local lines = lines_from(sapp_dir)
                     for k,v in pairs(lines) do
@@ -334,7 +334,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         -- LIST ALL COMMAND --
         elseif t[1] == string.lower(list_all_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                check_file_status()
+                check_file_status(PlayerIndex)
                 if not empty_file then
                     local lines = lines_from(sapp_dir)
                     for k,v in pairs(lines) do
@@ -353,7 +353,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             local command = t[1]
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if t[2] ~= nil then
-                    check_file_status()
+                    check_file_status(PlayerIndex)
                     if not empty_file then
                         local lines = lines_from(sapp_dir)
                         local del_found = nil
@@ -402,7 +402,7 @@ function lines_from(file)
     return lines
 end
 
-function check_file_status()
+function check_file_status(PlayerIndex)
     local fileX = io.open(sapp_dir, "rb")
     if fileX then 
         fileX:close()
@@ -411,8 +411,10 @@ function check_file_status()
         if fileY then 
             fileY:close() 
         end
-        rprint(PlayerIndex, sapp_dir .. " doesn't exist. Creating...")
-        cprint(sapp_dir .. " doesn't exist. Creating...")
+        if player_present(PlayerIndex) then
+            rprint(PlayerIndex, sapp_dir .. " doesn't exist. Creating...")
+            cprint(sapp_dir .. " doesn't exist. Creating...")
+        end
     end
     local fileZ = io.open(sapp_dir, "r")
     local line = fileZ:read()
@@ -436,10 +438,10 @@ function tokenizestring(inputString, separator)
     return t
 end
 
-function delete_from_file(filename, starting_line, num_lines, player)
+function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     local fp = io.open(filename, "r")
     if fp == nil then 
-        check_file_status() 
+        check_file_status(PlayerIndex) 
     end
     content = {}
     i = 1;
@@ -450,7 +452,7 @@ function delete_from_file(filename, starting_line, num_lines, player)
         i = i + 1
     end
     if i > starting_line and i < starting_line + num_lines then
-        rprint(player, "Warning: End of File! No entries to delete.")
+        rprint(PlayerIndex, "Warning: End of File! No entries to delete.")
         cprint("Warning: End of File! No entries to delete.")
     end
     fp:close()
