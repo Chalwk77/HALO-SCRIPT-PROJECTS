@@ -20,6 +20,15 @@ default_velocity = 0.6
 -- distance from player to spawn projectile
 default_distance = 0.5
 
+-- Enables Custom Weapon Assignment. 
+use_weapon_assignment = true
+weapon_assignment = {}
+-- Set 'true' to 'false' to disable that weapon assignment upon typing /launcher on
+weapon_assignment[1] = {"weap", "weapons\\assault rifle\\assault rifle",        true}
+weapon_assignment[2] = {"weap", "weapons\\pistol\\pistol",                      true}
+weapon_assignment[3] = {"weap", "weapons\\plasma rifle\\plasma rifle",          true}
+weapon_assignment[4] = {"weap", "weapons\\shotgun\\shotgun",                    true}
+
 -- minimum admin level required to execute custom commands (set to -1 for all players. 1-4 admins)
 command_permission_level = 1
 
@@ -52,8 +61,15 @@ end
 ammo_pack_locations = { }
 ammo_pack_locations = {
 --                                                     X                 Y                 X          R
-    { "eqip", "powerups\\full-spectrum vision", 28.018934249878, -19.682806015015, -18.641296386719, 0.2, true},
+    { "eqip", "powerups\\full-spectrum vision", 28.018934249878, -19.682806015015, -18.641296386719, 0.1, true},
+    { "eqip", "powerups\\full-spectrum vision", -3.6864845752716, 1.4177178144455, -21.212497711182, 0.1, true}
 }
+
+
+death_location = { }
+for i = 1, 16 do death_location[i] = { } end
+AssignWeapon = { }
+DeleteWeapons = {}
 
 -- configuration ends --
 
@@ -79,16 +95,19 @@ set_initial = { }
 original_data = { }
 reset_bool = { }
 
+player_equipment = { }
 current_players = 0
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 end
@@ -128,6 +147,37 @@ function OnPlayerJoin(PlayerIndex)
     current_players = current_players + 1
     timer(1000 * 3, "set_initial_ammo", PlayerIndex)
     set_initial[PlayerIndex] = true
+    AssignWeapon[PlayerIndex] = false
+end
+
+function OnPlayerPrespawn(VictimIndex)
+    local victim = tonumber(VictimIndex)
+    if VictimIndex then
+        if death_location[victim][1] ~= nil then
+            write_vector3d(get_dynamic_player(victim) + 0x5C, death_location[victim][1], death_location[victim][2], death_location[victim][3])
+            for i = 1, 3 do
+                death_location[victim][i] = nil
+            end
+        end
+    end
+end
+
+function OnPlayerDeath(victim, killer)
+    if (DeleteWeapons[victim] == true) then
+        DeleteWeapons[victim] = false
+        local player_object = get_dynamic_player(victim)
+        local weaponId = read_dword(player_object + 0x118)
+        write_word(player_object + 0x31E, 0)
+        write_word(player_object + 0x31F, 0)
+        if weaponId ~= 0 then
+            for j = 0, 3 do
+                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                destroy_object(m_weapon)
+            end
+        end
+        destroy_object(read_dword(get_player(victim) + 0x34))
+        write_dword(get_player(victim) + 0x2C, 0)
+    end
 end
 
 function set_initial_ammo(PlayerIndex)
@@ -149,6 +199,9 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     current_players = current_players - 1
+    for i = 1, 3 do
+        death_location[PlayerIndex][i] = nil
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -174,6 +227,24 @@ function delay_update_ammo(PlayerIndex)
     end
 end
 
+function AssignNew(PlayerIndex, x, y, z)
+    for i = 1,4 do execute_command("wdel " .. PlayerIndex) end
+    for i = 1,2 do
+        if weapon_assignment[i][3] == true then
+            assign_weapon(spawn_object(weapon_assignment[i][1], weapon_assignment[i][2], x, y, z), PlayerIndex)
+        end
+    end
+    timer(50, "TertiaryDelay", PlayerIndex, x, y, z)
+end
+
+function TertiaryDelay(PlayerIndex, x, y, z)
+    for i = 3,4 do
+        if weapon_assignment[i][3] == true then
+            assign_weapon(spawn_object(weapon_assignment[i][1], weapon_assignment[i][2], x, y, z), PlayerIndex)
+        end
+    end
+end
+
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
@@ -182,33 +253,73 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             -- enable|disable launcher mode
             if t[2] ~= nil then
                 if string.match(t[2], "1") or string.match(t[2], "on") or string.match(t[2], "true") then
-                    if launcher_mode[PlayerIndex] ~= true then
-                        launcher_mode[PlayerIndex] = true
-                        if (set_initial[PlayerIndex] == true) then
-                            set_initial[PlayerIndex] = false
-                            local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
-                            local weapon_object = get_object_memory(weapon_id)
-                            if weapon_object ~= 0 then
-                                local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-                                for k,v in pairs(weapons[PlayerIndex]) do
-                                    if string.find(weapon_name, v[2]) then
-                                        for K,V in pairs(original_data) do
-                                            v[6] = original_data[k]
-                                            available_shots[PlayerIndex] = tonumber(original_data[k])
+                    if player_alive(PlayerIndex) then
+                        if launcher_mode[PlayerIndex] ~= true then
+                            launcher_mode[PlayerIndex] = true
+                            if use_weapon_assignment then
+                                local inventory = {}
+                                inventory.loadout = {}
+                                for i=0,3 do
+                                    equipment_saved = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + i * 4))
+                                    if equipment_saved ~= 0 then
+                                        inventory.loadout[i+1] = {
+                                            ["id"] = read_dword(equipment_saved),
+                                            ["primary_ammo"] = read_word(equipment_saved + 0x2B6),
+                                            ["primary_clip"] = read_word(equipment_saved + 0x2B8),
+                                            ["secondary_ammo"] = read_word(equipment_saved + 0x2C6),
+                                            ["secondary_clip"] = read_word(equipment_saved + 0x2C8),
+                                            ["age"] = read_float(equipment_saved + 0x240)
+                                        }
+                                    end
+                                end
+                                inventory.frag_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31E)
+                                inventory.plasma_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31F)
+                                player_equipment[get_var(PlayerIndex,"$n")] = inventory
+                                local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                                AssignNew(PlayerIndex, x, y, z)
+                            end
+                            if (set_initial[PlayerIndex] == true) then
+                                set_initial[PlayerIndex] = false
+                                local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
+                                local weapon_object = get_object_memory(weapon_id)
+                                if weapon_object ~= 0 then
+                                    local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+                                    for k,v in pairs(weapons[PlayerIndex]) do
+                                        if string.find(weapon_name, v[2]) then
+                                            for K,V in pairs(original_data) do
+                                                v[6] = original_data[k]
+                                                available_shots[PlayerIndex] = tonumber(original_data[k])
+                                            end
                                         end
                                     end
                                 end
                             end
+                            rprint(PlayerIndex, "Grenade Launcher Activated")
+                            UnknownCMD = false
+                        else
+                            rprint(PlayerIndex, "Grenade Launcher is already enabled!")
+                            UnknownCMD = false
                         end
-                        rprint(PlayerIndex, "Grenade Launcher Activated")
-                        UnknownCMD = false
                     else
-                        rprint(PlayerIndex, "Grenade Launcher is already enabled!")
-                        UnknownCMD = false
+                        rprint(PlayerIndex, "You are dead! Unable to activate Grenade Launcher Mode.")
                     end
                 elseif string.match(t[2], "0") or string.match(t[2], "off") or string.match(t[2], "false") then
                     if launcher_mode[PlayerIndex] ~= false then
                         launcher_mode[PlayerIndex] = false
+                        
+                        -- get coords
+                        local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                        death_location[PlayerIndex][1] = x
+                        death_location[PlayerIndex][2] = y
+                        death_location[PlayerIndex][3] = z
+                        
+                        -- delete old weapons (bool for OnPlayerDeath)
+                        DeleteWeapons[PlayerIndex] = true
+                        
+                        -- kill
+                        execute_command("kill " .. PlayerIndex)
+                        -- assign weapon 
+                        AssignWeapon[PlayerIndex] = true
                         rprint(PlayerIndex, "Grenade Launcher Deactivated")
                         UnknownCMD = false
                     else
@@ -314,6 +425,29 @@ function OnServerCommand(PlayerIndex, Command, Environment)
 end
 
 function OnTick()
+    for eq = 1,current_players do
+        if player_alive(eq) then
+            if AssignWeapon[eq] == true then
+                AssignWeapon[eq] = false
+                for X = 1,4 do execute_command("wdel " .. eq) end
+                local x, y, z = read_vector3d(get_dynamic_player(eq) + 0x5C)
+                local inventory = player_equipment[get_var(eq,"$n")]
+                for _, equipment_saved in pairs(inventory.loadout) do
+                    local saved_weapons = spawn_object("null","null", x, y, z + 0.3, 90, equipment_saved.id)
+                    local weapon_object = get_object_memory(saved_weapons)
+                    write_word(weapon_object + 0x2B6, equipment_saved.primary_ammo)
+                    write_word(weapon_object + 0x2B8, equipment_saved.primary_clip)
+                    write_word(weapon_object + 0x2C6, equipment_saved.secondary_ammo)
+                    write_word(weapon_object + 0x2C8, equipment_saved.secondary_clip)
+                    write_float(weapon_object + 0x240, equipment_saved.age)
+                    sync_ammo(saved_weapons)
+                    assign_weapon(saved_weapons, eq)
+                    write_byte(get_dynamic_player(eq) + 0x31E,inventory.frag_grenades)
+                    write_byte(get_dynamic_player(eq) + 0x31F,inventory.plasma_grenades)
+                end
+            end
+        end
+    end
     for i =1,current_players do
         if player_alive(i) then
             if launcher_mode[i] == true then
@@ -391,8 +525,10 @@ end
 
 function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
     local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-    if (posX - x) ^ 2 +(posY - y) ^ 2 +(posZ - z) ^ 2 <= radius then
+    if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
         return true
+    elseif (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 > radius + 1 then
+        return false
     else
         return false
     end
