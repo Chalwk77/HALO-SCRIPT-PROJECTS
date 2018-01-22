@@ -212,13 +212,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    --- sehe's death message patch ------------------------------
-    deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
-    original = read_dword(deathmessages)
-    safe_write(true)
-    write_dword(deathmessages, 0x03EB01B1)
-    safe_write(false)
-    -------------------------------------------------------------
 end
 
 function OnScriptUnload()
@@ -258,6 +251,13 @@ function OnNewGame()
     end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
+    --- sehe's death message patch ------------------------------
+    deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
+    original = read_dword(deathmessages)
+    safe_write(true)
+    write_dword(deathmessages, 0x03EB01B1)
+    safe_write(false)
+    -------------------------------------------------------------
 end
 
 function OnGameEnd()
@@ -662,6 +662,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if killer ~= -1 then
             if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(killer)) then
                 players[get_var(killer, "$n")].current_juggernaut = killer
+                SetNavMarker(killer)
                 if PlayerInVehicle(killer) then
                     players[get_var(killer, "$n")].weapon_trigger = true
                 else
@@ -718,8 +719,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- remove their juggernaut status
         players[get_var(victim, "$n")].current_juggernaut = nil
         say(victim, "You are no longer the Juggernaut!")
-        -- Call SelectNewJuggernaut() | Select someone else as the new Juggernaut
-        SwapRole(victim)
+        -- Call SwapRole() | Select someone else as the new Juggernaut
+        timer(1000 * SuicideSelectDelay, "SwapRole", victim)
     end
     
     -- killer was server | reset nav markers
