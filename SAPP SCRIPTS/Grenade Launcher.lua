@@ -178,6 +178,9 @@ function OnPlayerDeath(victim, killer)
         destroy_object(read_dword(get_player(victim) + 0x34))
         write_dword(get_player(victim) + 0x2C, 0)
         execute_command("deaths " .. victim .. " -1")
+        safe_write(true)
+        write_dword(deathmessages, original)
+        safe_write(false)
     end
 end
 
@@ -308,6 +311,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     if launcher_mode[PlayerIndex] ~= false then
                         launcher_mode[PlayerIndex] = false
                         if use_weapon_assignment then
+                            deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
+                            original = read_dword(deathmessages)
+                            safe_write(true)
+                            write_dword(deathmessages, 0x03EB01B1)
+                            safe_write(false)
                             local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
                             death_location[PlayerIndex][1] = x
                             death_location[PlayerIndex][2] = y
