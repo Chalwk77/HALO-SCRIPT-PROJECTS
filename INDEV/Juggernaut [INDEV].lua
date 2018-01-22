@@ -113,43 +113,45 @@ juggernaut_running_speed = {
 function GrenadeTable()
     --  frag grenade table --
     frags = {
-        beavercreek = 4,
-        bloodgulch = 4,
-        boardingaction = 4,
-        carousel = 4,
-        dangercanyon = 4,
-        deathisland = 4,
-        gephyrophobia = 4,
+        infinity = 6,
         icefields = 4,
-        infinity = 4,
-        sidewinder = 4,
+        bloodgulch = 6,
         timberland = 4,
-        hangemhigh = 4,
+        sidewinder = 7,
+        deathisland = 4,
+        dangercanyon = 7,
+        gephyrophobia = 6,
+        wizard = 2,
+        putput = 3,
+        longest = 1,
         ratrace = 4,
-        damnation = 4,
-        putput = 4,
-        prisoner = 4,
-        wizard = 4-- do not add a comma on the last entry
+        carousel = 3,
+        prisoner = 2,
+        damnation = 1,
+        hangemhigh = 2,
+        beavercreek = 1,
+        boardingaction = 2 -- do not add a comma on the last entry
     }
     --  plasma grenades table --
     plasmas = {
-        beavercreek = 4,
-        bloodgulch = 4,
-        boardingaction = 4,
-        carousel = 4,
-        dangercanyon = 4,
-        deathisland = 4,
-        gephyrophobia = 4,
+        infinity = 5,
         icefields = 4,
-        infinity = 4,
+        bloodgulch = 5,
+        timberland = 7,
         sidewinder = 4,
-        timberland = 4,
-        hangemhigh = 4,
-        ratrace = 4,
-        damnation = 4,
-        putput = 4,
-        prisoner = 4,
-        wizard = 4
+        deathisland = 5,
+        dangercanyon = 6,
+        gephyrophobia = 4,
+        wizard = 3,
+        putput = 1,
+        longest = 4,
+        ratrace = 1,
+        carousel = 3,
+        prisoner = 1,
+        damnation = 3,
+        hangemhigh = 2,
+        beavercreek = 1,
+        boardingaction = 4 -- do not add a comma on the last entry
     }
 end
 
@@ -228,27 +230,8 @@ function OnNewGame()
     GrenadeTable()
     LoadMaps()
     CheckType()
-    if (table.match(mapnames, mapname) == nil) then
-        MapIsListed = false
-        Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 110'
-        cprint(Error, 4 + 8)
-        execute_command("log_note \"" .. Error .. "\"")
-    else
-        MapIsListed = true
-    end
     execute_command("map_skip 1")
     execute_command("scorelimit 250")
-    for i = 1, 16 do
-        if player_present(i) then
-            if player_present(i) then
-                players[get_var(i, "$n")].weapon_trigger = false
-                players[get_var(i, "$n")].current_juggernaut = nil
-                players[get_var(i, "$n")].kills = 0
-                players[get_var(i, "$n")].join_timer = 0
-                players[get_var(i, "$n")].time_alive = 0
-            end
-        end
-    end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
     --- sehe's death message patch ------------------------------
@@ -278,6 +261,7 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
+    welcome_timer[PlayerIndex] = true
     RestoreInventory[PlayerIndex] = false
     current_players = current_players + 1
     players[get_var(PlayerIndex, "$n")] = { }
@@ -287,9 +271,6 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].swap_timer = 0
     players[get_var(PlayerIndex, "$n")].join_timer = 0
     players[get_var(PlayerIndex, "$n")].time_alive = 0
-    if not players[get_var(PlayerIndex, "$n")].current_juggernaut then
-        welcome_timer[PlayerIndex] = true
-    end
     if current_players == 2 then
         for j = 1, 2 do
             if player_present(j) then
@@ -553,7 +534,7 @@ function AssignGrenades(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["AssignFragGrenades"] == true) then
                 if (frags[mapname] == nil) then
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 67 | Unable to set frags.'
+                    Error = 'Error: [juggernaut.lua] | ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 115 | Unable to set frags.'
                     cprint(Error, 4 + 8)
                     execute_command("log_note \"" .. Error .. "\"")
                 else
@@ -562,7 +543,7 @@ function AssignGrenades(PlayerIndex)
             end
             if (gamesettings["AssignPlasmaGrenades"] == true) then
                 if (plasmas[mapname] == nil) then
-                    Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 87 | Unable to set plasmas.'
+                    Error = 'Error: [juggernaut.lua] | ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 135 | Unable to set frags.'
                     cprint(Error, 4 + 8)
                     execute_command("log_note \"" .. Error .. "\"")
                 else
@@ -887,37 +868,40 @@ function CheckType()
     local type_is_oddball = get_var(1, "$gt") == "oddball"
     local type_is_race = get_var(1, "$gt") == "race"
     if (type_is_ctf) or (type_is_koth) or (type_is_oddball) or (type_is_race) then
+        unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_DIE'])
-        unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_GAME_START'])
         unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_PRESPAWN'])
-        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+        unregister_callback(cb['EVENT_GAME_START'])
         unregister_callback(cb['EVENT_VEHICLE_EXIT'])
-        cprint("Warning: This script doesn't support CTF, KOTH, ODDBALL, or RACE", 4 + 8)
+        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+        Error = "Error: [juggernaut.lua] doesn't support CTF, KOTH, ODDBALL, or RACE"
+        cprint(Error, 4 + 8)
+        execute_command("log_note \"" .. Error .. "\"")
     end
     if (get_var(1, "$gt") == "slayer") then
         if not(table.match(mapnames, mapname)) then
+            unregister_callback(cb['EVENT_DIE'])
             unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb['EVENT_JOIN'])
-            unregister_callback(cb['EVENT_DIE'])
-            unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_LEAVE'])
-            unregister_callback(cb['EVENT_GAME_START'])
             unregister_callback(cb['EVENT_SPAWN'])
-            unregister_callback(cb['EVENT_COMMAND'])
+            unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_PRESPAWN'])
-            unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+            unregister_callback(cb['EVENT_GAME_START'])
             unregister_callback(cb['EVENT_VEHICLE_EXIT'])
-            cprint("juggernaut.lua does not support the map " .. mapname, 4 + 8)
-            cprint("Script cannot be used.", 4 + 8)
+            unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+            Error = "Error: [juggernaut.lua] does not support the map " .. mapname .. ". Script cannot be used!"
+            cprint(Error, 4 + 8)
+            execute_command("log_note \"" .. Error .. "\"")
         end
     end
 end
+
+------8<------
 
 --[[
 ===========================================================================================================================
