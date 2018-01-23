@@ -189,7 +189,6 @@ join_timer = { }
 score_timer = { }
 death_bool = { }
 reset_bool = { }
-automatic_selection = { }
 
 -- weapon assignment tables --
 player_equipment = { }
@@ -467,16 +466,6 @@ function OnTick()
             end
         end
     end
-    for chosenOne = 1,current_players do
-        if player_present(chosenOne) then
-            if player_alive(chosenOne) then
-                if automatic_selection[chosenOne] == true then
-                    automatic_selection[chosenOne] = false
-                    SetNavMarker(chosenOne)
-                end
-            end
-        end
-    end
 end
 
 -- assign primary and secondary weapons
@@ -561,7 +550,7 @@ function SwapRole(exclude)
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
         execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
         say(random_number, "You're now the Juggernaut!")
-        automatic_selection[random_number] = true
+        SetNavMarker(random_number)
         for i=1,current_players do
             if (i ~= tonumber(random_number)) then
                 say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(random_number, "$name")))
@@ -573,7 +562,7 @@ function SwapRole(exclude)
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
             execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(new_random_number, "You're now the Juggernaut!")
-            automatic_selection[new_random_number] = true
+            SetNavMarker(new_random_number)
             for i=1,current_players do
                 if (i ~= tonumber(new_random_number)) then
                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(new_random_number, "$name")))
@@ -659,7 +648,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (current_players >= minimum_players) then
         if killer ~= server then
             if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
-                automatic_selection[killer] = false
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
@@ -671,7 +659,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (current_players >= minimum_players) then
         if killer ~= server then
             if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(killer)) then
-                automatic_selection[killer] = false
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
                 if PlayerInVehicle(killer) then
@@ -705,7 +692,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 else
                     players[get_var(killer, "$n")].weapon_trigger = false
                 end
-                automatic_selection[killer] = false
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
