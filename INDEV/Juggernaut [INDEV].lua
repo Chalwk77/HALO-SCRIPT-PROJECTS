@@ -90,8 +90,8 @@ gamesettings = {
 }
 
 -- DAMAGE MULTIPLIERS
-damage_modifiers = { }
-for i = 1, 16 do damage_modifiers[i] = {
+damage_multipliers = { }
+for i = 1, 16 do damage_multipliers[i] = {
         -- weapons                                                damage        melee
         { "weap", "weapons\\assault rifle\\assault rifle",          1,            4},     
         { "weap", "weapons\\flamethrower\\flamethrower",            1,            4}, 
@@ -891,7 +891,7 @@ end
 function DamageMultiplierHandler(CauserIndex)
     local player_object = get_dynamic_player(CauserIndex)
     if player_object ~= 0 then
-        for k,v in pairs(damage_modifiers[tonumber(CauserIndex)]) do
+        for k,v in pairs(damage_multipliers[tonumber(CauserIndex)]) do
             if damage_type[CauserIndex] == 3 then
                 -- frag grenade (explosion)
                 if string.find("weapons\\frag grenade\\explosion", v[2]) then
