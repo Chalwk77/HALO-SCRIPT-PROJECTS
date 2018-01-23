@@ -601,10 +601,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    local server = -1
     
-    server = -1
-    
-   
     -- used to restore player inventory
     if (delete_weapons_bool[victim] == true) then
         delete_weapons_bool[victim] = false
