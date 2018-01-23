@@ -92,28 +92,28 @@ gamesettings = {
 -- DAMAGE MULTIPLIERS
 damage_multipliers = { }
 for i = 1, 16 do damage_multipliers[i] = {
-        -- weapons                                                damage        melee
-        { "weap", "weapons\\assault rifle\\assault rifle",          1,            4},     
-        { "weap", "weapons\\flamethrower\\flamethrower",            1,            4}, 
-        { "weap", "weapons\\needler\\mp_needler",                   1,            3}, 
-        { "weap", "weapons\\pistol\\pistol",                        1,            1.1}, 
-        { "weap", "weapons\\plasma pistol\\plasma pistol",          1,            3}, 
-        { "weap", "weapons\\plasma rifle\\plasma rifle",            1,            1.3}, 
-        { "weap", "weapons\\rocket launcher\\rocket launcher",      1,            1}, 
-        { "weap", "weapons\\plasma_cannon\\plasma_cannon",          1,            1}, 
-        { "weap", "weapons\\shotgun\\shotgun",                      1,            1.3}, 
-        { "weap", "weapons\\sniper rifle\\sniper rifle",            1,            1.2}, 
-        -- vehicles                                               damage      collision
-        { "vehi", "vehicles\\warthog\\mp_warthog",                  1,            1},
-        { "vehi", "vehicles\\ghost\\ghost_mp",                      1,            1},
-        { "vehi", "vehicles\\rwarthog\\rwarthog",                   1,            1},
-        { "vehi", "vehicles\\banshee\\banshee_mp",                  1,            1},
-        { "vehi", "vehicles\\scorpion\\scorpion_mp",                1,            1},
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp",        1,            1},
-        -- grenades                                               damage
-        { "jpt!", "weapons\\frag grenade\\explosion",               4},
-        { "jpt!", "weapons\\plasma grenade\\attached",              4},
-        { "jpt!", "weapons\\plasma grenade\\explosion",             4}
+        -- weapons                                        damage        melee
+        { "weapons\\assault rifle\\assault rifle",          1,            4},     
+        { "weapons\\flamethrower\\flamethrower",            1,            4}, 
+        { "weapons\\needler\\mp_needler",                   1,            3}, 
+        { "weapons\\pistol\\pistol",                        1,            1.1}, 
+        { "weapons\\plasma pistol\\plasma pistol",          1,            3}, 
+        { "weapons\\plasma rifle\\plasma rifle",            1,            1.3}, 
+        { "weapons\\rocket launcher\\rocket launcher",      1,            1}, 
+        { "weapons\\plasma_cannon\\plasma_cannon",          1,            1}, 
+        { "weapons\\shotgun\\shotgun",                      1,            1.3}, 
+        { "weapons\\sniper rifle\\sniper rifle",            1,            1.2}, 
+        -- vehicles                                      damage       collision
+        { "vehicles\\warthog\\mp_warthog",                  1,            1},
+        { "vehicles\\ghost\\ghost_mp",                      1,            1},
+        { "vehicles\\rwarthog\\rwarthog",                   1,            1},
+        { "vehicles\\banshee\\banshee_mp",                  1,            1},
+        { "vehicles\\scorpion\\scorpion_mp",                1,            1},
+        { "vehicles\\c gun turret\\c gun turret_mp",        1,            1},
+        -- grenades                                       damage
+        { "weapons\\frag grenade\\explosion",               4},
+        { "weapons\\plasma grenade\\attached",              4},
+        { "weapons\\plasma grenade\\explosion",             4}
     }
 end
 
@@ -228,8 +228,8 @@ damage_applied = { }
 -- weapon assignment tables --
 player_equipment = { }
 assign_weapons = { }
-damage_modifier = { }
-
+-- damage multiplier tables --
+damage_multiplier = { }
 damage_type = { }
 
 -- used for inventory restoring
@@ -301,7 +301,7 @@ function OnPlayerJoin(PlayerIndex)
     welcome_timer[PlayerIndex] = true
     restore_inventory[PlayerIndex] = false
     damage_type[PlayerIndex] = 0
-    damage_modifier[PlayerIndex] = 0
+    damage_multiplier[PlayerIndex] = 0
     damage_applied[PlayerIndex] = 0
     current_players = current_players + 1
     players[get_var(PlayerIndex, "$n")] = { }
@@ -884,31 +884,31 @@ function DamageMultiplierHandler(CauserIndex)
         for k,v in pairs(damage_multipliers[tonumber(CauserIndex)]) do
             if damage_type[CauserIndex] == 3 then
                 -- frag grenade (explosion)
-                if string.find("weapons\\frag grenade\\explosion", v[2]) then
-                    damage_modifier[CauserIndex] = v[3]
+                if string.find("weapons\\frag grenade\\explosion", v[1]) then
+                    damage_multiplier[CauserIndex] = v[2]
                 end
             elseif damage_type[CauserIndex] == 3.1 then
                 -- plasma grenade (explosion)
-                if string.find("weapons\\plasma grenade\\explosion", v[2]) then
-                    damage_modifier[CauserIndex] = v[3]
+                if string.find("weapons\\plasma grenade\\explosion", v[1]) then
+                    damage_multiplier[CauserIndex] = v[2]
                 end
             elseif damage_type[CauserIndex] == 3.2 then
                 -- plasma grenade (attached)
-                if string.find("weapons\\plasma grenade\\attached", v[2]) then
-                    damage_modifier[CauserIndex] = v[3]
+                if string.find("weapons\\plasma grenade\\attached", v[1]) then
+                    damage_multiplier[CauserIndex] = v[2]
                 end
             elseif (damage_type[CauserIndex] == 1) or (damage_type[CauserIndex] == 2) then
                 local weapon_object = get_object_memory(read_dword(get_dynamic_player(CauserIndex) + 0x118))
                 if weapon_object ~= 0 then
                     local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-                    if string.find(weapon_name, v[2]) then
+                    if string.find(weapon_name, v[1]) then
                         if (damage_type[CauserIndex] == 1) then
                             -- weapon melee damage
-                            damage_modifier[CauserIndex] = v[4]
-                            cprint(tonumber(damage_modifier[CauserIndex]))
+                            damage_multiplier[CauserIndex] = v[2]
+                            cprint(tonumber(damage_multiplier[CauserIndex]))
                         elseif (damage_type[CauserIndex] == 2) then
                             -- weapon projectile damage
-                            damage_modifier[CauserIndex] = v[3]
+                            damage_multiplier[CauserIndex] = v[3]
                         end
                     end
                 end
@@ -916,13 +916,13 @@ function DamageMultiplierHandler(CauserIndex)
                 local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
                 local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
                 if vehicle_object ~= nil then
-                    if string.find(vehicle_tag, v[2]) then
+                    if string.find(vehicle_tag, v[1]) then
                         -- vehicle weapon projectile damage
                         if (damage_type[CauserIndex] == 4) then
-                            damage_modifier[CauserIndex] = v[3]
+                            damage_multiplier[CauserIndex] = v[3]
                         -- vehicle collision damage
                         elseif (damage_type[CauserIndex] == 5) then
-                            damage_modifier[CauserIndex] = v[4]
+                            damage_multiplier[CauserIndex] = v[4]
                         end
                     end
                 end
@@ -930,7 +930,7 @@ function DamageMultiplierHandler(CauserIndex)
         end
     end
     damage_type[CauserIndex] = 0
-    return tonumber(damage_modifier[CauserIndex])
+    return tonumber(damage_multiplier[CauserIndex])
 end
 
 function OnVehicleEntry(PlayerIndex)
