@@ -781,14 +781,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function AnnounceNewJuggernaut(killer, victim)
-    execute_command("msg_prefix \"\"")
     say(killer, "You're now the Juggernaut!")
     for i = 1, current_players do
         if i ~= killer then
             say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
         end
     end
-    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
 function OnVehicleEntry(PlayerIndex)
