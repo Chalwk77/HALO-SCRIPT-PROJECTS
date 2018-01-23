@@ -36,9 +36,9 @@ juggernaut_health_increment = 0.0005
 -- Shields: (0 to 3) (Normal = 1) (Full overshield = 3)
 juggernaut_shields = 3
 -- End the game once the Juggernaut has this many kills
-killLimit = 50
+killLimit = 25
 -- Juggernaut Turn-Duration (in seconds)
-TurnTime = 10
+TurnTime = 5
 -- When Juggernaut commits suicide, how long (in seconds) until someone else is chosen to be Juggernaut.
 SuicideSelectDelay = 5
 -- Juggernaut is rewarded this many points every X seconds (30 by default)
@@ -51,7 +51,7 @@ Alignment = "l"
 
 -- Message Board Settings --
 -- How long should the message be displayed on screen for? (in seconds) --
-Message_Duration = 10
+Message_Duration = 5
 -- Left = l,    Right = r,    Centre = c,    Tab: t
 Message_Alignment = "l"
 
@@ -73,16 +73,13 @@ gamesettings = {
     -- Give extra health & Overshield to Juggernaut?
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
-    -- When the Juggernaut commits suicide, a timer is initiated and someone is randomly selected (after X seconds) to become the new Juggernaut. 
-    -- Should the Juggernaut who just committed suicide have a chance at being reselected when they respawn? 
-    ["JuggernautReselection"] = false,
     -- If this is true, the script will award X points every X seconds to the Juggernaut
     ["AliveTimer"] = true,
     -- Should the Juggernaut's weapons be deleted when they die?
     ["DeleteWeapons"] = true,
     ["UseWelcomeMessages"] = true,
     -- Select new Juggernaut every 30 seconds
-    ["UseTurnTimer"] = false
+    ["UseTurnTimer"] = true
 }
 
 -- Juggernaut Running Speed | On a per map basis. (1 is default speed)
@@ -185,6 +182,7 @@ players = { }
 welcome_timer = { }
 join_timer = { }
 score_timer = { }
+death_bool = { }
 
 -- weapon assignment tables --
 player_equipment = { }
@@ -197,7 +195,6 @@ delete_weapons_bool = { }
 RestoreInventory = { }
 
 -- booleans --
-bool = nil
 tick_bool = nil
 
 -- counts --
@@ -214,14 +211,17 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
+    original = read_dword(deathmessages)
+    safe_write(true)
+    write_dword(deathmessages, 0x03EB01B1)
+    safe_write(false)
 end
 
 function OnScriptUnload()
-    --- sehe's death message patch ------------------------------
     safe_write(true)
     write_dword(deathmessages, original)
     safe_write(false)
-    -------------------------------------------------------------
 end
 
 function OnNewGame()
@@ -234,13 +234,6 @@ function OnNewGame()
     execute_command("scorelimit 250")
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
-    --- sehe's death message patch ------------------------------
-    deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
-    original = read_dword(deathmessages)
-    safe_write(true)
-    write_dword(deathmessages, 0x03EB01B1)
-    safe_write(false)
-    -------------------------------------------------------------
 end
 
 function OnGameEnd()
@@ -362,6 +355,7 @@ function OnTick()
                             death_location[i][2] = y2
                             death_location[i][3] = z2
                             delete_weapons_bool[i] = true
+                            death_bool[i] = true
                             execute_command("kill " .. i)
                             RestoreInventory[i] = true
                             SwapRole(tonumber(i))
@@ -395,6 +389,7 @@ function OnTick()
         for n = 1, 1 do
             if player_present(n) then
                 if (n == players[get_var(n, "$n")].current_juggernaut) then
+                    -- to do: check if player in vehicle
                     players[get_var(n, "$n")].current_juggernaut = nil
                     execute_command("msg_prefix \"\"")
                     say(n, "Not enough players! You're no longer the Juggernaut.")
@@ -486,10 +481,7 @@ function AssignPrimarySecondary(player, x,y,z)
         end
     end
     timer(50, "AssignTertiaryQuaternary", player, x,y,z)
-    if (bool == true) then
-        AssignGrenades(player)
-        bool = false
-    end
+    AssignGrenades(player)
     if (gamesettings["GiveExtraHealth"] == true) then
         write_float(get_dynamic_player(player) + 0xE0, math.floor(tonumber(juggernaut_health)))
     end
@@ -562,7 +554,7 @@ function SwapRole(exclude)
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
         execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
         say(random_number, "You're now the Juggernaut!")
-        bool = true
+        tick_bool = false
         for i=1,current_players do
             if (i ~= tonumber(random_number)) then
                 say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(random_number, "$name")))
@@ -574,7 +566,7 @@ function SwapRole(exclude)
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
             execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(new_random_number, "You're now the Juggernaut!")
-            bool = true
+            tick_bool = false
             for i=1,current_players do
                 if (i ~= tonumber(new_random_number)) then
                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(new_random_number, "$name")))
@@ -649,7 +641,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 else
                     players[get_var(killer, "$n")].weapon_trigger = false
                 end
-                bool = true
                 tick_bool = false
                 -- Set Player Running Speed
                 execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
@@ -726,7 +717,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     -- general death messages --
     --suicide | victim was not juggernaut
-    if (victim == victim) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+    if (victim == killer) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         say(victim, get_var(victim, "$name") .. " committed suicide")
     end
     -- pvp --
@@ -734,7 +725,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(get_var(victim, "$name") .. " was killed by " .. get_var(killer, "$name"))
     end
     -- Killed by Server, Vehicle, or Glitch|Unknown
-    if (killer == 0) or (killer == nil) or (killer == -1) then
+    if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
     -- END THE GAME --
@@ -746,6 +737,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
+    death_bool[victim] = false
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
@@ -809,6 +801,7 @@ function SetNavMarker(Juggernaut)
                 if m_player ~= 0 then
                     if (Juggernaut ~= nil) then
                         write_word(m_player + 0x88, to_real_index(Juggernaut))
+                        cprint("setting nav marker to " .. get_var(Juggernaut, "$name"))
                     else
                         write_word(m_player + 0x88, player)
                     end
@@ -900,27 +893,3 @@ function CheckType()
         end
     end
 end
-
-------8<------
-
---[[
-===========================================================================================================================
-		S C R I P T   R E M A R K S
-
--------------- Available Weapon Tags --------------
-
-ITEM NAME               WEAPON TAG                                             TYPE
-Assault Rifle           "weapons\\assault rifle\\assault rifle"                  weap
-Oddball                 "weapons\\ball\\ball"	                                 weap
-Flag	                "weapons\\flag\\flag"	                                 weap
-Flamethrower	        "weapons\\flamethrower\\flamethrower"	                 weap
-Fuel rod gun	        "weapons\\plasma_cannon\\plasma_cannon"                  weap
-Needler	                "weapons\\needler\\mp_needler"                           weap
-Pistol                  "weapons\\pistol\\pistol"                                weap
-Plasma Pistol	        "weapons\\plasma pistol\\plasma pistol"                  weap
-Plasma Rifle	        "weapons\\plasma rifle\\plasma rifle"                    weap
-Rocket Launcher	        "weapons\\rocket launcher\\rocket launcher"              weap
-Shotgun	                "weapons\\shotgun\\shotgun"                              weap
-Sniper Rifle	        "weapons\\sniper rifle\\sniper rifle"                    weap
-===========================================================================================================================
-]]
