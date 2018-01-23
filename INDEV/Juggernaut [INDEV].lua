@@ -181,23 +181,24 @@ end
 function LoadMaps()
     -- mapnames table --
     mapnames = {
-        "beavercreek",
-        "bloodgulch",
-        "boardingaction",
-        "carousel",
-        "dangercanyon",
-        "deathisland",
-        "gephyrophobia",
-        "icefields",
         "infinity",
-        "sidewinder",
+        "icefields",
+        "bloodgulch",
         "timberland",
-        "hangemhigh",
-        "ratrace",
-        "damnation",
+        "sidewinder",
+        "deathisland",
+        "dangercanyon",
+        "gephyrophobia",
+        "wizard",
         "putput",
+        "longest",
+        "ratrace",
+        "carousel",
         "prisoner",
-        "wizard"
+        "damnation",
+        "hangemhigh",
+        "beavercreek",
+        "boardingaction" -- do not add a comma on the last entry
     }
 end
 
