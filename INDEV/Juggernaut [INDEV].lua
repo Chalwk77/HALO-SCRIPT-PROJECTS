@@ -599,25 +599,15 @@ function SwapRole(exclude)
         assign_weapons[random_number] = true
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
         execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
-        say(random_number, "You're now the Juggernaut!")
         SetNavMarker(random_number)
-        for i=1,current_players do
-            if (i ~= tonumber(random_number)) then
-                say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(random_number, "$name")))
-            end
-        end
+        AnnounceNewJuggernaut(random_number)
     else
         if GetNewNumber(exclude) ~= exclude then
             assign_weapons[new_random_number] = true
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
             execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
-            say(new_random_number, "You're now the Juggernaut!")
             SetNavMarker(new_random_number)
-            for i=1,current_players do
-                if (i ~= tonumber(new_random_number)) then
-                    say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(new_random_number, "$name")))
-                end
-            end
+            AnnounceNewJuggernaut(new_random_number)
         end
     end
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
@@ -820,11 +810,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
-function AnnounceNewJuggernaut(killer, victim)
-    say(killer, "You're now the Juggernaut!")
+function AnnounceNewJuggernaut(player)
+    say(player, "You're now the Juggernaut!")
     for i = 1, current_players do
-        if i ~= killer then
-            say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+        if i ~= player then
+            say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(player, "$name")))
         end
     end
 end
