@@ -143,74 +143,29 @@ juggernaut_running_speed = {
     boardingaction = 1.10
 }
 
--- You can only set a maximum of 7 grenades!
-function GrenadeTable()
-    --  frag grenade table --
-    frags = {
-        infinity = 6,
-        icefields = 4,
-        bloodgulch = 6,
-        timberland = 4,
-        sidewinder = 7,
-        deathisland = 4,
-        dangercanyon = 7,
-        gephyrophobia = 6,
-        wizard = 2,
-        putput = 3,
-        longest = 1,
-        ratrace = 4,
-        carousel = 3,
-        prisoner = 2,
-        damnation = 1,
-        hangemhigh = 2,
-        beavercreek = 1,
-        boardingaction = 2 -- do not add a comma on the last entry
-    }
-    --  plasma grenades table --
-    plasmas = {
-        infinity = 5,
-        icefields = 4,
-        bloodgulch = 5,
-        timberland = 7,
-        sidewinder = 4,
-        deathisland = 5,
-        dangercanyon = 6,
-        gephyrophobia = 4,
-        wizard = 3,
-        putput = 1,
-        longest = 4,
-        ratrace = 1,
-        carousel = 3,
-        prisoner = 1,
-        damnation = 3,
-        hangemhigh = 2,
-        beavercreek = 1,
-        boardingaction = 4 -- do not add a comma on the last entry
-    }
-end
-
 -- This is a list of valid maps that this game is designed to run on. 
 function LoadMaps()
-    -- mapnames table --
-    mapnames = {
-        "infinity",
-        "icefields",
-        "bloodgulch",
-        "timberland",
-        "sidewinder",
-        "deathisland",
-        "dangercanyon",
-        "gephyrophobia",
-        "wizard",
-        "putput",
-        "longest",
-        "ratrace",
-        "carousel",
-        "prisoner",
-        "damnation",
-        "hangemhigh",
-        "beavercreek",
-        "boardingaction" -- do not add a comma on the last entry
+    map_settings = {
+        -- large maps         frags      plasmas
+        { "infinity",           6,          5},
+        { "icefields",          2,          3},
+        { "bloodgulch",         6,          3},
+        { "timberland",         4,          7},
+        { "sidewinder",         7,          3},
+        { "deathisland",        4,          2},
+        { "dangercanyon",       6,          3},
+        { "gephyrophobia",      2,          3},
+        -- small maps
+        { "wizard",             3,          1},
+        { "putput",             1,          2},
+        { "longest",            2,          1},
+        { "ratrace",            3,          4},
+        { "carousel",           2,          5},
+        { "prisoner",           1,          1},
+        { "damnation",          4,          3},
+        { "hangemhigh",         3,          2},
+        { "beavercreek",        2,          1},
+        { "boardingaction",     2,          2} -- do not add a comma on the last entry
     }
 end
 
@@ -570,22 +525,15 @@ function AssignGrenades(PlayerIndex)
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
-            if (gamesettings["AssignFragGrenades"] == true) then
-                if (frags[mapname] == nil) then
-                    Error = 'Error: [juggernaut.lua] | ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 115 | Unable to set frags.'
-                    cprint(Error, 4 + 8)
-                    execute_command("log_note \"" .. Error .. "\"")
-                else
-                    write_word(player_object + 0x31E, frags[mapname])
-                end
-            end
-            if (gamesettings["AssignPlasmaGrenades"] == true) then
-                if (plasmas[mapname] == nil) then
-                    Error = 'Error: [juggernaut.lua] | ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 135 | Unable to set frags.'
-                    cprint(Error, 4 + 8)
-                    execute_command("log_note \"" .. Error .. "\"")
-                else
-                    write_word(player_object + 0x31F, plasmas[mapname])
+            for k,v in pairs(map_settings) do
+                if mapname == map_settings[k][1] then
+                    if (gamesettings["AssignFragGrenades"] == true) then
+                        write_word(player_object + 0x31E, map_settings[k][2])
+                    end
+                    if (gamesettings["AssignPlasmaGrenades"] == true) then
+                        write_word(player_object + 0x31F, map_settings[k][3])
+                    end
+                    break
                 end
             end
         end
@@ -633,7 +581,6 @@ function ResetPlayer(player)
     death_location[player][3] = z
     restore_inventory[player] = true
     delete_weapons_bool[player] = true
-    cprint("killing")
     execute_command("kill " .. player)
     reset_bool[player] = true
     local m_player = get_player(player)
@@ -910,7 +857,6 @@ function DamageMultiplierHandler(CauserIndex)
                         if (damage_type[CauserIndex] == 1) then
                             -- weapon melee damage
                             damage_multiplier[CauserIndex] = v[2]
-                            cprint(tonumber(damage_multiplier[CauserIndex]))
                         elseif (damage_type[CauserIndex] == 2) then
                             -- weapon projectile damage
                             damage_multiplier[CauserIndex] = v[3]
@@ -1065,6 +1011,19 @@ function secondsToTime(seconds, places)
     end
 end
 
+function checkmap()
+    local bool = nil
+    for k,v in pairs(map_settings) do
+        if mapname == map_settings[k][1] then
+            bool = true
+            break
+        else
+            bool = false
+        end
+    end
+    return bool
+end
+
 function CheckType()
     local type_is_ctf = get_var(1, "$gt") == "ctf"
     local type_is_koth = get_var(1, "$gt") == "koth"
@@ -1086,7 +1045,7 @@ function CheckType()
         execute_command("log_note \"" .. Error .. "\"")
     end
     if (get_var(1, "$gt") == "slayer") then
-        if not(table.match(mapnames, mapname)) then
+        if (checkmap() == false) then
             unregister_callback(cb['EVENT_DIE'])
             unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb['EVENT_JOIN'])
@@ -1101,7 +1060,6 @@ function CheckType()
             cprint(Error, 4 + 8)
             execute_command("log_note \"" .. Error .. "\"")
         else
-            GrenadeTable()
             LoadItems()
         end
     end
