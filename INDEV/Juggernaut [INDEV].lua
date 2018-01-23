@@ -39,9 +39,9 @@ juggernaut_shields = 3
 killLimit = 25
 -- juggernaut Turn-Duration (in seconds)
 TurnTime = 5
--- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut.
+-- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
 SuicideSelectDelay = 5
--- juggernaut is rewarded this many points every X seconds (30 by default)
+-- juggernaut is rewarded (alive_points) every (allocated_time) seconds (30 by default)
 allocated_time = 30
 -- points rewarded every "allocated_time" seconds
 alive_points = 1
@@ -49,7 +49,7 @@ alive_points = 1
 reset_delay = 5
 -- Minimum Players needed to become juggernaut
 minimum_players = 2
--- turn timer will only be used if there is this many (or more) players online!
+-- turn timer will only be used if there is this many (or more) players online
 turn_timer_min_players = 2
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
