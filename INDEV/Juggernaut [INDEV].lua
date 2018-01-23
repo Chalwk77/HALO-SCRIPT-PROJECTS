@@ -12,7 +12,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]-- 
 
 api_version = "1.12.0.0"
-
+-------------------- CONFIGURATION STARTS -----------------------------------------------------------------------------------------
 -- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
@@ -116,60 +116,38 @@ for i = 1, 16 do damage_multipliers[i] = {
         { "weapons\\plasma grenade\\explosion",             2.5}
     }
 end
-
--------------------------------------------------------------------------------------
-
--- Juggernaut Running Speed | On a per map basis. (1 is default speed)
-juggernaut_running_speed = {
-    -- large maps --
-    infinity = 1.45,
-    icefields = 1.25,
-    bloodgulch = 1.35,
-    timberland = 1.35,
-    sidewinder = 1.30,
-    deathisland = 1.45,
-    dangercanyon = 1.15,
-    gephyrophobia = 1.20,
-    -- small maps --
-    wizard = 1.10,
-    putput = 1.10,
-    longest = 1.05,
-    ratrace = 1.10,
-    carousel = 1.15,
-    prisoner = 1.10,
-    damnation = 1.10,
-    hangemhigh = 1.10,
-    beavercreek = 1.10,
-    boardingaction = 1.10
-}
-
--- This is a list of valid maps that this game is designed to run on. 
+-- Set frags, plasmas and running speed on a per map basis
 function LoadMaps()
     map_settings = {
-        -- large maps         frags      plasmas
-        { "infinity",           6,          5},
-        { "icefields",          2,          3},
-        { "bloodgulch",         6,          3},
-        { "timberland",         4,          7},
-        { "sidewinder",         7,          3},
-        { "deathisland",        4,          2},
-        { "dangercanyon",       6,          3},
-        { "gephyrophobia",      2,          3},
+        -- large maps         frags   plasmas   Juggernaut Running Speed
+        { "infinity",           6,       5,              1.45},
+        { "icefields",          2,       3,              1.25},
+        { "bloodgulch",         6,       3,              1.35},
+        { "timberland",         4,       7,              1.35},
+        { "sidewinder",         7,       3,              1.30},
+        { "deathisland",        4,       2,              1.45},
+        { "dangercanyon",       6,       3,              1.15},
+        { "gephyrophobia",      2,       3,              1.20},
         -- small maps
-        { "wizard",             3,          1},
-        { "putput",             1,          2},
-        { "longest",            2,          1},
-        { "ratrace",            3,          4},
-        { "carousel",           2,          5},
-        { "prisoner",           1,          1},
-        { "damnation",          4,          3},
-        { "hangemhigh",         3,          2},
-        { "beavercreek",        2,          1},
-        { "boardingaction",     2,          2} -- do not add a comma on the last entry
+        { "wizard",             3,       1,              1.10},
+        { "putput",             1,       2,              1.10},
+        { "longest",            2,       1,              1.05},
+        { "ratrace",            3,       4,              1.10},
+        { "carousel",           2,       5,              1.15},
+        { "prisoner",           1,       1,              1.10},
+        { "damnation",          4,       3,              1.10},
+        { "hangemhigh",         3,       2,              1.10},
+        { "beavercreek",        2,       1,              1.10},
+        { "boardingaction",     2,       2,              1.10}
     }
+    for k,v in pairs(map_settings) do
+        if mapname == map_settings[k][1] then
+            juggernaut_running_speed = map_settings[k][4]
+        end 
+    end
 end
+-------------------- CONFIGURATION ENDS -----------------------------------------------------------------------------------------
 
--- configuration ends --
 -- tables | player allocation and timers --
 players = { }
 welcome_timer = { }
@@ -546,14 +524,14 @@ function SwapRole(exclude)
     if random_number ~= tonumber(exclude) then
         assign_weapons[random_number] = true
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
-        execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+        execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed))
         SetNavMarker(random_number)
         AnnounceNewJuggernaut(random_number)
     else
         if GetNewNumber(exclude) ~= exclude then
             assign_weapons[new_random_number] = true
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
-            execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+            execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed))
             SetNavMarker(new_random_number)
             AnnounceNewJuggernaut(new_random_number)
         end
@@ -658,7 +636,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 end
                 tick_bool = false
                 -- Set Player Running Speed
-                execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+                execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed))
                 -- Update Score
                 execute_command("score " .. killer .. " +" .. tostring(points))
                 -- Send Messages
@@ -680,7 +658,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
-                execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+                execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed))
                 execute_command("score " .. killer .. " +" .. tostring(bonus))
                 rprint(killer, "|" .. Alignment .. "+" .. tostring(bonus) .. " PTS")
                 AnnounceNewJuggernaut(killer)
