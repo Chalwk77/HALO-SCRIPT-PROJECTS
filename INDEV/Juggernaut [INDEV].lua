@@ -45,6 +45,8 @@ SuicideSelectDelay = 5
 allocated_time = 30
 -- points rewarded every "allocated_time" seconds
 alive_points = 1
+-- If playerX is juggernaut and they are the only player in the server reset them after this amount of time.
+reset_delay = 5
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
@@ -183,6 +185,7 @@ welcome_timer = { }
 join_timer = { }
 score_timer = { }
 death_bool = { }
+reset_bool = { }
 
 -- weapon assignment tables --
 player_equipment = { }
@@ -345,20 +348,22 @@ function OnTick()
                         end
                     end
                     if gamesettings["UseTurnTimer"] == true then
-                        players[get_var(i, "$n")].swap_timer = players[get_var(i, "$n")].swap_timer + 0.030
-                        if players[get_var(i, "$n")].swap_timer >= math.floor(TurnTime) then
-                            say(i, "You're no longer the Juggernaut!")
-                            players[get_var(i, "$n")].current_juggernaut = nil
-                            players[get_var(i, "$n")].swap_timer = 0
-                            local x2, y2, z2 = read_vector3d(get_dynamic_player(i) + 0x5C)
-                            death_location[i][1] = x2
-                            death_location[i][2] = y2
-                            death_location[i][3] = z2
-                            delete_weapons_bool[i] = true
-                            death_bool[i] = true
-                            execute_command("kill " .. i)
-                            RestoreInventory[i] = true
-                            SwapRole(tonumber(i))
+                        if (current_players > 2) then
+                            players[get_var(i, "$n")].swap_timer = players[get_var(i, "$n")].swap_timer + 0.030
+                            if players[get_var(i, "$n")].swap_timer >= math.floor(TurnTime) then
+                                say(i, "You're no longer the Juggernaut!")
+                                players[get_var(i, "$n")].current_juggernaut = nil
+                                players[get_var(i, "$n")].swap_timer = 0
+                                local x2, y2, z2 = read_vector3d(get_dynamic_player(i) + 0x5C)
+                                death_location[i][1] = x2
+                                death_location[i][2] = y2
+                                death_location[i][3] = z2
+                                delete_weapons_bool[i] = true
+                                death_bool[i] = true
+                                execute_command("kill " .. i)
+                                RestoreInventory[i] = true
+                                SwapRole(tonumber(i))
+                            end
                         end
                     end
                 else
@@ -389,24 +394,13 @@ function OnTick()
         for n = 1, 1 do
             if player_present(n) then
                 if (n == players[get_var(n, "$n")].current_juggernaut) then
-                    -- to do: check if player in vehicle
                     players[get_var(n, "$n")].current_juggernaut = nil
                     execute_command("msg_prefix \"\"")
                     say(n, "Not enough players! You're no longer the Juggernaut.")
-                    say(n, "Restoring previous weapon loadout.")
-                    -- to do: check if player is in a vehicle!
-                    local x2, y2, z2 = read_vector3d(get_dynamic_player(n) + 0x5C)
-                    death_location[n][1] = x2
-                    death_location[n][2] = y2
-                    death_location[n][3] = z2
-                    delete_weapons_bool[n] = true
-                    execute_command("kill " .. n)
-                    RestoreInventory[n] = true
+                    say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
                     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
-                    local m_player = get_player(n)
-                    if m_player ~= 0 then
-                        write_word(m_player + 0x88, to_real_index(n) + 10)
-                    end
+                    for iDel = 1,4 do execute_command("wdel " .. n) end
+                    timer(1000 * reset_delay, "ResetPlayer", n)
                 end
             end
         end
@@ -554,7 +548,6 @@ function SwapRole(exclude)
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
         execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
         say(random_number, "You're now the Juggernaut!")
-        tick_bool = false
         for i=1,current_players do
             if (i ~= tonumber(random_number)) then
                 say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(random_number, "$name")))
@@ -566,7 +559,6 @@ function SwapRole(exclude)
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
             execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(new_random_number, "You're now the Juggernaut!")
-            tick_bool = false
             for i=1,current_players do
                 if (i ~= tonumber(new_random_number)) then
                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(new_random_number, "$name")))
@@ -584,6 +576,23 @@ function GetNewNumber(exclude)
     else
         new_random_number = new_number
         return new_number
+    end
+end
+
+function ResetPlayer(player)
+    local player = tonumber(player)
+    -- to do: check if player is in a vehicle!
+    local x2, y2, z2 = read_vector3d(get_dynamic_player(player) + 0x5C)
+    death_location[player][1] = x2
+    death_location[player][2] = y2
+    death_location[player][3] = z2
+    delete_weapons_bool[player] = true
+    execute_command("kill " .. player)
+    RestoreInventory[player] = true
+    reset_bool[player] = true
+    local m_player = get_player(player)
+    if m_player ~= 0 then
+        write_word(m_player + 0x88, to_real_index(player) + 10)
     end
 end
 
@@ -725,7 +734,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say_all(get_var(victim, "$name") .. " was killed by " .. get_var(killer, "$name"))
     end
     -- Killed by Server, Vehicle, or Glitch|Unknown
-    if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] then
+    if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
     -- END THE GAME --
