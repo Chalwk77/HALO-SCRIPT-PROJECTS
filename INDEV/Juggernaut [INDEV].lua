@@ -748,15 +748,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say(victim, get_var(victim, "$name") .. " committed suicide")
     end
     
-    
     -- pvp --
     for i = 1,current_players do
         if (killer > 0) and (victim ~= killer) then
             if i ~= victim and i ~= killer then
                 say(i, get_var(victim, "$name") .. " was killed by " .. get_var(killer, "$name"))
             elseif i == victim and i ~= killer then
-                rprint(i, "|cYou were killed by " .. get_var(killer, "$name"))
-                for spacing = 1,5 do rprint(i, " ") end
+                say(i, "You were killed by " .. get_var(killer, "$name"))
             elseif i == killer and i ~= victim then
                 say(i, "You killed " .. get_var(victim, "$name"))
             end
