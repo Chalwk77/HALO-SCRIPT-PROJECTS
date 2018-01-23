@@ -50,7 +50,7 @@ reset_delay = 5
 -- Minimum Players needed to become juggernaut
 minimum_players = 2
 -- turn timer will only be used if there is this many (or more) players online!
-turn_timer_min_players = 3
+turn_timer_min_players = 2
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
@@ -189,6 +189,7 @@ join_timer = { }
 score_timer = { }
 death_bool = { }
 reset_bool = { }
+automatic_selection = { }
 
 -- weapon assignment tables --
 player_equipment = { }
@@ -466,6 +467,16 @@ function OnTick()
             end
         end
     end
+    for chosenOne = 1,current_players do
+        if player_present(chosenOne) then
+            if player_alive(chosenOne) then
+                if automatic_selection[chosenOne] == true then
+                    automatic_selection[chosenOne] = false
+                    SetNavMarker(chosenOne)
+                end
+            end
+        end
+    end
 end
 
 -- assign primary and secondary weapons
@@ -550,6 +561,7 @@ function SwapRole(exclude)
         players[get_var(random_number, "$n")].current_juggernaut = (random_number)
         execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
         say(random_number, "You're now the Juggernaut!")
+        automatic_selection[random_number] = true
         for i=1,current_players do
             if (i ~= tonumber(random_number)) then
                 say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(random_number, "$name")))
@@ -561,6 +573,7 @@ function SwapRole(exclude)
             players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
             execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed[mapname]))
             say(new_random_number, "You're now the Juggernaut!")
+            automatic_selection[new_random_number] = true
             for i=1,current_players do
                 if (i ~= tonumber(new_random_number)) then
                     say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(new_random_number, "$name")))
@@ -646,6 +659,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (current_players >= minimum_players) then
         if killer ~= server then
             if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+                automatic_selection[killer] = false
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
@@ -657,7 +671,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (current_players >= minimum_players) then
         if killer ~= server then
             if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(killer)) then
-                cprint("Victim | Killer (NOT JUGGERNAUT) | Making Killer Juggernaut", 2+8)
+                automatic_selection[killer] = false
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
                 if PlayerInVehicle(killer) then
@@ -691,8 +705,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 else
                     players[get_var(killer, "$n")].weapon_trigger = false
                 end
+                automatic_selection[killer] = false
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
+                SetNavMarker(killer)
                 execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                 execute_command("score " .. killer .. " +" .. tostring(bonus))
                 rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
@@ -831,15 +847,13 @@ end
 function SetNavMarker(Juggernaut)
     for i = 1, 16 do
         if player_present(i) then
-            if player_alive(i) then
-                local m_player = get_player(i)
-                local player = to_real_index(i)
-                if m_player ~= 0 then
-                    if (Juggernaut ~= nil) then
-                        write_word(m_player + 0x88, to_real_index(Juggernaut))
-                    else
-                        write_word(m_player + 0x88, player)
-                    end
+            local m_player = get_player(i)
+            local player = to_real_index(i)
+            if m_player ~= 0 then
+                if (Juggernaut ~= nil) then
+                    write_word(m_player + 0x88, to_real_index(Juggernaut))
+                else
+                    write_word(m_player + 0x88, player)
                 end
             end
         end
