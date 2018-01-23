@@ -16,7 +16,7 @@ api_version = "1.12.0.0"
 -- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
--- Weapons assigned to the Juggernaut. Set 'true' to 'false' do prevent that weapon from being assigned.
+-- Weapons assigned to the Juggernaut. Set 'true' >> 'false' to prevent that weapon from being assigned.
 weapons = { }
 weapons[1] = {"weap", "weapons\\sniper rifle\\sniper rifle",            true}
 weapons[2] = {"weap", "weapons\\pistol\\pistol",                        true}
