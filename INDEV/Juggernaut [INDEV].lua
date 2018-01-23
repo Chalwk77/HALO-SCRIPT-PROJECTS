@@ -92,28 +92,28 @@ gamesettings = {
 -- DAMAGE MULTIPLIERS
 damage_multipliers = { }
 for i = 1, 16 do damage_multipliers[i] = {
-        -- weapons                                        damage        melee
-        { "weapons\\assault rifle\\assault rifle",          1,            4},     
-        { "weapons\\flamethrower\\flamethrower",            1,            4}, 
-        { "weapons\\needler\\mp_needler",                   1,            3}, 
-        { "weapons\\pistol\\pistol",                        1,            1.1}, 
-        { "weapons\\plasma pistol\\plasma pistol",          1,            3}, 
-        { "weapons\\plasma rifle\\plasma rifle",            1,            1.3}, 
-        { "weapons\\rocket launcher\\rocket launcher",      1,            1}, 
-        { "weapons\\plasma_cannon\\plasma_cannon",          1,            1}, 
-        { "weapons\\shotgun\\shotgun",                      1,            1.3}, 
-        { "weapons\\sniper rifle\\sniper rifle",            1,            1.2}, 
-        -- vehicles                                      damage       collision
-        { "vehicles\\warthog\\mp_warthog",                  1,            1},
-        { "vehicles\\ghost\\ghost_mp",                      1,            1},
-        { "vehicles\\rwarthog\\rwarthog",                   1,            1},
-        { "vehicles\\banshee\\banshee_mp",                  1,            1},
-        { "vehicles\\scorpion\\scorpion_mp",                1,            1},
-        { "vehicles\\c gun turret\\c gun turret_mp",        1,            1},
+        -- weapons                                        damage            melee
+        { "weapons\\assault rifle\\assault rifle",          1.120,            4},     
+        { "weapons\\flamethrower\\flamethrower",            1.140,            4}, 
+        { "weapons\\needler\\mp_needler",                   1.110,            3}, 
+        { "weapons\\pistol\\pistol",                        1.100,            1.1}, 
+        { "weapons\\plasma pistol\\plasma pistol",          1.050,            3}, 
+        { "weapons\\plasma rifle\\plasma rifle",            1.250,            1.3}, 
+        { "weapons\\rocket launcher\\rocket launcher",      1.090,            1}, 
+        { "weapons\\plasma_cannon\\plasma_cannon",          1.080,            1}, 
+        { "weapons\\shotgun\\shotgun",                      1.250,            1.3}, 
+        { "weapons\\sniper rifle\\sniper rifle",            1.500,            1.2}, 
+        -- vehicles                                      damage           collision
+        { "vehicles\\warthog\\mp_warthog",                  1.350,            1},
+        { "vehicles\\ghost\\ghost_mp",                      2.200,            1},
+        { "vehicles\\rwarthog\\rwarthog",                   1.500,            1},
+        { "vehicles\\banshee\\banshee_mp",                  1.150,            1},
+        { "vehicles\\scorpion\\scorpion_mp",                1.100,            1},
+        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            1},
         -- grenades                                       damage
-        { "weapons\\frag grenade\\explosion",               4},
+        { "weapons\\frag grenade\\explosion",               1.5},
         { "weapons\\plasma grenade\\attached",              4},
-        { "weapons\\plasma grenade\\explosion",             4}
+        { "weapons\\plasma grenade\\explosion",             2.5}
     }
 end
 
