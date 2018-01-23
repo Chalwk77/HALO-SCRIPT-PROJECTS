@@ -37,6 +37,8 @@ juggernaut_health_increment = 0.0005
 juggernaut_shields = 3
 -- end the game once the juggernaut has this many kills
 killLimit = 25
+-- Default Running Speed for non-juggernauts
+default_running_speed = 1
 -- juggernaut Turn-Duration (in seconds)
 TurnTime = 5
 -- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
@@ -327,28 +329,26 @@ function OnTick()
                 if players[get_var(i, "$n")].current_juggernaut then
                     if (assign_weapons[i] == true) then 
                         assign_weapons[i] = false
-                        if not PlayerInVehicle(i) then
-                            local inventory = {}
-                            inventory.loadout = {}
-                            for b = 0,3 do
-                                equipment_saved = get_object_memory(read_dword(get_dynamic_player(i) + 0x2F8 + b * 4))
-                                if equipment_saved ~= 0 then
-                                    inventory.loadout[b+1] = {
-                                        ["id"] = read_dword(equipment_saved),
-                                        ["ammo"] = read_word(equipment_saved + 0x2B6),
-                                        ["clip"] = read_word(equipment_saved + 0x2B8),
-                                        ["ammo2"] = read_word(equipment_saved + 0x2C6),
-                                        ["clip2"] = read_word(equipment_saved + 0x2C8),
-                                        ["age"] = read_float(equipment_saved + 0x240)
-                                    }
-                                end
+                        local inventory = {}
+                        inventory.loadout = {}
+                        for b = 0,3 do
+                            equipment_saved = get_object_memory(read_dword(get_dynamic_player(i) + 0x2F8 + b * 4))
+                            if equipment_saved ~= 0 then
+                                inventory.loadout[b+1] = {
+                                    ["id"] = read_dword(equipment_saved),
+                                    ["ammo"] = read_word(equipment_saved + 0x2B6),
+                                    ["clip"] = read_word(equipment_saved + 0x2B8),
+                                    ["ammo2"] = read_word(equipment_saved + 0x2C6),
+                                    ["clip2"] = read_word(equipment_saved + 0x2C8),
+                                    ["age"] = read_float(equipment_saved + 0x240)
+                                }
                             end
-                            inventory.frag_grenades = read_byte(get_dynamic_player(i) + 0x31E)
-                            inventory.plasma_grenades = read_byte(get_dynamic_player(i) + 0x31F)
-                            player_equipment[get_var(i,"$n")] = inventory
-                            local x, y, z = read_vector3d(get_dynamic_player(i) + 0x5C)
-                            AssignPrimarySecondary(i, x,y,z + 0.3)
                         end
+                        inventory.frag_grenades = read_byte(get_dynamic_player(i) + 0x31E)
+                        inventory.plasma_grenades = read_byte(get_dynamic_player(i) + 0x31F)
+                        player_equipment[get_var(i,"$n")] = inventory
+                        local x, y, z = read_vector3d(get_dynamic_player(i) + 0x5C)
+                        AssignPrimarySecondary(i, x,y,z + 0.3)
                     end
                     if gamesettings["UseTurnTimer"] == true then
                         if (current_players >= turn_timer_min_players) then
@@ -370,7 +370,7 @@ function OnTick()
                         end
                     end
                 else
-                    execute_command("s " .. i .. " 1")
+                    execute_command("s " .. i .. " " .. tonumber(default_running_speed))
                 end
             end
         end
@@ -399,15 +399,16 @@ function OnTick()
                 if (n == players[get_var(n, "$n")].current_juggernaut) then
                     players[get_var(n, "$n")].current_juggernaut = nil
                     execute_command("msg_prefix \"\"")
-                    say(n, "Not enough players! You're no longer the Juggernaut.")
-                    say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
                     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                     for iDel = 1,4 do execute_command("wdel " .. n) end
                     if not PlayerInVehicle then 
+                        say(n, "Not enough players! You're no longer the Juggernaut.")
+                        say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
                         timer(1000 * reset_delay, "ResetPlayer", n)
                     else
+                        say(n, "Not enough players! You're no longer the Juggernaut.")
+                        say(n, "Restoring previous weapon loadout")
                         vehicle_check[n] = true
-                        timer(CheckVehicle(n), "ResetPlayer", n)
                     end
                 end
             end
@@ -595,7 +596,7 @@ function ResetPlayer(player)
     death_location[player][1] = x
     death_location[player][2] = y
     death_location[player][3] = z
-    restore_inventory[player] = false
+    restore_inventory[player] = true
     delete_weapons_bool[player] = true
     execute_command("kill " .. player)
     reset_bool[player] = true
@@ -795,21 +796,21 @@ function OnVehicleExit(PlayerIndex)
         if players[get_var(PlayerIndex, "$n")].vehicle_trigger == true then
             players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
             assign_weapons[PlayerIndex] = false
-            if (player_alive(PlayerIndex)) then
+            if (player_alive(PlayerIndex)) and not vehicle_check[PlayerIndex] then
                 local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
                 timer(CheckVehicle(PlayerIndex), "AssignPrimarySecondary", PlayerIndex, x,y,z + 0.3)
             end
         end
+    end
+    if (vehicle_check[PlayerIndex] == true) then
+        vehicle_check[PlayerIndex] = false
+        timer(CheckVehicle(PlayerIndex), "RestoreWeapons", PlayerIndex)
     end
 end
 
 function CheckVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
-        if (vehicle_check[PlayerIndex] == true) then
-            vehicle_check[PlayerIndex] = false
-            exit_vehicle(PlayerIndex)
-        end
         local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
         local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
         if vehicle_object ~= nil then
