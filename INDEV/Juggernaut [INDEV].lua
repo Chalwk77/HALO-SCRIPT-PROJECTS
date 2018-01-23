@@ -16,15 +16,14 @@ api_version = "1.12.0.0"
 -- Message to send all players when a new Juggernaut is assigned.
 JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
+-- Weapons assigned to the Juggernaut. Set 'true' to 'false' do prevent that weapon from being assigned.
 weapons = { }
 weapons[1] = {"weap", "weapons\\sniper rifle\\sniper rifle",            true}
 weapons[2] = {"weap", "weapons\\pistol\\pistol",                        true}
 weapons[3] = {"weap", "weapons\\rocket launcher\\rocket launcher",      true}
 weapons[4] = {"weap", "weapons\\shotgun\\shotgun",                      true}
-
 -- Custom Server Prefix
 SERVER_PREFIX = "JUGGERNAUT"
-
 -- bonus points awarded for killing the juggernaut
 bonus = 5
 -- general points awarded for every kill as juggernaut
