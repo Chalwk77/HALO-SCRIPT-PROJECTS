@@ -91,17 +91,29 @@ gamesettings = {
 
 -- DAMAGE MULTIPLIERS
 damage_modifiers = { }
-for i = 1, 16 do damage_modifiers[i] = { --                       melee[1]    weapon[2]  grenade[3]                 vehicle[4]
-        { "weap", "weapons\\assault rifle\\assault rifle",          4,          4,          4,          "vehicles\\warthog\\mp_warthog",              0.3},
-        { "weap", "weapons\\flamethrower\\flamethrower",            4,          4,          4,          "vehicles\\rwarthog\\rwarthog",               0.3},
-        { "weap", "weapons\\needler\\mp_needler",                   4,          4,          4,          "vehicles\\scorpion\\scorpion_mp",            0.3},
-        { "weap", "weapons\\pistol\\pistol",                        4,          4,          4,          "vehicles\\ghost\\ghost_mp",                  0.3},
-        { "weap", "weapons\\plasma pistol\\plasma pistol",          4,          4,          4,          "vehicles\\banshee\\banshee_mp",              0.3},
-        { "weap", "weapons\\plasma rifle\\plasma rifle",            4,          4,          4,          "vehicles\\c gun turret\\c gun turret_mp",    0.3},
-        { "weap", "weapons\\rocket launcher\\rocket launcher",      4,          4,          4},
-        { "weap", "weapons\\plasma_cannon\\plasma_cannon",          4,          4,          4},
-        { "weap", "weapons\\shotgun\\shotgun",                      4,          4,          4},
-        { "weap", "weapons\\sniper rifle\\sniper rifle",            4,          4,          4}
+for i = 1, 16 do damage_modifiers[i] = {
+        -- weapons                                                damage        melee
+        { "weap", "weapons\\assault rifle\\assault rifle",          1,            4},     
+        { "weap", "weapons\\flamethrower\\flamethrower",            1,            4}, 
+        { "weap", "weapons\\needler\\mp_needler",                   1,            3}, 
+        { "weap", "weapons\\pistol\\pistol",                        1,            1.1}, 
+        { "weap", "weapons\\plasma pistol\\plasma pistol",          1,            3}, 
+        { "weap", "weapons\\plasma rifle\\plasma rifle",            1,            1.3}, 
+        { "weap", "weapons\\rocket launcher\\rocket launcher",      1,            1}, 
+        { "weap", "weapons\\plasma_cannon\\plasma_cannon",          1,            1}, 
+        { "weap", "weapons\\shotgun\\shotgun",                      1,            1.3}, 
+        { "weap", "weapons\\sniper rifle\\sniper rifle",            1,            1.2}, 
+        -- vehicles                                               damage      collision
+        { "vehi", "vehicles\\warthog\\mp_warthog",                  1,            1},
+        { "vehi", "vehicles\\ghost\\ghost_mp",                      1,            1},
+        { "vehi", "vehicles\\rwarthog\\rwarthog",                   1,            1},
+        { "vehi", "vehicles\\banshee\\banshee_mp",                  1,            1},
+        { "vehi", "vehicles\\scorpion\\scorpion_mp",                1,            1},
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp",        1,            1},
+        -- grenades                                               damage
+        { "jpt!", "weapons\\frag grenade\\explosion",               4},
+        { "jpt!", "weapons\\plasma grenade\\attached",              4},
+        { "jpt!", "weapons\\plasma grenade\\explosion",             4}
     }
 end
 
@@ -818,84 +830,110 @@ function AnnounceNewJuggernaut(killer, victim)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if CauserIndex ~= nil and PlayerIndex ~= nil then
-        if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
-            damage_applied[CauserIndex] = MetaID
-            ------- MELEE --------------------------------------------------------
-            if MetaID == MELEE_ASSAULT_RIFLE or
-                MetaID == MELEE_ODDBALL or
-                MetaID == MELEE_FLAG or
-                MetaID == MELEE_FLAME_THROWER or
-                MetaID == MELEE_NEEDLER or
-                MetaID == MELEE_PISTOL or
-                MetaID == MELEE_PLASMA_PISTOL or
-                MetaID == MELEE_PLASMA_RIFLE or
-                MetaID == MELEE_PLASMA_CANNON or
-                MetaID == MELEE_ROCKET_LAUNCHER or
-                MetaID == MELEE_SHOTGUN or
-                MetaID == MELEE_SNIPER_RIFLE then
-                damage_type[CauserIndex] = 1
-            end
-            ------- WEAPONS --------------------------------------------------------
-            if MetaID == ASSAULT_RIFLE_BULLET or
-                MetaID == FLAME_THROWER_EXPLOSION or
-                MetaID == NEEDLER_DETONATION or
-                MetaID == NEEDLER_EXPLOSION or
-                MetaID == NEEDLER_IMPACT or
-                MetaID == PISTOL_BULLET or
-                MetaID == PLASMA_PISTOL_BOLT or
-                MetaID == PLASMA_PISTOL_CHARGED or
-                MetaID == PLASMA_CANNON_EXPLOSION or
-                MetaID == ROCKET_EXPLOSION or
-                MetaID == SHOTGUN_PELLET or
-                MetaID == SNIPER_RIFLE_BULLET then
-                damage_type[CauserIndex] = 2
-            end
-            ------- GRENADES --------------------------------------------------------
-            if MetaID == FRAG_GRENADE_EXPLOSION or MetaID == PLASMA_GRENADE_EXPLOSOIN or MetaID == PLASMA_GRENADE_ATTACHED then
-                damage_type[CauserIndex] = 3
-            end
-            ------- VEHICLES --------------------------------------------------------
-            if MetaID == VEHICLE_GHOST_BOLT or
-                MetaID == VEHICLE_WARTHOG_BULLET or
-                MetaID == VEHICLE_TANK_SHELL or
-                MetaID == VEHICLE_TANK_BULLET or
-                MetaID == VEHICLE_BANSHEE_BOLT or
-                MetaID == VEHICLE_BANSHEE_FUEL_ROD or
-                MetaID == VEHICLE_TURRET_BOLT then
-                damage_type[CauserIndex] = 4
-            end
-            return true, Damage * CheckWeapon(CauserIndex)
+    if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
+        damage_applied[CauserIndex] = MetaID
+        ------- MELEE --------------------------------------------------------
+        if MetaID == MELEE_ASSAULT_RIFLE or
+            MetaID == MELEE_ODDBALL or
+            MetaID == MELEE_FLAG or
+            MetaID == MELEE_FLAME_THROWER or
+            MetaID == MELEE_NEEDLER or
+            MetaID == MELEE_PISTOL or
+            MetaID == MELEE_PLASMA_PISTOL or
+            MetaID == MELEE_PLASMA_RIFLE or
+            MetaID == MELEE_PLASMA_CANNON or
+            MetaID == MELEE_ROCKET_LAUNCHER or
+            MetaID == MELEE_SHOTGUN or
+            MetaID == MELEE_SNIPER_RIFLE then
+            damage_type[CauserIndex] = 1
         end
+        ------- WEAPONS --------------------------------------------------------
+        if MetaID == ASSAULT_RIFLE_BULLET or
+            MetaID == FLAME_THROWER_EXPLOSION or
+            MetaID == NEEDLER_DETONATION or
+            MetaID == NEEDLER_EXPLOSION or
+            MetaID == NEEDLER_IMPACT or
+            MetaID == PISTOL_BULLET or
+            MetaID == PLASMA_PISTOL_BOLT or
+            MetaID == PLASMA_PISTOL_CHARGED or
+            MetaID == PLASMA_CANNON_EXPLOSION or
+            MetaID == ROCKET_EXPLOSION or
+            MetaID == SHOTGUN_PELLET or
+            MetaID == SNIPER_RIFLE_BULLET then
+            damage_type[CauserIndex] = 2
+        end
+        ------- GRENADES --------------------------------------------------------
+        if MetaID == FRAG_GRENADE_EXPLOSION then 
+            damage_type[CauserIndex] = 3
+        elseif MetaID == PLASMA_GRENADE_EXPLOSOIN then
+            damage_type[CauserIndex] = 3.1
+        elseif MetaID == PLASMA_GRENADE_ATTACHED then
+            damage_type[CauserIndex] = 3.2
+        end
+        ------- VEHICLES --------------------------------------------------------
+        if MetaID == VEHICLE_GHOST_BOLT or
+            MetaID == VEHICLE_WARTHOG_BULLET or
+            MetaID == VEHICLE_TANK_SHELL or
+            MetaID == VEHICLE_TANK_BULLET or
+            MetaID == VEHICLE_BANSHEE_BOLT or
+            MetaID == VEHICLE_BANSHEE_FUEL_ROD or
+            MetaID == VEHICLE_TURRET_BOLT then
+            damage_type[CauserIndex] = 4
+        end
+        ------- VEHICLE COLLISION --------------------------------------------------------
+        if MetaID == VEHICLE_COLLISION then
+            damage_type[CauserIndex] = 5
+        end
+        return true, Damage * DamageMultiplierHandler(CauserIndex)
     end
 end
 
-function CheckWeapon(CauserIndex)
+function DamageMultiplierHandler(CauserIndex)
     local player_object = get_dynamic_player(CauserIndex)
     if player_object ~= 0 then
         for k,v in pairs(damage_modifiers[tonumber(CauserIndex)]) do
-            if not PlayerInVehicle(CauserIndex) then
+            if damage_type[CauserIndex] == 3 then
+                -- frag grenade (explosion)
+                if string.find("weapons\\frag grenade\\explosion", v[2]) then
+                    damage_modifier[CauserIndex] = v[3]
+                end
+            elseif damage_type[CauserIndex] == 3.1 then
+                -- plasma grenade (explosion)
+                if string.find("weapons\\plasma grenade\\explosion", v[2]) then
+                    damage_modifier[CauserIndex] = v[3]
+                end
+            elseif damage_type[CauserIndex] == 3.2 then
+                -- plasma grenade (attached)
+                if string.find("weapons\\plasma grenade\\attached", v[2]) then
+                    damage_modifier[CauserIndex] = v[3]
+                end
+            elseif (damage_type[CauserIndex] == 1) or (damage_type[CauserIndex] == 2) then
                 local weapon_object = get_object_memory(read_dword(get_dynamic_player(CauserIndex) + 0x118))
                 if weapon_object ~= 0 then
                     local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
                     if string.find(weapon_name, v[2]) then
                         if (damage_type[CauserIndex] == 1) then
-                            damage_modifier[CauserIndex] = v[3]
-                        elseif (damage_type[CauserIndex] == 2) then
+                            -- weapon melee damage
                             damage_modifier[CauserIndex] = v[4]
-                        elseif (damage_type[CauserIndex] == 3) then
-                            damage_modifier[CauserIndex] = v[5]
+                            cprint(tonumber(damage_modifier[CauserIndex]))
+                        elseif (damage_type[CauserIndex] == 2) then
+                            -- weapon projectile damage
+                            damage_modifier[CauserIndex] = v[3]
                         end
-                        break
                     end
                 end
-            else
+            elseif (damage_type[CauserIndex] == 4) or (damage_type[CauserIndex] == 5) then
                 local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
                 local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
                 if vehicle_object ~= nil then
-                    if string.find(vehicle_tag, v[6]) then
-                        damage_modifier[CauserIndex] = v[7]
-                        break
+                    if string.find(vehicle_tag, v[2]) then
+                        -- vehicle weapon projectile damage
+                        if (damage_type[CauserIndex] == 4) then
+                            damage_modifier[CauserIndex] = v[3]
+                        -- vehicle collision damage
+                        elseif (damage_type[CauserIndex] == 5) then
+                            damage_modifier[CauserIndex] = v[4]
+                        end
                     end
                 end
             end
@@ -1099,6 +1137,7 @@ function LoadItems()
         VEHICLE_TURRET_BOLT = TagInfo("jpt!", "vehicles\\c gun turret\\mp bolt")
         VEHICLE_BANSHEE_BOLT = TagInfo("jpt!", "vehicles\\banshee\\banshee bolt")
         VEHICLE_BANSHEE_FUEL_ROD = TagInfo("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
+        VEHICLE_COLLISION = TagInfo("jpt!", "globals\\vehicle_collision")
         
         -- weapon projectiles --
         ASSAULT_RIFLE_BULLET = TagInfo("jpt!", "weapons\\assault rifle\\bullet")
