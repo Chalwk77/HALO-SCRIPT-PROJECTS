@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Juggernaut, for SAPP (PC & CE), beta v1.0
+Script Name: Juggernaut, for SAPP (PC & CE), beta v1.1
 Implementing API version: 1.12.0.0
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
