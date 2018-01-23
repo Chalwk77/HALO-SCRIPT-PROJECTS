@@ -89,6 +89,40 @@ gamesettings = {
     ["UseTurnTimer"] = true
 }
 
+-- [ WEAPON DAMAGE MULTIPLIERS ] - (1 = normal damage)
+AssaultRifle_Multiplier = 1.050
+Pistol_Multiplier = 1.060
+SniperRifle_Multiplier = 1.070
+PlasmaCannon_Multiplier = 1.080
+RocketLauncher_Multiplier = 1.090
+
+-- [ VEHICLE DAMAGE MULTIPLIERS ] - (1 = normal damage)
+Ghost_Bolt_Multiplier = 1.010
+Warthog_Bullet_Multiplier = 1.015
+RHog_Rocket_Multiplier = 1.020
+Tank_Shell_Multiplier = 1.025
+Tank_Bullet_Multiplier = 1.030
+Banshee_Bolt_Multiplier = 1.035
+Banshee_Fuelrod_Multiplier = 1.040
+
+-- WEAPON MELEE & PROJECTILE DAMAGE MULTIPLIERS
+damage_modifiers = { }
+for i = 1, 16 do damage_modifiers[i] = { --                       melee[1]    weapon[2]  grenade[3]                 vehicle[4]
+        { "weap", "weapons\\assault rifle\\assault rifle",          4,          4,          4,          "vehicles\\warthog\\mp_warthog",              4},
+        { "weap", "weapons\\flamethrower\\flamethrower",            4,          4,          4,          "vehicles\\rwarthog\\rwarthog",               4},
+        { "weap", "weapons\\needler\\mp_needler",                   4,          4,          4,          "vehicles\\scorpion\\scorpion_mp",            4},
+        { "weap", "weapons\\pistol\\pistol",                        4,          4,          4,          "vehicles\\ghost\\ghost_mp",                  4},
+        { "weap", "weapons\\plasma pistol\\plasma pistol",          4,          4,          4,          "vehicles\\banshee\\banshee_mp",              4},
+        { "weap", "weapons\\plasma rifle\\plasma rifle",            4,          4,          4,          "vehicles\\c gun turret\\c gun turret_mp",    4},
+        { "weap", "weapons\\rocket launcher\\rocket launcher",      4,          4,          4},
+        { "weap", "weapons\\plasma_cannon\\plasma_cannon",          4,          4,          4},
+        { "weap", "weapons\\shotgun\\shotgun",                      4,          4,          4},
+        { "weap", "weapons\\sniper rifle\\sniper rifle",            4,          4,          4}
+    }
+end
+
+-------------------------------------------------------------------------------------
+
 -- Juggernaut Running Speed | On a per map basis. (1 is default speed)
 juggernaut_running_speed = {
     -- large maps --
@@ -193,9 +227,13 @@ death_bool = { }
 reset_bool = { }
 vehicle_check = { }
 assign_delay = { }
+damage_applied = { }
 -- weapon assignment tables --
 player_equipment = { }
 assign_weapons = { }
+damage_modifier = { }
+
+damage_type = { }
 
 -- used for inventory restoring
 death_location = { }
@@ -216,10 +254,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
     original = read_dword(deathmessages)
     safe_write(true)
@@ -236,7 +275,6 @@ end
 function OnNewGame()
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
     mapname = get_var(0, "$map")
-    GrenadeTable()
     LoadMaps()
     CheckType()
     execute_command("map_skip 1")
@@ -265,6 +303,9 @@ end
 function OnPlayerJoin(PlayerIndex)
     welcome_timer[PlayerIndex] = true
     restore_inventory[PlayerIndex] = false
+    damage_type[PlayerIndex] = 0
+    damage_modifier[PlayerIndex] = 0
+    damage_applied[PlayerIndex] = 0
     current_players = current_players + 1
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
@@ -296,15 +337,16 @@ function OnPlayerLeave(PlayerIndex)
         current_players = current_players - 1
         for i = 1, 3 do death_location[PlayerIndex][i] = nil end
         welcome_timer[PlayerIndex] = false
+        damage_applied[PlayerIndex] = nil
     end
 end
 
-function OnPlayerPrespawn(victim)
-    if victim then
-        if death_location[victim][1] ~= nil then
-            write_vector3d(get_dynamic_player(victim) + 0x5C, death_location[victim][1], death_location[victim][2], death_location[victim][3])
+function OnPlayerPrespawn(PlayerIndex)
+    if PlayerIndex then
+        if death_location[PlayerIndex][1] ~= nil then
+            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, death_location[PlayerIndex][1], death_location[PlayerIndex][2], death_location[PlayerIndex][3])
             for i = 1, 3 do
-                death_location[victim][i] = nil
+                death_location[PlayerIndex][i] = nil
             end
         end
     end
@@ -777,6 +819,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     death_bool[victim] = false
+    damage_applied[PlayerIndex] = 0
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
@@ -787,6 +830,94 @@ function AnnounceNewJuggernaut(killer, victim)
             say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
         end
     end
+end
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if CauserIndex ~= nil and PlayerIndex ~= nil then
+        if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
+            damage_applied[CauserIndex] = MetaID
+            ------- MELEE --------------------------------------------------------
+            if MetaID == MELEE_ASSAULT_RIFLE or
+                MetaID == MELEE_ODDBALL or
+                MetaID == MELEE_FLAG or
+                MetaID == MELEE_FLAME_THROWER or
+                MetaID == MELEE_NEEDLER or
+                MetaID == MELEE_PISTOL or
+                MetaID == MELEE_PLASMA_PISTOL or
+                MetaID == MELEE_PLASMA_RIFLE or
+                MetaID == MELEE_PLASMA_CANNON or
+                MetaID == MELEE_ROCKET_LAUNCHER or
+                MetaID == MELEE_SHOTGUN or
+                MetaID == MELEE_SNIPER_RIFLE then
+                damage_type[CauserIndex] = 1
+            end
+            ------- WEAPONS --------------------------------------------------------
+            if MetaID == ASSAULT_RIFLE_BULLET or
+                MetaID == FLAME_THROWER_EXPLOSION or
+                MetaID == NEEDLER_DETONATION or
+                MetaID == NEEDLER_EXPLOSION or
+                MetaID == NEEDLER_IMPACT or
+                MetaID == PISTOL_BULLET or
+                MetaID == PLASMA_PISTOL_BOLT or
+                MetaID == PLASMA_PISTOL_CHARGED or
+                MetaID == PLASMA_CANNON_EXPLOSION or
+                MetaID == ROCKET_EXPLOSION or
+                MetaID == SHOTGUN_PELLET or
+                MetaID == SNIPER_RIFLE_BULLET then
+                damage_type[CauserIndex] = 2
+            end
+            ------- GRENADES --------------------------------------------------------
+            if MetaID == FRAG_GRENADE_EXPLOSION or MetaID == PLASMA_GRENADE_EXPLOSOIN or MetaID == PLASMA_GRENADE_ATTACHED then
+                damage_type[CauserIndex] = 3
+            end
+            ------- VEHICLES --------------------------------------------------------
+            if MetaID == VEHICLE_GHOST_BOLT or
+                MetaID == VEHICLE_WARTHOG_BULLET or
+                MetaID == VEHICLE_TANK_SHELL or
+                MetaID == VEHICLE_TANK_BULLET or
+                MetaID == VEHICLE_BANSHEE_BOLT or
+                MetaID == VEHICLE_BANSHEE_FUEL_ROD or
+                MetaID == VEHICLE_TURRET_BOLT then
+                damage_type[CauserIndex] = 4
+            end
+            return true, Damage * CheckWeapon(CauserIndex)
+        end
+    end
+end
+
+function CheckWeapon(CauserIndex)
+    local player_object = get_dynamic_player(CauserIndex)
+    if player_object ~= 0 then
+        for k,v in pairs(damage_modifiers[tonumber(CauserIndex)]) do
+            if not PlayerInVehicle(CauserIndex) then
+                local weapon_object = get_object_memory(read_dword(get_dynamic_player(CauserIndex) + 0x118))
+                if weapon_object ~= 0 then
+                    local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+                    if string.find(weapon_name, v[2]) then
+                        if (damage_type[CauserIndex] == 1) then
+                            damage_modifier[CauserIndex] = v[3]
+                        elseif (damage_type[CauserIndex] == 2) then
+                            damage_modifier[CauserIndex] = v[4]
+                        elseif (damage_type[CauserIndex] == 3) then
+                            damage_modifier[CauserIndex] = v[5]
+                        end
+                        break
+                    end
+                else
+                    local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
+                    local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
+                    if vehicle_object ~= nil then
+                        if string.find(vehicle_tag, v[6]) then
+                            damage_modifier[CauserIndex] = v[7]
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    damage_type[CauserIndex] = 0
+    return tonumber(damage_modifier[CauserIndex])
 end
 
 function OnVehicleEntry(PlayerIndex)
@@ -947,6 +1078,61 @@ function CheckType()
             Error = "Error: [juggernaut.lua] does not support the map " .. mapname .. ". Script cannot be used!"
             cprint(Error, 4 + 8)
             execute_command("log_note \"" .. Error .. "\"")
+        else
+            GrenadeTable()
+            LoadItems()
         end
     end
+end
+
+function LoadItems()
+    if get_var(0, "$gt") ~= "n/a" then
+        -- Melee --
+        MELEE_FLAG = TagInfo("jpt!", "weapons\\flag\\melee")
+        MELEE_ODDBALL = TagInfo("jpt!", "weapons\\ball\\melee")
+        MELEE_PISTOL = TagInfo("jpt!", "weapons\\pistol\\melee")
+        MELEE_NEEDLER = TagInfo("jpt!", "weapons\\needler\\melee")
+        MELEE_SHOTGUN = TagInfo("jpt!", "weapons\\shotgun\\melee")
+        MELEE_PLASMA_RIFLE = TagInfo("jpt!", "weapons\\plasma rifle\\melee")
+        MELEE_SNIPER_RIFLE = TagInfo("jpt!", "weapons\\sniper rifle\\melee")
+        MELEE_FLAME_THROWER = TagInfo("jpt!", "weapons\\flamethrower\\melee")
+        MELEE_PLASMA_PISTOL = TagInfo("jpt!", "weapons\\plasma pistol\\melee")
+        MELEE_ASSAULT_RIFLE = TagInfo("jpt!", "weapons\\assault rifle\\melee")
+        MELEE_ROCKET_LAUNCHER = TagInfo("jpt!", "weapons\\rocket launcher\\melee")
+        MELEE_PLASMA_CANNON = TagInfo("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
+        
+        -- Grenades Explosion/Attached --
+        FRAG_GRENADE_EXPLOSION = TagInfo("jpt!", "weapons\\frag grenade\\explosion")
+        PLASMA_GRENADE_ATTACHED = TagInfo("jpt!", "weapons\\plasma grenade\\attached")
+        PLASMA_GRENADE_EXPLOSOIN = TagInfo("jpt!", "weapons\\plasma grenade\\explosion")
+        
+        -- Vehicles --
+        VEHICLE_GHOST_BOLT = TagInfo("jpt!", "vehicles\\ghost\\ghost bolt")
+        VEHICLE_TANK_BULLET = TagInfo("jpt!", "vehicles\\scorpion\\bullet")
+        VEHICLE_WARTHOG_BULLET = TagInfo("proj", "vehicles\\warthog\\bullet")
+        VEHICLE_TANK_SHELL = TagInfo("jpt!", "vehicles\\scorpion\\tank shell")
+        VEHICLE_TURRET_BOLT = TagInfo("jpt!", "vehicles\\c gun turret\\mp bolt")
+        VEHICLE_BANSHEE_BOLT = TagInfo("jpt!", "vehicles\\banshee\\banshee bolt")
+        VEHICLE_BANSHEE_FUEL_ROD = TagInfo("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
+        
+        -- weapon projectiles --
+        ASSAULT_RIFLE_BULLET = TagInfo("jpt!", "weapons\\assault rifle\\bullet")
+        FLAME_THROWER_EXPLOSION = TagInfo("jpt!", "weapons\\flamethrower\\explosion")
+        NEEDLER_DETONATION = TagInfo("jpt!", "weapons\\needler\\detonation damage")
+        NEEDLER_EXPLOSION = TagInfo("jpt!", "weapons\\needler\\explosion")
+        NEEDLER_IMPACT = TagInfo("jpt!", "weapons\\needler\\impact damage")
+        PISTOL_BULLET = TagInfo("jpt!", "weapons\\pistol\\bullet")
+        PLASMA_PISTOL_BOLT = TagInfo("jpt!", "weapons\\plasma pistol\\bolt")
+        PLASMA_PISTOL_CHARGED = TagInfo("jpt!", "weapons\\plasma rifle\\charged bolt")
+        PLASMA_RIFLE_BOLT = TagInfo("jpt!", "weapons\\plasma rifle\\bolt")
+        PLASMA_CANNON_EXPLOSION = TagInfo("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion")
+        ROCKET_EXPLOSION = TagInfo("jpt!", "weapons\\rocket launcher\\explosion")
+        SHOTGUN_PELLET = TagInfo("jpt!", "weapons\\shotgun\\pellet")
+        SNIPER_RIFLE_BULLET = TagInfo("jpt!", "weapons\\sniper rifle\\sniper bullet")
+    end
+end
+
+function TagInfo(obj_type, obj_name)
+    local tag_id = lookup_tag(obj_type, obj_name)
+    return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
 end
