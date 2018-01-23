@@ -25,39 +25,40 @@ weapons[4] = {"weap", "weapons\\shotgun\\shotgun",                      true}
 -- Custom Server Prefix
 SERVER_PREFIX = "JUGGERNAUT"
 
--- Bonus points rewarded for killing the juggernaut
+-- bonus points awarded for killing the juggernaut
 bonus = 5
--- points rewarded for every kill as juggernaut
+-- general points awarded for every kill as juggernaut
 points = 2
--- Health: (0 to 99999) (Normal = 1)
+-- health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
--- Health will regenerate in chunks of 0.005 every 30 ticks until you gain maximum health.
+-- health will regenerate in chunks of (juggernaut_health_increment) every 30 ticks until they gain maximum health.
 juggernaut_health_increment = 0.0005
--- Shields: (0 to 3) (Normal = 1) (Full overshield = 3)
+-- shields: (0 to 3) (Normal = 1) (Full overshield = 3)
 juggernaut_shields = 3
--- End the game once the Juggernaut has this many kills
+-- end the game once the juggernaut has this many kills
 killLimit = 25
--- Juggernaut Turn-Duration (in seconds)
+-- juggernaut Turn-Duration (in seconds)
 TurnTime = 5
--- When Juggernaut commits suicide, how long (in seconds) until someone else is chosen to be Juggernaut.
+-- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut.
 SuicideSelectDelay = 5
--- Juggernaut is rewarded this many points every X seconds (30 by default)
+-- juggernaut is rewarded this many points every X seconds (30 by default)
 allocated_time = 30
 -- points rewarded every "allocated_time" seconds
 alive_points = 1
--- If playerX is juggernaut and they are the only player in the server reset them after this amount of time.
+-- If playerX is juggernaut and they are the only player in the server reset them after (reset_delay) amount of time.
 reset_delay = 5
--- Minimum Players needed to become Juggernaut
+-- Minimum Players needed to become juggernaut
 minimum_players = 2
+-- turn timer will only be used if there is this many (or more) players online!
+turn_timer_min_players = 3
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
 
--- Message Board Settings --
--- How long should the message be displayed on screen for? (in seconds) --
-Message_Duration = 5
+-- Message Board Settings | How long should the message be displayed on screen for? (in seconds)
+message_duration = 5
 -- Left = l,    Right = r,    Centre = c,    Tab: t
-Message_Alignment = "l"
+message_alignment = "l"
 
 -- Use $SERVER_NAME variable to output the server name.
 -- Use $PLAYER_NAME variable to output the joining player's name.
@@ -70,19 +71,19 @@ message_board = {
     }
 
 gamesettings = {
-    -- Values: true|false (yes, no)
-    -- Assign extra frags|plasmas to Juggernaut?
+    -- assign extra frags|plasmas to juggernaut?
     ["AssignFragGrenades"] = true,
     ["AssignPlasmaGrenades"] = true,
-    -- Give extra health & Overshield to Juggernaut?
+    -- give extra health & overshield to juggernaut?
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
-    -- If this is true, the script will award X points every X seconds to the Juggernaut
+    -- award (alive_points) points every (allocated_time) seconds to the juggernaut?
     ["AliveTimer"] = true,
-    -- Should the Juggernaut's weapons be deleted when they die?
+    -- delete juggernaut weapons when they die?
     ["DeleteWeapons"] = true,
+    -- display messages in message board?
     ["UseWelcomeMessages"] = true,
-    -- Select new Juggernaut every 30 seconds
+    -- select new juggernaut every (TurnTime) seconds
     ["UseTurnTimer"] = true
 }
 
@@ -349,7 +350,7 @@ function OnTick()
                         end
                     end
                     if gamesettings["UseTurnTimer"] == true then
-                        if (current_players > 2) then
+                        if (current_players >= turn_timer_min_players) then
                             players[get_var(i, "$n")].swap_timer = players[get_var(i, "$n")].swap_timer + 0.030
                             if players[get_var(i, "$n")].swap_timer >= math.floor(TurnTime) then
                                 say(i, "You're no longer the Juggernaut!")
@@ -451,9 +452,9 @@ function OnTick()
                                     message_board[j] = string.gsub(message_board[j], "$PLAYER_NAME", get_var(m, "$name"))
                                 end
                             end
-                            rprint(m, "|" .. Message_Alignment .. " " .. v)
+                            rprint(m, "|" .. message_alignment .. " " .. v)
                         end
-                        if players[get_var(m, "$n")].join_timer >= math.floor(Message_Duration) then
+                        if players[get_var(m, "$n")].join_timer >= math.floor(message_duration) then
                             welcome_timer[m] = false
                             players[get_var(m, "$n")].join_timer = 0
                         end
