@@ -401,6 +401,10 @@ function OnTick()
                     execute_command("msg_prefix \"\"")
                     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                     for iDel = 1,4 do execute_command("wdel " .. n) end
+                    local m_player = get_player(n)
+                    if m_player ~= 0 then
+                        write_word(m_player + 0x88, to_real_index(n) + 10)
+                    end
                     if not PlayerInVehicle then 
                         say(n, "Not enough players! You're no longer the Juggernaut.")
                         say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
@@ -657,6 +661,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 players[get_var(victim, "$n")].current_juggernaut = nil
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
+                AnnounceNewJuggernaut(killer)
             end
         end
     end
@@ -678,13 +683,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 -- Update Score
                 execute_command("score " .. killer .. " +" .. tostring(points))
                 -- Send Messages
-                rprint(killer, "|" .. Alignment .. " You received +" .. tostring(points) .. " points")
-                for i = 1, current_players do
-                    if i ~= killer then
-                        say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-                    end
-                end
-                say(killer, "You're now the Juggernaut!")
+                rprint(killer, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
+                AnnounceNewJuggernaut(killer)
             end
         end
     end
@@ -703,13 +703,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 SetNavMarker(killer)
                 execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
                 execute_command("score " .. killer .. " +" .. tostring(bonus))
-                rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
-                for i = 1, current_players do
-                    if i ~= killer then
-                        say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
-                    end
-                end
-                say(killer, "You're now the Juggernaut!")
+                rprint(killer, "|" .. Alignment .. "+" .. tostring(bonus) .. " PTS")
+                AnnounceNewJuggernaut(killer)
             end
         end
     end
@@ -785,6 +780,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
+function AnnounceNewJuggernaut(killer, victim)
+    execute_command("msg_prefix \"\"")
+    say(killer, "You're now the Juggernaut!")
+    for i = 1, current_players do
+        if i ~= killer then
+            say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+        end
+    end
+    execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
+end
+
 function OnVehicleEntry(PlayerIndex)
     if players[get_var(PlayerIndex, "$n")].current_juggernaut then
         players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
@@ -796,7 +802,7 @@ function OnVehicleExit(PlayerIndex)
         if players[get_var(PlayerIndex, "$n")].vehicle_trigger == true then
             players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
             assign_weapons[PlayerIndex] = false
-            if (player_alive(PlayerIndex)) and not vehicle_check[PlayerIndex] then
+            if (player_alive(PlayerIndex)) then
                 local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
                 timer(CheckVehicle(PlayerIndex), "AssignPrimarySecondary", PlayerIndex, x,y,z + 0.3)
             end
