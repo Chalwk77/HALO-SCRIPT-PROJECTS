@@ -444,7 +444,7 @@ function OnTick()
                     if m_player ~= 0 then
                         write_word(m_player + 0x88, to_real_index(n) + 10)
                     end
-                    if not PlayerInVehicle then 
+                    if not PlayerInVehicle(n) then 
                         say(n, "Not enough players! You're no longer the Juggernaut.")
                         say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
                         timer(1000 * reset_delay, "ResetPlayer", n)
@@ -624,6 +624,8 @@ function GetNewNumber(exclude)
 end
 
 function ResetPlayer(player)
+    -- to do: 
+    -- protect against: possibility that the player enters a vehicle after the (reset_delay) timer has begun.
     local player = tonumber(player)
     local x, y, z = read_vector3d(get_dynamic_player(player) + 0x5C)
     death_location[player][1] = x
@@ -631,6 +633,7 @@ function ResetPlayer(player)
     death_location[player][3] = z
     restore_inventory[player] = true
     delete_weapons_bool[player] = true
+    cprint("killing")
     execute_command("kill " .. player)
     reset_bool[player] = true
     local m_player = get_player(player)
@@ -819,62 +822,64 @@ function AnnounceNewJuggernaut(player)
     end
 end
 
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
-        damage_applied[CauserIndex] = MetaID
-        ------- MELEE --------------------------------------------------------
-        if MetaID == MELEE_ASSAULT_RIFLE or
-            MetaID == MELEE_ODDBALL or
-            MetaID == MELEE_FLAG or
-            MetaID == MELEE_FLAME_THROWER or
-            MetaID == MELEE_NEEDLER or
-            MetaID == MELEE_PISTOL or
-            MetaID == MELEE_PLASMA_PISTOL or
-            MetaID == MELEE_PLASMA_RIFLE or
-            MetaID == MELEE_PLASMA_CANNON or
-            MetaID == MELEE_ROCKET_LAUNCHER or
-            MetaID == MELEE_SHOTGUN or
-            MetaID == MELEE_SNIPER_RIFLE then
-            damage_type[CauserIndex] = 1
+function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if tonumber(CauserIndex) > 0 then 
+        if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
+            damage_applied[CauserIndex] = MetaID
+            ------- MELEE --------------------------------------------------------
+            if MetaID == MELEE_ASSAULT_RIFLE or
+                MetaID == MELEE_ODDBALL or
+                MetaID == MELEE_FLAG or
+                MetaID == MELEE_FLAME_THROWER or
+                MetaID == MELEE_NEEDLER or
+                MetaID == MELEE_PISTOL or
+                MetaID == MELEE_PLASMA_PISTOL or
+                MetaID == MELEE_PLASMA_RIFLE or
+                MetaID == MELEE_PLASMA_CANNON or
+                MetaID == MELEE_ROCKET_LAUNCHER or
+                MetaID == MELEE_SHOTGUN or
+                MetaID == MELEE_SNIPER_RIFLE then
+                damage_type[CauserIndex] = 1
+            end
+            ------- WEAPONS --------------------------------------------------------
+            if MetaID == ASSAULT_RIFLE_BULLET or
+                MetaID == FLAME_THROWER_EXPLOSION or
+                MetaID == NEEDLER_DETONATION or
+                MetaID == NEEDLER_EXPLOSION or
+                MetaID == NEEDLER_IMPACT or
+                MetaID == PISTOL_BULLET or
+                MetaID == PLASMA_PISTOL_BOLT or
+                MetaID == PLASMA_PISTOL_CHARGED or
+                MetaID == PLASMA_CANNON_EXPLOSION or
+                MetaID == ROCKET_EXPLOSION or
+                MetaID == SHOTGUN_PELLET or
+                MetaID == SNIPER_RIFLE_BULLET then
+                damage_type[CauserIndex] = 2
+            end
+            ------- GRENADES --------------------------------------------------------
+            if MetaID == FRAG_GRENADE_EXPLOSION then 
+                damage_type[CauserIndex] = 3
+            elseif MetaID == PLASMA_GRENADE_EXPLOSOIN then
+                damage_type[CauserIndex] = 3.1
+            elseif MetaID == PLASMA_GRENADE_ATTACHED then
+                damage_type[CauserIndex] = 3.2
+            end
+            ------- VEHICLES --------------------------------------------------------
+            if MetaID == VEHICLE_GHOST_BOLT or
+                MetaID == VEHICLE_WARTHOG_BULLET or
+                MetaID == VEHICLE_TANK_SHELL or
+                MetaID == VEHICLE_TANK_BULLET or
+                MetaID == VEHICLE_BANSHEE_BOLT or
+                MetaID == VEHICLE_BANSHEE_FUEL_ROD or
+                MetaID == VEHICLE_TURRET_BOLT then
+                damage_type[CauserIndex] = 4
+            end
+            ------- VEHICLE COLLISION --------------------------------------------------------
+            if MetaID == VEHICLE_COLLISION then
+                damage_type[CauserIndex] = 5
+            end
+            return true, Damage * DamageMultiplierHandler(CauserIndex)
         end
-        ------- WEAPONS --------------------------------------------------------
-        if MetaID == ASSAULT_RIFLE_BULLET or
-            MetaID == FLAME_THROWER_EXPLOSION or
-            MetaID == NEEDLER_DETONATION or
-            MetaID == NEEDLER_EXPLOSION or
-            MetaID == NEEDLER_IMPACT or
-            MetaID == PISTOL_BULLET or
-            MetaID == PLASMA_PISTOL_BOLT or
-            MetaID == PLASMA_PISTOL_CHARGED or
-            MetaID == PLASMA_CANNON_EXPLOSION or
-            MetaID == ROCKET_EXPLOSION or
-            MetaID == SHOTGUN_PELLET or
-            MetaID == SNIPER_RIFLE_BULLET then
-            damage_type[CauserIndex] = 2
-        end
-        ------- GRENADES --------------------------------------------------------
-        if MetaID == FRAG_GRENADE_EXPLOSION then 
-            damage_type[CauserIndex] = 3
-        elseif MetaID == PLASMA_GRENADE_EXPLOSOIN then
-            damage_type[CauserIndex] = 3.1
-        elseif MetaID == PLASMA_GRENADE_ATTACHED then
-            damage_type[CauserIndex] = 3.2
-        end
-        ------- VEHICLES --------------------------------------------------------
-        if MetaID == VEHICLE_GHOST_BOLT or
-            MetaID == VEHICLE_WARTHOG_BULLET or
-            MetaID == VEHICLE_TANK_SHELL or
-            MetaID == VEHICLE_TANK_BULLET or
-            MetaID == VEHICLE_BANSHEE_BOLT or
-            MetaID == VEHICLE_BANSHEE_FUEL_ROD or
-            MetaID == VEHICLE_TURRET_BOLT then
-            damage_type[CauserIndex] = 4
-        end
-        ------- VEHICLE COLLISION --------------------------------------------------------
-        if MetaID == VEHICLE_COLLISION then
-            damage_type[CauserIndex] = 5
-        end
-        return true, Damage * DamageMultiplierHandler(CauserIndex)
     end
 end
 
@@ -1016,7 +1021,11 @@ function PlayerInVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then return false else return true end
+        if VehicleID == 0xFFFFFFFF then 
+            return false
+        else 
+            return true 
+        end
     else
         return false
     end
