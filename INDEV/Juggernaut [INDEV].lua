@@ -47,6 +47,8 @@ allocated_time = 30
 alive_points = 1
 -- If playerX is juggernaut and they are the only player in the server reset them after this amount of time.
 reset_delay = 5
+-- Minimum Players needed to become Juggernaut
+minimum_players = 2
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
@@ -344,7 +346,6 @@ function OnTick()
                             player_equipment[get_var(i,"$n")] = inventory
                             local x, y, z = read_vector3d(get_dynamic_player(i) + 0x5C)
                             AssignPrimarySecondary(i, x,y,z + 0.3)
-                            SetNavMarker(i)
                         end
                     end
                     if gamesettings["UseTurnTimer"] == true then
@@ -373,7 +374,7 @@ function OnTick()
         end
     end
     -- nobody is the juggernaut | hide nav markers
-    if (current_players >= 2) then
+    if (current_players >= minimum_players) then
         for j = 1, current_players do
             if player_present(j) then
                 if (j ~= players[get_var(j, "$n")].current_juggernaut) then
@@ -600,6 +601,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    
+    server = -1
+    
    
     -- used to restore player inventory
     if (delete_weapons_bool[victim] == true) then
@@ -618,7 +622,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
 
     -- killer was juggernaut | update kills
-    if (killer ~= -1) then
+    if (killer ~= server) then
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= killer) then
             players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
             rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
@@ -632,17 +636,29 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     
     -- killer is juggernaut | victim is not juggernaut | Update Score
-    if (killer ~= -1) then
+    if (killer ~= server) then
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
             execute_command("score " .. killer .. " +" .. tostring(points))
             rprint(killer, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
         end
     end
     
+    -- victim is juggernaut | killer is not juggernaut | nil victim | make killer juggernaut
+    if (current_players >= minimum_players) then
+        if killer ~= server then
+            if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+                players[get_var(victim, "$n")].current_juggernaut = nil
+                players[get_var(killer, "$n")].current_juggernaut = killer
+                SetNavMarker(killer)
+            end
+        end
+    end
+    
     -- neither killer or victim are juggernaut | make killer juggernaut | update Score
-    if (current_players >= 2) then
-        if killer ~= -1 then
+    if (current_players >= minimum_players) then
+        if killer ~= server then
             if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(killer, "$n")].current_juggernaut) and (tonumber(victim) ~= tonumber(killer)) then
+                cprint("Victim | Killer (NOT JUGGERNAUT) | Making Killer Juggernaut", 2+8)
                 players[get_var(killer, "$n")].current_juggernaut = killer
                 SetNavMarker(killer)
                 if PlayerInVehicle(killer) then
@@ -668,24 +684,26 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     
     -- killer is not Juggernaut | victim is Juggernaut | make killer juggernaut | update with bonus Score
-    if (current_players >= 2) then
-        if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
-            if PlayerInVehicle(killer) then
-                players[get_var(killer, "$n")].weapon_trigger = true
-            else
-                players[get_var(killer, "$n")].weapon_trigger = false
-            end
-            players[get_var(victim, "$n")].current_juggernaut = nil
-            players[get_var(killer, "$n")].current_juggernaut = killer
-            execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
-            execute_command("score " .. killer .. " +" .. tostring(bonus))
-            rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
-            for i = 1, current_players do
-                if i ~= killer then
-                    say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+    if (current_players >= minimum_players) then
+        if killer ~= server then
+            if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
+                if PlayerInVehicle(killer) then
+                    players[get_var(killer, "$n")].weapon_trigger = true
+                else
+                    players[get_var(killer, "$n")].weapon_trigger = false
                 end
+                players[get_var(victim, "$n")].current_juggernaut = nil
+                players[get_var(killer, "$n")].current_juggernaut = killer
+                execute_command("s " .. killer .. " :" .. tonumber(juggernaut_running_speed[mapname]))
+                execute_command("score " .. killer .. " +" .. tostring(bonus))
+                rprint(killer, "|" .. Alignment .. " You received +" .. tostring(bonus) .. " points")
+                for i = 1, current_players do
+                    if i ~= killer then
+                        say(i, string.gsub(JuggernautAssignMessage, "$NAME", get_var(killer, "$name")))
+                    end
+                end
+                say(killer, "You're now the Juggernaut!")
             end
-            say(killer, "You're now the Juggernaut!")
         end
     end
     
@@ -705,7 +723,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     
     -- killer was server | reset nav markers
-    if (killer == -1) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+    if (killer == server) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         for j = 1, current_players do
             if player_present(j) then
                 if (j == players[get_var(j, "$n")].current_juggernaut) then
@@ -729,16 +747,28 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (victim == killer) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         say(victim, get_var(victim, "$name") .. " committed suicide")
     end
+    
+    
     -- pvp --
-    if (killer > 0) and (victim ~= killer) then
-        say_all(get_var(victim, "$name") .. " was killed by " .. get_var(killer, "$name"))
+    for i = 1,current_players do
+        if (killer > 0) and (victim ~= killer) then
+            if i ~= victim and i ~= killer then
+                say(i, get_var(victim, "$name") .. " was killed by " .. get_var(killer, "$name"))
+            elseif i == victim and i ~= killer then
+                rprint(i, "|cYou were killed by " .. get_var(killer, "$name"))
+                for spacing = 1,5 do rprint(i, " ") end
+            elseif i == killer and i ~= victim then
+                say(i, "You killed " .. get_var(victim, "$name"))
+            end
+        end
     end
+    
     -- Killed by Server, Vehicle, or Glitch|Unknown
     if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
     -- END THE GAME --
-    if (killer ~= -1) then
+    if (killer ~= server) then
         if (killer == players[get_var(killer, "$n")].current_juggernaut) then
             local kills = tonumber(players[get_var(killer, "$n")].kills)
             if (kills >= tonumber(killLimit)) then
@@ -810,7 +840,6 @@ function SetNavMarker(Juggernaut)
                 if m_player ~= 0 then
                     if (Juggernaut ~= nil) then
                         write_word(m_player + 0x88, to_real_index(Juggernaut))
-                        cprint("setting nav marker to " .. get_var(Juggernaut, "$name"))
                     else
                         write_word(m_player + 0x88, player)
                     end
