@@ -89,31 +89,15 @@ gamesettings = {
     ["UseTurnTimer"] = true
 }
 
--- [ WEAPON DAMAGE MULTIPLIERS ] - (1 = normal damage)
-AssaultRifle_Multiplier = 1.050
-Pistol_Multiplier = 1.060
-SniperRifle_Multiplier = 1.070
-PlasmaCannon_Multiplier = 1.080
-RocketLauncher_Multiplier = 1.090
-
--- [ VEHICLE DAMAGE MULTIPLIERS ] - (1 = normal damage)
-Ghost_Bolt_Multiplier = 1.010
-Warthog_Bullet_Multiplier = 1.015
-RHog_Rocket_Multiplier = 1.020
-Tank_Shell_Multiplier = 1.025
-Tank_Bullet_Multiplier = 1.030
-Banshee_Bolt_Multiplier = 1.035
-Banshee_Fuelrod_Multiplier = 1.040
-
--- WEAPON MELEE & PROJECTILE DAMAGE MULTIPLIERS
+-- DAMAGE MULTIPLIERS
 damage_modifiers = { }
 for i = 1, 16 do damage_modifiers[i] = { --                       melee[1]    weapon[2]  grenade[3]                 vehicle[4]
-        { "weap", "weapons\\assault rifle\\assault rifle",          4,          4,          4,          "vehicles\\warthog\\mp_warthog",              4},
-        { "weap", "weapons\\flamethrower\\flamethrower",            4,          4,          4,          "vehicles\\rwarthog\\rwarthog",               4},
-        { "weap", "weapons\\needler\\mp_needler",                   4,          4,          4,          "vehicles\\scorpion\\scorpion_mp",            4},
-        { "weap", "weapons\\pistol\\pistol",                        4,          4,          4,          "vehicles\\ghost\\ghost_mp",                  4},
-        { "weap", "weapons\\plasma pistol\\plasma pistol",          4,          4,          4,          "vehicles\\banshee\\banshee_mp",              4},
-        { "weap", "weapons\\plasma rifle\\plasma rifle",            4,          4,          4,          "vehicles\\c gun turret\\c gun turret_mp",    4},
+        { "weap", "weapons\\assault rifle\\assault rifle",          4,          4,          4,          "vehicles\\warthog\\mp_warthog",              0.3},
+        { "weap", "weapons\\flamethrower\\flamethrower",            4,          4,          4,          "vehicles\\rwarthog\\rwarthog",               0.3},
+        { "weap", "weapons\\needler\\mp_needler",                   4,          4,          4,          "vehicles\\scorpion\\scorpion_mp",            0.3},
+        { "weap", "weapons\\pistol\\pistol",                        4,          4,          4,          "vehicles\\ghost\\ghost_mp",                  0.3},
+        { "weap", "weapons\\plasma pistol\\plasma pistol",          4,          4,          4,          "vehicles\\banshee\\banshee_mp",              0.3},
+        { "weap", "weapons\\plasma rifle\\plasma rifle",            4,          4,          4,          "vehicles\\c gun turret\\c gun turret_mp",    0.3},
         { "weap", "weapons\\rocket launcher\\rocket launcher",      4,          4,          4},
         { "weap", "weapons\\plasma_cannon\\plasma_cannon",          4,          4,          4},
         { "weap", "weapons\\shotgun\\shotgun",                      4,          4,          4},
@@ -903,14 +887,14 @@ function CheckWeapon(CauserIndex)
                         end
                         break
                     end
-                else
-                    local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
-                    local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
-                    if vehicle_object ~= nil then
-                        if string.find(vehicle_tag, v[6]) then
-                            damage_modifier[CauserIndex] = v[7]
-                            break
-                        end
+                end
+            else
+                local vehicle_object = get_object_memory(read_dword(player_object + 0x11c))
+                local vehicle_tag = read_string(read_dword(read_word(vehicle_object) * 32 + 0x40440038))
+                if vehicle_object ~= nil then
+                    if string.find(vehicle_tag, v[6]) then
+                        damage_modifier[CauserIndex] = v[7]
+                        break
                     end
                 end
             end
