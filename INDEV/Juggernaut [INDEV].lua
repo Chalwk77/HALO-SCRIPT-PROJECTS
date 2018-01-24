@@ -194,7 +194,7 @@ delete_weapons_bool = { }
 restore_inventory = { }
 
 -- booleans --
-tick_bool = nil
+nav_marker_bool = nil
 set_after_spawn = { }
 
 -- counts --
@@ -397,7 +397,8 @@ function OnTick()
                     local m_player = get_player(j)
                     if m_player ~= 0 then
                         if j ~= nil then
-                            if (tick_bool) == nil then
+                            if (nav_marker_bool) == true then
+                                nav_marker_bool = false
                                 write_word(m_player + 0x88, to_real_index(j) + 10)
                                 selection_bool = true
                             end
@@ -770,7 +771,7 @@ function SetNewJuggernaut(player, update, advance)
     else
         players[get_var(player, "$n")].vehicle_trigger = false
     end
-    tick_bool = false
+    nav_marker_bool = true
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed))
     -- awarded because they were the first player to become juggernaut
     if (update == true) and (advance == false) then
