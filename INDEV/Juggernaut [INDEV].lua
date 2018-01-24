@@ -24,10 +24,16 @@ weapons[3] = {"weap", "weapons\\rocket launcher\\rocket launcher",      true}
 weapons[4] = {"weap", "weapons\\shotgun\\shotgun",                      true}
 -- Custom Server Prefix
 SERVER_PREFIX = "JUGGERNAUT"
--- bonus points awarded for killing the juggernaut
-bonus = 5
+
+-- points awarded because they were the first player to become juggernaut
+first_blood = 1
+-- points awarded because they killed the juggernaut
+gotcha_points = 2
 -- general points awarded for every kill as juggernaut
-points = 2
+general_points = 3
+
+
+
 -- health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
 -- health will regenerate in chunks of (juggernaut_health_increment) every 30 ticks until they gain maximum health.
@@ -576,7 +582,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     local server = -1
-    
     -- used to restore player inventory
     if (delete_weapons_bool[victim] == true) then
         delete_weapons_bool[victim] = false
@@ -585,93 +590,35 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         write_dword(get_player(tonumber(victim)) + 0x2C, 0)
         execute_command("deaths " .. victim .. " -1")
     end
-    
     -- prevent juggernaut from dropping weapons and grenades on death
     if (gamesettings["DeleteWeapons"] == true) then
         if (victim == players[get_var(victim, "$n")].current_juggernaut) then
             DeleteWeapons(tonumber(victim))
         end
     end
-    
-    -- killer was juggernaut | update kills
-    -- to do: returning nil when player is not the current juggernaut
+    -- killer is juggernaut | update kill statistics
     if (killer ~= server) then
-        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= killer) then
-            players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
-            rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
+        if (killer > 0) then
+            if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= killer) then
+                players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
+                rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
+            end
         end
     end
-    
     -- victim was juggernaut | reset score timers
     if (victim == players[get_var(victim, "$n")].current_juggernaut) then
         score_timer[victim] = false
         players[get_var(victim, "$n")].time_alive = 0
     end
-    
-    -- killer is juggernaut | victim is not juggernaut | Update Score
+    -- killer is already juggernaut | update score with (general_points)
     if (killer ~= server) then
-        if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
-            execute_command("score " .. killer .. " +" .. tostring(points))
-            rprint(killer, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
-        end
-    end
-    
-    -- victim is juggernaut | killer is not juggernaut | nil victim | make killer juggernaut
-    if (current_players >= minimum_players) then
-        if killer ~= server then
-            if (victim == players[get_var(victim, "$n")].current_juggernaut) and (killer ~= players[get_var(killer, "$n")].current_juggernaut) then
-                players[get_var(victim, "$n")].current_juggernaut = nil
-                SetNewJuggernaut(tonumber(killer))
-            end
-        end
-    end
-
-    if (current_players >= minimum_players) then
-        if killer ~= server then
-            for i = 1,current_players do
-                -- someone is already the juggernaut
-                if (i == players[get_var(i, "$n")].current_juggernaut) then
-                    -- killer & victim not juggernaut | someone else is currently juggernaut
-                    if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
-                        break
-                    -- killer not juggernaut | victim is juggernaut | make killer new juggernaut
-                    elseif (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-                        players[get_var(victim, "$n")].current_juggernaut = nil
-                        SetNewJuggernaut(tonumber(killer))
-                        break
-                    end
-                end
-            end
-        end
-    end
-    
-    -- nobody is the juggernaut | make killer juggernaut
-    if killer ~= server then
         if (killer > 0) then
-            if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= victim) then
-                if selection_bool == true then
-                    selection_bool = false
-                    SetNewJuggernaut(tonumber(killer))
-                end
+            if (killer == players[get_var(killer, "$n")].current_juggernaut) then
+                execute_command("score " .. killer .. " +" .. tostring(general_points))
+                rprint(killer, "|" .. Alignment .. "+" .. tostring(general_points) .. " pts")
             end
         end
     end
-    
-    -- suicide | victim was juggernaut | Call SwapRole()
-    if (victim == killer) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-        for i = 1, current_players do
-            if i ~= victim then
-                say(i, get_var(victim, "$name") .. " committed suicide and is no longer the Juggernaut!")
-                say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
-            end
-        end
-        -- remove their juggernaut status
-        players[get_var(victim, "$n")].current_juggernaut = nil
-        say(victim, "You are no longer the Juggernaut!")
-        -- Call SwapRole() | Select someone else as the new Juggernaut
-        timer(1000 * SuicideSelectDelay, "SwapRole", victim)
-    end
-    
     -- killer was server | reset nav markers
     if (killer == server) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         for j = 1, current_players do
@@ -691,8 +638,53 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    -- general death messages --
+    if (current_players >= minimum_players) then
+        if killer ~= server then
+            for i = 1,current_players do
+                -- someone is already the juggernaut
+                if (killer > 0) and (i == players[get_var(i, "$n")].current_juggernaut) then
+                    -- killer & victim not juggernaut | someone else is currently juggernaut
+                    if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+                        break
+                    -- killer not juggernaut | victim is juggernaut | make killer new juggernaut | update score with (gotcha_points)
+                    elseif (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+                        players[get_var(victim, "$n")].current_juggernaut = nil
+                        SetNewJuggernaut(tonumber(killer), false, true)
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    -- nobody is the juggernaut | make killer juggernaut | update score with (first_blood)
+    if (killer ~= server) and (killer > 0) then
+        if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= victim) then
+            if selection_bool == true then
+                selection_bool = false
+                SetNewJuggernaut(tonumber(killer), true, false)
+            end
+        end
+    end
+    
+    -- suicide | victim was juggernaut | Call SwapRole()
+    if (victim == killer) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+        for i = 1, current_players do
+            if i ~= victim then
+                say(i, get_var(victim, "$name") .. " committed suicide and is no longer the Juggernaut!")
+                say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
+            end
+        end
+        -- remove their juggernaut status
+        players[get_var(victim, "$n")].current_juggernaut = nil
+        say(victim, "You are no longer the Juggernaut!")
+        -- Call SwapRole() | Select someone else as the new Juggernaut
+        timer(1000 * SuicideSelectDelay, "SwapRole", victim)
+    end
+    
+    -- general death messages --------------------------------------------------------------------------------------------------
     --suicide | victim was not juggernaut
     if (victim == killer) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         say_all(get_var(victim, "$name") .. " committed suicide")
@@ -711,12 +703,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     
-    -- Killed by Server, Vehicle, or Glitch|Unknown
+    -- killed by server, vehicle, glitch or unknown
     if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
-    -- END THE GAME --
-    if (killer ~= server) then
+    
+    -- end the game --
+    if (killer ~= server) and (killer > 0) then
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (killer ~= victim) then
             local kills = tonumber(players[get_var(killer, "$n")].kills)
             if (kills >= tonumber(killLimit)) then
@@ -729,8 +722,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
-function SetNewJuggernaut(player)
+function SetNewJuggernaut(player, update, advance)
+    -- set new juggernaut
     players[get_var(player, "$n")].current_juggernaut = player
+    -- set nav marker to that player
     SetNavMarker(player)
     if PlayerInVehicle(player) then
         players[get_var(player, "$n")].vehicle_trigger = true
@@ -738,12 +733,16 @@ function SetNewJuggernaut(player)
         players[get_var(player, "$n")].vehicle_trigger = false
     end
     tick_bool = false
-    -- Set Player Running Speed
     execute_command("s " .. player .. " :" .. tonumber(juggernaut_running_speed))
-    -- Update Score
-    execute_command("score " .. player .. " +" .. tostring(points))
-    -- Send Messages
-    rprint(player, "|" .. Alignment .. "+" .. tostring(points) .. " PTS")
+    -- awarded because they were the first player to become juggernaut
+    if (update == true) and (advance == false) then
+        execute_command("score " .. player .. " +" .. tostring(first_blood))
+        rprint(player, "|" .. Alignment .. "+" .. tostring(first_blood) .. " pts")
+    -- awarded because they killed the juggernaut
+    elseif (update == false) and (advance == true) then
+        execute_command("score " .. player .. " +" .. tostring(gotcha_points))
+        rprint(player, "|" .. Alignment .. "+" .. tostring(gotcha_points) .. " pts")
+    end
     AnnounceNewJuggernaut(player)
 end
 
