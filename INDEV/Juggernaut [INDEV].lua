@@ -3,6 +3,25 @@
 Script Name: Juggernaut, for SAPP (PC & CE), beta v1.1
 Implementing API version: 1.12.0.0
 
+When the game begins, the player to get "first blood" becomes the juggernaut. 
+
+Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camo and full over-shield.
+The game incorporates changes to player physics, weapon projectiles, inventory saving and loading among other features.
+Your objective as the juggernaut is to stay alive for as long as possible and wreak havoc upon your enemies
+
+The non-juggernaut objective is to hunt down and kill the aforementioned current juggernaut - you will now become the juggernaut yourself.
+
+During a game, if there are only two players online then the only way to become the juggernaut is to kill them as previously mentioned. 
+However, if there are 3 or more players online then a "turn timer" is initiated and you can only be the juggernaut for 60 seconds and then someone else is randomly selected to become the new juggernaut.
+
+
+The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. If it was the latter, the player who had the most kills (as the juggernaut) wins.
+Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. They player cannot win the game simply because they were never the Juggernaut.
+
+The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut.
+
+* Many game play mechanics and variables can be changed to suit your desired taste. See configuration section below for more!
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -31,9 +50,6 @@ first_blood = 1
 gotcha_points = 2
 -- general points awarded for every kill as juggernaut
 general_points = 3
-
-
-
 -- health: (0 to 99999) (Normal = 1)
 juggernaut_health = 2
 -- health will regenerate in chunks of (juggernaut_health_increment) every 30 ticks until they gain maximum health.
