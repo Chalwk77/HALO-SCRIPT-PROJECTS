@@ -3,6 +3,9 @@
 Script Name: Juggernaut, for SAPP (PC & CE), beta v1.1
 Implementing API version: 1.12.0.0
 
+Juggernaut in Summary:
+
+
 When the game begins, the player to get "first blood" becomes the juggernaut. 
 
 Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camo and full over-shield.
@@ -16,9 +19,11 @@ However, if there are 3 or more players online then a "turn timer" is initiated 
 
 
 The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. If it was the latter, the player who had the most kills (as the juggernaut) wins.
-Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. That player cannot win the game simply because they were never the Juggernaut.
 
-The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut.
+Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. 
+That player cannot win the game simply because they were never the Juggernaut.
+
+The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut when the game ends after the time limit has reach is end.
 
 * Many game play mechanics and variables can be changed to suit your desired taste. See configuration section below for more!
 
