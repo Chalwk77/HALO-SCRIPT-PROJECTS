@@ -270,13 +270,19 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].join_timer = 0
     players[get_var(PlayerIndex, "$n")].time_alive = 0
     if current_players == 2 then
-        for j = 1, 2 do
-            if player_present(j) then
-                if (j ~= players[get_var(j, "$n")].current_juggernaut) then
-                    local m_player = get_player(j)
-                    if m_player ~= 0 then
-                        write_word(m_player + 0x88, to_real_index(j) + 10)
-                    end
+        for i = 1, current_players do
+            if player_present(i) then
+                if (i ~= players[get_var(i, "$n")].current_juggernaut) then
+                    ResetNavMarker()
+                end
+            end
+        end
+    end
+    for x = 1, current_players do
+        if (current_players > 2) then
+            if player_present(x) then
+                if x == players[get_var(x, "$n")].current_juggernaut then
+                    SetNavMarker(tonumber(x))
                 end
             end
         end
@@ -411,10 +417,7 @@ function OnTick()
                     execute_command("msg_prefix \"\"")
                     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
                     for iDel = 1,4 do execute_command("wdel " .. n) end
-                    local m_player = get_player(n)
-                    if m_player ~= 0 then
-                        write_word(m_player + 0x88, to_real_index(n) + 10)
-                    end
+                    ResetNavMarker()
                     if not PlayerInVehicle(n) then 
                         say(n, "Not enough players! You're no longer the Juggernaut.")
                         say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
@@ -659,22 +662,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     -- killer was server | reset nav markers
     if (killer == server) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-        for j = 1, current_players do
-            if player_present(j) then
-                if (j == players[get_var(j, "$n")].current_juggernaut) then
-                    local m_player = get_player(j)
-                    local player = to_real_index(j)
-                    if m_player ~= 0 then
-                        if j ~= nil then
-                            if (tick_bool) == nil then
-                                write_word(m_player + 0x88, player + 10)
-                                players[get_var(victim, "$n")].current_juggernaut = nil
-                            end
-                        end
-                    end
-                end
-            end
-        end
+        players[get_var(victim, "$n")].current_juggernaut = nil
+        ResetNavMarker()
     end
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
@@ -712,17 +701,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         say(victim, "You are no longer the Juggernaut!")
         players[get_var(victim, "$n")].current_juggernaut = nil
         -- reset nav markers
-        for IX = 1, current_players do
-            if player_present(IX) then
-                local m_player = get_player(IX)
-                local player = to_real_index(IX)
-                if m_player ~= 0 then
-                    if IX ~= nil then
-                        write_word(m_player + 0x88, player + 10)
-                    end
-                end
-            end
-        end
+        ResetNavMarker()
         if (current_players >= turn_timer_min_players) then
             for i = 1, current_players do
                 if i ~= victim then
@@ -1001,6 +980,20 @@ function SetNavMarker(Juggernaut)
                     write_word(m_player + 0x88, to_real_index(Juggernaut))
                 else
                     write_word(m_player + 0x88, player)
+                end
+            end
+        end
+    end
+end
+
+function ResetNavMarker()
+    for i = 1, current_players do
+        if player_present(i) then
+            local m_player = get_player(i)
+            local player = to_real_index(i)
+            if m_player ~= 0 then
+                if i ~= nil then
+                    write_word(m_player + 0x88, player + 10)
                 end
             end
         end
