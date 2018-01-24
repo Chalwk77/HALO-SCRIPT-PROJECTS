@@ -3,9 +3,6 @@
 Script Name: Juggernaut, for SAPP (PC & CE), beta v1.1
 Implementing API version: 1.12.0.0
 
-Juggernaut in Summary:
-
-
 When the game begins, the player to get "first blood" becomes the juggernaut. 
 
 Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camo and full over-shield.
