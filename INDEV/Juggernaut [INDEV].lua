@@ -62,7 +62,7 @@ killLimit = 25
 -- Default Running Speed for non-juggernauts
 default_running_speed = 1
 -- juggernaut Turn-Duration (in seconds)
-TurnTime = 30
+TurnTime = 5
 -- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
 SuicideSelectDelay = 5
 -- juggernaut is rewarded (alive_points) every (allocated_time) seconds (30 by default)
@@ -75,6 +75,9 @@ reset_delay = 5
 minimum_players = 2
 -- turn timer will only be used if there is this many (or more) players online
 turn_timer_min_players = 3
+
+-- The the randomly selected player was dead, make them juggernaut after this amount of time
+dead_set_delay = 5
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
@@ -195,6 +198,7 @@ restore_inventory = { }
 
 -- booleans --
 tick_bool = nil
+set_after_spawn = { }
 
 -- counts --
 current_players = 0
@@ -254,6 +258,7 @@ function OnGameEnd()
 end
 
 function OnPlayerJoin(PlayerIndex)
+    set_after_spawn[PlayerIndex] = false
     welcome_timer[PlayerIndex] = true
     restore_inventory[PlayerIndex] = false
     damage_type[PlayerIndex] = 0
@@ -306,8 +311,17 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
+    if (set_after_spawn[PlayerIndex] == true) then
+        set_after_spawn[PlayerIndex] = false
+        assign_weapons[PlayerIndex] = true
+        players[get_var(PlayerIndex, "$n")].current_juggernaut = (PlayerIndex)
+        execute_command("s " .. PlayerIndex .. " :" .. tonumber(juggernaut_running_speed))
+        SetNavMarker(PlayerIndex)
+        AnnounceNewJuggernaut(PlayerIndex)
+    else
+        players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
+    end
     players[get_var(PlayerIndex, "$n")].swap_timer = 0
-    players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
     players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
     players[get_var(PlayerIndex, "$n")].time_alive = 0
     assign_weapons[PlayerIndex] = true
@@ -549,18 +563,28 @@ function SwapRole(exclude)
     execute_command("msg_prefix \"\"")
     local random_number = math.random(1, current_players)
     if random_number ~= tonumber(exclude) then
-        assign_weapons[random_number] = true
-        players[get_var(random_number, "$n")].current_juggernaut = (random_number)
-        execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed))
-        SetNavMarker(random_number)
-        AnnounceNewJuggernaut(random_number)
+        if not player_alive(random_number) then
+            rprint(random_number, "You will be selected as the Juggernaut when you respawn!")
+            set_after_spawn[random_number] = true
+        else
+            assign_weapons[random_number] = true
+            players[get_var(random_number, "$n")].current_juggernaut = (random_number)
+            execute_command("s " .. random_number .. " :" .. tonumber(juggernaut_running_speed))
+            SetNavMarker(random_number)
+            AnnounceNewJuggernaut(random_number)
+        end
     else
         if GetNewNumber(exclude) ~= exclude then
-            assign_weapons[new_random_number] = true
-            players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
-            execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed))
-            SetNavMarker(new_random_number)
-            AnnounceNewJuggernaut(new_random_number)
+            if not player_alive(new_random_number) then
+                rprint(new_random_number, "You will be selected as the Juggernaut when you respawn!")
+                set_after_spawn[new_random_number] = true
+            else
+                assign_weapons[new_random_number] = true
+                players[get_var(new_random_number, "$n")].current_juggernaut = (new_random_number)
+                execute_command("s " .. new_random_number .. " :" .. tonumber(juggernaut_running_speed))
+                SetNavMarker(new_random_number)
+                AnnounceNewJuggernaut(new_random_number)
+            end
         end
     end
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
