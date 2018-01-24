@@ -14,13 +14,12 @@ The non-juggernaut objective is to hunt down and kill the aforementioned current
 During a game, if there are only two players online then the only way to become the juggernaut is to kill them as previously mentioned. 
 However, if there are 3 or more players online then a "turn timer" is initiated and you can only be the juggernaut for 60 seconds and then someone else is randomly selected to become the new juggernaut.
 
-
 The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. If it was the latter, the player who had the most kills (as the juggernaut) wins.
 
 Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. 
 That player cannot win the game simply because they were never the Juggernaut.
 
-The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut when the game ends after the time limit has reach is end.
+The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut when the game ends after the time limit has elapsed.
 
 * Many game play mechanics and variables can be changed to suit your desired taste. See configuration section below for more!
 
