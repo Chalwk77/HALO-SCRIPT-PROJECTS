@@ -62,7 +62,7 @@ killLimit = 25
 -- Default Running Speed for non-juggernauts
 default_running_speed = 1
 -- juggernaut Turn-Duration (in seconds)
-TurnTime = 5
+TurnTime = 60
 -- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
 SuicideSelectDelay = 5
 -- juggernaut is rewarded (alive_points) every (allocated_time) seconds (30 by default)
@@ -75,9 +75,6 @@ reset_delay = 5
 minimum_players = 2
 -- turn timer will only be used if there is this many (or more) players online
 turn_timer_min_players = 3
-
--- The the randomly selected player was dead, make them juggernaut after this amount of time
-dead_set_delay = 5
 
 -- Scoring Message Alignment | Left = l,    Right = r,    Centre = c,    Tab: t
 Alignment = "l"
@@ -129,12 +126,12 @@ for i = 1, 16 do damage_multipliers[i] = {
         { "weapons\\shotgun\\shotgun",                      1.250,            1.3}, 
         { "weapons\\sniper rifle\\sniper rifle",            1.500,            1.2}, 
         -- vehicles                                      damage           collision
-        { "vehicles\\warthog\\mp_warthog",                  1.350,            1},
-        { "vehicles\\ghost\\ghost_mp",                      2.200,            1},
-        { "vehicles\\rwarthog\\rwarthog",                   1.500,            1},
-        { "vehicles\\banshee\\banshee_mp",                  1.150,            1},
-        { "vehicles\\scorpion\\scorpion_mp",                1.100,            1},
-        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            1},
+        { "vehicles\\warthog\\mp_warthog",                  1.350,            0.001},
+        { "vehicles\\ghost\\ghost_mp",                      2.200,            0.001},
+        { "vehicles\\rwarthog\\rwarthog",                   1.500,            0.001},
+        { "vehicles\\banshee\\banshee_mp",                  1.150,            0.001},
+        { "vehicles\\scorpion\\scorpion_mp",                1.100,            0.001},
+        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            0.001},
         -- grenades                                       damage
         { "weapons\\frag grenade\\explosion",               1.5},
         { "weapons\\plasma grenade\\attached",              4},
@@ -710,19 +707,40 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     
-    -- suicide | victim was juggernaut | Call SwapRole()
+    -- suicide | victim was juggernaut | Call SwapRole() or Ignore
     if (victim == killer) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
-        for i = 1, current_players do
-            if i ~= victim then
-                say(i, get_var(victim, "$name") .. " committed suicide and is no longer the Juggernaut!")
-                say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
+        say(victim, "You are no longer the Juggernaut!")
+        players[get_var(victim, "$n")].current_juggernaut = nil
+        -- reset nav markers
+        for IX = 1, current_players do
+            if player_present(IX) then
+                local m_player = get_player(IX)
+                local player = to_real_index(IX)
+                if m_player ~= 0 then
+                    if IX ~= nil then
+                        write_word(m_player + 0x88, player + 10)
+                    end
+                end
             end
         end
-        -- remove their juggernaut status
-        players[get_var(victim, "$n")].current_juggernaut = nil
-        say(victim, "You are no longer the Juggernaut!")
-        -- Call SwapRole() | Select someone else as the new Juggernaut
-        timer(1000 * SuicideSelectDelay, "SwapRole", victim)
+        if (current_players >= turn_timer_min_players) then
+            for i = 1, current_players do
+                if i ~= victim then
+                    say(i, get_var(victim, "$name") .. " committed suicide and is no longer the Juggernaut!")
+                    say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
+                end
+            end
+            -- remove their juggernaut status
+            -- Call SwapRole() | Select someone else as the new Juggernaut
+            timer(1000 * SuicideSelectDelay, "SwapRole", victim)
+        else
+            selection_bool = true
+            for i = 1,current_players do
+                if i ~= victim then 
+                    say(i, get_var(victim, "$name") .. " committed suicide")
+                end
+            end
+        end
     end
     
     -- general death messages --------------------------------------------------------------------------------------------------
@@ -897,10 +915,10 @@ function DamageMultiplierHandler(CauserIndex)
                     if string.find(vehicle_tag, v[1]) then
                         -- vehicle weapon projectile damage
                         if (damage_type[CauserIndex] == 4) then
-                            damage_multiplier[CauserIndex] = v[3]
+                            damage_multiplier[CauserIndex] = v[2]
                         -- vehicle collision damage
                         elseif (damage_type[CauserIndex] == 5) then
-                            damage_multiplier[CauserIndex] = v[4]
+                            damage_multiplier[CauserIndex] = v[3]
                         end
                     end
                 end
@@ -959,7 +977,6 @@ function CheckVehicle(PlayerIndex)
     end
     return tonumber(assign_delay[PlayerIndex])
 end
-
 
 function DeleteWeapons(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
