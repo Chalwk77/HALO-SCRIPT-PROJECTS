@@ -16,7 +16,7 @@ However, if there are 3 or more players online then a "turn timer" is initiated 
 
 
 The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. If it was the latter, the player who had the most kills (as the juggernaut) wins.
-Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. They player cannot win the game simply because they were never the Juggernaut.
+Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. That player cannot win the game simply because they were never the Juggernaut.
 
 The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut.
 
