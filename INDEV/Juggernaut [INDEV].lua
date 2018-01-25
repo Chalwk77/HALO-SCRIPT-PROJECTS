@@ -743,7 +743,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
-    
+    -- squashed by vehicle | victim was juggernaut | Call SwapRole() or Ignore
     if (killer == 0) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         -- remove their juggernaut status
         players[get_var(victim, "$n")].current_juggernaut = nil
