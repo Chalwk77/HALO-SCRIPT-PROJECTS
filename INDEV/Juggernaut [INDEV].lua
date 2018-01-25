@@ -62,7 +62,7 @@ killLimit = 25
 -- Default Running Speed for non-juggernauts
 default_running_speed = 1
 -- juggernaut Turn-Duration (in seconds)
-TurnTime = 10
+TurnTime = 60
 -- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
 SuicideSelectDelay = 5
 -- juggernaut is rewarded (alive_points) every (allocated_time) seconds (30 by default)
@@ -70,7 +70,7 @@ allocated_time = 30
 -- points rewarded every "allocated_time" seconds
 alive_points = 1
 -- If playerX is juggernaut and they are the only player in the server reset them after (reset_delay) amount of time.
-reset_delay = 5
+reset_delay = 7
 -- Minimum Players needed to become juggernaut
 minimum_players = 2
 -- turn timer will only be used if there is this many (or more) players online
@@ -372,7 +372,7 @@ function OnTick()
                         inventory.frag_grenades = read_byte(get_dynamic_player(i) + 0x31E)
                         inventory.plasma_grenades = read_byte(get_dynamic_player(i) + 0x31F)
                         player_equipment[get_var(i,"$n")] = inventory
-                        local x, y, z = read_vector3d(get_dynamic_player(i) + 0x5C)
+                        local x, y, z = GetCoords(i)
                         AssignPrimarySecondary(i, x,y,z + 0.3)
                     end
                     if gamesettings["UseTurnTimer"] == true then
@@ -383,7 +383,8 @@ function OnTick()
                                     players[get_var(i, "$n")].current_juggernaut = nil
                                     players[get_var(i, "$n")].swap_timer = 0
                                     rprint(i, "You're no longer the Juggernaut!")
-                                    local x2, y2, z2 = read_vector3d(get_dynamic_player(i) + 0x5C)
+                                    -- to do: check if they're in a vehicle!
+                                    local x, y, z = GetCoords(i)
                                     death_location[i][1] = x2
                                     death_location[i][2] = y2
                                     death_location[i][3] = z2
@@ -615,7 +616,7 @@ function GetNewNumber(exclude)
 end
 
 function ResetPlayer(player)
-    -- to do: 
+    -- to do:
     -- protect against: possibility that the player enters a vehicle after the (reset_delay) timer has begun.
     local player = tonumber(player)
     local x, y, z = read_vector3d(get_dynamic_player(player) + 0x5C)
@@ -939,7 +940,7 @@ function OnVehicleExit(PlayerIndex)
             players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
             assign_weapons[PlayerIndex] = false
             if (player_alive(PlayerIndex)) then
-                local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                local x, y, z = GetCoords(PlayerIndex)
                 timer(CheckVehicle(PlayerIndex), "AssignPrimarySecondary", PlayerIndex, x,y,z + 0.3)
             end
         end
@@ -1031,6 +1032,26 @@ function PlayerInVehicle(PlayerIndex)
     else
         return false
     end
+end
+
+function GetCoords(PlayerIndex)
+    local player = get_dynamic_player(PlayerIndex)
+    if (player ~= 0) then
+        local posX, posY, posZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+        local vehicle = get_object_memory(read_dword(player + 0x11C))
+        if (vehicle ~= 0 and vehicle ~= nil) then
+            local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
+            posX = posX + vehiPosX
+            posY = posY + vehiPosY
+            posZ = posZ + vehiPosZ
+        end
+        return math.round(posX, 2), math.round(posY, 2), math.round(posZ, 2)
+    end
+    return nil
+end
+
+function math.round(num, idp)
+    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
 end
 
 function clear_console(PlayerIndex)
