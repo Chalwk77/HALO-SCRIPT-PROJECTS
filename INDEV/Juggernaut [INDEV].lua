@@ -291,15 +291,6 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    for x = 1, current_players do
-        if (current_players > 2) then
-            if player_present(x) then
-                if x == players[get_var(x, "$n")].current_juggernaut then
-                    SetNavMarker(tonumber(x))
-                end
-            end
-        end
-    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -360,6 +351,7 @@ function OnTick()
         if player_present(i) then
             if player_alive(i) then
                 if players[get_var(i, "$n")].current_juggernaut then
+                    SetNavMarker(tonumber(i))
                     if (assign_weapons[i] == true) then 
                         assign_weapons[i] = false
                         local inventory = {}
