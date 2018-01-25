@@ -372,8 +372,12 @@ function OnTick()
                         inventory.frag_grenades = read_byte(get_dynamic_player(i) + 0x31E)
                         inventory.plasma_grenades = read_byte(get_dynamic_player(i) + 0x31F)
                         player_equipment[get_var(i,"$n")] = inventory
-                        local x, y, z = GetCoords(i)
-                        AssignPrimarySecondary(i, x,y,z + 0.3)
+                        if not PlayerInVehicle(i) then
+                            local x, y, z = GetCoords(i)
+                            AssignPrimarySecondary(i, x,y,z + 0.3)
+                        else
+                            players[get_var(i, "$n")].vehicle_trigger = true
+                        end
                     end
                     if gamesettings["UseTurnTimer"] == true then
                         if (current_players >= turn_timer_min_players) then
@@ -385,9 +389,9 @@ function OnTick()
                                     rprint(i, "You're no longer the Juggernaut!")
                                     -- to do: check if they're in a vehicle!
                                     local x, y, z = GetCoords(i)
-                                    death_location[i][1] = x2
-                                    death_location[i][2] = y2
-                                    death_location[i][3] = z2
+                                    death_location[i][1] = x
+                                    death_location[i][2] = y
+                                    death_location[i][3] = z
                                     delete_weapons_bool[i] = true
                                     death_bool[i] = true
                                     execute_command("kill " .. i)
@@ -717,6 +721,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     -- suicide | victim was juggernaut | Call SwapRole() or Ignore
     if (victim == killer) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         say(victim, "You are no longer the Juggernaut!")
+        -- remove their juggernaut status
         players[get_var(victim, "$n")].current_juggernaut = nil
         -- reset nav markers
         ResetNavMarker()
@@ -727,7 +732,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
                 end
             end
-            -- remove their juggernaut status
             -- Call SwapRole() | Select someone else as the new Juggernaut
             timer(1000 * SuicideSelectDelay, "SwapRole", victim)
         else
@@ -737,6 +741,27 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     say(i, get_var(victim, "$name") .. " committed suicide")
                 end
             end
+        end
+    end
+    
+    if (killer == 0) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
+        -- remove their juggernaut status
+        players[get_var(victim, "$n")].current_juggernaut = nil
+        say(victim, "You are no longer the Juggernaut!")
+        -- reset nav markers
+        ResetNavMarker()
+        if (current_players >= turn_timer_min_players) then
+            for i = 1, current_players do
+                if i ~= victim then
+                    selection_bool = false
+                    say(i, get_var(victim, "$name") .. " died!")
+                    say(i, "A new player will be selected to become the Juggernaut in " .. SuicideSelectDelay .. " seconds!")
+                end
+            end
+            -- Call SwapRole() | Select someone else as the new Juggernaut
+            timer(1000 * SuicideSelectDelay, "SwapRole", victim)
+        else
+            selection_bool = true
         end
     end
     
@@ -759,8 +784,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
     end
     
+    if (killer == 0) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
+        say_all(get_var(victim, "$name") .. " was killed by a vehicle!")
+    end
+    
     -- killed by server, vehicle, glitch or unknown
-    if (killer == 0) or (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
+    if (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
     
