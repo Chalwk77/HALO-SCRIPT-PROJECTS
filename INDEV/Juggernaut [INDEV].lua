@@ -975,8 +975,9 @@ end
 
 -- This function is called secondary to OnVehicleExit()
 -- When the player presses their action key, OnVehicleExit() is called immediately. But the player hasn't "technically" left the vehicle until the previously mentioned animation has ended.
--- Therefore, we call RestoreWeapons() from OnVehicleExit() after the specified amount of time as pre-defined in CheckVehicle().
--- For example, if the player was in a ghost, RestoreWeapons() isn't called for 800ms (which is just the right amount of time required before the player has "technically" left that vehicle).
+-- Therefore, we call RestoreWeapons() from OnVehicleExit() after the specified amount of time as pre-defined in CheckVehicle() has expired.
+-- For example, if the player was in a ghost, RestoreWeapons() isn't called for 800ms...
+-- (which is just the right amount of time required to call RestoreWeapons() before the player has "technically" left that vehicle).
 function CheckVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
