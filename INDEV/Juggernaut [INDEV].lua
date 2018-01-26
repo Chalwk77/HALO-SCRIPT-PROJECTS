@@ -348,12 +348,12 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function EnterPreviousVehicle(PlayerIndex)
-    -- double check the player is alive and wasn't spawned killed!
+    -- double check player is alive and wasn't spawned killed!
     if player_alive(PlayerIndex) then
-        -- check if any data has been added to the temporary_vehicle_data table.
+        -- check if any data has been added to the (temporary_vehicle_data) table
         for i = 1, #temporary_vehicle_data[PlayerIndex] do
             if temporary_vehicle_data[PlayerIndex][i] ~= nil then
-                -- Enter player into this vehicle that was saved to the temporary_vehicle_data earlier 
+                -- enter player into this vehicle that was saved to the (temporary_vehicle_data) table in GetCoords() earlier 
                 local vehicle = temporary_vehicle_data[PlayerIndex][1]
                 local seat = temporary_vehicle_data[PlayerIndex][2]
                 if vehicle ~= nil and seat ~= nil then
@@ -1131,6 +1131,7 @@ function GetCoords(PlayerIndex)
             if (check_vehicle[PlayerIndex] == true) then
                 check_vehicle[PlayerIndex] = false
                 local seat = read_word(vehicle + 0x120)
+                -- to do: check if vehicle was flipped
                 table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle)
                 table.insert(temporary_vehicle_data[PlayerIndex], 2, seat)
                 force_into_vehicle[PlayerIndex] = true
