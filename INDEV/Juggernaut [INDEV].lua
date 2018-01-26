@@ -202,6 +202,11 @@ restore_inventory = { }
 set_after_spawn = { }
 game_timer = nil
 
+temporary_vehicle_data = { }
+for i = 1, 16 do temporary_vehicle_data[i] = { } end
+force_into_vehicle =  { }
+check_vehicle = { }
+
 -- counts --
 current_players = 0
 
@@ -254,23 +259,22 @@ function OnGameEnd()
         if player_present(i) then
             if player_present(i) then
                 welcome_timer[i] = false
-                if not (timeup) then
-                    players[get_var(i, "$n")].kills = 0
-                else
-                    players[get_var(i, "$n")].vehicle_trigger = false
-                    players[get_var(i, "$n")].current_juggernaut = nil
-                    players[get_var(i, "$n")].swap_timer = 0
-                    players[get_var(i, "$n")].join_timer = 0
-                    players[get_var(i, "$n")].time_alive = 0
-                    local kills = tonumber(players[get_var(i, "$n")].kills)
-                    rprint(i, "|c" .. kills)
-                end
+                players[get_var(i, "$n")].kills = 0
+                players[get_var(i, "$n")].vehicle_trigger = false
+                players[get_var(i, "$n")].current_juggernaut = nil
+                players[get_var(i, "$n")].swap_timer = 0
+                players[get_var(i, "$n")].join_timer = 0
+                players[get_var(i, "$n")].time_alive = 0
+                local kills = tonumber(players[get_var(i, "$n")].kills)
+                rprint(i, "|c" .. kills)
             end
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
+    force_into_vehicle[PlayerIndex] = false
+    check_vehicle[PlayerIndex] = false
     set_after_spawn[PlayerIndex] = false
     welcome_timer[PlayerIndex] = true
     restore_inventory[PlayerIndex] = false
@@ -337,18 +341,37 @@ function OnPlayerSpawn(PlayerIndex)
         restore_inventory[PlayerIndex] = false
         RestoreWeapons(PlayerIndex)
     end
+    if (force_into_vehicle[PlayerIndex] == true) then
+        force_into_vehicle[PlayerIndex] = false
+        EnterPreviousVehicle(PlayerIndex)
+    end
+end
+
+function EnterPreviousVehicle(PlayerIndex)
+    -- double check the player is alive and wasn't spawned killed!
+    if player_alive(PlayerIndex) then
+        -- check if any data has been added to the temporary_vehicle_data table.
+        for i = 1, #temporary_vehicle_data[PlayerIndex] do
+            if temporary_vehicle_data[PlayerIndex][i] ~= nil then
+                -- Enter this player into this vehicle that was saved to the temporary_vehicle_data earlier 
+                local old_vehicle = get_object_memory(temporary_vehicle_data[PlayerIndex][i])
+                if old_vehicle ~= nil then
+                    enter_vehicle(old_vehicle, PlayerIndex, 0)
+                    -- nil the table.
+                    temporary_vehicle_data[PlayerIndex][i] = nil
+                end
+            end
+        end
+    end
 end
 
 -- Ends the game when the (game_time_limit) has elapsed
-function GameCountDownTimer()
+function GameCountdownTimer()
     if (game_timer ~= nil) then
         local countdown_timer = math.floor(os.clock())
         if (countdown_timer == game_time_limit) then
             start_timer = false
             execute_command("sv_map_next")
-            timeup = true 
-        else
-            timeup = false 
         end
     end
 end
@@ -357,7 +380,7 @@ end
 -- Similar to Phasor's OnClientUpdate() function.
 function OnTick()
     -- initiate game countdown timer --
-    if (start_timer == true) then GameCountDownTimer() end
+    if (start_timer == true) then GameCountdownTimer() end
     -- weapon assignment and inventory saving --
     for i = 1,current_players do
         if player_present(i) then
@@ -409,19 +432,17 @@ function OnTick()
                                     players[get_var(i, "$n")].current_juggernaut = nil
                                     players[get_var(i, "$n")].swap_timer = 0
                                     rprint(i, "You're no longer the Juggernaut!")
+                                    check_vehicle[i] = false
                                     local x, y, z = GetCoords(i)
                                     death_location[i][1] = x
                                     death_location[i][2] = y
                                     death_location[i][3] = z
                                     delete_weapons_bool[i] = true
                                     death_bool[i] = true
-                                    
                                     -- to do:
                                     -- If the player was in a vehicle when SwapRole() is called, they aren't re-entered into that vehicle.
                                     -- fix this.
-                                    
                                     -- Alternatively: set vehicle.trigger flag | reset OnVehicleExit()
-                                    
                                     execute_command("kill " .. i)
                                     players[get_var(i, "$n")].vehicle_trigger = true
                                     restore_inventory[i] = true
@@ -645,7 +666,8 @@ function ResetPlayer(player)
     -- to do:
     -- protect against the possibility that this player enters a vehicle after the (ResetPlayer) timer has begun - called from OnTick()
     local player = tonumber(player)
-    local x, y, z = read_vector3d(get_dynamic_player(player) + 0x5C)
+    check_vehicle[player] = true
+    local x, y, z = GetCoords(player)
     death_location[player][1] = x
     death_location[player][2] = y
     death_location[player][3] = z
@@ -1104,7 +1126,13 @@ function GetCoords(PlayerIndex)
     if (player ~= 0) then
         local posX, posY, posZ = read_vector3d(player + 0x5C)
         local vehicle = get_object_memory(read_dword(player + 0x11C))
+        local vehicle_to_enter = read_dword(player + 0x11C)
         if (vehicle ~= 0 and vehicle ~= nil) then
+            if (check_vehicle[PlayerIndex] == true) then
+                check_vehicle[PlayerIndex] = false
+                table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle_to_enter)
+                force_into_vehicle[PlayerIndex] = true
+            end
             local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
             posX = posX + vehiPosX
             posY = posY + vehiPosY
