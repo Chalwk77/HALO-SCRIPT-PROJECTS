@@ -241,6 +241,7 @@ function OnNewGame()
 end
 
 function OnGameEnd()
+    start_timer = false
     current_players = 0
     for i = 1, 16 do
         if player_present(i) then
@@ -331,22 +332,25 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+-- Ends the game when the (game_time_limit) has elapsed
+function GameCountDownTimer()
+    if (game_timer ~= nil) then
+        local countdown_timer = math.floor(os.clock())
+        if (countdown_timer == game_time_limit) then
+            start_timer = false
+            execute_command("sv_map_next")
+            timeup = true 
+        else
+            timeup = false 
+        end
+    end
+end
+
 -- This function is called every game tick (1/30 second) - 33.3333333 ms.
 -- Similar to Phasor's OnClientUpdate() function.
 function OnTick()
-    -- game countdown timer --
-    if (start_timer == true) then
-        if (game_timer ~= nil) then
-            local countdown_timer = math.floor(os.clock())
-            if (countdown_timer == game_time_limit) then
-                start_timer = false
-                execute_command("sv_map_next")
-                timeup = true 
-            else
-                timeup = false 
-            end
-        end
-    end
+    -- initiate game countdown timer --
+    if (start_timer == true) then GameCountDownTimer() end
     -- weapon assignment and inventory saving --
     for i = 1,current_players do
         if player_present(i) then
