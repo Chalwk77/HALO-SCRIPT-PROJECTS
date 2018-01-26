@@ -976,7 +976,7 @@ function OnVehicleExit(PlayerIndex)
 end
 
 -- This function is called secondary to OnVehicleExit() and returns a number value determined by the current vehicle they are in.
--- When the player presses their action key, OnVehicleExit() is called immediately. But the player hasn't "technically" left the vehicle until the exit animation has ended.
+-- When the player presses their action key, OnVehicleExit() is called immediately, but the player hasn't "technically" left the vehicle until the exit animation has ended.
 -- Therefore, we call RestoreWeapons() from OnVehicleExit() after the specified amount of time as pre-defined in CheckVehicle() has expired.
 -- For example, if the player was in a ghost, RestoreWeapons() isn't called for 800ms...
 -- (which is just the right amount of time required to call RestoreWeapons() before the player has "technically" left that vehicle).
