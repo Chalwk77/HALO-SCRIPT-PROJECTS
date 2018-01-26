@@ -1113,6 +1113,7 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
 
+-- For debugging (not currently used)
 function secondsToTime(seconds, places)
     local minutes = math.floor(seconds / 60)
     seconds = seconds % 60
