@@ -607,8 +607,9 @@ function GetNewNumber(exclude)
 end
 
 function ResetPlayer(player)
+    -- This function is called when there are not enough players for a juggernaut to be in play.
     -- to do:
-    -- protect against: possibility that the player enters a vehicle after the (reset_delay) timer has begun.
+    -- protect against the possibility that this player enters a vehicle after the (ResetPlayer) timer has begun - called from OnTick()
     local player = tonumber(player)
     local x, y, z = read_vector3d(get_dynamic_player(player) + 0x5C)
     death_location[player][1] = x
