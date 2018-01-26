@@ -354,11 +354,12 @@ function EnterPreviousVehicle(PlayerIndex)
         for i = 1, #temporary_vehicle_data[PlayerIndex] do
             if temporary_vehicle_data[PlayerIndex][i] ~= nil then
                 -- Enter player into this vehicle that was saved to the temporary_vehicle_data earlier 
-                local vehicle = temporary_vehicle_data[PlayerIndex][i]
-                if vehicle ~= nil then
-                    enter_vehicle(vehicle, PlayerIndex, 0)
-                    -- nil the table.
+                local vehicle = temporary_vehicle_data[PlayerIndex][1]
+                local seat = temporary_vehicle_data[PlayerIndex][2]
+                if vehicle ~= nil and seat ~= nil then
+                    enter_vehicle(vehicle, PlayerIndex, seat)
                     temporary_vehicle_data[PlayerIndex][i] = nil
+                    break
                 end
             end
         end
@@ -1129,7 +1130,9 @@ function GetCoords(PlayerIndex)
         if (vehicle ~= 0 and vehicle ~= nil) then
             if (check_vehicle[PlayerIndex] == true) then
                 check_vehicle[PlayerIndex] = false
+                local seat = read_word(vehicle + 0x120)
                 table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle)
+                table.insert(temporary_vehicle_data[PlayerIndex], 2, seat)
                 force_into_vehicle[PlayerIndex] = true
             end
             local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
