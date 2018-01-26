@@ -354,30 +354,34 @@ function OnTick()
                 if players[get_var(i, "$n")].current_juggernaut then
                     SetNavMarker(tonumber(i))
                     if (assign_weapons[i] == true) then 
-                        assign_weapons[i] = false
-                        local inventory = {}
-                        inventory.loadout = {}
-                        for b = 0,3 do
-                            equipment_saved = get_object_memory(read_dword(get_dynamic_player(i) + 0x2F8 + b * 4))
-                            if equipment_saved ~= 0 then
-                                inventory.loadout[b+1] = {
-                                    ["id"] = read_dword(equipment_saved),
-                                    ["ammo"] = read_word(equipment_saved + 0x2B6),
-                                    ["clip"] = read_word(equipment_saved + 0x2B8),
-                                    ["ammo2"] = read_word(equipment_saved + 0x2C6),
-                                    ["clip2"] = read_word(equipment_saved + 0x2C8),
-                                    ["age"] = read_float(equipment_saved + 0x240)
-                                }
+                        local player_object = get_dynamic_player(i)
+                        if player_object ~= 0 then
+                            assign_weapons[i] = false
+                            local inventory = {}
+                            inventory.loadout = {}
+                            for b = 0,3 do
+                                weapon = get_object_memory(read_dword(player_object + 0x2F8 + b * 4))
+                                if weapon ~= 0 then
+                                    inventory.loadout[b+1] = {
+                                        ["identifier"] = read_dword(weapon),
+                                        ["ammo"] = read_word(weapon + 0x2B6),
+                                        ["clip"] = read_word(weapon + 0x2B8),
+                                        ["ammo2"] = read_word(weapon + 0x2C6),
+                                        ["clip2"] = read_word(weapon + 0x2C8),
+                                        ["age"] = read_float(weapon + 0x240)
+                                    }
+                                end
                             end
-                        end
-                        inventory.frag_grenades = read_byte(get_dynamic_player(i) + 0x31E)
-                        inventory.plasma_grenades = read_byte(get_dynamic_player(i) + 0x31F)
-                        player_equipment[get_var(i,"$n")] = inventory
-                        if not PlayerInVehicle(i) then
-                            local x, y, z = GetCoords(i)
-                            InventoryAssignment(i, x,y,z + 0.3)
-                        else
-                            players[get_var(i, "$n")].vehicle_trigger = true
+                            inventory.health = read_float(player_object + 0xE0)
+                            inventory.frag_grenades = read_byte(player_object + 0x31E)
+                            inventory.plasma_grenades = read_byte(player_object + 0x31F)
+                            player_equipment[get_var(i,"$n")] = inventory
+                            if not PlayerInVehicle(i) then
+                                local x, y, z = GetCoords(i)
+                                InventoryAssignment(i, x,y,z + 0.3)
+                            else
+                                players[get_var(i, "$n")].vehicle_trigger = true
+                            end
                         end
                     end
                     -- turn timer --
@@ -534,18 +538,20 @@ function RestoreWeapons(PlayerIndex)
         for X = 1,4 do execute_command("wdel " .. PlayerIndex) end
         local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
         local inventory = player_equipment[get_var(PlayerIndex,"$n")]
-        for _, equipment_saved in pairs(inventory.loadout) do
-            local saved_weapons = spawn_object("null","null", x, y, z + 0.3, 90, equipment_saved.id)
+        for k, weapon in pairs(inventory.loadout) do
+            local saved_weapons = spawn_object("null","null", x, y, z + 0.3, 90, weapon.identifier)
             local weapon_object = get_object_memory(saved_weapons)
-            write_word(weapon_object + 0x2B6, equipment_saved.ammo)
-            write_word(weapon_object + 0x2B8, equipment_saved.clip)
-            write_word(weapon_object + 0x2C6, equipment_saved.ammo2)
-            write_word(weapon_object + 0x2C8, equipment_saved.clip2)
-            write_float(weapon_object + 0x240, equipment_saved.age)
+            write_word(weapon_object + 0x2B6, weapon.ammo)
+            write_word(weapon_object + 0x2B8, weapon.clip)
+            write_word(weapon_object + 0x2C6, weapon.ammo2)
+            write_word(weapon_object + 0x2C8, weapon.clip2)
+            write_float(weapon_object + 0x240, weapon.age)
             sync_ammo(saved_weapons)
             assign_weapon(saved_weapons, PlayerIndex)
-            write_byte(get_dynamic_player(PlayerIndex) + 0x31E,inventory.frag_grenades)
-            write_byte(get_dynamic_player(PlayerIndex) + 0x31F,inventory.plasma_grenades)
+            -- set health | frags | plasmas
+            write_float(get_dynamic_player(PlayerIndex) + 0xE0, inventory.health)
+            write_byte(get_dynamic_player(PlayerIndex) + 0x31E, inventory.frag_grenades)
+            write_byte(get_dynamic_player(PlayerIndex) + 0x31F, inventory.plasma_grenades)
         end
     end
 end
