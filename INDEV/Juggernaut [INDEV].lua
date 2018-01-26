@@ -331,7 +331,7 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
--- This function is called ever tick (1/30 second) - 33.3333333 ms.
+-- This function is called every game tick (1/30 second) - 33.3333333 ms.
 -- Similar to Phasor's OnClientUpdate() function.
 function OnTick()
     -- game countdown timer --
