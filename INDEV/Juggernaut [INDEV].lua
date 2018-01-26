@@ -501,8 +501,9 @@ function OnTick()
 end
 
 -- This function handles primary, secondary, tertiary and quaternary weapon assignment
--- This function also sets player health & shield ratios and handles Grenade Assignment.
+-- This function also sets player health & shield ratios and calls AssignGrenades()
 function AssignPrimarySecondary(player, x,y,z)
+    -- Delete their current weapon loadout
     for x = 1,4 do execute_command("wdel " .. player) end
     for i = 1,2 do
         if weapons[i][3] == true then
