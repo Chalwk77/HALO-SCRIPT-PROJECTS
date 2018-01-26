@@ -612,8 +612,8 @@ function GetNewNumber(exclude)
     end
 end
 
+-- This function is called when there are not enough players for a juggernaut to be in play.
 function ResetPlayer(player)
-    -- This function is called when there are not enough players for a juggernaut to be in play.
     -- to do:
     -- protect against the possibility that this player enters a vehicle after the (ResetPlayer) timer has begun - called from OnTick()
     local player = tonumber(player)
@@ -803,6 +803,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
+-- This function is called when we need to set a new juggernaut manually and advance|update their score.
+-- Vehicle flags are also handled by this function
 function SetNewJuggernaut(player, update, advance)
     -- set new juggernaut
     players[get_var(player, "$n")].current_juggernaut = player
