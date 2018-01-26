@@ -353,10 +353,10 @@ function EnterPreviousVehicle(PlayerIndex)
         -- check if any data has been added to the temporary_vehicle_data table.
         for i = 1, #temporary_vehicle_data[PlayerIndex] do
             if temporary_vehicle_data[PlayerIndex][i] ~= nil then
-                -- Enter this player into this vehicle that was saved to the temporary_vehicle_data earlier 
-                local old_vehicle = get_object_memory(temporary_vehicle_data[PlayerIndex][i])
-                if old_vehicle ~= nil then
-                    enter_vehicle(old_vehicle, PlayerIndex, 0)
+                -- Enter player into this vehicle that was saved to the temporary_vehicle_data earlier 
+                local vehicle = temporary_vehicle_data[PlayerIndex][i]
+                if vehicle ~= nil then
+                    enter_vehicle(vehicle, PlayerIndex, 0)
                     -- nil the table.
                     temporary_vehicle_data[PlayerIndex][i] = nil
                 end
@@ -1126,11 +1126,10 @@ function GetCoords(PlayerIndex)
     if (player ~= 0) then
         local posX, posY, posZ = read_vector3d(player + 0x5C)
         local vehicle = get_object_memory(read_dword(player + 0x11C))
-        local vehicle_to_enter = read_dword(player + 0x11C)
         if (vehicle ~= 0 and vehicle ~= nil) then
             if (check_vehicle[PlayerIndex] == true) then
                 check_vehicle[PlayerIndex] = false
-                table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle_to_enter)
+                table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle)
                 force_into_vehicle[PlayerIndex] = true
             end
             local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
