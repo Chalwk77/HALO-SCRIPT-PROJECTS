@@ -124,12 +124,12 @@ for i = 1, 16 do damage_multipliers[i] = {
         { "weapons\\shotgun\\shotgun",                      1.250,            1.3}, 
         { "weapons\\sniper rifle\\sniper rifle",            1.500,            1.2}, 
         -- vehicles                                      damage           collision
-        { "vehicles\\warthog\\mp_warthog",                  1.350,            0.001},
-        { "vehicles\\ghost\\ghost_mp",                      2.200,            0.001},
-        { "vehicles\\rwarthog\\rwarthog",                   1.500,            0.001},
-        { "vehicles\\banshee\\banshee_mp",                  1.150,            0.001},
-        { "vehicles\\scorpion\\scorpion_mp",                1.100,            0.001},
-        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            0.001},
+        { "vehicles\\warthog\\mp_warthog",                  1.350,            1.050},
+        { "vehicles\\ghost\\ghost_mp",                      1.020,            1.025},
+        { "vehicles\\rwarthog\\rwarthog",                   1.500,            1.050},
+        { "vehicles\\banshee\\banshee_mp",                  1.150,            1.35},
+        { "vehicles\\scorpion\\scorpion_mp",                1.100,            4.50},
+        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            1},
         -- grenades                                       damage
         { "weapons\\frag grenade\\explosion",               1.5},
         { "weapons\\plasma grenade\\attached",              4},
@@ -396,6 +396,8 @@ function OnTick()
                                     -- to do:
                                     -- If the player was in a vehicle when SwapRole() is called, they aren't re-entered into that vehicle.
                                     -- fix this.
+                                    
+                                    -- Alternatively: set vehicle.trigger flag | reset OnVehicleExit()
                                     
                                     execute_command("kill " .. i)
                                     players[get_var(i, "$n")].vehicle_trigger = true
