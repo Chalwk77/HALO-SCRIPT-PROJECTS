@@ -500,7 +500,8 @@ function OnTick()
     end
 end
 
--- assign primary and secondary weapons
+-- This function handles primary, secondary, tertiary and quaternary weapon assignment
+-- This function also sets player health & shield ratios and handles Grenade Assignment.
 function AssignPrimarySecondary(player, x,y,z)
     for x = 1,4 do execute_command("wdel " .. player) end
     for i = 1,2 do
@@ -508,7 +509,7 @@ function AssignPrimarySecondary(player, x,y,z)
             assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), player)
         end
     end
-    timer(50, "AssignTertiaryQuaternary", player, x,y,z)
+    timer(100, "AssignTertiaryQuaternary", player, x,y,z)
     AssignGrenades(player)
     if (gamesettings["GiveExtraHealth"] == true) then
         write_float(get_dynamic_player(player) + 0xE0, math.floor(tonumber(juggernaut_health)))
@@ -516,13 +517,12 @@ function AssignPrimarySecondary(player, x,y,z)
     if (gamesettings["GiveOvershield"] == true) then
         write_float(get_dynamic_player(player) + 0xE4, math.floor(tonumber(juggernaut_shields)))
     end
-end
-
--- assign tertiary and quaternary weapons
-function AssignTertiaryQuaternary(player, x,y,z)
-    for i = 3,4 do
-        if weapons[i][3] == true then
-            assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), player)
+    -- NESTED FUNCTION. Assigns tertiary and quaternary weapons to the designated player.
+    function AssignTertiaryQuaternary(player, x,y,z)
+        for i = 3,4 do
+            if weapons[i][3] == true then
+                assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), player)
+            end
         end
     end
 end
