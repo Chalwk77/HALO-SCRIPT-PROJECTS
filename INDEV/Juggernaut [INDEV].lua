@@ -331,7 +331,7 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
--- A game tick has occurred. This is done once every 1/30 seconds (33.3333333 ms)
+-- This function is called ever tick (1/30 second) - 33.3333333 ms
 function OnTick()
     -- game countdown timer --
     if (start_timer == true) then
