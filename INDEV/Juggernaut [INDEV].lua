@@ -16,14 +16,15 @@ During a game, if there are only two players online then the only way to become 
 
 However, if there are 3 or more players online then a "turn timer" is initiated and you can only be the juggernaut for 60 seconds and then someone else is randomly selected to become the new juggernaut.
 Note, you can kill the juggernaut before their time is up and take their role.
+The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. 
 
 
 Coming in a future update...
 Weapon degradation implementation.
-After firing X bullets your weapon begins to wear down and doesn't function properly until it eventually breaks and you have to find a new weapon or PARTS to repair it... 
-Maybe even a repair station where you have to stand at a designated spot for X amount of time while your weapon is automatically repaired!
+After firing X amount of ammunition, your weapon begins to wear down and doesn't function properly until it eventually breaks and you have to find a new weapon or PARTS to repair it. 
+Perhaps I could even add an automated repair station. 
+The repair station will require the player to stand at its designated location for X amount of time while your weapon is automatically repaired!
 
-The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. 
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
