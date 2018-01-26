@@ -956,14 +956,14 @@ function DamageMultiplierHandler(CauserIndex)
     return tonumber(damage_multiplier[CauserIndex])
 end
 
--- This event is called when a player has entered a vehicle.
+-- This function is called when a player has entered a vehicle.
 function OnVehicleEntry(PlayerIndex)
     if players[get_var(PlayerIndex, "$n")].current_juggernaut then
         players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
     end
 end
 
--- This event is called when a player has exited a vehicle (called immediately after pressing action key and before exit animation has ended)
+-- This function is called when a player has exited a vehicle (called immediately after pressing action key and before exit animation has ended)
 function OnVehicleExit(PlayerIndex)
     if players[get_var(PlayerIndex, "$n")].current_juggernaut then
         if players[get_var(PlayerIndex, "$n")].vehicle_trigger == true then
