@@ -625,6 +625,7 @@ function ResetPlayer(player)
     end
 end
 
+-- This function is called any time a death occurs.
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     execute_command("msg_prefix \"\"")
     local victim = tonumber(PlayerIndex)
@@ -830,6 +831,7 @@ function AnnounceNewJuggernaut(player)
     end
 end
 
+-- This function is called when damage is applied to a player.
 function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if tonumber(CauserIndex) > 0 then 
         if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
@@ -891,6 +893,7 @@ function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitStri
     end
 end
 
+-- This function is called secondary to OnDamageApplication() and handles damage multiplier ratios.
 function DamageMultiplierHandler(CauserIndex)
     local player_object = get_dynamic_player(CauserIndex)
     if player_object ~= 0 then
@@ -945,12 +948,14 @@ function DamageMultiplierHandler(CauserIndex)
     return tonumber(damage_multiplier[CauserIndex])
 end
 
+-- This event is called when a player has entered a vehicle.
 function OnVehicleEntry(PlayerIndex)
     if players[get_var(PlayerIndex, "$n")].current_juggernaut then
         players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
     end
 end
 
+-- This event is called when a player has exited a vehicle (called immediately after pressing action key and before exit animation has ended)
 function OnVehicleExit(PlayerIndex)
     if players[get_var(PlayerIndex, "$n")].current_juggernaut then
         if players[get_var(PlayerIndex, "$n")].vehicle_trigger == true then
@@ -968,6 +973,10 @@ function OnVehicleExit(PlayerIndex)
     end
 end
 
+-- This function is called secondary to OnVehicleExit()
+-- When the player presses their action key, OnVehicleExit() is called immediately. But the player hasn't "technically" left the vehicle until the previously mentioned animation has ended.
+-- Therefore, we call RestoreWeapons() from OnVehicleExit() after the specified amount of time as pre-defined in CheckVehicle().
+-- For example, if the player was in a ghost, RestoreWeapons() isn't called for 800ms (which is just the right amount of time required before the player has "technically" left that vehicle).
 function CheckVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 then
