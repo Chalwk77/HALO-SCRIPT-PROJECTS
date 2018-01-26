@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Juggernaut, for SAPP (PC & CE), beta v1.1
+Script Name: Juggernaut, for SAPP Server Extension on (Halo PC & Halo PC Custom Edition), beta v1.1
 Implementing API version: 1.12.0.0
 
 When the game begins, the player to get "first blood" becomes the juggernaut. 
