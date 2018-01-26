@@ -313,6 +313,7 @@ function OnPlayerPrespawn(PlayerIndex)
     end
 end
 
+-- This function is called when a player has finished spawning.
 function OnPlayerSpawn(PlayerIndex)
     if (set_after_spawn[PlayerIndex] == true) then
         set_after_spawn[PlayerIndex] = false
@@ -330,6 +331,7 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+-- A game tick has occurred. This is done once every 1/30 seconds (33.3333333 ms)
 function OnTick()
     -- game countdown timer --
     if (start_timer == true) then
