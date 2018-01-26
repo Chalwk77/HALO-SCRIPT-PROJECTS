@@ -374,7 +374,7 @@ function OnTick()
                         player_equipment[get_var(i,"$n")] = inventory
                         if not PlayerInVehicle(i) then
                             local x, y, z = GetCoords(i)
-                            AssignPrimarySecondary(i, x,y,z + 0.3)
+                            InventoryAssignment(i, x,y,z + 0.3)
                         else
                             players[get_var(i, "$n")].vehicle_trigger = true
                         end
@@ -502,7 +502,7 @@ end
 
 -- This function handles primary, secondary, tertiary and quaternary weapon assignment
 -- This function also sets player health & shield ratios and calls AssignGrenades()
-function AssignPrimarySecondary(player, x,y,z)
+function InventoryAssignment(player, x,y,z)
     -- Delete their current weapon loadout
     for x = 1,4 do execute_command("wdel " .. player) end
     for i = 1,2 do
@@ -518,7 +518,7 @@ function AssignPrimarySecondary(player, x,y,z)
     if (gamesettings["GiveOvershield"] == true) then
         write_float(get_dynamic_player(player) + 0xE4, math.floor(tonumber(juggernaut_shields)))
     end
-    -- NESTED FUNCTION. Assigns tertiary and quaternary weapons to the designated player.
+    -- NESTED FUNCTION: Assigns tertiary and quaternary weapons to the designated player.
     function AssignTertiaryQuaternary(player, x,y,z)
         for i = 3,4 do
             if weapons[i][3] == true then
@@ -599,6 +599,9 @@ function SwapRole(exclude)
     execute_command("msg_prefix \"** "..SERVER_PREFIX.." ** \"")
 end
 
+-- This function calls itself until (new_number) no longer evaluates to (exclude)
+-- exclude is the index id of the immediate previous juggernaut.
+-- new_number is the randomly selected index id of the juggernaut to be.
 function GetNewNumber(exclude)
     local new_number = math.random(1,current_players)
     if new_number == exclude then
@@ -966,7 +969,7 @@ function OnVehicleExit(PlayerIndex)
             assign_weapons[PlayerIndex] = false
             if (player_alive(PlayerIndex)) then
                 local x, y, z = GetCoords(PlayerIndex)
-                timer(CheckVehicle(PlayerIndex), "AssignPrimarySecondary", PlayerIndex, x,y,z + 0.3)
+                timer(CheckVehicle(PlayerIndex), "InventoryAssignment", PlayerIndex, x,y,z + 0.3)
             end
         end
     end
