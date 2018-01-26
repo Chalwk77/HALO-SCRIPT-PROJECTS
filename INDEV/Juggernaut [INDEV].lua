@@ -5,23 +5,19 @@ Implementing API version: 1.12.0.0
 
 When the game begins, the player to get "first blood" becomes the juggernaut. 
 
-Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camo and full over-shield.
+Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camouflage and full over-shield.
+
 The game incorporates changes to player physics, weapon projectiles, inventory saving and loading among other features.
-Your objective as the juggernaut is to stay alive for as long as possible and wreak havoc upon your enemies
+Your objective as the juggernaut is to stay alive for as long as possible and wreak havoc on your enemies
 
 The non-juggernaut objective is to hunt down and kill the aforementioned current juggernaut - you will now become the juggernaut yourself.
 
 During a game, if there are only two players online then the only way to become the juggernaut is to kill them as previously mentioned. 
+
 However, if there are 3 or more players online then a "turn timer" is initiated and you can only be the juggernaut for 60 seconds and then someone else is randomly selected to become the new juggernaut.
+Note, you can kill the juggernaut before their time is up and take their role. 
 
-The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. If it was the latter, the player who had the most kills (as the juggernaut) wins.
-
-Note: Someone who was never the Juggernaut during that game might have more kills than someone who was the Juggernaut. 
-That player cannot win the game simply because they were never the Juggernaut.
-
-The main objective is to become the Juggernaut and either reach the kill threshold or have more kills (as the Juggernaut not as a non-juggernaut) than anybody else who was the Juggernaut when the game ends after the time limit has elapsed.
-
-* Many game play mechanics and variables can be changed to suit your desired taste. See configuration section below for more!
+The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. 
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -62,7 +58,7 @@ killLimit = 25
 -- Default Running Speed for non-juggernauts
 default_running_speed = 1
 -- juggernaut Turn-Duration (in seconds)
-TurnTime = 60
+TurnTime = 10
 -- When juggernaut commits suicide, how long (in seconds) until someone else is chosen to be juggernaut?
 SuicideSelectDelay = 5
 -- juggernaut is rewarded (alive_points) every (allocated_time) seconds (30 by default)
@@ -196,7 +192,6 @@ delete_weapons_bool = { }
 restore_inventory = { }
 
 -- booleans --
-nav_marker_bool = nil
 set_after_spawn = { }
 game_timer = nil
 
@@ -282,7 +277,8 @@ function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].swap_timer = 0
     players[get_var(PlayerIndex, "$n")].join_timer = 0
     players[get_var(PlayerIndex, "$n")].time_alive = 0
-    if current_players == 2 then
+    -- ensure nav markers are reset for everybody
+    if current_players >= 2 then
         for i = 1, current_players do
             if player_present(i) then
                 if (i ~= players[get_var(i, "$n")].current_juggernaut) then
@@ -335,6 +331,7 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnTick()
+    -- game countdown timer --
     if (start_timer == true) then
         if (game_timer ~= nil) then
             local countdown_timer = math.floor(os.clock())
@@ -347,6 +344,7 @@ function OnTick()
             end
         end
     end
+    -- weapon assignment and inventory saving --
     for i = 1,current_players do
         if player_present(i) then
             if player_alive(i) then
@@ -379,6 +377,7 @@ function OnTick()
                             players[get_var(i, "$n")].vehicle_trigger = true
                         end
                     end
+                    -- turn timer --
                     if gamesettings["UseTurnTimer"] == true then
                         if (current_players >= turn_timer_min_players) then
                             if (i == players[get_var(i, "$n")].current_juggernaut) then
@@ -387,14 +386,19 @@ function OnTick()
                                     players[get_var(i, "$n")].current_juggernaut = nil
                                     players[get_var(i, "$n")].swap_timer = 0
                                     rprint(i, "You're no longer the Juggernaut!")
-                                    -- to do: check if they're in a vehicle!
                                     local x, y, z = GetCoords(i)
                                     death_location[i][1] = x
                                     death_location[i][2] = y
                                     death_location[i][3] = z
                                     delete_weapons_bool[i] = true
                                     death_bool[i] = true
+                                    
+                                    -- to do:
+                                    -- If the player was in a vehicle when SwapRole() is called, they aren't re-entered into that vehicle.
+                                    -- fix this.
+                                    
                                     execute_command("kill " .. i)
+                                    players[get_var(i, "$n")].vehicle_trigger = true
                                     restore_inventory[i] = true
                                     SwapRole(tonumber(i))
                                 end
@@ -403,25 +407,6 @@ function OnTick()
                     end
                 else
                     execute_command("s " .. i .. " " .. tonumber(default_running_speed))
-                end
-            end
-        end
-    end
-    -- nobody is the juggernaut | hide nav markers
-    if (current_players >= minimum_players) then
-        for j = 1, current_players do
-            if player_present(j) then
-                if (j ~= players[get_var(j, "$n")].current_juggernaut) then
-                    local m_player = get_player(j)
-                    if m_player ~= 0 then
-                        if j ~= nil then
-                            if (nav_marker_bool) == true then
-                                nav_marker_bool = false
-                                write_word(m_player + 0x88, to_real_index(j) + 10)
-                                selection_bool = true
-                            end
-                        end
-                    end
                 end
             end
         end
@@ -700,6 +685,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     elseif (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
                         selection_bool = false
                         players[get_var(victim, "$n")].current_juggernaut = nil
+                        ResetNavMarker()
                         SetNewJuggernaut(tonumber(killer), false, true)
                         break
                     end
@@ -808,7 +794,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function SetNewJuggernaut(player, update, advance)
-    nav_marker_bool = false
     -- set new juggernaut
     players[get_var(player, "$n")].current_juggernaut = player
     -- set nav marker to that player
@@ -1066,7 +1051,7 @@ end
 function GetCoords(PlayerIndex)
     local player = get_dynamic_player(PlayerIndex)
     if (player ~= 0) then
-        local posX, posY, posZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+        local posX, posY, posZ = read_vector3d(player + 0x5C)
         local vehicle = get_object_memory(read_dword(player + 0x11C))
         if (vehicle ~= 0 and vehicle ~= nil) then
             local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
