@@ -1019,6 +1019,7 @@ function DeleteWeapons(PlayerIndex)
     end
 end
 
+-- This function is called any time we need to set the nav markers
 function SetNavMarker(Juggernaut)
     for i = 1, 16 do
         if player_present(i) then
@@ -1035,6 +1036,7 @@ function SetNavMarker(Juggernaut)
     end
 end
 
+-- This function is called any time we need to reset the nav markers
 function ResetNavMarker()
     for i = 1, current_players do
         if player_present(i) then
@@ -1074,13 +1076,15 @@ function GetCoords(PlayerIndex)
             posY = posY + vehiPosY
             posZ = posZ + vehiPosZ
         end
-        return math.round(posX, 2), math.round(posY, 2), math.round(posZ, 2)
+        return round(posX, 2), round(posY, 2), round(posZ, 2)
     end
     return nil
 end
 
-function math.round(num, idp)
-    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+-- This function is called from GetCoords() and rounds a number to the given number of decimal places.
+function round(pos, places)
+  local mult = 10^(places or 0)
+  return math.floor(pos * mult + 0.5) / mult
 end
 
 function clear_console(PlayerIndex)
