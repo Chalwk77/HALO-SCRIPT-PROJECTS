@@ -368,11 +368,16 @@ function OnTick()
                                 if weapon ~= 0 then
                                     inventory.loadout[b+1] = {
                                         ["identifier"] = read_dword(weapon),
-                                        ["ammo"] = read_word(weapon + 0x2B6),
-                                        ["clip"] = read_word(weapon + 0x2B8),
-                                        ["ammo2"] = read_word(weapon + 0x2C6),
-                                        ["clip2"] = read_word(weapon + 0x2C8),
-                                        ["age"] = read_float(weapon + 0x240)
+                                         -- primary loaded ammo
+                                        ["primary_loaded_ammo"] = read_word(weapon + 0x2B8),
+                                        -- primary reserve ammo
+                                        ["primary_reserve_ammo"] = read_word(weapon + 0x2B6),
+                                        -- secondary loaded ammo
+                                        ["secondary_loaded_ammo"] = read_word(weapon + 0x2C6),
+                                        -- secondary reserve ammo
+                                        ["secondary_reserve_ammo"] = read_word(weapon + 0x2C8),
+                                        -- battery age
+                                        ["battery"] = read_float(weapon + 0x240)
                                     }
                                 end
                             end
@@ -545,11 +550,16 @@ function RestoreWeapons(PlayerIndex)
         for k, weapon in pairs(inventory.loadout) do
             local saved_weapons = spawn_object("null","null", x, y, z + 0.3, 90, weapon.identifier)
             local weapon_object = get_object_memory(saved_weapons)
-            write_word(weapon_object + 0x2B6, weapon.ammo)
-            write_word(weapon_object + 0x2B8, weapon.clip)
-            write_word(weapon_object + 0x2C6, weapon.ammo2)
-            write_word(weapon_object + 0x2C8, weapon.clip2)
-            write_float(weapon_object + 0x240, weapon.age)
+            -- primary loaded ammo
+            write_word(weapon_object + 0x2B8, weapon.primary_loaded_ammo)
+            -- primary reserve ammo
+            write_word(weapon_object + 0x2B6, weapon.primary_reserve_ammo)
+            -- secondary loaded ammo
+            write_word(weapon_object + 0x2C6, weapon.secondary_loaded_ammo)
+            -- secondary reserve ammo
+            write_word(weapon_object + 0x2C8, weapon.secondary_reserve_ammo)
+            -- battery age
+            write_float(weapon_object + 0x240, weapon.battery)
             sync_ammo(saved_weapons)
             assign_weapon(saved_weapons, PlayerIndex)
             -- set health | frags | plasmas
