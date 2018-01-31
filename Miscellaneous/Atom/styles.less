@@ -2,48 +2,15 @@
 .tree-view {
   // background-color: whitesmoke;
 }
-
 // style the background and foreground colors on the atom-text-editor-element itself
 atom-text-editor {
   color: white;
   background-color: hsl(180, 24%, 12%);
 }
-
 // style UI elements inside atom-text-editor
 atom-text-editor .cursor {
-  border-color: white;
+  //border-color: white;
 }
-
-
-// this changes the Lua syntax highlighting for comments
-atom-text-editor .syntax--comment.syntax--lua {
-  color: rgb(0, 128, 0);
-}
-
-// this changes the Lua syntax highlighting for constents
-atom-text-editor .syntax--constant.syntax--language.syntax--lua {
-  color: rgb(0, 128, 220);
-}
-// this changes the Lua syntax highlighting for controls
-atom-text-editor .syntax--keyword.syntax--control.syntax--lua {
-  color: rgb(0, 128, 220);
-}
-
-// this changes the Lua syntax highlighting for support methods (i.e, math.random)
-atom-text-editor .syntax--support.syntax--function.syntax--library.syntax--lua {
-  color: rgb(255, 0, 128);
-}
-
-// this changes the Lua syntax highlighting for any of the following characters (not including comma): =, +, ~, ..
-atom-text-editor .syntax--keyword.syntax--operator.syntax--lua {
-  color: rgb(51, 133, 255);
-}
-
-// this changes the Lua syntax highlighting of function names, i.e OnPlayerJoin
-atom-text-editor .syntax--entity.syntax--name.syntax--function.syntax--lua {
-  color: rgb(220, 0, 0);
-}
-
 // bracket highlighter
 atom-text-editor::shadow {
   .highlights .bracket-matcher .region {
@@ -51,8 +18,7 @@ atom-text-editor::shadow {
     background-color: red;
   }
 }
-
-// show a dotted line underneath folded lines
+// insert dotted line below folded lines
 @import (reference) "syntax-variables";
 atom-text-editor::shadow {
   .fold-marker {
@@ -73,4 +39,51 @@ atom-text-editor::shadow {
       border-color: @syntax-text-color;
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+atom-text-editor
+// changes the Lua syntax highlighting of starting-quotation-mark
+  .syntax--punctuation.syntax--definition.syntax--string.syntax--begin.syntax--lua
+  {
+  color: gray;
+}
+// changes the Lua syntax highlighting of ending-quotation-mark
+  .syntax--punctuation.syntax--definition.syntax--string.syntax--end.syntax--lua
+  {
+  color: gray;
+}
+// changes the Lua syntax highlighting of the content inside quotes
+  .syntax--string.syntax--quoted.syntax--double.syntax--lua
+  {
+  color: gray;
+}
+// changes the Lua syntax highlighting of function names, i.e OnPlayerJoin
+  .syntax--entity.syntax--name.syntax--function.syntax--lua {
+  color: gray;
+  font-weight: bold;
+}
+// changes the Lua syntax highlighting for any of the following characters: = + ~ ..
+  .syntax--keyword.syntax--operator.syntax--lua {
+  color: rgb(51, 133, 255);
+}
+// changes the Lua syntax highlighting for support functions (i.e, math.random)
+  .syntax--support.syntax--function.syntax--library.syntax--lua {
+  color: rgb(255, 0, 128);
+}
+// changes the Lua syntax highlighting for comments
+  .syntax--comment.syntax--lua {
+  color: rgb(0, 128, 0);
+}
+// changes the Lua syntax highlighting for booleans (true, false)
+  .syntax--constant.syntax--language.syntax--lua {
+  color: rgb(0, 128, 220);
+}
+// changes the Lua syntax highlighting for (function, if, then, local, and, break, for, do, else, elseif, not ...)
+  .syntax--keyword.syntax--control.syntax--lua {
+  color: rgb(0, 128, 220);
+}
+
+.syntax--support.syntax--function {
+    color: rgb(0, 204, 204);
 }
