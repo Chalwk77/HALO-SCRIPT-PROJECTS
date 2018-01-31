@@ -14,7 +14,7 @@
      'body': 'api_version = "1.12.0.0"'
    'OnScriptLoad':
      'prefix': 'OnScriptLoad'
-     'body': 'OnScriptLoad()\n      register_callback(cb["EVENT_NAME"], "FunctionName")\nend'
+     'body': 'OnScriptLoad()\n\tregister_callback(cb["EVENT_NAME"], "function_name")\nend'
    'OnEcho':
      'prefix': 'OnEcho'
      'body': 'OnEcho()\n\nend'
