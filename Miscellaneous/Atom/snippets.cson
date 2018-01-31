@@ -17,18 +17,22 @@
    'OnScriptLoad':
      'prefix': 'OnScriptLoad'
      'body': 'OnScriptLoad()\n\tregister_callback(cb["EVENT_NAME"], "function_name")\nend'
+     'description': "description_here"
 
    'OnEcho':
      'prefix': 'OnEcho'
      'body': 'OnEcho()\n\nend'
+     'description': "description_here"
 
    'OnSnap':
      'prefix': 'OnSnap'
      'body': 'OnSnap(PlayerIndex, SnapScore)\n\nend'
+     'description': "description_here"
 
    'OnCamp':
      'prefix': 'OnCamp'
      'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
+     'description': "description_here"
 
    'OnWarp':
      'prefix': 'OnWarp'
@@ -38,10 +42,12 @@
    'OnLogin':
      'prefix': 'OnLogin'
      'body': 'OnLogin(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnScore':
      'prefix': 'OnScore'
      'body': 'OnScore(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnTick':
      'prefix': 'OnTick'
@@ -51,25 +57,32 @@
    'OnBetray':
      'prefix': 'OnBetray'
      'body': 'OnBetray(PlayerIndex, VictimIndex)\n\nend'
+     'description': "description_here"
 
    'OnSuicide':
      'prefix': 'OnSuicide'
      'body': 'OnSuicide(PlayerIndex)\n\nend'
+     'description': "description_here"
+
    'OnGameEnd':
      'prefix': 'OnGameEnd'
      'body': 'OnGameEnd()\n\nend'
+     'description': "description_here"
 
    'OnNewGame':
      'prefix': 'OnNewGame'
      'body': 'OnNewGame()\n\nend'
+     'description': "description_here"
 
    'OnMapReset':
      'prefix': 'OnMapReset'
      'body': 'OnMapReset()\n\nend'
+     'description': "description_here"
 
    'OnAreaExit':
      'prefix': 'OnAreaExit'
      'body': 'OnAreaExit(PlayerIndex, AreaName)\n\nend'
+     'description': "description_here"
 
    'OnAreaEnter':
      'prefix': 'OnAreaEnter'
@@ -78,10 +91,12 @@
    'OnTeamSwitch':
      'prefix': 'OnTeamSwitch'
      'body': 'OnTeamSwitch(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnPlayerJoin':
      'prefix': 'OnPlayerJoin'
      'body': 'OnPlayerJoin(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnPlayerChat':
      'prefix': 'OnPlayerChat'
@@ -96,30 +111,37 @@
    'OnPlayerKill':
      'prefix': 'OnPlayerKill'
      'body': 'OnPlayerKill(PlayerIndex, VictimIndex)\n\nend'
+     'description': "description_here"
 
    'OnCheckAlive':
      'prefix': 'OnCheckAlive'
      'body': 'OnCheckAlive(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnPlayerDeath':
      'prefix': 'OnPlayerDeath'
      'body': 'OnPlayerDeath(PlayerIndex, KillerIndex)\n\nend'
+     'description': "description_here"
 
    'OnPlayerSpawn':
      'prefix': 'OnPlayerSpawn'
      'body': 'OnPlayerSpawn(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnPlayerLeave':
      'prefix': 'OnPlayerLeave'
      'body': 'OnPlayerLeave(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnObjectSpawn':
      'prefix': 'OnObjectSpawn'
      'body': 'OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)\n\nend'
+     'description': "description_here"
 
    'OnVehicleExit':
      'prefix': 'OnVehicleExit'
      'body': 'OnVehicleExit(PlayerIndex)\n\nend'
+     'description': "description_here"
 
    'OnWeaponPickup':
      'prefix': 'OnWeaponPickup'
@@ -161,3 +183,4 @@
    'OnDamageApplication':
      'prefix': 'OnDamageApplication'
      'body': 'OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)\n\nend'
+     'description': "description_here"
