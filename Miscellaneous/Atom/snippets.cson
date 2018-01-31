@@ -12,6 +12,7 @@
    'api_version':
      'prefix': 'api_version'
      'body': 'api_version = "1.12.0.0"'
+     'description': 'This is the Lua API version being used on the server'
 
    'OnScriptLoad':
      'prefix': 'OnScriptLoad'
@@ -29,9 +30,10 @@
      'prefix': 'OnCamp'
      'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
 
-   'This function is called when a player has warped more times than specified by the antiwarp command, if it’s enabled.':
+   'OnWarp':
      'prefix': 'OnWarp'
      'body': 'OnWarp(PlayerIndex)\n\nend'
+     'description': 'This function is called when a player has warped more times than specified by the antiwarp command, if it’s enabled.'
 
    'OnLogin':
      'prefix': 'OnLogin'
@@ -41,9 +43,10 @@
      'prefix': 'OnScore'
      'body': 'OnScore(PlayerIndex)\n\nend'
 
-   'This function is called every game tick (1/30 second) - 33.3333333 ms':
+   'OnTick':
      'prefix': 'OnTick'
      'body': 'OnTick()\n\nend'
+     'description': "This function is called every game tick (1/30 second) - 33.3333333 ms\n\nSimilar to Phasor's OnClientUpdate() function."
 
    'OnBetray':
      'prefix': 'OnBetray'
@@ -80,13 +83,15 @@
      'prefix': 'OnPlayerJoin'
      'body': 'OnPlayerJoin(PlayerIndex)\n\nend'
 
-   'This function is called when a player has sent a message. Returning false will block the message':
+   'OnPlayerChat':
      'prefix': 'OnPlayerChat'
      'body': 'OnPlayerChat(PlayerIndex, Message, Type)\n\nend'
+     'description': 'This function is called when a player has sent a message.\n\nReturning false will block the message'
 
-   'This function is called when a player has dropped a weapon':
+   'OnWeaponDrop':
      'prefix': 'OnWeaponDrop'
      'body': 'OnWeaponDrop(PlayerIndex, Slot)\n\nend'
+     'description': 'This function is called when a player has dropped a weapon'
 
    'OnPlayerKill':
      'prefix': 'OnPlayerKill'
@@ -116,25 +121,42 @@
      'prefix': 'OnVehicleExit'
      'body': 'OnVehicleExit(PlayerIndex)\n\nend'
 
-   'This function is called when a player has picked up a weapon/grenade':
+   'OnWeaponPickup':
      'prefix': 'OnWeaponPickup'
      'body': 'OnWeaponPickup(PlayerIndex, WeaponIndex, Type)\n\nend'
+     'description': 'This function is called when a player has picked up a weapon/grenade'
 
-   'This function is called when a player has entered a vehicle':
+   'OnVehicleEntry':
      'prefix': 'OnVehicleEntry'
      'body': 'OnVehicleEntry(PlayerIndex, Seat)\n\nend'
+     'description': 'This function is called when a player has entered a vehicle'
 
    'OnServerCommand':
      'prefix': 'OnServerCommand'
      'body': 'OnServerCommand(PlayerIndex, Command, Environment)\n\nend'
+     'description': '
+      This event is called when a player attempts to use a command (valid
+      or not) through rcon or messages or when the console has issued a
+      command (remotely or not). Returning false will block the command.\n\n\n
+      Note that some Player Commands cannot be blocked.\n\n
+      Possible values for Environment:\n
+      0 = sent through the console (RconPassword is nil)\n\n
+      1 = sent through rcon\n
+      2 = sent through chat (RconPassword is nil)\n
+      Takes: number PlayerIndex, string Command, number Environment,\n
+      string RconPassword\n
+      Returns: optional boolean Allow\n
+     '
 
-   "A player is attempting to join the server":
+   'OnPlayerPrejoin':
      'prefix': 'OnPlayerPrejoin'
      'body': 'OnPlayerPrejoin(PlayerIndex)\n\nend'
+     'description': 'This function is called when a player is attempting to join the server but the connection has not been completely established yet.'
 
-   'Player is spawning (not alive yet)':
+   'OnPlayerPrespawn':
      'prefix': 'OnPlayerPrespawn'
      'body': 'OnPlayerPrespawn(PlayerIndex)\n\nend'
+     'description': 'This function is called when a player is spawning (but not alive yet)'
 
    'OnDamageApplication':
      'prefix': 'OnDamageApplication'
