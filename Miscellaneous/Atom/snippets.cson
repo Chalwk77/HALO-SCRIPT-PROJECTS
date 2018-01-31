@@ -1,7 +1,26 @@
  '.source.lua':
+   'script_title':
+     'prefix': 'script_title'
+     'body': '
+     --[[\n
+     --=====================================================================================================--\n
+     Script Name: Document_Name, for SAPP (PC & CE)\n
+     Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>\n
+     * Notice: You can use this document subject to the following conditions:\n
+     https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE\n
+     * Written by Jericho Crosby (Chalwk)\n
+     --=====================================================================================================--\n
+     ]]--
+     \n\n
+     api_version = "1.12.0.0"\n\n
+     function OnScriptLoad()\n\tregister_callback(cb["EVENT_NAME"], "function_name")\nend\n\n\n
+     '
+   'api_version':
+     'prefix': 'api_version'
+     'body': 'api_version = "1.12.0.0"'
    'OnScriptLoad':
      'prefix': 'OnScriptLoad'
-     'body': 'OnScriptLoad()\n    register_callback(cb["EVENT_NAME"], "FunctionName")\nend'
+     'body': 'OnScriptLoad()\n      register_callback(cb["EVENT_NAME"], "FunctionName")\nend'
    'OnEcho':
      'prefix': 'OnEcho'
      'body': 'OnEcho()\n\nend'
