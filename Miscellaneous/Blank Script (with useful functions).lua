@@ -168,7 +168,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 
 end
 
---- USEFUL MISC FUNCTIONS
+--- USEFUL MISC FUNCTIONS ------------------------------------------------------------------------------
 function OnError(Message)
     print(debug.traceback())
 end
@@ -235,5 +235,33 @@ end
 function clear_console(PlayerIndex)
     for i = 1, 30 do
         rprint(PlayerIndex, " ")
+    end
+end
+
+function PrintExclude(ExcludeIndex, Message)
+    for i = 1, 16 do
+        if player_present(i) then
+            if i ~= ExcludeIndex then
+                execute_command("msg_prefix \"\"")
+                say(i, " " .. Message)
+                execute_command("msg_prefix \"** SERVER ** \"")
+            end
+        end
+    end
+end
+
+function SetNavMarker(Target)
+    for i = 1, 16 do
+        if player_present(i) then
+            local m_player = get_player(i)
+            local player = to_real_index(i)
+            if m_player ~= 0 then
+                if (Target ~= nil) then
+                    write_word(m_player + 0x88, to_real_index(Target))
+                else
+                    write_word(m_player + 0x88, player)
+                end
+            end
+        end
     end
 end
