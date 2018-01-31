@@ -12,99 +12,130 @@
    'api_version':
      'prefix': 'api_version'
      'body': 'api_version = "1.12.0.0"'
+
    'OnScriptLoad':
      'prefix': 'OnScriptLoad'
      'body': 'OnScriptLoad()\n\tregister_callback(cb["EVENT_NAME"], "function_name")\nend'
+
    'OnEcho':
      'prefix': 'OnEcho'
      'body': 'OnEcho()\n\nend'
+
    'OnSnap':
      'prefix': 'OnSnap'
      'body': 'OnSnap(PlayerIndex, SnapScore)\n\nend'
+
    'OnCamp':
      'prefix': 'OnCamp'
      'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
+
    'OnWarp':
      'prefix': 'OnWarp'
      'body': 'OnWarp(PlayerIndex)\n\nend'
+
    'OnLogin':
      'prefix': 'OnLogin'
      'body': 'OnLogin(PlayerIndex)\n\nend'
+
    'OnScore':
      'prefix': 'OnScore'
      'body': 'OnScore(PlayerIndex)\n\nend'
-   'OnTick':
+
+   'This function is called every game tick (1/30 second) - 33.3333333 ms':
      'prefix': 'OnTick'
      'body': 'OnTick()\n\nend'
+
    'OnBetray':
      'prefix': 'OnBetray'
      'body': 'OnBetray(PlayerIndex, VictimIndex)\n\nend'
+
    'OnSuicide':
      'prefix': 'OnSuicide'
      'body': 'OnSuicide(PlayerIndex)\n\nend'
    'OnGameEnd':
      'prefix': 'OnGameEnd'
      'body': 'OnGameEnd()\n\nend'
+
    'OnNewGame':
      'prefix': 'OnNewGame'
      'body': 'OnNewGame()\n\nend'
+
    'OnMapReset':
      'prefix': 'OnMapReset'
      'body': 'OnMapReset()\n\nend'
+
    'OnAreaExit':
      'prefix': 'OnAreaExit'
      'body': 'OnAreaExit(PlayerIndex, AreaName)\n\nend'
+
    'OnAreaEnter':
      'prefix': 'OnAreaEnter'
      'body': 'OnAreaEnter(PlayerIndex, AreaName)\n\nend'
+
    'OnTeamSwitch':
      'prefix': 'OnTeamSwitch'
      'body': 'OnTeamSwitch(PlayerIndex)\n\nend'
+
    'OnPlayerJoin':
      'prefix': 'OnPlayerJoin'
      'body': 'OnPlayerJoin(PlayerIndex)\n\nend'
+
    'OnPlayerChat':
      'prefix': 'OnPlayerChat'
      'body': 'OnPlayerChat(PlayerIndex, Message, Type)\n\nend'
+
    'OnWeaponDrop':
      'prefix': 'OnWeaponDrop'
      'body': 'OnWeaponDrop(PlayerIndex, Slot)\n\nend'
+
    'OnPlayerKill':
      'prefix': 'OnPlayerKill'
      'body': 'OnPlayerKill(PlayerIndex, VictimIndex)\n\nend'
+
    'OnCheckAlive':
      'prefix': 'OnCheckAlive'
      'body': 'OnCheckAlive(PlayerIndex)\n\nend'
+
    'OnPlayerDeath':
      'prefix': 'OnPlayerDeath'
      'body': 'OnPlayerDeath(PlayerIndex, KillerIndex)\n\nend'
+
    'OnPlayerSpawn':
      'prefix': 'OnPlayerSpawn'
      'body': 'OnPlayerSpawn(PlayerIndex)\n\nend'
+
    'OnPlayerLeave':
      'prefix': 'OnPlayerLeave'
      'body': 'OnPlayerLeave(PlayerIndex)\n\nend'
+
    'OnObjectSpawn':
      'prefix': 'OnObjectSpawn'
      'body': 'OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)\n\nend'
+
    'OnVehicleExit':
      'prefix': 'OnVehicleExit'
      'body': 'OnVehicleExit(PlayerIndex)\n\nend'
+
    'OnWeaponPickup':
      'prefix': 'OnWeaponPickup'
      'body': 'OnWeaponPickup(PlayerIndex, WeaponIndex, Type)\n\nend'
-   'OnVehicleEntry':
+
+   'This event is called when a player has entered a vehicle':
      'prefix': 'OnVehicleEntry'
      'body': 'OnVehicleEntry(PlayerIndex, Seat)\n\nend'
+
    'OnServerCommand':
      'prefix': 'OnServerCommand'
      'body': 'OnServerCommand(PlayerIndex, Command, Environment)\n\nend'
+
    'OnPlayerPrejoin':
      'prefix': 'OnPlayerPrejoin'
      'body': 'OnPlayerPrejoin(PlayerIndex)\n\nend'
+
    'OnPlayerPrespawn':
      'prefix': 'OnPlayerPrespawn'
      'body': 'OnPlayerPrespawn(PlayerIndex)\n\nend'
+     
    'OnDamageApplication':
      'prefix': 'OnDamageApplication'
      'body': 'OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)\n\nend'
