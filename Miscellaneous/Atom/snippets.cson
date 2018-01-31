@@ -157,7 +157,7 @@
      'prefix': 'OnServerCommand'
      'body': 'OnServerCommand(PlayerIndex, Command, Environment)\n\nend'
      'description': '
-      This event is called when a player attempts to use a command (valid
+      this function is called when a player attempts to use a command (valid
       or not) through rcon or messages or when the console has issued a
       command (remotely or not). Returning false will block the command.\n\n\n
       Note that some Player Commands cannot be blocked.\n\n
@@ -183,4 +183,8 @@
    'OnDamageApplication':
      'prefix': 'OnDamageApplication'
      'body': 'OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)\n\nend'
-     'description': "description_here"
+     'description': "This function is called when damage is applied to a player.\n\n
+     Returning false will block the damage. Returning true will allow the damage and, with a second value, to change how much damage.\n\n
+     Takes: number PlayerIndex, number Causer, number DamageTagID, number Damage, string CollisionMaterial, number Backtap\n\n
+     Returns: optional boolean Allow, optional number NewDamage
+"
