@@ -1,4 +1,30 @@
  '.source.lua':
+
+   'random':
+     'prefix': 'random'
+     'body': 'math.random()'
+   'math.random':
+     'prefix': 'math.random'
+     'body': 'math.random()'
+   'end':
+     'prefix': 'end'
+     'body': 'end'
+   'then':
+     'prefix': 'then'
+     'body': 'then'
+   'write_word':
+     'prefix': 'write_word'
+     'body': 'write_word'
+   'execute_command':
+     'prefix': 'execute_command'
+     'body': 'execute_command'
+   'function':
+     'prefix': 'function'
+     'body': 'function'
+   'functoin':
+     'prefix': 'functoin'
+     'body': 'function'
+
    'script_title':
      'prefix': 'script_title'
      'body': '--[[\n--=====================================================================================================--\n
