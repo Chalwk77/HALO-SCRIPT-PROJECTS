@@ -29,7 +29,7 @@
      'prefix': 'OnCamp'
      'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
 
-   'This event is called when a player has warped more times than specified by the antiwarp command, if it’s enabled.':
+   'This function is called when a player has warped more times than specified by the antiwarp command, if it’s enabled.':
      'prefix': 'OnWarp'
      'body': 'OnWarp(PlayerIndex)\n\nend'
 
@@ -80,7 +80,7 @@
      'prefix': 'OnPlayerJoin'
      'body': 'OnPlayerJoin(PlayerIndex)\n\nend'
 
-   'This event is called when a player has sent a message. Returning false will block the message':
+   'This function is called when a player has sent a message. Returning false will block the message':
      'prefix': 'OnPlayerChat'
      'body': 'OnPlayerChat(PlayerIndex, Message, Type)\n\nend'
 
@@ -120,7 +120,7 @@
      'prefix': 'OnWeaponPickup'
      'body': 'OnWeaponPickup(PlayerIndex, WeaponIndex, Type)\n\nend'
 
-   'This event is called when a player has entered a vehicle':
+   'This function is called when a player has entered a vehicle':
      'prefix': 'OnVehicleEntry'
      'body': 'OnVehicleEntry(PlayerIndex, Seat)\n\nend'
 
@@ -128,11 +128,11 @@
      'prefix': 'OnServerCommand'
      'body': 'OnServerCommand(PlayerIndex, Command, Environment)\n\nend'
 
-   'OnPlayerPrejoin':
+   "A player is attempting to join the server":
      'prefix': 'OnPlayerPrejoin'
      'body': 'OnPlayerPrejoin(PlayerIndex)\n\nend'
 
-   'OnPlayerPrespawn':
+   'Player is spawning (not alive yet)':
      'prefix': 'OnPlayerPrespawn'
      'body': 'OnPlayerPrespawn(PlayerIndex)\n\nend'
 
