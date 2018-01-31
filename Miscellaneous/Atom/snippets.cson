@@ -1,13 +1,16 @@
  '.source.lua':
+   'OnScriptLoad':
+     'prefix': 'OnScriptLoad'
+     'body': 'OnScriptLoad()\n    register_callback(cb["EVENT_NAME"], "FunctionName")\nend'
    'OnEcho':
      'prefix': 'OnEcho'
-     'body': 'OnEcho() \n\nend'
+     'body': 'OnEcho()\n\nend'
    'OnSnap':
      'prefix': 'OnSnap'
-     'body': 'OnSnap(PlayerIndex, SnapScore) \n\nend'
+     'body': 'OnSnap(PlayerIndex, SnapScore)\n\nend'
    'OnCamp':
      'prefix': 'OnCamp'
-     'body': 'OnCamp(PlayerIndex, CampKills) \n\nend'
+     'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
    'OnWarp':
      'prefix': 'OnWarp'
      'body': 'OnWarp(PlayerIndex)\n\nend'
@@ -22,7 +25,7 @@
      'body': 'OnTick()\n\nend'
    'OnBetray':
      'prefix': 'OnBetray'
-     'body': 'OnBetray(PlayerIndex, VictimIndex) \n\nend'
+     'body': 'OnBetray(PlayerIndex, VictimIndex)\n\nend'
    'OnSuicide':
      'prefix': 'OnSuicide'
      'body': 'OnSuicide(PlayerIndex)\n\nend'
@@ -37,10 +40,10 @@
      'body': 'OnMapReset()\n\nend'
    'OnAreaExit':
      'prefix': 'OnAreaExit'
-     'body': 'OnAreaExit(PlayerIndex, AreaName) \n\nend'
+     'body': 'OnAreaExit(PlayerIndex, AreaName)\n\nend'
    'OnAreaEnter':
      'prefix': 'OnAreaEnter'
-     'body': 'OnAreaEnter(PlayerIndex, AreaName) \n\nend'
+     'body': 'OnAreaEnter(PlayerIndex, AreaName)\n\nend'
    'OnTeamSwitch':
      'prefix': 'OnTeamSwitch'
      'body': 'OnTeamSwitch(PlayerIndex)\n\nend'
@@ -52,10 +55,10 @@
      'body': 'OnPlayerChat(PlayerIndex, Message, Type)\n\nend'
    'OnWeaponDrop':
      'prefix': 'OnWeaponDrop'
-     'body': 'OnWeaponDrop(PlayerIndex, Slot) )\n\nend'
+     'body': 'OnWeaponDrop(PlayerIndex, Slot)\n\nend'
    'OnPlayerKill':
      'prefix': 'OnPlayerKill'
-     'body': 'OnPlayerKill(PlayerIndex, VictimIndex) \n\nend'
+     'body': 'OnPlayerKill(PlayerIndex, VictimIndex)\n\nend'
    'OnCheckAlive':
      'prefix': 'OnCheckAlive'
      'body': 'OnCheckAlive(PlayerIndex)\n\nend'
@@ -76,7 +79,7 @@
      'body': 'OnVehicleExit(PlayerIndex)\n\nend'
    'OnWeaponPickup':
      'prefix': 'OnWeaponPickup'
-     'body': 'OnWeaponPickup(PlayerIndex, Type, Slot) \n\nend'
+     'body': 'OnWeaponPickup(PlayerIndex, WeaponIndex, Type)\n\nend'
    'OnVehicleEntry':
      'prefix': 'OnVehicleEntry'
      'body': 'OnVehicleEntry(PlayerIndex, Seat)\n\nend'
