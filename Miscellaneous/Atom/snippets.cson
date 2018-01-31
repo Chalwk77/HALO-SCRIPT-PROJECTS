@@ -29,7 +29,7 @@
      'prefix': 'OnCamp'
      'body': 'OnCamp(PlayerIndex, CampKills)\n\nend'
 
-   'OnWarp':
+   'This event is called when a player has warped more times than specified by the antiwarp command, if it’s enabled.':
      'prefix': 'OnWarp'
      'body': 'OnWarp(PlayerIndex)\n\nend'
 
@@ -80,11 +80,11 @@
      'prefix': 'OnPlayerJoin'
      'body': 'OnPlayerJoin(PlayerIndex)\n\nend'
 
-   'OnPlayerChat':
+   'This event is called when a player has sent a message. Returning false will block the message':
      'prefix': 'OnPlayerChat'
      'body': 'OnPlayerChat(PlayerIndex, Message, Type)\n\nend'
 
-   'OnWeaponDrop':
+   'This function is called when a player has dropped a weapon':
      'prefix': 'OnWeaponDrop'
      'body': 'OnWeaponDrop(PlayerIndex, Slot)\n\nend'
 
@@ -116,7 +116,7 @@
      'prefix': 'OnVehicleExit'
      'body': 'OnVehicleExit(PlayerIndex)\n\nend'
 
-   'OnWeaponPickup':
+   'This function is called when a player has picked up a weapon/grenade':
      'prefix': 'OnWeaponPickup'
      'body': 'OnWeaponPickup(PlayerIndex, WeaponIndex, Type)\n\nend'
 
@@ -135,7 +135,7 @@
    'OnPlayerPrespawn':
      'prefix': 'OnPlayerPrespawn'
      'body': 'OnPlayerPrespawn(PlayerIndex)\n\nend'
-     
+
    'OnDamageApplication':
      'prefix': 'OnDamageApplication'
      'body': 'OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)\n\nend'
