@@ -49,9 +49,9 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    secondary = false
     current_players = 0
     clock = os.clock()
+    secondary = false
 end
 
 function OnPlayerJoin(PlayerIndex)
