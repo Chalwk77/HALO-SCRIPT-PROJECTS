@@ -15,25 +15,25 @@ api_version = "1.12.0.0"
 
 -- configuration starts --
 message = "The score limit has been updated to $SCORE_LIMIT"
-maps = { -- players online:      1   2  3   4   5   6    7   8   9   10  11   12  13  14  15  16
-    { "infinity",               nil, 8, 11, 14, 17, 20, nil, 26, 29, 32, 35, nil, 41, 44, 47, 50}, -- Score limit according to how many players are currently online (on a per map basis)
-    { "icefields",              5, 8, 11, 14, nil, 20, 23, 26, nil, 32, nil, 38, 41, 44, 47, 50},
-    { "bloodgulch",             nil, nil, 11, 14, 17, 26, 26, 26, 29, 26, 35, 38, 41, 26, 47, 50},
-    { "timberland",             5, 8, nil, 14, 17, 20, nil, 26, 29, 32, nil, 38, 41, 44, 47, 50},
-    { "sidewinder",             5, 8, 11, 14, nil, 20, 23, 26, 29, nil, 35, 38, nil, nil, 47, 50},
-    { "deathisland",            5, 8, 11, 14, nil, 20, 23, 26, nil, 32, 35, 38, 41, 44, 47, 50},
-    { "dangercanyon",           nil, 8, 11, 14, 17, 20, nil, 26, 29, 32, nil, 38, 41, nil, 47, 50},
-    { "gephyrophobia",          5, 8, 11, nil, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50},
-    { "wizard",                 nil, 8, 11, 14, 17, 20, 23, 26, 29, nil, 35, nil, 41, 44, 47, 50},
-    { "putput",                 5, 8, 11, 14, nil, 20, nil, nil, nil, 32, 35, 38, 41, nil, 47, 50},
-    { "longest",                5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, nil, 44, 47, 50},
-    { "ratrace",                nil, 8, 11, 14, 17, 20, nil, 26, nil, 32, 35, 38, 41, 44, 47, 50},
-    { "carousel",               5, 8, nil, 14, 17, 20, 23, 26, nil, 32, 35, 38, 41, nil, 47, 50},
-    { "prisoner",               5, 8, 11, 14, nil, 20, 23, 26, 29, nil, 35, 38, 41, 44, 47, 50},
-    { "damnation",              nil, 8, 11, 14, 17, nil, 23, nil, nil, 32, 35, nil, 41, 44, 47, 50},
-    { "hangemhigh",             nil, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50},
-    { "beavercreek",            5, 8, 11, nil, 17, 20, 23, nil, 29, 32, 35, nil, 41, 44, 47, 50},
-    { "boardingaction",         5, 8, 11, 14, 17, 20, nil, 26, 29, 32, 35, nil, 41, 44, 47, 50}
+maps = { -- players online:      1    2    3   4   5    6   7    8    9   10   11  12   13   14   15  16
+    { "infinity",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50}, -- Score limit according to how many players are currently online (on a per map basis)
+    { "icefields",              15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "bloodgulch",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "timberland",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "sidewinder",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "deathisland",            15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "dangercanyon",           15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "gephyrophobia",          15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "wizard",                 15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "putput",                 15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "longest",                15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "ratrace",                15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "carousel",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "prisoner",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "damnation",              15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "hangemhigh",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "beavercreek",            15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
+    { "boardingaction",         15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50}
 }
 -- configuration ends --
 
