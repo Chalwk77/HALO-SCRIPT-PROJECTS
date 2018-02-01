@@ -1,6 +1,8 @@
 --[[
 --=====================================================================================================--
  Script Name: Score Limit Handler, for SAPP (PC & CE)
+ Description: This mod changes the scorelimit required to win the game based on how many player's are currently online.
+
  Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
  * Notice: You can use this document subject to the following conditions:
  https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -8,16 +10,15 @@
  --=====================================================================================================--
 ]]--
 
+
 api_version = "1.12.0.0"
 
 -- configuration starts --
 message = "The score limit has been updated to $SCORE_LIMIT"
-
--- example, players online: 5, scorelimit = v[5+1] (table position) / result 17
 maps = { -- players online:      1   2  3   4   5   6    7   8   9   10  11   12  13  14  15  16
     { "infinity",               nil, 8, 11, 14, 17, 20, nil, 26, 29, 32, 35, nil, 41, 44, 47, 50}, -- Score limit according to how many players are currently online (on a per map basis)
     { "icefields",              5, 8, 11, 14, nil, 20, 23, 26, nil, 32, nil, 38, 41, 44, 47, 50},
-    { "bloodgulch",             nil, nil, 11, 14, 17, nil, nil, 26, 29, nil, 35, 38, 41, nil, 47, 50},
+    { "bloodgulch",             nil, nil, 11, 14, 17, 26, 26, 26, 29, 26, 35, 38, 41, 26, 47, 50},
     { "timberland",             5, 8, nil, 14, 17, 20, nil, 26, 29, 32, nil, 38, 41, 44, 47, 50},
     { "sidewinder",             5, 8, 11, 14, nil, 20, 23, 26, 29, nil, 35, 38, nil, nil, 47, 50},
     { "deathisland",            5, 8, 11, 14, nil, 20, 23, 26, nil, 32, 35, 38, 41, 44, 47, 50},
@@ -88,7 +89,7 @@ function SetScoreLimit()
                 scorelimit = current_scorelimit
             else
                 scorelimit = v[current_players+1]
-                execute_command('setscore ' .. scorelimit)
+                execute_command('scorelimit ' .. tonumber(scorelimit))
                 say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
             end
         end
