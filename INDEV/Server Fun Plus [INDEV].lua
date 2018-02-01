@@ -81,7 +81,7 @@ spam_duration = 10
 spam_victim = {}
 spam = {}
 
--- TAKE WEAPONS --
+-- TAKE WEAPONS [new as of 2/2/18] --
 take_command = "take"
 take_permission_level = 1
 
