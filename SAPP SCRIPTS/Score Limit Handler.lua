@@ -1,13 +1,13 @@
 --[[
 --=====================================================================================================--
- Script Name: Score Limit Handler, for SAPP (PC & CE)
- Description: This mod changes the scorelimit required to win the game based on how many player's are currently online.
+Script Name: Score Limit Handler, for SAPP (PC & CE)
+Description: This mod changes the scorelimit required to win the game based on how many player's are currently online.
 
- Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
- * Notice: You can use this document subject to the following conditions:
- https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
- * Written by Jericho Crosby (Chalwk)
- --=====================================================================================================--
+Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
@@ -20,8 +20,9 @@ initial_delay = 10
 -- column number represents the current player count...
 -- col 1 = 1 player online
 -- col 2 = 2 players online ... ect
+
 maps = {
---                             col 1   col 2    col 3    col 4   col 5   col 6    col 7   col 8    col 9    col 10  col 11   col 12  col 13   col 14   col 15   col 16
+    --                             col 1   col 2    col 3    col 4   col 5   col 6    col 7   col 8    col 9    col 10  col 11   col 12  col 13   col 14   col 15   col 16
     { "infinity",               15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
     { "icefields",              15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
     { "bloodgulch",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
@@ -88,15 +89,17 @@ function OnTick()
 end
 
 function SetScoreLimit()
-    for k,v in pairs(maps) do
-        if get_var(0, "$map") == maps[k][1] then
-            if v[current_players+1] == nil then
-                current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
-                scorelimit = current_scorelimit
-            else
-                scorelimit = v[current_players+1]
-                execute_command('scorelimit ' .. tonumber(scorelimit))
-                say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
+    if (current_players >= 1) then
+        for k,v in pairs(maps) do
+            if get_var(0, "$map") == maps[k][1] then
+                if v[current_players+1] == nil then
+                    current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
+                    scorelimit = current_scorelimit
+                else
+                    scorelimit = v[current_players+1]
+                    execute_command('scorelimit ' .. tonumber(scorelimit))
+                    say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
+                end
             end
         end
     end
