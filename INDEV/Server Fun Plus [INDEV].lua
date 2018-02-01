@@ -529,9 +529,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             if (tonumber(target) ~= tonumber(executor)) then
                                 local player_object = get_dynamic_player(target)
                                 if player_object ~= 0 then
-                                        timer(0, "CrashPlayer", target)
-                                        rprint(executor, "You have crash " .. get_var(target, "$name") .. "'s game client")
-                                    end
+                                    timer(0, "CrashPlayer", target)
+                                    rprint(executor, "You have crash " .. get_var(target, "$name") .. "'s game client")
                                 end
                             else
                                 rprint(executor, "You cannot crash your own game client!")
@@ -663,19 +662,17 @@ function Spam(player, broadcast)
 end
 
 function CrashPlayer(target)
-    if player_present(target) then
-        local player_object = get_dynamic_player(target)
-        if (player_object ~= 0) then
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
-            local veh_obj = get_object_memory(vehicle_id)
-            if (veh_obj ~= 0) then
-                for j = 0, 20 do
-                    enter_vehicle(vehicle_id, target, j)
-                    exit_vehicle(target)
-                end
-                destroy_object(vehicle_id)
+    local player_object = get_dynamic_player(target)
+    if (player_object ~= 0) then
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
+        local veh_obj = get_object_memory(vehicle_id)
+        if (veh_obj ~= 0) then
+            for j = 0, 20 do
+                enter_vehicle(vehicle_id, target, j)
+                exit_vehicle(target)
             end
+            destroy_object(vehicle_id)
         end
     end
     return false
