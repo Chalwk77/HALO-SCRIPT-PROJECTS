@@ -46,7 +46,10 @@ maps = {
     { "damnation",              15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
     { "hangemhigh",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
     { "beavercreek",            15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
-    { "boardingaction",         15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50}
+    { "boardingaction",         15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    -- add your map here [repeat the structure to add more maps]
+    { "map_name_here_",         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0} -- do not add a comma on the last entry.
+
 }
 -- configuration ends --
 
