@@ -21,6 +21,14 @@ initial_delay = 10
 -- col 1 = 1 player online, number = score
 -- col 2 = 2 players online ... ect
 
+-- examples:
+-- any time there are 10 players online on the map infinity the scorelimit will be set to 45.
+-- any time there are 4 players online on the map wizard the scorelimit will be set to 20.
+
+-- any time there are 2 players online on the map deathisland the scorelimit will be ignored and unchanged!
+-- The scorelimit in this case will remain as the previously set scorelimit, in this case it was previously set to 15 when there was only 1 player online.
+-- If the number in the first column is 'nil' then the initial scorelimit when there is 1 player online will revert to the gametypes default scorelimit.
+
 maps = {
     --                         col 1   col 2    col 3    col 4   col 5   col 6    col 7   col 8    col 9    col 10  col 11   col 12  col 13   col 14   col 15   col 16
     { "infinity",               15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
