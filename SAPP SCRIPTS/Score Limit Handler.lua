@@ -73,33 +73,33 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnTick()
-    if (clock ~= nil) then
-        local countdown_timer = math.floor(os.clock())
-        if (countdown_timer == tonumber(initial_delay)) then
-            countdown_timer = 0
-            secondary = true
-            clock = nil
+    if (current_players >= 1) then
+        if (clock ~= nil) then
+            local countdown_timer = math.floor(os.clock())
+            if (countdown_timer == tonumber(initial_delay)) then
+                countdown_timer = 0
+                secondary = true
+                clock = nil
+                SetScoreLimit()
+            end
+        end
+        if (update_score == true) then
+            update_score = false
             SetScoreLimit()
         end
-    end
-    if (update_score == true) then
-        update_score = false
-        SetScoreLimit()
     end
 end
 
 function SetScoreLimit()
-    if (current_players >= 1) then
-        for k,v in pairs(maps) do
-            if get_var(0, "$map") == maps[k][1] then
-                if v[current_players+1] == nil then
-                    current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
-                    scorelimit = current_scorelimit
-                else
-                    scorelimit = v[current_players+1]
-                    execute_command('scorelimit ' .. tonumber(scorelimit))
-                    say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
-                end
+    for k,v in pairs(maps) do
+        if get_var(0, "$map") == maps[k][1] then
+            if v[current_players+1] == nil then
+                current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
+                scorelimit = current_scorelimit
+            else
+                scorelimit = v[current_players+1]
+                execute_command('scorelimit ' .. tonumber(scorelimit))
+                say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
             end
         end
     end
