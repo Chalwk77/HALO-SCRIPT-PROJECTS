@@ -10,30 +10,36 @@
  --=====================================================================================================--
 ]]--
 
-
 api_version = "1.12.0.0"
 
 -- configuration starts --
 message = "The score limit has been updated to $SCORE_LIMIT"
-maps = { -- players online:      1   2    3   4   5    6   7    8    9   10   11  12   13   14   15  16
-    { "infinity",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50}, -- Score limit according to how many players are currently online (on a per map basis)
-    { "icefields",              15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "bloodgulch",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "timberland",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "sidewinder",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "deathisland",            15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "dangercanyon",           15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "gephyrophobia",          15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "wizard",                 15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "putput",                 15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "longest",                15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "ratrace",                15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "carousel",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "prisoner",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "damnation",              15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "hangemhigh",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "beavercreek",            15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
-    { "boardingaction",         15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50}
+-- time (in seconds) until the initial score is set after the game begins
+initial_delay = 10
+
+-- column number represents the current player count...
+-- col 1 = 1 player online
+-- col 2 = 2 players online ... ect
+maps = {
+--                             col 1   col 2    col 3    col 4   col 5   col 6    col 7   col 8    col 9    col 10  col 11   col 12  col 13   col 14   col 15   col 16
+    { "infinity",               15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "icefields",              15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "bloodgulch",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "timberland",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "sidewinder",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "deathisland",            15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "dangercanyon",           15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "gephyrophobia",          15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "wizard",                 15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "putput",                 15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "longest",                15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "ratrace",                15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "carousel",               15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "prisoner",               15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "damnation",              15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "hangemhigh",             15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "beavercreek",            15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50},
+    { "boardingaction",         15,     nil,     nil,     20,     25,     nil,     30,     nil,     nil,     40,     nil,     45,     nil,     nil,     nil,     50}
 }
 -- configuration ends --
 
@@ -68,7 +74,7 @@ end
 function OnTick()
     if (clock ~= nil) then
         local countdown_timer = math.floor(os.clock())
-        if (countdown_timer == 10) then
+        if (countdown_timer == tonumber(initial_delay)) then
             countdown_timer = 0
             secondary = true
             clock = nil
