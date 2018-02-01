@@ -63,7 +63,6 @@ function OnTick()
     if (update_score == true) then
         update_score = false
         CheckScoreLimit()
-        execute_command('setscore ' .. scorelimit)
     end
 end
 
@@ -75,6 +74,7 @@ function CheckScoreLimit()
                 scorelimit = current_scorelimit
             else
                 scorelimit = v[current_players+1]
+                execute_command('setscore ' .. scorelimit)
             end
         end
     end
