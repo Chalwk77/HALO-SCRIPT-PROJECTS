@@ -46,7 +46,6 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    mapname = get_var(0, "$map")
     current_players = 0
 end
 
@@ -68,7 +67,7 @@ end
 
 function CheckScoreLimit()
     for k,v in pairs(maps) do
-        if mapname == maps[k][1] then
+        if get_var(0, "$map") == maps[k][1] then
             if v[current_players+1] == nil then
                 current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
                 scorelimit = current_scorelimit
