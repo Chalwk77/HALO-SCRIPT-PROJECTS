@@ -35,7 +35,7 @@ maps = {
 -- configuration ends --
 
 function OnScriptLoad()
-	register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
@@ -71,7 +71,7 @@ function CheckScoreLimit()
     for k,v in pairs(maps) do
         if mapname == maps[k][1] then
             if v[current_players+1] == nil then
-	            current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
+                current_scorelimit = read_byte(read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3) + 0x164)
                 scorelimit = current_scorelimit
             else
                 scorelimit = v[current_players+1]
