@@ -12,8 +12,10 @@ api_version = "1.12.0.0"
 
 -- configuration starts --
 message = "The score limit has been updated to $SCORE_LIMIT"
-maps = {
-    { "infinity",               nil, 8, 11, 14, 17, 20, nil, 26, 29, 32, 35, nil, 41, 44, 47, 50},
+
+-- example, players online: 5, scorelimit = v[5+1] (table position) / result 17
+maps = { -- players online:      1   2  3   4   5   6    7   8   9   10  11   12  13  14  15  16
+    { "infinity",               nil, 8, 11, 14, 17, 20, nil, 26, 29, 32, 35, nil, 41, 44, 47, 50}, -- Score limit according to how many players are currently online (on a per map basis)
     { "icefields",              5, 8, 11, 14, nil, 20, 23, 26, nil, 32, nil, 38, 41, 44, 47, 50},
     { "bloodgulch",             nil, nil, 11, 14, 17, nil, nil, 26, 29, nil, 35, 38, 41, nil, 47, 50},
     { "timberland",             5, 8, nil, 14, 17, 20, nil, 26, 29, 32, nil, 38, 41, 44, 47, 50},
@@ -25,7 +27,7 @@ maps = {
     { "putput",                 5, 8, 11, 14, nil, 20, nil, nil, nil, 32, 35, 38, 41, nil, 47, 50},
     { "longest",                5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, nil, 44, 47, 50},
     { "ratrace",                nil, 8, 11, 14, 17, 20, nil, 26, nil, 32, 35, 38, 41, 44, 47, 50},
-    { "carousel",               5, 8, nil, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, nil, 47, 50},
+    { "carousel",               5, 8, nil, 14, 17, 20, 23, 26, nil, 32, 35, 38, 41, nil, 47, 50},
     { "prisoner",               5, 8, 11, 14, nil, 20, 23, 26, 29, nil, 35, 38, 41, 44, 47, 50},
     { "damnation",              nil, 8, 11, 14, 17, nil, 23, nil, nil, 32, 35, nil, 41, 44, 47, 50},
     { "hangemhigh",             nil, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50},
