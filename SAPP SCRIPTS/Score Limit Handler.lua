@@ -18,7 +18,7 @@ message = "The score limit has been updated to $SCORE_LIMIT"
 initial_delay = 10
 
 -- column number represents the current player count...
--- col 1 = 1 player online
+-- col 1 = 1 player online, number = score
 -- col 2 = 2 players online ... ect
 
 maps = {
