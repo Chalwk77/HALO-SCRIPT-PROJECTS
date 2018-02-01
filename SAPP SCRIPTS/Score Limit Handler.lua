@@ -48,12 +48,16 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
+    secondary = false
     current_players = 0
+    clock = os.clock()
 end
 
 function OnPlayerJoin(PlayerIndex)
     current_players = current_players + 1
-    update_score = true
+    if (secondary == true) then
+        update_score = true
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -61,13 +65,22 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnTick()
+    if (clock ~= nil) then
+        local countdown_timer = math.floor(os.clock())
+        if (countdown_timer == 10) then
+            countdown_timer = 0
+            secondary = true
+            clock = nil
+            SetScoreLimit()
+        end
+    end
     if (update_score == true) then
         update_score = false
-        CheckScoreLimit()
+        SetScoreLimit()
     end
 end
 
-function CheckScoreLimit()
+function SetScoreLimit()
     for k,v in pairs(maps) do
         if get_var(0, "$map") == maps[k][1] then
             if v[current_players+1] == nil then
@@ -76,8 +89,9 @@ function CheckScoreLimit()
             else
                 scorelimit = v[current_players+1]
                 execute_command('setscore ' .. scorelimit)
+                say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit))
             end
         end
     end
-    return say_all(string.gsub(message, "$SCORE_LIMIT", scorelimit)), scorelimit
+    return scorelimit
 end
