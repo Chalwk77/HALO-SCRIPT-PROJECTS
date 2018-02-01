@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 -- configuration starts --
 message = "The score limit has been updated to $SCORE_LIMIT"
-maps = { -- players online:      1    2    3   4   5    6   7    8    9   10   11  12   13   14   15  16
+maps = { -- players online:      1   2    3   4   5    6   7    8    9   10   11  12   13   14   15  16
     { "infinity",               15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50}, -- Score limit according to how many players are currently online (on a per map basis)
     { "icefields",              15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
     { "bloodgulch",             15, nil, nil, 20, 25, nil, 30, nil, nil, 40, nil, 45, nil, nil, nil, 50},
