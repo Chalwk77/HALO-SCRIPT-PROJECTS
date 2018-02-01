@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Server Fun Plus, for SAPP (PC & CE)
 
-Features: 
+Features:
 *   rocket:             turn a player into a rocket (player's in vehicles only)
 *   force chat:         force a player to say something
 *   fake join:          pretend player joins the game
@@ -14,17 +14,17 @@ Features:
 *   god:                broadcast a message as god
 *   nuke:               nuke the target player
     colour changer:     change a player's colour
-    
+
     IN DEVELOPMENT
-    
-             
+
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]-- 
+]]--
 
 api_version = "1.12.0.0"
 
@@ -80,6 +80,10 @@ spam_permission_level = 1
 spam_duration = 10
 spam_victim = {}
 spam = {}
+
+-- TAKE WEAPONS --
+take_command = "take"
+take_permission_level = 1
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -185,7 +189,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
                     if string.match(t[2], "%d") then
-                        if spam[index] == false then 
+                        if spam[index] == false then
                             if t[3] ~= nil then
                                 if index ~= tonumber(executor) then
                                     if index ~= nil and index > 0 and index < 17 then
@@ -233,11 +237,11 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
     local t = tokenizestring(Command)
+    local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
         if t[1] == string.lower(rocket_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
                 local index = tonumber(t[2])
-                local executor = get_var(PlayerIndex, "$n")
                 -- /rocket
                 if t[2] == nil then
                     Rocket(PlayerIndex, executor)
@@ -278,7 +282,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 ypr[index] = false
                             end
                         else
-                            rprint(executor, "Invalid Player ID") 
+                            rprint(executor, "Invalid Player ID")
                         end
                     else
                         rprint(executor, "Invalid Syntax!")
@@ -293,7 +297,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 ypr[index] = false
                             end
                         else
-                            rprint(executor, "Invalid Player ID") 
+                            rprint(executor, "Invalid Player ID")
                         end
                     else
                         rprint(executor, "Invalid Syntax!")
@@ -308,7 +312,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 ypr[index] = true
                             end
                         else
-                            rprint(executor, "Invalid Player ID") 
+                            rprint(executor, "Invalid Player ID")
                         end
                     else
                         rprint(executor, "Invalid Syntax!")
@@ -322,7 +326,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     end
     if t[1] ~= nil then
         if t[1] == string.lower(slap_command) then
-            local executor = get_var(PlayerIndex, "$n")
             if tonumber(get_var(PlayerIndex, "$lvl")) >= slap_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -364,7 +367,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     if t[3] == nil then
                         local fake_name = tostring(t[2])
                         local char_len = string.len(fake_name)
-                        if char_len > 11 then 
+                        if char_len > 11 then
                             rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
                         else
                             execute_command("msg_prefix \"\"")
@@ -387,7 +390,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     if t[3] == nil then
                         local fake_name = tostring(t[2])
                         local char_len = string.len(fake_name)
-                        if char_len > 11 then 
+                        if char_len > 11 then
                             rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
                         else
                             execute_command("msg_prefix \"\"")
@@ -405,7 +408,6 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             end
             UnknownCMD = false
         elseif t[1] == string.lower(nuke_command) then
-            local executor = get_var(PlayerIndex, "$n")
             if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -439,7 +441,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
                                             local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
                                             write_float(banshee_fuel_rod_projectile + 0x70, - math.random(1, 3))
-                                            -- tank shell 
+                                            -- tank shell
                                             local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
                                             local tank_shell_projectile = get_object_memory(tank_shell)
                                             write_float(tank_shell_projectile + 0x70, - math.random(1, 3))
@@ -478,6 +480,40 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 end
             else
                 rprint(executor, "You do not have permission to execute that command!")
+            end
+            UnknownCMD = false
+        elseif t[1] == string.lower(take_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
+                if t[2] ~= nil then
+                    if string.match(t[2], "%d") then
+                        local target = tonumber(t[2])
+                        if player_present(target) then
+                            if (tonumber(target) ~= tonumber(executor)) then
+                                local player_object = get_dynamic_player(target)
+                                if player_object ~= 0 then
+                                    local weapon_id = read_dword(player_object + 0x118)
+                                    if weapon_id ~= 0 then
+                                        for j = 0, 3 do
+                                            local weapons = read_dword(player_object + 0x2F8 + j * 4)
+                                            destroy_object(weapons)
+                                        end
+                                        rprint(executor, "You have removed " .. get_var(target, "$name") .. "'s weapons!")
+                                    end
+                                end
+                            else
+                                rprint(executor, "You cannot take your own weapons!")
+                            end
+                        else
+                            rprint(executor, "Player not Present!")
+                        end
+                    else
+                        rprint(executor, "Invalid Player Index")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. take_command .. " [index id]")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
         end
@@ -526,7 +562,7 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
             end
         end
         if get_var(player, "$n") == get_var(executor, "$n") and PlayerInVehicle(player) then
-            rprint(executor, "You have been rocketed!") 
+            rprint(executor, "You have been rocketed!")
         elseif get_var(player, "$n") ~= get_var(executor, "$n") and PlayerInVehicle(player) then
             rprint(executor, "You launched " .. get_var(player, "$name"))
         end
