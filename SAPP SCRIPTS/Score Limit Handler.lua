@@ -24,6 +24,7 @@ initial_delay = 10
 
 -- any time there are 9 players online on the map 'wizard' the scorelimit will be not be changed...
 -- instead the scorelimit will remain the previously set score, in this case 30 (col 7), as when there were 8 players online (col 8) the scorelimit was also ignored.
+-- when a 10th player joins the server, the scorelimit will be bumped up to 40 (col 10)
 
 
 maps = {
