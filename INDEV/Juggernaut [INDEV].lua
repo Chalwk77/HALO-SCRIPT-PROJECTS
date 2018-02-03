@@ -3,7 +3,7 @@
 Script Name: Juggernaut, for SAPP Server Extension on (Halo PC & Halo PC Custom Edition), beta v1.1
 Implementing API version: 1.12.0.0
 
-When the game begins, the player to get "first blood" becomes the juggernaut. 
+When the game begins, the player to get "first blood" becomes the juggernaut.
 
 Juggernauts are very powerful, wield 4 weapons and have regenerating health and extra (variable) speed in combination with alternating camouflage and full over-shield.
 
@@ -12,17 +12,17 @@ Your objective as the juggernaut is to stay alive for as long as possible and wr
 
 The non-juggernaut objective is to hunt down and kill the aforementioned current juggernaut - you will now become the juggernaut yourself.
 
-During a game, if there are only two players online then the only way to become the juggernaut is to kill them as previously mentioned. 
+During a game, if there are only two players online then the only way to become the juggernaut is to kill them as previously mentioned.
 
 However, if there are 3 or more players online then a "turn timer" is initiated and you can only be the juggernaut for 60 seconds and then someone else is randomly selected to become the new juggernaut.
 Note, you can kill the juggernaut before their time is up and take their role.
-The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed. 
+The game can only end in two ways; either you reach the kill threshold required to end the game or wait until the game time limit has elapsed.
 
 
 Coming in a future update...
 Weapon degradation implementation.
-After firing X amount of ammunition, your weapon begins to wear down and doesn't function properly until it eventually breaks and you have to find a new weapon or PARTS to repair it. 
-Perhaps I could even add an automated repair station. 
+After firing X amount of ammunition, your weapon begins to wear down and doesn't function properly until it eventually breaks and you have to find a new weapon or PARTS to repair it.
+Perhaps I could even add an automated repair station.
 The repair station will require the player to stand at its designated location for X amount of time while your weapon is automatically repaired!
 
 
@@ -32,7 +32,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]-- 
+]]--
 
 api_version = "1.12.0.0"
 -------------------- CONFIGURATION STARTS -----------------------------------------------------------------------------------------
@@ -89,8 +89,8 @@ message_duration = 5
 -- Left = l,    Right = r,    Centre = c,    Tab: t
 message_alignment = "l"
 
--- Use $SERVER_NAME variable to output the server name.
 -- Use $PLAYER_NAME variable to output the joining player's name.
+-- Use $SERVER_NAME variable to output the server name.
 
 -- messages --
 message_board = {
@@ -100,43 +100,43 @@ message_board = {
     }
 
 gamesettings = {
+    -- award (alive_points) points every (allocated_time) seconds to the juggernaut?
+    ["AliveTimer"] = true,
     -- assign extra frags|plasmas to juggernaut?
     ["AssignFragGrenades"] = true,
     ["AssignPlasmaGrenades"] = true,
+    -- delete juggernaut weapons when they die?
+    ["DeleteWeapons"] = true,
     -- give extra health & overshield to juggernaut?
     ["GiveExtraHealth"] = true,
     ["GiveOvershield"] = true,
-    -- award (alive_points) points every (allocated_time) seconds to the juggernaut?
-    ["AliveTimer"] = true,
-    -- delete juggernaut weapons when they die?
-    ["DeleteWeapons"] = true,
-    -- display messages in message board?
-    ["UseWelcomeMessages"] = true,
     -- select new juggernaut every (TurnTime) seconds
-    ["UseTurnTimer"] = true
+    ["UseTurnTimer"] = true,
+    -- display messages in message board?
+    ["UseWelcomeMessages"] = true
 }
 
 -- DAMAGE MULTIPLIERS
 damage_multipliers = { }
 for i = 1, 16 do damage_multipliers[i] = {
         -- weapons                                        damage            melee
-        { "weapons\\assault rifle\\assault rifle",          1.120,            4},     
-        { "weapons\\flamethrower\\flamethrower",            1.140,            4}, 
-        { "weapons\\needler\\mp_needler",                   1.110,            3}, 
-        { "weapons\\pistol\\pistol",                        1.100,            1.1}, 
-        { "weapons\\plasma pistol\\plasma pistol",          1.050,            3}, 
-        { "weapons\\plasma rifle\\plasma rifle",            1.250,            1.3}, 
-        { "weapons\\rocket launcher\\rocket launcher",      1.090,            1}, 
-        { "weapons\\plasma_cannon\\plasma_cannon",          1.080,            1}, 
-        { "weapons\\shotgun\\shotgun",                      1.250,            1.3}, 
-        { "weapons\\sniper rifle\\sniper rifle",            1.500,            1.2}, 
+        { "weapons\\assault rifle\\assault rifle",          1.120,            4},
+        { "weapons\\flamethrower\\flamethrower",            1.140,            4},
+        { "weapons\\needler\\mp_needler",                   1.110,            3},
+        { "weapons\\pistol\\pistol",                        1.100,            1.1},
+        { "weapons\\plasma pistol\\plasma pistol",          1.050,            3},
+        { "weapons\\plasma rifle\\plasma rifle",            1.250,            1.3},
+        { "weapons\\plasma_cannon\\plasma_cannon",          1.080,            1},
+        { "weapons\\rocket launcher\\rocket launcher",      1.090,            1},
+        { "weapons\\shotgun\\shotgun",                      1.250,            1.3},
+        { "weapons\\sniper rifle\\sniper rifle",            1.500,            1.2},
         -- vehicles                                      damage           collision
-        { "vehicles\\warthog\\mp_warthog",                  1.350,            1.050},
+        { "vehicles\\banshee\\banshee_mp",                  1.150,            1.35},
+        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            1},
         { "vehicles\\ghost\\ghost_mp",                      1.020,            1.025},
         { "vehicles\\rwarthog\\rwarthog",                   1.500,            1.050},
-        { "vehicles\\banshee\\banshee_mp",                  1.150,            1.35},
         { "vehicles\\scorpion\\scorpion_mp",                1.100,            4.50},
-        { "vehicles\\c gun turret\\c gun turret_mp",        2.500,            1},
+        { "vehicles\\warthog\\mp_warthog",                  1.350,            1.050},
         -- grenades                                       damage
         { "weapons\\frag grenade\\explosion",               1.5},
         { "weapons\\plasma grenade\\attached",              4},
@@ -146,31 +146,30 @@ end
 -- Set frags, plasmas and running speed on a per map basis
 function LoadMaps()
     map_settings = {
-        -- large maps         frags   plasmas   Juggernaut Running Speed
-        { "infinity",           6,       5,              1.45},
-        { "icefields",          2,       3,              1.25},
-        { "bloodgulch",         6,       3,              1.35},
-        { "timberland",         4,       7,              1.35},
-        { "sidewinder",         7,       3,              1.30},
-        { "deathisland",        4,       2,              1.45},
-        { "dangercanyon",       6,       3,              1.15},
-        { "gephyrophobia",      2,       3,              1.20},
-        -- small maps
-        { "wizard",             3,       1,              1.10},
-        { "putput",             1,       2,              1.10},
-        { "longest",            2,       1,              1.05},
-        { "ratrace",            3,       4,              1.10},
-        { "carousel",           2,       5,              1.15},
-        { "prisoner",           1,       1,              1.10},
-        { "damnation",          4,       3,              1.10},
-        { "hangemhigh",         3,       2,              1.10},
+        --                    frags   plasmas   Juggernaut Running Speed
         { "beavercreek",        2,       1,              1.10},
+        { "bloodgulch",         6,       3,              1.35},
         { "boardingaction",     2,       2,              1.10}
+        { "carousel",           2,       5,              1.15},
+        { "damnation",          4,       3,              1.10},
+        { "dangercanyon",       6,       3,              1.15},
+        { "deathisland",        4,       2,              1.45},
+        { "gephyrophobia",      2,       3,              1.20},
+        { "hangemhigh",         3,       2,              1.10},
+        { "icefields",          2,       3,              1.25},
+        { "infinity",           6,       5,              1.45},
+        { "longest",            2,       1,              1.05},
+        { "prisoner",           1,       1,              1.10},
+        { "putput",             1,       2,              1.10},
+        { "ratrace",            3,       4,              1.10},
+        { "sidewinder",         7,       3,              1.30},
+        { "timberland",         4,       7,              1.35},
+        { "wizard",             3,       1,              1.10},
     }
     for k,v in pairs(map_settings) do
         if mapname == map_settings[k][1] then
             juggernaut_running_speed = map_settings[k][4]
-        end 
+        end
     end
 end
 -------------------- CONFIGURATION ENDS -----------------------------------------------------------------------------------------
@@ -337,7 +336,7 @@ function OnPlayerSpawn(PlayerIndex)
     players[get_var(PlayerIndex, "$n")].vehicle_trigger = false
     players[get_var(PlayerIndex, "$n")].time_alive = 0
     assign_weapons[PlayerIndex] = true
-    if restore_inventory[PlayerIndex] then
+    if (restore_inventory[PlayerIndex] == true) then
         restore_inventory[PlayerIndex] = false
         RestoreWeapons(PlayerIndex)
     end
@@ -353,7 +352,7 @@ function EnterPreviousVehicle(PlayerIndex)
         -- check if any data has been added to the (temporary_vehicle_data) table
         for i = 1, #temporary_vehicle_data[PlayerIndex] do
             if temporary_vehicle_data[PlayerIndex][i] ~= nil then
-                -- enter player into this vehicle that was saved to the (temporary_vehicle_data) table in GetCoords() earlier 
+                -- enter player into this vehicle that was saved to the (temporary_vehicle_data) table in GetCoords() earlier
                 local vehicle = temporary_vehicle_data[PlayerIndex][1]
                 local seat = temporary_vehicle_data[PlayerIndex][2]
                 if vehicle ~= nil and seat ~= nil then
@@ -388,7 +387,7 @@ function OnTick()
             if player_alive(i) then
                 if players[get_var(i, "$n")].current_juggernaut then
                     SetNavMarker(tonumber(i))
-                    if (assign_weapons[i] == true) then 
+                    if (assign_weapons[i] == true) then
                         local player_object = get_dynamic_player(i)
                         if player_object ~= 0 then
                             assign_weapons[i] = false
@@ -468,7 +467,7 @@ function OnTick()
                     selection_bool = true
                     for iDel = 1,4 do execute_command("wdel " .. n) end
                     ResetNavMarker()
-                    if not PlayerInVehicle(n) then 
+                    if not PlayerInVehicle(n) then
                         say(n, "Not enough players! You're no longer the Juggernaut.")
                         say(n, "Restoring previous weapon loadout in " .. reset_delay .. " seconds!")
                         timer(1000 * reset_delay, "ResetPlayer", n)
@@ -512,7 +511,7 @@ function OnTick()
         end
     end
     -- Message Board Handler
-    if (gamesettings["UseWelcomeMessages"] == true) then 
+    if (gamesettings["UseWelcomeMessages"] == true) then
         for m = 1, current_players do
             if player_present(m) then
                 if (welcome_timer[m] == true) then
@@ -664,8 +663,6 @@ end
 
 -- This function is called when there are not enough players for a juggernaut to be in play.
 function ResetPlayer(player)
-    -- to do:
-    -- protect against the possibility that this player enters a vehicle after the (ResetPlayer) timer has begun - called from OnTick()
     local player = tonumber(player)
     check_vehicle[player] = true
     local x, y, z = GetCoords(player)
@@ -754,7 +751,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
-    
+
     -- nobody is the juggernaut | make killer juggernaut | update score with (first_blood)
     if (killer ~= server) and (killer > 0) then
         if (killer ~= players[get_var(killer, "$n")].current_juggernaut) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) and (killer ~= victim) then
@@ -764,7 +761,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
-    
+
     -- suicide | victim was juggernaut | Call SwapRole() or Ignore
     if (victim == killer) and (victim == players[get_var(victim, "$n")].current_juggernaut) then
         say(victim, "You are no longer the Juggernaut!")
@@ -784,7 +781,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         else
             selection_bool = true
             for i = 1,current_players do
-                if i ~= victim then 
+                if i ~= victim then
                     say(i, get_var(victim, "$name") .. " committed suicide")
                 end
             end
@@ -811,13 +808,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             selection_bool = true
         end
     end
-    
+
     -- general death messages --------------------------------------------------------------------------------------------------
     --suicide | victim was not juggernaut
     if (victim == killer) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         say_all(get_var(victim, "$name") .. " committed suicide")
     end
-    
+
     -- pvp --
     for i = 1,current_players do
         if (killer > 0) and (victim ~= killer) then
@@ -830,16 +827,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
         end
     end
-    
+
     if (killer == 0) and (victim ~= players[get_var(victim, "$n")].current_juggernaut) then
         say_all(get_var(victim, "$name") .. " was killed by a vehicle!")
     end
-    
+
     -- killed by server, vehicle, glitch or unknown
     if (killer == nil) or (killer == -1) and not death_bool[victim] and not reset_bool[victim] then
         say_all(get_var(victim, "$name") .. " died")
     end
-    
+
     -- end the game --
     if (killer ~= server) and (killer > 0) then
         if (killer == players[get_var(killer, "$n")].current_juggernaut) and (killer ~= victim) then
@@ -892,7 +889,7 @@ end
 
 -- This function is called when damage is applied to a player.
 function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if tonumber(CauserIndex) > 0 then 
+    if tonumber(CauserIndex) > 0 then
         if (CauserIndex == players[get_var(CauserIndex, "$n")].current_juggernaut) then
             damage_applied[CauserIndex] = MetaID
             ------- MELEE --------------------------------------------------------
@@ -926,7 +923,7 @@ function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitStri
                 damage_type[CauserIndex] = 2
             end
             ------- GRENADES --------------------------------------------------------
-            if MetaID == FRAG_GRENADE_EXPLOSION then 
+            if MetaID == FRAG_GRENADE_EXPLOSION then
                 damage_type[CauserIndex] = 3
             elseif MetaID == PLASMA_GRENADE_EXPLOSOIN then
                 damage_type[CauserIndex] = 3.1
@@ -1112,10 +1109,10 @@ function PlayerInVehicle(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then 
+        if VehicleID == 0xFFFFFFFF then
             return false
-        else 
-            return true 
+        else
+            return true
         end
     else
         return false
@@ -1131,7 +1128,6 @@ function GetCoords(PlayerIndex)
             if (check_vehicle[PlayerIndex] == true) then
                 check_vehicle[PlayerIndex] = false
                 local seat = read_word(vehicle + 0x120)
-                -- to do: check if vehicle was flipped
                 table.insert(temporary_vehicle_data[PlayerIndex], 1, vehicle)
                 table.insert(temporary_vehicle_data[PlayerIndex], 2, seat)
                 force_into_vehicle[PlayerIndex] = true
@@ -1256,12 +1252,12 @@ function LoadItems()
         MELEE_ASSAULT_RIFLE = TagInfo("jpt!", "weapons\\assault rifle\\melee")
         MELEE_ROCKET_LAUNCHER = TagInfo("jpt!", "weapons\\rocket launcher\\melee")
         MELEE_PLASMA_CANNON = TagInfo("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee")
-        
+
         -- Grenades Explosion/Attached --
         FRAG_GRENADE_EXPLOSION = TagInfo("jpt!", "weapons\\frag grenade\\explosion")
         PLASMA_GRENADE_ATTACHED = TagInfo("jpt!", "weapons\\plasma grenade\\attached")
         PLASMA_GRENADE_EXPLOSOIN = TagInfo("jpt!", "weapons\\plasma grenade\\explosion")
-        
+
         -- Vehicles --
         VEHICLE_GHOST_BOLT = TagInfo("jpt!", "vehicles\\ghost\\ghost bolt")
         VEHICLE_TANK_BULLET = TagInfo("jpt!", "vehicles\\scorpion\\bullet")
@@ -1271,7 +1267,7 @@ function LoadItems()
         VEHICLE_BANSHEE_BOLT = TagInfo("jpt!", "vehicles\\banshee\\banshee bolt")
         VEHICLE_BANSHEE_FUEL_ROD = TagInfo("jpt!", "vehicles\\banshee\\mp_banshee fuel rod")
         VEHICLE_COLLISION = TagInfo("jpt!", "globals\\vehicle_collision")
-        
+
         -- weapon projectiles --
         ASSAULT_RIFLE_BULLET = TagInfo("jpt!", "weapons\\assault rifle\\bullet")
         FLAME_THROWER_EXPLOSION = TagInfo("jpt!", "weapons\\flamethrower\\explosion")
