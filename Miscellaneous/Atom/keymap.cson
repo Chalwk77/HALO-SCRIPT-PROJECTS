@@ -6,3 +6,8 @@
    'ctrl-shift-up': 'editor:move-line-up'
    'ctrl-shift-down': 'editor:move-line-down'
    'f7': 'command-palette:toggle'
+   'f8': 'project-manager:list-projects'
+   'f9': 'color-picker:open'
+
+ '.platform-win32 atom-text-editor, .platform-linux atom-text-editor':
+   'f10': 'script:run'
