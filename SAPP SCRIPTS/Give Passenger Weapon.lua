@@ -36,7 +36,7 @@ api_version = '1.12.0.0'
 vehicles = {
     {"vehicles\\rwarthog\\rwarthog",                    false,       "weapons\\rocket launcher\\rocket launcher"},
     {"vehicles\\scorpion\\scorpion_mp",                 false,       "weapons\\plasma_cannon\\plasma_cannon"},
-    {"vehicles\\warthog\\mp_warthog",                   true,       "weapons\\sniper rifle\\sniper rifle"},
+    {"vehicles\\warthog\\mp_warthog",                   true,        "weapons\\sniper rifle\\sniper rifle"},
 }
 
 function OnScriptLoad()
