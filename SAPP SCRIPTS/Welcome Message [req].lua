@@ -21,5 +21,5 @@ function OnScriptUnload()
 end
 
 function OnPlayerJoin(PlayerIndex)
-  	say(PlayerIndex, "Welcome Friend " .. get_var(PlayerIndex, "$name"))
+	say(PlayerIndex, "Welcome Friend " .. get_var(PlayerIndex, "$name"))
 end
