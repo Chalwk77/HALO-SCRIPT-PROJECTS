@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: blank, for SAPP (PC & CE)
+Script Name: Document_Name, for SAPP (PC & CE)
 Description:
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
