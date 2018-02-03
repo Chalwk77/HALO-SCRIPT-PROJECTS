@@ -24,33 +24,33 @@ function OnScriptLoad()
 	register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
 	register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin')
 	register_callback(cb['EVENT_LEAVE'], 'OnPlayerLeave')
-    for i = 1,16 do
-        if player_present(i) then
-            players[get_var(i, "$n")] = { }
-            players[get_var(i, "$n")].kills = 0
-        end
-    end
+	for i = 1, 16 do
+		if player_present(i) then
+			players[get_var(i, "$n")] = { }
+			players[get_var(i, "$n")].kills = 0
+		end
+	end
 end
 
 function OnScriptUnload()
-    for i = 1,16 do
-        if player_present(i) then
-            players[get_var(i, "$n")] = { }
-        end
-    end
+	for i = 1, 16 do
+		if player_present(i) then
+			players[get_var(i, "$n")] = { }
+		end
+	end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].kills = 0
+	players[get_var(PlayerIndex, "$n")] = { }
+	players[get_var(PlayerIndex, "$n")].kills = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")] = { }
+	players[get_var(PlayerIndex, "$n")] = { }
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    players[get_var(KillerIndex, "$n")].kills = players[get_var(KillerIndex, "$n")].kills + 1
-    for i = 1,20 do rprint(KillerIndex, " ") end
-    rprint(KillerIndex, string.gsub(message, "$kills", players[get_var(KillerIndex, "$n")].kills))
+	players[get_var(KillerIndex, "$n")].kills = players[get_var(KillerIndex, "$n")].kills + 1
+	for i = 1, 20 do rprint(KillerIndex, " ") end
+	rprint(KillerIndex, string.gsub(message, "$kills", players[get_var(KillerIndex, "$n")].kills))
 end
