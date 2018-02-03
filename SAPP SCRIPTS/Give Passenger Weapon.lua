@@ -5,6 +5,7 @@ Description: Assigns a custom wepaon when someone enters the passengers seat of 
 ~ requested by mdc81 on opencarnage.net
 
 - note, this mod doesn't function correctly.
+- The reason for this (I think) is because the player cannot pick up a weapon when they're in a vehicle.
 - SAPP needs a PreVehicleEntry event.
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
