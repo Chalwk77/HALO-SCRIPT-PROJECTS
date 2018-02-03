@@ -1,5 +1,4 @@
  '.source.lua':
-
    'random':
      'prefix': 'random'
      'body': 'math.random()'
@@ -24,16 +23,31 @@
    'functoin':
      'prefix': 'functoin'
      'body': 'function'
+   'true':
+     'prefix': 'true'
+     'body': 'true'
+
+   'mapname':
+     'prefix': 'mapname'
+     'body': 'mapname = get_var(0, "$map")'
+   'mapname':
+     'prefix': 'mapname'
+     'body': "line 1\n" + "line 2\n" + "line 3"
 
    'script_title':
      'prefix': 'script_title'
-     'body': '--[[\n--=====================================================================================================--\n
-     Script Name: Document_Name, for SAPP (PC & CE)\n
-     Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>\n
-     * Notice: You can use this document subject to the following conditions:\n
-     https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE\n
-     * Written by Jericho Crosby (Chalwk)\n
-     --=====================================================================================================--\n]]--\n\napi_version = "1.12.0.0"\n\nfunction OnScriptLoad()\n\tregister_callback(cb["EVENT_NAME"], "function_name")\nend\n\nfunction OnScriptUnload()\n\nend\n\n'
+     'body': "--[[\n" +
+     "--=====================================================================================================--\n" +
+     "Script Name: Document_Name, for SAPP (PC & CE)\n" +
+     "Description:\n\n" +
+     "Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>\n" +
+     "Notice: You can use this document subject to the following conditions:\n" +
+     "https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE\n" +
+     "~ Created by Jericho Crosby (Chalwk)\n" +
+     "--=====================================================================================================--\n" +
+     "]]\n\n" +
+     "api_version = '1.12.0.0'\n\n" +
+     "function OnScriptLoad()\n\tregister_callback(cb['EVENT_NAME'], 'function_name')\nend\n\nfunction OnScriptUnload()\n\nend\n\n"
 
    'api_version':
      'prefix': 'api_version'
