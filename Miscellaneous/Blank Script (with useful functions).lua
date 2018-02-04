@@ -2,42 +2,42 @@
 --=====================================================================================================--
 Script Name: Blank Script, for SAPP (PC & CE)
 --=====================================================================================================--
-]]-- 
+]]--
 
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_ECHO'],                 "OnEcho")
-    register_callback(cb['EVENT_SNAP'],                 "OnSnap")
-    register_callback(cb['EVENT_CAMP'],                 "OnCamp")
-    register_callback(cb['EVENT_WARP'],                 "OnWarp")
-    register_callback(cb['EVENT_TICK'],                 "OnTick")
-    register_callback(cb['EVENT_LOGIN'],                "OnLogin")
-    register_callback(cb['EVENT_SCORE'],                "OnScore")
-    register_callback(cb['EVENT_BETRAY'],               "OnBetray")
-    register_callback(cb['EVENT_SUICIDE'],              "OnSuicide")
-    register_callback(cb['EVENT_GAME_END'],             "OnGameEnd")
-    register_callback(cb['EVENT_GAME_START'],           "OnNewGame")
-    register_callback(cb['EVENT_MAP_RESET'],            "OnMapReset")
-    register_callback(cb['EVENT_AREA_EXIT'],            "OnAreaExit")
-    register_callback(cb['EVENT_AREA_ENTER'],           "OnAreaEnter")
-    register_callback(cb['EVENT_TEAM_SWITCH'],          "OnTeamSwitch")
-    register_callback(cb['EVENT_WEAPON_DROP'],          "OnWeaponDrop")
-    register_callback(cb['EVENT_JOIN'],                 "OnPlayerJoin")
-    register_callback(cb['EVENT_CHAT'],                 "OnPlayerChat")
-    register_callback(cb['EVENT_KILL'],                 "OnPlayerKill")
-    register_callback(cb['EVENT_ALIVE'],                "OnCheckAlive")
-    register_callback(cb['EVENT_DIE'],                  "OnPlayerDeath")
-    register_callback(cb['EVENT_SPAWN'],                "OnPlayerSpawn")
-    register_callback(cb['EVENT_LEAVE'],                "OnPlayerLeave")
-    register_callback(cb['EVENT_OBJECT_SPAWN'],         "OnObjectSpawn")
-    register_callback(cb['EVENT_VEHICLE_EXIT'],         "OnVehicleExit")
-    register_callback(cb['EVENT_WEAPON_PICKUP'],        "OnWeaponPickup")
-    register_callback(cb['EVENT_VEHICLE_ENTER'],        "OnVehicleEntry")
-    register_callback(cb['EVENT_COMMAND'],              "OnServerCommand")
-    register_callback(cb['EVENT_PREJOIN'],              "OnPlayerPrejoin")
-    register_callback(cb['EVENT_PRESPAWN'],             "OnPlayerPrespawn")
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'],   "OnDamageApplication")
+    register_callback(cb['EVENT_ECHO'], "OnEcho")
+    register_callback(cb['EVENT_SNAP'], "OnSnap")
+    register_callback(cb['EVENT_CAMP'], "OnCamp")
+    register_callback(cb['EVENT_WARP'], "OnWarp")
+    register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_LOGIN'], "OnLogin")
+    register_callback(cb['EVENT_SCORE'], "OnScore")
+    register_callback(cb['EVENT_BETRAY'], "OnBetray")
+    register_callback(cb['EVENT_SUICIDE'], "OnSuicide")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_MAP_RESET'], "OnMapReset")
+    register_callback(cb['EVENT_AREA_EXIT'], "OnAreaExit")
+    register_callback(cb['EVENT_AREA_ENTER'], "OnAreaEnter")
+    register_callback(cb['EVENT_TEAM_SWITCH'], "OnTeamSwitch")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_KILL'], "OnPlayerKill")
+    register_callback(cb['EVENT_ALIVE'], "OnCheckAlive")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
+    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
 function OnScriptUnload()
@@ -45,66 +45,66 @@ function OnScriptUnload()
 end
 
 function OnEcho()
-    
-end
-
-function OnSnap(PlayerIndex, SnapScore) 
 
 end
 
-function OnCamp(PlayerIndex, CampKills) 
+function OnSnap(PlayerIndex, SnapScore)
 
 end
 
-function OnWarp(PlayerIndex) 
+function OnCamp(PlayerIndex, CampKills)
 
 end
 
-function OnLogin(PlayerIndex) 
+function OnWarp(PlayerIndex)
 
 end
 
-function OnScore(PlayerIndex) 
+function OnLogin(PlayerIndex)
 
 end
 
-function OnTick() 
+function OnScore(PlayerIndex)
 
 end
 
-function OnBetray(PlayerIndex, VictimIndex) 
+function OnTick()
 
 end
 
-function OnSuicide(PlayerIndex) 
+function OnBetray(PlayerIndex, VictimIndex)
 
 end
 
-function OnGameEnd() 
+function OnSuicide(PlayerIndex)
 
 end
 
-function OnNewGame() 
+function OnGameEnd()
 
 end
 
-function OnMapReset() 
+function OnNewGame()
 
 end
 
-function OnAreaExit(PlayerIndex, AreaName) 
+function OnMapReset()
 
 end
 
-function OnAreaEnter(PlayerIndex, AreaName) 
+function OnAreaExit(PlayerIndex, AreaName)
 
 end
 
-function OnTeamSwitch(PlayerIndex) 
+function OnAreaEnter(PlayerIndex, AreaName)
 
 end
 
-function OnPlayerJoin(PlayerIndex) 
+function OnTeamSwitch(PlayerIndex)
+
+end
+
+function OnPlayerJoin(PlayerIndex)
 
 end
 
@@ -112,15 +112,15 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 
 end
 
-function OnWeaponDrop(PlayerIndex, Slot) 
+function OnWeaponDrop(PlayerIndex, Slot)
 
 end
 
-function OnPlayerKill(PlayerIndex, VictimIndex) 
+function OnPlayerKill(PlayerIndex, VictimIndex)
 
 end
 
-function OnCheckAlive() 
+function OnCheckAlive()
 
 end
 
@@ -128,19 +128,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
 end
 
-function OnPlayerSpawn(PlayerIndex) 
+function OnPlayerSpawn(PlayerIndex)
 
 end
 
-function OnPlayerLeave(PlayerIndex) 
+function OnPlayerLeave(PlayerIndex)
 
 end
 
-function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID) 
+function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
 
 end
 
-function OnVehicleExit(PlayerIndex) 
+function OnVehicleExit(PlayerIndex)
 
 end
 
@@ -156,7 +156,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
 
 end
 
-function OnPlayerPrejoin(PlayerIndex) 
+function OnPlayerPrejoin(PlayerIndex)
 
 end
 
@@ -178,16 +178,6 @@ function TagInfo(obj_type, obj_name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then sep = "%s" end
-    local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
 function moveobject(ObjectID, x, y, z)
     local object = get_object_memory(ObjectID)
     if get_object_memory(ObjectID) ~= 0 then
@@ -198,8 +188,8 @@ end
 
 function GetObjectCoords(ObjectID)
     local function round(pos, places)
-      local mult = 10^(places or 0)
-      return math.floor(pos * mult + 0.5) / mult
+        local mult = 10^(places or 0)
+        return math.floor(pos * mult + 0.5) / mult
     end
     local player = get_dynamic_player(PlayerIndex)
     if (player ~= 0) then
@@ -244,7 +234,7 @@ function PrintExclude(ExcludeIndex, Message)
             if i ~= ExcludeIndex then
                 execute_command("msg_prefix \"\"")
                 say(i, " " .. Message)
-                execute_command("msg_prefix \"** SERVER ** \"")
+                execute_command("msg_prefix \" *  * SERVER *  * \"")
             end
         end
     end
@@ -264,4 +254,27 @@ function SetNavMarker(Target)
             end
         end
     end
+end
+
+function GetVehicleObjectMemory(PlayerIndex)
+    local player = get_dynamic_player(PlayerIndex)
+    if (player ~= 0) then
+        local current_vehicle = get_object_memory(read_dword(player + 0x11C))
+        if (current_vehicle == nil) then return nil end
+        if (current_vehicle ~= 0 and current_vehicle ~= nil) then
+            return current_vehicle
+        end
+    end
+end
+
+function tokenizestring(inputString, separator)
+    if (separator == nil) then
+        separator = "%s"
+    end
+    local table = { }; index = 1
+for string in string.gmatch(inputString, "([^" .. separator .. "]+)") do
+    table[index] = string
+    index = index + 1
+end
+return table
 end
