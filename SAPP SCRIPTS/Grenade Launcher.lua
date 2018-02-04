@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Grenade Launcher, for SAPP (PC & CE)
-                
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -20,7 +20,7 @@ default_velocity = 0.6
 -- distance from player to spawn projectile
 default_distance = 0.5
 
--- Enables Custom Weapon Assignment. 
+-- Enables Custom Weapon Assignment.
 use_weapon_assignment = true
 weapon_assignment = {}
 -- Set 'true' to 'false' to disable that weapon assignment upon typing /launcher on
@@ -74,7 +74,7 @@ DeleteWeapons = {}
 -- configuration ends --
 
 -- do not touch --
-reset_values = { } 
+reset_values = { }
 launcher_mode = { }
 values_specified = { }
 
@@ -112,7 +112,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 end
 
-function OnScriptUnload() 
+function OnScriptUnload()
     --
 end
 
@@ -478,7 +478,7 @@ function OnTick()
                                 available_shots[i] = v[6]
                                 reset_bool[i] = false
                             end
-                            if v[6] < 1 then v[6] = 1 end                            
+                            if v[6] < 1 then v[6] = 1 end
                         end
                     end
                 end
@@ -540,7 +540,7 @@ end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if tonumber(Type) == 1 then
-        if (launcher_mode[PlayerIndex] == true) then 
+        if (launcher_mode[PlayerIndex] == true) then
             local weapon_object = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + (tonumber(WeaponIndex) -1) * 4))
             local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
             for k,v in pairs(weapons[PlayerIndex]) do
@@ -571,16 +571,16 @@ end
 
 function GrenadeLauncher(PlayerIndex, ParentID)
     if get_dynamic_player(PlayerIndex) ~= nil then
-    
+
         if available_shots[tonumber(PlayerIndex)] < 1 then
             for i = 1,30 do rprint(PlayerIndex, " ") end
             rprint(PlayerIndex, "No shots available!")
         end
-        
+
         if (has_ammo[PlayerIndex] == true) then
             local object_id = get_object_memory(ParentID)
             if object_id ~= nil then
-            
+
                 local x_aim = read_float(object_id + 0x230)
                 local y_aim = read_float(object_id + 0x234)
                 local z_aim = read_float(object_id + 0x238)
@@ -588,15 +588,15 @@ function GrenadeLauncher(PlayerIndex, ParentID)
                 local x = read_float(object_id + 0x5C)
                 local y = read_float(object_id + 0x60)
                 local z = read_float(object_id + 0x64)
-                
+
                 local z_offset = 0.5
-                
+
                 if (reset_values[PlayerIndex] == true) then
                     values_specified[PlayerIndex] = false
                     grenade_type_changed[PlayerIndex] = false
                     reset_values[PlayerIndex] = false
                 end
-                
+
                 if (values_specified[PlayerIndex] == true) then
                     velocity[PlayerIndex] = new_distance[PlayerIndex]
                     distance[PlayerIndex] = new_velocity[PlayerIndex]
@@ -604,21 +604,21 @@ function GrenadeLauncher(PlayerIndex, ParentID)
                     velocity[PlayerIndex] = default_velocity
                     distance[PlayerIndex] = default_distance
                 end
-                
+
                 if (grenade_type_changed[PlayerIndex] == true) then
                     projectile_type[PlayerIndex] = new_projectile[PlayerIndex]
                 else
                     projectile_type[PlayerIndex] = default_projectile
                 end
-                
+
                 local proj_x = x + distance[PlayerIndex] * math.sin(x_aim)
                 local proj_y = y + distance[PlayerIndex] * math.sin(y_aim)
                 local proj_z = z + distance[PlayerIndex] * math.sin(z_aim) + z_offset
-                    
+
                 local tag_id = TagInfo("proj", projectile_type[PlayerIndex])
                 local frag_projectile = spawn_projectile(tag_id, PlayerIndex, proj_x, proj_y, proj_z)
                 local frag = get_object_memory(frag_projectile)
-                
+
                 if frag then
                     write_float(frag + 0x68, velocity[PlayerIndex] * math.sin(x_aim))
                     write_float(frag + 0x6C, velocity[PlayerIndex] * math.sin(y_aim))

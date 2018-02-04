@@ -145,10 +145,10 @@ function SpawnGun(PlayerIndex, ParentID)
             local x = read_float(object_id + 0x5C)
             local y = read_float(object_id + 0x60)
             local z = read_float(object_id + 0x64)
-            local proj_x = x + 0.5 * math.sin(x_aim)
-            local proj_y = y + 0.5 * math.sin(y_aim)
-            local proj_z = z + 0.5 * math.sin(z_aim) + 0.5
-            local object_spawned = spawn_object(obj_type[PlayerIndex], obj_name[PlayerIndex], proj_x, proj_y, proj_z)
+            local obj_x = x + 0.5 * math.sin(x_aim)
+            local obj_y = y + 0.5 * math.sin(y_aim)
+            local obj_z = z + 0.5 * math.sin(z_aim) + 0.5
+            local object_spawned = spawn_object(obj_type[PlayerIndex], obj_name[PlayerIndex], obj_x, obj_y, obj_z)
             local object = get_object_memory(object_spawned)
             drones[PlayerIndex] = drones[PlayerIndex] or {}
             table.insert(drones[PlayerIndex], object_spawned)

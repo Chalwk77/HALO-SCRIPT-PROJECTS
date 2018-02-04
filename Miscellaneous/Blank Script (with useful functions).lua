@@ -262,9 +262,9 @@ function GetVehicleObjectMemory(PlayerIndex)
         local current_vehicle = get_object_memory(read_dword(player + 0x11C))
         if (current_vehicle == nil) then return nil end
         if (current_vehicle ~= 0 and current_vehicle ~= nil) then
-            return current_vehicle
         end
     end
+    return current_vehicle
 end
 
 function tokenizestring(inputString, separator)
