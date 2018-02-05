@@ -1,4 +1,4 @@
---[[    
+--[[
 --=====================================================================================================--
 Script Name: One World Virtual | Base Settings
 
@@ -7,7 +7,7 @@ You do not have permission to use this document.
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]-- 
+]]--
 api_version = "1.12.0.0"
 
 -- SCRIPT SETTINGS --
@@ -21,13 +21,13 @@ script_settings = {
     ["AssignFrags"] = true,
     ["AssignPlasmas"] = true,
     -- Admin Chat
-    ["UseAdminChat"] = true,
+    ["UseAdminChat"] = false,
     -- Chat Logging
     ["UseChatLogging"] = true,
     -- Command Spy
     ["UseCommandSpy"] = true,
     -- Anti Impersonator
-    ["UseAntiImpersonator"] = true
+    ["UseAntiImpersonator"] = false
 }
 
 -- ADMIN CHAT --
@@ -53,7 +53,7 @@ commands_to_hide = {
     "/null",
     "/null"
     }
-    
+
 -- MESSAGE BOARD --
 welcome_timer = { }
 new_timer = { }
@@ -61,7 +61,9 @@ mb_players = { }
 message_board = {
     "Welcome to $SERVER_NAME",
     "Bug reports and suggestions:",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25"
+    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/25",
+    "",
+    "WARNING: The Current Game is under development and contains several serious bugs."
     }
 Message_Duration = 10
 Message_Alignment = "l"
@@ -75,12 +77,14 @@ weapons[00000] = "nil\\nil\\nil"
 MapIsListed = nil
 weapons[1] = "weapons\\pistol\\pistol"
 weapons[2] = "weapons\\sniper rifle\\sniper rifle"
-weapons[3] = "weapons\\rocket launcher\\rocket launcher" 
+weapons[3] = "weapons\\rocket launcher\\rocket launcher"
 weapons[4] = "weapons\\shotgun\\shotgun"
 tertiary_quaternary_delay = 50
 mapnames = {
     "bloodgulch",
 }
+
+-- (sdtm)
 frags = {
     bloodgulch = 7,
     }
@@ -173,7 +177,7 @@ end
 
 -- ANTI-IMPERSONATOR
 function LoadTables( )
-    NameList = {"Chalwk"}	
+    NameList = {"Chalwk"}
     HashList = {"6c8f0bc306e0108b4904812110185edd"}
 end
 
@@ -216,7 +220,7 @@ function OnNewGame()
     -- WEAPON SETTINGS
     if script_settings["UseCustomWeapons"] == true then
         mapname = get_var(0, "$map")
-        if (table.match(mapnames, mapname) == nil) then 
+        if (table.match(mapnames, mapname) == nil) then
             MapIsListed = false
             Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 615'
             cprint(Error, 4+8)
@@ -396,10 +400,10 @@ function OnPlayerJoin(PlayerIndex)
         local Hash = get_var(PlayerIndex,"$hash")
         local Index = get_var(PlayerIndex, "$n")
         if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
-            if (response["kick"] == true) and (response["ban"] == false) then 
+            if (response["kick"] == true) and (response["ban"] == false) then
                 execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
             end
-            if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
+            if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then
                 execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
             elseif (BANTIME == 0) then
                 execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
@@ -416,7 +420,7 @@ function OnPlayerSpawn(PlayerIndex)
             local player_object = get_dynamic_player(PlayerIndex)
             if (player_object ~= 0) then
                 if (script_settings["AssignFrags"] == true) then
-                    if (frags[mapname] == nil) then 
+                    if (frags[mapname] == nil) then
                         Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 73 | Unable to set frags.'
                         cprint(Error, 4+8)
                         execute_command("log_note \""..Error.."\"")
@@ -425,7 +429,7 @@ function OnPlayerSpawn(PlayerIndex)
                     end
                 end
                 if (script_settings["AssignPlasmas"] == true) then
-                    if (plasmas[mapname] == nil) then 
+                    if (plasmas[mapname] == nil) then
                         Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 76 | Unable to set plasmas.'
                         cprint(Error, 4+8)
                         execute_command("log_note \""..Error.."\"")
@@ -518,7 +522,7 @@ function OnServerCommand(PlayerIndex, Command)
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                        if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
+                        if players[get_var(PlayerIndex, "$name")].boolean ~= true then
                             rprint(PlayerIndex, "Admin Chat enabled.")
                             players[get_var(PlayerIndex, "$name")].adminchat = true
                             players[get_var(PlayerIndex, "$name")].boolean = true
@@ -591,10 +595,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local Message = tostring(Message)
         local Command = tokenizestring(Message)
         local iscommand = nil
-        if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
+        if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then
             iscommand = true
             chattype = "[COMMAND] "
-        else 
+        else
             iscommand = false
         end
         if type == 0 then
@@ -603,9 +607,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
             Type = "[TEAM]    "
         elseif type == 2 then
             Type = "[VEHICLE] "
-        end    
+        end
         if (player_present(PlayerIndex) ~= nil) then
-            if iscommand then 
+            if iscommand then
                 WriteData(dir, "   " .. chattype .. "     " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
                 cprint(chattype .." " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message, 3+8)
             else
@@ -625,7 +629,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if string.sub(command[1], 1, 1) == "/" then
             cmd = command[1]:gsub("\\", "/")
             cSpy_iscommand = true
-        else 
+        else
             cSpy_iscommand = false
         end
         for k, v in pairs(commands_to_hide) do
@@ -635,7 +639,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             else
                 hidden = false
             end
-        end    
+        end
         if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
             if (cSpy_iscommand and PlayerIndex) then
                 if (settings["HideCommands"] == true and hidden == true) then
@@ -670,7 +674,7 @@ function AdminChat(Message, PlayerIndex)
 end
 
 -- COMMANY SPY
-function CommandSpy(Message, AdminIndex) 
+function CommandSpy(Message, AdminIndex)
     for i = 1,16 do
         if (tonumber(get_var(i,"$lvl"))) >= 1 then
             rprint(i, Message)
