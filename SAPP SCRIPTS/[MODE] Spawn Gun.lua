@@ -5,7 +5,9 @@ Description: This mod allows you to spawn any object when your fire your weapon.
 
 Command Syntax: /spawngun [object]
                 /spawngun off|0|false
-
+                /clean
+                * clean command deletes all objects you spawn
+                * all objects are deleted automatically when you die.
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
