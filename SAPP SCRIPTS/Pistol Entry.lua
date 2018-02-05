@@ -48,7 +48,7 @@ function OnTick()
                 pz = pz + (0.35 * couching)
             end
             local ignore_player = read_dword(get_player(i) + 0x34)
-            local success, v1, v1, v3, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
+            local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
             if (success == true and target ~= nil) then
                 local object_id = read_dword(get_object_memory(target))
                 for k, v in pairs(vehicles) do
