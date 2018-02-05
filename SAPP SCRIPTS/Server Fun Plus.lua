@@ -145,7 +145,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         execute_command("msg_prefix \"\"")
                                         local broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
                                         say_all(get_var(index, "$name") .. ":" .. broadcast)
-                                        execute_command("msg_prefix \"** SERVER ** \"")
+                                        execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         return false
                                     else
                                         rprint(executor, "Invalid Player Index")
@@ -178,7 +178,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     execute_command("msg_prefix \"\"")
                     local broadcast = string.gsub(Message, "/" .. god_command, "")
                     say_all("God:" .. broadcast)
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                    execute_command("msg_prefix \" *  * SERVER *  * \"")
                     return false
                 else
                     rprint(executor, "Invalid Syntax. Type /" .. god_command .. " (message)")
@@ -202,7 +202,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d", "")
                                             spam[index] = true
                                             say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
-                                            execute_command("msg_prefix \"** SERVER ** \"")
+                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
                                             return false
                                         else
                                             rprint(executor, "Invalid Player Index")
@@ -210,8 +210,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         end
                                     end
                                 else
-                                  rprint(executor, "You cannot spam yourself!")
-                                  return false
+                                    rprint(executor, "You cannot spam yourself!")
+                                    return false
                                 end
                             else
                                 rprint(executor, "You didn't type a message!")
@@ -251,32 +251,32 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     Rocket(PlayerIndex, executor)
                     values_specified[PlayerIndex] = false
                     ypr[PlayerIndex] = false
-                -- /rocket me
+                    -- /rocket me
                 elseif t[2] == "me" and t[3] == nil then
                     Rocket(PlayerIndex, executor)
                     values_specified[PlayerIndex] = false
                     ypr[PlayerIndex] = false
-                -- /rocket x,y,z
+                    -- /rocket x,y,z
                 elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] == nil then
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = false
-                -- /rocket me x,y,z
+                    -- /rocket me x,y,z
                 elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = false
-                -- /rocket me x,y,z,yaw,pitch,roll
+                    -- /rocket me x,y,z,yaw,pitch,roll
                 elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5], t[6], t[7], t[8])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = true
-                -- /rocket x,y,z,yaw,pitch,roll
+                    -- /rocket x,y,z,yaw,pitch,roll
                 elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] == nil then
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4], t[5], t[6], t[7])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = true
-                -- /rocket index
+                    -- /rocket index
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] == nil then
                     if string.match(t[2], "%d") then
                         if player_present(index) then
@@ -291,7 +291,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     else
                         rprint(executor, "Invalid Syntax!")
                     end
-                -- /rocket index x,y,z
+                    -- /rocket index x,y,z
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
                     if string.match(t[2], "%d") then
                         if player_present(index) then
@@ -306,7 +306,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     else
                         rprint(executor, "Invalid Syntax!")
                     end
-                -- /rocket index x,y,z,yaw,pitch,roll
+                    -- /rocket index x,y,z,yaw,pitch,roll
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
                     if string.match(t[2], "%d") then
                         if player_present(index) then
@@ -376,7 +376,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             execute_command("msg_prefix \"\"")
                             say_all("Welcome " .. fake_name)
-                            execute_command("msg_prefix \"** SERVER ** \"")
+                            execute_command("msg_prefix \" *  * SERVER *  * \"")
                         end
                     else
                         rprint(PlayerIndex, "The name can only be one word!")
@@ -399,7 +399,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                         else
                             execute_command("msg_prefix \"\"")
                             say_all(fake_name .. " Quit")
-                            execute_command("msg_prefix \"** SERVER ** \"")
+                            execute_command("msg_prefix \" *  * SERVER *  * \"")
                         end
                     else
                         rprint(PlayerIndex, "The name can only be one word!")
@@ -422,7 +422,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     if (player_alive(index)) then
                                         local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
                                         local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
-                                        for i = 1, math.random(1,15) do
+                                        for i = 1, math.random(1, 15) do
                                             -- frag grenade
                                             spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 5.5), y1 + math.random(0.1, 5.5), z1 + math.random(0.1, 1))
                                             -- rocket launcher projectile
@@ -434,7 +434,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             local plasma_cannon_projectile = get_object_memory(plasma_cannon)
                                             write_float(plasma_cannon_projectile + 0x70, - math.random(1, 3))
                                             -- needle projectile
-                                            local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1,5))
+                                            local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1, 5))
                                             local needle_projectile = get_object_memory(needle)
                                             write_float(needle_projectile + 0x70, - math.random(1, 3))
                                             -- banshee plasma bolt
@@ -530,7 +530,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                 local player_object = get_dynamic_player(target)
                                 if player_object ~= 0 then
                                     timer(0, "CrashPlayer", target)
-                                    rprint(executor, "You have crash " .. get_var(target, "$name") .. "'s game client")
+                                    rprint(executor, "You have crashed " .. get_var(target, "$name") .. "'s game client")
                                 end
                             else
                                 rprint(executor, "You cannot crash your own game client!")
@@ -602,7 +602,7 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
 end
 
 function Spam(player, broadcast)
-    for i = 1,math.random(1,10) do
+    for i = 1, math.random(1, 10) do
         if i == 1 then
             rprint(player, "|l" .. " " .. broadcast)
             rprint(player, "|r" .. " " .. broadcast)
@@ -635,86 +635,86 @@ function Spam(player, broadcast)
             rprint(player, "|r" .. " " .. broadcast)
         elseif i == 7 then
             rprint(player, "|t" .. "@r^ (]= ()n d*# =(e dzd #v/ fiv *$= c-( g** ges -/& 'w] qh/" .. broadcast)
-            rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
+                rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
             rprint(player, "|l" .. "$w z.m qch j*= sp) )f* =&y m#v $-- axl" .. broadcast)
-            rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
-            rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
-        elseif i == 8 then
-            rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
-            rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
-            rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
-            rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
-        elseif i == 9 then
-            rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
-            rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
-            rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
-            rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
-            rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
+        rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
+        rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
+    elseif i == 8 then
+        rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
+    rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
+    rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
+        rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+    rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
+elseif i == 9 then
+    rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
+    rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
+    rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
+        rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
+        rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
         elseif i == 10 then
             rprint(player, "|l" .. "v,b b'w r*[ ox* ..$ z-/ %)( (w[ d[. wl] v-( k*o qts [gi pyb" .. broadcast)
-            rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
+                rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
             rprint(player, "|l" .. "$q) z*w xr[ oz$ p.d *ux -&% *&; #g/ /yu ,!i ;za ezx .*p *l," .. broadcast)
-            rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
-            rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
-        end
+        rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
+        rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
     end
+end
 end
 
 function CrashPlayer(target)
-    local player_object = get_dynamic_player(target)
-    if (player_object ~= 0) then
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
-        local veh_obj = get_object_memory(vehicle_id)
-        if (veh_obj ~= 0) then
-            for j = 0, 20 do
-                enter_vehicle(vehicle_id, target, j)
-                exit_vehicle(target)
-            end
-            destroy_object(vehicle_id)
+local player_object = get_dynamic_player(target)
+if (player_object ~= 0) then
+    local x, y, z = read_vector3d(player_object + 0x5C)
+    local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
+    local veh_obj = get_object_memory(vehicle_id)
+    if (veh_obj ~= 0) then
+        for j = 0, 20 do
+            enter_vehicle(vehicle_id, target, j)
+            exit_vehicle(target)
         end
+        destroy_object(vehicle_id)
     end
-    return false
+end
+return false
 end
 
 function PlayerInVehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
-        else
-            return true
-        end
-    else
+local player_object = get_dynamic_player(PlayerIndex)
+if (player_object ~= 0) then
+    local VehicleID = read_dword(player_object + 0x11C)
+    if VehicleID == 0xFFFFFFFF then
         return false
+    else
+        return true
     end
+else
+    return false
+end
 end
 
 function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+if sep == nil then
+    sep = "%s"
+end
+local t = { }; i = 1
+for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+t[i] = str
+i = i + 1
+end
+return t
 end
 
 -- credits to 002 for this function.
 function get_tag_info(tagclass, tagname)
-    local tagarray = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) -1 do
-        local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == tagclass) then
-            if (read_string(read_dword(tag + 0x10)) == tagname) then
-                return read_dword(tag + 0xC)
-            end
-        end
+local tagarray = read_dword(0x40440000)
+for i = 0, read_word(0x4044000C) - 1 do
+local tag = tagarray + i * 0x20
+local class = string.reverse(string.sub(read_string(tag), 1, 4))
+if (class == tagclass) then
+    if (read_string(read_dword(tag + 0x10)) == tagname) then
+        return read_dword(tag + 0xC)
     end
-    return nil
+end
+end
+return nil
 end
