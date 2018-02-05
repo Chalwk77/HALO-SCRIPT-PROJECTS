@@ -591,10 +591,6 @@ if get_dynamic_player(PlayerIndex) ~= nil then
 
             local z_offset = 0.5
 
-            local proj_x = x + distance[PlayerIndex] * math.sin(x_aim)
-            local proj_y = y + distance[PlayerIndex] * math.sin(y_aim)
-            local proj_z = z + distance[PlayerIndex] * math.sin(z_aim) + z_offset
-
             if (reset_values[PlayerIndex] == true) then
                 values_specified[PlayerIndex] = false
                 grenade_type_changed[PlayerIndex] = false
