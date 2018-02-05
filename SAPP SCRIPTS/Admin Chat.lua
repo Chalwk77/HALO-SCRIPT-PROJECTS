@@ -2,16 +2,18 @@
 --=====================================================================================================--
 Script Name: AdminChat (utility), for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
-Description: Chat privately with other admins. 
+Description: Chat privately with other admins.
 Command Syntax: /achat on|off
-             
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
+-- hello
+
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]-- 
+]]--
 
 api_version = "1.12.0.0"
 
@@ -44,7 +46,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
             players[get_var(i, "$name")].boolean = nil
@@ -52,8 +54,8 @@ function OnScriptLoad()
     end
 end
 
-function OnScriptUnload() 
-    for i = 1,16 do
+function OnScriptUnload()
+    for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = false
             players[get_var(i, "$name")].boolean = false
@@ -62,7 +64,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             players[get_var(i, "$name")].adminchat = nil
             players[get_var(i, "$name")].boolean = nil
@@ -71,7 +73,7 @@ function OnNewGame()
 end
 
 function OnGameEnd()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if (Restore_Previous_State == true) then
                 if players[get_var(i, "$name")].adminchat == true then bool = "true" else bool = "false" end
@@ -125,9 +127,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     response = nil
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-            if (tonumber(get_var(PlayerIndex,"$lvl"))) >= min_admin_level then
+            if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                    if players[get_var(PlayerIndex, "$name")].boolean ~= true then 
+                    if players[get_var(PlayerIndex, "$name")].boolean ~= true then
                         rprint(PlayerIndex, "Admin Chat enabled.")
                         players[get_var(PlayerIndex, "$name")].adminchat = true
                         players[get_var(PlayerIndex, "$name")].boolean = true
@@ -149,7 +151,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
         else
-            cprint("The Server cannot execute this command!", 4+8)
+            cprint("The Server cannot execute this command!", 4 + 8)
         end
         response = false
     end
@@ -176,15 +178,15 @@ end
 function AdminChat(Message, PlayerIndex)
     for i = 1, 16 do
         if player_present(i) then
-            if (tonumber(get_var(i,"$lvl"))) >= min_admin_level then
+            if (tonumber(get_var(i, "$lvl"))) >= min_admin_level then
                 if (Format == "rcon") then
                     rprint(i, "|l" .. Message)
                 elseif (Format == "chat") then
                     execute_command("msg_prefix \"\"")
                     say(i, Message)
-                    execute_command("msg_prefix \"** SERVER ** \"")
+                    execute_command("msg_prefix \" *  * SERVER *  * \"")
                 else
-                    cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4+8)
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4 + 8)
                 end
             end
         end
@@ -195,14 +197,14 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+    local t = {} ; i = 1
+for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    t[i] = str
+    i = i + 1
+end
+return t
 end
 
 function OnError(Message)
-    print(debug.traceback())
+print(debug.traceback())
 end

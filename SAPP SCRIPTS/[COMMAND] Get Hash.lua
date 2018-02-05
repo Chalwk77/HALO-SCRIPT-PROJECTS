@@ -11,7 +11,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]-- 
+]]--
 
 api_version = "1.12.0.0"
 
@@ -72,13 +72,13 @@ function tokenizestring(inputstr, sep)
         sep = "%s"
     end
     local t = { }; i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    t[i] = str
+    i = i + 1
+end
+return t
 end
 
 function OnError(Message)
-    print(debug.traceback())
+print(debug.traceback())
 end
