@@ -1,5 +1,5 @@
 --[[
---=====================================================================================================--
+--======================================================================================================--
 Script Name: Get Hash (command), for SAPP (PC & CE)
 Implementing API version: 1.11.0.0
 Description: Check yours or someone else's hash
@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
---=====================================================================================================--
+--======================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
