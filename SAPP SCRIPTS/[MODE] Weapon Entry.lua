@@ -11,7 +11,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-command = "weaponentry"
+command = "entry"
 permission_level = 1
 
 vehicles = {}
@@ -42,7 +42,7 @@ end
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
-            if (destroy_mode[i] == true) then
+            if (enter_mode[i] == true) then
                 local success, target = false, nil
                 local player_object = get_dynamic_player(i)
                 local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
@@ -107,4 +107,16 @@ end
 function TagInfo(obj_type, obj_name)
     local tag_id = lookup_tag(obj_type, obj_name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    t[i] = str
+    i = i + 1
+end
+return t
 end
