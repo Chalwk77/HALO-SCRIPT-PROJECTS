@@ -84,11 +84,11 @@ function OnServerCommand(PlayerIndex, Command)
                 if t[2] ~= nil then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                         enter_mode[PlayerIndex] = true
-                        rprint(PlayerIndex, "Weapon-Entry Mode enabled.")
+                        rprint(PlayerIndex, "Enter Gun Mode enabled.")
                         UnknownCMD = false
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
                         enter_mode[PlayerIndex] = false
-                        rprint(PlayerIndex, "Weapon-Entry Mode disabled.")
+                        rprint(PlayerIndex, "Enter Gun Mode disabled.")
                         UnknownCMD = false
                     end
                 else
