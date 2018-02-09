@@ -39,6 +39,7 @@ function OnTick()
                 local player_object = get_dynamic_player(i)
                 local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
                 local shot_fired
+                local type = ""
                 local couching = read_float(player_object + 0x50C)
                 local px, py, pz = read_vector3d(player_object + 0x5c)
                 if (couching == 0) then pz = pz + 0.65 else pz = pz + (0.35 * couching) end
@@ -47,8 +48,23 @@ function OnTick()
                 if (success == true and target ~= nil) then
                     shot_fired = read_float(player_object + 0x490)
                     if(shot_fired ~= weapon_status[i] and shot_fired == 1) then
-                        destroy_object(target)
-                        rprint(i, "Object Destroyed!")
+                        local target_object = get_object_memory(target)
+                        if (target_object ~= 0) then
+                            local ObjectType = read_byte(target_object + 0xB4)
+                            local ObjectName = read_string(read_dword(read_word(target_object) * 32 + 0x40440038))
+                            if ObjectType == 0 then
+                                type = "bipd"
+                            elseif ObjectType == 1 then
+                                type = "vehi"
+                            elseif ObjectType == 3 then
+                                type = "eqip"
+                            elseif ObjectType == 2 then
+                                type = "weap"
+                            end
+                            for i = 1, 30 do rprint(i, " ") end
+                            rprint(i, "Destroyed: " .. type .. ", " .. ObjectName)
+                            destroy_object(target)
+                        end
                     end
                     weapon_status[i] = shot_fired
                 end
