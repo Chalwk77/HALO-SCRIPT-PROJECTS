@@ -2,6 +2,17 @@
 --=====================================================================================================--
 Script Name: Get Object Identity, for SAPP (PC & CE)
 
+Command Syntax:
+/getidentity on|off
+
+Point your crosshair at any object and fire your weapon.
+The mod will display the following information in the rcon console:
+
+Object Type
+Object Name
+Object Meta ID
+Object X,Y,Z coordinates
+
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -58,18 +69,14 @@ function OnTick()
                             else
                                 x, y, z = read_vector3d(target_object + 0x5c)
                             end
-                            local yaw = read_float(target_object + 0x76)
-                            local pitch = read_float(target_object + 0x7A)
-                            local roll = read_float(target_object + 0x7E)
-                            local rotation = read_float(target_object + 0x82)
                             if ObjectType == 0 then
-                                SendToPlayer(i, "bipd", ObjectName, ObjectMeta, x, y, z, yaw, pitch, roll, rotation)
+                                SendToPlayer(i, "bipd", ObjectName, ObjectMeta, x, y, z)
                             elseif ObjectType == 1 then
-                                SendToPlayer(i, "vehi", ObjectName, ObjectMeta, x, y, z, yaw, pitch, roll, rotation)
+                                SendToPlayer(i, "vehi", ObjectName, ObjectMeta, x, y, z)
                             elseif ObjectType == 3 then
-                                SendToPlayer(i, "eqip", ObjectName, ObjectMeta, x, y, z, yaw, pitch, roll, rotation)
+                                SendToPlayer(i, "eqip", ObjectName, ObjectMeta, x, y, z)
                             elseif ObjectType == 2 then
-                                SendToPlayer(i, "weap", ObjectName, ObjectMeta, x, y, z, yaw, pitch, roll, rotation)
+                                SendToPlayer(i, "weap", ObjectName, ObjectMeta, x, y, z)
                             end
                         end
                     end
@@ -80,12 +87,12 @@ function OnTick()
     end
 end
 
-function SendToPlayer(player, type, ObjectName, ObjectMeta, x, y, z, yaw, pitch, roll, rotation)
+function SendToPlayer(player, type, ObjectName, ObjectMeta, x, y, z)
+    for i = 1, 30 do rprint(player, " ") end
     rprint(player, "Type: |r" .. tostring(type))
     rprint(player, "Name: |r" .. tostring(ObjectName))
     rprint(player, "Meta: |r" .. tonumber(ObjectMeta))
-    rprint(player, "X,Y,Z: |r" .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
-    rprint(player, "Y,P,R: |r" .. math.floor(yaw) .. ", " .. math.floor(pitch) .. ", " .. math.floor(roll) .. ", " .. math.floor(rotation))
+    rprint(player, "X,Y,Z: |r" .. x .. ", " .. y .. ", " .. z)
 end
 
 function OnServerCommand(PlayerIndex, Command)
