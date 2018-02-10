@@ -12,8 +12,7 @@ Description: By default, you will spawn with an overshield, invisibility(7s), go
 
     There are two modes:
         Mode1: 'consecutive deaths' (editable)
-        If this setting is enabled, for every 10 consecutive deaths you have, you will spawn with protection.
-
+        * If this mode is enabled, for every (default 10) consecutive deaths you will spawn with protection.
         Mode2: Receive protection when you reach a specific amount of deaths (editable threshold)
 
     TO DO:
@@ -42,12 +41,11 @@ local settings = {
     ["UseInvulnerability"] = true,
 }
 
--- attributes given every 10 deaths, (victim)
+-- attributes given every (Consecutivedeaths) deaths to victim
 Consecutivedeaths = 10
-
--- Normal running speed
+-- When victim spawn protection has been reset, what should their speed be restored to? (Normal running speed = 1.0)
 ResetSpeedTo = 1.0
--- Amount to boost by
+-- Speed boost amount when receiving spawn protection.
 SpeedBoost = 1.3
 -- Speedboost activation time (in seconds)
 SpeedDuration = 7.0
@@ -57,8 +55,9 @@ Invulnerable = 7.0
 CamoTime = 7.0
 -- Configuration Ends --
 
--- Only edit these values if you know what you're doing!
--- If Victim has exactly this many deaths, he will spawn with protection.
+-- When using [mode 2] and not [mode 1], the spawns with protection when they have exactly this many consecutive deaths
+-- When you reach exactly 10 deaths you get protection.
+-- When you reach exactly 20 deaths you get protection and so on...
 death_count = {
     "10",
     "20",
@@ -68,7 +67,7 @@ death_count = {
     "75",
     "95",
     "115",
-    "135"
+    "135" -- don't put a comma on the last entry.
 }
 
 function OnScriptLoad()
@@ -105,7 +104,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function ApplyCamo(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         execute_command("camo me " .. CamoTime, PlayerIndex)
     else
         return false
@@ -113,7 +112,7 @@ function ApplyCamo(PlayerIndex)
 end
 
 function ApplyOvershield(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         local ObjectID = spawn_object("eqip", "powerups\\over shield")
         powerup_interact(ObjectID, PlayerIndex)
     else
@@ -122,7 +121,7 @@ function ApplyOvershield(PlayerIndex)
 end
 
 function Invulnerability(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         timer(Invulnerable * 1000, "ResetInvulnerability", PlayerIndex)
         execute_command("god me", PlayerIndex)
     else
@@ -131,7 +130,7 @@ function Invulnerability(PlayerIndex)
 end
 
 function GiveSpeedBoost(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
@@ -142,7 +141,7 @@ function GiveSpeedBoost(PlayerIndex)
 end
 
 function ResetPlayerSpeed(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
@@ -153,7 +152,7 @@ function ResetPlayerSpeed(PlayerIndex)
 end
 
 function ResetInvulnerability(PlayerIndex)
-    if (player_alive(PlayerIndex)) then
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         execute_command("ungod me", PlayerIndex)
         rprint(PlayerIndex, "|cGod Mode deactivated!")
     else
@@ -162,30 +161,26 @@ function ResetInvulnerability(PlayerIndex)
 end
 
 function CheckSettings(PlayerIndex)
-    if (player_present(PlayerIndex)) then
-        if (player_alive(PlayerIndex)) then
-            local name = get_var(PlayerIndex, "$name")
-            cprint(name .. " received Spawn Protection!", 2 + 8)
-            rprint(PlayerIndex, "|cYou have received Spawn Protection!")
-            rprint(PlayerIndex, "|n")
-            rprint(PlayerIndex, "|n")
-            rprint(PlayerIndex, "|n")
-            rprint(PlayerIndex, "|n")
-            rprint(PlayerIndex, "|n")
-            if settings["UseCamo"] then
-                timer(0, "ApplyCamo", PlayerIndex)
-            end
-            if settings["UseSpeedBoost"] then
-                GiveSpeedBoost(PlayerIndex)
-            end
-            if settings["UseInvulnerability"] then
-                Invulnerability(PlayerIndex)
-            end
-            if settings["UseOvershield"] then
-                timer(0, "ApplyOvershield", PlayerIndex)
-            end
-        else
-            return false
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
+        local name = get_var(PlayerIndex, "$name")
+        cprint(name .. " received Spawn Protection!", 2 + 8)
+        rprint(PlayerIndex, "|cYou have received Spawn Protection!")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        rprint(PlayerIndex, "|n")
+        if settings["UseCamo"] then
+            timer(0, "ApplyCamo", PlayerIndex)
+        end
+        if settings["UseSpeedBoost"] then
+            GiveSpeedBoost(PlayerIndex)
+        end
+        if settings["UseInvulnerability"] then
+            Invulnerability(PlayerIndex)
+        end
+        if settings["UseOvershield"] then
+            timer(0, "ApplyOvershield", PlayerIndex)
         end
     else
         return false
@@ -205,8 +200,9 @@ function OnPlayerSpawn(PlayerIndex)
                 deaths[PlayerIndex][1] = 0
             else
                 for i = 1, #death_count do
-                    if deaths[PlayerIndex][1] == death_count[i] then
+                    if tonumber(deaths[PlayerIndex][1]) == tonumber(death_count[i]) then
                         CheckSettings(PlayerIndex)
+                        cprint("running!", 2 + 8)
                     end
                 end
             end
