@@ -55,7 +55,7 @@ Invulnerable = 7.0
 CamoTime = 7.0
 -- Configuration Ends --
 
--- When using [mode 2] and not [mode 1], the spawns with protection when they have exactly this many consecutive deaths
+-- When using [mode 2] and not [mode 1], victim spawns with protection when they have exactly this many consecutive deaths
 -- When you reach exactly 10 deaths you get protection.
 -- When you reach exactly 20 deaths you get protection and so on...
 death_count = {
