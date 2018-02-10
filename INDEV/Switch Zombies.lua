@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
-Script Name: Document_Name, for SAPP (PC & CE)
-Description:
+Script Name: Switch | Zombies, for SAPP (PC & CE)
+
+<in development>
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
