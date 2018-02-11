@@ -14,31 +14,23 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+
 end
 
-function OnScriptUnload() end	
+function OnScriptUnload() end
 
-function OnPlayerJoin(PlayerIndex)
-    for i = 1, 16 do
-        if PlayerIndex then 
-            CheckPlayer(PlayerIndex)
-        end
-    end
-end
-
-function CheckPlayer(PlayerIndex)
-    local player_object = get_dynamic_player(index)
+function check_if_invisible(PlayerIndex)
+    local bool = nil
+    local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        local invis = read_float(player_object + 0x37C)
-        if invis == 0 then
-            -- Not invisible
-            cprint("Player is not invisible", 4+8)
-            return false
+        local invisibility = read_float(player_object + 0x37C)
+        if invisibility == 0 then
+            --cprint("Player is not invisible", 4 + 8)
+            bool = false
         else
-            -- Completely invisible
-            cprint("Player is invisible", 2+8)
-            return true
+            --cprint("Player is invisible", 2 + 8)
+            bool = true
         end
     end
+    return bool
 end
