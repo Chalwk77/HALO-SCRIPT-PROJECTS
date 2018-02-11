@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Switch | Zombies, for SAPP (PC & CE)
+Script Name: Target Shooting [GAME], for SAPP (PC & CE)
 
 <in development>
 
