@@ -1,16 +1,14 @@
 --[[
 --=====================================================================================================--
-Script Name: Cyborg Spawner, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
-Description: Spawn cyborgs at designated locations
+Script Name: Target Shooting [GAME], for SAPP (PC & CE)
+Description: Spawn cyborgs at designation x,y,z coordinates (see objects table below)
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
+~ Created by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]--
+]]
 
 api_version = "1.12.0.0"
 function OnScriptLoad()
@@ -21,20 +19,32 @@ function OnScriptUnload()
     objects = { }
 end
 
--- class, tagname, x,y,z, mapname
+-- class, tagname, x,y,z,r mapname
 objects = {
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 95.68, - 155.46, 2.92, "bloodgulch" },
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 79.05, - 141.19, 2.16, "bloodgulch" },
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 74.23, - 106.13, 3.87, "bloodgulch" },
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 22.67, - 81.11, 1.46, "bloodgulch" },
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 66.25, - 64.81, 2.52, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 95.68, - 155.46, 2.92, 10, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 79.05, - 141.19, 2.16, 5, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 74.23, - 106.13, 3.87, 110, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 22.67, - 81.11, 1.46, 15, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 66.25, - 64.81, 2.52, 90, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 92.09, - 156.02, 2.92, 75, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 90.51, - 158.73, 2.53, 86, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 90.51, - 160.36, 2.53, 90, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 92.12, - 163.19, 2.92, 1, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 94.77, - 164.60, 2.53, 150, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 96.33, - 164.53, 2.53, 90, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 99.10, - 162.94, 2.92, 190, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 100.57, - 160.38, 2.53, 90, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 100.58, - 158.76, 2.53, 90, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 99.07, - 155.82, 2.92, 310, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 96.39, - 154.52, 2.53, 155, "bloodgulch" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", 83.14, - 154.16, - 0.11, 90, "bloodgulch" },
 
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", -16.68, - 13.25, - 0, "longest" },
-    { "bipd", "characters\\cyborg_mp\\cyborg_mp", -6.48, - 10.83, 2.06, "longest" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", - 16.68, - 13.25, - 0, "longest" },
+    { "bipd", "characters\\cyborg_mp\\cyborg_mp", - 6.48, - 10.83, 2.06, "longest" },
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 6.05, - 10.42, 2.06, "longest" },
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 13.67, - 7.64, - 0.6, "longest" },
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 3.44, - 19.45, 2.06, "longest" },
-    
+
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 29.03, 13.56, 0.84, "beavercreek" },
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 18.02, 7.73, - 0.22, "beavercreek" },
     { "bipd", "characters\\cyborg_mp\\cyborg_mp", 13.87, 20.15, - 0.97, "beavercreek" },
@@ -134,21 +144,13 @@ objects = {
 
 function OnNewGame()
     for k, v in pairs(objects) do
-        local map = get_var(1, "$map")
-        local tag = lookup_tag(v[1], v[2])
-        if v[1] == "bipd" and v[2] == "characters\\cyborg_mp\\cyborg_mp" then
-            object = "Cyborg"
-        end
-        if tag ~= 0 then
-            if (v[6] == nil) then 
-                cprint("Object Creation failed. Number: " .. k) 
-            else
-                if (v[6] == map) then
-                    -- v1 = class, v2 = tagname, v3 = X, v4 = Y, v5 = Z
-                    v[6] = spawn_object(v[1], v[2], v[3], v[4], v[5])
-                    cprint("[".. k .."] Spawning " .. object .. " at " .. v[3] .. ", " .. v[4] .. ", " .. v[5], 2+8)
-                end
+        if lookup_tag(v[1], v[2]) ~= 0 then
+            if (v[7] == get_var(1, "$map")) then
+                spawn_object(v[1], v[2], v[3], v[4], v[5], v[6])
+                cprint("[".. k .."] Spawning cyborg at " .. v[3] .. ", " .. v[4] .. ", " .. v[5] .. "," .. v[6], 2 + 8)
             end
+        else
+            cprint("[".. k .."] UNABLE TO SPAWN OBJECT: " .. v[1] .. ", " .. v[2], 4 + 8)
         end
     end
 end
