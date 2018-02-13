@@ -17,54 +17,50 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+global_format = "%sender_name% [%index%]: %message%"
+team_format = "[%sender_name%] [%index%]: %message%"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    TeamPlay = CheckIfTeamPlay()
 end
 
 function OnScriptUnload() end
 
-function OnNewGame()
-    TeamPlay = CheckIfTeamPlay()
-end
-
-function OnPlayerChat(PlayerIndex, Message, type)
-    local response = nil
-    local text = tokenizestring(Message)
-    if #text == 0 then 
-        return nil 
-    end
-    if string.sub(text[1], 1, 1) == "/" or string.sub(text[1], 1, 1) == "\\" then 
-        return true 
-    end
-    for i = 0, #text do
-        if text[i] then
-            if TeamPlay then
-                if type == 0 or type == 2 then
-                    SendToAll(get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
-                    response = false
-                elseif type == 1 then
-                    SendToTeam("[" .. get_var(PlayerIndex, "$name") .. "] [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
-                    response = false
-                end
+function OnPlayerChat(PlayerIndex, Message)
+    local message = tokenizestring(Message)
+    if #message == 0 then return nil end
+    for i = 0, #message do
+        if message[i] then
+            if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                return true
             else
-                SendToAll(get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. tostring(Message), PlayerIndex)
-                response = false
+                if (GetTeamPlay == true) then
+                    if type == 0 or type == 2 then
+                        SendToAll(Message, PlayerIndex)
+                        return false
+                    elseif type == 1 then
+                        SendToTeam(Message, PlayerIndex)
+                        return false
+                    end
+                else
+                    SendToAll(Message, PlayerIndex)
+                    return false
+                end
             end
         end
     end
-    return response
 end
 
 function SendToTeam(Message, PlayerIndex)
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
-            if (get_var(i,"$team")) == (get_var(PlayerIndex,"$team")) then
+            if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
+                local team_format = string.gsub(team_format, "%%sender_name%%", get_var(PlayerIndex, "$name"))
+                local team_format = string.gsub(team_format, "%%index%%", get_var(PlayerIndex, "$n"))
+                local team_format = string.gsub(team_format, "%%message%%", Message)
                 execute_command("msg_prefix \"\"")
-                say(i, Message)
-                execute_command("msg_prefix \"** SERVER ** \"")
+                say(i, team_format)
+                execute_command("msg_prefix \" *  * SERVER *  * \"")
             end
         end
     end
@@ -72,32 +68,30 @@ end
 
 function SendToAll(Message, PlayerIndex)
     if player_present(PlayerIndex) then
+        local global_format = string.gsub(global_format, "%%sender_name%%", get_var(PlayerIndex, "$name"))
+        local global_format = string.gsub(global_format, "%%index%%", get_var(PlayerIndex, "$n"))
+        local global_format = string.gsub(global_format, "%%message%%", Message)
         execute_command("msg_prefix \"\"")
-        say_all(Message)
-        execute_command("msg_prefix \"** SERVER ** \"")
+        say_all(global_format)
+        execute_command("msg_prefix \" *  * SERVER *  * \"")
     end
 end
 
-function CheckIfTeamPlay()
+function GetTeamPlay()
     if get_var(0, "$ffa") == "0" then
         return true
     else
         return false
     end
+    return
 end
 
 function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+    if sep == nil then sep = "%s" end
+    local t = {} ; i = 1
+for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    t[i] = str
+    i = i + 1
 end
-
-function OnError(Message)
-    print(debug.traceback())
+return t
 end
