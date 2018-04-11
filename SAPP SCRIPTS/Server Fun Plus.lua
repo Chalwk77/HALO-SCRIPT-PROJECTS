@@ -14,6 +14,7 @@ Features:
 *   god:                broadcast a message as god
 *   nuke:               nuke the target player
     colour changer:     change a player's colour
+    crash:              crash player's game client
 
     IN DEVELOPMENT
 
@@ -635,86 +636,86 @@ function Spam(player, broadcast)
             rprint(player, "|r" .. " " .. broadcast)
         elseif i == 7 then
             rprint(player, "|t" .. "@r^ (]= ()n d*# =(e dzd #v/ fiv *$= c-( g** ges -/& 'w] qh/" .. broadcast)
-                rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
+            rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
             rprint(player, "|l" .. "$w z.m qch j*= sp) )f* =&y m#v $-- axl" .. broadcast)
-        rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
-        rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
-    elseif i == 8 then
-        rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
-    rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
-    rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
-        rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-    rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
-elseif i == 9 then
-    rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
-    rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
-    rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
-        rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
-        rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
+            rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
+            rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
+        elseif i == 8 then
+            rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
+            rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
+            rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
+            rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
+            rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
+        elseif i == 9 then
+            rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
+            rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
+            rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
+            rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
+            rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
         elseif i == 10 then
             rprint(player, "|l" .. "v,b b'w r*[ ox* ..$ z-/ %)( (w[ d[. wl] v-( k*o qts [gi pyb" .. broadcast)
-                rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
+            rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
             rprint(player, "|l" .. "$q) z*w xr[ oz$ p.d *ux -&% *&; #g/ /yu ,!i ;za ezx .*p *l," .. broadcast)
-        rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
-        rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
+            rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
+            rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
+        end
     end
-end
 end
 
 function CrashPlayer(target)
-local player_object = get_dynamic_player(target)
-if (player_object ~= 0) then
-    local x, y, z = read_vector3d(player_object + 0x5C)
-    local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
-    local veh_obj = get_object_memory(vehicle_id)
-    if (veh_obj ~= 0) then
-        for j = 0, 20 do
-            enter_vehicle(vehicle_id, target, j)
-            exit_vehicle(target)
+    local player_object = get_dynamic_player(target)
+    if (player_object ~= 0) then
+        local x, y, z = read_vector3d(player_object + 0x5C)
+        local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
+        local veh_obj = get_object_memory(vehicle_id)
+        if (veh_obj ~= 0) then
+            for j = 0, 20 do
+                enter_vehicle(vehicle_id, target, j)
+                exit_vehicle(target)
+            end
+            destroy_object(vehicle_id)
         end
-        destroy_object(vehicle_id)
     end
-end
-return false
+    return false
 end
 
 function PlayerInVehicle(PlayerIndex)
-local player_object = get_dynamic_player(PlayerIndex)
-if (player_object ~= 0) then
-    local VehicleID = read_dword(player_object + 0x11C)
-    if VehicleID == 0xFFFFFFFF then
-        return false
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
     else
-        return true
+        return false
     end
-else
-    return false
-end
 end
 
 function tokenizestring(inputstr, sep)
-if sep == nil then
-    sep = "%s"
-end
-local t = { }; i = 1
-for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-t[i] = str
-i = i + 1
-end
-return t
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { }; i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 -- credits to 002 for this function.
 function get_tag_info(tagclass, tagname)
-local tagarray = read_dword(0x40440000)
-for i = 0, read_word(0x4044000C) - 1 do
-local tag = tagarray + i * 0x20
-local class = string.reverse(string.sub(read_string(tag), 1, 4))
-if (class == tagclass) then
-    if (read_string(read_dword(tag + 0x10)) == tagname) then
-        return read_dword(tag + 0xC)
+    local tagarray = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) - 1 do
+        local tag = tagarray + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == tagclass) then
+            if (read_string(read_dword(tag + 0x10)) == tagname) then
+                return read_dword(tag + 0xC)
+            end
+        end
     end
-end
-end
-return nil
+    return nil
 end
