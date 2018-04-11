@@ -13,6 +13,7 @@ Description:    The maps listed below each have one or more broken spawn points.
     deadend
     municipality
     sniperbluff
+    rev_savior_cave_prerelease
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
