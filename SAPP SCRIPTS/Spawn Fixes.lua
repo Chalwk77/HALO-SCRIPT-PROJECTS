@@ -13,6 +13,7 @@ Description:    The maps listed below each have one or more broken spawn points.
     deadend
     municipality
     sniperbluff
+    rev_savior_cave_prerelease
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -80,6 +81,8 @@ function OnPlayerSpawn(PlayerIndex)
                     moveobject(player_obj_id, municipality_SlayerCoords[coord][1], municipality_SlayerCoords[coord][2], municipality_SlayerCoords[coord][3] + 0.15)
                 elseif (mapname == "sniperbluff") then
                     moveobject(player_obj_id, sniperbluff_SlayerCoords[coord][1], sniperbluff_SlayerCoords[coord][2], sniperbluff_SlayerCoords[coord][3] + 0.15)
+                elseif (mapname == "rev_savior_cave_prerelease") then
+                    moveobject(player_obj_id, rev_savior_cave_prerelease_SlayerCoords[coord][1], rev_savior_cave_prerelease_SlayerCoords[coord][2], rev_savior_cave_prerelease_SlayerCoords[coord][3] + 0.15)
                 end
             elseif team_play == true then
                 if (mapname == "emt_inverno") then
@@ -112,6 +115,12 @@ function OnPlayerSpawn(PlayerIndex)
                     elseif (Team == "blue") then
                         moveobject(player_obj_id, sniperbluff_BlueCoords[coord][1], sniperbluff_BlueCoords[coord][2], sniperbluff_BlueCoords[coord][3] + 0.15)
                     end
+                elseif (mapname == "rev_savior_cave_prerelease") then
+                    if (Team == "red") then
+                        moveobject(player_obj_id, rev_savior_cave_prerelease_RedCoords[coord][1], rev_savior_cave_prerelease_RedCoords[coord][2], rev_savior_cave_prerelease_RedCoords[coord][3] + 0.15)
+                    elseif (Team == "blue") then
+                        moveobject(player_obj_id, rev_savior_cave_prerelease_BlueCoords[coord][1], rev_savior_cave_prerelease_BlueCoords[coord][2], rev_savior_cave_prerelease_BlueCoords[coord][3] + 0.15)
+                    end
                 end
             end
         end
@@ -140,6 +149,10 @@ function SelectNewCoord(PlayerIndex)
         elseif (mapname == "sniperbluff") then
             if #sniperbluff_SlayerCoords > 0 then
                 return rand(1, #sniperbluff_SlayerCoords + 1)
+            end
+        elseif (mapname == "rev_savior_cave_prerelease") then
+            if #rev_savior_cave_prerelease_SlayerCoords > 0 then
+                return rand(1, #rev_savior_cave_prerelease_SlayerCoords + 1)
             end
         end
     elseif team_play == true then
@@ -191,6 +204,16 @@ function SelectNewCoord(PlayerIndex)
             elseif (Team == "blue") then
                 if #sniperbluff_BlueCoords > 0 then
                     return rand(1, #sniperbluff_BlueCoords + 1)
+                end
+            end
+        elseif (mapname == "rev_savior_cave_prerelease") then
+            if (Team == "red") then
+                if #rev_savior_cave_prerelease_RedCoords > 0 then
+                    return rand(rev_savior_cave_prerelease_RedCoords)
+                end
+            elseif (Team == "blue") then
+                if #rev_savior_cave_prerelease_BlueCoords > 0 then
+                    return rand(1, #rev_savior_cave_prerelease_BlueCoords + 1)
                 end
             end
         end
@@ -279,6 +302,15 @@ function LoadTables()
     sniperbluff_RedCoords[1] = { - 6.65, 18.06, 3.93 }
     sniperbluff_BlueCoords[1] = { 11.71, - 21.86, 2.47 }
     sniperbluff_SlayerCoords[1] = { 16.79, - 7.52, 2.32 }
+
+    -- rev_savior_cave_prerelease --
+    rev_savior_cave_prerelease_RedCoords = { }
+    rev_savior_cave_prerelease_BlueCoords = { }
+    rev_savior_cave_prerelease_SlayerCoords = { }
+
+    rev_savior_cave_prerelease_RedCoords[1] = { 3.43, 16.27, 0.41 }
+    rev_savior_cave_prerelease_BlueCoords[1] = { 3.43, 16.27, 0.41 }
+    rev_savior_cave_prerelease_SlayerCoords[1] = { 3.43, 16.27, 0.41 }
 end
 
 function OnError(Message)
