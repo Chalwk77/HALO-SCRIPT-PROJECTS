@@ -23,7 +23,7 @@ MapIsListed = nil
 
 -- ==================================================================================--
 -- ==================================================================================--
--- CONFIGURATION STARTS HERE -- 
+-- CONFIGURATION STARTS HERE --
 gamesettings = {
     ["Give_Frag_Grenades"] = true,
     ["Give_Plasma_Grenades"] = true
@@ -32,7 +32,7 @@ gamesettings = {
 function LoadMaps()
     -- mapnames table --
     mapnames = {
---      [!] Default Maps
+        --      [!] Default Maps
         "beavercreek",
         "bloodgulch",
         "boardingaction",
@@ -50,10 +50,11 @@ function LoadMaps()
         "putput",
         "prisoner",
         "wizard",
---      [!] Custom Maps
+        --      [!] Custom Maps
         "dustbeta",
         "snowdrop",
---[[
+        "amysroom_beta",
+        --[[
         "dustbeta",
         "snowdrop",
         "Homestead",
@@ -141,7 +142,6 @@ function LoadMaps()
         "camden_place",
         "ivory_tower_final",
         "bacon",
-        "amysroom_beta",
         "dioptase",
         "airball",
         "aboveandbelow",
@@ -175,7 +175,7 @@ function LoadMaps()
         "djw-pacman",
         "Sniper_Training",
         "Medical Block"
-]] 
+]]
     }
 end
 
@@ -191,7 +191,7 @@ weapons[7] = "weapons\\assault rifle\\assault rifle"
 weapons[8] = "weapons\\flamethrower\\flamethrower"
 weapons[9] = "weapons\\needler\\mp_needler"
 weapons[10] = "weapons\\shotgun\\shotgun"
- ---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 -- Custom Weapons --
 -- dust beta --
 weapons[11] = "weapons\\p90\\p90"
@@ -216,13 +216,13 @@ weapons[28] = "weapons\\gauss sniper\\gauss sniper"
 weapons[29] = "weapons\\<weapon_name>\\<weapon_name>"
 weapons[30] = "weapons\\<weapon_name>\\<weapon_name>"
 
--- If your gamemode is set up so that you spawn with infinite grenades, 
+-- If your gamemode is set up so that you spawn with infinite grenades,
 -- this script will respect that, and you will continue to spawn with infinite grenades (:
 
 function GrenadeTable()
---  frag grenades table --
+    --  frag grenades table --
     frags = {
---  [!] - Default Maps -    
+        --  [!] - Default Maps -
         beavercreek = 3,
         bloodgulch = 4,
         boardingaction = 1,
@@ -240,11 +240,12 @@ function GrenadeTable()
         putput = 4,
         prisoner = 2,
         wizard = 1,
---  [!] - Custom Maps -  
+        --  [!] - Custom Maps -
         snowdrop = 4,
         dustbeta = 2,
---      <map name> = <number><comma>
---[[
+        amysroom_beta = 0
+        --      <map name> = <number><comma>
+        --[[
         Homestead = 4,
         [H2]_Ivory_Tower = 1,
         dmt_racing = 4,
@@ -365,9 +366,9 @@ function GrenadeTable()
 ]]
         MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end.
     }
---  plasma grenades table --
+    --  plasma grenades table --
     plasmas = {
---  [!] - Default Maps -    
+        --  [!] - Default Maps -
         beavercreek = 1,
         bloodgulch = 2,
         boardingaction = 3,
@@ -385,11 +386,12 @@ function GrenadeTable()
         putput = 1,
         prisoner = 1,
         wizard = 2,
---  [!] - Custom Maps -  
+        --  [!] - Custom Maps -
         snowdrop = 4,
         dustbeta = 0, -- WARNING - KEEP ZERO! Dust Beta doesn't have Plasma Grenades.
---      <map name> = <number><comma>
---[[
+        amysroom_beta = 0
+        --      <map name> = <number><comma>
+        --[[
         Homestead = 3,
         [H2]_Ivory_Tower = 2,
         dmt_racing = 1,
@@ -508,11 +510,11 @@ function GrenadeTable()
         Sniper_Training = 2,
         Medical Block = 3,
 ]]
-        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end. 
+        MAP_NAME_HERE = 0 -- Make sure the last entry in the table doesn't have a comma at the end.
     }
 end
 -- CONFIGURATION ENDS HERE --
--- ==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^               
+-- ==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^
 -- ==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^==^
 
 
@@ -543,10 +545,10 @@ function OnPlayerSpawn(PlayerIndex)
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
             if (gamesettings["Give_Frag_Grenades"] == true) then
-                if (frags[mapname] == nil) then 
+                if (frags[mapname] == nil) then
                     -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 228 | Unable to set frags.'
-                    cprint(Error, 4+8)
+                    cprint(Error, 4 + 8)
                     execute_command("log_note \""..Error.."\"")
                 else
                     write_word(player_object + 0x31E, frags[mapname])
@@ -554,10 +556,10 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
             if (gamesettings["Give_Plasma_Grenades"] == true) then
-                if (plasmas[mapname] == nil) then 
+                if (plasmas[mapname] == nil) then
                     -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 373 | Unable to set plasmas.'
-                    cprint(Error, 4+8)
+                    cprint(Error, 4 + 8)
                     execute_command("log_note \""..Error.."\"")
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
@@ -569,7 +571,7 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function table.match(table, value)
-    for k,v in pairs(table) do
+    for k, v in pairs(table) do
         if v == value then
             return k
         end
@@ -580,10 +582,10 @@ function OnNewGame()
     mapname = get_var(0, "$map")
     GrenadeTable()
     LoadMaps()
-    if (table.match(mapnames, mapname) == nil) then 
+    if (table.match(mapnames, mapname) == nil) then
         MapIsListed = false
         Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 38'
-        cprint(Error, 4+8)
+        cprint(Error, 4 + 8)
         execute_command("log_note \""..Error.."\"")
     else
         MapIsListed = true
@@ -604,7 +606,7 @@ function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
             if MapIsListed == false then
-                -- Map is not listed under "mapnames table" - line 38. 
+                -- Map is not listed under "mapnames table" - line 38.
                 -- Players will spawn with default weapons for this map.
                 return false
             else
@@ -612,9 +614,9 @@ function OnTick()
                 if (weapon[i] == true) then
                     execute_command("wdel " .. i)
                     local x, y, z = read_vector3d(player + 0x5C)
---                  ====== INFO ======
---                  Remove the comment(s) to use these additional weapon entries.
---                  A comment starts anywhere with a double hyphen ( -- ).
+                    --                  ====== INFO ======
+                    --                  Remove the comment(s) to use these additional weapon entries.
+                    --                  A comment starts anywhere with a double hyphen ( -- ).
                     if (mapname == "dustbeta") then
                         assign_weapon(spawn_object("weap", weapons[11], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[12], x, y, z), i)
@@ -626,9 +628,9 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[24], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         -- assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
-                        weapon[i] = false                    
------------------------------------------------------------------------------------------------------
--- =================================== D E F A U L T   M A P S =================================== --
+                        weapon[i] = false
+                        -----------------------------------------------------------------------------------------------------
+                        -- =================================== D E F A U L T   M A P S =================================== --
                     elseif (mapname == "beavercreek") then
                         assign_weapon(spawn_object("weap", weapons[8], x, y, z), i) -- Flame Thrower
                         assign_weapon(spawn_object("weap", weapons[3], x, y, z), i) -- Plasma Cannon
@@ -697,13 +699,13 @@ function OnTick()
                         assign_weapon(spawn_object("weap", weapons[1], x, y, z), i) -- Pistol
                         assign_weapon(spawn_object("weap", weapons[6], x, y, z), i) -- Plasma Rifle
                         weapon[i] = false
------------------------------------------------------------------------------------------------------
--- =================================== C U S T O M   M A P S =================================== --
---[[
-                    elseif (mapname == "Homestead") then
-                        assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
+                        -----------------------------------------------------------------------------------------------------
+                        -- =================================== C U S T O M   M A P S =================================== --
+                    elseif (mapname == "amysroom_beta") then
+                        assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         weapon[i] = false
+                        --[[
                     elseif (mapname == "[H2]_Ivory_Tower") then
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)
                         assign_weapon(spawn_object("weap", weapons[00000], x, y, z), i)

@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Spawn Fixes, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0  
+Implementing API version: 1.11.0.0
 Description:    The maps listed below each have one or more broken spawn points.
                 For example, the map emt_inverno has one known spawn point that spawns you on the side of a cliff - you slide down and die from fall damage.
                 This script fixes that by detecting when you spawn at that location and safely teleports you elsewhere.
@@ -27,17 +27,19 @@ api_version = "1.12.0.0"
 -- Known broken spawn points
 BrokenCoords = {
     -- emt_inverno --
-    - 86.68,- 16.49,11.92,      -- Side of cliff
+    - 86.68, - 16.49, 11.92, -- Side of cliff
     -- dioptase --
-    - 6.34,8.5,1.2,             -- Under ground
+    - 6.34, 8.5, 1.2, -- Under ground
     -- deadend --
-    2.49,- 4.95,- 0.31,         -- Spawn in the ground
-    6.67,2.11,3.71,             -- Spawn in fire
+    2.49, - 4.95, - 0.31, -- Spawn in the ground
+    6.67, 2.11, 3.71, -- Spawn in fire
     -- municipality --
-    - 31.99,35.35,- 0.96,       -- Under ground
+    - 31.99, 35.35, - 0.96, -- Under ground
     -- sniperbluff --
-    19.75, -13.17, 2.44         -- Inside a rock
-}	
+    19.75, - 13.17, 2.44, -- Inside a rock
+    -- rev_savior_cave_prerelease
+    4.06, 14.78, 0.47 -- Inside a rock
+}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -268,7 +270,7 @@ function LoadTables()
     municipality_RedCoords[1] = { - 17.63, - 16.97, 0.05 }
     municipality_BlueCoords[1] = { - 19.46, 25.63, 2.06 }
     municipality_SlayerCoords[1] = { - 10.35, 18.78, - 0.38 }
-    
+
     -- sniperbluff --
     sniperbluff_RedCoords = { }
     sniperbluff_BlueCoords = { }
