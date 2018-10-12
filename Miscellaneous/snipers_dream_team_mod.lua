@@ -47,7 +47,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-    --register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if(gp == 3) then return end
     globals = read_dword(gp)
@@ -79,6 +79,9 @@ function OnGameEnd()
 end
 
 function OnTick()
+    --
+    -- MONITOR TELEPORTS --
+    --
     for i = 1, player_count do
         if (player_alive(i)) then
             for j = 1, #teleports[mapname] do
@@ -93,6 +96,9 @@ function OnTick()
             end
         end
     end
+    --
+    -- WEAPON ASSIGNMENT
+    --
     for k = 1, player_count do
         if (player_alive(k)) then
             local player = get_dynamic_player(k)
@@ -108,6 +114,9 @@ function OnTick()
             end
         end
     end
+    --
+    -- FLAG MONITOR --
+    --
     for m = 1, player_count do
         if (player_alive(m)) then
             if get_var(m, "$team") == "red" then
@@ -138,6 +147,9 @@ function OnTick()
             end
         end
     end
+    --
+    -- TBAG MONITOR --
+    --
     for n = 1, player_count do
         if player_present(n) then
             if tbag[n] == nil then tbag[n] = { } end
@@ -157,6 +169,9 @@ function OnTick()
             end
         end
     end
+    --
+    -- FRAG/PLASMA MONITOR --
+    --
     for o = 1, 16 do
         if (player_alive(o)) then
             if frag_check[o] and FragCheck(o) == false then
@@ -257,33 +272,15 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (MetaID == TagInfo("weap", "weapons\\assault rifle\\assault rifle")) then
         return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
     end
-    if (MetaID == TagInfo("weap", "weapons\\flamethrower\\flamethrower")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\needler\\mp_needler")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\plasma pistol\\plasma pistol")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\plasma rifle\\plasma rifle")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\plasma_cannon\\plasma_cannon")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\rocket launcher\\rocket launcher")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
-    if (MetaID == TagInfo("weap", "weapons\\shotgun\\shotgun")) then
-        return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    end
+    -- if (MetaID == ASSAULT_R) or (MetaID == FLAME_T) or (MetaID == NEEDLER) or (MetaID == PLASMA_P) or (MetaID == PLASMA_R) or (MetaID == PLASMA_C) or (MetaID == ROCKET_L) or (MetaID == SHOTGUN) then
+    --     return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
+    -- end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     -- Prevent Tank Shell explosion suicide
     if PlayerIndex == CauserIndex then
-        if (MetaID == TagInfo("jpt!", "vehicles\\scorpion\\shell explosion")) then
+        if (MetaID == TANK_SHELL) then
             return true, Damage * 0
         end
     end
@@ -405,6 +402,15 @@ function InitSettings()
         { 118.263, - 120.761, 17.192, 0.5, 40.194, - 139.990, 2.733, 280, - 10, 0, "25"},
     }
 
+    TANK_SHELL = TagInfo("jpt!", "vehicles\\scorpion\\shell explosion")
+    ASSAULT_R = TagInfo("weap", "weapons\\assault rifle\\assault rifle")
+    FLAME_T = TagInfo("weap", "weapons\\flamethrower\\flamethrower")
+    NEEDLER = TagInfo("weap", "weapons\\needler\\mp_needler")
+    PLASMA_P = TagInfo("weap", "weapons\\plasma pistol\\plasma pistol")
+    PLASMA_R = TagInfo("weap", "weapons\\plasma rifle\\plasma rifle")
+    PLASMA_C = TagInfo("weap", "weapons\\plasma_cannon\\plasma_cannon")
+    ROCKET_L = TagInfo("weap", "weapons\\rocket launcher\\rocket launcher")
+    SHOTGUN = TagInfo("weap", "weapons\\shotgun\\shotgun")
     local red_flag = read_dword(globals + 0x8)
     local blue_flag = read_dword(globals + 0xC)
     local tag_address = read_dword(0x40440000)
