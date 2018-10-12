@@ -172,7 +172,7 @@ function OnTick()
     --
     -- FRAG/PLASMA MONITOR --
     --
-    for o = 1, 16 do
+    for o = 1, player_count do
         if (player_alive(o)) then
             if frag_check[o] and FragCheck(o) == false then
                 frag_check[o] = nil
@@ -224,10 +224,6 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     weapon[PlayerIndex] = false
-    local wait_time = 1
-    execute_command_sequence("w8 " .. wait_time .. "; ammo " .. PlayerIndex .. " " .. 999)
-    execute_command_sequence("w8 " .. wait_time .. "; mag " .. PlayerIndex .. " " .. 999)
-    local player = get_dynamic_player(PlayerIndex)
     frag_check[PlayerIndex] = true
     plasma_check[PlayerIndex] = true
 end
@@ -237,8 +233,14 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
+    -- respawn time
+    local player = get_player(PlayerIndex)
+    write_dword(player + 0x2C, 3 * 33)
+
     plasma_check[PlayerIndex] = false
     frag_check[PlayerIndex] = false
+
+    -- tbag
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     if (killer > 0) and (victim ~= killer) then
@@ -269,12 +271,12 @@ function OnPlayerCrouch(PlayerIndex)
 end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
-    if (MetaID == TagInfo("weap", "weapons\\assault rifle\\assault rifle")) then
+    if (MapID == ASSAULT_R) or (MapID == FLAME_T) or (MapID == NEEDLER) or (MapID == PLASMA_P) or (MapID == PLASMA_R) or (MapID == SHOTGUN) then
         return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
     end
-    -- if (MetaID == ASSAULT_R) or (MetaID == FLAME_T) or (MetaID == NEEDLER) or (MetaID == PLASMA_P) or (MetaID == PLASMA_R) or (MetaID == PLASMA_C) or (MetaID == ROCKET_L) or (MetaID == SHOTGUN) then
-    --     return true, TagInfo("weap", "weapons\\sniper rifle\\sniper rifle")
-    -- end
+    if (MapID == PLASMA_C) or (MapID == ROCKET_L) then
+        return false
+    end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
