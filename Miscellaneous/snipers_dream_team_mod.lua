@@ -322,7 +322,7 @@ function InitSettings()
     execute_command("scorelimit 50")
     objects = {
         -- blue vehicles
-        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", 10 },
+        { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758, "Blue Banshee", 10.2 },
         { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302, "Blue Turret", 124.5 },
         { "vehi", "vehicles\\scorpion\\scorpion_mp", 23.598, - 102.343, 2.163, "Blue Tank [Ramp]", 90 },
         { "vehi", "vehicles\\scorpion\\scorpion_mp", 38.119, - 64.898, 0.617, "Blue Tank [Immediate Rear of Base]", 90 },
@@ -819,36 +819,6 @@ function InitSettings()
             break
         end
     end
-    -- weapons\sniper rifle\muzzle flash.ligh
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if(tag_class == 1818847080 and tag_name == "weapons\\sniper rifle\\muzzle flash") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1)
-            write_dword(tag_data + 0x4, 1094713344)
-            write_dword(tag_data + 0x10, 1060288706)
-            write_dword(tag_data + 0x14, 1067945270)
-            write_dword(tag_data + 0x1c, 1061428093)
-            write_dword(tag_data + 0x20, 1048871919)
-            write_dword(tag_data + 0x28, 1064781546)
-            write_dword(tag_data + 0x38, 1065353216)
-            write_dword(tag_data + 0x48, 1065353216)
-            write_dword(tag_data + 0x4c, 1065353216)
-            write_dword(tag_data + 0x50, 1065353216)
-            write_dword(tag_data + 0x54, 1065353216)
-            write_dword(tag_data + 0x68, 1078307487)
-            SwapDependency(tag_data + 0x70, "vehicles\\scorpion\\bitmaps\\headlights gel scorpion", 1651078253)
-            write_dword(tag_data + 0x74, 0)
-            write_dword(tag_data + 0x8c, 0)
-            write_dword(tag_data + 0x94, 0)
-            write_dword(tag_data + 0x9c, 0)
-            write_dword(tag_data + 0xb0, 1078307537)
-            SwapDependency(tag_data + 0xb8, "vehicles\\scorpion\\headlights scorpion", 1818586739)
-            break
-        end
-    end
     -- weapons\sniper rifle\melee.jpt!
     for i = 0, tag_count - 1 do
         local tag = tag_address + 0x20 * i
@@ -1146,33 +1116,6 @@ function InitSettings()
             local tag_data = read_dword(tag + 0x14)
             write_dword(tag_data + 0x8c, 4294967295)
             write_dword(tag_data + 0x9c0, 973078558)
-            break
-        end
-    end
-    -- vehicles\c gun turret\bitmaps\gun turret base.bitm
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if(tag_class == 1651078253 and tag_name == "vehicles\\c gun turret\\bitmaps\\gun turret base") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0xbc, 0)
-            break
-        end
-    end
-    -- vehicles\c gun turret\mp gun turret.phys
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if(tag_class == 1885895027 and tag_name == "vehicles\\c gun turret\\mp gun turret") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0xe8, 33554433)
-            write_dword(tag_data + 0xec, 1069547520)
-            write_dword(tag_data + 0xf4, 1073741824)
-            write_dword(tag_data + 0xf8, 1017370378)
-            write_dword(tag_data + 0xfc, 1056964608)
-            write_dword(tag_data + 0x100, 1048871917)
             break
         end
     end
