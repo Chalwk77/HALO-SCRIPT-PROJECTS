@@ -7,7 +7,6 @@ Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Written by Jericho Crosby
 -----------------------------------
 ]]--
-
 api_version = "1.12.0.0"
 tbag = { }
 weapon = { }
@@ -37,6 +36,9 @@ vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee"}
 vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank"}
 vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret"}
 
+-- Gametype Override
+local handle_manually = false
+--
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
@@ -99,18 +101,20 @@ function OnTick()
     --
     -- WEAPON ASSIGNMENT
     --
-    for k = 1, player_count do
-        if (player_alive(k)) then
-            local player = get_dynamic_player(k)
-            if (weapon[k] == false) then
-                execute_command("wdel " .. k)
-                local x, y, z = read_vector3d(player + 0x5C)
-                for i = 1, #weapons do
-                    if weapons[i][3] == true then
-                        assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), k)
+    if (handle_manually == true) then
+        for k = 1, player_count do
+            if (player_alive(k)) then
+                local player = get_dynamic_player(k)
+                if (weapon[k] == false) then
+                    execute_command("wdel " .. k)
+                    local x, y, z = read_vector3d(player + 0x5C)
+                    for i = 1, #weapons do
+                        if weapons[i][3] == true then
+                            assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), k)
+                        end
                     end
+                    weapon[k] = true
                 end
-                weapon[k] = true
             end
         end
     end
@@ -151,7 +155,7 @@ function OnTick()
     -- TBAG MONITOR --
     --
     for n = 1, player_count do
-        if player_present(n) then
+        if player_present(n) and player_alive(n) then
             if tbag[n] == nil then tbag[n] = { } end
             if tbag[n].name and tbag[n].x then
                 if not PlayerInVehicle(n) then
@@ -173,7 +177,7 @@ function OnTick()
     -- FRAG/PLASMA MONITOR --
     --
     for o = 1, player_count do
-        if (player_alive(o)) then
+        if player_present(o) and player_alive(o) then
             if frag_check[o] and FragCheck(o) == false then
                 frag_check[o] = nil
             elseif FragCheck(o) and frag_check[o] == nil then
@@ -209,15 +213,16 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
-    -- update player grenades (ONCE) upon joining the server.
-    if join_trigger[PlayerIndex] == true then
-        join_trigger[PlayerIndex] = false
-        local player = get_dynamic_player(PlayerIndex)
-        if player then
-            safe_write(true)
-            write_word(player + 0x31E, 4)
-            write_word(player + 0x31F, 4)
-            safe_write(false)
+    if (handle_manually == true) then
+        if join_trigger[PlayerIndex] == true then
+            join_trigger[PlayerIndex] = false
+            local player = get_dynamic_player(PlayerIndex)
+            if player then
+                safe_write(true)
+                write_word(player + 0x31E, 4)
+                write_word(player + 0x31F, 4)
+                safe_write(false)
+            end
         end
     end
 end
@@ -233,7 +238,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    -- respawn time
+    -- set respawn time
     local player = get_player(PlayerIndex)
     write_dword(player + 0x2C, 3 * 33)
 
@@ -401,7 +406,7 @@ function InitSettings()
         { 120.665, - 188.766, 13.752, 0.5, 109.956, - 188.522, 14.437, 280, - 10, 0, "22"},
         { 97.476, - 188.912, 15.718, 0.5, 53.653, - 157.885, 21.753, 280, - 10, 0, "23"},
         { 48.046, - 153.087, 21.181, 0.5, 23.112, - 59.428, 16.352, 280, - 10, 0, "24"},
-        { 118.263, - 120.761, 17.192, 0.5, 40.194, - 139.990, 2.733, 280, - 10, 0, "25"},
+        { 118.263, - 120.761, 17.192, 0.5, 40.194, - 139.990, 2.733, 280, - 10, 0, "25"}
     }
 
     TANK_SHELL = TagInfo("jpt!", "vehicles\\scorpion\\shell explosion")
@@ -1167,16 +1172,18 @@ function PlasmaCheck(PlayerIndex)
 end
 
 function PlayerInVehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
+    if PlayerIndex then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if (player_object ~= 0) then
+            local VehicleID = read_dword(player_object + 0x11C)
+            if VehicleID == 0xFFFFFFFF then
+                return false
+            else
+                return true
+            end
         else
-            return true
+            return false
         end
-    else
-        return false
     end
 end
 
@@ -1186,11 +1193,13 @@ function TagInfo(obj_type, obj_name)
 end
 
 function getPlayerCoords(PlayerIndex, posX, posY, posZ, radius)
-    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-    if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
-        return true
-    else
-        return false
+    if player_present(PlayerIndex) then
+        local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+        if (posX - x) ^ 2 + (posY - y) ^ 2 + (posZ - z) ^ 2 <= radius then
+            return true
+        else
+            return false
+        end
     end
 end
 
