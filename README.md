@@ -21,7 +21,8 @@
 > Sometimes I will use functions written by other people. 
 > In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md
 
-
+#### Code of Conduct: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CODE_OF_CONDUCT.md)
+> Pledge, standards and responsibilities, ect.
 
 Contact Me:
 <jericho.crosby227@gmail.com>
