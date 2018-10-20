@@ -26,3 +26,6 @@
 
 Contact Me:
 <jericho.crosby227@gmail.com>
+
+QOTD:
+Nine-tenths of wisdom is being wise in time.
