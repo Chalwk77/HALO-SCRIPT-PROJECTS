@@ -43,7 +43,7 @@ about: Suggest an idea for this project
 * [ ] Unsure
 
 
-## Script Deatils:
+## Script Details:
 * Please be as descriptive as possible so I know how to help you.
 
 write your description here...
