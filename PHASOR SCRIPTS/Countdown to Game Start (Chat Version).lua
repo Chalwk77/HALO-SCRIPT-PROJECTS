@@ -24,11 +24,15 @@ function GetRequiredVersion()
     200
 end
 
-function OnNewGame(map) CountDown = registertimer(1000, "NewGameTimer") end
+function OnNewGame(map)
+    CountDown = registertimer(1000, "NewGameTimer")
+end
 
 function OnGameEnd(stage)
     if stage == 1 then
-        if CountDown then CountDown = nil end
+        if CountDown then
+            CountDown = nil
+        end
     end
 end
 

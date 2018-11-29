@@ -9,9 +9,13 @@ Copyright (c) 2016-2018
 ]]--
 
 PICKUP = { }
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end 
-function OnScriptUnload() end 
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 function OnNewGame(map)
     -- Equipment --
     camouflage_tag_id = gettagid("eqip", "powerups\\active camouflage")
@@ -74,9 +78,11 @@ end
 function OnObjectInteraction(player, objid, mapid)
     if getplayer(player) then
         local tag_name, tag_type = gettaginfo(mapid)
-        if string.find(tag_name, "ammo") or(tag_type == "weap" and mapid ~= oddball_tag_id or mapid ~= flag_tag_id) then
+        if string.find(tag_name, "ammo") or (tag_type == "weap" and mapid ~= oddball_tag_id or mapid ~= flag_tag_id) then
             local weap = false
-            if tag_type == "weap" then weap = true end
+            if tag_type == "weap" then
+                weap = true
+            end
             local m_objectId = getplayerobjectid(player)
             if m_objectId then
                 local m_object = getobject(m_objectId)
@@ -85,7 +91,7 @@ function OnObjectInteraction(player, objid, mapid)
                     if m_weaponId then
                         local m_weapon = getobject(m_weaponId)
                         if m_weapon then
-                            if weap == false or(weap == true and readdword(m_weapon) == mapid) then
+                            if weap == false or (weap == true and readdword(m_weapon) == mapid) then
                                 local unloaded = readdword(m_weapon + 0x2B6)
                                 local loaded = readdword(m_weapon + 0x2B8)
 
@@ -130,10 +136,10 @@ function CheckForNadeChange(id, count, t)
     local ORIGINAL_PLASMAS = t[2]
     local NEW_FRAGS = readbyte(t[5] + 0x31E)
     local NEW_PLASMAS = readbyte(t[5] + 0x31F)
-    if (ORIGINAL_FRAGS ~= NEW_FRAGS) or(ORIGINAL_PLASMAS ~= NEW_PLASMAS) then
+    if (ORIGINAL_FRAGS ~= NEW_FRAGS) or (ORIGINAL_PLASMAS ~= NEW_PLASMAS) then
         OnGrenadePickup(t[3], t[4])
     end
-    return(0)
+    return (0)
 end
 
 function FullHealth(player)
@@ -171,10 +177,10 @@ function CheckForAmmoChange(id, count, t)
     local ORIGINAL_LOADED = t[2]
     local NEW_UNLOADED = readdword(t[5] + 0x2B6)
     local NEW_LOADED = readdword(t[5] + 0x2B8)
-    if (ORIGINAL_UNLOADED ~= NEW_UNLOADED) or(ORIGINAL_LOADED ~= NEW_LOADED) then
+    if (ORIGINAL_UNLOADED ~= NEW_UNLOADED) or (ORIGINAL_LOADED ~= NEW_LOADED) then
         OnAmmoPickup(t[3], t[4])
     end
-    return(0)
+    return (0)
 end
 
 function OnWeaponPickup(player, m_weaponId, slot, mapid)
@@ -268,5 +274,7 @@ end
 
 function getweaponobjectid(player, slot)
     local m_objectId = getplayerobjectid(player)
-    if m_objectId then return readdword(getobject(m_objectId) + 0x2F8 + slot * 4) end
+    if m_objectId then
+        return readdword(getobject(m_objectId) + 0x2F8 + slot * 4)
+    end
 end

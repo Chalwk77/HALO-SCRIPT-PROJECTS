@@ -27,13 +27,13 @@ BANTIME = 10 -- (In Minutes) -- Set to zero to ban permanently
 REASON = "Impersonating"
 -- Configuration Ends --
 
-function OnScriptLoad( )
+function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    LoadTables( )
+    LoadTables()
     if (response["ban"] == true) and (response["kick"] == true) then
-        cprint("Script Error: AntiImpersonator.lua", 4+8)
-        cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4+8)
+        cprint("Script Error: AntiImpersonator.lua", 4 + 8)
+        cprint("Only one option should be enabled! [punishment configuration] - (line 24/25)", 4 + 8)
         unregister_callback(cb['OnPlayerJoin'])
         unregister_callback(cb['OnGameEnd'])
     end
@@ -44,22 +44,22 @@ function OnGameEnd()
     HashList = { }
 end
 
-function OnScriptUnload() 
+function OnScriptUnload()
     NameList = { }
     HashList = { }
 end
 
-function LoadTables( )
+function LoadTables()
     NameList = {
-    -- Make sure these names match exactly as they do in game.
+        -- Make sure these names match exactly as they do in game.
         "member1",
         "member2",
         "member3",
         "member4",
         "member5" -- Make sure the last entry in the table doesn't have a comma
-    }	
+    }
     HashList = {
-    -- You can retrieve the players hash by looking it up in the sapp.log file.
+        -- You can retrieve the players hash by looking it up in the sapp.log file.
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -69,7 +69,7 @@ function LoadTables( )
 end
 
 function table.match(table, value)
-    for k,v in pairs(table) do
+    for k, v in pairs(table) do
         if v == value then
             return k
         end
@@ -77,19 +77,19 @@ function table.match(table, value)
 end
 
 function OnPlayerJoin(PlayerIndex)
-    local Name = get_var(PlayerIndex,"$name")
-    local Hash = get_var(PlayerIndex,"$hash")
+    local Name = get_var(PlayerIndex, "$name")
+    local Hash = get_var(PlayerIndex, "$hash")
     local Index = get_var(PlayerIndex, "$n")
     -- Name matches, but hash does not; respond with punishment accordingly.
     if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
         -- Kick
-        if (response["kick"] == true) and (response["ban"] == false) then 
+        if (response["kick"] == true) and (response["ban"] == false) then
             execute_command("k" .. " " .. Index .. " \"" .. REASON .. "\"")
         end
         -- Ban X Amount of time.
-        if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then  
+        if (response["ban"] == true) and (response["kick"] == false) and (BANTIME >= 1) then
             execute_command("b" .. " " .. Index .. " " .. BANTIME .. " \"" .. REASON .. "\"")
-        -- Ban permanently
+            -- Ban permanently
         elseif (BANTIME == 0) then
             execute_command("b" .. " " .. Index .. " \"" .. REASON .. "\"")
         end

@@ -79,7 +79,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 deaths = { }
 
@@ -131,7 +132,6 @@ end
 
 function GiveSpeedBoost(PlayerIndex)
     if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
-        local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         timer(SpeedDuration * 1000, "ResetPlayerSpeed", PlayerIndex)
         write_float(victim + 0x6C, SpeedBoost)
@@ -142,7 +142,6 @@ end
 
 function ResetPlayerSpeed(PlayerIndex)
     if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
-        local PlayerIndex = tonumber(PlayerIndex)
         local victim = get_player(PlayerIndex)
         write_float(victim + 0x6C, ResetSpeedTo)
         rprint(PlayerIndex, "|cSpeed Boost deactivated!")
@@ -190,7 +189,8 @@ end
 function OnPlayerSpawn(PlayerIndex)
     if (player_present(PlayerIndex)) then
         if settings["Mode1"] and not settings["Mode2"] then
-            if (deaths[PlayerIndex][1] == nil) then deaths[PlayerIndex][1] = 0
+            if (deaths[PlayerIndex][1] == nil) then
+                deaths[PlayerIndex][1] = 0
             elseif (deaths[PlayerIndex][1] == Consecutivedeaths) then
                 CheckSettings(PlayerIndex)
                 deaths[PlayerIndex][1] = 0
@@ -232,9 +232,5 @@ end
 
 function lognote()
     cprint(note, 4 + 8)
-    execute_command("log_note \""..note.."\"")
-end
-
-function OnError(Message)
-    print(debug.traceback())
+    execute_command("log_note \"" .. note .. "\"")
 end

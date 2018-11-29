@@ -24,14 +24,14 @@ api_version = "1.12.0.0"
 -- ==============================================--
 -- >> Configuration << --
 gamesettings = {
---  You can toggle these settings ON|OFF. (true/false). 
---  Only one option can be "true" at a time.
+    --  You can toggle these settings ON|OFF. (true/false).
+    --  Only one option can be "true" at a time.
     ["WeaponsAndEquipment"] = true,
     ["JustEquipment"] = false,
     ["JustWeapons"] = false,
 
--- Toggle these modes ON|OFF (true/false)
---  Only one option can be "true" at a time.
+    -- Toggle these modes ON|OFF (true/false)
+    --  Only one option can be "true" at a time.
     -- No Kills Kequired
     ["NO_KILLS_REQUIRED"] = true,
     -- Kills Are Required
@@ -40,29 +40,29 @@ gamesettings = {
 
 -- To disable a specific item, change the 'true' value to "false".
 weapons = {
-    { "weap", "weapons\\assault rifle\\assault rifle", true},
-    { "weap", "weapons\\flamethrower\\flamethrower", true},
-    { "weap", "weapons\\needler\\mp_needler", true},
-    { "weap", "weapons\\pistol\\pistol", true},
-    { "weap", "weapons\\plasma pistol\\plasma pistol", true},
-    { "weap", "weapons\\plasma rifle\\plasma rifle", true},
-    { "weap", "weapons\\plasma_cannon\\plasma_cannon", true},
-    { "weap", "weapons\\rocket launcher\\rocket launcher", true},
-    { "weap", "weapons\\shotgun\\shotgun", true},
-    { "weap", "weapons\\sniper rifle\\sniper rifle", true}
+    { "weap", "weapons\\assault rifle\\assault rifle", true },
+    { "weap", "weapons\\flamethrower\\flamethrower", true },
+    { "weap", "weapons\\needler\\mp_needler", true },
+    { "weap", "weapons\\pistol\\pistol", true },
+    { "weap", "weapons\\plasma pistol\\plasma pistol", true },
+    { "weap", "weapons\\plasma rifle\\plasma rifle", true },
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon", true },
+    { "weap", "weapons\\rocket launcher\\rocket launcher", true },
+    { "weap", "weapons\\shotgun\\shotgun", true },
+    { "weap", "weapons\\sniper rifle\\sniper rifle", true }
 }
 
-equipment = { 
-    { "eqip", "powerups\\active camouflage", true},
-    { "eqip", "powerups\\health pack", true},
-    { "eqip", "powerups\\over shield", true},
-    { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo", true},
-    { "eqip", "powerups\\needler ammo\\needler ammo", true},
-    { "eqip", "powerups\\pistol ammo\\pistol ammo", true},
-    { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo", true},
-    { "eqip", "powerups\\shotgun ammo\\shotgun ammo", true},
-    { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo", true},
-    { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo", true}
+equipment = {
+    { "eqip", "powerups\\active camouflage", true },
+    { "eqip", "powerups\\health pack", true },
+    { "eqip", "powerups\\over shield", true },
+    { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo", true },
+    { "eqip", "powerups\\needler ammo\\needler ammo", true },
+    { "eqip", "powerups\\pistol ammo\\pistol ammo", true },
+    { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo", true },
+    { "eqip", "powerups\\shotgun ammo\\shotgun ammo", true },
+    { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo", true },
+    { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo", true }
 }
 -- >> Configuration Ends << --
 -- ==============================================--
@@ -72,7 +72,9 @@ weap = "weap"
 eqip = "eqip"
 GameHasStarted = false
 VICTIM_LOCATION = { }
-for i = 1, 16 do VICTIM_LOCATION[i] = { } end
+for i = 1, 16 do
+    VICTIM_LOCATION[i] = { }
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -107,7 +109,6 @@ function OnNewGame()
         local tag = lookup_tag(v[1], v[2])
         if tag ~= 0 then
             local index = k
-            local ValueOfIndex = EQUIPMENT_TABLE[index]
             if (v[3] == false) then
                 EQUIPMENT_TABLE[index] = EQUIPMENT_TABLE[index]
                 EQUIPMENT_TABLE[index] = nil
@@ -122,7 +123,6 @@ function OnNewGame()
         local tag = lookup_tag(v[1], v[2])
         if tag ~= 0 then
             local index = k
-            local ValueOfIndex = WEAPON_TABLE[index]
             if (v[3] == false) then
                 WEAPON_TABLE[index] = WEAPON_TABLE[index]
                 WEAPON_TABLE[index] = nil
@@ -139,29 +139,28 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local victim = tonumber(VictimIndex)
     local killer = tonumber(KillerIndex)
     local kills = tonumber(get_var(killer, "$kills"))
-    local victimName = tostring(get_var(victim, "$name"))
     local player_object = get_dynamic_player(victim)
     local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
     VICTIM_LOCATION[victim][1] = xAxis
     VICTIM_LOCATION[victim][2] = yAxis
     VICTIM_LOCATION[victim][3] = zAxis
     if (killer > 0) then
-    
+
         -- NO KILLS REQUIRED -- 
         -- Weapons and Equipment
         if (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["WeaponsAndEquipment"] == true) then
             WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
-            
-        -- Global (no kills required): JustEquipment (indefinitely spawn an item)
+
+            -- Global (no kills required): JustEquipment (indefinitely spawn an item)
         elseif (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["JustEquipment"] == true) then
             JustEquipment(victim, xAxis, yAxis, zAxis)
-            
-        -- Global (no kills required): JustWeapons (indefinitely spawn an item)
+
+            -- Global (no kills required): JustWeapons (indefinitely spawn an item)
         elseif (gamesettings["NO_KILLS_REQUIRED"] == true) and (gamesettings["JustWeapons"] == true) then
             JustWeapons(victim, xAxis, yAxis, zAxis)
-        
-        -- KILLS REQUIRED -- 
-        -- Weapons and Equipment
+
+            -- KILLS REQUIRED --
+            -- Weapons and Equipment
         elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["WeaponsAndEquipment"] == true) then
             if (kills == 5) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
@@ -184,7 +183,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             elseif (kills >= 50) then
                 WeaponsAndEquipment(victim, xAxis, yAxis, zAxis)
             end
-        -- JustEquipment --
+            -- JustEquipment --
         elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["JustEquipment"] == true) then
             if (kills == 5) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
@@ -207,7 +206,7 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
             elseif (kills >= 50) then
                 JustEquipment(victim, xAxis, yAxis, zAxis)
             end
-        -- JustWeapons --
+            -- JustWeapons --
         elseif (gamesettings["KILLS_REQUIRED"] == true) and (gamesettings["NO_KILLS_REQUIRED"] == false) and (gamesettings["JustWeapons"] == true) then
             if (kills == 5) then
                 JustWeapons(victim, xAxis, yAxis, zAxis)

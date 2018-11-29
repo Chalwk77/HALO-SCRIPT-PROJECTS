@@ -13,9 +13,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 Welcome_Message = "Welcome Message Here"
 
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 
 function WelcomeMessage(id, count)
     say(Welcome_Message)
@@ -36,7 +40,7 @@ function OnGameEnd(mode)
             W_M = nil
         end
     end
-end	
+end
 
 function DelayWM(id, count, player)
     if getplayer(player) then

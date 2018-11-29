@@ -21,7 +21,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_KILL"], "OnPlayerDeath")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
-    players = {["data"] = {}}
+    players = { ["data"] = {} }
 end
 
 function OnScriptUnload()
@@ -29,15 +29,15 @@ function OnScriptUnload()
 end
 
 function OnPlayerJoin(PlayerIndex)
-    players["data"][get_var(PlayerIndex, "$hash")] = {["total_kills"] = 0}
+    players["data"][get_var(PlayerIndex, "$hash")] = { ["total_kills"] = 0 }
 end
 
 function OnPlayerLeave(PlayerIndex)
-    players["data"][get_var(PlayerIndex, "$hash")] = {["total_kills"] = 0}
+    players["data"][get_var(PlayerIndex, "$hash")] = { ["total_kills"] = 0 }
 end
 
 function OnPlayerDeath(PlayerIndex)
-    for key, value in pairs(players["data"]) do
+    for key, _ in pairs(players["data"]) do
         if get_var(PlayerIndex, "$hash") == key then
             players["data"][key].total_kills = players["data"][key].total_kills + 1
             players["data"][key].name = get_var(PlayerIndex, "$name")
@@ -47,8 +47,8 @@ end
 
 function OnGameEnd()
     local kills = 0
-    local name = nil
-    for key, value in pairs(players["data"]) do
+    local name
+    for _, value in pairs(players["data"]) do
         if value.total_kills > kills then
             kills = value.total_kills
             name = value.name

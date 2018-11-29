@@ -8,13 +8,17 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 Ball = { }
 math.inf = 1 / 0
 
-Ball[1] = { "weapons\\covenant\\spiker", 95.455, - 152.498, 0.162 } -- Red base (The four Cabinet Portals)
+Ball[1] = { "weapons\\covenant\\spiker", 95.455, -152.498, 0.162 } -- Red base (The four Cabinet Portals)
 function OnNewGame(map)
     gamemap = map
     spiker_mapId = gettagid("weap", "weapons\\covenant\\spiker")

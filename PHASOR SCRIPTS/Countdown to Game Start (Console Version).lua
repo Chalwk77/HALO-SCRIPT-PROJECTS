@@ -9,7 +9,7 @@ Copyright (c) 2016-2018
 ]]--
 
 -- Settings
-Countdown_To_GameStart =(0)
+Countdown_To_GameStart = (0)
 console = { }
 console.__index = console
 registertimer(100, "ConsoleTimer")
@@ -33,7 +33,7 @@ function OnScriptLoad(processid, game, persistent)
         gametype_base = 0x5F5498
         map_name = readstring(0x61D151)
     end
-end	
+end
 
 function OnNewGame(map)
     Countdown_To_GameStart = registertimer(800, "CountdownToGameStart")
@@ -48,9 +48,9 @@ function OnNewGame(map)
 end
 
 function OnGameEnd(stage)
-    if stage ==(1) then
+    if stage == (1) then
         removetimer(Countdown_To_GameStart)
-    elseif stage ==(3) then
+    elseif stage == (3) then
         sendconsoletext(0, "Match Loading | Get Ready!", 3)
         sendconsoletext(1, "Match Loading | Get Ready!", 3)
         sendconsoletext(2, "Match Loading | Get Ready!", 3)
@@ -69,10 +69,10 @@ function OnGameEnd(stage)
         sendconsoletext(15, "Match Loading | Get Ready!", 3)
         hprintf("Match Loading | Get Ready!")
     end
-end	
+end
 
 function CountdownToGameStart(id, count)
-    if count ==(10) then
+    if count == (10) then
 
         sendconsoletext(0, "                                                          B  E  G  I  N !", 1)
         sendconsoletext(1, "                                                          B  E  G  I  N !", 1)
@@ -94,124 +94,126 @@ function CountdownToGameStart(id, count)
         svcmd("sv_balance")
         hprintf("Match has begun!")
 
-        if game_started then return false end
-        return(0)
+        if game_started then
+            return false
+        end
+        return (0)
     else
-        hprintf("Match starts in: (00:0" ..(10) - count .. ")")
+        hprintf("Match starts in: (00:0" .. (10) - count .. ")")
         -- 			(SENDCONSOLE TEXT FORMAT): sendconsoletext(player, message, [time])
         -------------------------------------------------------------------------------------
         sendconsoletext(0, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(0, "                                                          GET READY", 0.5)
         sendconsoletext(0, "                                                    Match will start in:", 0.5)
-        sendconsoletext(0, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(0, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 1 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(1, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(1, "                                                          GET READY", 0.5)
         sendconsoletext(1, "                                                    Match will start in:", 0.5)
-        sendconsoletext(1, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(1, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 2 // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(2, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(2, "                                                          GET READY", 0.5)
         sendconsoletext(2, "                                                    Match will start in:", 0.5)
-        sendconsoletext(2, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(2, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 3 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(3, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(3, "                                                          GET READY", 0.5)
         sendconsoletext(3, "                                                    Match will start in:", 0.5)
-        sendconsoletext(3, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(3, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 4 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(4, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(4, "                                                          GET READY", 0.5)
         sendconsoletext(4, "                                                    Match will start in:", 0.5)
-        sendconsoletext(4, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(4, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 5 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(5, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(5, "                                                          GET READY", 0.5)
         sendconsoletext(5, "                                                    Match will start in:", 0.5)
-        sendconsoletext(5, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(5, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 6 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(6, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(6, "                                                          GET READY", 0.5)
         sendconsoletext(6, "                                                    Match will start in:", 0.5)
-        sendconsoletext(6, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(6, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 7 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(7, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(7, "                                                          GET READY", 0.5)
         sendconsoletext(7, "                                                    Match will start in:", 0.5)
-        sendconsoletext(7, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(7, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 8 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(8, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(8, "                                                          GET READY", 0.5)
         sendconsoletext(8, "                                                    Match will start in:", 0.5)
-        sendconsoletext(8, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(8, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 9 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(9, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(9, "                                                          GET READY", 0.5)
         sendconsoletext(9, "                                                    Match will start in:", 0.5)
-        sendconsoletext(9, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(9, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 10 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(10, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(10, "                                                          GET READY", 0.5)
         sendconsoletext(10, "                                                    Match will start in:", 0.5)
-        sendconsoletext(10, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(10, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 11 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(11, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(11, "                                                          GET READY", 0.5)
         sendconsoletext(11, "                                                    Match will start in:", 0.5)
-        sendconsoletext(11, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(11, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 12 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(12, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(12, "                                                          GET READY", 0.5)
         sendconsoletext(12, "                                                    Match will start in:", 0.5)
-        sendconsoletext(12, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(12, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 13 -- // -- Countdown
         -------------------------------------------------------------------------------------
         sendconsoletext(13, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(13, "                                                          GET READY", 0.5)
         sendconsoletext(13, "                                                    Match will start in:", 0.5)
-        sendconsoletext(13, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(13, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 14 --
         ------------------------- // -- Countdown------------------------------------------------------------
         sendconsoletext(14, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(14, "                                                          GET READY", 0.5)
         sendconsoletext(14, "                                                    Match will start in:", 0.5)
-        sendconsoletext(14, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(14, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         -------------------------------------------------------------------------------------
         -- Player 15 -- // -- Countdown (15 is player 16)
         -------------------------------------------------------------------------------------
         sendconsoletext(15, "                                        *  *  C  O  U  N  T  D  O  W  N  *  *", 0.5)
         sendconsoletext(15, "                                                          GET READY", 0.5)
         sendconsoletext(15, "                                                    Match will start in:", 0.5)
-        sendconsoletext(15, "                                                              (00:0" ..(10) - count .. ")", 0.5)
+        sendconsoletext(15, "                                                              (00:0" .. (10) - count .. ")", 0.5)
         return true
     end
-end    
+end
 
 function sendconsoletext(player, message, time, order, func)
     console[player] = console[player] or { }
@@ -251,7 +253,9 @@ function nextid(player, order)
         local original = order
         while console[player][order] do
             order = order + 0.001
-            if order == original + 0.999 then break end
+            if order == original + 0.999 then
+                break
+            end
         end
 
         return order
@@ -408,18 +412,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then

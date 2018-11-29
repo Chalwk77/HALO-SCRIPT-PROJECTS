@@ -41,18 +41,18 @@ local dir = 'sapp\\coordinates.txt'
 
 --      label            team           x,y,z                radius       Warning Delay         Seconds until death
 coordinates["bloodgulch"] = {
-    { "Kill Zone 1",    "FFA", 33.631, - 65.569, 0.370,         10,             0,                      15},
-    { "Kill Zone 2",    "FFA", 41.703, - 128.663, 0.247,        10,             0,                      15},
-    { "Kill Zone 3",    "FFA", 50.655, - 87.787, 0.079,         10,             0,                      15},
-    { "Kill Zone 4",    "FFA", 101.940, - 170.440, 0.197,       10,             0,                      15},
-    { "Kill Zone 5",    "FFA", 81.617, - 116.049, 0.486,        10,             0,                      15},
-    { "Kill Zone 6",    "FFA", 78.208, - 152.914, 0.091,        10,             0,                      15},
-    { "Kill Zone 7",    "FFA", 64.178, - 176.802, 3.960,        10,             0,                      15},
-    { "Kill Zone 8",    "FFA", 102.312, - 144.626, 0.580,       10,             0,                      15},
-    { "Kill Zone 9",    "FFA", 86.825, - 172.542, 0.215,        10,             0,                      15},
-    { "Kill Zone 10",   "FFA", 65.846, - 70.301, 1.690,         10,             0,                      15},
-    { "Kill Zone 11",   "FFA", 28.861, - 90.757, 0.303,         10,             0,                      15},
-    { "Kill Zone 12",   "FFA", 46.341, - 64.700, 1.113,         10,             0,                      15}
+    { "Kill Zone 1", "FFA", 33.631, -65.569, 0.370, 10, 0, 15 },
+    { "Kill Zone 2", "FFA", 41.703, -128.663, 0.247, 10, 0, 15 },
+    { "Kill Zone 3", "FFA", 50.655, -87.787, 0.079, 10, 0, 15 },
+    { "Kill Zone 4", "FFA", 101.940, -170.440, 0.197, 10, 0, 15 },
+    { "Kill Zone 5", "FFA", 81.617, -116.049, 0.486, 10, 0, 15 },
+    { "Kill Zone 6", "FFA", 78.208, -152.914, 0.091, 10, 0, 15 },
+    { "Kill Zone 7", "FFA", 64.178, -176.802, 3.960, 10, 0, 15 },
+    { "Kill Zone 8", "FFA", 102.312, -144.626, 0.580, 10, 0, 15 },
+    { "Kill Zone 9", "FFA", 86.825, -172.542, 0.215, 10, 0, 15 },
+    { "Kill Zone 10", "FFA", 65.846, -70.301, 1.690, 10, 0, 15 },
+    { "Kill Zone 11", "FFA", 28.861, -90.757, 0.303, 10, 0, 15 },
+    { "Kill Zone 12", "FFA", 46.341, -64.700, 1.113, 10, 0, 15 }
 }
 
 -- To add other maps, simply repeat the structure above, like so:
@@ -85,7 +85,8 @@ function OnScriptLoad()
     end
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
@@ -210,7 +211,7 @@ function GEOinSpherePlayer(PlayerIndex, posX, posY, posZ, Radius)
     local Xaxis, Yaxis, Zaxis = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
     if (posX - Xaxis) ^ 2 + (posY - Yaxis) ^ 2 + (posZ - Zaxis) ^ 2 <= Radius then
         return true
-    elseif (posX - Xaxis) ^ 2 +(posY - Yaxis) ^ 2 +(posZ - Zaxis) ^ 2 > Radius + 1 then
+    elseif (posX - Xaxis) ^ 2 + (posY - Yaxis) ^ 2 + (posZ - Zaxis) ^ 2 > Radius + 1 then
         return false
     else
         kill_timer[PlayerIndex] = false
@@ -265,7 +266,7 @@ function OnServerCommand(PlayerIndex, Command)
         if (tonumber(get_var(PlayerIndex, "$lvl"))) > 0 then
             local posX, posY, posZ = GetObjectCoords(PlayerIndex)
             local team = getteam(PlayerIndex)
-            local data =("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(posX) .. ", " .. tostring(posY) .. ", " .. tostring(posZ))
+            local data = ("Map: " .. tostring(mapname) .. ", Team: " .. tostring(team) .. ", Coordinates: " .. tostring(posX) .. ", " .. tostring(posY) .. ", " .. tostring(posZ))
             local file = io.open(dir, "a+")
             if file ~= nil then
                 file:write(data .. "\n")
@@ -297,9 +298,9 @@ function GetObjectCoords(PlayerIndex)
     end
     return nil
 end
-            
+
 function math.round(num, idp)
-    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+    return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
 function OnError(Message)

@@ -25,9 +25,14 @@ EQUIPMENT[9] = { "powerups\\sniper rifle ammo\\sniper rifle ammo" }
 EQUIPMENT[10] = { "powerups\\flamethrower ammo\\flamethrower ammo" }
 EQUIPMENT[11] = { "powerups\\double speed" }
 EQUIPMENT[12] = { "powerups\\full-spectrum vision" }
-for i = 0, 15 do KILL_LOCATION[i] = { } end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processId, game, persistent) end
+for i = 0, 15 do
+    KILL_LOCATION[i] = { }
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processId, game, persistent)
+end
 function OnPlayerKill(killer, victim, mode)
     if mode == 4 then
         local kills = readword(getplayer(killer) + 0x98)

@@ -23,17 +23,25 @@ objects = { }
 active_mode = { }
 
 obj_type = { }
-for b = 1, 16 do obj_type[b] = {} end
+for b = 1, 16 do
+    obj_type[b] = {}
+end
 obj_name = { }
-for c = 1, 16 do obj_name[c] = {} end
+for c = 1, 16 do
+    obj_name[c] = {}
+end
 
 -- object deletion --
 clean_up_dones = { }
 drones = {}
 
-for i = 1, 16 do drones[i] = {} end
+for i = 1, 16 do
+    drones[i] = {}
+end
 initial_spawn = {}
-for d = 1, 16 do initial_spawn[d] = {} end
+for d = 1, 16 do
+    initial_spawn[d] = {}
+end
 obj_in_memory = {}
 
 function OnScriptLoad()
@@ -82,8 +90,8 @@ function CleanUpDrones(PlayerIndex)
     end
 end
 
-function OnServerCommand(PlayerIndex, Command, Environment)
-    local UnknownCMD = nil
+function OnServerCommand(PlayerIndex, Command)
+    local UnknownCMD
     local t = tokenizestring(Command)
     if (t[1] == spawngun_command) then
         if t[2] ~= nil then
@@ -100,7 +108,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                     break
                 end
             end
-            if ObjectExists == false then rprint(PlayerIndex, "Object does not exist") end
+            if ObjectExists == false then
+                rprint(PlayerIndex, "Object does not exist")
+            end
             UnknownCMD = false
             if (active_mode[get_var(PlayerIndex, "$n")] == true) then
                 if t[2] == 'off' or t[2] == '0' or t[2] == 'false' then
@@ -115,8 +125,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         end
     elseif (t[1] == clean_command) then
         if drones[PlayerIndex][1] ~= nil then
-            for k, v in pairs(drones[PlayerIndex]) do
-                rprint(PlayerIndex, "Cleaning up " ..tonumber(#drones[PlayerIndex]) .. " vehicles")
+            for _, v in pairs(drones[PlayerIndex]) do
+                rprint(PlayerIndex, "Cleaning up " .. tonumber(#drones[PlayerIndex]) .. " vehicles")
                 CleanUpDrones(PlayerIndex)
                 UnknownCMD = false
                 break
@@ -169,12 +179,13 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
-for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
-    t[i] = str
-    i = i + 1
-end
-return t
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 objects[1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" }

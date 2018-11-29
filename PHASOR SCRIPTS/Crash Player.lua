@@ -9,7 +9,7 @@ local crNotice = {
     LICENSE = [[
         MIT LICENSE
 
-        Copyright © 2018 Jericho Crosby <jericho.crosby227@gmail.com>
+        Copyright ï¿½ 2018 Jericho Crosby <jericho.crosby227@gmail.com>
 
         Permission is hereby granted, free of charge, to any person obtaining a
         copy of this software and associated documentation files (the
@@ -61,7 +61,7 @@ function InitiateTables()
     }
 
     Victim_Hash_Table = {
-        "4d102436ecc0621415e81d21d5a39361",-- Example Hash
+        "4d102436ecc0621415e81d21d5a39361", -- Example Hash
         "hash-not-used",
         "hash-not-used",
         "hash-not-used"

@@ -25,7 +25,11 @@ function OnScriptLoad()
     if CheckMap() then
         register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
         register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-        if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+        if halo_type == "PC" then
+            ce = 0x0
+        else
+            ce = 0x40
+        end
         network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
         LoadTables()
     end
@@ -77,7 +81,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

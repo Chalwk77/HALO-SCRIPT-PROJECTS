@@ -53,12 +53,16 @@ function OnTick()
                 local shot_fired
                 local couching = read_float(player_object + 0x50C)
                 local px, py, pz = read_vector3d(player_object + 0x5c)
-                if (couching == 0) then pz = pz + 0.65 else pz = pz + (0.35 * couching) end
+                if (couching == 0) then
+                    pz = pz + 0.65
+                else
+                    pz = pz + (0.35 * couching)
+                end
                 local ignore_player = read_dword(get_player(i) + 0x34)
                 local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
                 if (success == true and target ~= nil) then
                     shot_fired = read_float(player_object + 0x490)
-                    if(shot_fired ~= weapon_status[i] and shot_fired == 1) then
+                    if (shot_fired ~= weapon_status[i] and shot_fired == 1) then
                         local target_object = get_object_memory(target)
                         if target_object ~= 0 then
                             local ObjectType = read_byte(target_object + 0xB4)
@@ -88,7 +92,9 @@ function OnTick()
 end
 
 function SendToPlayer(player, type, ObjectName, ObjectMeta, x, y, z)
-    for i = 1, 30 do rprint(player, " ") end
+    for i = 1, 30 do
+        rprint(player, " ")
+    end
     rprint(player, "Type: |r" .. tostring(type))
     rprint(player, "Name: |r" .. tostring(ObjectName))
     rprint(player, "Meta: |r" .. tonumber(ObjectMeta))
@@ -128,10 +134,11 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
-for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-    t[i] = str
-    i = i + 1
-end
-return t
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end

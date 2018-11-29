@@ -21,7 +21,9 @@ end
 
 function OnScriptLoad(process, game, persistent)
     Server_Name = getservername()
-    if game == "PC" then gametype_base = 0x671340 end
+    if game == "PC" then
+        gametype_base = 0x671340
+    end
     Server_Name = getservername()
 end
 function OnNewGame(map)
@@ -47,8 +49,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end

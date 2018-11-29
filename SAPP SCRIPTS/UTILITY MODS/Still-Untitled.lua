@@ -16,21 +16,21 @@ api_version = "1.12.0.0"
 
 BrokenCoords = {
     -- Example Map 1
-    51.9,- 76.42,0.08,
-    37.43,- 68.11,0.26,
+    51.9, -76.42, 0.08,
+    37.43, -68.11, 0.26,
     -- Example Map 2
-    105.49,- 157.45,0.2,
-    29.6,- 76.35,0.3,
+    105.49, -157.45, 0.2,
+    29.6, -76.35, 0.3,
     -- Example Map 3
-    102.86,- 154.92,- 0.01,
-    92.48,- 169.56,0.13,
+    102.86, -154.92, -0.01,
+    92.48, -169.56, 0.13,
     -- Example Map 4
-    29.31,- 81.41,0.17,
-    42.91,- 67.76,0.52,
+    29.31, -81.41, 0.17,
+    42.91, -67.76, 0.52,
     -- Example Map 5
-    36.9,- 90.21,0.07,
-    84.9,- 161.71,0.11
-}	
+    36.9, -90.21, 0.07,
+    84.9, -161.71, 0.11
+}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
@@ -46,7 +46,7 @@ function OnPlayerSpawn(PlayerIndex)
         cprint("Current Coordinates match!", 2 + 8)
     end
 end
-    
+
 function GetPlayerCoords(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
@@ -65,7 +65,7 @@ function GetPlayerCoords(PlayerIndex)
 end
 
 function math.round(num, idp)
-    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+    return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
 function table.match(table, value)

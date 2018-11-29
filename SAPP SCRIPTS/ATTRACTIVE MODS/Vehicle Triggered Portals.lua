@@ -17,7 +17,7 @@ gamesettings = {
     -- Removes the vehicle.
     -- Note, once removed, they will not respawn!
     ["DestroyVehicle"] = true,
-    
+
     -- Will spawn a new vehicle at the location of "TeleportFrom".
     -- Note, these spawned vehicles will not 'reset' after X seconds when moved.
     ["CreateNewVehicle"] = false,
@@ -26,8 +26,8 @@ gamesettings = {
 TeleportFrom = {}
 TeleportFrom[1] = { 86.79, -172.32, 0.53, 5 }   -- Chain gun Hog (beside redbase)
 TeleportFrom[2] = { 64.16, -176.91, 4.48, 5 }   -- Chain gun Hog (far right-hand corner of redbase <slope>)
-TeleportFrom[3] = { 28.85, -90.83, 0.84, 5}     -- Chain gun Hog, Left side of Blue Base
-TeleportFrom[4] = { 46.17, -64.97, 1.64, 5}     -- Chain gun Hog, Behind Blue Base
+TeleportFrom[3] = { 28.85, -90.83, 0.84, 5 }     -- Chain gun Hog, Left side of Blue Base
+TeleportFrom[4] = { 46.17, -64.97, 1.64, 5 }     -- Chain gun Hog, Behind Blue Base
 
 -- X,Y,Z (To Coordinates)
 TeleportTo = { }
@@ -47,17 +47,18 @@ function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
 end
 
-function OnVehicleEntry(PlayerIndex, Seat)
+function OnVehicleEntry(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     VehicleID = read_dword(player_object + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then 
-        return false 
+    if (VehicleID == 0xFFFFFFFF) then
+        return false
     end
     obj_id = get_object_memory(VehicleID)
     VehX, VehY, VehZ = read_vector3d(obj_id + 0x5c)
@@ -86,7 +87,7 @@ function OnVehicleEntry(PlayerIndex, Seat)
                 insphere = true
             end
         end
-        if insphere then 
+        if insphere then
             InitiateTeleport(PlayerIndex)
         end
     end
@@ -105,7 +106,7 @@ function InitiateTeleport(PlayerIndex)
             local coordinates = SelectRandomPortal()
             if coordinates then
                 moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
-                timer(1000*0.955, "exitvehicle", PlayerIndex, vehicle)
+                timer(1000 * 0.955, "exitvehicle", PlayerIndex, vehicle)
                 execute_command("msg_prefix \"\"")
                 say(PlayerIndex, "[VTP] Teleporting to X: " .. tostring(TeleportTo[coordinates][1]) .. ", Y: " .. tostring(TeleportTo[coordinates][2]) .. " Z: " .. tostring(TeleportTo[coordinates][3]))
                 execute_command("msg_prefix \"** SERVER ** \"")
@@ -123,7 +124,7 @@ end
 function exitvehicle(PlayerIndex)
     exit_vehicle(PlayerIndex)
     if gamesettings["DestroyVehicle"] then
-        timer(1000*1.5, "Destroyvehicle", PlayerIndex, vehicle)
+        timer(1000 * 1.5, "Destroyvehicle", PlayerIndex, vehicle)
     end
     if gamesettings["CreateNewVehicle"] then
         spawn_object("vehi", "vehicles\\warthog\\mp_warthog", VehX, VehY, VehZ, 0.15)
@@ -158,7 +159,6 @@ end
 function SelectRandomPortal()
     if #TeleportTo > 0 then
         local index = rand(1, #TeleportTo + 1)
-        local coord = TeleportTo[index]
         return index
     end
     return nil
@@ -176,8 +176,4 @@ function PlayerInVehicle(PlayerIndex)
     else
         return false
     end
-end
-
-function OnError(Message)
-    print(debug.traceback())
 end

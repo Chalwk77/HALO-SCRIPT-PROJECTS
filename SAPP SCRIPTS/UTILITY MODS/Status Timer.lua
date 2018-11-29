@@ -25,7 +25,7 @@ function StatusTimer()
     if players == nil then
         players = 0
     end
-    cprint("There are currently: (" .. players .. " / " .. read_word(0x4029CE88 + 0x28) .. " players online)", 2+8)
+    cprint("There are currently: (" .. players .. " / " .. read_word(0x4029CE88 + 0x28) .. " players online)", 2 + 8)
     return true
 end
 

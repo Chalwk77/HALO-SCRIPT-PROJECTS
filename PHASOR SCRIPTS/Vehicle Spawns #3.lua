@@ -8,8 +8,11 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptUnload()
+end
 function OnScriptLoad(process, game, persistent)
     if game == true or game == "PC" then
         GAME = "PC"

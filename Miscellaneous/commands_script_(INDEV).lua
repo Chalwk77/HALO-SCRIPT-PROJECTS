@@ -38,7 +38,7 @@ message_board = {
     "",
     "For updates on my current projects or to request an addon for your server, go to:",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
-    }
+}
 
 -- Tables
 welcome_timer = { }
@@ -294,9 +294,14 @@ function OnScriptLoad()
     profilepath = getprofilepath()
     GetGameAddresses()
     LoadTags()
-    if halo_type == "PC" then ce = 0x0 else ce = 0x40 end
+    if halo_type == "PC" then
+        ce = 0x0
+    else
+        ce = 0x40
+    end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    if get_var(0, "$gt") ~= "n/a" then end
+    if get_var(0, "$gt") ~= "n/a" then
+    end
     local rf = sig_scan("B8????????E8??000000A1????????55")
     if rf ~= 0 then
         msga = read_dword(rf + 1)
@@ -304,16 +309,16 @@ function OnScriptLoad()
         write_byte(msga, 0)
         safe_write(false)
     end
-	-- if halo_type == "PC" then  
-		-- gametype_base = 0x671340
-	-- else 
-		-- gametype_base = 0x5F5498
-	-- end
+    -- if halo_type == "PC" then
+    -- gametype_base = 0x671340
+    -- else
+    -- gametype_base = 0x5F5498
+    -- end
     -- if read_byte(gametype_base + 0x34) == 1 then
-		-- compatible = false
-	-- else
-		-- compatible = true
-	-- end
+    -- compatible = false
+    -- else
+    -- compatible = true
+    -- end
     team_play = getteamplay()
     for i = 1, 16 do
         if getplayer(i) then
@@ -387,13 +392,19 @@ function OnScriptLoad()
         for line in file:lines() do
             local words = tokenizestring(line, ",")
             if #words >= 3 and tonumber(words[3]) then
-                if not admin_table then admin_table = { } end
-                if not admin_table[words[2]] then admin_table[words[2]] = { } end
+                if not admin_table then
+                    admin_table = { }
+                end
+                if not admin_table[words[2]] then
+                    admin_table[words[2]] = { }
+                end
                 admin_table[words[2]].name = words[1]
                 admin_table[words[2]].level = words[3]
             end
             if #words == 4 and tonumber(words[3]) then
-                if not ipadmins[words[4]] then ipadmins[words[4]] = { } end
+                if not ipadmins[words[4]] then
+                    ipadmins[words[4]] = { }
+                end
                 ipadmins[words[4]].name = words[1]
                 ipadmins[words[4]].level = words[3]
             end
@@ -404,11 +415,15 @@ function OnScriptLoad()
     if file then
         for line in file:lines() do
             local words = tokenizestring(line, ",")
-            if not admin_table[words[2]] then admin_table[words[2]] = { } end
+            if not admin_table[words[2]] then
+                admin_table[words[2]] = { }
+            end
             admin_table[words[2]].name = words[1]
             admin_table[words[2]].level = words[3]
             if #words == 4 and tonumber(words[3]) then
-                if not ipadmins[words[4]] then ipadmins[words[4]] = { } end
+                if not ipadmins[words[4]] then
+                    ipadmins[words[4]] = { }
+                end
                 ipadmins[words[4]].name = words[1]
                 ipadmins[words[4]].level = words[3]
             end
@@ -426,7 +441,9 @@ function OnScriptLoad()
         for line in file:lines() do
             local words = tokenizestring(line, ",")
             if #words == 3 and tonumber(words[3]) then
-                if not ipadmins[words[2]] then ipadmins[words[2]] = { } end
+                if not ipadmins[words[2]] then
+                    ipadmins[words[2]] = { }
+                end
                 ipadmins[words[2]].name = words[1]
                 ipadmins[words[2]].level = words[3]
             end
@@ -460,13 +477,18 @@ function OnScriptLoad()
                 if level == nil then
                     local start = string.sub(line, 2, 2)
                     level = tonumber(start)
-                    if level == nil then break end
+                    if level == nil then
+                        break
+                    end
                 else
                     if string.sub(line, 1, 1) ~= "[" then
                         local words = tokenizestring(line, ",")
                         words[1] = string.sub(words[1], 6)
                         for i = 1, #words do
-                            if words[i] == "-1" then access_table[level] = -1 break end
+                            if words[i] == "-1" then
+                                access_table[level] = -1
+                                break
+                            end
                             if access_table[level] == nil then
                                 access_table[level] = "" .. words[i]
                             else
@@ -766,7 +788,9 @@ function OnTick()
                 local player_id = get_var(i, "$n")
                 players_alive[player_id].new_timer = players_alive[player_id].new_timer + 0.030
                 cls(i)
-                for k, v in pairs(message_board) do rprint(i, "" .. v) end
+                for k, v in pairs(message_board) do
+                    rprint(i, "" .. v)
+                end
                 if players_alive[player_id].new_timer >= math.floor(welcome_msg_duration) then
                     welcome_timer[i] = false
                     players_alive[player_id].new_timer = 0
@@ -874,14 +898,14 @@ function OnTick()
                     end
                 end
                 if hidden[id] then
-                    write_vector3d(get_player(i) + 0xF8, math.pow(2,10), math.pow(2,10), -math.pow(2,10))
+                    write_vector3d(get_player(i) + 0xF8, math.pow(2, 10), math.pow(2, 10), -math.pow(2, 10))
                     local player_object = get_dynamic_player(i)
                     local flags = read_dword(player_object + 0x10)
-                    if(bit.band(flags,1) == 0) then
+                    if (bit.band(flags, 1) == 0) then
                         flags = flags + 1
                     end
-                    if(bit.band(flags,math.pow(2,24)) ~= 0) then
-                        flags = flags - math.pow(2,24)
+                    if (bit.band(flags, math.pow(2, 24)) ~= 0) then
+                        flags = flags - math.pow(2, 24)
                     end
                     write_dword(player_object + 0x10, flags)
                     write_word(player_object + 0x31E, 0x7F7F)
@@ -935,7 +959,9 @@ function getplayer(PlayerIndex)
     if tonumber(PlayerIndex) then
         if tonumber(PlayerIndex) ~= 0 then
             local m_player = get_player(PlayerIndex)
-            if m_player ~= 0 then return m_player end
+            if m_player ~= 0 then
+                return m_player
+            end
         end
     end
     return nil
@@ -953,7 +979,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
@@ -1007,7 +1034,7 @@ function OnPlayerPrejoin(PlayerIndex)
         if words[3] == ip then
             local entry_name = words[1]
             for i = 1, 16 do
-                if getplayer(i) and(ipadmins[getip(i)] or admin_table[gethash(i)]) then
+                if getplayer(i) and (ipadmins[getip(i)] or admin_table[gethash(i)]) then
                     -- Tell Admins currently in server that this player is banned from BoS
                     privateSay(i, "Rejecting " .. entry_name .. " - banned from BoS.")
                     privateSay(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - " .. words[3])
@@ -1023,7 +1050,7 @@ function OnPlayerPrejoin(PlayerIndex)
             table.insert(name_bans, name)
             table.insert(banned_hashes, hash)
             ip_banlist[ip] = { }
-            table.insert(ip_banlist[ip], { ["name"] = entry_name, ["ip"] = ip, ["time"] = - 1, ["id"] = ip_banid })
+            table.insert(ip_banlist[ip], { ["name"] = entry_name, ["ip"] = ip, ["time"] = -1, ["id"] = ip_banid })
             ip_banid = ip_banid + 1
             -- iprange_banlist[ip] = { }
             -- local words = tokenizestring(ip, ".")
@@ -1122,10 +1149,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local s_chat_ip = get_var(PlayerIndex, "$ip")
     local s_chat_hash = get_var(PlayerIndex, "$hash")
     iscommand = nil
-    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
+    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then
         iscommand = true
         ChatType = "[COMMAND] "
-    else 
+    else
         iscommand = false
     end
     if type == 0 then
@@ -1134,14 +1161,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
         Type = "[TEAM]    "
     elseif type == 2 then
         Type = "[VEHICLE] "
-    end    
+    end
     if (player_present(PlayerIndex) ~= nil) then
-        if iscommand then 
+        if iscommand then
             WriteData(s_chat_dir, "   " .. ChatType .. "     " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message)
-            cprint(ChatType .." " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3+8)
+            cprint(ChatType .. " " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3 + 8)
         else
             WriteData(s_chat_dir, "   " .. Type .. "     " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message)
-            cprint(Type .." " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3+8)
+            cprint(Type .. " " .. s_chat_name .. " [" .. s_chat_id .. "]: " .. Message, 3 + 8)
         end
     end
     local response = nil
@@ -1180,7 +1207,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if votekick_allowed and votekicktimeout_table == false then
                 local votekick_count = 0
                 local votekick_number = round(cur_players * votekick_required, 0)
-                local player2 = tonumber(ct[2]) -1
+                local player2 = tonumber(ct[2]) - 1
                 if getplayer(player2) then
                     local name2 = getname(player2)
                     local hash2 = gethash(player2)
@@ -1279,8 +1306,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if response == nil then
         access = getaccess(PlayerIndex)
     end
-    if spam_max == nil then spam_max = 7 end
-    if spam_timeout == nil then spam_timeout = 60 end
+    if spam_max == nil then
+        spam_max = 7
+    end
+    if spam_timeout == nil then
+        spam_timeout = 60
+    end
     if response == nil and antispam ~= "off" and spam_max > 0 and spam_timeout > 0 and type >= 0 and type <= 2 then
         if antispam == "all" then
             if not spam_table[ip] then
@@ -1326,7 +1357,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     count = #t
     invisibility_time = tonumber(t[3])
     invisibility_time = invisibility_time
-    if (Environment == 0) then permission = true end
+    if (Environment == 0) then
+        permission = true
+    end
     if PlayerIndex ~= nil and PlayerIndex ~= 255 then
         if (next(admin_table) ~= nil or next(ipadmins) ~= nil) and access then
             permission = checkaccess(t[1], access, PlayerIndex)
@@ -1346,7 +1379,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 if Command == scrim_mode_commands[i] then
                     sendresponse("This command is currently disabled.\nTurn Scrim Mode off to reenable this command.", t[1], PlayerIndex)
                     local name = "The Server"
-                    if PlayerIndex then name = getname(PlayerIndex) end
+                    if PlayerIndex then
+                        name = getname(PlayerIndex)
+                    end
                     cmdlog(name .. " attempted to use " .. t[1] .. " during scrim mode.")
                     return false
                 end
@@ -1784,7 +1819,9 @@ function OnServerCommand(PlayerIndex, Command, Environment)
         end
         sendresponse("You are not an admin. Access denied.", t[1], PlayerIndex)
     end
-    if (Environment == 0) then response = true end
+    if (Environment == 0) then
+        response = true
+    end
     return response
 end
 
@@ -1797,7 +1834,9 @@ function WelcomeHandler(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
-	if compatible then write_byte(getplayer(PlayerIndex) + 0x20, 0) end
+    if compatible then
+        write_byte(getplayer(PlayerIndex) + 0x20, 0)
+    end
     local s_chat_name = get_var(PlayerIndex, "$name")
     local s_chat_id = get_var(PlayerIndex, "$n")
     local s_chat_ip = get_var(PlayerIndex, "$ip")
@@ -1935,26 +1974,42 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
 
     -- KILLED BY SERVER --
-    if (killer == -1) then kill_mode = 0 end
+    if (killer == -1) then
+        kill_mode = 0
+    end
     -- FALL / DISTANCE DAMAGE
-    if last_damage[PlayerIndex] == global_distanceId or last_damage[PlayerIndex] == global_fallingId then kill_mode = 1 end
+    if last_damage[PlayerIndex] == global_distanceId or last_damage[PlayerIndex] == global_fallingId then
+        kill_mode = 1
+    end
     -- GUARDIANS / UNKNOWN --
-    if (killer == nil) then kill_mode = 2 end
+    if (killer == nil) then
+        kill_mode = 2
+    end
     -- KILLED BY VEHICLE --
-    if (killer == 0) then kill_mode = 3 end
+    if (killer == 0) then
+        kill_mode = 3
+    end
     -- KILLED BY KILLER --
-    if (killer > 0) and(victim ~= killer) then kill_mode = 4 end
+    if (killer > 0) and (victim ~= killer) then
+        kill_mode = 4
+    end
     -- BETRAY / TEAM KILL --
-    if (KillerTeam == VictimTeam) and(PlayerIndex ~= KillerIndex) then kill_mode = 5 end
+    if (KillerTeam == VictimTeam) and (PlayerIndex ~= KillerIndex) then
+        kill_mode = 5
+    end
     -- SUICIDE --
-    if tonumber(PlayerIndex) == tonumber(KillerIndex) then kill_mode = 6 end
+    if tonumber(PlayerIndex) == tonumber(KillerIndex) then
+        kill_mode = 6
+    end
     if kill_mode == 4 then
         if tbag_detection then
             tbag[victim] = { }
             tbag[killer] = { }
             tbag[killer].count = 0
             tbag[killer].name = getname(victim)
-            if victim_coords[victim] == nil then victim_coords[victim] = { } end
+            if victim_coords[victim] == nil then
+                victim_coords[victim] = { }
+            end
             if victim_coords[victim].x then
                 tbag[killer].x = victim_coords[victim].x
                 tbag[killer].y = victim_coords[victim].y
@@ -2054,8 +2109,12 @@ function OnPlayerSpawn(PlayerIndex)
                 end
             end
         end
-        if colorspawn == nil then colorspawn = { } end
-        if colorspawn[PlayerIndex] == nil then colorspawn[PlayerIndex] = { } end
+        if colorspawn == nil then
+            colorspawn = { }
+        end
+        if colorspawn[PlayerIndex] == nil then
+            colorspawn[PlayerIndex] = { }
+        end
         if (player_object ~= 0) then
             if colorspawn[PlayerIndex][1] then
                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[PlayerIndex][1], colorspawn[PlayerIndex][2], colorspawn[PlayerIndex][3])
@@ -2196,7 +2255,7 @@ function Command_AddRconPassword(executor, command, password, level, count)
                     end
                 else
                     rcon_passwords[rcon_passwords_id] = { }
-                    table.insert(rcon_passwords[rcon_passwords_id], { ["password"] = password, ["level"] = - 1 })
+                    table.insert(rcon_passwords[rcon_passwords_id], { ["password"] = password, ["level"] = -1 })
                     rcon_passwords_id = rcon_passwords_id + 1
                     sendresponse(password .. " has been added as an rcon password", command, executor)
                 end
@@ -2214,7 +2273,7 @@ end
 function Command_Adminadd(executor, command, PlayerIndex, nickname, level, count)
     if count == 4 and tonumber(level) then
         if string.len(PlayerIndex) < 32 then
-            local PlayerIndex = tonumber(PlayerIndex) -1
+            local PlayerIndex = tonumber(PlayerIndex) - 1
             if getplayer(PlayerIndex) then
                 local hash = gethash(PlayerIndex)
                 if not admin_table[hash] then
@@ -2266,7 +2325,7 @@ function Command_Adminadd(executor, command, PlayerIndex, nickname, level, count
 end
 
 function Command_Admindel(executor, command, nickname, count)
-    if count == 2 and tonumber(ID) or count == 3 and(t[2] == "del") then
+    if count == 2 and tonumber(ID) or count == 3 and (t[2] == "del") then
         if type(admin_table) ~= nil then
             local bool = true
             for k, v in pairs(admin_table) do
@@ -2473,7 +2532,9 @@ end
 
 function Command_AntiSpam(executor, command, type, count)
     if count == 1 then
-        if antispam == nil then antispam = "all" end
+        if antispam == nil then
+            antispam = "all"
+        end
         sendresponse("AntiSpam is set to " .. antispam, command, executor)
     elseif count == 2 then
         type = string.lower(type)
@@ -2548,7 +2609,9 @@ function Command_Ban2(executor, command, PlayerIndex, message, time, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             local name = "the Server"
-            if executor ~= nil then name = getname(executor) end
+            if executor ~= nil then
+                name = getname(executor)
+            end
             for i = 1, #players do
                 if CheckAccess(executor, command, players[i], getaccess(executor)) then
                     local playername = getname(players[i])
@@ -3135,7 +3198,7 @@ function Command_Falldamage(executor, command, boolean, count)
             sendresponse("Fall damage is already on", command, executor)
         elseif boolean ~= "0" and boolean ~= "false" then
             sendresponse("Invalid Boolean: 0 for false, 1 for true", command, executor)
-        elseif (boolean == "0" or boolean == "false") and(falldamage or falldamage == nil) then
+        elseif (boolean == "0" or boolean == "false") and (falldamage or falldamage == nil) then
             falldamage = false
             sendresponse("Fall damage is now off", command, executor)
         elseif boolean == "0" or boolean == "false" then
@@ -3373,7 +3436,7 @@ function Command_HashDuplicates(executor, command, boolean, count)
             sendresponse("Hash Duplicate Checking is already enabled", command, executor)
         elseif boolean ~= "0" and boolean ~= "false" then
             sendresponse("Invalid Boolean: 0 for false, 1 for true", command, executor)
-        elseif (boolean == "0" or boolean == "false") and hash_duplicates or(hash_duplicates == nil) then
+        elseif (boolean == "0" or boolean == "false") and hash_duplicates or (hash_duplicates == nil) then
             hash_duplicates = false
             write_bit(hash_duplicate_patch, 0, 0)
             sendresponse("Hash Duplicate Checking is now disabled", command, executor)
@@ -3421,7 +3484,9 @@ function Command_Heal(executor, command, PlayerIndex, count)
                     if m_vehicleId == nil then
                         local x, y, z = getobjectcoords(m_playerObjId)
                         local healthpack = createobject(healthpack_tag_id, 0, 0, false, x, y, z + 0.5)
-                        if healthpack ~= nil then write_float(getobject(healthpack) + 0x70, -2) end
+                        if healthpack ~= nil then
+                            write_float(getobject(healthpack) + 0x70, -2)
+                        end
                     else
                         write_float(m_object + 0xE0, 1)
                     end
@@ -3451,7 +3516,9 @@ function Command_Heal(executor, command, PlayerIndex, count)
                             if m_vehicleId == nil then
                                 local x, y, z = getobjectcoords(m_playerObjId)
                                 local healthpack = createobject(healthpack_tag_id, 0, 0, false, x, y, z + 0.5)
-                                if healthpack ~= nil then write_float(getobject(healthpack) + 0x70, -2) end
+                                if healthpack ~= nil then
+                                    write_float(getobject(healthpack) + 0x70, -2)
+                                end
                             else
                                 write_float(m_object + 0xE0, 1)
                             end
@@ -3530,7 +3597,7 @@ function Command_Infammo(executor, command, boolean, count)
                     if m_ObjId then
                         local m_Object = getobject(m_ObjId)
                         for i = 0, 3 do
-                            local m_weaponId = read_dword(m_Object + 0x2F8 +(i * 4))
+                            local m_weaponId = read_dword(m_Object + 0x2F8 + (i * 4))
                             if m_weaponId then
                                 write_word(getobject(m_weaponId) + 0x2B6, 9999)
                             end
@@ -3979,7 +4046,9 @@ function Command_Ipban(executor, command, PlayerIndex, time, message, count)
     if ipcount == 4 then
         local ipbantime = wordtotime(time) or -1
         local name = "the Server"
-        if executor ~= nil then name = getname(executor) end
+        if executor ~= nil then
+            name = getname(executor)
+        end
         message = tostring(message) or "None Given"
         BanReason("The IP: " .. PlayerIndex .. " was banned by " .. name .. " Reason: " .. message .. " Type: IP Ban")
         ip_banlist[PlayerIndex] = { }
@@ -3993,7 +4062,9 @@ function Command_Ipban(executor, command, PlayerIndex, time, message, count)
             local players = getvalidplayers(PlayerIndex, executor)
             if players then
                 local name = "the Server"
-                if executor ~= nil then name = getname(executor) end
+                if executor ~= nil then
+                    name = getname(executor)
+                end
                 for i = 1, #players do
                     if CheckAccess(executor, command, players[i], getaccess(executor)) then
                         local ipbantime = wordtotime(time) or -1
@@ -4092,7 +4163,9 @@ function Command_Iprangeban(executor, command, PlayerIndex, time, message, count
     if ipcount == 2 then
         local ipbantime = wordtotime(time) or -1
         local name = "the Server"
-        if executor ~= nil then name = getname(executor) end
+        if executor ~= nil then
+            name = getname(executor)
+        end
         message = tostring(message) or "None Given"
         BanReason("The IP: " .. PlayerIndex .. " was banned by " .. name .. " Reason: " .. message .. " Type: IP Range Ban")
         iprange_banlist[PlayerIndex] = { }
@@ -4106,7 +4179,9 @@ function Command_Iprangeban(executor, command, PlayerIndex, time, message, count
             local players = getvalidplayers(PlayerIndex, executor, command)
             if players then
                 local name = "the Server"
-                if executor ~= nil then name = getname(executor) end
+                if executor ~= nil then
+                    name = getname(executor)
+                end
                 for i = 1, #players do
                     if CheckAccess(executor, command, players[i], getaccess(executor)) then
                         local ipbantime = wordtotime(time) or -1
@@ -4268,7 +4343,9 @@ function Command_Kick(executor, command, PlayerIndex, message, count)
         local players = getvalidplayers(PlayerIndex, executor, command)
         if players then
             local name = "the Server"
-            if executor ~= nil then name = getname(executor) end
+            if executor ~= nil then
+                name = getname(executor)
+            end
             for i = 1, #players do
                 if CheckAccess(executor, command, players[i], getaccess(executor)) then
                     if executor ~= players[i] then
@@ -4490,7 +4567,9 @@ function Command_Map(executor, command)
             else
                 response = execute_command("sv_map " .. args[2] .. " \"" .. args[3] .. "\" " .. tostring(arguments), true)
             end
-            if response == "" or response == nil then return end
+            if response == "" or response == nil then
+                return
+            end
             sendresponse(response, args[1], executor)
         else
             sendresponse("Internal Error Occured Check the Command Script Errors log", args[1], executor)
@@ -4640,7 +4719,10 @@ function Command_Nameban(executor, command, PlayerIndex, count)
                     local name = getname(players[i])
                     local bool = true
                     for i = 1, #name_bans do
-                        if name_bans[i] == name then bool = false break end
+                        if name_bans[i] == name then
+                            bool = false
+                            break
+                        end
                     end
                     if bool then
                         table.insert(name_bans, name)
@@ -4723,7 +4805,9 @@ function Command_Noweapons(executor, command, boolean, count)
             for i = 1, 16 do
                 if getplayer(i) and get_dynamic_player(i) then
                     local ip = getip(i)
-                    if Noweapons[ip] then Noweapons[ip] = nil end
+                    if Noweapons[ip] then
+                        Noweapons[ip] = nil
+                    end
                     resetweapons(i)
                 end
             end
@@ -4961,14 +5045,20 @@ function Command_Read(executor, command, type, struct, offset, value, PlayerInde
                         struct = getplayer(players[i])
                     elseif struct == "object" then
                         struct = getobject(m_objectId)
-                        if struct == nil then sendresponse(getname(players[i]) .. " is not alive.", command, executor) return end
+                        if struct == nil then
+                            sendresponse(getname(players[i]) .. " is not alive.", command, executor)
+                            return
+                        end
                     elseif getobject(m_objectId) == nil then
                         sendresponse(getname(players[i]) .. " is not alive.", command, executor)
                         return
                     elseif struct == "weapon" then
                         local m_object = getobject(m_objectId)
                         struct = getobject(read_dword(m_object + 0x118))
-                        if struct == nil then sendresponse(getname(players[i]) .. " is not holding a weapon", command, executor) return end
+                        if struct == nil then
+                            sendresponse(getname(players[i]) .. " is not holding a weapon", command, executor)
+                            return
+                        end
                     elseif tonumber(struct) == nil then
                         sendresponse("Invalid Struct. Valid structs are: player, object, and weapon", command, executor)
                         return
@@ -5026,16 +5116,16 @@ function Command_ResetPlayer(executor, command, PlayerIndex, count)
                 hidden[id] = nil
                 Noweapons[ip] = nil
                 -- for j = 1, 16 do
-                    -- for k = 1, 16 do
-                        -- if control_table[j][k] == players[i] then
-                            -- control_table[j][k] = nil
-                            -- bool = true
-                            -- break
-                        -- end
-                    -- end
-                    -- if bool then
-                        -- break
-                    -- end
+                -- for k = 1, 16 do
+                -- if control_table[j][k] == players[i] then
+                -- control_table[j][k] = nil
+                -- bool = true
+                -- break
+                -- end
+                -- end
+                -- if bool then
+                -- break
+                -- end
                 -- end
                 sendresponse(getname(players[i]) .. " has been reset.", command, executor)
             end
@@ -5129,7 +5219,9 @@ end
 
 function Command_RTVRequired(executor, command, percent, count)
     if count == 1 then
-        if rtv_required == nil then rtv_required = 0.6 end
+        if rtv_required == nil then
+            rtv_required = 0.6
+        end
         sendresponse(tostring(rtv_required * 100) .. "% votes required for RTV", command, executor)
     elseif count == 2 and tonumber(percent) then
         if tonumber(percent) <= 1 then
@@ -5218,7 +5310,9 @@ function Command_ScrimMode(executor, command, boolean, count)
                     mode[ip] = nil
                     gods[ip] = nil
                     hidden[id] = nil
-                    if Noweapons[ip] then Noweapons[ip] = nil end
+                    if Noweapons[ip] then
+                        Noweapons[ip] = nil
+                    end
                     if infammo then
                         kill(i)
                     end
@@ -5432,8 +5526,12 @@ function Command_Setcolor(executor, command, PlayerIndex, color, count)
                     sendresponse(getname(players[i]) .. " had their color changed to " .. color .. "", command, executor)
                     if player_obj_id ~= nil then
                         destroy_object(player_obj_id)
-                        if colorspawn == nil then colorspawn = { } end
-                        if colorspawn[players[i]] == nil then colorspawn[players[i]] = { } end
+                        if colorspawn == nil then
+                            colorspawn = { }
+                        end
+                        if colorspawn[players[i]] == nil then
+                            colorspawn[players[i]] = { }
+                        end
                         colorspawn[players[i]][1] = x
                         colorspawn[players[i]][2] = y
                         colorspawn[players[i]][3] = z
@@ -6083,7 +6181,9 @@ function Command_Superban(executor, command, PlayerIndex, message, count)
         local players = getvalidplayers(PlayerIndex, executor, command)
         if players then
             local name = "the Server"
-            if executor ~= nil then name = getname(executor) end
+            if executor ~= nil then
+                name = getname(executor)
+            end
             for i = 1, #players do
                 message = tostring(message) or "None Given"
                 BanReason(getname(players[i]) .. " was banned by " .. name .. " Reason: " .. message .. " Type: Super Ban")
@@ -6091,7 +6191,7 @@ function Command_Superban(executor, command, PlayerIndex, message, count)
                 table.insert(name_bans, getname(players[i]))
                 local ip = getip(players[i])
                 ip_banlist[ip] = { }
-                table.insert(ip_banlist[ip], { ["name"] = getname(players[i]), ["ip"] = ip, ["time"] = - 1, ["id"] = ip_banid })
+                table.insert(ip_banlist[ip], { ["name"] = getname(players[i]), ["ip"] = ip, ["time"] = -1, ["id"] = ip_banid })
                 ip_banid = ip_banid + 1
                 local words = tokenizestring(ip, ".")
                 local ip2 = words[1] .. "." .. words[2]
@@ -6270,7 +6370,9 @@ function Command_Textban(executor, command, PlayerIndex, time, message, count)
         local players = getvalidplayers(PlayerIndex, executor)
         if players then
             local name = "the Server"
-            if executor ~= nil then name = getname(executor) end
+            if executor ~= nil then
+                name = getname(executor)
+            end
             for i = 1, #players do
                 local name = getname(players[i])
                 local ip = getip(players[i])
@@ -6743,7 +6845,7 @@ function Command_VotekickAction(executor, command, action, count)
     if count == 1 then
         sendresponse("The current action for people who are votekicked is '" .. tostring(votekick_action) .. "'", command, executor)
         sendresponse("Valid actions are 'kick' and 'ban'", command, executor)
-    elseif count == 2 and(action == "kick" or action == "ban") then
+    elseif count == 2 and (action == "kick" or action == "ban") then
         sendresponse("The current VoteKick action has been changed to '" .. action .. "'", command, executor)
         votekick_action = tostring(action)
     else
@@ -6786,7 +6888,9 @@ end
 
 function Command_VotekickRequired(executor, command, percent, count)
     if count == 1 then
-        if votekick_required == nil then votekick_required = 0.7 end
+        if votekick_required == nil then
+            votekick_required = 0.7
+        end
         sendresponse(tostring(votekick_required * 100) .. "% votes required for VoteKick", command, executor)
     elseif count == 2 and tonumber(percent) then
         if tonumber(percent) <= 1 then
@@ -6839,14 +6943,20 @@ function Command_Write(executor, command, type, struct, offset, value, PlayerInd
                         struct = getplayer(players[i])
                     elseif struct == "object" then
                         struct = getobject(m_objectId)
-                        if struct == nil then sendresponse(getname(players[i]) .. " is not alive.", command, executor) return end
+                        if struct == nil then
+                            sendresponse(getname(players[i]) .. " is not alive.", command, executor)
+                            return
+                        end
                     elseif getobject(m_objectId) == nil then
                         sendresponse(getname(players[i]) .. " is not alive.", command, executor)
                         return
                     elseif struct == "weapon" then
                         local m_object = getobject(m_objectId)
                         struct = getobject(read_dword(m_object + 0x118))
-                        if struct == nil then sendresponse(getname(players[i]) .. " is not holding a weapon", command, executor) return end
+                        if struct == nil then
+                            sendresponse(getname(players[i]) .. " is not holding a weapon", command, executor)
+                            return
+                        end
                     elseif tonumber(struct) == nil then
                         sendresponse("Invalid Struct. Valid structs are: player, object, and weapon", command, executor)
                         return
@@ -6967,7 +7077,10 @@ function AccessMerging()
                 access_table[i] = access_table[i] .. ",sv_god"
             end
             if access_table[i] ~= -1 then
-                if not access_table or not access_table[i] or not access_table[i]:len() then cprint("ACCESS.INI IS INCORRECTLY FORMATTED") return end
+                if not access_table or not access_table[i] or not access_table[i]:len() then
+                    cprint("ACCESS.INI IS INCORRECTLY FORMATTED")
+                    return
+                end
                 if string.sub(access_table[i], access_table[i]:len(), access_table[i]:len()) ~= "," then
                     access_table[i] = access_table[i] .. ","
                 end
@@ -7048,7 +7161,7 @@ function check_sphere(m_objectId, X, Y, Z, R)
     local Pass = false
     if getobject(m_objectId) then
         local x, y, z = getobjectcoords(m_objectId)
-        if (X - x) ^ 2 +(Y - y) ^ 2 +(Z - z) ^ 2 <= R then
+        if (X - x) ^ 2 + (Y - y) ^ 2 + (Z - z) ^ 2 <= R then
             Pass = true
         end
     end
@@ -7093,8 +7206,12 @@ function DefaultSvTimer()
         file:close()
         temp_lines = defaults_lines
     end
-    if not changelog then cprint("Change log Version " .. script_version .. " is being written") end
-    if access_error then cprint("access.ini is not setup correctly", 4 + 8) end
+    if not changelog then
+        cprint("Change log Version " .. script_version .. " is being written")
+    end
+    if access_error then
+        cprint("access.ini is not setup correctly", 4 + 8)
+    end
     if use_logo then
         cprint("===================================================================================================", 2 + 8)
         cprint("")
@@ -7532,11 +7649,11 @@ function getobjecttag(m_objectId)
             local map_tag_count = todec(endian(map_base, 0xC, 0x3))
             local tag_table_base = map_base + 0x28
             local tag_table_size = 0x20
-            for i = 0,(map_tag_count - 1) do
-                local tag_id = todec(endian(tag_table_base, 0xC +(tag_table_size * i), 0x3))
+            for i = 0, (map_tag_count - 1) do
+                local tag_id = todec(endian(tag_table_base, 0xC + (tag_table_size * i), 0x3))
                 if tag_id == object_map_id then
-                    local tag_class = read_string(tag_table_base +(tag_table_size * i), 0x3, 1)
-                    local tag_name_address = endian(tag_table_base, 0x10 +(tag_table_size * i), 0x3)
+                    local tag_class = read_string(tag_table_base + (tag_table_size * i), 0x3, 1)
+                    local tag_name_address = endian(tag_table_base, 0x10 + (tag_table_size * i), 0x3)
                     local tag_name = readtagname("0x" .. tag_name_address)
                     return tag_name, tag_class
                 end
@@ -7590,7 +7707,7 @@ function getvalidplayers(expression, PlayerIndex)
                     table.insert(players, i)
                 end
             end
-        elseif (tonumber(expression) or 0) >= 1 and(tonumber(expression) or 0) <= 16 then
+        elseif (tonumber(expression) or 0) >= 1 and (tonumber(expression) or 0) <= 16 then
             local expression = tonumber(expression)
             if resolveplayer(expression) then
                 table.insert(players, resolveplayer(expression))
@@ -7598,67 +7715,99 @@ function getvalidplayers(expression, PlayerIndex)
         elseif expression == '"1"' then
             val = 1
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"2"' then
             val = 2
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"3"' then
             val = 3
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"4"' then
             val = 4
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"5"' then
             val = 5
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"6"' then
             val = 6
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"7"' then
             val = 7
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"8"' then
             val = 8
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"9"' then
             val = 9
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"10"' then
             val = 10
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"11"' then
             val = 11
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"12"' then
             val = 12
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"13"' then
             val = 13
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"14"' then
             val = 14
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"15"' then
             val = 15
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == '"16"' then
             val = 16
             local expression = tonumber(val)
-            if resolveplayer(expression) then table.insert(players, resolveplayer(expression)) end
+            if resolveplayer(expression) then
+                table.insert(players, resolveplayer(expression))
+            end
         elseif expression == "random" or expression == "rand" or expression == '"random"' or expression == '"rand"' then
             if cur_players == 1 and PlayerIndex ~= nil then
                 table.insert(players, PlayerIndex)
@@ -7708,7 +7857,9 @@ function Ipban(PlayerIndex, bool)
 end
 
 function lo3Timer(id, count)
-    if gameend == true then return false end
+    if gameend == true then
+        return false
+    end
     if count >= 3 then
         if scrim_mode then
             say("Scrim Mode is currently on")
@@ -7728,7 +7879,7 @@ end
 function get_tag_info(tagclass, tagname)
     -- Credits to 002 for this function. Return metaid
     local tagarray = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) -1 do
+    for i = 0, read_word(0x4044000C) - 1 do
         local tag = tagarray + i * 0x20
         local class = string.reverse(string.sub(read_string(tag), 1, 4))
         if (class == tagclass) then
@@ -7786,7 +7937,7 @@ function LoadTags()
     vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp" }
     vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp" }
     vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp" }
-    
+
     -- weapons --
     weapons[1] = { "weap", "weapons\\assault rifle\\assault rifle" }
     weapons[2] = { "weap", "weapons\\ball\\ball" }
@@ -7866,9 +8017,9 @@ function isinvehicle(PlayerIndex)
 end
 
 function multiteamtimer(player, count)
-	if compatible then
-		write_byte(getplayer(player) + 0x20, 0)
-	end
+    if compatible then
+        write_byte(getplayer(player) + 0x20, 0)
+    end
     return false
 end
 
@@ -7904,8 +8055,8 @@ function read_string(address, length, endian)
         end
     end
     for i = 0, length do
-        if read_byte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(read_byte(address +(offset + i))))
+        if read_byte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(read_byte(address + (offset + i))))
         elseif i % 2 == 0 and read_byte(address + offset + i) == 0 then
             break
         end
@@ -7940,11 +8091,15 @@ function reloadadmins(id, count)
         for line in file:lines() do
             local words = tokenizestring(line, ",")
             local count = #words
-            if not admin_table[words[2]] then admin_table[words[2]] = { } end
+            if not admin_table[words[2]] then
+                admin_table[words[2]] = { }
+            end
             admin_table[words[2]].name = words[1]
             admin_table[words[2]].level = words[3]
             if count == 4 and tonumber(words[3]) then
-                if not ipadmins[words[4]] then ipadmins[words[4]] = { } end
+                if not ipadmins[words[4]] then
+                    ipadmins[words[4]] = { }
+                end
                 ipadmins[words[4]].name = words[1]
                 ipadmins[words[4]].level = words[3]
             end
@@ -7956,7 +8111,9 @@ function reloadadmins(id, count)
         for line in file:lines() do
             local words = tokenizestring(line, ",")
             local count = #words
-            if not ipadmins[words[2]] then ipadmins[words[2]] = { } end
+            if not ipadmins[words[2]] then
+                ipadmins[words[2]] = { }
+            end
             ipadmins[words[2]].name = words[1]
             ipadmins[words[2]].level = words[3]
         end
@@ -7984,14 +8141,16 @@ end
 
 function round(val, decimal)
     if (decimal) then
-        return math.floor((val * 10 ^ decimal) + 0.5) /(10 ^ decimal)
+        return math.floor((val * 10 ^ decimal) + 0.5) / (10 ^ decimal)
     else
         return math.floor(val + 0.5)
     end
 end
 
 function rtvTimer(id, count)
-    if gameend == true then return false end
+    if gameend == true then
+        return false
+    end
     if count == 1 then
         rtv_initiated = rtv_timeout
         rtv_table = { }
@@ -8144,12 +8303,12 @@ function setscore(PlayerIndex, score)
 end
 
 function pack(...)
-    local arg = { ...}
+    local arg = { ... }
     return arg
 end
 
 function math.round(num, idp)
-    return tonumber(string.format("%." ..(idp or 0) .. "f", num))
+    return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
 function string.findchar(str, char)
@@ -8186,13 +8345,13 @@ function string.split(str, ...)
         for x = 1, #arg do
             if arg[x] ~= "" then
                 local length = string.len(arg[x])
-                if string.sub(str, i, i +(length - 1)) == arg[x] then
+                if string.sub(str, i, i + (length - 1)) == arg[x] then
                     if i == string.len(str) then
                         bool2 = true
                     else
                         bool = true
                     end
-                    i = i +(length - 1)
+                    i = i + (length - 1)
                     break
                 end
             else
@@ -8230,11 +8389,21 @@ function string.wild(match, wild, case_sensative)
     if not case_sensative then
         match, wild = string.lower(match), string.lower(wild)
     end
-    if string.sub(wild, 1, 1) == "?" then wild = string.gsub(wild, "?", string.sub(match, 1, 1), 1) end
-    if string.sub(wild, string.len(wild), string.len(wild)) == "?" then wild = string.gsub(wild, "?", string.sub(match, string.len(match), string.len(match)), 1) end
-    if not string.find(wild, "*") and not string.find(wild, "?") and wild ~= match then return false end
-    if string.sub(wild, 1, 1) ~= string.sub(match, 1, 1) and string.sub(wild, 1, 1) ~= "*" then return false end
-    if string.sub(wild, string.len(wild), string.len(wild)) ~= string.sub(match, string.len(match), string.len(match)) and string.sub(wild, string.len(wild), string.len(wild)) ~= "*" then return false end
+    if string.sub(wild, 1, 1) == "?" then
+        wild = string.gsub(wild, "?", string.sub(match, 1, 1), 1)
+    end
+    if string.sub(wild, string.len(wild), string.len(wild)) == "?" then
+        wild = string.gsub(wild, "?", string.sub(match, string.len(match), string.len(match)), 1)
+    end
+    if not string.find(wild, "*") and not string.find(wild, "?") and wild ~= match then
+        return false
+    end
+    if string.sub(wild, 1, 1) ~= string.sub(match, 1, 1) and string.sub(wild, 1, 1) ~= "*" then
+        return false
+    end
+    if string.sub(wild, string.len(wild), string.len(wild)) ~= string.sub(match, string.len(match), string.len(match)) and string.sub(wild, string.len(wild), string.len(wild)) ~= "*" then
+        return false
+    end
     local substrings = string.split(wild, "*")
     local begin = 1
     for k, v in ipairs(substrings) do
@@ -8289,8 +8458,12 @@ function settimelimit(value)
 end
 
 function Timer(id, count)
-    if spam_max == nil then spam_max = 7 end
-    if spam_timeout == nil then spam_timeout = 60 end
+    if spam_max == nil then
+        spam_max = 7
+    end
+    if spam_timeout == nil then
+        spam_timeout = 60
+    end
     for i = 1, 16 do
         if getplayer(i) then
             local ip = getip(i)
@@ -8299,7 +8472,7 @@ function Timer(id, count)
             end
             if spam_table[ip] < tonumber(spam_max) then
                 if spam_table[ip] > 0 then
-                    spam_table[ip] = spam_table[ip] -0.25
+                    spam_table[ip] = spam_table[ip] - 0.25
                 end
             else
                 say(getname(i) .. " has been muted for " .. spam_timeout .. " seconds for spamming")
@@ -8309,7 +8482,7 @@ function Timer(id, count)
                 if spamtimeout_table[ip] == nil then
                     spamtimeout_table[ip] = tonumber(spam_timeout)
                 else
-                    spamtimeout_table[ip] = spamtimeout_table[ip] -1
+                    spamtimeout_table[ip] = spamtimeout_table[ip] - 1
                 end
                 if spamtimeout_table[ip] == 0 then
                     say(getname(i) .. " has been unmuted")
@@ -8390,7 +8563,9 @@ function Spawn(message, objname, objtype, mapId, PlayerIndex, type)
         local players = getvalidplayers(m[3], PlayerIndex)
         if players then
             for i = 1, #players do
-                if players[i] == nil then break end
+                if players[i] == nil then
+                    break
+                end
                 if getplayer(players[i]) then
                     local m_playerObjId = get_dynamic_player(players[i])
                     if m_playerObjId then
@@ -8588,11 +8763,11 @@ function todec(number)
 end
 
 function GetTagName(obj)
-	if(obj ~= nil and obj ~= 0) then
-		return read_string(read_dword(read_word(obj) * 32 + 0x40440038))
-	else
-		return ""
-	end
+    if (obj ~= nil and obj ~= 0) then
+        return read_string(read_dword(read_word(obj) * 32 + 0x40440038))
+    else
+        return ""
+    end
 end
 
 function timetoword(time)
@@ -8714,7 +8889,9 @@ end
 
 function write_wordsigned(address, word)
     value = tonumber(word)
-    if value == nil then value = tonumber(word, 16) end
+    if value == nil then
+        value = tonumber(word, 16)
+    end
     if value and value > 0x7FFF then
         local max = 0xFFFF
         local difference = max - value
@@ -8745,18 +8922,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then

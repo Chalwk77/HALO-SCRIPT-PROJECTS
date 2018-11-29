@@ -16,11 +16,12 @@ function GetRequiredVersion()
     return 200
 end
 
-function OnScriptLoad(processId, game, persistent) end
+function OnScriptLoad(processId, game, persistent)
+end
 
 function OnServerChat(player, chattype, message)
 
-    local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " ..(tostring(message)))
+    local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " .. (tostring(message)))
     if player ~= nil then
         return true, GetChatFormat
     else

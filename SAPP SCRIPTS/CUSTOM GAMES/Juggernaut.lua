@@ -41,10 +41,10 @@ JuggernautAssignMessage = "$NAME is now the Juggernaut!"
 
 -- Weapons assigned to the Juggernaut. Set 'true' >> 'false' to prevent that weapon from being assigned.
 weapons = { }
-weapons[1] = {"weap", "weapons\\sniper rifle\\sniper rifle", true}
-weapons[2] = {"weap", "weapons\\pistol\\pistol", true}
-weapons[3] = {"weap", "weapons\\rocket launcher\\rocket launcher", true}
-weapons[4] = {"weap", "weapons\\shotgun\\shotgun", true}
+weapons[1] = { "weap", "weapons\\sniper rifle\\sniper rifle", true }
+weapons[2] = { "weap", "weapons\\pistol\\pistol", true }
+weapons[3] = { "weap", "weapons\\rocket launcher\\rocket launcher", true }
+weapons[4] = { "weap", "weapons\\shotgun\\shotgun", true }
 -- Custom Server Prefix
 SERVER_PREFIX = "JUGGERNAUT"
 
@@ -120,26 +120,26 @@ gamesettings = {
 function LoadMaps()
     map_settings = {
         --                    frags   plasmas   Juggernaut Running Speed
-        { "beavercreek", 2, 1, 1.10},
-        { "bloodgulch", 6, 3, 1.35},
-        { "boardingaction", 2, 2, 1.10},
-        { "carousel", 2, 5, 1.15},
-        { "damnation", 4, 3, 1.10},
-        { "dangercanyon", 6, 3, 1.15},
-        { "deathisland", 4, 2, 1.45},
-        { "gephyrophobia", 2, 3, 1.20},
-        { "hangemhigh", 3, 2, 1.10},
-        { "icefields", 2, 3, 1.25},
-        { "infinity", 6, 5, 1.45},
-        { "longest", 2, 1, 1.05},
-        { "prisoner", 1, 1, 1.10},
-        { "putput", 1, 2, 1.10},
-        { "ratrace", 3, 4, 1.10},
-        { "sidewinder", 7, 3, 1.30},
-        { "timberland", 4, 7, 1.35},
-        { "wizard", 3, 1, 1.10},
+        { "beavercreek", 2, 1, 1.10 },
+        { "bloodgulch", 6, 3, 1.35 },
+        { "boardingaction", 2, 2, 1.10 },
+        { "carousel", 2, 5, 1.15 },
+        { "damnation", 4, 3, 1.10 },
+        { "dangercanyon", 6, 3, 1.15 },
+        { "deathisland", 4, 2, 1.45 },
+        { "gephyrophobia", 2, 3, 1.20 },
+        { "hangemhigh", 3, 2, 1.10 },
+        { "icefields", 2, 3, 1.25 },
+        { "infinity", 6, 5, 1.45 },
+        { "longest", 2, 1, 1.05 },
+        { "prisoner", 1, 1, 1.10 },
+        { "putput", 1, 2, 1.10 },
+        { "ratrace", 3, 4, 1.10 },
+        { "sidewinder", 7, 3, 1.30 },
+        { "timberland", 4, 7, 1.35 },
+        { "wizard", 3, 1, 1.10 },
     }
-    for k, v in pairs(map_settings) do
+    for k, _ in pairs(map_settings) do
         if mapname == map_settings[k][1] then
             juggernaut_running_speed = map_settings[k][4]
         end
@@ -166,7 +166,9 @@ damage_type = { }
 
 -- used for inventory restoring
 death_location = { }
-for i = 1, 16 do death_location[i] = { } end
+for i = 1, 16 do
+    death_location[i] = { }
+end
 delete_weapons_bool = { }
 restore_inventory = { }
 
@@ -175,7 +177,9 @@ set_after_spawn = { }
 game_timer = nil
 
 temporary_vehicle_data = { }
-for i = 1, 16 do temporary_vehicle_data[i] = { } end
+for i = 1, 16 do
+    temporary_vehicle_data[i] = { }
+end
 force_into_vehicle = { }
 check_vehicle = { }
 
@@ -208,7 +212,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    execute_command("msg_prefix \" *  * "..SERVER_PREFIX.." *  * \"")
+    execute_command("msg_prefix \" *  * " .. SERVER_PREFIX .. " *  * \"")
     mapname = get_var(0, "$map")
     LoadMaps()
     CheckType()
@@ -280,7 +284,9 @@ function OnPlayerLeave(PlayerIndex)
         players[get_var(PlayerIndex, "$n")].swap_timer = 0
         players[get_var(PlayerIndex, "$n")].current_juggernaut = nil
         current_players = current_players - 1
-        for i = 1, 3 do death_location[PlayerIndex][i] = nil end
+        for i = 1, 3 do
+            death_location[PlayerIndex][i] = nil
+        end
         welcome_timer[PlayerIndex] = false
         damage_applied[PlayerIndex] = nil
     end
@@ -353,7 +359,9 @@ end
 -- Similar to Phasor's OnClientUpdate() function.
 function OnTick()
     -- initiate game countdown timer --
-    if (start_timer == true) then GameCountdownTimer() end
+    if (start_timer == true) then
+        GameCountdownTimer()
+    end
     -- weapon assignment and inventory saving --
     for i = 1, current_players do
         if player_present(i) then
@@ -438,7 +446,9 @@ function OnTick()
                     execute_command("msg_prefix \"\"")
                     players[get_var(n, "$n")].current_juggernaut = nil
                     selection_bool = true
-                    for iDel = 1, 4 do execute_command("wdel " .. n) end
+                    for _ = 1, 4 do
+                        execute_command("wdel " .. n)
+                    end
                     ResetNavMarker()
                     if not PlayerInVehicle(n) then
                         say(n, "Not enough players! You're no longer the Juggernaut.")
@@ -449,7 +459,7 @@ function OnTick()
                         say(n, "Restoring previous weapon loadout")
                         vehicle_check[n] = true
                     end
-                    execute_command("msg_prefix \" *  * "..SERVER_PREFIX.." *  * \"")
+                    execute_command("msg_prefix \" *  * " .. SERVER_PREFIX .. " *  * \"")
                 end
             end
         end
@@ -491,7 +501,7 @@ function OnTick()
                     if (m ~= players[get_var(m, "$n")].current_juggernaut) then
                         players[get_var(m, "$n")].join_timer = players[get_var(m, "$n")].join_timer + 0.030
                         clear_console(m)
-                        for k, v in pairs(message_board) do
+                        for _, v in pairs(message_board) do
                             for j = 1, #message_board do
                                 if string.find(message_board[j], "$SERVER_NAME") then
                                     message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
@@ -519,7 +529,9 @@ end
 -- This function also sets player health & shield ratios and calls AssignGrenades()
 function InventoryAssignment(player, x, y, z)
     -- Delete their current weapon loadout
-    for x = 1, 4 do execute_command("wdel " .. player) end
+    for _ = 1, 4 do
+        execute_command("wdel " .. player)
+    end
     for i = 1, 2 do
         if weapons[i][3] == true then
             assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), player)
@@ -534,7 +546,7 @@ function InventoryAssignment(player, x, y, z)
         write_float(get_dynamic_player(player) + 0xE4, math.floor(tonumber(juggernaut_shields)))
     end
     -- NESTED FUNCTION: Assigns tertiary and quaternary weapons to the designated player.
-    function AssignTertiaryQuaternary(player, x, y, z)
+    function AssignTertiaryQuaternary()
         for i = 3, 4 do
             if weapons[i][3] == true then
                 assign_weapon(spawn_object(weapons[i][1], weapons[i][2], x, y, z), player)
@@ -545,10 +557,12 @@ end
 
 function RestoreWeapons(PlayerIndex)
     if player_alive(PlayerIndex) then
-        for X = 1, 4 do execute_command("wdel " .. PlayerIndex) end
+        for _ = 1, 4 do
+            execute_command("wdel " .. PlayerIndex)
+        end
         local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
         local inventory = player_equipment[get_var(PlayerIndex, "$n")]
-        for k, weapon in pairs(inventory.loadout) do
+        for _, weapon in pairs(inventory.loadout) do
             local saved_weapons = spawn_object("null", "null", x, y, z + 0.3, 90, weapon.identifier)
             local weapon_object = get_object_memory(saved_weapons)
             -- primary loaded ammo
@@ -575,7 +589,7 @@ function AssignGrenades(PlayerIndex)
     if player_alive(PlayerIndex) then
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
-            for k, v in pairs(map_settings) do
+            for k, _ in pairs(map_settings) do
                 if mapname == map_settings[k][1] then
                     if (gamesettings["AssignFragGrenades"] == true) then
                         write_word(player_object + 0x31E, map_settings[k][2])
@@ -618,7 +632,7 @@ function SwapRole(exclude)
             end
         end
     end
-    execute_command("msg_prefix \" *  * "..SERVER_PREFIX.." *  * \"")
+    execute_command("msg_prefix \" *  * " .. SERVER_PREFIX .. " *  * \"")
 end
 
 -- This function calls itself until (new_number) no longer evaluates to (exclude)
@@ -636,7 +650,6 @@ end
 
 -- This function is called when there are not enough players for a juggernaut to be in play.
 function ResetPlayer(player)
-    local player = tonumber(player)
     check_vehicle[player] = true
     local x, y, z = GetCoords(player)
     death_location[player][1] = x
@@ -677,7 +690,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (killer > 0) then
             if (killer == players[get_var(killer, "$n")].current_juggernaut) and (victim ~= killer) then
                 players[get_var(killer, "$n")].kills = players[get_var(killer, "$n")].kills + 1
-                rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" ..tostring(killLimit))
+                rprint(killer, "|" .. Alignment .. "Kills as Juggernaut: " .. players[get_var(killer, "$n")].kills .. "/" .. tostring(killLimit))
             end
         end
     end
@@ -823,7 +836,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
     death_bool[victim] = false
     damage_applied[PlayerIndex] = 0
-    execute_command("msg_prefix \" *  * "..SERVER_PREFIX.." *  * \"")
+    execute_command("msg_prefix \" *  * " .. SERVER_PREFIX .. " *  * \"")
 end
 
 -- This function is called when we need to set a new juggernaut manually and advance|update their score.
@@ -869,32 +882,32 @@ function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitStri
             damage_applied[CauserIndex] = MetaID
             ------- MELEE --------------------------------------------------------
             if MetaID == MELEE_ASSAULT_RIFLE or
-            MetaID == MELEE_ODDBALL or
-            MetaID == MELEE_FLAG or
-            MetaID == MELEE_FLAME_THROWER or
-            MetaID == MELEE_NEEDLER or
-            MetaID == MELEE_PISTOL or
-            MetaID == MELEE_PLASMA_PISTOL or
-            MetaID == MELEE_PLASMA_RIFLE or
-            MetaID == MELEE_PLASMA_CANNON or
-            MetaID == MELEE_ROCKET_LAUNCHER or
-            MetaID == MELEE_SHOTGUN or
-            MetaID == MELEE_SNIPER_RIFLE then
+                    MetaID == MELEE_ODDBALL or
+                    MetaID == MELEE_FLAG or
+                    MetaID == MELEE_FLAME_THROWER or
+                    MetaID == MELEE_NEEDLER or
+                    MetaID == MELEE_PISTOL or
+                    MetaID == MELEE_PLASMA_PISTOL or
+                    MetaID == MELEE_PLASMA_RIFLE or
+                    MetaID == MELEE_PLASMA_CANNON or
+                    MetaID == MELEE_ROCKET_LAUNCHER or
+                    MetaID == MELEE_SHOTGUN or
+                    MetaID == MELEE_SNIPER_RIFLE then
                 damage_type[CauserIndex] = 1
             end
             ------- WEAPONS --------------------------------------------------------
             if MetaID == ASSAULT_RIFLE_BULLET or
-            MetaID == FLAME_THROWER_EXPLOSION or
-            MetaID == NEEDLER_DETONATION or
-            MetaID == NEEDLER_EXPLOSION or
-            MetaID == NEEDLER_IMPACT or
-            MetaID == PISTOL_BULLET or
-            MetaID == PLASMA_PISTOL_BOLT or
-            MetaID == PLASMA_PISTOL_CHARGED or
-            MetaID == PLASMA_CANNON_EXPLOSION or
-            MetaID == ROCKET_EXPLOSION or
-            MetaID == SHOTGUN_PELLET or
-            MetaID == SNIPER_RIFLE_BULLET then
+                    MetaID == FLAME_THROWER_EXPLOSION or
+                    MetaID == NEEDLER_DETONATION or
+                    MetaID == NEEDLER_EXPLOSION or
+                    MetaID == NEEDLER_IMPACT or
+                    MetaID == PISTOL_BULLET or
+                    MetaID == PLASMA_PISTOL_BOLT or
+                    MetaID == PLASMA_PISTOL_CHARGED or
+                    MetaID == PLASMA_CANNON_EXPLOSION or
+                    MetaID == ROCKET_EXPLOSION or
+                    MetaID == SHOTGUN_PELLET or
+                    MetaID == SNIPER_RIFLE_BULLET then
                 damage_type[CauserIndex] = 2
             end
             ------- GRENADES --------------------------------------------------------
@@ -907,12 +920,12 @@ function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitStri
             end
             ------- VEHICLES --------------------------------------------------------
             if MetaID == VEHICLE_GHOST_BOLT or
-            MetaID == VEHICLE_WARTHOG_BULLET or
-            MetaID == VEHICLE_TANK_SHELL or
-            MetaID == VEHICLE_TANK_BULLET or
-            MetaID == VEHICLE_BANSHEE_BOLT or
-            MetaID == VEHICLE_BANSHEE_FUEL_ROD or
-            MetaID == VEHICLE_TURRET_BOLT then
+                    MetaID == VEHICLE_WARTHOG_BULLET or
+                    MetaID == VEHICLE_TANK_SHELL or
+                    MetaID == VEHICLE_TANK_BULLET or
+                    MetaID == VEHICLE_BANSHEE_BOLT or
+                    MetaID == VEHICLE_BANSHEE_FUEL_ROD or
+                    MetaID == VEHICLE_TURRET_BOLT then
                 damage_type[CauserIndex] = 4
             end
             ------- VEHICLE COLLISION --------------------------------------------------------
@@ -928,7 +941,7 @@ end
 function DamageMultiplierHandler(CauserIndex)
     local player_object = get_dynamic_player(CauserIndex)
     if player_object ~= 0 then
-        for k, v in pairs(damage_multipliers[tonumber(CauserIndex)]) do
+        for _, v in pairs(damage_multipliers[tonumber(CauserIndex)]) do
             if damage_type[CauserIndex] == 3 then
                 -- frag grenade (explosion)
                 if string.find("weapons\\frag grenade\\explosion", v[1]) then
@@ -1119,12 +1132,12 @@ end
 
 -- This function is called from GetCoords() and rounds a number to the given number of decimal places.
 function round(pos, places)
-    local mult = 10^(places or 0)
+    local mult = 10 ^ (places or 0)
     return math.floor(pos * mult + 0.5) / mult
 end
 
 function clear_console(PlayerIndex)
-    for i = 1, 30 do
+    for _ = 1, 30 do
         rprint(PlayerIndex, " ")
     end
 end
@@ -1159,8 +1172,8 @@ function secondsToTime(seconds, places)
 end
 
 function checkmap()
-    local bool = nil
-    for k, v in pairs(map_settings) do
+    local bool
+    for k, _ in pairs(map_settings) do
         if mapname == map_settings[k][1] then
             bool = true
             break
@@ -1267,28 +1280,29 @@ end
 
 -- DAMAGE MULTIPLIERS
 damage_multipliers = { }
-for i = 1, 16 do damage_multipliers[i] = {
-    -- weapons                                        damage            melee
-    { "weapons\\assault rifle\\assault rifle", 1.120, 4},
-    { "weapons\\flamethrower\\flamethrower", 1.140, 4},
-    { "weapons\\needler\\mp_needler", 1.110, 3},
-    { "weapons\\pistol\\pistol", 1.100, 1.1},
-    { "weapons\\plasma pistol\\plasma pistol", 1.050, 3},
-    { "weapons\\plasma rifle\\plasma rifle", 1.250, 1.3},
-    { "weapons\\plasma_cannon\\plasma_cannon", 1.080, 1},
-    { "weapons\\rocket launcher\\rocket launcher", 1.090, 1},
-    { "weapons\\shotgun\\shotgun", 1.250, 1.3},
-    { "weapons\\sniper rifle\\sniper rifle", 1.500, 1.2},
-    -- vehicles                                      damage           collision
-    { "vehicles\\banshee\\banshee_mp", 1.150, 1.35},
-    { "vehicles\\c gun turret\\c gun turret_mp", 2.500, 1},
-    { "vehicles\\ghost\\ghost_mp", 1.020, 1.025},
-    { "vehicles\\rwarthog\\rwarthog", 1.500, 1.050},
-    { "vehicles\\scorpion\\scorpion_mp", 1.100, 4.50},
-    { "vehicles\\warthog\\mp_warthog", 1.350, 1.050},
-    -- grenades                                       damage
-    { "weapons\\frag grenade\\explosion", 1.5},
-    { "weapons\\plasma grenade\\attached", 4},
-    { "weapons\\plasma grenade\\explosion", 2.5}
-}
+for i = 1, 16 do
+    damage_multipliers[i] = {
+        -- weapons                                        damage            melee
+        { "weapons\\assault rifle\\assault rifle", 1.120, 4 },
+        { "weapons\\flamethrower\\flamethrower", 1.140, 4 },
+        { "weapons\\needler\\mp_needler", 1.110, 3 },
+        { "weapons\\pistol\\pistol", 1.100, 1.1 },
+        { "weapons\\plasma pistol\\plasma pistol", 1.050, 3 },
+        { "weapons\\plasma rifle\\plasma rifle", 1.250, 1.3 },
+        { "weapons\\plasma_cannon\\plasma_cannon", 1.080, 1 },
+        { "weapons\\rocket launcher\\rocket launcher", 1.090, 1 },
+        { "weapons\\shotgun\\shotgun", 1.250, 1.3 },
+        { "weapons\\sniper rifle\\sniper rifle", 1.500, 1.2 },
+        -- vehicles                                      damage           collision
+        { "vehicles\\banshee\\banshee_mp", 1.150, 1.35 },
+        { "vehicles\\c gun turret\\c gun turret_mp", 2.500, 1 },
+        { "vehicles\\ghost\\ghost_mp", 1.020, 1.025 },
+        { "vehicles\\rwarthog\\rwarthog", 1.500, 1.050 },
+        { "vehicles\\scorpion\\scorpion_mp", 1.100, 4.50 },
+        { "vehicles\\warthog\\mp_warthog", 1.350, 1.050 },
+        -- grenades                                       damage
+        { "weapons\\frag grenade\\explosion", 1.5 },
+        { "weapons\\plasma grenade\\attached", 4 },
+        { "weapons\\plasma grenade\\explosion", 2.5 }
+    }
 end

@@ -23,11 +23,12 @@ local tauntsonDeath = true
 -- If True, the script will send taunt messages to the player.
 local tauntsOnGameEnd = true
 
-function OnScriptUnload() end
-
-function OnScriptLoad(PlayerIndex, Message)
+function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_DIE'], "OnPlayerDie")
+end
+
+function OnScriptUnload()
 end
 
 function OnPlayerDie(PlayerIndex, KillerIndex)
@@ -45,16 +46,16 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
         -- by another player, not from suicides and vehicle deaths ect.
     elseif (victimPlayer > 0) and tauntsonDeath == true then
         local tauntMessages = {
-            " Aw, " .. get_var(PlayerIndex,"$name") .. ", I seen better shooting at the county fair!",
+            " Aw, " .. get_var(PlayerIndex, "$name") .. ", I seen better shooting at the county fair!",
             " Ees too bad you got manure for brains!!",
-            " Hell's full a' retired Gamers, " .. get_var(PlayerIndex,"$name") .. ", And it's time you join em!",
+            " Hell's full a' retired Gamers, " .. get_var(PlayerIndex, "$name") .. ", And it's time you join em!",
             " Hell! My horse pisses straighter than you shoot!!",
             " Can't you do better than that! I've seen worms move faster!",
-            " Not good enough " .. get_var(PlayerIndex,"$name") .. ", not good enough!",
+            " Not good enough " .. get_var(PlayerIndex, "$name") .. ", not good enough!",
             " Hell - I can already smell your rotting corpse.",
-            " Today is a good day to die " .. get_var(PlayerIndex,"$name") .. "!!",
+            " Today is a good day to die " .. get_var(PlayerIndex, "$name") .. "!!",
             " Huh, too slow!! You will regret that!!",
-            " You insult me, " .. get_var(PlayerIndex,"$name") .. "!!",
+            " You insult me, " .. get_var(PlayerIndex, "$name") .. "!!",
             " I'm going to send ya to an early grave!!",
             " Had enough yet?!",
             " Hope ya plant better than ya shoot!!",
@@ -62,19 +63,19 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
             " Time to fit you for a coffin!!",
             " You have a date with the undertaker!!",
             " Your life ends in the wasteland...",
-            " Rest in peace, " .. get_var(PlayerIndex,"$name") .. ".",
+            " Rest in peace, " .. get_var(PlayerIndex, "$name") .. ".",
             " You fought valiantly... but to no avail.",
-            " You're dead. Again, " .. get_var(PlayerIndex,"$name") .. "!",
+            " You're dead. Again, " .. get_var(PlayerIndex, "$name") .. "!",
             " You're dead as a doornail.",
-            " Time to reload, " .. get_var(PlayerIndex,"$name") .. ".",
+            " Time to reload, " .. get_var(PlayerIndex, "$name") .. ".",
             " Here's a picture of your corpse. Not pretty.",
             " Boy, are you stupid. And dead.",
             " Ha ha ha ha ha. You're dead, moron!",
-            " Couldn't charm your way out of that one, " .. get_var(PlayerIndex,"$name") .. ".",
+            " Couldn't charm your way out of that one, " .. get_var(PlayerIndex, "$name") .. ".",
             " Nope. Just Nope.",
             " You have perished. What a Shame.",
             " Sell your PC. Just do it.",
-            " You disappoint me, " .. get_var(PlayerIndex,"$name") .. "."
+            " You disappoint me, " .. get_var(PlayerIndex, "$name") .. "."
         }
         -- Temporarily modify Server Prefix
         execute_command("msg_prefix " .. tPrefix)
@@ -86,10 +87,9 @@ function OnPlayerDie(PlayerIndex, KillerIndex)
     end
 end
 
-function OnGameEnd(PlayerIndex)
+function OnGameEnd()
     if tauntsOnGameEnd == true then
         for i = 1, 16 do
-            local player = get_player(i)
             if player_present(i) then
                 local kills = tonumber(get_var(i, "$kills"))
                 -- Temporarily modify Server Prefix
@@ -128,8 +128,4 @@ end
 
 function GetRandomElement(a)
     return a[math.random(#a)]
-end
-
-function OnError(Message)
-    print(debug.traceback())
 end

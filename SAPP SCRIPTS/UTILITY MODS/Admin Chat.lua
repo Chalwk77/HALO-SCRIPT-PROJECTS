@@ -74,7 +74,11 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             if (Restore_Previous_State == true) then
-                if players[get_var(i, "$name")].adminchat == true then bool = "true" else bool = "false" end
+                if players[get_var(i, "$name")].adminchat == true then
+                    bool = "true"
+                else
+                    bool = "false"
+                end
                 data[i] = get_var(i, "$name") .. ":" .. bool
                 stored_data[data] = stored_data[data] or { }
                 table.insert(stored_data[data], tostring(data[i]))
@@ -109,7 +113,11 @@ end
 function OnPlayerLeave(PlayerIndex)
     if PlayerIndex ~= 0 then
         if (Restore_Previous_State == true) then
-            if players[get_var(PlayerIndex, "$name")].adminchat == true then bool = "true" else bool = "false" end
+            if players[get_var(PlayerIndex, "$name")].adminchat == true then
+                bool = "true"
+            else
+                bool = "false"
+            end
             data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
             stored_data[data] = stored_data[data] or { }
             table.insert(stored_data[data], tostring(data[PlayerIndex]))
@@ -120,7 +128,7 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
-function OnServerCommand(PlayerIndex, Command, Environment)
+function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     response = nil
     if t[1] == "achat" then
@@ -158,7 +166,9 @@ end
 
 function OnPlayerChat(PlayerIndex, Message)
     local message = tokenizestring(Message)
-    if #message == 0 then return nil end
+    if #message == 0 then
+        return nil
+    end
     if players[get_var(PlayerIndex, "$name")].adminchat == true then
         for i = 0, #message do
             if message[i] then
@@ -184,7 +194,7 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \" *  * SERVER *  * \"")
                 else
-                    cprint("Error in adminchat.lua - Format not defined properly. Line 34", 4 + 8)
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 30", 4 + 8)
                 end
             end
         end
@@ -195,8 +205,9 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = {} ; i = 1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {};
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end

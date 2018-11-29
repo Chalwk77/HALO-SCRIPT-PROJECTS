@@ -59,8 +59,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     if t[1] == "setammo" then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
             response = false
-            Command_Setammo(PlayerIndex, t[1], t[2], t[3], t[4], count)   
-        end        
+            Command_Setammo(PlayerIndex, t[1], t[2], t[3], t[4], count)
+        end
     end
     return response
 end
@@ -130,7 +130,7 @@ function getvalidplayers(expression, PlayerIndex)
                     table.insert(players, i)
                 end
             end
-        elseif (tonumber(expression) or 0) >= 1 and(tonumber(expression) or 0) <= 16 then
+        elseif (tonumber(expression) or 0) >= 1 and (tonumber(expression) or 0) <= 16 then
             local expression = tonumber(expression)
             if resolveplayer(expression) then
                 table.insert(players, resolveplayer(expression))
@@ -192,7 +192,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

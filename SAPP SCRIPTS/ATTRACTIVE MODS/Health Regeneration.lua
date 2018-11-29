@@ -20,28 +20,29 @@ api_version = "1.12.0.0"
 Time = 10 -- time (in seconds) between each incremental increase in health
 increment = 0.1116 -- amount of health regenerated. (1 is full health)
 
-function OnScriptLoad( )
+function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
 end
 
-function OnScriptUnload( ) end
+function OnScriptUnload()
+end
 
 function OnPlayerJoin(PlayerIndex)
     timer(Time * 1000, "Regenerate", PlayerIndex)
 end
 
 function Regenerate(PlayerIndex)
-	for i = 1,16 do
+    for _ = 1, 16 do
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
             if (player_alive(PlayerIndex)) then
-                if read_float(player_object + 0xE0) < 1 then 
+                if read_float(player_object + 0xE0) < 1 then
                     write_float(player_object + 0xE0, read_float(player_object + 0xE0) + increment)
                 end
             end
         end
     end
-	return true	
+    return true
 end
 
 function OnError(Message)

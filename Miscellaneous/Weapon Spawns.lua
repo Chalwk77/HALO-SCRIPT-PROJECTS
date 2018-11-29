@@ -210,7 +210,7 @@ function OnPlayerSpawn(PlayerIndex)
                     -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Frag Grenade Table - Line 228 | Unable to set frags.'
                     cprint(Error, 4 + 8)
-                    execute_command("log_note \""..Error.."\"")
+                    execute_command("log_note \"" .. Error .. "\"")
                 else
                     write_word(player_object + 0x31E, frags[mapname])
                     -- cprint("Spawning with " ..frags[mapname].. " frags!", 2+8)
@@ -221,7 +221,7 @@ function OnPlayerSpawn(PlayerIndex)
                     -- Use default grenade settings instead.
                     Error = 'Error: ' .. mapname .. ' is not listed in the Plasma Grenade Table - Line 373 | Unable to set plasmas.'
                     cprint(Error, 4 + 8)
-                    execute_command("log_note \""..Error.."\"")
+                    execute_command("log_note \"" .. Error .. "\"")
                 else
                     write_word(player_object + 0x31F, plasmas[mapname])
                     -- cprint("Spawning with " ..plasmas[mapname].. " plasmas!", 2+8)
@@ -247,7 +247,7 @@ function OnNewGame()
         MapIsListed = false
         Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table" - line 38'
         cprint(Error, 4 + 8)
-        execute_command("log_note \""..Error.."\"")
+        execute_command("log_note \"" .. Error .. "\"")
     else
         MapIsListed = true
     end

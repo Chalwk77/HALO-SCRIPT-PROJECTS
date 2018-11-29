@@ -26,13 +26,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower(COMMAND)) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower(COMMAND)) then
             response = false
             if t[2] ~= nil then
                 if (t[2] == "me") then
@@ -95,7 +96,7 @@ function HurtPlayer(index, PlayerIndex)
         end
     end
 end
-           
+
 function respond(Command, PlayerIndex)
     if Command then
         if Command == "" then
@@ -117,7 +118,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

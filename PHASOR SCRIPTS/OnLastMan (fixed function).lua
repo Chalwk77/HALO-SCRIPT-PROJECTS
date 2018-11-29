@@ -27,7 +27,7 @@ function OnLastMan()
                         -- 						Give all weapons 600 ammo
                         for x = 0, 3 do
                             -- 							Get the weapons memory address
-                            local m_weaponId = readdword(m_object + 0x2F8 +(x * 4))
+                            local m_weaponId = readdword(m_object + 0x2F8 + (x * 4))
                             if m_weaponId ~= 0xffffffff then
                                 if getobject(m_weaponId) ~= nil then
                                     -- 								Assign last Man his Ammo (See: LastManAmmoCount at the top of the script.)	
@@ -60,7 +60,7 @@ function ApplyCamoToLastMan(player)
                     local m_object = getobject(readdword(getplayer(i) + 0x34))
                     if m_object ~= nil then
                         for x = 0, 3 do
-                            local m_weaponId = readdword(m_object + 0x2F8 +(x * 4))
+                            local m_weaponId = readdword(m_object + 0x2F8 + (x * 4))
                             if m_weaponId ~= 0xffffffff then
                                 if getobject(m_weaponId) ~= nil then
                                     writeword(getobject(m_weaponId) + 0x2B6, tonumber(LastManAmmoCount))

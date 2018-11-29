@@ -29,7 +29,6 @@ function OnPlayerLeave(player)
     local ping = readword(getplayer(player) + 0xDC)
     local hash = gethash(player)
 
-
     hprintf("P L A Y E R   Q U I T   T H E   G A M E")
     hprintf("-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -")
     hprintf(name .. " (" .. id .. ")   -   Quit The Game.")

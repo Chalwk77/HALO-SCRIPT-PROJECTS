@@ -30,7 +30,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnServerCommand(PlayerIndex, Command)
     local UnknownCMD = nil
@@ -39,7 +40,7 @@ function OnServerCommand(PlayerIndex, Command)
         if t[1] == string.lower(custom_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= PERMISSION_LEVEL then
                 local index = tonumber(t[2])
-                if (t[2] == nil) or(t[2] ~= nil and t[2] == "me") then
+                if (t[2] == nil) or (t[2] ~= nil and t[2] == "me") then
                     UnknownCMD = false
                     rprint(PlayerIndex, "|" .. Alignment .. string.gsub(respondWith1, "$PING", get_var(PlayerIndex, "$ping")))
                 elseif (t[2] ~= nil and t[2] ~= "me") then
@@ -71,7 +72,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

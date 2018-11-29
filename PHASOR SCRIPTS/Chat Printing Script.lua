@@ -6,7 +6,7 @@ Description: This script will log player chat to halo/logs/Server Chat.txt
 
 * Notes at the bottom of the script.
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright ï¿½ 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -74,7 +74,7 @@ function OnServerChat(player, chattype, message)
         hprintf("[CHAT] " .. name .. " [" .. id .. "] " .. type .. ": " .. "\"" .. message .. "\"")
         WriteLog(profilepath .. "\\logs\\Server Chat.txt", name .. " [" .. id .. "] " .. type .. ": " .. "\"" .. message .. "\"")
     end
-end   
+end
 
 function WriteLog(filename, value)
     local file = io.open(filename, "a")
@@ -95,7 +95,7 @@ function NewLine(filename, value)
             local timestamp = os.date("%H:%M:%S  -  %d/%m/%Y")
             local Line0 = string.format("%s\t%s\n", timestamp, tostring(value))
             Line0 = "\n"
-            Line1 =(timestamp)
+            Line1 = (timestamp)
             Line2 = "\n---------------------------------------------------------------------------------------------------\n"
             Line3 = "New Game, Map: " .. map_name .. ", Mode: " .. Game_Mode .. "\n"
             Line4 = "\n"
@@ -109,7 +109,7 @@ end
 function OnNewGame(Mapname)
     NewLine(profilepath .. "\\logs\\Server Chat.txt")
     map_name = Mapname
-end	
+end
 
 -- Announces when a player leaves the game and displays some additional information.
 -- Displays: Name, Index ID, Port, IP, Hash and 'quit time'.
@@ -151,8 +151,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end

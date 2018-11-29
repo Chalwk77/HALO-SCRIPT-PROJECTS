@@ -9,7 +9,7 @@ Script Version: 4.5 (remastered)
 -----------------------------------
 ]]--
 
-seat = { } 
+seat = { }
 
 function GetRequiredVersion()
     return
@@ -99,7 +99,7 @@ function OnClientUpdate(player)
 end
 
 function GiveOS(id, count, player)
-    if count ==(2) then
+    if count == (2) then
         local m_playerObjId = getplayerobjectid(player)
         if m_playerObjId then
             local m_object = getobject(m_playerObjId)
@@ -182,11 +182,15 @@ function OnPlayerLeave(player)
 end
 
 function OnPlayerKill(killer, victim, mode)
-    if victim then checkplayer(victim) end
+    if victim then
+        checkplayer(victim)
+    end
 end
 
 function OnVehicleEntry(player, m_vehicleId, seat_number, mapId, voluntary)
-    if seat_number == 1 then registertimer(0, "assignpassenger", { getplayerobjectid(player), getobject(m_vehicleId) }) end
+    if seat_number == 1 then
+        registertimer(0, "assignpassenger", { getplayerobjectid(player), getobject(m_vehicleId) })
+    end
     seat[player] = seat_number
     return nil
 end
@@ -203,7 +207,9 @@ end
 
 function checkplayer(player)
     if isinvehicle(player) then
-        if seat[player] == 1 then resetpassenger(player) end
+        if seat[player] == 1 then
+            resetpassenger(player)
+        end
         seat[player] = nil
     end
 end
@@ -214,12 +220,16 @@ end
 
 function getpassengerplayer(m_vehicle)
     local obj_id = getpassengerobjid(m_vehicle)
-    if obj_id ~= 0xFFFFFFFF then return objectidtoplayer(obj_id) end
+    if obj_id ~= 0xFFFFFFFF then
+        return objectidtoplayer(obj_id)
+    end
 end
 
 function getplayervehicleid(player)
     local obj_id = getplayerobjectid(player)
-    if obj_id then return readdword(getobject(obj_id) + 0x11C) end
+    if obj_id then
+        return readdword(getobject(obj_id) + 0x11C)
+    end
 end
 
 function resetpassenger(player)

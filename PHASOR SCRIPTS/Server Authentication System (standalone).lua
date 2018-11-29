@@ -8,7 +8,9 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
+function GetRequiredVersion()
+    return 200
+end
 function AuthorizeServer()
     local file = io.open(string.format("%s\\data\\Server_ID.key", profilepath), "r")
     if file then
@@ -29,7 +31,6 @@ function delay_terminate(id, count, message)
     svcmd("sv_end_game")
     return 0
 end
-
 
 function OnScriptLoad(process, game, persistent)
     profilepath = getprofilepath()

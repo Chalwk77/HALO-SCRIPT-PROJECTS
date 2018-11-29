@@ -11,8 +11,10 @@ Script Version: 2.5
 
 -- Rocket Hog on top of Turret Mountain - Overlooking Red Base.
 coords = { }
-seat = { } 
-function GetRequiredVersion() return 200 end
+seat = { }
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processid, game, persistent)
     if game == true or game == "PC" then
         GAME = "PC"
@@ -41,8 +43,8 @@ end
 function LoadCoords()
     if map_name == "bloodgulch" then
         -- RED BEGIN --		
-        coords[1] = { 56.451, - 159.135, 20.954 }
-        coords[2] = { 84.106, - 71.677, 16.636 }
+        coords[1] = { 56.451, -159.135, 20.954 }
+        coords[2] = { 84.106, -71.677, 16.636 }
 
     end
 end
@@ -131,11 +133,15 @@ function OnPlayerLeave(player)
 end
 
 function OnPlayerKill(killer, victim, mode)
-    if victim then checkplayer(victim) end
+    if victim then
+        checkplayer(victim)
+    end
 end
 
 function OnVehicleEntry(player, m_vehicleId, seat_number, mapId, voluntary)
-    if seat_number == 1 then registertimer(0, "assignpassenger", { getplayerobjectid(player), getobject(m_vehicleId) }) end
+    if seat_number == 1 then
+        registertimer(0, "assignpassenger", { getplayerobjectid(player), getobject(m_vehicleId) })
+    end
     seat[player] = seat_number
     return nil
 end
@@ -160,7 +166,9 @@ end
 ]]
 
 function checkplayer(player)
-    if seat[player] == 1 then resetpassenger(player) end
+    if seat[player] == 1 then
+        resetpassenger(player)
+    end
     seat[player] = nil
 end
 
@@ -170,12 +178,16 @@ end
 
 function getpassengerplayer(m_vehicle)
     local obj_id = getpassengerobjid(m_vehicle)
-    if obj_id ~= 0xFFFFFFFF then return objectidtoplayer(obj_id) end
+    if obj_id ~= 0xFFFFFFFF then
+        return objectidtoplayer(obj_id)
+    end
 end
 
 function getplayervehicleid(player)
     local obj_id = getplayerobjectid(player)
-    if obj_id then return readdword(getobject(obj_id) + 0x11C) end
+    if obj_id then
+        return readdword(getobject(obj_id) + 0x11C)
+    end
 end
 
 function resetpassenger(player)

@@ -103,7 +103,7 @@ function OnPlayerSpawn(PlayerIndex)
                     wizard = RandomPL -- Make sure the last entry in the table doesn't have a comma at the end. 
                 }
             end
---=======================================================================================--
+            --=======================================================================================--
             -- [MANUAL CONFIG START] --
             -- Manually define number of frag grenades given on spawn --
             if (gamesettings["RANDOM_FRAGS"]) == false then
@@ -152,15 +152,15 @@ function OnPlayerSpawn(PlayerIndex)
                     -- [MANUAL CONFIG END] --
                 }
             end
---===============================================================================================--
+            --===============================================================================================--
             -- DO NOT TOUCH ---------------------------------------
-            if (frags[mapname] == nil) then 
-                cprint("Frags not defined for " .. mapname) 
+            if (frags[mapname] == nil) then
+                cprint("Frags not defined for " .. mapname)
             else
                 write_word(player_object + 0x31E, frags[mapname])
             end
-            if (plasmas[mapname] == nil) then 
-                cprint("Plasmas not defined for " .. mapname) 
+            if (plasmas[mapname] == nil) then
+                cprint("Plasmas not defined for " .. mapname)
             else
                 write_word(player_object + 0x31F, plasmas[mapname])
             end
@@ -171,12 +171,12 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
-    -- Debugging --
+-- Debugging --
 function OnPlayerKill(PlayerIndex)
     local player = get_player(PlayerIndex)
     -- Instantaneous spawn time - use this in conjunction with the /kill command for faster debugging.
     write_dword(player + 0x2C, 0 * 33)
-end	
+end
 
 function OnError(Message)
     print(debug.traceback())

@@ -63,34 +63,34 @@ function RW_CTF_Messages(id, count)
     if (count % 11) == 1 then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(2) then
+    elseif (count % 11) == (2) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(3) then
+    elseif (count % 11) == (3) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(4) then
+    elseif (count % 11) == (4) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(5) then
+    elseif (count % 11) == (5) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(6) then
+    elseif (count % 11) == (6) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(7) then
+    elseif (count % 11) == (7) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(8) then
+    elseif (count % 11) == (8) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(9) then
+    elseif (count % 11) == (9) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(10) then
+    elseif (count % 11) == (10) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(0) then
+    elseif (count % 11) == (0) then
         say("Your messages will go here", false)
     end
     return true
@@ -100,34 +100,34 @@ function RW_TSlayer_Messages(id, count)
     if (count % 11) == 1 then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(2) then
+    elseif (count % 11) == (2) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(3) then
+    elseif (count % 11) == (3) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(4) then
+    elseif (count % 11) == (4) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(5) then
+    elseif (count % 11) == (5) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(6) then
+    elseif (count % 11) == (6) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(7) then
+    elseif (count % 11) == (7) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(8) then
+    elseif (count % 11) == (8) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(9) then
+    elseif (count % 11) == (9) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(10) then
+    elseif (count % 11) == (10) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(0) then
+    elseif (count % 11) == (0) then
         say("Your messages will go here", false)
     end
     return true
@@ -137,34 +137,34 @@ function RW_Slayer_Messages(id, count)
     if (count % 11) == 1 then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(2) then
+    elseif (count % 11) == (2) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(3) then
+    elseif (count % 11) == (3) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(4) then
+    elseif (count % 11) == (4) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(5) then
+    elseif (count % 11) == (5) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(6) then
+    elseif (count % 11) == (6) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(7) then
+    elseif (count % 11) == (7) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(8) then
+    elseif (count % 11) == (8) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(9) then
+    elseif (count % 11) == (9) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(10) then
+    elseif (count % 11) == (10) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(0) then
+    elseif (count % 11) == (0) then
         say("Your messages will go here", false)
     end
     return true
@@ -174,34 +174,34 @@ function RW_KOTH_Messages(id, count)
     if (count % 11) == 1 then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(2) then
+    elseif (count % 11) == (2) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(3) then
+    elseif (count % 11) == (3) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(4) then
+    elseif (count % 11) == (4) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(5) then
+    elseif (count % 11) == (5) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(6) then
+    elseif (count % 11) == (6) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(7) then
+    elseif (count % 11) == (7) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(8) then
+    elseif (count % 11) == (8) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(9) then
+    elseif (count % 11) == (9) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(10) then
+    elseif (count % 11) == (10) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(0) then
+    elseif (count % 11) == (0) then
         say("Your messages will go here", false)
     end
     return true
@@ -211,34 +211,34 @@ function RW_Elimination_Messages(id, count)
     if (count % 11) == 1 then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(2) then
+    elseif (count % 11) == (2) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(3) then
+    elseif (count % 11) == (3) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(4) then
+    elseif (count % 11) == (4) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(5) then
+    elseif (count % 11) == (5) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(6) then
+    elseif (count % 11) == (6) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(7) then
+    elseif (count % 11) == (7) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(8) then
+    elseif (count % 11) == (8) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(9) then
+    elseif (count % 11) == (9) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(10) then
+    elseif (count % 11) == (10) then
         say("Your messages will go here", false)
 
-    elseif (count % 11) ==(0) then
+    elseif (count % 11) == (0) then
         say("Your messages will go here", false)
     end
     return true
@@ -256,8 +256,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end

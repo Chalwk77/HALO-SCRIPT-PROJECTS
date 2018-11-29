@@ -10,10 +10,10 @@ Copyright (c) 2016-2018
 
 function OnPlayerSpawnEnd(player, m_objectId)
     if map_name == "beavercreek"
-        or map_name == "bloodgulch"
-        or map_name == "ratrace"
-        or map_name == "timberland"
-        or map_name == "wizard" then
+            or map_name == "bloodgulch"
+            or map_name == "ratrace"
+            or map_name == "timberland"
+            or map_name == "wizard" then
         if getplayer(player) then
             local m_objectId = getplayerobjectid(player)
             local m_object = getobject(m_objectId)

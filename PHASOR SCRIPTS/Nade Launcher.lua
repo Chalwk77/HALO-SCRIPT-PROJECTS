@@ -15,9 +15,13 @@ vel = 0.5 -- Velocity to launch projectile
 dist = 0.4 -- Distance from player to spawn projectile
 
 ---------------------------------------------------------------------------
-function GetRequiredVersion() return 200 end 		
-function OnScriptLoad(processid, game, persistent) end  
-function OnScriptUnload() end                           
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 ---------------------------------------------------------------------------
 
 function OnNewGame(map)

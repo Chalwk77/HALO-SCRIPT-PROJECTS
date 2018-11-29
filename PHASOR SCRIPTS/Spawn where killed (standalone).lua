@@ -11,10 +11,16 @@ Copyright (c) 2016-2018
 players = { }
 DEATH_LOCATION = { }
 Spawn_Where_Killed = true
-for i = 0, 15 do DEATH_LOCATION[i] = { } end
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
+for i = 0, 15 do
+    DEATH_LOCATION[i] = { }
+end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
 function OnPlayerKill(killer, victim, mode)
     if mode == 4 then
         ADD_KILL(killer)

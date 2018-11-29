@@ -26,15 +26,15 @@ New_Game_Timer = 0
 cur_players = 0
 cur_red_count = 0
 cur_blue_count = 0
-time = { } 	 	-- Declare time. Used for player's time spent in server.
+time = { }        -- Declare time. Used for player's time spent in server.
 kills = { }
 avenge = { }
 killers = { }
-xcoords = { } 	-- Declare x coords. Used for distance traveled.
-ycoords = { } 	-- Declare y coords. Used for distance traveled.
-zcoords = { } 	-- Declare z coords. Used for distance traveled.
+xcoords = { }    -- Declare x coords. Used for distance traveled.
+ycoords = { }    -- Declare y coords. Used for distance traveled.
+zcoords = { }    -- Declare z coords. Used for distance traveled.
 messages = { }
-jointime = { } 	-- Declare Jointime. Used for a player's time spent in server.
+jointime = { }    -- Declare Jointime. Used for a player's time spent in server.
 hash_table = { }
 last_damage = { }
 kill_command_count = { }
@@ -49,7 +49,7 @@ end
 
 function privatesay(player, message, script_prefix)
     if GAME == "PC" then
-        phasor_privatesay(player,(script_prefix or default_script_prefix) .. " " .. message, false)
+        phasor_privatesay(player, (script_prefix or default_script_prefix) .. " " .. message, false)
     else
         phasor_privatesay(player, message, false)
     end
@@ -109,7 +109,9 @@ function GetGameAddresses(GAME)
     end
 end
 
-function GetRequiredVersion() return 200 end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processId, game, persistent)
     if game == true or game == "PC" then
         GAME = "PC"
@@ -125,12 +127,12 @@ function OnScriptLoad(processId, game, persistent)
             "        ~~~~~~~PERSISTENCE MODE NOT SUPPORTED~~~~~~",
             "        ~~~~~~~~~~~~~SCRIPT CANNOT BE USED~~~~~~~~",
             "============================================================="
-        } )
+        })
     end
-    if readbyte(gametype_base, 0x34) == 2-- Slayer
-        or readbyte(gametype_base, 0x34) == 3-- Oddball
-        or readbyte(gametype_base, 0x34) == 4-- King of the Hill
-        or readbyte(gametype_base, 0x34) == 5-- Race
+    if readbyte(gametype_base, 0x34) == 2 -- Slayer
+            or readbyte(gametype_base, 0x34) == 3 -- Oddball
+            or readbyte(gametype_base, 0x34) == 4 -- King of the Hill
+            or readbyte(gametype_base, 0x34) == 5-- Race
     then
         registertimer(2300, "Terminate", {
             "=============================================================",
@@ -138,7 +140,7 @@ function OnScriptLoad(processId, game, persistent)
             "               ~~~~~This script only supports CTF!~~~~~",
             "               ~~~~~~~~~~SCRIPT CANNOT BE USED~~~~~~~~~",
             "============================================================="
-        } )
+        })
     end
     gametype = readbyte(gametype_base + 0x30)
     -------------------------------------------
@@ -164,14 +166,14 @@ function OnScriptLoad(processId, game, persistent)
     cur_red_count = getteamsize(RED_TEAM)
     cur_players = cur_blue_count + cur_red_count
 end
- 
+
 function OnScriptUnload()
     -- Save Tables
     table.save(sprees, "Sprees.txt")
     table.save(medals, "Medals.txt")
     table.save(stats, "Stats.txt")
 end
- 
+
 function Terminate(id, count, message)
     if message then
         for v = 1, #message do
@@ -196,16 +198,22 @@ function OnNewGame(map)
     Rule_Timer = registertimer(1000, "RuleTimer")
     gametype = readbyte(gametype_base + 0x30, 0x0)
 end
- 
+
 function OnGameEnd(stage)
     -- 		stage 1: 	F1 Screen
     -- 		stage 2: 	PGCR Appears
     -- 		stage 3: 	Players may quit
     if stage == 1 then
         -- <	Remove Timers
-        if New_Game_Timer then New_Game_Timer = nil end
-        if credit_timer then credit_timer = nil end
-        if Rule_Timer then Rule_Timer = nil end
+        if New_Game_Timer then
+            New_Game_Timer = nil
+        end
+        if credit_timer then
+            credit_timer = nil
+        end
+        if Rule_Timer then
+            Rule_Timer = nil
+        end
         -- >
         registertimer(10, "AssistDelay")
         for i = 0, 15 do
@@ -325,7 +333,9 @@ function OnServerChat(player, type, message)
                 table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
             end
 
-            table.sort(credits, function(a, b) return a.credits > b.credits end)
+            table.sort(credits, function(a, b)
+                return a.credits > b.credits
+            end)
 
             for k, v in ipairs(credits) do
                 if hash == credits[k].hash then
@@ -447,7 +457,9 @@ function OnServerChat(player, type, message)
                                 table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
                             end
 
-                            table.sort(credits, function(a, b) return a.credits > b.credits end)
+                            table.sort(credits, function(a, b)
+                                return a.credits > b.credits
+                            end)
 
                             for k, v in ipairs(credits) do
                                 if hash == credits[k].hash then
@@ -550,7 +562,7 @@ function OnPlayerJoin(player)
         -- 	Update Counts
         thisTeamSize = cur_red_count
     end
-end	
+end
 
 function getteamplay()
     -- Confirmed. (Off = 0) (On = 1)
@@ -1107,7 +1119,7 @@ function table.save(t, filename)
 
         spaces = spaces - 4
 
-        return string.sub(str, 1, string.len(str) -1) .. "\n" .. tab() .. "}"
+        return string.sub(str, 1, string.len(str) - 1) .. "\n" .. tab() .. "}"
     end
 
     file:write("return " .. format(t))
@@ -1121,18 +1133,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then
@@ -1143,7 +1155,6 @@ function opairs(t)
         end
     end
 end
-
 
 function table.load(filename)
 
@@ -1190,7 +1201,6 @@ function adjustedtimestamp()
     local timestamp = tostring(temp)
     return timestamp
 end
-
 
 function isplayerdead(player)
 
@@ -1246,20 +1256,19 @@ function AssistDelay(id, count)
                     killstats[gethash(i)].total.assists = killstats[gethash(i)].total.assists + readword(getplayer(i) + 0xA4)
                     medals[gethash(i)].count.assists = medals[gethash(i)].count.assists + readword(getplayer(i) + 0xA4)
                     if (readword(getplayer(i) + 0xA4) * 3) ~= 0 then
-                        killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits +(readword(getplayer(i) + 0xA4) * 3)
-                        changescore(i,(readword(getplayer(i) + 0xA4) * 3), plus)
+                        killstats[gethash(i)].total.credits = killstats[gethash(i)].total.credits + (readword(getplayer(i) + 0xA4) * 3)
+                        changescore(i, (readword(getplayer(i) + 0xA4) * 3), plus)
                     end
                     if readword(getplayer(i) + 0xA4) == 1 then
-                        SendMessage(i, "Awarded: +" ..(readword(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. readword(getplayer(i) + 0xA4) .. " Assist")
+                        SendMessage(i, "Awarded: +" .. (readword(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. readword(getplayer(i) + 0xA4) .. " Assist")
                     else
-                        SendMessage(i, "Awarded: +" ..(readword(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. readword(getplayer(i) + 0xA4) .. " Assists")
+                        SendMessage(i, "Awarded: +" .. (readword(getplayer(i) + 0xA4) * 3) .. " (cR) - " .. readword(getplayer(i) + 0xA4) .. " Assists")
                     end
                 end
             end
         end
     end
 end
-
 
 function CloseCall(id, count, killer)
     -- Cleared
@@ -1346,7 +1355,6 @@ function OpenFiles()
     extra = table.load("Extra.txt")
     done = table.load("CompletedMedals.txt")
 end
-
 
 function RetrievePlayerKDR(player)
     local Player_KDR = nil
@@ -1499,7 +1507,9 @@ function AnnouncePlayerRank(player)
         table.insert(credits, { ["hash"] = k, ["credits"] = killstats[k].total.credits })
     end
 
-    table.sort(credits, function(a, b) return a.credits > b.credits end)
+    table.sort(credits, function(a, b)
+        return a.credits > b.credits
+    end)
 
     for k, v in ipairs(credits) do
         if hash == credits[k].hash then
@@ -1510,10 +1520,12 @@ function AnnouncePlayerRank(player)
     end
     return sendconsoletext(player, string)
 end
-	
+
 function table.find(t, v, case)
 
-    if case == nil then case = true end
+    if case == nil then
+        case = true
+    end
 
     for k, val in pairs(t) do
         if case then
@@ -1541,7 +1553,7 @@ function DestroyGuns(object)
 end
 
 function math.round(input, precision)
-    return math.floor(input *(10 ^ precision) + 0.5) /(10 ^ precision)
+    return math.floor(input * (10 ^ precision) + 0.5) / (10 ^ precision)
 end
 
 function LevelUp(id, count, killer)
@@ -2708,31 +2720,30 @@ end
 
 function getvalidcount(count)
     local number = nil
-    if table.find( { "180", "360", "540", "720", "900", "1080" }, count) then
+    if table.find({ "180", "360", "540", "720", "900", "1080" }, count) then
         number = 1
-    elseif table.find( { "182", "362", "542", "722", "902", "1082" }, count) then
+    elseif table.find({ "182", "362", "542", "722", "902", "1082" }, count) then
         number = 2
-    elseif table.find( { "184", "364", "544", "724", "904", "1084" }, count) then
+    elseif table.find({ "184", "364", "544", "724", "904", "1084" }, count) then
         number = 3
-    elseif table.find( { "186", "366", "546", "726", "906", "1086" }, count) then
+    elseif table.find({ "186", "366", "546", "726", "906", "1086" }, count) then
         number = 4
-    elseif table.find( { "188", "368", "548", "728", "908", "1088" }, count) then
+    elseif table.find({ "188", "368", "548", "728", "908", "1088" }, count) then
         number = 5
     end
     return number
 end
-		
 
 function secondsToTime(seconds, places)
 
-    local years = math.floor(seconds /(60 * 60 * 24 * 365))
-    seconds = seconds %(60 * 60 * 24 * 365)
-    local weeks = math.floor(seconds /(60 * 60 * 24 * 7))
-    seconds = seconds %(60 * 60 * 24 * 7)
-    local days = math.floor(seconds /(60 * 60 * 24))
-    seconds = seconds %(60 * 60 * 24)
-    local hours = math.floor(seconds /(60 * 60))
-    seconds = seconds %(60 * 60)
+    local years = math.floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = math.floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = math.floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
     local minutes = math.floor(seconds / 60)
     seconds = seconds % 60
 
@@ -2825,11 +2836,13 @@ function setscore(player, score)
             end
         end
     end
-end	
+end
 
 function writewordsigned(address, offset, word)
     value = tonumber(word)
-    if value == nil then value = tonumber(word, 16) end
+    if value == nil then
+        value = tonumber(word, 16)
+    end
     if value and value > 0x7FFF then
         local max = 0xFFFF
         local difference = max - value
@@ -2840,7 +2853,9 @@ end
 
 function writedwordsigned(address, offset, dword)
     value = tonumber(dword)
-    if value == nil then value = tonumber(dword, 16) end
+    if value == nil then
+        value = tonumber(dword, 16)
+    end
     if value and value > 0x7FFFFFFF then
         local max = 0xFFFFFFFF
         local difference = max - value
@@ -2875,8 +2890,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end
@@ -2891,7 +2906,7 @@ function readstring(address, length, endian)
     return string
 end
 
--- 	Credits to the original creator(s): {FC}[ZÅ]SlimJim
+-- 	Credits to the original creator(s): {FC}[Zï¿½]SlimJim
 -- 		Credits to Kennan for what ever he did to it.
 -- 	This script has been modified and formatted to work as an independant Stats Script, code extracted from the original Zombies & Vehicles Script
 -- 	Put together by: Chalwk: (Jericho Crosby)

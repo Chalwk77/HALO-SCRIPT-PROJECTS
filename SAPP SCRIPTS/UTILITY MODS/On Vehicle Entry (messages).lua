@@ -42,7 +42,7 @@ Add 16 x Color to set background color.
 ]]
 
 -- Console only -- 
-OutputColor = 2+8 -- Bright Green
+OutputColor = 2 + 8 -- Bright Green
 
 settings = {
     ["LogToServerConsole"] = true,
@@ -55,7 +55,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEnter")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnVehicleEnter(PlayerIndex, Seat)
     local PlayerObj = get_dynamic_player(PlayerIndex)
@@ -109,17 +110,19 @@ function OnVehicleEnter(PlayerIndex, Seat)
 
     if VehicleName == "vehicles\\banshee\\banshee_mp" then
         Vehicle_Name = "Banshee"
-        if Seat == "0" then -- Drivers Seat
-    -- You don't drive a banshee, you fly it.
+        if Seat == "0" then
+            -- Drivers Seat
+            -- You don't drive a banshee, you fly it.
             Seat_Position = "Pilots Seat"
         end
     end
-    
+
     if VehicleName == "vehicles\\c gun turret\\c gun turret_mp" then
         Vehicle_Name = "Turret"
-        if Seat == "0" then -- Drivers Seat 
-    -- It's weird to me to say that PlayerX entered the 'drivers' seat of a turret - It's not something you drive.
-    -- 'Operators Seat' could also pass, but not drivers seat - that's just weird!
+        if Seat == "0" then
+            -- Drivers Seat
+            -- It's weird to me to say that PlayerX entered the 'drivers' seat of a turret - It's not something you drive.
+            -- 'Operators Seat' could also pass, but not drivers seat - that's just weird!
             Seat_Position = "Gunners Seat"
         end
     end
@@ -136,7 +139,7 @@ function OnVehicleEnter(PlayerIndex, Seat)
     end
     if settings["SappLog"] then
         local Log = string.format("\n[VEHICLE ENTRY]: " .. name .. " entered the " .. tostring(Seat_Position) .. " of a " .. tostring(Vehicle_Name) .. "\n")
-        execute_command("log_note \""..Log.."\"")
+        execute_command("log_note \"" .. Log .. "\"")
     end
 end
 

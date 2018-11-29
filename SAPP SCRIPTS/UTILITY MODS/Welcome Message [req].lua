@@ -13,7 +13,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin')
+    register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin')
 end
 
 function OnScriptUnload()
@@ -21,5 +21,5 @@ function OnScriptUnload()
 end
 
 function OnPlayerJoin(PlayerIndex)
-	say(PlayerIndex, "Welcome Friend " .. get_var(PlayerIndex, "$name"))
+    say(PlayerIndex, "Welcome Friend " .. get_var(PlayerIndex, "$name"))
 end

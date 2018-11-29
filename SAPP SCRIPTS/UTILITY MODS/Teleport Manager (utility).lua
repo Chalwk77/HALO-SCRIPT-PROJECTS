@@ -49,7 +49,7 @@ list_command = "warplist"
 list_all_command = "warplistall"
 
 delete_command = { }
-delete_command[1] = {"delwarp", "tpd"}
+delete_command[1] = { "delwarp", "tpd" }
 
 sapp_dir = "sapp\\teleports.txt"
 permission_level = -1
@@ -60,7 +60,9 @@ canset = { }
 wait_for_response = { }
 
 previous_location = { }
-for i = 1, 16 do previous_location[i] = { } end
+for i = 1, 16 do
+    previous_location[i] = { }
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -69,7 +71,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnGameStart()
     check_file_status(PlayerIndex)
@@ -86,8 +89,8 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     if wait_for_response[PlayerIndex] then
         if Message == ("yes") then
-            delete_from_file(sapp_dir, response_starting_line, response_num_lines , PlayerIndex)
-            rprint(PlayerIndex, "Successfully deleted teleport id #" ..response_starting_line)
+            delete_from_file(sapp_dir, response_starting_line, response_num_lines, PlayerIndex)
+            rprint(PlayerIndex, "Successfully deleted teleport id #" .. response_starting_line)
             wait_for_response[PlayerIndex] = false
             return false
         elseif Message == ("no") then
@@ -174,42 +177,42 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
                                             y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
                                             z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then 
+                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
                                             valid = true -- *
                                             x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
                                             y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
                                             z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then  
+                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                             valid = true -- 1
                                             x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
                                             y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
                                             z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then  
+                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
                                             valid = true -- 2
                                             x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
                                             y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
                                             z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then  
+                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
                                             valid = true -- 3
                                             x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
                                             y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
                                             z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then 
+                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
                                             valid = true -- 1 & 2
                                             x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
                                             y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
                                             z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then 
+                                        elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
                                             valid = true -- 1 & 3
                                             x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
                                             y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
                                             z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then 
+                                        elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
                                             valid = true -- 2 & 3
                                             x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
                                             y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
-                                            z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+")) 
-                                        -- numbers with decimal points -----------------------------------------------------------------------------
+                                            z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                            -- numbers with decimal points -----------------------------------------------------------------------------
                                         elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
                                             valid = true -- 0
                                             x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
@@ -252,7 +255,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
                                         else
                                             rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
-                                            cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4+8)
+                                            cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4 + 8)
                                         end
                                         if (v ~= nil and valid == true) then
                                             if not PlayerInVehicle(PlayerIndex) then
@@ -261,11 +264,11 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                                 previous_location[PlayerIndex][2] = prevY
                                                 previous_location[PlayerIndex][3] = prevZ
                                                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
-                                                rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y).. ", " .. math.floor(z))
+                                                rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
                                                 valid = false
                                             else
                                                 TeleportPlayer(read_dword(get_dynamic_player(PlayerIndex) + 0x11C), tonumber(x), tonumber(y), tonumber(z) + 0.5)
-                                                rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y).. ", " .. math.floor(z))
+                                                rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
                                                 valid = false
                                             end
                                         end
@@ -292,8 +295,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You're not allowed to execute /" .. goto_command)
             end
             UnknownCMD = false
-        ---------------------------------------------------------
-        -- BACK COMMAND --
+            ---------------------------------------------------------
+            -- BACK COMMAND --
         elseif t[1] == string.lower(goback_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 if not PlayerInVehicle(PlayerIndex) then
@@ -311,16 +314,16 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You're not allowed to execute /" .. goback_command)
             end
             UnknownCMD = false
-        ---------------------------------------------------------
-        -- LIST COMMAND --
+            ---------------------------------------------------------
+            -- LIST COMMAND --
         elseif t[1] == string.lower(list_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 check_file_status(PlayerIndex)
                 if not empty_file then
                     local lines = lines_from(sapp_dir)
-                    for k,v in pairs(lines) do
+                    for k, v in pairs(lines) do
                         if v:match(mapname) then
-                            rprint(PlayerIndex, "["..k.."] " .. v)
+                            rprint(PlayerIndex, "[" .. k .. "] " .. v)
                         end
                     end
                 else
@@ -330,15 +333,15 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You're not allowed to execute /" .. list_command)
             end
             UnknownCMD = false
-        ---------------------------------------------------------
-        -- LIST ALL COMMAND --
+            ---------------------------------------------------------
+            -- LIST ALL COMMAND --
         elseif t[1] == string.lower(list_all_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 check_file_status(PlayerIndex)
                 if not empty_file then
                     local lines = lines_from(sapp_dir)
-                    for k,v in pairs(lines) do
-                        rprint(PlayerIndex, "["..k.."] " .. v)
+                    for k, v in pairs(lines) do
+                        rprint(PlayerIndex, "[" .. k .. "] " .. v)
                     end
                 else
                     rprint(PlayerIndex, "The teleport list is empty!")
@@ -347,8 +350,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                 rprint(PlayerIndex, "You're not allowed to execute /" .. list_all_command)
             end
             UnknownCMD = false
-        ---------------------------------------------------------
-        -- DELETE COMMAND --
+            ---------------------------------------------------------
+            -- DELETE COMMAND --
         elseif t[1] == string.lower(delete_command[1][1]) or t[1] == string.lower(delete_command[1][2]) then
             local command = t[1]
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
@@ -364,8 +367,8 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                     response_starting_line = nil
                                     response_num_lines = nil
                                     if string.find(v, mapname) then
-                                        delete_from_file(sapp_dir, k, 1 , PlayerIndex)
-                                        rprint(PlayerIndex, "Successfully deleted teleport id #" ..k)
+                                        delete_from_file(sapp_dir, k, 1, PlayerIndex)
+                                        rprint(PlayerIndex, "Successfully deleted teleport id #" .. k)
                                     else
                                         wait_for_response[PlayerIndex] = true
                                         rprint(PlayerIndex, "Warning: That teleport is not linked to this map.")
@@ -396,7 +399,7 @@ end
 
 function lines_from(file)
     lines = {}
-    for line in io.lines(file) do 
+    for line in io.lines(file) do
         lines[#lines + 1] = line
     end
     return lines
@@ -404,12 +407,12 @@ end
 
 function check_file_status(PlayerIndex)
     local fileX = io.open(sapp_dir, "rb")
-    if fileX then 
+    if fileX then
         fileX:close()
     else
         local fileY = io.open(sapp_dir, "a+")
-        if fileY then 
-            fileY:close() 
+        if fileY then
+            fileY:close()
         end
         if player_present(PlayerIndex) then
             rprint(PlayerIndex, sapp_dir .. " doesn't exist. Creating...")
@@ -430,7 +433,8 @@ function tokenizestring(inputString, separator)
     if separator == nil then
         separator = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputString, "([^" .. separator .. "]+)") do
         t[i] = str
         i = i + 1
@@ -440,14 +444,14 @@ end
 
 function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     local fp = io.open(filename, "r")
-    if fp == nil then 
-        check_file_status(PlayerIndex) 
+    if fp == nil then
+        check_file_status(PlayerIndex)
     end
     content = {}
     i = 1;
     for line in fp:lines() do
         if i < starting_line or i >= starting_line + num_lines then
-            content[#content+1] = line
+            content[#content + 1] = line
         end
         i = i + 1
     end
@@ -456,7 +460,7 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
         cprint("Warning: End of File! No entries to delete.")
     end
     fp:close()
-    fp = io.open( filename, "w+")
+    fp = io.open(filename, "w+")
     for i = 1, #content do
         fp:write(string.format("%s\n", content[i]))
     end
@@ -484,6 +488,6 @@ function TeleportPlayer(ObjectID, x, y, z)
 end
 
 function OnError(Message)
-    cprint(debug.traceback() .. "", 2+8)
+    cprint(debug.traceback() .. "", 2 + 8)
     print(debug.traceback())
 end

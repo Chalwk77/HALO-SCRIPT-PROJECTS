@@ -24,15 +24,31 @@ EQUIPMENT[8] = { "powerups\\shotgun ammo\\shotgun ammo" }
 EQUIPMENT[9] = { "powerups\\sniper rifle ammo\\sniper rifle ammo" }
 EQUIPMENT[10] = { "powerups\\flamethrower ammo\\flamethrower ammo" }
 Vehicle_Block_Message = "Sorry, you're not aloud to use this type of vehicle!"
-for i = 0, 15 do KILL_LOCATION[i] = { } end
-function OnScriptUnload() end
-function ScriptLoad() local kills = readword(getplayer(killer) + 0x96) end	
-function GetRequiredVersion() return 200 end
+for i = 0, 15 do
+    KILL_LOCATION[i] = { }
+end
+function OnScriptUnload()
+end
+function ScriptLoad()
+    local kills = readword(getplayer(killer) + 0x96)
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnVehicleEntry(player, vehiId, seat, mapId, relevant)
     local pass = nil
-    if mapId == Hog_MapID then pass = true return true end
-    if mapId == RHog_MapID then pass = true return true end
-    if mapId == Ghost_MapID then pass = true return true end
+    if mapId == Hog_MapID then
+        pass = true
+        return true
+    end
+    if mapId == RHog_MapID then
+        pass = true
+        return true
+    end
+    if mapId == Ghost_MapID then
+        pass = true
+        return true
+    end
     if mapId == Tank_MapID then
         OnPlayerKill(killer, victim, mode)
         if mode == 4 then
@@ -41,14 +57,24 @@ function OnVehicleEntry(player, vehiId, seat, mapId, relevant)
                 if kills == 10 then
                     pass = true
                 elseif kills < 10 then
-                    pass = false privatesay(player, Vehicle_Block_Message, false) return false
+                    pass = false
+                    privatesay(player, Vehicle_Block_Message, false)
+                    return false
                 end
             end
         end
     end
 
-    if mapId == Banshee_MapID then pass = false privatesay(player, Vehicle_Block_Message, false) return false end
-    if mapId == Turret_MapID then pass = false privatesay(player, Vehicle_Block_Message, false) return false end
+    if mapId == Banshee_MapID then
+        pass = false
+        privatesay(player, Vehicle_Block_Message, false)
+        return false
+    end
+    if mapId == Turret_MapID then
+        pass = false
+        privatesay(player, Vehicle_Block_Message, false)
+        return false
+    end
     return pass
 end
 
@@ -120,12 +146,12 @@ function OnPlayerKill(killer, victim, mode)
         end
     end
 end
- 
+
 function DropPowerUp(x, y, z)
     local num = getrandomnumber(1, #EQUIPMENT_TAGS)
     createobject(EQUIPMENT_TAGS[num], 0, 10, false, x, y, z + 0.5)
 end
- 
+
 function OnNewGame(map)
     Ghost_MapID = gettagid("vehi", "vehicles\\ghost\\ghost_mp")
     Hog_MapID = gettagid("vehi", "vehicles\\warthog\\mp_warthog")

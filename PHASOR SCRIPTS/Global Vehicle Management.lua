@@ -14,8 +14,11 @@ Vehicle_List = "" -- Do Not Touch
 Vehicles_Allowed = "" -- Do Not Touch
 Blocked_Vehicles = "" -- Do Not Touch
 Vehicle_Block_Message = "Sorry! You're not allowed to use this type of vehicle!\nType \"@vehicles\" for a list of usable vehicles."
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processId, game, persistent)
     if game == "PC" then
         gametype_base = 0x671340
@@ -233,8 +236,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end

@@ -20,12 +20,12 @@ ggun_type, ggun_name = "proj", "weapons\\pistol\\bullet"
 permission_level = 1
 
 vehicles = {}
-vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog"}
-vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost"}
-vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog", "RocketHog"}
-vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee"}
-vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank"}
-vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret"}
+vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog" }
+vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost" }
+vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog", "RocketHog" }
+vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee" }
+vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank" }
+vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret" }
 
 gravity_mode = {}
 weapon_status = {}
@@ -54,7 +54,6 @@ function OnTick()
         if player_present(i) then
             if player_alive(i) then
                 if (gravity_mode[i] == true) then
-                    local success, target = false, nil
                     local player_object = get_dynamic_player(i)
                     local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
                     local shot_fired
@@ -70,7 +69,7 @@ function OnTick()
                     if (success == true and target ~= 0xFFFFFFFF) then
                         target_object = get_object_memory(target)
                         shot_fired = read_float(player_object + 0x490)
-                        if(shot_fired ~= weapon_status[i] and shot_fired == 1 and bool[i] == true) then
+                        if (shot_fired ~= weapon_status[i] and shot_fired == 1 and bool[i] == true) then
                             holding_object[i] = true
                             bool[i] = false
                         end
@@ -106,7 +105,7 @@ function OnTick()
     end
 end
 
-function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+function OnObjectSpawn(PlayerIndex, MapID)
     if (holding_object[PlayerIndex] == true) then
         if MapID == TagInfo(ggun_type, ggun_name) then
             holding_object[PlayerIndex] = false
@@ -115,7 +114,7 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
 end
 
 function OnServerCommand(PlayerIndex, Command)
-    local UnknownCMD = nil
+    local UnknownCMD
     local t = tokenizestring(Command)
     if t[1] ~= nil then
         if (t[1] == string.lower(command1) or t[1] == string.lower(command2)) then
@@ -152,10 +151,11 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
-for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
-    t[i] = str
-    i = i + 1
-end
-return t
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end

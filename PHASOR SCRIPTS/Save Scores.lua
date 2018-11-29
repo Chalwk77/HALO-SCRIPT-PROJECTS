@@ -10,9 +10,13 @@ Copyright (c) 2016-2018
 
 math.inf = 1 / 0
 UpdateScores = false
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
 function OnPlayerJoin(player)
     if UpdateScores == true then
         LoadScores(player)
@@ -50,7 +54,7 @@ function StandBy()
         end
     end
 end
-	
+
 function SaveScores()
     score = { }
     for i = 0, 15 do
@@ -128,7 +132,7 @@ function table.save(t, filename)
 
         spaces = spaces - 4
 
-        return string.sub(str, 1, string.len(str) -1) .. "\n" .. tab() .. "}"
+        return string.sub(str, 1, string.len(str) - 1) .. "\n" .. tab() .. "}"
     end
 
     file:write("return " .. format(t))
@@ -158,7 +162,9 @@ end
 
 function table.find(t, v, case)
 
-    if case == nil then case = true end
+    if case == nil then
+        case = true
+    end
 
     for k, val in pairs(t) do
         if case then
@@ -175,7 +181,7 @@ end
 
 function table.max(t)
 
-    local max = - math.inf
+    local max = -math.inf
     local key
 
     for k, v in pairs(t) do
@@ -192,7 +198,7 @@ end
 
 function table.maxv(t)
 
-    local max = - math.inf
+    local max = -math.inf
     local key
 
     for k, v in pairs(t) do
@@ -210,7 +216,7 @@ end
 function table.maxes(t)
 
     local keys = { }
-    local max = - math.inf
+    local max = -math.inf
     for k, v in pairs(t) do
         if tonumber(v) then
             if tonumber(v) > max then
@@ -255,18 +261,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then
@@ -285,18 +291,18 @@ function rpairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a > b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an > bn
-        else
-            return tostring(a) > tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a > b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an > bn
+                else
+                    return tostring(a) > tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then

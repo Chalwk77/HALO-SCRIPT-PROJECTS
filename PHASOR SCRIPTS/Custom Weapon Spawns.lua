@@ -162,43 +162,43 @@ ladrangvalley_Race = { sniper, pistol, nil, nil }
 --------------------------------------------------------------------------
 
 CTF = {
-    beavercreek_CTF,bloodgulch_CTF,boardingaction_CTF,carousel_CTF,
-    chillout_CTF,damnation_CTF,dangercanyon_CTF,deathisland_CTF,
-    gephyrophobia_CTF,hangemhigh_CTF,icefields_CTF,infinity_CTF,longest_CTF,
-    prisoner_CTF,putput_CTF,ratrace_CTF,sidewinder_CTF,timberland_CTF,wizard_CTF,ladrangvalley_CTF
+    beavercreek_CTF, bloodgulch_CTF, boardingaction_CTF, carousel_CTF,
+    chillout_CTF, damnation_CTF, dangercanyon_CTF, deathisland_CTF,
+    gephyrophobia_CTF, hangemhigh_CTF, icefields_CTF, infinity_CTF, longest_CTF,
+    prisoner_CTF, putput_CTF, ratrace_CTF, sidewinder_CTF, timberland_CTF, wizard_CTF, ladrangvalley_CTF
 }
 
 Slayer = {
-    beavercreek_Slayer,bloodgulch_Slayer,boardingaction_Slayer,
-    carousel_Slayer,chillout_Slayer,damnation_Slayer,dangercanyon_Slayer,
-    deathisland_Slayer,gephyrophobia_Slayer,hangemhigh_Slayer,
-    icefields_Slayer,infinity_Slayer,longest_Slayer,prisoner_Slayer,
-    putput_Slayer,ratrace_Slayer,sidewinder_Slayer,timberland_Slayer,wizard_Slayer,ladrangvalley_Slayer
+    beavercreek_Slayer, bloodgulch_Slayer, boardingaction_Slayer,
+    carousel_Slayer, chillout_Slayer, damnation_Slayer, dangercanyon_Slayer,
+    deathisland_Slayer, gephyrophobia_Slayer, hangemhigh_Slayer,
+    icefields_Slayer, infinity_Slayer, longest_Slayer, prisoner_Slayer,
+    putput_Slayer, ratrace_Slayer, sidewinder_Slayer, timberland_Slayer, wizard_Slayer, ladrangvalley_Slayer
 }
 
 Oddball = {
-    beavercreek_Oddball,bloodgulch_Oddball,
-    boardingaction_Oddball,carousel_Oddball,chillout_Oddball,
-    damnation_Oddball,dangercanyon_Oddball,deathisland_Oddball,
-    gephyrophobia_Oddball,hangemhigh_Oddball,icefields_Oddball,
-    infinity_Oddball,longest_Oddball,prisoner_Oddball,putput_Oddball,
-    ratrace_Oddball,sidewinder_Oddball,timberland_Oddball,wizard_Oddball,ladrangvalley_Oddball
+    beavercreek_Oddball, bloodgulch_Oddball,
+    boardingaction_Oddball, carousel_Oddball, chillout_Oddball,
+    damnation_Oddball, dangercanyon_Oddball, deathisland_Oddball,
+    gephyrophobia_Oddball, hangemhigh_Oddball, icefields_Oddball,
+    infinity_Oddball, longest_Oddball, prisoner_Oddball, putput_Oddball,
+    ratrace_Oddball, sidewinder_Oddball, timberland_Oddball, wizard_Oddball, ladrangvalley_Oddball
 }
 
 KOTH = {
-    beavercreek_KOTH,bloodgulch_KOTH,boardingaction_KOTH,
-    carousel_KOTH,chillout_KOTH,damnation_KOTH,dangercanyon_KOTH,
-    deathisland_KOTH,gephyrophobia_KOTH,hangemhigh_KOTH,
-    icefields_KOTH,infinity_KOTH,longest_KOTH,prisoner_KOTH,
-    putput_KOTH,ratrace_KOTH,sidewinder_KOTH,timberland_KOTH,wizard_KOTH,ladrangvalley_KOTH
+    beavercreek_KOTH, bloodgulch_KOTH, boardingaction_KOTH,
+    carousel_KOTH, chillout_KOTH, damnation_KOTH, dangercanyon_KOTH,
+    deathisland_KOTH, gephyrophobia_KOTH, hangemhigh_KOTH,
+    icefields_KOTH, infinity_KOTH, longest_KOTH, prisoner_KOTH,
+    putput_KOTH, ratrace_KOTH, sidewinder_KOTH, timberland_KOTH, wizard_KOTH, ladrangvalley_KOTH
 }
 
 Race = {
-    beavercreek_Race,bloodgulch_Race,boardingaction_Race,
-    carousel_Race,chillout_Race,damnation_Race,dangercanyon_Race,
-    deathisland_Race,gephyrophobia_Race,hangemhigh_Race,icefields_Race,
-    infinity_Race,longest_Race,prisoner_Race,putput_Race,
-    ratrace_Race,sidewinder_Race,timberland_Race,wizard_Race,ladrangvalley_Race
+    beavercreek_Race, bloodgulch_Race, boardingaction_Race,
+    carousel_Race, chillout_Race, damnation_Race, dangercanyon_Race,
+    deathisland_Race, gephyrophobia_Race, hangemhigh_Race, icefields_Race,
+    infinity_Race, longest_Race, prisoner_Race, putput_Race,
+    ratrace_Race, sidewinder_Race, timberland_Race, wizard_Race, ladrangvalley_Race
 }
 
 spawnweaps = CTF, Slayer, Oddball, KOTH, Race
@@ -375,10 +375,18 @@ end
 
 function AssignWeapons(id, count, player)
     if getobject(readdword(getplayer(player), 0x34)) then
-        if weapon1 ~= nil then assignweapon(player, createobject(gettagid("weap", weapon1), 0, 60, false, 0, 1, 2)) end
-        if weapon2 ~= nil then assignweapon(player, createobject(gettagid("weap", weapon2), 0, 60, false, 0, 1, 2)) end
-        if weapon3 ~= nil then assignweapon(player, createobject(gettagid("weap", weapon3), 0, 60, false, 0, 1, 2)) end
-        if weapon4 ~= nil then assignweapon(player, createobject(gettagid("weap", weapon4), 0, 60, false, 0, 1, 2)) end
+        if weapon1 ~= nil then
+            assignweapon(player, createobject(gettagid("weap", weapon1), 0, 60, false, 0, 1, 2))
+        end
+        if weapon2 ~= nil then
+            assignweapon(player, createobject(gettagid("weap", weapon2), 0, 60, false, 0, 1, 2))
+        end
+        if weapon3 ~= nil then
+            assignweapon(player, createobject(gettagid("weap", weapon3), 0, 60, false, 0, 1, 2))
+        end
+        if weapon4 ~= nil then
+            assignweapon(player, createobject(gettagid("weap", weapon4), 0, 60, false, 0, 1, 2))
+        end
     end
 end
 
@@ -399,7 +407,7 @@ function OnObjectInteraction(player, objectId, mapId)
     if tagType == "weap" and restore_weap[player].tagName == nil then
         local check = false
         if tagName == "weapons\\flag\\flag" then
-            if (getteam(player) == 0 and objectId == readdword(ctf_globals + 1 * 4, 0x8)) or(getteam(player) == 1 and objectId == readdword(ctf_globals + 0 * 4, 0x8)) then
+            if (getteam(player) == 0 and objectId == readdword(ctf_globals + 1 * 4, 0x8)) or (getteam(player) == 1 and objectId == readdword(ctf_globals + 0 * 4, 0x8)) then
                 check = true
             else
                 check = false
@@ -421,7 +429,7 @@ function OnObjectInteraction(player, objectId, mapId)
                 slot_offset = 0x2F8 + 12
             end
             local weapId = readdword(m_object, slot_offset)
-            if (getobject(readdword(m_object, 0x304)) and readdword(m_object, 0x304) ~= 0xFFFFFFFF) and(weapId ~= 0xFFFFFFFF and getobject(weapId)) then
+            if (getobject(readdword(m_object, 0x304)) and readdword(m_object, 0x304) ~= 0xFFFFFFFF) and (weapId ~= 0xFFFFFFFF and getobject(weapId)) then
                 local tag = gettaginfo(readdword(getobject(weapId)))
                 if tag ~= "weapons\\flag\\flag" and tag ~= "weapons\\ball\\ball" then
                     local m_weapon = getobject(readdword(m_object, 0x118))
@@ -453,7 +461,7 @@ function WeaponMonitor(id, count)
             local m_object = getobject(readdword(getplayer(player), 0x34))
             if m_object then
                 for i = 0, 3 do
-                    local weapId = readdword(m_object, 0x2F8 +(i * 4))
+                    local weapId = readdword(m_object, 0x2F8 + (i * 4))
                     if getobject(weapId) then
                         local mapId = readdword(getobject(weapId))
                         if weapons[player][i] then
@@ -490,7 +498,8 @@ function WeaponMonitor(id, count)
     return 1
 end
 
-function OnWeaponPickup(player, weapId, slot, mapId) end
+function OnWeaponPickup(player, weapId, slot, mapId)
+end
 
 function OnWeaponDrop(player, weapId, slot, mapId)
     if getobject(readdword(getplayer(player), 0x34)) then

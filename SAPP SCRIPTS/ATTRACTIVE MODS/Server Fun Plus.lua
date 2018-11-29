@@ -98,7 +98,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnPlayerJoin(PlayerIndex)
     spam_victim[get_var(PlayerIndex, "$n")] = { }
@@ -115,22 +116,28 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (spam[i] == true) then
-                for s = 1, 1 do rprint(i, " ") end
+                for s = 1, 1 do
+                    rprint(i, " ")
+                end
                 spam_victim[get_var(i, "$n")].spam_timer = spam_victim[get_var(i, "$n")].spam_timer + 0.030
                 Spam(i, spam_broadcast)
                 if spam_victim[get_var(i, "$n")].spam_timer >= math.floor(spam_duration) then
                     spam_victim[get_var(i, "$n")].spam_timer = 0
                     spam[i] = false
-                    for t = 1, 30 do rprint(i, " ") end
+                    for t = 1, 30 do
+                        rprint(i, " ")
+                    end
                     rprint(i, "|c" .. "Y O U   W E R E   S P A M M E D!")
-                    for u = 1, 10 do rprint(i, "|c" .. " ") end
+                    for u = 1, 10 do
+                        rprint(i, "|c" .. " ")
+                    end
                 end
             end
         end
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message, type)
+function OnPlayerChat(PlayerIndex, Message)
     local t = tokenizestring(Message)
     local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
@@ -239,8 +246,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return true
 end
 
-function OnServerCommand(PlayerIndex, Command, Environment)
-    local UnknownCMD = nil
+function OnServerCommand(PlayerIndex, Command)
+    local UnknownCMD
     local t = tokenizestring(Command)
     local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
@@ -429,43 +436,43 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                                             -- rocket launcher projectile
                                             local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(1, 20))
                                             local rocket_projectile = get_object_memory(rocket)
-                                            write_float(rocket_projectile + 0x70, - math.random(1, 3))
+                                            write_float(rocket_projectile + 0x70, -math.random(1, 3))
                                             -- plasma cannon projectile
                                             local plasma_cannon = spawn_object("proj", "weapons\\plasma_cannon\\plasma_cannon", x1, y1, z1 + math.random(1, 20))
                                             local plasma_cannon_projectile = get_object_memory(plasma_cannon)
-                                            write_float(plasma_cannon_projectile + 0x70, - math.random(1, 3))
+                                            write_float(plasma_cannon_projectile + 0x70, -math.random(1, 3))
                                             -- needle projectile
                                             local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1, 5))
                                             local needle_projectile = get_object_memory(needle)
-                                            write_float(needle_projectile + 0x70, - math.random(1, 3))
+                                            write_float(needle_projectile + 0x70, -math.random(1, 3))
                                             -- banshee plasma bolt
                                             local banshee_bolt = spawn_object("proj", "vehicles\\banshee\\banshee bolt", x1, y1, z1 + math.random(1, 20))
                                             local banshee_bolt_projectile = get_object_memory(banshee_bolt)
-                                            write_float(banshee_bolt_projectile + 0x70, - math.random(1, 3))
+                                            write_float(banshee_bolt_projectile + 0x70, -math.random(1, 3))
                                             -- banshee fuel rod
                                             local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
                                             local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
-                                            write_float(banshee_fuel_rod_projectile + 0x70, - math.random(1, 3))
+                                            write_float(banshee_fuel_rod_projectile + 0x70, -math.random(1, 3))
                                             -- tank shell
                                             local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
                                             local tank_shell_projectile = get_object_memory(tank_shell)
-                                            write_float(tank_shell_projectile + 0x70, - math.random(1, 3))
+                                            write_float(tank_shell_projectile + 0x70, -math.random(1, 3))
                                             -- flames
                                             local flames = spawn_object("proj", "weapons\\flamethrower\\flame", x1, y1, z1 + 0.2)
                                             local flame_projectile = get_object_memory(flames)
-                                            write_float(flame_projectile + 0x70, - math.random(0.2, 0.5))
+                                            write_float(flame_projectile + 0x70, -math.random(0.2, 0.5))
                                             -- sniper bullet projectile
                                             local sniper = spawn_object("proj", "weapons\\sniper rifle\\sniper bullet", x1, y1, z1 + math.random(1, 20))
                                             local sniper_projectile = get_object_memory(sniper)
-                                            write_float(sniper_projectile + 0x70, - math.random(1, 3))
+                                            write_float(sniper_projectile + 0x70, -math.random(1, 3))
                                             -- plasma rile charged bolt projectile
                                             local plasma_rile_bolt = spawn_object("proj", "weapons\\plasma rifle\\charged bolt", x1, y1, z1 + math.random(1, 20))
                                             local plasma_rile_bolt_projectile = get_object_memory(plasma_rile_bolt)
-                                            write_float(plasma_rile_bolt_projectile + 0x70, - math.random(1, 3))
+                                            write_float(plasma_rile_bolt_projectile + 0x70, -math.random(1, 3))
                                             -- ghost bolt projectile
                                             local ghost_bolt = spawn_object("proj", "vehicles\\ghost\\ghost bolt", x1, y1, z1 + math.random(1, 20))
                                             local ghost_bolt_projectile = get_object_memory(ghost_bolt)
-                                            write_float(ghost_bolt_projectile + 0x70, - math.random(1, 3))
+                                            write_float(ghost_bolt_projectile + 0x70, -math.random(1, 3))
                                         end
                                     else
                                         rprint(executor, get_var(index, "$name") .. " is dead!")
@@ -559,7 +566,6 @@ function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
     if player_object then
         if PlayerInVehicle(player) then
             local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-            local vehicle_tag = read_string(read_dword(read_word(VehicleObj) * 32 + 0x40440038))
             if VehicleObj ~= nil then
                 write_bit(VehicleObj + 0x10, 2, 0)
                 if values_specified[player] then
@@ -697,7 +703,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

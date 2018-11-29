@@ -36,7 +36,7 @@ function OnNewGame(map)
     end
     last_damage = { }
     team_change = { }
-end	
+end
 
 function OnGameEnd(stage)
     if stage == 1 then
@@ -45,7 +45,7 @@ function OnGameEnd(stage)
             announce = nil
         end
     end
-end	
+end
 
 function OnPlayerJoin(player)
     if getplayer(player) then
@@ -167,7 +167,9 @@ function OnPlayerKill(killer, victim, mode, m_player)
                         -- Ghost Bolt
                         say("** DEATH **   " .. getname(killer) .. " killed " .. getname(victim) .. "!", false)
                         hprintf("D  E  A  T  H     -     " .. getname(killer) .. " killed " .. getname(victim) .. " with the ghost plasma guns.")
-                        if logging then log_msg(1, getname(killer) .. " killed " .. getname(victim) .. " with the ghost plasma guns.") end
+                        if logging then
+                            log_msg(1, getname(killer) .. " killed " .. getname(victim) .. " with the ghost plasma guns.")
+                        end
                     elseif last_damage[vhash] == "vehicles\\scorpion\\bullet" then
                         -- Scorpion Tank Bullet
                         say("** DEATH **   " .. getname(killer) .. " killed " .. getname(victim) .. "!", false)
@@ -176,7 +178,9 @@ function OnPlayerKill(killer, victim, mode, m_player)
                         -- Scorpion tank Shell Explosion
                         say("** DEATH **   " .. getname(killer) .. " killed " .. getname(victim) .. "!", false)
                         hprintf("D  E  A  T  H     -     " .. getname(killer) .. " killed " .. getname(victim) .. " with a Sniper Rifle!")
-                        if logging then log_msg(1, getname(killer) .. " killed " .. getname(victim) .. " with a Sniper Rifle!") end
+                        if logging then
+                            log_msg(1, getname(killer) .. " killed " .. getname(victim) .. " with a Sniper Rifle!")
+                        end
                     elseif last_damage[vhash] == "vehicles\\warthog\\bullet" then
                         -- Warthog chain-gun bullet
                         say("** DEATH **   " .. getname(killer) .. " killed " .. getname(victim) .. "!", false)
@@ -247,7 +251,7 @@ function OnPlayerKill(killer, victim, mode, m_player)
             privatesay(killer, "Do not betray your Team mates!")
             hprintf("B E T R A Y     -     " .. killer .. " has been warned for betraying team mates.")
         end
-        ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+        ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- S U I C I D E S --
     elseif mode == 6 then
         response = false
@@ -270,7 +274,7 @@ function OnPlayerKill(killer, victim, mode, m_player)
         end
     end
     return response
-end	
+end
 
 function OnTeamChange(player, old_team, new_team, relevant)
     if getplayer(player) then
@@ -288,7 +292,7 @@ function GenerateKillType(killslang)
     else
         return "killed"
     end
-end	
+end
 
 function GenerateHeadSlang(head)
     local headcount = #HeadSlang
@@ -299,7 +303,7 @@ function GenerateHeadSlang(head)
     else
         return "head"
     end
-end	
+end
 
 function GenerateHitSlang(hit)
     local hitcount = #HitSlang
@@ -361,7 +365,9 @@ function nextid(player, order)
         local original = order
         while console[player][order] do
             order = order + 0.001
-            if order == original + 0.999 then break end
+            if order == original + 0.999 then
+                break
+            end
         end
 
         return order
@@ -519,18 +525,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then

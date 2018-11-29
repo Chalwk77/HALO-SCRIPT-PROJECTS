@@ -14,8 +14,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 DEATH_LOCATION = { }
-for i = 1, 16 do DEATH_LOCATION[i] = { } end
-function OnScriptUnload() end
+for i = 1, 16 do
+    DEATH_LOCATION[i] = { }
+end
+function OnScriptUnload()
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
@@ -52,8 +55,4 @@ function OnPlayerLeave(VictimIndex)
     for i = 1, 3 do
         DEATH_LOCATION[victim][i] = nil
     end
-end
-
-function OnError(Message)
-    print(debug.traceback())
 end

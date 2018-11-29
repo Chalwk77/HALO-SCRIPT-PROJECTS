@@ -188,7 +188,7 @@ end
 
 function GetObjectCoords(ObjectID)
     local function round(pos, places)
-        local mult = 10^(places or 0)
+        local mult = 10 ^ (places or 0)
         return math.floor(pos * mult + 0.5) / mult
     end
     local player = get_dynamic_player(PlayerIndex)
@@ -260,7 +260,9 @@ function GetVehicleObjectMemory(PlayerIndex)
     local player = get_dynamic_player(PlayerIndex)
     if (player ~= 0) then
         local current_vehicle = get_object_memory(read_dword(player + 0x11C))
-        if (current_vehicle == nil) then return nil end
+        if (current_vehicle == nil) then
+            return nil
+        end
         if (current_vehicle ~= 0 and current_vehicle ~= nil) then
         end
     end
@@ -271,10 +273,11 @@ function tokenizestring(inputString, separator)
     if (separator == nil) then
         separator = "%s"
     end
-    local table = { }; index = 1
-for string in string.gmatch(inputString, "([^" .. separator .. "]+)") do
-    table[index] = string
-    index = index + 1
-end
-return table
+    local table = { };
+    index = 1
+    for string in string.gmatch(inputString, "([^" .. separator .. "]+)") do
+        table[index] = string
+        index = index + 1
+    end
+    return table
 end

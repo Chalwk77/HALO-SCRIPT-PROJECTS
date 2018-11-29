@@ -9,9 +9,13 @@ Copyright (c) 2016-2018
 ]]-- 
 
 RespawnTime = 1.5
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 function OnPlayerKill(killer, victim, mode)
     if victim then
         if RespawnTime then

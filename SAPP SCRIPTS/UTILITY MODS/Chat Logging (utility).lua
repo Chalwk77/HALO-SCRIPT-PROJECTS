@@ -32,7 +32,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnNewGame()
     local file = io.open(dir, "a+")
@@ -81,10 +82,10 @@ function OnChatMessage(PlayerIndex, Message, type)
     local Command = tokenizestring(Message)
     local name = get_var(PlayerIndex, "$name")
     iscommand = nil
-    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then 
+    if string.sub(Command[1], 1, 1) == "/" or string.sub(Command[1], 1, 1) == "\\" then
         iscommand = true
         chattype = "[COMMAND] "
-    else 
+    else
         iscommand = false
     end
     if type == 0 then
@@ -93,14 +94,14 @@ function OnChatMessage(PlayerIndex, Message, type)
         Type = "[TEAM]    "
     elseif type == 2 then
         Type = "[VEHICLE] "
-    end    
+    end
     if (player_present(PlayerIndex) ~= nil) then
-        if iscommand then 
+        if iscommand then
             WriteData(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. Message)
-            cprint(chattype .." " .. name .. " [" .. id .. "]: " .. Message, 3+8)
+            cprint(chattype .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
         else
             WriteData(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. Message)
-            cprint(Type .." " .. name .. " [" .. id .. "]: " .. Message, 3+8)
+            cprint(Type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
         end
     end
     return true
@@ -110,8 +111,9 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {};
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end

@@ -8,13 +8,17 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 Banshee = { }
 math.inf = 1 / 0
-Banshee[1] = { "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758 } -- Blue Base
-Banshee[2] = { "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960 } -- Red Base
+Banshee[1] = { "vehicles\\banshee\\banshee_mp", 70.078, -62.626, 3.758 } -- Blue Base
+Banshee[2] = { "vehicles\\banshee\\banshee_mp", 64.178, -176.802, 3.960 } -- Red Base
 ----------------------------------------------------------------------
 function OnNewGame(map)
     for k, v in pairs(Banshee) do

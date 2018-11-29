@@ -8,8 +8,11 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptUnload()
+end
 function OnScriptLoad(process, game, persistent)
     if game == true or game == "PC" then
         GAME = "PC"
@@ -22,12 +25,12 @@ end
 Banshee = { }
 Turret = { }
 math.inf = 1 / 0
-Banshee[1] = { "vehicles\\banshee\\banshee_mp", 70.078, - 62.626, 3.758 } -- Blue Base
-Banshee[2] = { "vehicles\\banshee\\banshee_mp", 64.178, - 176.802, 3.960 } -- Red Base
+Banshee[1] = { "vehicles\\banshee\\banshee_mp", 70.078, -62.626, 3.758 } -- Blue Base
+Banshee[2] = { "vehicles\\banshee\\banshee_mp", 64.178, -176.802, 3.960 } -- Red Base
 
-Turret[1] = { "vehicles\\c gun turret\\c gun turret_mp", 51.315, - 154.075, 21.561 } -- Turret Mountain
-Turret[2] = { "vehicles\\c gun turret\\c gun turret_mp", 118.084, - 185.346, 6.563 } -- Fox Hill
-Turret[3] = { "vehicles\\c gun turret\\c gun turret_mp", 29.544, - 53.628, 3.302 } -- Behind Blue Base
+Turret[1] = { "vehicles\\c gun turret\\c gun turret_mp", 51.315, -154.075, 21.561 } -- Turret Mountain
+Turret[2] = { "vehicles\\c gun turret\\c gun turret_mp", 118.084, -185.346, 6.563 } -- Fox Hill
+Turret[3] = { "vehicles\\c gun turret\\c gun turret_mp", 29.544, -53.628, 3.302 } -- Behind Blue Base
 
 function OnNewGame(map)
     for k, v in pairs(Banshee) do

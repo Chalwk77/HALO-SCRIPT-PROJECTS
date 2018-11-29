@@ -23,7 +23,7 @@ end
 
 function ScriptLoad()
     logging = true
-end	
+end
 
 function OnNewGame(map)
     ghost_mapId = gettagid("vehi", "vehicles\\ghost\\ghost_mp")
@@ -32,7 +32,7 @@ function OnNewGame(map)
     banshee_mapId = gettagid("vehi", "vehicles\\banshee\\banshee_mp")
     turret_mapId = gettagid("vehi", "vehicles\\c gun turret\\c gun turret_mp")
     rhog_mapId = gettagid("vehi", "vehicles\\rwarthog\\rwarthog")
-end	
+end
 
 --[[
 Warthog:
@@ -63,7 +63,7 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- Ghost
         Vehicle_Name = "Ghost"
         PTP_Vehicle_Name = "SR-RAV  GHOST: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Drivers Seat
             PTS_seat_name = "Drivers"
             PTP_Seat_Name = "Drivers  Seat"
@@ -73,15 +73,15 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- // Warthog
         Vehicle_Name = "Warthog"
         PTP_Vehicle_Name = "WARTHOG: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Drivers Seat
             PTS_seat_name = "Drivers"
             PTP_Seat_Name = "Drivers  Seat"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             -- Gunners Seat
             PTS_seat_name = "Gunners"
             PTP_Seat_Name = "Gunners  Seat"
@@ -91,23 +91,23 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- // Scorpion Tank
         Vehicle_Name = "Scorpion Tank"
         PTP_Vehicle_Name = "SCORPION TANK: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Drivers Seat
             PTS_seat_name = "Drivers"
             PTP_Seat_Name = "Commanders  Seat"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
-        elseif seat ==(3) then
+        elseif seat == (3) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
-        elseif seat ==(4) then
+        elseif seat == (4) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
@@ -117,7 +117,7 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- // Banshee
         Vehicle_Name = "Banshee"
         PTP_Vehicle_Name = "BANSHEE: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Pilots Seat
             PTS_seat_name = "Piolts"
             PTP_Seat_Name = "Pilots  Seat"
@@ -127,7 +127,7 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- // Covenant Turret
         Vehicle_Name = "Covenant Turret"
         PTP_Vehicle_Name = "COVENANT TURRET: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Drivers Seat
             PTS_seat_name = "Controllers"
             PTP_Seat_Name = "Controllers  Seat"
@@ -137,15 +137,15 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
         -- // Rocket Hog
         Vehicle_Name = "Rocket hog"
         PTP_Vehicle_Name = "ROCKET HOG: "
-        if seat ==(0) then
+        if seat == (0) then
             -- Drivers Seat
             PTS_seat_name = "Drivers"
             PTP_Seat_Name = "Drivers  Seat"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             -- Passengers Seat
             PTS_seat_name = "Passengers"
             PTP_Seat_Name = "Passengers  Seat"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             -- Gunners Seat
             PTS_seat_name = "Gunners"
             PTP_Seat_Name = "Gunners  Seat"
@@ -153,7 +153,9 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
     end
     sendconsoletext(player, " " .. tostring(PTP_Vehicle_Name) .. " " .. tostring(PTP_Seat_Name) .. ".")
     hprintf("     V E H I C L E   E N T R Y:\n     " .. tostring(name) .. " entered the " .. tostring(PTS_seat_name) .. " seat of a " .. tostring(Vehicle_Name) .. ".")
-    if logging then log_msg(1, name .. " entered the " .. tostring(PTS_seat_name) .. " seat of a " .. tostring(Vehicle_Name) .. ".") end
+    if logging then
+        log_msg(1, name .. " entered the " .. tostring(PTS_seat_name) .. " seat of a " .. tostring(Vehicle_Name) .. ".")
+    end
     --[[
 	local m_playerObjId = getplayerobjectid(player)
 	local m_vehicleId = readdword(getobject(m_playerObjId) + 0x11C)

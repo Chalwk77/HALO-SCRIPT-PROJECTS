@@ -29,7 +29,7 @@ function OnScriptLoad(processid, game, persistent)
     if persistent == true then
         raiseerror("this script doesn't support persistance.")
     end
-    welcome_message = string.format(welcome_message,getservername())
+    welcome_message = string.format(welcome_message, getservername())
     if readbyte(0x671340 + 0x30) == 2 and readbyte(0x671340, 0x34) ~= 1 then
         teamslayer = true
     end
@@ -90,7 +90,7 @@ end
 
 function OnGameEnd(stage)
     if stage == 1 then
-        for i = 0,15 do
+        for i = 0, 15 do
             local message = getmessage(i, 1)
             if message then
                 message:delete()
@@ -106,8 +106,8 @@ end
 function stats_timer(id, count, player)
     local message = getmessage(player, 1)
     if message then
-        local ammo = getammo(player,"loaded")
-        message:append( "Bullets: " .. tostring(ammo), true)
+        local ammo = getammo(player, "loaded")
+        message:append("Bullets: " .. tostring(ammo), true)
     end
     return true
 end
@@ -122,7 +122,7 @@ function OnWeaponAssignment(player, owner_id, order, weap_id)
     end
 end
 
-function getammo(player,type)
+function getammo(player, type)
     if getplayer(player) then
         local m_objectId = getplayerobjectid(player)
         if m_objectId then
@@ -147,7 +147,7 @@ function getammo(player,type)
     return 0
 end
 
-function setammo(player,type,amount)
+function setammo(player, type, amount)
     if getplayer(player) then
         local m_objectId = getplayerobjectid(player)
         if m_objectId then
@@ -175,8 +175,8 @@ end
 function OnPlayerKill(killer, victim, mode)
     if mode == 4 then
         if killer then
-            local ammo = getammo(killer,"loaded") + ammo_for_kill
-            setammo(killer,"loaded",ammo)
+            local ammo = getammo(killer, "loaded") + ammo_for_kill
+            setammo(killer, "loaded", ammo)
             sendconsoletext(killer, "Bullets: " .. tostring(ammo), message_time, 1, "left")
         end
     end
@@ -231,19 +231,19 @@ function OnPlayerSpawnEnd(player, m_objectId)
     usedFlashlight[player] = nil
     writebyte(m_object, 0x31E, 0) -- frags
     writebyte(m_object, 0x31F, 0) -- plasmas
-    registertimer(100,"delay_ammo",player)
+    registertimer(100, "delay_ammo", player)
     setspeed(player, running_speed)
-    local ammo = getammo(player,"loaded")
+    local ammo = getammo(player, "loaded")
     sendconsoletext(player, "Bullets: " .. tostring(ammo), message_time, 1, "left")
 end
 
 function delay_ammo(id, count, player)
     if reset_ammo == true then
-        setammo(player,"loaded",starting_primary_ammo)
-        setammo(player,"unloaded",starting_secondary_ammo)
+        setammo(player, "loaded", starting_primary_ammo)
+        setammo(player, "unloaded", starting_secondary_ammo)
     else
-        setammo(player,"loaded",ammo[player].loaded)
-        setammo(player,"unloaded",ammo[player].unloaded)
+        setammo(player, "loaded", ammo[player].loaded)
+        setammo(player, "unloaded", ammo[player].unloaded)
     end
     return 0
 end
@@ -265,7 +265,7 @@ function OnClientUpdate(player)
 
 end
 
-function haveSpeedTimer(id,count,player)
+function haveSpeedTimer(id, count, player)
     setspeed(player, running_speed)
     return 0
 end
@@ -294,7 +294,7 @@ function sendconsoletext(player, message, time, order, align, func)
 end
 
 function GetGameAddresses(GAME)
-    if GAME == "PC"  then
+    if GAME == "PC" then
         oddball_globals = 0x639E18
         slayer_globals = 0x63A0E8
         name_base = 0x745D4A
@@ -335,7 +335,7 @@ function nextid(player, order)
 
     if not order then
         local x = 0
-        for k,v in pairs(console[player]) do
+        for k, v in pairs(console[player]) do
             if k > x + 1 then
                 return x + 1
             end
@@ -348,7 +348,9 @@ function nextid(player, order)
         local original = order
         while console[player][order] do
             order = order + 0.001
-            if order == original + 0.999 then break end
+            if order == original + 0.999 then
+                break
+            end
         end
 
         return order
@@ -373,7 +375,7 @@ function getmessageblock(player, order)
 
     local temp = {}
 
-    for k,v in opairs(console[player]) do
+    for k, v in opairs(console[player]) do
         if k >= order and k < order + 1 then
             table.insert(temp, console[player][k])
         end
@@ -427,10 +429,10 @@ end
 
 function ConsoleTimer(id, count)
 
-    for i,_ in opairs(console) do
+    for i, _ in opairs(console) do
         if tonumber(i) then
             if getplayer(i) then
-                for k,v in opairs(console[i]) do
+                for k, v in opairs(console[i]) do
                     if console[i][k].pausetime then
                         console[i][k].pausetime = console[i][k].pausetime - 0.1
                         if console[i][k].pausetime <= 0 then
@@ -455,7 +457,7 @@ function ConsoleTimer(id, count)
                 if table.len(console[i]) > 0 then
 
                     local paused = 0
-                    for k,v in pairs(console[i]) do
+                    for k, v in pairs(console[i]) do
                         if console[i][k].pausetime then
                             paused = paused + 1
                         end
@@ -463,13 +465,13 @@ function ConsoleTimer(id, count)
 
                     if paused < table.len(console[i]) then
                         local str = ""
-                        for i = 0,30 do
+                        for i = 0, 30 do
                             str = str .. " \n"
                         end
 
                         phasor_sendconsoletext(i, str)
 
-                        for k,v in opairs(console[i]) do
+                        for k, v in opairs(console[i]) do
                             if not console[i][k].pausetime then
                                 if console[i][k].align == "right" or console[i][k].align == "center" then
                                     phasor_sendconsoletext(i, consolecenter(string.sub(console[i][k].message, 1, 78)))
@@ -504,29 +506,29 @@ end
 function opairs(t)
 
     local keys = {}
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a,b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end)
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then
             local key = keys[count]
             local value = t[key]
             count = count + 1
-            return key,value
+            return key, value
         end
     end
 end
@@ -534,7 +536,7 @@ end
 function table.len(t)
 
     local count = 0
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         count = count + 1
     end
 

@@ -33,68 +33,68 @@ SLAYER_ADDITIONAL_WELCOME_MESSAGE = "The NAV points are not just for decoration!
 KOTH_ADDITIONAL_WELCOME_MESSAGE = "The hill is a Safe-Zone! Use it for quick getaways!"
 -- =================================================================================================================================================================--
 -- COUNTS --
-local ZOMBIE_TEAM = 1 				-- 		0 is Red, 1 is Blue
-local HUMAN_TEAM = 1 - ZOMBIE_TEAM	-- 	
-local Invis_Time = 2				-- 	Invisible on Crouch Time
-local ZOMBIES_INVIS_TIME = 30.00	-- 	All Zombies Invisible (in seconds)
-local Lastman_InvisTime = 30 		-- 		In seconds
-local Human_Speed = 1.2 			-- 	Human Speed - when they're not infected!
-local Zombie_Speed = 1.7 			-- 		Zombie Speed
-local lastman_Speed = 1.5 			-- 		Last Man Speed
+local ZOMBIE_TEAM = 1                -- 		0 is Red, 1 is Blue
+local HUMAN_TEAM = 1 - ZOMBIE_TEAM    --
+local Invis_Time = 2                -- 	Invisible on Crouch Time
+local ZOMBIES_INVIS_TIME = 30.00    -- 	All Zombies Invisible (in seconds)
+local Lastman_InvisTime = 30        -- 		In seconds
+local Human_Speed = 1.2            -- 	Human Speed - when they're not infected!
+local Zombie_Speed = 1.7            -- 		Zombie Speed
+local lastman_Speed = 1.5            -- 		Last Man Speed
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local Zombie_Speed_Powerup_duration =(20)	-- (in seconds) - Speed when they pickup 'doublespeed_id' or 'full_spec_id'.
-local Human_Speed_Powerup_duration =(15)	-- (in seconds) - Speed when they pickup 'doublespeed_id' or 'full_spec_id'.
-local Reset_To_Zombie_Speed = 1.7		-- 		Resets their speed after receiving speed boost from picking up a 'doublespeed_id' or 'full_spec_id'. 
-local Reset_To_Human_Speed = 1.2		-- 		Resets their speed after receiving speed boost from picking up a 'doublespeed_id' or 'full_spec_id'. 
-local Zombie_Speed_Powerup = 2			-- 		Speed Quality - after picking up 'doublespeed_id' or 'full_spec_id'.
-local Human_Speed_Powerup = 2			-- 		Speed Quality - after picking up 'doublespeed_id' or 'full_spec_id'.
+local Zombie_Speed_Powerup_duration = (20)    -- (in seconds) - Speed when they pickup 'doublespeed_id' or 'full_spec_id'.
+local Human_Speed_Powerup_duration = (15)    -- (in seconds) - Speed when they pickup 'doublespeed_id' or 'full_spec_id'.
+local Reset_To_Zombie_Speed = 1.7        -- 		Resets their speed after receiving speed boost from picking up a 'doublespeed_id' or 'full_spec_id'.
+local Reset_To_Human_Speed = 1.2        -- 		Resets their speed after receiving speed boost from picking up a 'doublespeed_id' or 'full_spec_id'.
+local Zombie_Speed_Powerup = 2            -- 		Speed Quality - after picking up 'doublespeed_id' or 'full_spec_id'.
+local Human_Speed_Powerup = 2            -- 		Speed Quality - after picking up 'doublespeed_id' or 'full_spec_id'.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local Zombie_Count = 0.17 				-- 		If value is less than 1 is it used as a percentage, more than or equal to one is absolute count
-local Zombie_Ammo_Count = 0 			-- 		Backpack ammo
-local Last_Man_Ammo_Count = 600 		-- 	How much ammo should the last man be given ?
-local AlphaZombie_Ammo_Count = 1  		-- 		Backpack ammo
-local AlphaZombie_Clip_Count = 0  		-- 		Number of shots in clip
-local Zombie_Frag_Count = 1   			-- 		Number of Frag Nades they spawn with
-local Zombie_Plasma_Count = 1 			-- 		Number of Plasma Nades they spawn with
-local AlphaZombie_Frag_Count = 2 		-- 		Number of Frag Nades they spawn with
-local AlphaZombie_Plasma_Count = 2 		-- 		Number of plasma Nades they spawn with
-local LastMan_DamageModifier = 1.8 		-- 		Damage Modifier for the last man (on top of human damage)
-local Max_Zombie_Count = 2 				-- 		This caps what the zombie count would be w/ ratio (nil is disable)
-local Zombie_Clip_Count = 0 			-- 		Number of shots in clip for zombies once there are not only alpha zombies
-local LastManAmmoCount = 600			-- 		Ammo count for the last man's weapons.
-local LastMan_Invulnerable = 5 			-- 		Time (in seconds) the last man is invulnerable for: replace with nil to disable
-local Max_Ticks_Between_Taps = 17		--
-local Max_Ticks_Before_Restart = 17		--
-local Burst_Time = 1 					-- 		Speed Boost Duration (Zombies Only)
-local Speed_Amount = 2.5 				-- 		Speed Boost Amount
-local Burst_Overheat = 1				--
-local Human_ReSpawn_Time = 2.5 			--  	Spawn time for humans (in seconds). Leave "default" for default spawn time.
-local Zombie_ReSpawnTime = 2.5 			--  	Spawn time for zombies (in seconds). Leave "default" for default spawn time.
+local Zombie_Count = 0.17                -- 		If value is less than 1 is it used as a percentage, more than or equal to one is absolute count
+local Zombie_Ammo_Count = 0            -- 		Backpack ammo
+local Last_Man_Ammo_Count = 600        -- 	How much ammo should the last man be given ?
+local AlphaZombie_Ammo_Count = 1        -- 		Backpack ammo
+local AlphaZombie_Clip_Count = 0        -- 		Number of shots in clip
+local Zombie_Frag_Count = 1            -- 		Number of Frag Nades they spawn with
+local Zombie_Plasma_Count = 1            -- 		Number of Plasma Nades they spawn with
+local AlphaZombie_Frag_Count = 2        -- 		Number of Frag Nades they spawn with
+local AlphaZombie_Plasma_Count = 2        -- 		Number of plasma Nades they spawn with
+local LastMan_DamageModifier = 1.8        -- 		Damage Modifier for the last man (on top of human damage)
+local Max_Zombie_Count = 2                -- 		This caps what the zombie count would be w/ ratio (nil is disable)
+local Zombie_Clip_Count = 0            -- 		Number of shots in clip for zombies once there are not only alpha zombies
+local LastManAmmoCount = 600            -- 		Ammo count for the last man's weapons.
+local LastMan_Invulnerable = 5            -- 		Time (in seconds) the last man is invulnerable for: replace with nil to disable
+local Max_Ticks_Between_Taps = 17        --
+local Max_Ticks_Before_Restart = 17        --
+local Burst_Time = 1                    -- 		Speed Boost Duration (Zombies Only)
+local Speed_Amount = 2.5                -- 		Speed Boost Amount
+local Burst_Overheat = 1                --
+local Human_ReSpawn_Time = 2.5            --  	Spawn time for humans (in seconds). Leave "default" for default spawn time.
+local Zombie_ReSpawnTime = 2.5            --  	Spawn time for zombies (in seconds). Leave "default" for default spawn time.
 -- =============================================================================================================================================================--
 -- Editable Booleans					--
 -- Booleans --							--
-local AnnounceEndGameMessage = false	-- 		True / False - Do you want to Announce a message on game end?
-local AnnounceRank = true				-- 		True / False - Announce Player Rank on Join?
-local Infect_On_Fall = true				-- 		Infect player on fall?
-local Infect_On_Suicide = true			-- 		Infect player on suicide?
-local Allow_Speed_Boost = true 			-- 		True / False - Allow / Block SpeedBoost.
-local Infect_On_Betray = false			-- 		Infect Player on Betray?
-local Last_Man_Next_Zombie = true 		-- 		If this value is true, then last man standing becomes the next zombie, if false then it's random.
-local Infect_On_Guardians = false 		-- 		Infect player on Guardians ?
+local AnnounceEndGameMessage = false    -- 		True / False - Do you want to Announce a message on game end?
+local AnnounceRank = true                -- 		True / False - Announce Player Rank on Join?
+local Infect_On_Fall = true                -- 		Infect player on fall?
+local Infect_On_Suicide = true            -- 		Infect player on suicide?
+local Allow_Speed_Boost = true            -- 		True / False - Allow / Block SpeedBoost.
+local Infect_On_Betray = false            -- 		Infect Player on Betray?
+local Last_Man_Next_Zombie = true        -- 		If this value is true, then last man standing becomes the next zombie, if false then it's random.
+local Infect_On_Guardians = false        -- 		Infect player on Guardians ?
 local Broadcast_Zombies_Invisible = true  -- If the zombies are ALL made invisible, do you want the entire server to know?  true/false.
 local Announce_Killed_By_Guardians = true -- 	Only used if Infect_On_Guardians is false.			--
-local Spawn_Where_Killed = false 		-- 		If this is true, players will spawn where they were killed.
-local Drop_PowerUp = false  			-- 		If this is true, 'Drop Powerup on Death' will drop a powerup at the victims death location.
-local Write_To_File = true 				-- 		Write Game Stats to file?
-local allow_player_invis = true 		-- 		NOT USED
-local HowMuch = 0.1 					-- 		(time in seconds))
+local Spawn_Where_Killed = false        -- 		If this is true, players will spawn where they were killed.
+local Drop_PowerUp = false            -- 		If this is true, 'Drop Powerup on Death' will drop a powerup at the victims death location.
+local Write_To_File = true                -- 		Write Game Stats to file?
+local allow_player_invis = true        -- 		NOT USED
+local HowMuch = 0.1                    -- 		(time in seconds))
 -- ===========================================================================================================================--
 -- Vehicle Settings --					--
-local Force_Zombie_Vehicle = true 		-- 		Specifies whether zombies are forced into vehicles on spawn.		
-local Zombie_Vehicle_Timer = 15			-- 		Time inactive (in seconds) before a vehicle spawned for a zombie is destroyed
+local Force_Zombie_Vehicle = true        -- 		Specifies whether zombies are forced into vehicles on spawn.
+local Zombie_Vehicle_Timer = 15            -- 		Time inactive (in seconds) before a vehicle spawned for a zombie is destroyed
 -- ===========================================================================================================================--
 -- Prefix Globals --
-default_script_prefix = "* " 			-- Default server prefix: "**SERVER**".
+default_script_prefix = "* "            -- Default server prefix: "**SERVER**".
 phasor_privatesay = privatesay
 phasor_say = say
 
@@ -108,7 +108,7 @@ end
 
 function privatesay(player, message, script_prefix)
     if GAME == "PC" then
-        phasor_privatesay(player,(script_prefix or default_script_prefix) .. " " .. message, false)
+        phasor_privatesay(player, (script_prefix or default_script_prefix) .. " " .. message, false)
     else
         phasor_privatesay(player, message, false)
     end
@@ -153,17 +153,17 @@ ZOMBIE_VEHICLES = ""
 HUMAN_VEHICLES = ""
 HUMAN_VEHICLE_BLOCK = ""
 ZOMBIE_VEHICLE_ALLOWED = ""
-time = { } 	 	-- Declare time. Used for player's time spent in server.
+time = { }        -- Declare time. Used for player's time spent in server.
 kills = { }
 avenge = { }
 warned = { }
 killers = { }
-xcoords = { } 	-- Declare x coords. Used for distance traveled.
-ycoords = { } 	-- Declare y coords. Used for distance traveled.
-zcoords = { } 	-- Declare z coords. Used for distance traveled.
+xcoords = { }    -- Declare x coords. Used for distance traveled.
+ycoords = { }    -- Declare y coords. Used for distance traveled.
+zcoords = { }    -- Declare z coords. Used for distance traveled.
 Forward = { }
 messages = { }
-jointime = { } 	-- Declare Jointime. Used for a player's time spent in server.
+jointime = { }    -- Declare Jointime. Used for a player's time spent in server.
 hash_table = { }
 Double_Tap = { }
 last_damage = { }
@@ -173,12 +173,12 @@ usedFlashlight = { }
 FT_TIMEOUT = { }
 DT_TIMEOUT = { }
 KILL_COMMAND_COUNT = { }
-local logging = true 		-- Enable / Disable game logging. (Enables full script logging)
-local RED_ALLOW = false 	-- True / False - Allow / Block Red Team invisible on crouch
-local BLUE_ALLOW = true 	-- True / False - Allow / Block Blue Team invisible on crouch
-players = { } 				-- Spawn Where Killed
-EQUIPMENT = { }				-- Drop PowerUp on Death
-DEATH_LOCATION = { } 		-- For 'Spawn Where Killed' and 'Drop Powerup on Death'.
+local logging = true        -- Enable / Disable game logging. (Enables full script logging)
+local RED_ALLOW = false    -- True / False - Allow / Block Red Team invisible on crouch
+local BLUE_ALLOW = true    -- True / False - Allow / Block Blue Team invisible on crouch
+players = { }                -- Spawn Where Killed
+EQUIPMENT = { }                -- Drop PowerUp on Death
+DEATH_LOCATION = { }        -- For 'Spawn Where Killed' and 'Drop Powerup on Death'.
 EQUIPMENT_TAGS = { }
 EQUIPMENT[1] = { "powerups\\active camouflage" }
 EQUIPMENT[2] = { "powerups\\health pack" }
@@ -194,11 +194,15 @@ EQUIPMENT[10] = { "powerups\\flamethrower ammo\\flamethrower ammo" }
 -- 	EQUIPMENT[12] 	= 	{"powerups\\full-spectrum vision"}
 ZOMBIE_WEAPON = { } -- Do Not Touch
 ZOMBIE_WEAPON[1] = "weapons\\ball\\ball" -- Primary weapon for zombies
-ZOMBIE_WEAPON[2] = ""	-- Secondary weapon for zombies.
-ZOMBIE_WEAPON[3] = ""	-- Tertiary weapon for zombies.
-ZOMBIE_WEAPON[4] = ""	-- Quarternary weapon for zombies.
-for i = 0, 15 do DEATH_LOCATION[i] = { } end
-function GetRequiredVersion() return 200 end
+ZOMBIE_WEAPON[2] = ""    -- Secondary weapon for zombies.
+ZOMBIE_WEAPON[3] = ""    -- Tertiary weapon for zombies.
+ZOMBIE_WEAPON[4] = ""    -- Quarternary weapon for zombies.
+for i = 0, 15 do
+    DEATH_LOCATION[i] = { }
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processId, game, persistent)
     profilepath = getprofilepath()
     local file = io.open(string.format("%s\\data\\auth_" .. tostring(process) .. ".key", profilepath), "r")
@@ -220,10 +224,10 @@ function OnScriptLoad(processId, game, persistent)
     else
         GAME = "CE"
     end
-    if readbyte(gametype_base, 0x34) == 2-- Slayer
-        or readbyte(gametype_base, 0x34) == 3-- Oddball
-        or readbyte(gametype_base, 0x34) == 4-- King of the Hill
-        or readbyte(gametype_base, 0x34) == 5-- Race
+    if readbyte(gametype_base, 0x34) == 2 -- Slayer
+            or readbyte(gametype_base, 0x34) == 3 -- Oddball
+            or readbyte(gametype_base, 0x34) == 4 -- King of the Hill
+            or readbyte(gametype_base, 0x34) == 5-- Race
     then
         registertimer(2300, "Terminate", {
             "=============================================================",
@@ -231,7 +235,7 @@ function OnScriptLoad(processId, game, persistent)
             "               ~~~~~This script only supports CTF!~~~~~",
             "               ~~~~~~~~~~SCRIPT CANNOT BE USED~~~~~~~~~",
             "============================================================="
-        } )
+        })
     end
     processid = process
     Persistent = persistent
@@ -263,7 +267,7 @@ function OnScriptLoad(processId, game, persistent)
             "        ~~~~~~~PERSISTENCE MODE NOT SUPPORTED~~~~~~",
             "        ~~~~~~~~~~~~~SCRIPT CANNOT BE USED~~~~~~~~",
             "============================================================="
-        } )
+        })
     end
     -- 	+ + WARNING + +
     -- 	If your GameMode isn't SetUp properly, the server will terminate.
@@ -278,7 +282,7 @@ function OnScriptLoad(processId, game, persistent)
             "         ~~~~~~~~~~~~SCRIPT CANNOT BE USED~~~~~~~~~~",
             "Game Mode must be called 'ZAV' and the Game Type must be CTF!",
             "============================================================="
-        } )
+        })
     end
     -- 		Recalculate team counters.
     cur_zombie_count = getteamsize(ZOMBIE_TEAM)
@@ -341,7 +345,7 @@ function WriteLine(filename, value)
             -- 			%n	New-line character ('\n')
             local Line_0 = string.format("%s\t%s\n", timestamp, tostring(value))
             Line_break = " \n"
-            Line_0 =(timestamp)
+            Line_0 = (timestamp)
             Line_1 = "\n------------------------------------------------------------------------------------------------------------------------------------------------\n"
             Line_2 = "N E W  G A M E\n"
             Line_3 = "\n"
@@ -362,7 +366,7 @@ function OnScriptUnload()
     table.save(medals, "Medals.txt")
     table.save(stats, "Stats.txt")
 end
- 
+
 function getteamplay()
     if readbyte(gametype_base + 0x34) == 1 then
         -- Confirmed. (Off = 0) (On = 1)
@@ -371,7 +375,7 @@ function getteamplay()
         return false
     end
 end
- 
+
 function OnNewGame(map)
     Current_Map = map
     LoadTags()
@@ -414,7 +418,7 @@ function OnNewGame(map)
     -- 	Map Name
     map_name = tostring(map)
 end
- 
+
 function GetGameAddresses(game)
     if game == "PC" then
         map_pointer = 0x63525c
@@ -463,7 +467,7 @@ function AuthorizeServer()
             "               ~~~~~~NO SERVER KEY FOUND~~~~~",
             "		    	~~YOU CANNOT USE THIS SCRIPT~~",
             "============================================================="
-        } )
+        })
     end
     return value or "undefined"
 end
@@ -497,10 +501,18 @@ function OnGameEnd(stage)
     end
     if stage == 1 then
         -- <	Remove Timers
-        if New_Game_Timer then New_Game_Timer = nil end
-        if lastmanpoints_timer then lastmanpoints_timer = nil end
-        if credit_timer then credit_timer = nil end
-        if Rule_Timer then Rule_Timer = nil end
+        if New_Game_Timer then
+            New_Game_Timer = nil
+        end
+        if lastmanpoints_timer then
+            lastmanpoints_timer = nil
+        end
+        if credit_timer then
+            credit_timer = nil
+        end
+        if Rule_Timer then
+            Rule_Timer = nil
+        end
         -- >
         registertimer(10, "AssistDelay")
         for i = 0, 15 do
@@ -540,7 +552,9 @@ function OnGameEnd(stage)
         table.save(extra, "Extra.txt")
     end
     if stage == 1 then
-        if checkstance then checkstance = nil end
+        if checkstance then
+            checkstance = nil
+        end
     end
     CheckGameState(-1)
     game_started = false
@@ -622,7 +636,9 @@ function OnServerChat(player, type, message)
                 table.insert(credits, { ["hash"] = k, ["credits"] = KillStats[k].total.credits })
             end
 
-            table.sort(credits, function(a, b) return a.credits > b.credits end)
+            table.sort(credits, function(a, b)
+                return a.credits > b.credits
+            end)
 
             for k, v in ipairs(credits) do
                 if hash == credits[k].hash then
@@ -747,7 +763,9 @@ function OnServerChat(player, type, message)
                                 table.insert(credits, { ["hash"] = k, ["credits"] = KillStats[k].total.credits })
                             end
 
-                            table.sort(credits, function(a, b) return a.credits > b.credits end)
+                            table.sort(credits, function(a, b)
+                                return a.credits > b.credits
+                            end)
 
                             for k, v in ipairs(credits) do
                                 if hash == credits[k].hash then
@@ -1037,7 +1055,9 @@ function OnPlayerKill(killer, victim, mode)
             if tonumber(kills) then
                 if kills == 3 then
                     OnLevelUp(killer, kill)
-                    if getteam(victim) == HUMAN_TEAM then MakeZombie(victim, false) end
+                    if getteam(victim) == HUMAN_TEAM then
+                        MakeZombie(victim, false)
+                    end
                     privatesay(victim, "*   " .. ZOMBIE_MESSAGE, false)
                     changescore(killer, 50, plus)
                     KillStats[gethash(killer)].total.deaths = KillStats[gethash(killer)].total.deaths - 1
@@ -1181,7 +1201,9 @@ function OnPlayerKill(killer, victim, mode)
             registertimer(200, "CheckGameState", victim)
             KillStats[gethash(victim)].total.deaths = KillStats[gethash(victim)].total.deaths + 1
             -- =======================================================================================================================================================--			
-            if Announce_Killed_By_Guardians then say("**THE FORCE**  " .. getname(victim) .. KILLED_BY_GUARDIANS) end
+            if Announce_Killed_By_Guardians then
+                say("**THE FORCE**  " .. getname(victim) .. KILLED_BY_GUARDIANS)
+            end
             -- Only used if Infect_On_Guardians is false.
             if Infect_On_Guardians then
                 -- Make Zombie if killed by Guardians.
@@ -1667,7 +1689,7 @@ function OnPlayerSpawn(player)
             end
 
             for i = 0, 3 do
-                local m_weaponId = readdword(m_object + 0x2F8 +(i * 4))
+                local m_weaponId = readdword(m_object + 0x2F8 + (i * 4))
                 if m_weaponId ~= 0xffffffff then
                     local m_weapon = getobject(m_weaponId)
                     if m_weapon ~= nil then
@@ -1680,8 +1702,6 @@ function OnPlayerSpawn(player)
         end
     end
 end
-
- 
 
 function OnPlayerSpawnEnd(player, m_objectId)
 
@@ -1742,7 +1762,7 @@ function OnPlayerSpawnEnd(player, m_objectId)
         end
     end
 end
- 
+
 function PutUnderMap(id, count, m_objectId)
     local m_object = getobject(m_objectId)
     if m_object then
@@ -1758,7 +1778,7 @@ function OnObjectCreationAttempt(mapId, parentId, player)
     end
     return nil
 end
- 
+
 function OnObjectInteraction(player, objId, mapId)
     -- ===============================================================================--
     -- Drop Powerup on Death
@@ -1882,7 +1902,9 @@ function OnDamageLookup(receiver, causer, mapId)
             local cplayer = nil
         end
     end
-    if string.find(tagname, "melee") then odl_multiplier(1000) end
+    if string.find(tagname, "melee") then
+        odl_multiplier(1000)
+    end
     if cplayer ~= nil then
         if getteam(cplayer) ~= nil then
             if getteam(cplayer) == HUMAN_TEAM then
@@ -1895,7 +1917,9 @@ function OnDamageLookup(receiver, causer, mapId)
         end
     end
     ------------------------------------------------------------------------------
-    if string.find(tagname, "melee") then odl_multiplier(5000) end
+    if string.find(tagname, "melee") then
+        odl_multiplier(5000)
+    end
     if cplayer ~= nil then
         -- 		Verify zombie Team
         if getteam(cplayer) ~= nil then
@@ -1937,7 +1961,6 @@ function OnDamageApplication(receiving, causing, tagid, hit, backtap)
         end
     end
 end
-
 
 function LoadTags()
     --   for i = 1,4 do
@@ -2072,7 +2095,7 @@ function OnVehicleEntry(player, vehiId, seat, mapId, relevant)
         end
     end
 end
-				
+
 function isoktoenter(team, tagname)
     local allow = nil
     if team == "zombies" then
@@ -2114,7 +2137,7 @@ function CheckStance(id, count)
         end
     end
     return true
-end	
+end
 
 function OnPlayerCrouch(player)
     if getplayer(player) then
@@ -2122,7 +2145,7 @@ function OnPlayerCrouch(player)
         local m_objectId = getplayerobjectid(player)
         if m_objectId then
             if readdword(getobject(m_objectId) + 0x204) == 0x41 then
-                if (team == 0 and RED_ALLOW) or(team == 1 and BLUE_ALLOW) then
+                if (team == 0 and RED_ALLOW) or (team == 1 and BLUE_ALLOW) then
                     applycamo(player, tonumber(Invis_Time))
                 end
             end
@@ -2136,7 +2159,7 @@ function OnPlayerStand(player)
         local m_objectId = getplayerobjectid(player)
         if m_objectId then
             if readdword(getobject(m_objectId) + 0x204) == 0x51 then
-                if (team == 0 and RED_ALLOW) or(team == 1 and BLUE_ALLOW) then
+                if (team == 0 and RED_ALLOW) or (team == 1 and BLUE_ALLOW) then
                     applycamo(player, 0.1)
                 end
             end
@@ -2166,7 +2189,7 @@ function InSphere(m_objectId, X, Y, Z, R)
     local Pass = false
     if getobject(m_objectId) then
         local x, y, z = getobjectcoords(m_objectId)
-        if (X - x) ^ 2 +(Y - y) ^ 2 +(Z - z) ^ 2 <= R then
+        if (X - x) ^ 2 + (Y - y) ^ 2 + (Z - z) ^ 2 <= R then
             Pass = true
         end
     end
@@ -2476,7 +2499,7 @@ function table.save(t, filename)
 
         spaces = spaces - 4
 
-        return string.sub(str, 1, string.len(str) -1) .. "\n" .. tab() .. "}"
+        return string.sub(str, 1, string.len(str) - 1) .. "\n" .. tab() .. "}"
     end
 
     file:write("return " .. format(t))
@@ -2490,18 +2513,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then
@@ -2512,7 +2535,6 @@ function opairs(t)
         end
     end
 end
-
 
 function table.load(filename)
 
@@ -2559,7 +2581,6 @@ function adjustedtimestamp()
     local timestamp = tostring(temp)
     return timestamp
 end
-
 
 function isplayerdead(player)
 
@@ -2615,13 +2636,13 @@ function AssistDelay(id, count)
                     KillStats[gethash(i)].total.assists = KillStats[gethash(i)].total.assists + readword(getplayer(i) + 0xA4)
                     medals[gethash(i)].count.assists = medals[gethash(i)].count.assists + readword(getplayer(i) + 0xA4)
                     if (readword(getplayer(i) + 0xA4) * 3) ~= 0 then
-                        KillStats[gethash(i)].total.credits = KillStats[gethash(i)].total.credits +(readword(getplayer(i) + 0xA4) * 3)
-                        changescore(i,(readword(getplayer(i) + 0xA4) * 3), plus)
+                        KillStats[gethash(i)].total.credits = KillStats[gethash(i)].total.credits + (readword(getplayer(i) + 0xA4) * 3)
+                        changescore(i, (readword(getplayer(i) + 0xA4) * 3), plus)
                     end
                     if readword(getplayer(i) + 0xA4) == 1 then
-                        SendMessage(i, "+" ..(readword(getplayer(i) + 0xA4) * 3) .. " cR - " .. readword(getplayer(i) + 0xA4) .. " Assist")
+                        SendMessage(i, "+" .. (readword(getplayer(i) + 0xA4) * 3) .. " cR - " .. readword(getplayer(i) + 0xA4) .. " Assist")
                     else
-                        SendMessage(i, "+" ..(readword(getplayer(i) + 0xA4) * 3) .. " cR - " .. readword(getplayer(i) + 0xA4) .. " Assists")
+                        SendMessage(i, "+" .. (readword(getplayer(i) + 0xA4) * 3) .. " cR - " .. readword(getplayer(i) + 0xA4) .. " Assists")
                     end
                 end
             end
@@ -2875,7 +2896,9 @@ getrandom = math.random
 function math.random(low, high)
     low = tonumber(low) or raiseerror("Bad argument #1 to 'math.random' (number expected, got " .. tostring(type(low)) .. ")")
     high = tonumber(high) or raiseerror("Bad argument #2 to 'math.random' (number expected, got " .. tostring(type(high)) .. ")")
-    getrandom(low, high) getrandom(low, high) getrandom(low, high)
+    getrandom(low, high)
+    getrandom(low, high)
+    getrandom(low, high)
     return getrandom(low, high)
 end
 
@@ -2972,7 +2995,7 @@ function OnLastMan()
                         -- 						Give all weapons 600 ammo.
                         for x = 0, 3 do
                             -- 							Get the weapons memory address.
-                            local m_weaponId = readdword(m_object + 0x2F8 +(x * 4))
+                            local m_weaponId = readdword(m_object + 0x2F8 + (x * 4))
                             if m_weaponId ~= 0xffffffff then
                                 if getobject(m_weaponId) ~= nil then
                                     -- 								Assign last Man his Ammo (See: LastManAmmoCount at the top of the script).	
@@ -3007,7 +3030,7 @@ function ApplyCamoToLastMan(player)
                     local m_object = getobject(readdword(getplayer(i) + 0x34))
                     if m_object ~= nil then
                         for x = 0, 3 do
-                            local m_weaponId = readdword(m_object + 0x2F8 +(x * 4))
+                            local m_weaponId = readdword(m_object + 0x2F8 + (x * 4))
                             if m_weaponId ~= 0xffffffff then
                                 if getobject(m_weaponId) ~= nil then
                                     -- 								update the last man standing's ammo count
@@ -3185,7 +3208,7 @@ function destroyweaps(id, count, m_weaponId)
     if m_weaponId then
         local m_weapon = getobject(m_weaponId)
         if m_weapon then
-            writefloat(m_weapon + 0x5C, readfloat(m_weapon + 0x5C) -1000)
+            writefloat(m_weapon + 0x5C, readfloat(m_weapon + 0x5C) - 1000)
         end
     end
     return false
@@ -3370,7 +3393,7 @@ function round(num)
         return upper
     end
 end
- 
+
 function OpenFiles()
     stats = table.load("Stats.txt")
     KillStats = table.load("KillStats.txt")
@@ -3550,7 +3573,9 @@ function AnnouncePlayerRank(player)
         table.insert(credits, { ["hash"] = k, ["credits"] = KillStats[k].total.credits })
     end
 
-    table.sort(credits, function(a, b) return a.credits > b.credits end)
+    table.sort(credits, function(a, b)
+        return a.credits > b.credits
+    end)
 
     for k, v in ipairs(credits) do
         if hash == credits[k].hash then
@@ -3565,7 +3590,9 @@ end
 
 function table.find(t, v, case)
 
-    if case == nil then case = true end
+    if case == nil then
+        case = true
+    end
 
     for k, val in pairs(t) do
         if case then
@@ -3593,7 +3620,7 @@ function DestroyGuns(object)
 end
 -------------------------------------------------------------------------
 function math.round(input, precision)
-    return math.floor(input *(10 ^ precision) + 0.5) /(10 ^ precision)
+    return math.floor(input * (10 ^ precision) + 0.5) / (10 ^ precision)
 end
 
 function LevelUp(id, count, killer)
@@ -5116,31 +5143,30 @@ end
 function getvalidcount(count)
 
     local number = nil
-    if table.find( { "180", "360", "540", "720", "900", "1080" }, count) then
+    if table.find({ "180", "360", "540", "720", "900", "1080" }, count) then
         number = 1
-    elseif table.find( { "182", "362", "542", "722", "902", "1082" }, count) then
+    elseif table.find({ "182", "362", "542", "722", "902", "1082" }, count) then
         number = 2
-    elseif table.find( { "184", "364", "544", "724", "904", "1084" }, count) then
+    elseif table.find({ "184", "364", "544", "724", "904", "1084" }, count) then
         number = 3
-    elseif table.find( { "186", "366", "546", "726", "906", "1086" }, count) then
+    elseif table.find({ "186", "366", "546", "726", "906", "1086" }, count) then
         number = 4
-    elseif table.find( { "188", "368", "548", "728", "908", "1088" }, count) then
+    elseif table.find({ "188", "368", "548", "728", "908", "1088" }, count) then
         number = 5
     end
 
     return number
 end
-		
 
 function secondsToTime(seconds, places)
-    local years = math.floor(seconds /(60 * 60 * 24 * 365))
-    seconds = seconds %(60 * 60 * 24 * 365)
-    local weeks = math.floor(seconds /(60 * 60 * 24 * 7))
-    seconds = seconds %(60 * 60 * 24 * 7)
-    local days = math.floor(seconds /(60 * 60 * 24))
-    seconds = seconds %(60 * 60 * 24)
-    local hours = math.floor(seconds /(60 * 60))
-    seconds = seconds %(60 * 60)
+    local years = math.floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = math.floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = math.floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
     local minutes = math.floor(seconds / 60)
     seconds = seconds % 60
 
@@ -5233,11 +5259,13 @@ function setscore(player, score)
             end
         end
     end
-end	
+end
 
 function writewordsigned(address, offset, word)
     value = tonumber(word)
-    if value == nil then value = tonumber(word, 16) end
+    if value == nil then
+        value = tonumber(word, 16)
+    end
     if value and value > 0x7FFF then
         local max = 0xFFFF
         local difference = max - value
@@ -5248,7 +5276,9 @@ end
 
 function writedwordsigned(address, offset, dword)
     value = tonumber(dword)
-    if value == nil then value = tonumber(dword, 16) end
+    if value == nil then
+        value = tonumber(dword, 16)
+    end
     if value and value > 0x7FFFFFFF then
         local max = 0xFFFFFFFF
         local difference = max - value
@@ -5283,8 +5313,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end
@@ -5302,25 +5332,25 @@ end
 -- WILL BE USED IN A LATER UPDATE!
 -- Zombies will be able to pickup the "Staff" - aka - flag, and it will give them special powers.
 FLAG = { }
-FLAG["beavercreek"] = { { 29.055599212646, 13.732000350952, - 0.10000000149012 }, { - 0.86037802696228, 13.764800071716, - 0.0099999997764826 }, { 14.01514339447, 14.238339424133, - 0.91193699836731 } }
-FLAG["bloodgulch"] = { { 95.687797546387, - 159.44900512695, - 0.10000000149012 }, { 40.240600585938, - 79.123199462891, - 0.10000000149012 }, { 65.749893188477, - 120.40949249268, 0.11860413849354 } }
-FLAG["boardingaction"] = { { 1.723109960556, 0.4781160056591, 0.60000002384186 }, { 18.204000473022, - 0.53684097528458, 0.60000002384186 }, { 4.3749675750732, - 12.832932472229, 7.2201852798462 } }
-FLAG["carousel"] = { { 5.6063799858093, - 13.548299789429, - 3.2000000476837 }, { - 5.7499198913574, 13.886699676514, - 3.2000000476837 }, { 0.033261407166719, 0.0034416019916534, - 0.85620224475861 } }
-FLAG["chillout"] = { { 7.4876899719238, - 4.49059009552, 2.5 }, { - 7.5086002349854, 9.750340461731, 0.10000000149012 }, { 1.392117857933, 4.7001452445984, 3.108856678009 } }
-FLAG["damnation"] = { { 9.6933002471924, - 13.340399742126, 6.8000001907349 }, { - 12.17884349823, 14.982703208923, - 0.20000000298023 }, { - 2.0021493434906, - 4.3015551567078, 3.3999974727631 } }
-FLAG["dangercanyon"] = { { - 12.104507446289, - 3.4351840019226, - 2.2419033050537 }, { 12.007399559021, - 3.4513700008392, - 2.2418999671936 }, { - 0.47723594307899, 55.331966400146, 0.23940123617649 } }
-FLAG["deathisland"] = { { - 26.576030731201, - 6.9761986732483, 9.6631727218628 }, { 29.843469619751, 15.971487045288, 8.2952880859375 }, { - 30.282138824463, 31.312761306763, 16.601940155029 } }
-FLAG["gephyrophobia"] = { { 26.884338378906, - 144.71551513672, - 16.049139022827 }, { 26.727857589722, 0.16621616482735, - 16.048349380493 }, { 63.513668060303, - 74.088592529297, - 1.0624552965164 } }
-FLAG["hangemhigh"] = { { 13.047902107239, 9.0331249237061, - 3.3619771003723 }, { 32.655700683594, - 16.497299194336, - 1.7000000476837 }, { 21.020147323608, - 4.6323413848877, - 4.2290902137756 } }
-FLAG["icefields"] = { { 24.85000038147, - 22.110000610352, 2.1110000610352 }, { - 77.860000610352, 86.550003051758, 2.1110000610352 }, { - 26.032163619995, 32.365093231201, 9.0070295333862 } }
-FLAG["infinity"] = { { 0.67973816394806, - 164.56719970703, 15.039022445679 }, { - 1.8581243753433, 47.779975891113, 11.791272163391 }, { 9.6316251754761, - 64.030670166016, 7.7762198448181 } }
-FLAG["longest"] = { { - 12.791899681091, - 21.6422996521, - 0.40000000596046 }, { 11.034700393677, - 7.5875601768494, - 0.40000000596046 }, { - 0.80207985639572, - 14.566205024719, 0.16665624082088 } }
-FLAG["prisoner"] = { { - 9.3684597015381, - 4.9481601715088, 5.6999998092651 }, { 9.3676500320435, 5.1193399429321, 5.6999998092651 }, { 0.90271377563477, 0.088873945176601, 1.392499089241 } }
-FLAG["putput"] = { { - 18.89049911499, - 20.186100006104, 1.1000000238419 }, { 34.865299224854, - 28.194700241089, 0.10000000149012 }, { - 2.3500289916992, - 21.121452331543, 0.90232092142105 } }
-FLAG["ratrace"] = { { - 4.2277698516846, - 0.85564690828323, - 0.40000000596046 }, { 18.613000869751, - 22.652599334717, - 3.4000000953674 }, { 8.6629104614258, - 11.159770965576, 0.2217468470335 } }
-FLAG["sidewinder"] = { { - 32.038200378418, - 42.066699981689, - 3.7000000476837 }, { 30.351499557495, - 46.108001708984, - 3.7000000476837 }, { 2.0510597229004, 55.220195770264, - 2.8019363880157 } }
-FLAG["timberland"] = { { 17.322099685669, - 52.365001678467, - 17.751399993896 }, { - 16.329900741577, 52.360000610352, - 17.741399765015 }, { 1.2504668235779, - 1.4873152971268, - 21.264007568359 } }
-FLAG["wizard"] = { { - 9.2459697723389, 9.3335800170898, - 2.5999999046326 }, { 9.1828498840332, - 9.1805400848389, - 2.5999999046326 }, { - 5.035900592804, - 5.0643291473389, - 2.7504394054413 } }
+FLAG["beavercreek"] = { { 29.055599212646, 13.732000350952, -0.10000000149012 }, { -0.86037802696228, 13.764800071716, -0.0099999997764826 }, { 14.01514339447, 14.238339424133, -0.91193699836731 } }
+FLAG["bloodgulch"] = { { 95.687797546387, -159.44900512695, -0.10000000149012 }, { 40.240600585938, -79.123199462891, -0.10000000149012 }, { 65.749893188477, -120.40949249268, 0.11860413849354 } }
+FLAG["boardingaction"] = { { 1.723109960556, 0.4781160056591, 0.60000002384186 }, { 18.204000473022, -0.53684097528458, 0.60000002384186 }, { 4.3749675750732, -12.832932472229, 7.2201852798462 } }
+FLAG["carousel"] = { { 5.6063799858093, -13.548299789429, -3.2000000476837 }, { -5.7499198913574, 13.886699676514, -3.2000000476837 }, { 0.033261407166719, 0.0034416019916534, -0.85620224475861 } }
+FLAG["chillout"] = { { 7.4876899719238, -4.49059009552, 2.5 }, { -7.5086002349854, 9.750340461731, 0.10000000149012 }, { 1.392117857933, 4.7001452445984, 3.108856678009 } }
+FLAG["damnation"] = { { 9.6933002471924, -13.340399742126, 6.8000001907349 }, { -12.17884349823, 14.982703208923, -0.20000000298023 }, { -2.0021493434906, -4.3015551567078, 3.3999974727631 } }
+FLAG["dangercanyon"] = { { -12.104507446289, -3.4351840019226, -2.2419033050537 }, { 12.007399559021, -3.4513700008392, -2.2418999671936 }, { -0.47723594307899, 55.331966400146, 0.23940123617649 } }
+FLAG["deathisland"] = { { -26.576030731201, -6.9761986732483, 9.6631727218628 }, { 29.843469619751, 15.971487045288, 8.2952880859375 }, { -30.282138824463, 31.312761306763, 16.601940155029 } }
+FLAG["gephyrophobia"] = { { 26.884338378906, -144.71551513672, -16.049139022827 }, { 26.727857589722, 0.16621616482735, -16.048349380493 }, { 63.513668060303, -74.088592529297, -1.0624552965164 } }
+FLAG["hangemhigh"] = { { 13.047902107239, 9.0331249237061, -3.3619771003723 }, { 32.655700683594, -16.497299194336, -1.7000000476837 }, { 21.020147323608, -4.6323413848877, -4.2290902137756 } }
+FLAG["icefields"] = { { 24.85000038147, -22.110000610352, 2.1110000610352 }, { -77.860000610352, 86.550003051758, 2.1110000610352 }, { -26.032163619995, 32.365093231201, 9.0070295333862 } }
+FLAG["infinity"] = { { 0.67973816394806, -164.56719970703, 15.039022445679 }, { -1.8581243753433, 47.779975891113, 11.791272163391 }, { 9.6316251754761, -64.030670166016, 7.7762198448181 } }
+FLAG["longest"] = { { -12.791899681091, -21.6422996521, -0.40000000596046 }, { 11.034700393677, -7.5875601768494, -0.40000000596046 }, { -0.80207985639572, -14.566205024719, 0.16665624082088 } }
+FLAG["prisoner"] = { { -9.3684597015381, -4.9481601715088, 5.6999998092651 }, { 9.3676500320435, 5.1193399429321, 5.6999998092651 }, { 0.90271377563477, 0.088873945176601, 1.392499089241 } }
+FLAG["putput"] = { { -18.89049911499, -20.186100006104, 1.1000000238419 }, { 34.865299224854, -28.194700241089, 0.10000000149012 }, { -2.3500289916992, -21.121452331543, 0.90232092142105 } }
+FLAG["ratrace"] = { { -4.2277698516846, -0.85564690828323, -0.40000000596046 }, { 18.613000869751, -22.652599334717, -3.4000000953674 }, { 8.6629104614258, -11.159770965576, 0.2217468470335 } }
+FLAG["sidewinder"] = { { -32.038200378418, -42.066699981689, -3.7000000476837 }, { 30.351499557495, -46.108001708984, -3.7000000476837 }, { 2.0510597229004, 55.220195770264, -2.8019363880157 } }
+FLAG["timberland"] = { { 17.322099685669, -52.365001678467, -17.751399993896 }, { -16.329900741577, 52.360000610352, -17.741399765015 }, { 1.2504668235779, -1.4873152971268, -21.264007568359 } }
+FLAG["wizard"] = { { -9.2459697723389, 9.3335800170898, -2.5999999046326 }, { 9.1828498840332, -9.1805400848389, -2.5999999046326 }, { -5.035900592804, -5.0643291473389, -2.7504394054413 } }
 
 -- ====================================================================================================================================================================================================--
 -- Credits to the original creator(s): {FC}[ZÅ]SlimJim														

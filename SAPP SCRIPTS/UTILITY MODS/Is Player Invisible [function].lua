@@ -17,10 +17,11 @@ function OnScriptLoad()
 
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function check_if_invisible(PlayerIndex)
-    local bool = nil
+    local bool
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local invisibility = read_float(player_object + 0x37C)

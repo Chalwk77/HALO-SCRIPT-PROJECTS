@@ -24,7 +24,7 @@ end
 
 function OnScriptUnload()
 
-end 
+end
 
 function OnNewGame(map)
     --  About 700 - 800 milliseconds.
@@ -40,7 +40,7 @@ function OnGameEnd(stage)
         removetimer(Live_On_Two)
         removetimer(Live_On_One)
     end
-end	
+end
 
 function LiveOnThree(id, count)
     for player = 0, 15 do
@@ -61,7 +61,7 @@ function LiveOnThree(id, count)
     end
     return false
     -- Ends the loop
-end	
+end
 
 function LiveOnTwo(id, count)
     for player = 0, 15 do

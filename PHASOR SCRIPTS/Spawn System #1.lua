@@ -11,7 +11,9 @@ Red_Spawn_Coords = { }
 Blue_Spawn_Coords = { }
 team_play = false
 ---------------------------------------------------------------------------
-function GetRequiredVersion() return 200 end
+function GetRequiredVersion()
+    return 200
+end
 
 function OnScriptLoad(process, game, persistent)
     if game == true or game == "PC" then
@@ -117,58 +119,58 @@ end
 
 function LoadCoords()
     if map_name == "sidewinder" then
-        Red_Spawn_Coords[1] = { - 23.225, - 35.876, - 3.702 }
-        Red_Spawn_Coords[2] = { - 38.865, - 29.467, - 3.537 }
-        Red_Spawn_Coords[3] = { - 40.148, - 13.022, - 3.526 }
-        Red_Spawn_Coords[4] = { - 32.959, - 21.268, - 3.438 }
-        Red_Spawn_Coords[5] = { - 11.704, - 15.451, 0.464 }
-        Red_Spawn_Coords[6] = { - 11.358, 0.468, - 3.482 }
-        Red_Spawn_Coords[7] = { - 39.048, - 12.266, - 3.482 }
-        Red_Spawn_Coords[8] = { - 47.680, - 19.125, - 3.482 }
-        Red_Spawn_Coords[9] = { - 20.260, - 18.394, - 3.016 }
-        Red_Spawn_Coords[10] = { - 26.170, - 28.917, - 3.457 }
-        Red_Spawn_Coords[11] = { - 40.388, - 23.141, - 3.457 }
-        Red_Spawn_Coords[12] = { - 24.886, 12.894, - 3.615 }
-        Red_Spawn_Coords[13] = { - 27.733, 26.737, - 3.425 }
-        Red_Spawn_Coords[14] = { - 32.916, 19.477, - 1.837 }
-        Red_Spawn_Coords[15] = { - 38.704, 25.460, - 3.527 }
-        Red_Spawn_Coords[16] = { - 43.871, 29.321, 0.391 }
+        Red_Spawn_Coords[1] = { -23.225, -35.876, -3.702 }
+        Red_Spawn_Coords[2] = { -38.865, -29.467, -3.537 }
+        Red_Spawn_Coords[3] = { -40.148, -13.022, -3.526 }
+        Red_Spawn_Coords[4] = { -32.959, -21.268, -3.438 }
+        Red_Spawn_Coords[5] = { -11.704, -15.451, 0.464 }
+        Red_Spawn_Coords[6] = { -11.358, 0.468, -3.482 }
+        Red_Spawn_Coords[7] = { -39.048, -12.266, -3.482 }
+        Red_Spawn_Coords[8] = { -47.680, -19.125, -3.482 }
+        Red_Spawn_Coords[9] = { -20.260, -18.394, -3.016 }
+        Red_Spawn_Coords[10] = { -26.170, -28.917, -3.457 }
+        Red_Spawn_Coords[11] = { -40.388, -23.141, -3.457 }
+        Red_Spawn_Coords[12] = { -24.886, 12.894, -3.615 }
+        Red_Spawn_Coords[13] = { -27.733, 26.737, -3.425 }
+        Red_Spawn_Coords[14] = { -32.916, 19.477, -1.837 }
+        Red_Spawn_Coords[15] = { -38.704, 25.460, -3.527 }
+        Red_Spawn_Coords[16] = { -43.871, 29.321, 0.391 }
         --
-        Red_Spawn_Coords[17] = { - 49.178, 28.624, 0.391 }
-        Red_Spawn_Coords[18] = { - 42.075, 37.755, 0.391 }
-        Red_Spawn_Coords[19] = { - 4.920, 39.495, - 3.714 }
-        Red_Spawn_Coords[20] = { 3.372, 27.836, - 3.714 }
-        Red_Spawn_Coords[21] = { 33.443, 46.216, - 3.576 }
+        Red_Spawn_Coords[17] = { -49.178, 28.624, 0.391 }
+        Red_Spawn_Coords[18] = { -42.075, 37.755, 0.391 }
+        Red_Spawn_Coords[19] = { -4.920, 39.495, -3.714 }
+        Red_Spawn_Coords[20] = { 3.372, 27.836, -3.714 }
+        Red_Spawn_Coords[21] = { 33.443, 46.216, -3.576 }
         Red_Spawn_Coords[22] = { 46.014, 27.638, 0.400 }
-        Red_Spawn_Coords[23] = { 41.894, 16.970, - 3.426 }
-        Red_Spawn_Coords[24] = { 49.049, - 17.793, - 3.554 }
+        Red_Spawn_Coords[23] = { 41.894, 16.970, -3.426 }
+        Red_Spawn_Coords[24] = { 49.049, -17.793, -3.554 }
         ---->
         -------------------------------------------------------------
         ---->
-        Blue_Spawn_Coords[1] = { - 45.860, 39.624, 0.391 }
-        Blue_Spawn_Coords[2] = { - 39.557, 34.573, 0.391 }
-        Blue_Spawn_Coords[3] = { - 10.478, 45.313, - 3.464 }
-        Blue_Spawn_Coords[4] = { - 4.082, 31.500, - 3.714 }
+        Blue_Spawn_Coords[1] = { -45.860, 39.624, 0.391 }
+        Blue_Spawn_Coords[2] = { -39.557, 34.573, 0.391 }
+        Blue_Spawn_Coords[3] = { -10.478, 45.313, -3.464 }
+        Blue_Spawn_Coords[4] = { -4.082, 31.500, -3.714 }
         Blue_Spawn_Coords[5] = { 39.692, 36.693, 0.400 }
         --
-        Blue_Spawn_Coords[6] = { 24.527, - 32.343, - 3.727 }
-        Blue_Spawn_Coords[7] = { 21.464, - 30.625, - 3.841 }
-        Blue_Spawn_Coords[8] = { 26.203, - 27.890, - 3.658 }
-        Blue_Spawn_Coords[9] = { 38.559, - 30.418, - 3.839 }
-        Blue_Spawn_Coords[10] = { 34.344, - 15.037, - 1.781 }
-        Blue_Spawn_Coords[11] = { 31.948, - 2.984, - 3.170 }
-        Blue_Spawn_Coords[12] = { 43.681, - 24.345, - 3.601 }
-        Blue_Spawn_Coords[13] = { 19.631, - 26.130, - 3.601 }
-        Blue_Spawn_Coords[14] = { 36.586, - 19.334, - 3.366 }
-        Blue_Spawn_Coords[15] = { 31.503, 8.041, - 3.366 }
-        Blue_Spawn_Coords[16] = { 12.535, - 12.743, 0.568 }
-        Blue_Spawn_Coords[17] = { 9.378, - 1.376, 0.317 }
-        Blue_Spawn_Coords[18] = { 15.387, - 15.838, 0.317 }
-        Blue_Spawn_Coords[19] = { 40.880, - 2.497, - 3.697 }
-        Blue_Spawn_Coords[20] = { 35.916, - 35.052, - 3.697 }
-        Blue_Spawn_Coords[21] = { 20.206, - 34.240, - 3.697 }
+        Blue_Spawn_Coords[6] = { 24.527, -32.343, -3.727 }
+        Blue_Spawn_Coords[7] = { 21.464, -30.625, -3.841 }
+        Blue_Spawn_Coords[8] = { 26.203, -27.890, -3.658 }
+        Blue_Spawn_Coords[9] = { 38.559, -30.418, -3.839 }
+        Blue_Spawn_Coords[10] = { 34.344, -15.037, -1.781 }
+        Blue_Spawn_Coords[11] = { 31.948, -2.984, -3.170 }
+        Blue_Spawn_Coords[12] = { 43.681, -24.345, -3.601 }
+        Blue_Spawn_Coords[13] = { 19.631, -26.130, -3.601 }
+        Blue_Spawn_Coords[14] = { 36.586, -19.334, -3.366 }
+        Blue_Spawn_Coords[15] = { 31.503, 8.041, -3.366 }
+        Blue_Spawn_Coords[16] = { 12.535, -12.743, 0.568 }
+        Blue_Spawn_Coords[17] = { 9.378, -1.376, 0.317 }
+        Blue_Spawn_Coords[18] = { 15.387, -15.838, 0.317 }
+        Blue_Spawn_Coords[19] = { 40.880, -2.497, -3.697 }
+        Blue_Spawn_Coords[20] = { 35.916, -35.052, -3.697 }
+        Blue_Spawn_Coords[21] = { 20.206, -34.240, -3.697 }
         Blue_Spawn_Coords[22] = { 46.123, 23.864, 0.400 }
-        Blue_Spawn_Coords[23] = { 47.568, 4.905, - 3.426 }
-        Blue_Spawn_Coords[24] = { 14.384, 30.278, - 3.454 }
+        Blue_Spawn_Coords[23] = { 47.568, 4.905, -3.426 }
+        Blue_Spawn_Coords[24] = { 14.384, 30.278, -3.454 }
     end
 end

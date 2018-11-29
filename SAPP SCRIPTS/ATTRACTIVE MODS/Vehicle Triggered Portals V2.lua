@@ -27,24 +27,24 @@ gamesettings = {
 
 --          Vehicle ID                            from x,y,z             radius           to x,y,z                height      Seat
 coordiantes["bloodgulch"] = {
-    { "vehicles\\rwarthog\\rwarthog",         33.631, -65.569, 0.370,         5,      108.474, -109.085, 2.032,       0.3,        1},
-    { "vehicles\\rwarthog\\rwarthog",         41.703, -128.663, 0.247,        5,      63.874, -82.054, 0.830,         0.3,        1},
-    { "vehicles\\rwarthog\\rwarthog",         50.655, -87.787, 0.079,         5,      78.136, -131.176, 0.095,        0.3,        1},
-    { "vehicles\\rwarthog\\rwarthog",         101.940, -170.440, 0.197,       5,      51.114, -137.351, 0.686,        0.3,        1},
-    { "vehicles\\rwarthog\\rwarthog",         81.617, -116.049, 0.486,        5,      33.066, -83.425, -0.017,        0.3,        1},
-    { "vehicles\\rwarthog\\rwarthog",         78.208, -152.914, 0.091,        5,      69.677, -97.071, 1.635,         0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        64.178, -176.802, 3.960,        5,      49.697, -123.671, -0.094,       0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        102.312, -144.626, 0.580,       5,      97.611, -94.770, 4.379,         0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        86.825, -172.542, 0.215,        5,      98.662, -113.261, 4.201,        0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        65.846, -70.301, 1.690,         5,      48.019, -118.214, 0.332,        0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        28.861, -90.757, 0.303,         5,      73.953, -103.604, 4.042,        0.3,        1},
-    { "vehicles\\warthog\\mp_warthog",        46.341, -64.700, 1.113,         5,      111.826, -139.331, 0.311,       0.3,        1},
+    { "vehicles\\rwarthog\\rwarthog", 33.631, -65.569, 0.370, 5, 108.474, -109.085, 2.032, 0.3, 1 },
+    { "vehicles\\rwarthog\\rwarthog", 41.703, -128.663, 0.247, 5, 63.874, -82.054, 0.830, 0.3, 1 },
+    { "vehicles\\rwarthog\\rwarthog", 50.655, -87.787, 0.079, 5, 78.136, -131.176, 0.095, 0.3, 1 },
+    { "vehicles\\rwarthog\\rwarthog", 101.940, -170.440, 0.197, 5, 51.114, -137.351, 0.686, 0.3, 1 },
+    { "vehicles\\rwarthog\\rwarthog", 81.617, -116.049, 0.486, 5, 33.066, -83.425, -0.017, 0.3, 1 },
+    { "vehicles\\rwarthog\\rwarthog", 78.208, -152.914, 0.091, 5, 69.677, -97.071, 1.635, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 64.178, -176.802, 3.960, 5, 49.697, -123.671, -0.094, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 102.312, -144.626, 0.580, 5, 97.611, -94.770, 4.379, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 86.825, -172.542, 0.215, 5, 98.662, -113.261, 4.201, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 65.846, -70.301, 1.690, 5, 48.019, -118.214, 0.332, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 28.861, -90.757, 0.303, 5, 73.953, -103.604, 4.042, 0.3, 1 },
+    { "vehicles\\warthog\\mp_warthog", 46.341, -64.700, 1.113, 5, 111.826, -139.331, 0.311, 0.3, 1 },
 }
 
 -- To add other maps, repeat the structure above. 
 -- Where    x,y,z|radius|x,y,z|height|seat    is located in the table, replace with data as seen above.
 coordiantes["mapname"] = {
-    { "vehicle_tag_id",     x,y,z,      radius,     x,y,z,      height,     seat},
+    { "vehicle_tag_id", x, y, z, radius, x, y, z, height, seat },
 }
 
 function OnScriptLoad()
@@ -52,13 +52,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnNewGame()
     mapname = get_var(0, "$map")
 end
 
-function OnVehicleEntry(PlayerIndex, Seat)
+function OnVehicleEntry(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local VehicleObject = get_object_memory(read_dword(player_object + 0x11c))
@@ -70,7 +71,7 @@ function OnVehicleEntry(PlayerIndex, Seat)
                     if seat == coordiantes[mapname][j][10] then
                         if inSphere(PlayerIndex, coordiantes[mapname][j][2], coordiantes[mapname][j][3], coordiantes[mapname][j][4], coordiantes[mapname][j][5]) == true then
                             TeleportPlayer(vehicleId, coordiantes[mapname][j][6], coordiantes[mapname][j][7], coordiantes[mapname][j][8] + coordiantes[mapname][j][9])
-                            timer(1000*0.955, "exitvehicle", PlayerIndex, vehicleId)
+                            timer(1000 * 0.955, "exitvehicle", PlayerIndex, vehicleId)
                             --cprint("Teleporeting From: " .. coordiantes[mapname][j][2] .. "," .. coordiantes[mapname][j][3] .. "," .. coordiantes[mapname][j][4] .. "", 2+8)
                             --cprint("Teleporeting To: " .. coordiantes[mapname][j][6] .. "," .. coordiantes[mapname][j][7] .. "," .. coordiantes[mapname][j][8] .. "", 3+8)
                         end
@@ -109,11 +110,11 @@ end
 function exitvehicle(PlayerIndex, vehicleId)
     exit_vehicle(PlayerIndex)
     if gamesettings["DestroyVehicle"] then
-        timer(1000*1.5, "Destroyvehicle", PlayerIndex, vehicleId)
+        timer(1000 * 1.5, "Destroyvehicle", PlayerIndex, vehicleId)
     end
 end
 
-function Destroyvehicle(PlayerIndex, vehicleId)
+function Destroyvehicle(vehicleId)
     local VehicleObject = get_object_memory(vehicleId)
     local driver = read_dword(VehicleObject + 0x324)
     local gunner = read_dword(VehicleObject + 0x328)
@@ -125,16 +126,13 @@ function Destroyvehicle(PlayerIndex, vehicleId)
 end
 
 function VehicleTagID(VehicleObject)
-	if VehicleObject ~= nil and VehicleObject ~= 0 then
-		return read_string(read_dword(read_word(VehicleObject) * 32 + 0x40440038))
-	else
-		return ""
-	end
+    if VehicleObject ~= nil and VehicleObject ~= 0 then
+        return read_string(read_dword(read_word(VehicleObject) * 32 + 0x40440038))
+    else
+        return ""
+    end
 end
 
-function OnError(Message)
-    print(debug.traceback())
-end
 --[[
     -- ===== REMARKS ===== --
     -- SEATS --

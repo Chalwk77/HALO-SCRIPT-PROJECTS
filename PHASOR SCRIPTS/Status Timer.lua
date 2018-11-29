@@ -8,7 +8,9 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function GetRequiredVersion() return 200 end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processid, game, persistent)
     Status_Timer = registertimer(1500, "StatusTimer")
 end

@@ -24,10 +24,16 @@ EQUIPMENT[9] = { "powerups\\sniper rifle ammo\\sniper rifle ammo" }
 EQUIPMENT[10] = { "powerups\\flamethrower ammo\\flamethrower ammo" }
 -- 	EQUIPMENT[11] 	= 	{"powerups\\double speed"}
 -- 	EQUIPMENT[12] 	= 	{"powerups\\full-spectrum vision"}
-for i = 0, 15 do DEATH_LOCATION[i] = { } end
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
+for i = 0, 15 do
+    DEATH_LOCATION[i] = { }
+end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
 function OnPlayerKill(killer, victim, mode)
     if mode == 4 then
         if Drop_PowerUp == true then

@@ -23,7 +23,9 @@ end
 -- Settings:
 local Write_To_File = true
 local Running_Speed = 1.10
-if getplayer(player) then setspeed(player, Running_Speed) end
+if getplayer(player) then
+    setspeed(player, Running_Speed)
+end
 
 function OnServerChat(player, chattype, message)
     local type = nil
@@ -35,7 +37,9 @@ function OnServerChat(player, chattype, message)
         type = "VEHICLE"
     end
 
-    if string.lower(tostring(message)) == "/pl" or string.lower(tostring(message)) == "\\pl" then return false end
+    if string.lower(tostring(message)) == "/pl" or string.lower(tostring(message)) == "\\pl" then
+        return false
+    end
 
     if player ~= nil and type ~= nil then
         local name = getname(player)
@@ -43,7 +47,7 @@ function OnServerChat(player, chattype, message)
         hprintf("[CHAT] " .. name .. " (" .. id .. ")  " .. type .. ": " .. "\"" .. message .. "\"")
         WriteLog(profilepath .. "\\logs\\Server Chat.txt", "[" .. type .. "]: " .. name .. " (" .. id .. "):  " .. "\"" .. message .. "\"")
     end
-end   
+end
 
 function WriteLog(filename, value)
     local file = io.open(filename, "a")
@@ -73,7 +77,7 @@ end
 
 function OnNewGame(Mapname)
     WriteLine(profilepath .. "\\logs\\Server Chat.txt")
-end	
+end
 
 function OnPlayerLeave(player)
 
@@ -85,7 +89,6 @@ function OnPlayerLeave(player)
     local ping = readword(getplayer(player) + 0xDC)
     local hash = gethash(player)
 
-
     hprintf("P L A Y E R   Q U I T   T H E   G A M E")
     hprintf("-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -")
     hprintf(name .. " (" .. id .. ")   -   Quit The Game.")
@@ -93,7 +96,6 @@ function OnPlayerLeave(player)
     hprintf("CD Hash: " .. hash)
     hprintf("-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -")
 end
-
 
 function cmdsplit(str)
     local subs = { }
@@ -103,7 +105,7 @@ function cmdsplit(str)
         local bool
         local char = string.sub(str, i, i)
         if char == " " then
-            if (inquote and endquote) or(not inquote and not endquote) then
+            if (inquote and endquote) or (not inquote and not endquote) then
                 bool = true
             end
         elseif char == "\\" then
@@ -124,7 +126,7 @@ function cmdsplit(str)
 
         if bool then
             if inquote and endquote then
-                sub = string.sub(sub, 2, string.len(sub) -1)
+                sub = string.sub(sub, 2, string.len(sub) - 1)
             end
 
             if sub ~= "" then
@@ -139,7 +141,7 @@ function cmdsplit(str)
 
         if i == string.len(str) then
             if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
-                sub = string.sub(sub, 2, string.len(sub) -1)
+                sub = string.sub(sub, 2, string.len(sub) - 1)
             end
             table.insert(subs, sub)
         end

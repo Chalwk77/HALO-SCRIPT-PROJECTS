@@ -8,8 +8,11 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function OnScriptUnload() end	
-function GetRequiredVersion() return 200 end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processId, game, persistent)
     if game == "PC" then
         gametype_base = 0x671340

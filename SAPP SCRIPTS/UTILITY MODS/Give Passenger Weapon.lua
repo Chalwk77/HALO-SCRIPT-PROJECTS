@@ -34,20 +34,20 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = '1.12.0.0'
 -- set 'true' to 'false' to prevent weapon-assignment OnVehicleEntry() (and vice versa)
 vehicles = {
-    {"vehicles\\rwarthog\\rwarthog",                    false,       "weapons\\rocket launcher\\rocket launcher"},
-    {"vehicles\\scorpion\\scorpion_mp",                 false,       "weapons\\plasma_cannon\\plasma_cannon"},
-    {"vehicles\\warthog\\mp_warthog",                   true,        "weapons\\sniper rifle\\sniper rifle"},
+    { "vehicles\\rwarthog\\rwarthog", false, "weapons\\rocket launcher\\rocket launcher" },
+    { "vehicles\\scorpion\\scorpion_mp", false, "weapons\\plasma_cannon\\plasma_cannon" },
+    { "vehicles\\warthog\\mp_warthog", true, "weapons\\sniper rifle\\sniper rifle" },
 }
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_VEHICLE_ENTER'], 'OnVehicleEntry')
+    register_callback(cb['EVENT_VEHICLE_ENTER'], 'OnVehicleEntry')
 end
 
 function OnScriptUnload()
 
 end
 
-function OnVehicleEntry(PlayerIndex, Seat)
+function OnVehicleEntry(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local vehicle = get_object_memory(read_dword(player_object + 0x11c))
@@ -57,7 +57,9 @@ function OnVehicleEntry(PlayerIndex, Seat)
                     if (vehicles[i][2] == true) and (read_word(player_object + 0x2F0) == 1) then
                         local vehiX, vehiY, vehiZ = read_vector3d(vehicle + 0x5C)
                         -- delete all of their weapons...
-                        for j = 1,4 do execute_command("wdel " .. PlayerIndex) end
+                        for j = 1, 4 do
+                            execute_command("wdel " .. PlayerIndex)
+                        end
                         -- assign new weapon
                         assign_weapon(spawn_object("weap", vehicles[i][3], vehiX, vehiY, vehiZ + 0.3), PlayerIndex)
                     end

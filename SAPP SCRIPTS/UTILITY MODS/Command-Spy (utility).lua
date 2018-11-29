@@ -27,7 +27,7 @@ commands_to_hide = {
     "/command4",
     "/command5"
     -- Repeat the structure to add more commands.
-    }
+}
 --=========================================================--
 
 api_version = "1.12.0.0"
@@ -37,7 +37,7 @@ function OnScriptLoad()
 end
 
 function OnPlayerChat(PlayerIndex, Message)
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 0 then
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 0 then
         AdminIndex = tonumber(PlayerIndex)
     end
     iscommand = nil
@@ -46,7 +46,7 @@ function OnPlayerChat(PlayerIndex, Message)
     if string.sub(command[1], 1, 1) == "/" then
         cmd = command[1]:gsub("\\", "/")
         iscommand = true
-    else 
+    else
         iscommand = false
     end
     for k, v in pairs(commands_to_hide) do
@@ -56,8 +56,8 @@ function OnPlayerChat(PlayerIndex, Message)
         else
             hidden = false
         end
-    end    
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) == -1 then
+    end
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) == -1 then
         if (iscommand and PlayerIndex) then
             if (settings["HideCommands"] == true and hidden == true) then
                 return false
@@ -69,9 +69,9 @@ function OnPlayerChat(PlayerIndex, Message)
     end
 end
 
-function CommandSpy(Message, AdminIndex) 
-    for i = 1,16 do
-        if (tonumber(get_var(i,"$lvl"))) >= 1 then
+function CommandSpy(Message, AdminIndex)
+    for i = 1, 16 do
+        if (tonumber(get_var(i, "$lvl"))) >= 1 then
             rprint(i, Message)
         end
     end
@@ -81,8 +81,9 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {};
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end

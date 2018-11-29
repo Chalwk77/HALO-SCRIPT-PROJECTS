@@ -24,11 +24,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnPlayerChat(PlayerIndex, Message)
     local message = tokenizestring(Message)
-    if #message == 0 then return nil end
+    if #message == 0 then
+        return nil
+    end
     for i = 0, #message do
         if message[i] then
             if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
@@ -87,11 +90,14 @@ function GetTeamPlay()
 end
 
 function tokenizestring(inputstr, sep)
-    if sep == nil then sep = "%s" end
-    local t = {} ; i = 1
-for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-    t[i] = str
-    i = i + 1
-end
-return t
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = {};
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end

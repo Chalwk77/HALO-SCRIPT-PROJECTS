@@ -30,7 +30,7 @@ function OnNewGame(map)
     banshee_mapId = gettagid("vehi", "vehicles\\banshee\\banshee_mp")
     turret_mapId = gettagid("vehi", "vehicles\\c gun turret\\c gun turret_mp")
     tank_mapId = gettagid("vehi", "vehicles\\scorpion\\scorpion_mp")
-end	
+end
 ----------------------------------------------------------------------------------------
 
 --[[
@@ -57,58 +57,58 @@ function OnVehicleEntry(player, veh_id, seat, mapid, relevant)
     if mapid == ghost_mapId then
         -- // Ghost
         PTC_Vehicle_Name = "SR-RAV  GHOST: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "(1) Drivers  Seat"
         end
 
     elseif mapid == hog_mapId then
         -- // Warthog
         PTP_Vehicle_Name = "WARTHOG: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "Drivers  Seat | (1)"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             PTP_Vehicle_Name = "Passengers  Seat | (2)"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             PTP_Vehicle_Name = "Gunners  Seat | (3)"
         end
 
     elseif mapid == tank_mapId then
         -- // Scorpion Tank
         PTP_Vehicle_Name = "SCORPION TANK: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "Commanders  Seat | (1)"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             PTP_Vehicle_Name = "Passengers  Seat | (2)"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             PTP_Vehicle_Name = "Passengers  Seat | (3)"
-        elseif seat ==(3) then
+        elseif seat == (3) then
             PTP_Vehicle_Name = "Passengers  Seat | (4)"
-        elseif seat ==(4) then
+        elseif seat == (4) then
             PTP_Vehicle_Name = "Passengers  Seat | (5)"
         end
 
     elseif mapid == banshee_mapId then
         -- // Banshee
         PTP_Vehicle_Name = "BANSHEE: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "Pilots  Seat | (1)"
         end
 
     elseif mapid == turret_mapId then
         -- Covenant Turret
         PTP_Vehicle_Name = "COVENANT TURRET: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "Controllers  Seat | (1)"
         end
 
     elseif mapid == rhog_mapId then
         -- Rocket Hog
         PTP_Vehicle_Name = "ROCKET HOG: "
-        if seat ==(0) then
+        if seat == (0) then
             PTP_Vehicle_Name = "Drivers  Seat | (1)"
-        elseif seat ==(1) then
+        elseif seat == (1) then
             PTP_Vehicle_Name = "Passengers  Seat | (1)"
-        elseif seat ==(2) then
+        elseif seat == (2) then
             PTP_Vehicle_Name = "Gunners  Seat | (1)"
         end
     end

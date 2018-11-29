@@ -15,12 +15,12 @@ command = "entergun"
 permission_level = 1
 
 vehicles = {}
-vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog"}
-vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost"}
-vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog", "RocketHog"}
-vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee"}
-vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank"}
-vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret"}
+vehicles[1] = { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog" }
+vehicles[2] = { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost" }
+vehicles[3] = { "vehi", "vehicles\\rwarthog\\rwarthog", "RocketHog" }
+vehicles[4] = { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee" }
+vehicles[5] = { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank" }
+vehicles[6] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret" }
 
 enter_mode = {}
 weapon_status = {}
@@ -43,7 +43,6 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
             if (enter_mode[i] == true) then
-                local success, target = false, nil
                 local player_object = get_dynamic_player(i)
                 local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
                 local shot_fired
@@ -61,7 +60,7 @@ function OnTick()
                     for k, v in pairs(vehicles) do
                         if object_id == TagInfo(tostring(v[1]), tostring(v[2])) then
                             shot_fired = read_float(player_object + 0x490)
-                            if(shot_fired ~= weapon_status[i] and shot_fired == 1) then
+                            if (shot_fired ~= weapon_status[i] and shot_fired == 1) then
                                 enter_vehicle(target, i, 0)
                                 rprint(i, "Entering " .. v[3])
                                 break
@@ -113,7 +112,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

@@ -72,7 +72,9 @@ function OnFlagInteraction(id, count)
                     flag_stats[hash].returns = returns
                     say(tostring(name) .. " returned " .. player_team, false)
                     hprintf("F L A G  -  " .. name .. " returned " .. player_team)
-                    if Enable_Logging then log_msg(1, tostring(name) .. " returned " .. player_team) end
+                    if Enable_Logging then
+                        log_msg(1, tostring(name) .. " returned " .. player_team)
+                    end
                 end
                 local grabs = readword(getplayer(i) + 0xC4)
                 if grabs ~= flag_stats[hash].grabs then
@@ -98,7 +100,9 @@ function OnFlagInteraction(id, count)
                     -- 								local os = createobject(camouflage_tag_id, 0, 0, false, x, y, z+0.5)
                     say(tostring(name) .. " has " .. player_team .. " Kill him!", false)
                     hprintf("F L A G  -  " .. name .. " has " .. player_team .. " Kill him!")
-                    if Enable_Logging then log_msg(1, tostring(name) .. " GRABBED " .. player_team) end
+                    if Enable_Logging then
+                        log_msg(1, tostring(name) .. " GRABBED " .. player_team)
+                    end
                     -- 						end
                     -- 					end
                 end
@@ -165,8 +169,12 @@ function OnClientUpdate(player)
             say(tostring(name) .. " captured a flag for " .. player_team, false)
             privatesay(player, "** SCORE **  You have: (" .. score .. ") total captures", false)
             hprintf("** SCORE **	{" .. tostring(player) .. "}   captured a flag for " .. player_team .. "\nThis player has (" .. score .. ") total captures.")
-            if Enable_Logging then log_msg(1, tostring(name) .. " captured a flag for " .. player_team) end
-            if Enable_Logging then log_msg(1, tostring(name) .. "'s total flag captures are: (" .. score .. ")") end
+            if Enable_Logging then
+                log_msg(1, tostring(name) .. " captured a flag for " .. player_team)
+            end
+            if Enable_Logging then
+                log_msg(1, tostring(name) .. "'s total flag captures are: (" .. score .. ")")
+            end
         end
     end
 end
@@ -241,7 +249,9 @@ function nextid(player, order)
         local original = order
         while console[player][order] do
             order = order + 0.001
-            if order == original + 0.999 then break end
+            if order == original + 0.999 then
+                break
+            end
         end
         return order
     end
@@ -379,18 +389,18 @@ function opairs(t)
         table.insert(keys, k)
     end
     table.sort(keys,
-    function(a, b)
-        if type(a) == "number" and type(b) == "number" then
-            return a < b
-        end
-        an = string.lower(tostring(a))
-        bn = string.lower(tostring(b))
-        if an ~= bn then
-            return an < bn
-        else
-            return tostring(a) < tostring(b)
-        end
-    end )
+            function(a, b)
+                if type(a) == "number" and type(b) == "number" then
+                    return a < b
+                end
+                an = string.lower(tostring(a))
+                bn = string.lower(tostring(b))
+                if an ~= bn then
+                    return an < bn
+                else
+                    return tostring(a) < tostring(b)
+                end
+            end)
     local count = 1
     return function()
         if table.unpack(keys) then

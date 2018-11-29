@@ -144,7 +144,7 @@ function OnPlayerKill(PlayerIndex)
         local player = get_player(PlayerIndex)
         write_dword(player + 0x2C, wizard_time * 33)
     end
-end	
+end
 
 function LoadMaps()
     map_respawn_settings = {
@@ -171,7 +171,7 @@ function LoadMaps()
     map_name = get_var(1, "$map")
     map_respawn_settings[map_name] = map_respawn_settings[map_name] or false
 end
-    
+
 function OnNewGame()
     LoadMaps()
 end
@@ -179,7 +179,7 @@ end
 function OnGameEnd()
     map_respawn_settings = { }
 end
-    
+
 function OnError(Message)
     print(debug.traceback())
 end

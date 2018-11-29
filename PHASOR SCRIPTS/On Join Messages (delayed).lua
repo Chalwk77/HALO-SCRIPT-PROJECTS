@@ -25,7 +25,7 @@ end
 
 function OnScriptUnload()
 
-end 
+end
 
 function DelayMessage(id, count, player)
     if getplayer(player) then

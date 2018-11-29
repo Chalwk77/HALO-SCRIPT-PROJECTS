@@ -51,6 +51,8 @@ end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     players[get_var(KillerIndex, "$n")].kills = players[get_var(KillerIndex, "$n")].kills + 1
-    for i = 1, 20 do rprint(KillerIndex, " ") end
+    for i = 1, 20 do
+        rprint(KillerIndex, " ")
+    end
     rprint(KillerIndex, string.gsub(message, "$kills", players[get_var(KillerIndex, "$n")].kills))
 end

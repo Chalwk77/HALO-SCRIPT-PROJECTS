@@ -11,8 +11,11 @@ Copyright (c) 2016-2018
 Force_Player_In_Vehicle = true
 Vehicle_Timer = 15
 vehicleTag = nil
-function OnScriptUnload() end	
-function GetRequiredVersion() return 200 end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processId, game, persistent)
     if game == "PC" then
         gametype_base = 0x671340
@@ -55,7 +58,7 @@ function round(num)
 end
 
 function math.round(input, precision)
-    return math.floor(input *(10 ^ precision) + 0.5) /(10 ^ precision)
+    return math.floor(input * (10 ^ precision) + 0.5) / (10 ^ precision)
 end
 
 function AssignVehicle(id, count, player)
@@ -242,7 +245,9 @@ end
 
 function writewordsigned(address, offset, word)
     value = tonumber(word)
-    if value == nil then value = tonumber(word, 16) end
+    if value == nil then
+        value = tonumber(word, 16)
+    end
     if value and value > 0x7FFF then
         local max = 0xFFFF
         local difference = max - value
@@ -253,7 +258,9 @@ end
 
 function writedwordsigned(address, offset, dword)
     value = tonumber(dword)
-    if value == nil then value = tonumber(dword, 16) end
+    if value == nil then
+        value = tonumber(dword, 16)
+    end
     if value and value > 0x7FFFFFFF then
         local max = 0xFFFFFFFF
         local difference = max - value
@@ -274,8 +281,8 @@ function readstring(address, length, endian)
         end
     end
     for i = 0, length do
-        if readbyte(address +(offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address +(offset + i))))
+        if readbyte(address + (offset + i)) ~= 0 then
+            table.insert(char_table, string.char(readbyte(address + (offset + i))))
         elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
             break
         end

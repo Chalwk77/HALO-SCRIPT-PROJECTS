@@ -19,7 +19,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "CommandGetPlayers")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function CommandGetPlayers(PlayerIndex, Command, Environment)
     local UnknownCMD = nil
@@ -58,8 +59,11 @@ function CommandGetPlayers(PlayerIndex, Command, Environment)
 end
 
 function tokenizestring(inputString, separator)
-    if separator == nil then separator = "%s" end
-    local t = { }; i = 1
+    if separator == nil then
+        separator = "%s"
+    end
+    local t = { };
+    i = 1
     for str in string.gmatch(inputString, "([^" .. separator .. "]+)") do
         t[i] = str
         i = i + 1

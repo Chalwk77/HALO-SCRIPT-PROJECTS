@@ -10,9 +10,13 @@ Copyright (c) 2016-2018
 
 OnSpawnKill = 5
 DEATHS = { }
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
 
 function OnPlayerJoin(player)
     DEATHS[player] = { 0 }

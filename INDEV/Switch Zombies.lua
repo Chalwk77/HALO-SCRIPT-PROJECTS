@@ -14,7 +14,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_NAME'], 'function_name')
+    register_callback(cb['EVENT_NAME'], 'function_name')
 end
 
 function OnScriptUnload()

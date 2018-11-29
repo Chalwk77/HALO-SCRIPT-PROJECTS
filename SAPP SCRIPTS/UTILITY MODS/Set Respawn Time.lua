@@ -34,70 +34,71 @@ no_permission = "You do not have permission to execute that command!"
 -- Configuration Ends -
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_DIE'], "OnPlayerKill")
-	register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
 function OnScriptUnload()
-	unregister_callback(cb['EVENT_DIE'])
+    unregister_callback(cb['EVENT_DIE'])
 end
 
 function OnPlayerKill(player_index)
-	local player = get_player(player_index)
-	write_dword(player + 0x2C, RespawnTime * 33)
+    local player = get_player(player_index)
+    write_dword(player + 0x2C, RespawnTime * 33)
 end
 
 function OnServerCommand(PlayerIndex, Command)
-	local response = nil
-	local t = tokenizestring(Command)
-	if t[1] ~= nil then
-		if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
-			if(t[1] == string.lower(command)) then
-				response = false
-				if not string.match(t[2], "%d") then
-					say(PlayerIndex, "Please enter a number!")
-				else
-					value = tonumber(t[2])
-					unregister_callback(cb['EVENT_DIE'])
-					register_callback(cb['EVENT_DIE'], "setRespawnTime")
-					say(PlayerIndex, "Respawn Time set to " .. tostring(value))
-					if(ANNOUNCE_CHANGE == true) then
-						for i = 1, 16 do
-							if player_present(i) then
-								if i ~= PlayerIndex then
-									say(i, string.gsub(message, "$VALUE", value))
-								end
-							end
-						end
-						
-					end
-				end
-			end
-		else
-			response = false
-			say(PlayerIndex, no_permission)
-		end
-	end
-	return response
+    local response = nil
+    local t = tokenizestring(Command)
+    if t[1] ~= nil then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
+            if (t[1] == string.lower(command)) then
+                response = false
+                if not string.match(t[2], "%d") then
+                    say(PlayerIndex, "Please enter a number!")
+                else
+                    value = tonumber(t[2])
+                    unregister_callback(cb['EVENT_DIE'])
+                    register_callback(cb['EVENT_DIE'], "setRespawnTime")
+                    say(PlayerIndex, "Respawn Time set to " .. tostring(value))
+                    if (ANNOUNCE_CHANGE == true) then
+                        for i = 1, 16 do
+                            if player_present(i) then
+                                if i ~= PlayerIndex then
+                                    say(i, string.gsub(message, "$VALUE", value))
+                                end
+                            end
+                        end
+
+                    end
+                end
+            end
+        else
+            response = false
+            say(PlayerIndex, no_permission)
+        end
+    end
+    return response
 end
 
 function setRespawnTime(player_index)
-	local player = get_player(player_index)
-	write_dword(player + 0x2C, value * 33)
+    local player = get_player(player_index)
+    write_dword(player + 0x2C, value * 33)
 end
 
 function tokenizestring(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t = { }; i = 1
-	for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-		t[i] = str
-		i = i + 1
-	end
-	return t
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 function OnError(Message)
-	print(debug.traceback())
+    print(debug.traceback())
 end

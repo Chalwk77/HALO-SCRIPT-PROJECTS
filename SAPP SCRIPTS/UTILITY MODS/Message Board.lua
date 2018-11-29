@@ -33,7 +33,7 @@ message_board = {
     "Welcome to $SERVER_NAME",
     "Message Board created by Chalwk (Jericho Crosby)",
     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
-    }
+}
 -- How long should the message be displayed on screen for? (in seconds) --
 Message_Duration = 10
 
@@ -56,7 +56,7 @@ function OnScriptLoad()
         end
     end
 end
-    
+
 function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
@@ -79,15 +79,15 @@ function OnGameEnd()
         end
     end
 end
-    
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (welcome_timer[i] == true) then
                 players[get_var(i, "$n")].new_timer = players[get_var(i, "$n")].new_timer + 0.030
                 cls(i)
-                for k, v in pairs(message_board) do
-                    for j=1, #message_board do
+                for _, v in pairs(message_board) do
+                    for j = 1, #message_board do
                         if string.find(message_board[j], "$SERVER_NAME") then
                             message_board[j] = string.gsub(message_board[j], "$SERVER_NAME", servername)
                         elseif string.find(message_board[j], "$PLAYER_NAME") then
@@ -117,7 +117,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function cls(PlayerIndex)
-    for clear_cls = 1, 25 do
+    for _ = 1, 25 do
         rprint(PlayerIndex, " ")
     end
 end
@@ -125,7 +125,7 @@ end
 function read_widestring(address, length)
     local count = 0
     local byte_table = {}
-    for i = 1,length do
+    for i = 1, length do
         if read_byte(address + count) ~= 0 then
             byte_table[i] = string.char(read_byte(address + count))
         end

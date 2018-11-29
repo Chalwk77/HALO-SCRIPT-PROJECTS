@@ -2,7 +2,7 @@
 ------------------------------------
 Script Name: HPC MessageBoard V2, for PhasorV2+
 
-Copyright © 2016 Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright ï¿½ 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -34,9 +34,13 @@ Msg_8 = " Message Eight"
 Msg_9 = " Message Nine"
 Msg_10 = " Message Ten"
 
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
-function OnScriptUnload() end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
+function OnScriptUnload()
+end
 
 function OnNewGame(map)
     registertimer(One * 1000, "AutoOne")

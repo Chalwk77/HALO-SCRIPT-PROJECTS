@@ -26,10 +26,16 @@ EQUIPMENT[11] = { "powerups\\double speed" }
 EQUIPMENT[12] = { "powerups\\full-spectrum vision" }
 Spawn_Where_Killed = false
 Drop_PowerUp = false
-for i = 0, 15 do DEATH_LOCATION[i] = { } end
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
-function OnScriptLoad(processid, game, persistent) end
+for i = 0, 15 do
+    DEATH_LOCATION[i] = { }
+end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
+function OnScriptLoad(processid, game, persistent)
+end
 function OnPlayerKill(killer, victim, mode)
     if mode == 4 then
         ADD_KILL(killer)
@@ -38,7 +44,9 @@ function OnPlayerKill(killer, victim, mode)
             DEATH_LOCATION[victim][1] = x
             DEATH_LOCATION[victim][2] = y
             DEATH_LOCATION[victim][3] = z
-            if Drop_PowerUp == true then DropPowerup(x, y, z) end
+            if Drop_PowerUp == true then
+                DropPowerup(x, y, z)
+            end
         end
     elseif mode == 5 then
         ADD_KILL(killer)
@@ -47,7 +55,9 @@ function OnPlayerKill(killer, victim, mode)
             DEATH_LOCATION[victim][1] = x
             DEATH_LOCATION[victim][2] = y
             DEATH_LOCATION[victim][3] = z
-            if Drop_PowerUp == true then DropPowerup(x, y, z) end
+            if Drop_PowerUp == true then
+                DropPowerup(x, y, z)
+            end
         end
     elseif mode == 6 then
         if Spawn_Where_Killed == true then
@@ -55,7 +65,9 @@ function OnPlayerKill(killer, victim, mode)
             DEATH_LOCATION[victim][1] = x
             DEATH_LOCATION[victim][2] = y
             DEATH_LOCATION[victim][3] = z
-            if Drop_PowerUp == true then DropPowerup(x, y, z) end
+            if Drop_PowerUp == true then
+                DropPowerup(x, y, z)
+            end
         end
     end
 end

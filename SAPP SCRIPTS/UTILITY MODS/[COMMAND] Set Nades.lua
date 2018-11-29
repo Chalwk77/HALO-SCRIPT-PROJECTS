@@ -26,7 +26,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnServerCommand(PlayerIndex, Command)
     local response = nil
@@ -92,8 +93,8 @@ function SetFrags(index, PlayerIndex)
                 respond(executor .. " has set your frag grenades to " .. value, index)
             end
         else
-            if (ValueWasDefined == true) then 
-                value = value 
+            if (ValueWasDefined == true) then
+                value = value
                 write_byte(player_object + 0x31E, value)
                 if tonumber(get_var(PlayerIndex, "$n")) == index then
                     respond("Setting frag grenades to " .. value, PlayerIndex)
@@ -119,8 +120,8 @@ function SetPlasmas(index, PlayerIndex)
                 respond(executor .. " has set your plasma grenades to " .. value, index)
             end
         else
-            if (ValueWasDefined == true) then 
-                value = value 
+            if (ValueWasDefined == true) then
+                value = value
                 write_byte(player_object + 0x31F, value)
                 if tonumber(get_var(PlayerIndex, "$n")) == index then
                     respond("Setting plasma grenades to " .. value, PlayerIndex)
@@ -154,7 +155,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

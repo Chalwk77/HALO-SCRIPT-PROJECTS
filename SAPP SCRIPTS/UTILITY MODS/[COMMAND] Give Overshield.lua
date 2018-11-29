@@ -25,20 +25,21 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 function OnServerCommand(PlayerIndex, Command)
     local response = nil
     local t = tokenizestring(Command)
     if t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and(t[1] == string.lower(COMMAND)) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower(COMMAND)) then
             response = false
             if t[2] ~= nil then
                 if (t[2] == "me") then
                     index = tonumber(get_var(PlayerIndex, "$n"))
                 else
                     index = tonumber(t[2])
-                end                
+                end
                 if index ~= nil and index > 0 and index < 17 then
                     receiver = get_var(index, "$name")
                     executor = get_var(PlayerIndex, "$name")
@@ -92,10 +93,10 @@ function GiveOvershield(index, PlayerIndex)
         end
     end
 end
-            
+
 function round(val, decimal)
     if (decimal) then
-        return math.floor((val * 10 ^ decimal) + 0.5) /(10 ^ decimal)
+        return math.floor((val * 10 ^ decimal) + 0.5) / (10 ^ decimal)
     else
         return math.floor(val + 0.5)
     end
@@ -122,7 +123,8 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = { }; i = 1
+    local t = { };
+    i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

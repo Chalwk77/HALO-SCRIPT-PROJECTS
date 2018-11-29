@@ -22,13 +22,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-function OnScriptLoad() 
+function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     SyncFiles()
     backup_table = {}
 end
 
-function OnScriptUnload() end
+function OnScriptUnload()
+end
 
 -- Configuration --
 --===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===>>>===
@@ -55,9 +56,9 @@ keyword = "your_keyword"
 
 settings = {
     ["Sync_Files"] = true,
---  Toggle on|off syncing backup method.
+    --  Toggle on|off syncing backup method.
     ["BackupMethod"] = true,
--- Toggle on|off script message output
+    -- Toggle on|off script message output
     ["DisplayFileOutput"] = false,
     ["DisplayConsoleOutput"] = true
 }
@@ -76,33 +77,39 @@ local backup_table = {
 -- Configuration Ends --
 
 function OnServerCommand(PlayerIndex, Command)
-    local isadmin = nil
-    if (tonumber(get_var(PlayerIndex,"$lvl"))) >= 1 then 
-        isadmin = true 
-    else 
-        isadmin = false 
+    local isadmin
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 1 then
+        isadmin = true
+    else
+        isadmin = false
     end
-    local notify = nil
+    local notify
     local t = tokenizestring(Command)
     count = #t
     -- Syntax: /sync files
     if t[1] == "sync" then
-        if isadmin then 
+        if isadmin then
             if t[2] == "files" then
                 -- Call [function] SyncFiles()
                 SyncFiles(Message, PlayerIndex)
-                if not settings["Sync_Files"] then notify = false else notify = true end
+                if not settings["Sync_Files"] then
+                    notify = false
                 else
+                    notify = true
+                end
+            else
                 notify = false
                 -- Command invalid.
                 respond("Invalid Syntax: /sync files", PlayerIndex)
             end
-        else 
+        else
             notify = false
             -- Player is not an admin - deny access.
             respond("You do not have permission to execute /" .. Command, PlayerIndex)
         end
-        if notify then send_all(PlayerIndex) end
+        if notify then
+            send_all(PlayerIndex)
+        end
         return false
     end
 end
@@ -110,10 +117,10 @@ end
 --- >>> ------
 -- Credits to skylace for this function
 function send_all(PlayerIndex)
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if i ~= PlayerIndex then
---              Notify all players of temporary lag while the server syncs the files.
+                --              Notify all players of temporary lag while the server syncs the files.
                 rprint(i, "[Server Process] - Temporary Lag Warning!")
             end
         end
@@ -126,10 +133,10 @@ function SyncFiles(Message, PlayerIndex)
     response = nil
     if settings["Sync_Files"] then
         -- invalid url (unavailable) or remote server is offline
-        if file_url == nil then 
+        if file_url == nil then
             respond('Script Error:', PlayerIndex)
             respond(url .. filename .. ' does not exist or the remote server is offline.', PlayerIndex)
-            if settings["BackupMethod"] then 
+            if settings["BackupMethod"] then
                 BackupSolution(Message, PlayerIndex)
             else
                 respond('Script Error: [BackupMethod] disabled - Unable to sync ' .. filename, PlayerIndex)
@@ -141,7 +148,7 @@ function SyncFiles(Message, PlayerIndex)
             response = true
             if string.match(file_url, keyword) == nil then
                 respond('Script Error: Failed to read from ' .. filename .. ' on remote server.', PlayerIndex)
-                if settings["BackupMethod"] then 
+                if settings["BackupMethod"] then
                     BackupSolution(Message, PlayerIndex)
                 else
                     respond('Script Error: [BackupMethod] disabled - Unable to sync ' .. filename, PlayerIndex)
@@ -190,25 +197,25 @@ end
 
 function respond(Message, PlayerIndex)
     if Message then
-        if Message == "" then 
-            return 
-            elseif type(Message) == "table" then
+        if Message == "" then
+            return
+        elseif type(Message) == "table" then
             Message = Message[1]
         end
         PlayerIndex = tonumber(PlayerIndex)
         if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
             if settings["DisplayConsoleOutput"] then
-                cprint(Message, 2+8)
+                cprint(Message, 2 + 8)
             end
             rprint(PlayerIndex, Message)
             note = string.format('[SyncFilesUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Message)
-            execute_command("log_note \""..note.."\"")
+            execute_command("log_note \"" .. note .. "\"")
         else
             if settings["DisplayConsoleOutput"] then
-                cprint(Message, 2+8)
+                cprint(Message, 2 + 8)
             end
             v1note = string.format('[SyncFilesUtility]: ' .. Message)
-            execute_command("log_note \""..v1note.."\"")
+            execute_command("log_note \"" .. v1note .. "\"")
         end
     end
 end
@@ -219,8 +226,9 @@ function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {};
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end

@@ -8,8 +8,11 @@ Copyright (c) 2016-2018
 -----------------------------------
 ]]--
 
-function OnScriptUnload() end
-function GetRequiredVersion() return 200 end
+function OnScriptUnload()
+end
+function GetRequiredVersion()
+    return 200
+end
 function OnScriptLoad(processid, game, persistent)
     writebyte(0x671340, 0x58, 21)
 end
