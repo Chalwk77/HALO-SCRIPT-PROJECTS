@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = "1.11.0.0"
 
 -- configuration starts here --
 -- Minimin admin level required to use /achat command
@@ -139,9 +139,13 @@ function OnServerCommand(PlayerIndex, Command)
             if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
                     if players[get_var(PlayerIndex, "$name")].boolean ~= true then
-                        rprint(PlayerIndex, "Admin Chat enabled.")
                         players[get_var(PlayerIndex, "$name")].adminchat = true
                         players[get_var(PlayerIndex, "$name")].boolean = true
+                        rprint(PlayerIndex, "Admin Chat enabled.")
+                        local file = io.open('sapp\\admin_chat_status.txt', "a+")
+                        local line = get_var(PlayerIndex, "$name") .. ":true"
+                        file:write(line, "\n")
+                        file:close()
                     else
                         rprint(PlayerIndex, "Admin Chat is already enabled.")
                     end
@@ -150,6 +154,10 @@ function OnServerCommand(PlayerIndex, Command)
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         players[get_var(PlayerIndex, "$name")].boolean = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
+                        -- local file = io.open('sapp\\admin_chat_status.txt', "a+")
+                        -- local line = get_var(PlayerIndex, "$name") .. ":true"
+                        -- file:write(line, "\n")
+                        -- file:close()
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
@@ -172,7 +180,7 @@ function OnPlayerChat(PlayerIndex, Message)
     if #message == 0 then
         return nil
     end
-    if players[get_var(PlayerIndex, "$name")].adminchat == true and tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
+    if players[get_var(PlayerIndex, "$name")].adminchat == true and tonumber(get_var(PlayerIndex, "$lvl")) >= min_admin_level then
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
