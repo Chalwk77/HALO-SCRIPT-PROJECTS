@@ -5,6 +5,8 @@ Implementing API version: 1.11.0.0
 Description:    This script will modify your players message chat format
                 by adding an IndexID in front of their name in square brackets.
 
+                [!] WARNING: This mod does not respect SAPP's built-in mute system.
+
 Team output: [Chalwk] [1]: This is a test message
 Global output: Chalwk [1]: This is a test message
 
