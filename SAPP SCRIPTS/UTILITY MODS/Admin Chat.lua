@@ -237,10 +237,17 @@ function check_file_status()
     local file = io.open('sapp\\admin_chat_status.txt', "rb")
     if file then
         file:close()
+        content = {}
+        fp = io.open('sapp\\admin_chat_status.txt', "w+")
+        for i = 1, #content do
+            fp:write(string.format("%s\n", content[i]))
+        end
+        fp:write("file begin...", "\n")
+        fp:close()
     else
         local file = io.open('sapp\\admin_chat_status.txt', "a+")
         if file then
-            file:write("file begin", "\n")
+            file:write("file begin...", "\n")
             file:close()
         end
     end
