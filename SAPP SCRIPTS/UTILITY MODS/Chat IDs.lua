@@ -16,15 +16,18 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = "1.11.0.0"
 global_format = "%sender_name% [%index%]: %message%"
 team_format = "[%sender_name%] [%index%]: %message%"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    LoadTable()
 end
 
 function OnScriptUnload()
+    ignore_list = { }
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -32,22 +35,24 @@ function OnPlayerChat(PlayerIndex, Message)
     if #message == 0 then
         return nil
     end
-    for i = 0, #message do
-        if message[i] then
-            if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                return true
-            else
-                if (GetTeamPlay == true) then
-                    if type == 0 or type == 2 then
+    if not (table.match(ignore_list, message[1])) then
+        for i = 0, #message do
+            if message[i] then
+                if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                    return true
+                else
+                    if (GetTeamPlay == true) then
+                        if type == 0 or type == 2 then
+                            SendToAll(Message, PlayerIndex)
+                            return false
+                        elseif type == 1 then
+                            SendToTeam(Message, PlayerIndex)
+                            return false
+                        end
+                    else
                         SendToAll(Message, PlayerIndex)
                         return false
-                    elseif type == 1 then
-                        SendToTeam(Message, PlayerIndex)
-                        return false
                     end
-                else
-                    SendToAll(Message, PlayerIndex)
-                    return false
                 end
             end
         end
@@ -100,4 +105,26 @@ function tokenizestring(inputstr, sep)
         i = i + 1
     end
     return t
+end
+
+function OnGameEnd()
+    ignore_list = { }
+end
+
+function LoadTable()
+    ignore_list = {
+        "skip",
+        "rtv",
+        "keyword_3",
+        "keyword_4",
+        "keyword_5" -- Make sure the last entry in the table doesn't have a comma
+    }
+end
+
+function table.match(table, value)
+    for k, v in pairs(table) do
+        if v == value then
+            return k
+        end
+    end
 end
