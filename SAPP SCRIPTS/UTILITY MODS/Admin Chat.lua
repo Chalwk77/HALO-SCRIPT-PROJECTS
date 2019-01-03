@@ -169,7 +169,7 @@ function OnPlayerChat(PlayerIndex, Message)
     if #message == 0 then
         return nil
     end
-    if players[get_var(PlayerIndex, "$name")].adminchat == true then
+    if players[get_var(PlayerIndex, "$name")].adminchat == true and tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
