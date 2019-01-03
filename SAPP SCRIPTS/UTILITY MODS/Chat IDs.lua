@@ -16,18 +16,32 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 global_format = "%sender_name% [%index%]: %message%"
 team_format = "[%sender_name%] [%index%]: %message%"
+
+-- do not touch
+local player_count = 0
+--
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     LoadTable()
 end
 
 function OnScriptUnload()
     ignore_list = { }
+end
+
+function OnPlayerJoin(PlayerIndex)
+    player_count = player_count + 1
+end
+
+function OnPlayerLeave(PlayerIndex)
+    player_count = player_count - 1
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -60,7 +74,7 @@ function OnPlayerChat(PlayerIndex, Message)
 end
 
 function SendToTeam(Message, PlayerIndex)
-    for i = 1, 16 do
+    for i = 1, player_count do
         if player_present(i) then
             if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
                 local team_format = string.gsub(team_format, "%%sender_name%%", get_var(PlayerIndex, "$name"))
