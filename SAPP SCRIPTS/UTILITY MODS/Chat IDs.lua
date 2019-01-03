@@ -83,9 +83,11 @@ end
 function SendToTeam(Message, PlayerIndex)
     for i = 1, player_count do
         if player_present(i) then
+            local name = get_var(PlayerIndex, "$name")
+            local index_id = get_var(PlayerIndex, "$n")
             if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                local team_format = string.gsub(team_format, "%%sender_name%%", get_var(PlayerIndex, "$name"))
-                local team_format = string.gsub(team_format, "%%index%%", get_var(PlayerIndex, "$n"))
+                local team_format = string.gsub(team_format, "%%sender_name%%", name)
+                local team_format = string.gsub(team_format, "%%index%%", index_id)
                 local team_format = string.gsub(team_format, "%%message%%", Message)
                 execute_command("msg_prefix \"\"")
                 say(i, team_format)
@@ -97,8 +99,10 @@ end
 
 function SendToAll(Message, PlayerIndex)
     if player_present(PlayerIndex) then
-        local global_format = string.gsub(global_format, "%%sender_name%%", get_var(PlayerIndex, "$name"))
-        local global_format = string.gsub(global_format, "%%index%%", get_var(PlayerIndex, "$n"))
+        local name = get_var(PlayerIndex, "$name")
+        local index_id = get_var(PlayerIndex, "$n")
+        local global_format = string.gsub(global_format, "%%sender_name%%", name)
+        local global_format = string.gsub(global_format, "%%index%%", index_id)
         local global_format = string.gsub(global_format, "%%message%%", Message)
         execute_command("msg_prefix \"\"")
         say_all(global_format)
