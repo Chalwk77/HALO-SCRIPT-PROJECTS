@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
  ~ Change Log:
- - Fixed OnPlayerChat permission check error (Thanks  RockHard)
+ - Fixed OnPlayerChat permission check error (Thanks RockHard)
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
@@ -71,6 +71,8 @@ function OnNewGame()
             players[get_var(i, "$name")].boolean = nil
         end
     end
+    -- support for my chat id's script...
+    check_file_status()
 end
 
 function OnGameEnd()
@@ -120,7 +122,16 @@ function OnPlayerLeave(PlayerIndex)
                 bool = "true"
             else
                 bool = "false"
+                -- >> support for my chat id's script...
+                local lines = lines_from('sapp\\admin_chat_status.txt')
+                for k, v in pairs(lines) do
+                    -- delete regardless of status (true or false)
+                    if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":") then
+                        delete_from_file('sapp\\admin_chat_status.txt', k, 1)
+                    end
+                end
             end
+            -- <<
             data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
             stored_data[data] = stored_data[data] or { }
             table.insert(stored_data[data], tostring(data[PlayerIndex]))
@@ -142,10 +153,11 @@ function OnServerCommand(PlayerIndex, Command)
                         players[get_var(PlayerIndex, "$name")].adminchat = true
                         players[get_var(PlayerIndex, "$name")].boolean = true
                         rprint(PlayerIndex, "Admin Chat enabled.")
+                        -- >> support for my chat id's script...
                         local file = io.open('sapp\\admin_chat_status.txt', "a+")
-                        local line = get_var(PlayerIndex, "$name") .. ":true"
-                        file:write(line, "\n")
+                        file:write(get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":" .. "true", "\n")
                         file:close()
+                        -- <<
                     else
                         rprint(PlayerIndex, "Admin Chat is already enabled.")
                     end
@@ -154,10 +166,14 @@ function OnServerCommand(PlayerIndex, Command)
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         players[get_var(PlayerIndex, "$name")].boolean = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
-                        -- local file = io.open('sapp\\admin_chat_status.txt', "a+")
-                        -- local line = get_var(PlayerIndex, "$name") .. ":true"
-                        -- file:write(line, "\n")
-                        -- file:close()
+                        -- >> support for my chat id's script...
+                        local lines = lines_from('sapp\\admin_chat_status.txt')
+                        for k, v in pairs(lines) do 
+                            if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":" .. "true") then
+                                delete_from_file('sapp\\admin_chat_status.txt', k, 1)
+                            end
+                        end
+                        -- <<
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
@@ -227,4 +243,47 @@ end
 
 function OnError(Message)
     print(debug.traceback())
+end
+
+-- support for my chat id's script...
+function check_file_status()
+    local file = io.open('sapp\\admin_chat_status.txt', "rb")
+    if file then
+        file:close()
+    else
+        local file = io.open('sapp\\admin_chat_status.txt', "a+")
+        if file then
+            file:write("file begin", "\n")
+            file:close()
+        end
+    end
+end
+
+function lines_from(file)
+    lines = {}
+    for line in io.lines(file) do
+        lines[#lines + 1] = line
+    end
+    return lines
+end
+
+function delete_from_file(filename, starting_line, num_lines)
+    local fp = io.open(filename, "r")
+    content = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < starting_line or i >= starting_line + num_lines then
+            content[#content + 1] = line
+        end
+        i = i + 1
+    end
+    if i > starting_line and i < starting_line + num_lines then
+        -- do nothing | <eof>
+    end
+    fp:close()
+    fp = io.open(filename, "w+")
+    for i = 1, #content do
+        fp:write(string.format("%s\n", content[i]))
+    end
+    fp:close()
 end
