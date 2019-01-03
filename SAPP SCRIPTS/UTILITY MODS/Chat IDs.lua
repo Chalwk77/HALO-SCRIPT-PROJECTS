@@ -49,7 +49,7 @@ function OnPlayerLeave(PlayerIndex)
     player_count = player_count - 1
 end
 
-function OnPlayerChat(PlayerIndex, Message)
+function OnPlayerChat(PlayerIndex, Message, type)
     local message = tokenizestring(Message)
     if #message == 0 then
         return nil
@@ -61,7 +61,7 @@ function OnPlayerChat(PlayerIndex, Message)
                     if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                         return true
                     else
-                        if (GetTeamPlay == true) then
+                        if GetTeamPlay() == true then
                             if type == 0 or type == 2 then
                                 SendToAll(Message, PlayerIndex)
                                 return false
@@ -112,7 +112,6 @@ function GetTeamPlay()
     else
         return false
     end
-    return
 end
 
 function tokenizestring(inputstr, sep)
