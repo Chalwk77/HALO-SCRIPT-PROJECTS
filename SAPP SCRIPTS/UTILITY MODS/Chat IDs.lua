@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = "1.11.0.0"
 global_format = "%sender_name% [%index%]: %message%"
 team_format = "[%sender_name%] [%index%]: %message%"
 
