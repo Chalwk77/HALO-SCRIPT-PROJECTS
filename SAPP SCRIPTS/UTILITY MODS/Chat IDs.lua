@@ -17,9 +17,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.11.0.0"
-global_format = "%sender_name% [%index%]: %message%"
-team_format = "[%sender_name%] [%index%]: %message%"
+local global_format = "%sender_name% [%index%]: %message%"
+local team_format = "[%sender_name%] [%index%]: %message%"
 
+-- If you're using my Admin Chat Script with this, set this to TRUE!
+local admin_chat = true
 -- do not touch
 local player_count = 0
 --
@@ -50,22 +52,24 @@ function OnPlayerChat(PlayerIndex, Message)
         return nil
     end
     if not (table.match(ignore_list, message[1])) then
-        for i = 0, #message do
-            if message[i] then
-                if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                    return true
-                else
-                    if (GetTeamPlay == true) then
-                        if type == 0 or type == 2 then
+        if aChatStatus(PlayerIndex) == false then
+            for i = 0, #message do
+                if message[i] then
+                    if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                        return true
+                    else
+                        if (GetTeamPlay == true) then
+                            if type == 0 or type == 2 then
+                                SendToAll(Message, PlayerIndex)
+                                return false
+                            elseif type == 1 then
+                                SendToTeam(Message, PlayerIndex)
+                                return false
+                            end
+                        else
                             SendToAll(Message, PlayerIndex)
                             return false
-                        elseif type == 1 then
-                            SendToTeam(Message, PlayerIndex)
-                            return false
                         end
-                    else
-                        SendToAll(Message, PlayerIndex)
-                        return false
                     end
                 end
             end
@@ -141,4 +145,35 @@ function table.match(table, value)
             return k
         end
     end
+end
+
+function lines_from(file)
+    lines = {}
+    for line in io.lines(file) do
+        lines[#lines + 1] = line
+    end
+    return lines
+end
+
+function aChatStatus(PlayerIndex)
+    local bool = nil
+    if admin_chat then
+        -- Only run this code if the player is an admin
+        if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 1 then
+            local name = get_var(PlayerIndex, "$name")
+            local hash = get_var(PlayerIndex, "$hash")
+            local lines = lines_from('sapp\\admin_chat_status.txt')
+            for k, v in pairs(lines) do
+                if string.match(v, name .. ":" .. hash .. ":" .. "true") then
+                    bool = true
+                    break
+                else 
+                    bool = false
+                end
+            end
+        else
+            bool = false
+        end
+    end
+    return bool
 end
