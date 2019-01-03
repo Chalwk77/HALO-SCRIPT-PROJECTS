@@ -83,6 +83,7 @@ function OnGameEnd()
                     bool = "true"
                 else
                     bool = "false"
+                    deleteRecord(i)
                 end
                 data[i] = get_var(i, "$name") .. ":" .. bool
                 stored_data[data] = stored_data[data] or { }
@@ -122,14 +123,7 @@ function OnPlayerLeave(PlayerIndex)
                 bool = "true"
             else
                 bool = "false"
-                -- >> support for my chat id's script...
-                local lines = lines_from('sapp\\admin_chat_status.txt')
-                for k, v in pairs(lines) do
-                    -- delete regardless of status (true or false)
-                    if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":") then
-                        delete_from_file('sapp\\admin_chat_status.txt', k, 1)
-                    end
-                end
+                deleteRecord(PlayerIndex)
             end
             -- <<
             data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
@@ -166,14 +160,7 @@ function OnServerCommand(PlayerIndex, Command)
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         players[get_var(PlayerIndex, "$name")].boolean = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
-                        -- >> support for my chat id's script...
-                        local lines = lines_from('sapp\\admin_chat_status.txt')
-                        for k, v in pairs(lines) do 
-                            if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":" .. "true") then
-                                delete_from_file('sapp\\admin_chat_status.txt', k, 1)
-                            end
-                        end
-                        -- <<
+                        deleteRecord(PlayerIndex)
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
@@ -265,6 +252,17 @@ function lines_from(file)
         lines[#lines + 1] = line
     end
     return lines
+end
+
+function deleteRecord(PlayerIndex)
+    -- >> support for my chat id's script...
+    local lines = lines_from('sapp\\admin_chat_status.txt')
+    for k, v in pairs(lines) do
+        -- delete regardless of status (true or false)
+        if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":") then
+            delete_from_file('sapp\\admin_chat_status.txt', k, 1)
+        end
+    end
 end
 
 function delete_from_file(filename, starting_line, num_lines)
