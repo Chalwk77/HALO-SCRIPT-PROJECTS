@@ -22,6 +22,7 @@ local team_format = "[%sender_name%] [%index%]: %message%"
 
 -- If you're using my Admin Chat Script with this, set this to TRUE!
 local admin_chat = true
+
 -- do not touch
 local player_count = 0
 --
@@ -167,7 +168,7 @@ function aChatStatus(PlayerIndex)
                 if string.match(v, name .. ":" .. hash .. ":" .. "true") then
                     bool = true
                     break
-                else 
+                else
                     bool = false
                 end
             end
