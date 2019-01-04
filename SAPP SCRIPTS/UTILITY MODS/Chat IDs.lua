@@ -135,6 +135,7 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnNewGame()
+    LoadTable()
     game_over = false
 end
 
