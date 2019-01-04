@@ -32,6 +32,7 @@ local player_count = 0
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     LoadTable()
@@ -50,28 +51,30 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    local message = tokenizestring(Message)
-    if #message == 0 then
-        return nil
-    end
-    if not (table.match(ignore_list, message[1])) then
-        if aChatStatus(PlayerIndex) == false then
-            for i = 0, #message do
-                if message[i] then
-                    if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                        return true
-                    else
-                        if GetTeamPlay() == true then
-                            if type == 0 or type == 2 then
+    if not game_over then
+        local message = tokenizestring(Message)
+        if #message == 0 then
+            return nil
+        end
+        if not (table.match(ignore_list, message[1])) then
+            if aChatStatus(PlayerIndex) == false then
+                for i = 0, #message do
+                    if message[i] then
+                        if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                            return true
+                        else
+                            if GetTeamPlay() == true then
+                                if type == 0 or type == 2 then
+                                    SendToAll(Message, PlayerIndex)
+                                    return false
+                                elseif type == 1 then
+                                    SendToTeam(Message, PlayerIndex)
+                                    return false
+                                end
+                            else
                                 SendToAll(Message, PlayerIndex)
                                 return false
-                            elseif type == 1 then
-                                SendToTeam(Message, PlayerIndex)
-                                return false
                             end
-                        else
-                            SendToAll(Message, PlayerIndex)
-                            return false
                         end
                     end
                 end
@@ -131,8 +134,13 @@ function tokenizestring(inputstr, sep)
     return t
 end
 
+function OnNewGame()
+    game_over = false
+end
+
 function OnGameEnd()
     ignore_list = { }
+    game_over = true
 end
 
 function LoadTable()
