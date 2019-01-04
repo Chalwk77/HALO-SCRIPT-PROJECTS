@@ -27,6 +27,7 @@ local admin_chat = true
 
 -- do not touch
 local player_count = 0
+ignore_list = {}
 --
 
 function OnScriptLoad()
@@ -135,12 +136,11 @@ function tokenizestring(inputstr, sep)
 end
 
 function OnNewGame()
-    LoadTable()
     game_over = false
+    LoadTable()
 end
 
 function OnGameEnd()
-    ignore_list = { }
     game_over = true
 end
 
