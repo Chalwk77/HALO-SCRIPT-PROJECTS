@@ -52,7 +52,7 @@ function OnPlayerLeave(PlayerIndex)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    if not game_over then
+    if (game_over == false) then
         local message = tokenizestring(Message)
         if #message == 0 then
             return nil
