@@ -19,7 +19,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- configuration starts here --
--- Minimin admin level required to use /achat command
+-- Minimum admin level required to use /achat command
 min_admin_level = 1
 
 -- Admin Chat prefix
@@ -29,8 +29,11 @@ prefix = "[ADMIN CHAT] "
 Restore_Previous_State = true
 
 -- Print message to Rcon Console or Chat?
--- Valid input: rcon or chat
+-- Valid input: rcon|chat
 Format = "rcon"
+
+-- If you're using this script and my ChatID's script together, set this (using_ChatIDs) to TRUE. This will prevent duplicate chat messages.
+using_ChatIDs = true
 -- configuration ends here --
 
 -- tables --
@@ -39,6 +42,8 @@ players = { }
 adminchat = { }
 stored_data = { }
 boolean = { }
+player_count = 0
+gamehasstarted = nil
 
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -47,10 +52,15 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    for i = 1, 16 do
-        if player_present(i) then
-            players[get_var(i, "$name")].adminchat = nil
-            players[get_var(i, "$name")].boolean = nil
+    -- If the server is already running, and you /lua_load this script, then we set table data to nil
+    if gamehasstarted then
+        for i = 1, 16 do
+            if player_present(i) then
+                if isAdmin(i) then
+                    players[get_var(i, "$name")].adminchat = nil
+                    players[get_var(i, "$name")].boolean = nil
+                end
+            end
         end
     end
 end
@@ -58,37 +68,7 @@ end
 function OnScriptUnload()
     for i = 1, 16 do
         if player_present(i) then
-            players[get_var(i, "$name")].adminchat = false
-            players[get_var(i, "$name")].boolean = false
-        end
-    end
-end
-
-function OnNewGame()
-    for i = 1, 16 do
-        if player_present(i) then
-            players[get_var(i, "$name")].adminchat = nil
-            players[get_var(i, "$name")].boolean = nil
-        end
-    end
-    -- support for my chat id's script...
-    check_file_status()
-end
-
-function OnGameEnd()
-    for i = 1, 16 do
-        if player_present(i) then
-            if (Restore_Previous_State == true) then
-                if players[get_var(i, "$name")].adminchat == true then
-                    bool = "true"
-                else
-                    bool = "false"
-                    deleteRecord(i)
-                end
-                data[i] = get_var(i, "$name") .. ":" .. bool
-                stored_data[data] = stored_data[data] or { }
-                table.insert(stored_data[data], tostring(data[i]))
-            else
+            if isAdmin(i) then
                 players[get_var(i, "$name")].adminchat = false
                 players[get_var(i, "$name")].boolean = false
             end
@@ -96,42 +76,96 @@ function OnGameEnd()
     end
 end
 
+function OnNewGame()
+    gamehasstarted = true
+    for i = 1, 16 do
+        if player_present(i) then
+            if isAdmin(i) then
+                players[get_var(i, "$name")].adminchat = nil
+                players[get_var(i, "$name")].boolean = nil
+            end
+        end
+    end
+    -- >> support for my chat id's script...
+    if using_ChatIDs then
+        check_file_status()
+    end
+    -- <<
+end
+
+function OnGameEnd()
+    gamehasstarted = false
+    for i = 1, player_count do
+        if player_present(i) then
+            if isAdmin(i) then
+                if (Restore_Previous_State == true) then
+                    if players[get_var(i, "$name")].adminchat == true then
+                        bool = "true"
+                    else
+                        bool = "false"
+                        if using_ChatIDs then
+                            -- >> support for my chat id's script...
+                            deleteRecord(i)
+                            -- <<
+                        end
+                    end
+                    data[i] = get_var(i, "$name") .. ":" .. bool
+                    stored_data[data] = stored_data[data] or { }
+                    table.insert(stored_data[data], tostring(data[i]))
+                else
+                    players[get_var(i, "$name")].adminchat = false
+                    players[get_var(i, "$name")].boolean = false
+                end
+            end
+        end
+    end
+end
+
 function OnPlayerJoin(PlayerIndex)
-    players[get_var(PlayerIndex, "$name")] = { }
-    players[get_var(PlayerIndex, "$name")].adminchat = nil
-    players[get_var(PlayerIndex, "$name")].boolean = nil
-    if (Restore_Previous_State == true) then
-        local t = tokenizestring(tostring(data[PlayerIndex]), ":")
-        if t[2] == "true" then
-            rprint(PlayerIndex, "Your admin chat is on!")
-            players[get_var(PlayerIndex, "$name")].adminchat = true
-            players[get_var(PlayerIndex, "$name")].boolean = true
+    player_count = player_count + 1
+    if isAdmin(PlayerIndex) then
+        players[get_var(PlayerIndex, "$name")] = { }
+        players[get_var(PlayerIndex, "$name")].adminchat = nil
+        players[get_var(PlayerIndex, "$name")].boolean = nil
+        if (Restore_Previous_State == true) then
+            local t = tokenizestring(tostring(data[PlayerIndex]), ":")
+            if t[2] == "true" then
+                rprint(PlayerIndex, "Your admin chat is on!")
+                players[get_var(PlayerIndex, "$name")].adminchat = true
+                players[get_var(PlayerIndex, "$name")].boolean = true
+            else
+                players[get_var(PlayerIndex, "$name")].adminchat = false
+                players[get_var(PlayerIndex, "$name")].boolean = false
+            end
         else
             players[get_var(PlayerIndex, "$name")].adminchat = false
             players[get_var(PlayerIndex, "$name")].boolean = false
         end
-    else
-        players[get_var(PlayerIndex, "$name")].adminchat = false
-        players[get_var(PlayerIndex, "$name")].boolean = false
     end
 end
 
 function OnPlayerLeave(PlayerIndex)
+    player_count = player_count - 1
     if PlayerIndex ~= 0 then
-        if (Restore_Previous_State == true) then
-            if players[get_var(PlayerIndex, "$name")].adminchat == true then
-                bool = "true"
+        if isAdmin(PlayerIndex) then
+            if (Restore_Previous_State == true) then
+                if players[get_var(PlayerIndex, "$name")].adminchat == true then
+                    bool = "true"
+                else
+                    bool = "false"
+                    -- >> support for my chat id's script...
+                    if using_ChatIDs then
+                        deleteRecord(PlayerIndex)
+                    end
+                    -- <<
+                end
+                data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
+                stored_data[data] = stored_data[data] or { }
+                table.insert(stored_data[data], tostring(data[PlayerIndex]))
             else
-                bool = "false"
-                deleteRecord(PlayerIndex)
+                players[get_var(PlayerIndex, "$name")].adminchat = false
+                players[get_var(PlayerIndex, "$name")].boolean = false
             end
-            -- <<
-            data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
-            stored_data[data] = stored_data[data] or { }
-            table.insert(stored_data[data], tostring(data[PlayerIndex]))
-        else
-            players[get_var(PlayerIndex, "$name")].adminchat = false
-            players[get_var(PlayerIndex, "$name")].boolean = false
         end
     end
 end
@@ -141,16 +175,18 @@ function OnServerCommand(PlayerIndex, Command)
     response = nil
     if t[1] == "achat" then
         if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-            if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
+            if isAdmin(PlayerIndex) then
                 if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
                     if players[get_var(PlayerIndex, "$name")].boolean ~= true then
                         players[get_var(PlayerIndex, "$name")].adminchat = true
                         players[get_var(PlayerIndex, "$name")].boolean = true
                         rprint(PlayerIndex, "Admin Chat enabled.")
                         -- >> support for my chat id's script...
-                        local file = io.open('sapp\\admin_chat_status.txt', "a+")
-                        file:write(get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":" .. "true", "\n")
-                        file:close()
+                        if using_ChatIDs then
+                            local file = io.open('sapp\\achat.temp', "a+")
+                            file:write(get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash"), "\n")
+                            file:close()
+                        end
                         -- <<
                     else
                         rprint(PlayerIndex, "Admin Chat is already enabled.")
@@ -160,7 +196,11 @@ function OnServerCommand(PlayerIndex, Command)
                         players[get_var(PlayerIndex, "$name")].adminchat = false
                         players[get_var(PlayerIndex, "$name")].boolean = false
                         rprint(PlayerIndex, "Admin Chat disabled.")
-                        deleteRecord(PlayerIndex)
+                        if using_ChatIDs then
+                            -- >> support for my chat id's script...
+                            deleteRecord(PlayerIndex)
+                            -- <<
+                        end
                     else
                         rprint(PlayerIndex, "Admin Chat is already disabled.")
                     end
@@ -183,13 +223,13 @@ function OnPlayerChat(PlayerIndex, Message)
     if #message == 0 then
         return nil
     end
-    if players[get_var(PlayerIndex, "$name")].adminchat == true and tonumber(get_var(PlayerIndex, "$lvl")) >= min_admin_level then
+    if isAdmin(PlayerIndex) and players[get_var(PlayerIndex, "$name")].adminchat == true then
         for i = 0, #message do
             if message[i] then
                 if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                     return true
                 else
-                    AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. ":  " .. Message, PlayerIndex)
+                    AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
                     return false
                 end
             end
@@ -198,9 +238,9 @@ function OnPlayerChat(PlayerIndex, Message)
 end
 
 function AdminChat(Message, PlayerIndex)
-    for i = 1, 16 do
+    for i = 1, player_count do
         if player_present(i) then
-            if (tonumber(get_var(i, "$lvl"))) >= min_admin_level then
+            if isAdmin(i) then
                 if (Format == "rcon") then
                     rprint(i, "|l" .. Message)
                 elseif (Format == "chat") then
@@ -208,10 +248,18 @@ function AdminChat(Message, PlayerIndex)
                     say(i, Message)
                     execute_command("msg_prefix \" *  * SERVER *  * \"")
                 else
-                    cprint("Error in adminchat.lua - Format not defined properly. Line 30", 4 + 8)
+                    cprint("Error in adminchat.lua - Format not defined properly. Line 33", 4 + 8)
                 end
             end
         end
+    end
+end
+
+function isAdmin(PlayerIndex)
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
+        return true
+    else
+        return false
     end
 end
 
@@ -234,18 +282,18 @@ end
 
 -- support for my chat id's script...
 function check_file_status()
-    local file = io.open('sapp\\admin_chat_status.txt', "rb")
+    local file = io.open('sapp\\achat.temp', "rb")
     if file then
         file:close()
         content = {}
-        fp = io.open('sapp\\admin_chat_status.txt', "w+")
+        fp = io.open('sapp\\achat.temp', "w+")
         for i = 1, #content do
             fp:write(string.format("%s\n", content[i]))
         end
         fp:write(":", "\n")
         fp:close()
     else
-        local file = io.open('sapp\\admin_chat_status.txt', "a+")
+        local file = io.open('sapp\\achat.temp', "a+")
         if file then
             file:write(":", "\n")
             file:close()
@@ -262,12 +310,10 @@ function lines_from(file)
 end
 
 function deleteRecord(PlayerIndex)
-    -- >> support for my chat id's script...
-    local lines = lines_from('sapp\\admin_chat_status.txt')
+    local lines = lines_from('sapp\\achat.temp')
     for k, v in pairs(lines) do
-        -- delete regardless of status (true or false)
-        if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash") .. ":") then
-            delete_from_file('sapp\\admin_chat_status.txt', k, 1)
+        if string.match(v, get_var(PlayerIndex, "$name") .. ":" .. get_var(PlayerIndex, "$hash")) then
+            delete_from_file('sapp\\achat.temp', k, 1)
         end
     end
 end
