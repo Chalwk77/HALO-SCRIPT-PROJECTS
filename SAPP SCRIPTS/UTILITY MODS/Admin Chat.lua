@@ -10,7 +10,8 @@ Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
  ~ Change Log:
- - Fixed OnPlayerChat permission check error (Thanks RockHard)
+ - Jan 4th, 2019: Fixed OnPlayerChat permission check error (Thanks RockHard)
+ - Jan 5th, 2019: Bug fixes and performance enhancements 
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
