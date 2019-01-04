@@ -242,12 +242,12 @@ function check_file_status()
         for i = 1, #content do
             fp:write(string.format("%s\n", content[i]))
         end
-        fp:write("file begin...", "\n")
+        fp:write(":", "\n")
         fp:close()
     else
         local file = io.open('sapp\\admin_chat_status.txt', "a+")
         if file then
-            file:write("file begin...", "\n")
+            file:write(":", "\n")
             file:close()
         end
     end
