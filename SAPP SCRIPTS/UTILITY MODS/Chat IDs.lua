@@ -53,7 +53,6 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     if (game_over == false) then
-    if Message == string.lower("!chalwk") then rprint(PlayerIndex, "updated") return false end
         local message = tokenizestring(Message)
         if #message == 0 then
             return nil
