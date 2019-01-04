@@ -27,7 +27,6 @@ local admin_chat = true
 
 -- do not touch
 local player_count = 0
-ignore_list = {}
 --
 
 function OnScriptLoad()
@@ -40,7 +39,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    ignore_list = { }
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -58,7 +57,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             return nil
         end
         if not (table.match(ignore_list, message[1])) then
-            if aChatStatus(PlayerIndex) == false then
+            if (getAchat(PlayerIndex) == false) then
                 for i = 0, #message do
                     if message[i] then
                         if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
@@ -145,6 +144,7 @@ function OnGameEnd()
 end
 
 function LoadTable()
+    ignore_list = {}
     ignore_list = {
         "skip",
         "rtv",
@@ -170,16 +170,15 @@ function lines_from(file)
     return lines
 end
 
-function aChatStatus(PlayerIndex)
+function getAchat(PlayerIndex)
     local bool = nil
     if admin_chat then
-        -- Only run this code if the player is an admin
         if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 1 then
             local name = get_var(PlayerIndex, "$name")
             local hash = get_var(PlayerIndex, "$hash")
-            local lines = lines_from('sapp\\admin_chat_status.txt')
+            local lines = lines_from('sapp\\achat.temp')
             for k, v in pairs(lines) do
-                if string.match(v, name .. ":" .. hash .. ":" .. "true") then
+                if string.match(v, name .. ":" .. hash) then
                     bool = true
                     break
                 else
@@ -189,6 +188,8 @@ function aChatStatus(PlayerIndex)
         else
             bool = false
         end
+    else
+        bool = false
     end
     return bool
 end
