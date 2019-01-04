@@ -40,7 +40,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    ignore_list = { }
+
 end
 
 function OnPlayerJoin(PlayerIndex)
