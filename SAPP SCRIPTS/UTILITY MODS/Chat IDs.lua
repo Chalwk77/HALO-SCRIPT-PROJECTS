@@ -22,11 +22,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.11.0.0"
+-- configuration starts
 local global_format = "%sender_name% [%index%]: %message%"
 local team_format = "[%sender_name%] [%index%]: %message%"
 
 -- If you're using my Admin Chat Script with this, set this to TRUE!
 local admin_chat = false
+-- configuration ends
 
 -- do not touch
 local player_count = 0
