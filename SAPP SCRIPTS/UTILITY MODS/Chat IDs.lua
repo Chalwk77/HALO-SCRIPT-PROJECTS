@@ -26,7 +26,7 @@ local global_format = "%sender_name% [%index%]: %message%"
 local team_format = "[%sender_name%] [%index%]: %message%"
 
 -- If you're using my Admin Chat Script with this, set this to TRUE!
-local admin_chat = true
+local admin_chat = false
 
 -- do not touch
 local player_count = 0
