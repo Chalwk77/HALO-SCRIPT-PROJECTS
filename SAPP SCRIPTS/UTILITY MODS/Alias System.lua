@@ -109,8 +109,12 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] == string.match(t[2], "[A-Za-z]") then
                 rprint(PlayerIndex, "Invalid player id")
             else
-                index = tonumber(t[2])
-                getAliases(PlayerIndex, index)
+                if player_present(tonumber(t[2])) then
+                    index = tonumber(t[2])
+                    getAliases(PlayerIndex, index)
+                else
+                    rprint(PlayerIndex, "Player not present")
+                end
             end
             return false
         else
