@@ -45,3 +45,10 @@ Contributors to projects and code
 
   * Auto-Vehicle Flip (script)
         - https://opencarnage.net/index.php?/topic/6251-auto-vehicle-flip/
+        
+* **[Jeffrey Friedl](http://regex.info/blog/)**
+
+  * JSON.lua file
+        - http://regex.info/blog/
+        - http://regex.info/blog/lua/json
+       
