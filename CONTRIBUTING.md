@@ -49,6 +49,4 @@ Contributors to projects and code
 * **[Jeffrey Friedl](http://regex.info/blog/)**
 
   * JSON.lua file
-        - http://regex.info/blog/
-        - http://regex.info/blog/lua/json
-       
+        - latest version: http://regex.info/blog/lua/json
