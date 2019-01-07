@@ -4,9 +4,6 @@ Script Name: Alias System, for SAPP (PC & CE)
 Description: N/A
 
 [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
-[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
-[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
-[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -23,6 +20,7 @@ api_version = "1.11.0.0"
 JSON = (loadfile "sapp/JSON.lua")()
 
 -- configuration starts
+file_name = "alias.lua"
 base_command = "alias"
 
 -- minimum admin level required to use /alias command
@@ -46,7 +44,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function getAliases(PlayerIndex, index)
-    local file = io.open("sapp\\alias.lua", "r")
+    local file = io.open("sapp\\" .. file_name, "r")
     local readjson = file:read("*a")
     local table = JSON:decode(readjson)
     file:close()
@@ -54,16 +52,14 @@ function getAliases(PlayerIndex, index)
     if table ~= nil then 
         if table[hash] ~= nil then 
             rprint(PlayerIndex, "Aliases: " .. table[hash] .. ",")
-            cprint("Aliases: " .. table[hash] .. ",", 2+8)
         else
             rprint(PlayerIndex, "No aliases found!")
-            cprint("table doesn't exist", 4+8)
         end
     end
 end
 
 function addAlias(name, hash)
-    local file = io.open("sapp\\alias.lua", "r")
+    local file = io.open("sapp\\" .. file_name, "r")
     local readjson = file:read("*a")
     local table = JSON:decode(readjson)
     file:close()
@@ -72,13 +68,12 @@ function addAlias(name, hash)
         if table[hash] ~= nil then
             -- hash exists, name doesn't - add new name to hash table...
             if not string.match(table[hash], name) then
-                -- hash doesn't exist, add it... (includes their name)
-                -- TO DO...
+                -- to do...
             end
         else
             -- hash doesn't exist, add it... (includes their name)
             newAlias = {[tostring(hash)] = tostring(name)}
-            local test = assert(io.open("sapp\\alias.lua", "a+"))
+            local test = assert(io.open("sapp\\" .. file_name, "a+"))
             data = JSON:encode(newAlias)
             test:write(data, "\n")
             test:close()
@@ -86,7 +81,7 @@ function addAlias(name, hash)
     else
         -- create the very first entry (one time operation, unless file is deleted)
         newAlias = {[tostring(hash)] = tostring(name)}
-        local test = assert(io.open("sapp\\alias.lua", "a+"))
+        local test = assert(io.open("sapp\\" .. file_name, "a+"))
         data = JSON:encode(newAlias)
         test:write(data, "\n")
         test:close()
@@ -94,11 +89,11 @@ function addAlias(name, hash)
 end
 
 function checkFile()
-    local file = io.open('sapp\\alias.lua', "rb")
+    local file = io.open('sapp\\' .. file_name, "rb")
     if file then
         file:close()
     else
-        local file = io.open('sapp\\alias.lua', "a+")
+        local file = io.open('sapp\\' .. file_name, "a+")
         if file then
             file:close()
         end
