@@ -1,16 +1,21 @@
 --[[
 --=====================================================================================================--
 Script Name: Alias System, for SAPP (PC & CE)
+Description: N/A
 
- [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]
- [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]
- [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]  [!] [!]  IN DEVELOPMENT  [!] [!]
+[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
+[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
+[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
+[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* Written by Jericho Crosby (Chalwk)
+* Special thanks to Jeffrey Friedl for providing the JSON encode/decode routines.
+* JSON.lua is required to use this script. Get the latest version here: http://regex.info/blog/lua/json
+
+* Script written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
@@ -67,8 +72,8 @@ function addAlias(name, hash)
         if table[hash] ~= nil then
             -- hash exists, name doesn't - add new name to hash table...
             if not string.match(table[hash], name) then
-            -- hash doesn't exist, add it... (includes their name)
-                -- TO DO
+                -- hash doesn't exist, add it... (includes their name)
+                -- TO DO...
             end
         else
             -- hash doesn't exist, add it... (includes their name)
