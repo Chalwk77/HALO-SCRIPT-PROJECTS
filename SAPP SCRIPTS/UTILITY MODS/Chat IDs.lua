@@ -27,7 +27,7 @@ local global_format = "%sender_name% [%index%]: %message%"
 local team_format = "[%sender_name%] [%index%]: %message%"
 
 -- If you're using my Admin Chat Script with this, set this to TRUE!
-local admin_chat = false
+local admin_chat = true
 -- configuration ends
 
 -- do not touch
@@ -71,15 +71,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             if GetTeamPlay() == true then
                                 if type == 0 or type == 2 then
                                     SendToAll(Message, PlayerIndex)
-                                    return false
                                 elseif type == 1 then
                                     SendToTeam(Message, PlayerIndex)
-                                    return false
                                 end
                             else
                                 SendToAll(Message, PlayerIndex)
-                                return false
                             end
+                            return false
                         end
                     end
                 end
