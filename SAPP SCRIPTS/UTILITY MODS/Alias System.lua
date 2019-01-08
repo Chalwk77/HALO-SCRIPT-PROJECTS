@@ -98,7 +98,7 @@ function OnGameEnd()
 end
 
 function OnTick()
-    for i = 1, 1 do
+    for i = 1, 16 do
         if player_present(i) then
             if (trigger[i] == true) then
                 players[get_var(i, "$n")].new_timer = players[get_var(i, "$n")].new_timer + 0.030
