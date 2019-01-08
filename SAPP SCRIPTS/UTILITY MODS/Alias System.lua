@@ -1,26 +1,26 @@
 --[[
 --=====================================================================================================--
 Script Name: Alias System, for SAPP (PC & CE)
-Description: N/A
+Description: Query a player's hash to check what aliases have been used with it.
 
-[!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!] * [!] [!] IN DEVELOPMENT [!] [!]
+Command syntax: /alias [id]
+
+* Coming in a future update:
+    - name search feature
+    - hash search feature
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
-* Special thanks to Jeffrey Friedl for providing the JSON encode/decode routines.
-* JSON.lua is required to use this script. Get the latest version here: http://regex.info/blog/lua/json
-
-* Script written by Jericho Crosby (Chalwk)
+* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
 api_version = "1.11.0.0"
-JSON = (loadfile "sapp/JSON.lua")()
 
 -- configuration starts
-file_name = "alias.lua"
+file_name = "alias.lua" -- File is saved to server root dir/sapp/alias.lua
 base_command = "alias"
 
 -- minimum admin level required to use /alias command
@@ -44,47 +44,42 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function getAliases(PlayerIndex, index)
-    local file = io.open("sapp\\" .. file_name, "r")
-    local readjson = file:read("*a")
-    local table = JSON:decode(readjson)
-    file:close()
-    local hash = get_var(index, "$hash")
-    if table ~= nil then 
-        if table[hash] ~= nil then 
-            rprint(PlayerIndex, "Aliases: " .. table[hash] .. ",")
-        else
-            rprint(PlayerIndex, "No aliases found!")
+    local lines = lines_from("sapp\\" .. file_name)
+    for k, v in pairs(lines) do
+        local hash = tostring(get_var(index, "$hash"))
+        if v:match(hash) then
+            local aliases = string.match(v, (":(.+)"))
+            rprint(PlayerIndex, 'Showing aliases for : "' .. hash .. '"')
+            rprint(PlayerIndex, "Aliases: " .. aliases)
+            break
         end
     end
 end
 
 function addAlias(name, hash)
     local file = io.open("sapp\\" .. file_name, "r")
-    local readjson = file:read("*a")
-    local table = JSON:decode(readjson)
+    local data = file:read("*a")
     file:close()
-    -- proceed if file isn't empty
-    if table ~= nil then 
-        if table[hash] ~= nil then
-            -- hash exists, name doesn't - add new name to hash table...
-            if not string.match(table[hash], name) then
-                -- to do...
-            end
-        else
-            -- hash doesn't exist, add it... (includes their name)
-            newAlias = {[tostring(hash)] = tostring(name)}
-            local test = assert(io.open("sapp\\" .. file_name, "a+"))
-            data = JSON:encode(newAlias)
-            test:write(data, "\n")
-            test:close()
-        end
+    if not string.match(data, hash) then
+        local file = assert(io.open("sapp\\" .. file_name, "a+"))
+        file:write(hash .. ":" .. name, "\n")
+        file:close()
     else
-        -- create the very first entry (one time operation, unless file is deleted)
-        newAlias = {[tostring(hash)] = tostring(name)}
-        local test = assert(io.open("sapp\\" .. file_name, "a+"))
-        data = JSON:encode(newAlias)
-        test:write(data, "\n")
-        test:close()
+        local lines = lines_from("sapp\\" .. file_name)
+        for k, v in pairs(lines) do
+            if string.match(v, hash) then
+                if not v:match(name) then
+                    local alias = v .. ", " .. name
+                    local f = io.open("sapp\\" .. file_name, "r")
+                    local content = f:read("*all")
+                    f:close()
+                    content = string.gsub(content, v, alias)
+                    local f = io.open("sapp\\" .. file_name, "w")
+                    f:write(content)
+                    f:close()
+                end
+            end
+        end
     end
 end
 
@@ -93,7 +88,7 @@ function checkFile()
     if file then
         file:close()
     else
-        local file = io.open('sapp\\' .. file_name, "a+")
+    local file = io.open('sapp\\' .. file_name, "a+")
         if file then
             file:close()
         end
@@ -103,7 +98,6 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     local index
-    response = nil
     if isAdmin(PlayerIndex) and t[1] == string.lower(base_command) then
         if t[2] ~= nil then
             if t[2] == string.match(t[2], "[A-Za-z]") then
@@ -130,6 +124,14 @@ function isAdmin(PlayerIndex)
     else
         return false
     end
+end
+
+function lines_from(file)
+    lines = {}
+    for line in io.lines(file) do
+        lines[#lines + 1] = line
+    end
+    return lines
 end
 
 function tokenizestring(inputstr, sep)
