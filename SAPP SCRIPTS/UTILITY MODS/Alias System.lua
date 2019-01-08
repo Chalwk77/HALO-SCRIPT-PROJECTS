@@ -6,8 +6,11 @@ Description: Query a player's hash to check what aliases have been used with it.
 Command syntax: /alias [id]
 
 * Coming in a future update:
+    - ip search feature
     - name search feature
     - hash search feature
+    
+    to do: split lists longer than 80 characters 
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -107,10 +110,10 @@ function OnTick()
                         local aliases = string.match(v, (":(.+)"))
                         rprint(i, 'Showing aliases for: "' .. hash .. '"')
                         rprint(i, "Aliases: " .. aliases)
-                        
-                        -- todo:
+
+                        -- to do:
                         -- split strings
-                        
+
                         break
                     end
                 end
@@ -123,19 +126,17 @@ function OnTick()
     end
 end
 
-
 function addAlias(name, hash)
     local file = io.open("sapp\\" .. file_name, "r")
     local data = file:read("*a")
     file:close()
-    if not string.match(data, hash) then
-        local file = assert(io.open("sapp\\" .. file_name, "a+"))
-        file:write(hash .. ":" .. name, "\n")
-        file:close()
-    else
+    -- hash already exists : goto next
+    if string.match(data, hash) then
         local lines = lines_from("sapp\\" .. file_name)
         for k, v in pairs(lines) do
+            -- next : hash line found : goto next
             if string.match(v, hash) then
+                -- name not found on hash line : add name"
                 if not v:match(name) then
                     local alias = v .. ", " .. name
                     local f = io.open("sapp\\" .. file_name, "r")
@@ -148,6 +149,10 @@ function addAlias(name, hash)
                 end
             end
         end
+    else
+        local file = assert(io.open("sapp\\" .. file_name, "a+"))
+        file:write(hash .. ":" .. name, "\n")
+        file:close()
     end
 end
 
@@ -167,10 +172,7 @@ function OnServerCommand(PlayerIndex, Command)
     local t = tokenizestring(Command)
     if isAdmin(PlayerIndex) and t[1] == string.lower(base_command) then
         if t[2] ~= nil then
-            if t[2] == string.match(t[2], "[A-Za-z]") then
-                cls(PlayerIndex)
-                rprint(PlayerIndex, "Invalid player id")
-            else
+            if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
                 if player_present(tonumber(t[2])) then
                     index = tonumber(t[2])
                     if trigger[PlayerIndex] == true then
@@ -184,6 +186,10 @@ function OnServerCommand(PlayerIndex, Command)
                     cls(PlayerIndex)
                     rprint(PlayerIndex, "Player not present")
                 end
+            else
+                trigger[PlayerIndex] = false
+                cls(PlayerIndex)
+                rprint(PlayerIndex, "Invalid player id")
             end
             return false
         else
