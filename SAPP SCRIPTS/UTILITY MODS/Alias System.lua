@@ -110,7 +110,6 @@ function OnTick()
                         local aliases = string.match(v, (":(.+)"))
                         rprint(i, 'Showing aliases for: "' .. hash .. '"')
                         rprint(i, "Aliases: " .. aliases)
-
                         -- to do:
                         -- split strings
 
@@ -176,17 +175,20 @@ function OnServerCommand(PlayerIndex, Command)
                 if player_present(tonumber(t[2])) then
                     index = tonumber(t[2])
                     if trigger[PlayerIndex] == true then
-                        trigger[PlayerIndex] = false
                         cls(PlayerIndex)
+                        players[get_var(PlayerIndex, "$n")].new_timer = 0
+                        trigger[PlayerIndex] = true
                     else
                         trigger[PlayerIndex] = true
                     end
                 else
+                    players[get_var(PlayerIndex, "$n")].new_timer = 0
                     trigger[PlayerIndex] = false
                     cls(PlayerIndex)
                     rprint(PlayerIndex, "Player not present")
                 end
             else
+                players[get_var(PlayerIndex, "$n")].new_timer = 0
                 trigger[PlayerIndex] = false
                 cls(PlayerIndex)
                 rprint(PlayerIndex, "Invalid player id")
