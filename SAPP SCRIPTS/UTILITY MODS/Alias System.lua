@@ -26,7 +26,7 @@ api_version = "1.11.0.0"
 file_name = "alias.lua" -- File is saved to server root dir/sapp/alias.lua
 base_command = "alias"
 
--- How long should the alias results be display for? (in seconds) --
+-- How long should the alias results be displayed for? (in seconds) --
 duration = 10
 
 -- Message Alignment:
