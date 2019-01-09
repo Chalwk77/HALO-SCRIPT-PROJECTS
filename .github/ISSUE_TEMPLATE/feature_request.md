@@ -7,40 +7,40 @@ about: Suggest an idea for this project
 - [ ] To mark your selection, put an 'x' between the brackets: [x]
 
 ### Will the script be for Halo PC, CE or BOTH?
-* [] Halo PC
-* [] Halo Custom Edition
-* [] Both (cross compatibility)
+* [ ] Halo PC
+* [ ] Halo Custom Edition
+* [ ] Both (cross compatibility)
 
 ### What server extension are you using?
-* [] SAPP
+* [ ] SAPP
   * ##### What version of SAPP are you using?
-    * [] 10.1
-    * [] 10.0
-    * [] 9.8.1
-    * [] Earlier version?
-    * [] Unsure
+    * [ ] 10.1
+    * [ ] 10.0
+    * [ ] 9.8.1
+    * [ ] Earlier version?
+    * [ ] Unsure
   
    <sub>You can get this information from your sapp.log file.
    When SAPP loads it will create an entry into this file with a line that looks like this:
    2017-05-25 12:30:0 LOAD SAPP was loaded, Version 10.0 CE</sub>
 
-* [] PHASOR
+* [ ] PHASOR
   * ##### What version of PHASOR are you using?
-    * [] 2.0+ (latest)
-    * [] 10059
-    * [] 10058
-    * [] 10057
-    * [] Unsure
+    * [ ] 2.0+ (latest)
+    * [ ] 10059
+    * [ ] 10058
+    * [ ] 10057
+    * [ ] Unsure
 
 ### Will the script be run on a custom map? (non stock)
-* [] Yes
-* [] No
-* [] Unsure
+* [ ] Yes
+* [ ] No
+* [ ] Unsure
 
 ### Will the script need to be map and/or gametype specific?
-* [] Yes
-* [] No
-* [] Unsure
+* [ ] Yes
+* [ ] No
+* [ ] Unsure
 
 
 ## Script Details:
