@@ -108,12 +108,18 @@ function OnTick()
                     local hash = tostring(get_var(index, "$hash"))
                     if v:match(hash) then
                         local aliases = string.match(v, (":(.+)"))
-                        t = {}
-                        for names in aliases:gmatch("%w+") do 
-                            table.insert(t, names) 
-                            rprint(i, "|" .. Message_Alignment .. " " ..names)  
-                        end
                         rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
+                        rprint(i, "|" .. Message_Alignment .. " " ..aliases) 
+                        
+                        -- to do:
+                        -- split text
+                        
+                        -- text = {}
+                        -- for names in aliases:gmatch("%w+") do 
+                            -- table.insert(text, names) 
+                            -- rprint(i, "|" .. Message_Alignment .. " " ..names)  
+                        -- end
+                        -- rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
                         break
                     end
                 end
