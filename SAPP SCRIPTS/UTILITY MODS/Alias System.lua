@@ -110,7 +110,6 @@ function OnTick()
                         local aliases = string.match(v, (":(.+)"))
                         rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
                         rprint(i, "|" .. Message_Alignment .. " " ..aliases) 
-                        
                         -- to do:
                         -- split text
                         
