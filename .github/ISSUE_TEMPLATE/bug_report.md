@@ -22,7 +22,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Please complete the following information:**
  - EXTENSION: [e.g. SAPP, PHASOR]
- - Browser [e.g. chrome, safari]
+ - SAPP VERSION: [e.g. 10.2.1]
  - Script Version [e.g. 1.0.0, 1.0.1]
 
 **Additional context**
