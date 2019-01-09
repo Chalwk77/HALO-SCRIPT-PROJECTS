@@ -97,6 +97,17 @@ function OnGameEnd()
     end
 end
 
+function justWords(str)
+    local t = {}
+   local function helper(word)
+      table.insert(t, word)
+      return ""
+   end
+   if not str:gsub("%w+", helper):find"%S" then
+      return t
+   end
+end
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
@@ -108,11 +119,12 @@ function OnTick()
                     local hash = tostring(get_var(index, "$hash"))
                     if v:match(hash) then
                         local aliases = string.match(v, (":(.+)"))
-                        rprint(i, 'Showing aliases for: "' .. hash .. '"')
-                        rprint(i, "Aliases: " .. aliases)
-                        -- to do:
-                        -- split strings
-
+                        words = {}
+                        for names in aliases:gmatch("%w+") do 
+                            table.insert(words, names) 
+                            rprint(i, "|" .. Message_Alignment .. " " ..names)  
+                        end
+                        rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
                         break
                     end
                 end
