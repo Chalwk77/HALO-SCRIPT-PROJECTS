@@ -97,17 +97,6 @@ function OnGameEnd()
     end
 end
 
-function justWords(str)
-    local t = {}
-   local function helper(word)
-      table.insert(t, word)
-      return ""
-   end
-   if not str:gsub("%w+", helper):find"%S" then
-      return t
-   end
-end
-
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
@@ -119,9 +108,9 @@ function OnTick()
                     local hash = tostring(get_var(index, "$hash"))
                     if v:match(hash) then
                         local aliases = string.match(v, (":(.+)"))
-                        words = {}
+                        t = {}
                         for names in aliases:gmatch("%w+") do 
-                            table.insert(words, names) 
+                            table.insert(t, names) 
                             rprint(i, "|" .. Message_Alignment .. " " ..names)  
                         end
                         rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
@@ -141,13 +130,10 @@ function addAlias(name, hash)
     local file = io.open("sapp\\" .. file_name, "r")
     local data = file:read("*a")
     file:close()
-    -- hash already exists : goto next
     if string.match(data, hash) then
         local lines = lines_from("sapp\\" .. file_name)
         for k, v in pairs(lines) do
-            -- next : hash line found : goto next
             if string.match(v, hash) then
-                -- name not found on hash line : add name"
                 if not v:match(name) then
                     local alias = v .. ", " .. name
                     local f = io.open("sapp\\" .. file_name, "r")
