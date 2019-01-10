@@ -34,7 +34,7 @@ Restore_Previous_State = true
 Format = "rcon"
 
 -- If you're using this script and my ChatID's script together, set this (using_ChatIDs) to TRUE. This will prevent duplicate chat messages.
-using_ChatIDs = true
+using_ChatIDs = false
 -- configuration ends here --
 
 -- tables --
