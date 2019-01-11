@@ -144,7 +144,7 @@ function addAlias(name, hash)
         end
     else
         local file = assert(io.open("sapp\\" .. file_name, "a+"))
-        file:write(hash .. ":" .. name, "\n")
+        file:write("\n" .. hash .. ":" .. name, "\n")
         file:close()
     end
 end
@@ -252,8 +252,6 @@ function concatValues(PlayerIndex, start_index, end_index)
             if row ~= nil then rprint(PlayerIndex, "|" .. Message_Alignment .. " " .. row) end
             for _ in pairs(word_table) do word_table[_] = nil end
             break
-        else
-            rprint(PlayerIndex, "No results found")
         end
     end
 end
