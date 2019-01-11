@@ -40,10 +40,11 @@ trigger = { }
 new_timer = { }
 players = { }
 index = nil
+bool = {}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -60,7 +61,7 @@ function OnScriptUnload()
 
 end
 
-function OnPlayerJoin(PlayerIndex)
+function OnPlayerPrejoin(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     addAlias(name, hash)
@@ -69,6 +70,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    bool[PlayerIndex] = false
     trigger[PlayerIndex] = false
     players[get_var(PlayerIndex, "$n")].new_timer = 0
 end
@@ -77,6 +79,7 @@ function OnNewGame()
     for i = 1, 16 do
         if player_present(i) then
             if player_present(i) then
+                bool[i] = false
                 trigger[i] = false
                 players[get_var(i, "$n")].new_timer = 0
             end
@@ -101,75 +104,14 @@ function OnTick()
             if (trigger[i] == true) then
                 players[get_var(i, "$n")].new_timer = players[get_var(i, "$n")].new_timer + 0.030
                 cls(i)
-                local lines = lines_from("sapp\\" .. file_name)
-                for k, v in pairs(lines) do
-                    local hash = tostring(get_var(index, "$hash"))
-                    if v:match(hash) then
-                        local aliases = string.match(v, (":(.+)"))
-                        local words = tokenizestring(aliases, ", ")
-                        local word_table = {}
-                        local row_1
-                        local row_2
-                        local row_3
-                        local row_4
-                        local row_5
-                        
-                        -- table indexes 1-6
-                        for j = 1, 6 do
-                            if words[j] ~= nil then
-                                table.insert(word_table, words[j])
-                                row_1 = table.concat(word_table, ", ")
-                            end
-                        end
-                        if row_1 ~= nil then rprint(i, row_1) end
-                        for _ in pairs(word_table) do word_table[_] = nil end
-
-                        -- table indexes 7-12
-                        for j = 7, 12 do
-                            if words[j] ~= nil then
-                                table.insert(word_table, words[j])
-                                row_2 = table.concat(word_table, ", ")
-                            end
-                        end
-                        if row_2 ~= nil then rprint(i, row_2) end
-                        for _ in pairs(word_table) do word_table[_] = nil end
-
-                        -- table indexes 13-18
-                        for j = 13, 18 do
-                            if words[j] ~= nil then
-                                table.insert(word_table, words[j])
-                                row_3 = table.concat(word_table, ", ")
-                            end
-                        end
-                        if row_3 ~= nil then rprint(i, row_3) end
-                        for _ in pairs(word_table) do word_table[_] = nil end
-                        
-                        -- table indexes 19-24
-                        for j = 19, 24 do
-                            if words[j] ~= nil then
-                                table.insert(word_table, words[j])
-                                row_4 = table.concat(word_table, ", ")
-                            end
-                        end
-                        if row_4 ~= nil then rprint(i, row_4) end
-                        for _ in pairs(word_table) do word_table[_] = nil end
-                        
-                        -- table indexes 25-30
-                        for j = 25, 30 do
-                            if words[j] ~= nil then
-                                table.insert(word_table, words[j])
-                                row_5 = table.concat(word_table, ", ")
-                            end
-                        end
-                        if row_5 ~= nil then rprint(i, row_5) end
-                        for _ in pairs(word_table) do word_table[_] = nil end
-                        
-                        rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
-                        break
-                    end
+                concatValues(i, 1, 6)
+                concatValues(i, 7, 12)
+                if (bool[i] == true) then
+                    rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. target_hash .. '"')
                 end
                 if players[get_var(i, "$n")].new_timer >= math.floor(duration) then
                     trigger[i] = false
+                    bool[i] = false
                     players[get_var(i, "$n")].new_timer = 0
                 end
             end
@@ -223,12 +165,17 @@ function OnServerCommand(PlayerIndex, Command)
             if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
                 if player_present(tonumber(t[2])) then
                     index = tonumber(t[2])
+                    target_hash = tostring(get_var(index, "$hash"))
                     if trigger[PlayerIndex] == true then
+                        -- aliases already showing (clear console then show again)
                         cls(PlayerIndex)
                         players[get_var(PlayerIndex, "$n")].new_timer = 0
                         trigger[PlayerIndex] = true
+                        bool[PlayerIndex] = true
                     else
+                        -- show aliases (first time)
                         trigger[PlayerIndex] = true
+                        bool[PlayerIndex] = true
                     end
                 else
                     players[get_var(PlayerIndex, "$n")].new_timer = 0
@@ -282,5 +229,26 @@ end
 function cls(PlayerIndex)
     for _ = 1, 25 do
         rprint(PlayerIndex, " ")
+    end
+end
+
+function concatValues(PlayerIndex, start_index, end_index)
+    local lines = lines_from("sapp\\" .. file_name)
+    for k, v in pairs(lines) do
+        if v:match(target_hash) then
+            local aliases = string.match(v, (":(.+)"))
+            local words = tokenizestring(aliases, ", ")
+            local word_table = {}
+            local row
+            for i = tonumber(start_index), tonumber(end_index) do
+                if words[i] ~= nil then
+                    table.insert(word_table, words[i])
+                    row = table.concat(word_table, ", ")
+                end
+            end
+            if row ~= nil then rprint(PlayerIndex, "|" .. Message_Alignment .. " " .. row) end
+            for _ in pairs(word_table) do word_table[_] = nil end
+            break
+        end
     end
 end
