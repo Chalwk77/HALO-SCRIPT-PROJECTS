@@ -106,6 +106,9 @@ function OnTick()
                 cls(i)
                 concatValues(i, 1, 6)
                 concatValues(i, 7, 12)
+                concatValues(i, 13, 18)
+                concatValues(i, 19, 24)
+                concatValues(i, 25, 20)
                 if (bool[i] == true) then
                     rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. target_hash .. '"')
                 end
@@ -249,6 +252,8 @@ function concatValues(PlayerIndex, start_index, end_index)
             if row ~= nil then rprint(PlayerIndex, "|" .. Message_Alignment .. " " .. row) end
             for _ in pairs(word_table) do word_table[_] = nil end
             break
+        else
+            rprint(PlayerIndex, "No results found")
         end
     end
 end
