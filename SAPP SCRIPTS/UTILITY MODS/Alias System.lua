@@ -9,8 +9,6 @@ Command syntax: /alias [id]
     - ip search feature
     - name search feature
     - hash search feature
-    
-    to do: split lists longer than 80 characters 
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -108,17 +106,65 @@ function OnTick()
                     local hash = tostring(get_var(index, "$hash"))
                     if v:match(hash) then
                         local aliases = string.match(v, (":(.+)"))
-                        rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
-                        rprint(i, "|" .. Message_Alignment .. " " ..aliases) 
-                        -- to do:
-                        -- split text
+                        local words = tokenizestring(aliases, ", ")
+                        local word_table = {}
+                        local row_1
+                        local row_2
+                        local row_3
+                        local row_4
+                        local row_5
                         
-                        -- text = {}
-                        -- for names in aliases:gmatch("%w+") do 
-                            -- table.insert(text, names) 
-                            -- rprint(i, "|" .. Message_Alignment .. " " ..names)  
-                        -- end
-                        -- rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
+                        -- table indexes 1-6
+                        for j = 1, 6 do
+                            if words[j] ~= nil then
+                                table.insert(word_table, words[j])
+                                row_1 = table.concat(word_table, ", ")
+                            end
+                        end
+                        if row_1 ~= nil then rprint(i, row_1) end
+                        for _ in pairs(word_table) do word_table[_] = nil end
+
+                        -- table indexes 7-12
+                        for j = 7, 12 do
+                            if words[j] ~= nil then
+                                table.insert(word_table, words[j])
+                                row_2 = table.concat(word_table, ", ")
+                            end
+                        end
+                        if row_2 ~= nil then rprint(i, row_2) end
+                        for _ in pairs(word_table) do word_table[_] = nil end
+
+                        -- table indexes 13-18
+                        for j = 13, 18 do
+                            if words[j] ~= nil then
+                                table.insert(word_table, words[j])
+                                row_3 = table.concat(word_table, ", ")
+                            end
+                        end
+                        if row_3 ~= nil then rprint(i, row_3) end
+                        for _ in pairs(word_table) do word_table[_] = nil end
+                        
+                        -- table indexes 19-24
+                        for j = 19, 24 do
+                            if words[j] ~= nil then
+                                table.insert(word_table, words[j])
+                                row_4 = table.concat(word_table, ", ")
+                            end
+                        end
+                        if row_4 ~= nil then rprint(i, row_4) end
+                        for _ in pairs(word_table) do word_table[_] = nil end
+                        
+                        -- table indexes 25-30
+                        for j = 25, 30 do
+                            if words[j] ~= nil then
+                                table.insert(word_table, words[j])
+                                row_5 = table.concat(word_table, ", ")
+                            end
+                        end
+                        if row_5 ~= nil then rprint(i, row_5) end
+                        for _ in pairs(word_table) do word_table[_] = nil end
+                        
+                        rprint(i, "|" .. Message_Alignment .. " " .. 'Showing aliases for: "' .. hash .. '"')
                         break
                     end
                 end
