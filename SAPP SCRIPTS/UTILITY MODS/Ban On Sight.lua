@@ -1,8 +1,15 @@
 --[[
 --=====================================================================================================--
 Script Name: Ban on Sight (BoS), for SAPP (PC & CE)
-Description: Ban offline players
-     
+Description: Ban players who are online|offline
+
+Command Syntax: /bos [id]
+                /boslist
+                
+Command usage:
+To immediately BoS someone who is currently online, simply type /bos [player id].
+To BoS a player who just left the server, type the same command: /bos [player id] (requires knowing what their index id was before they left). 
+
      
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
@@ -12,15 +19,21 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]
 
-api_version = '1.12.0.0'
--- configuration starts here --
+api_version = '1.11.0.0'
 
--- Minimum admin level required to use /bos command
+
+-- Configuration [starts] --
+-- Min admin level required to use these commands...
 min_admin_level = 1
-base_command = "bos"
-list_command = "boslist"
 
--- do not touch
+-- Command to BoS a player.
+base_command = "bos"
+
+-- Command to list player's who are currently "banned on sight".
+list_command = "boslist"
+-- Configuration [ends] --
+
+-- do not touch -------
 bos_table = { }
 boslog_table = { }
 
@@ -30,6 +43,15 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+    
+    for i = 1,16 do 
+        if player_present(i) then
+            local name = get_var(i, "$name")
+            local hash = get_var(i, "$hash")
+            bos_table[i] = name .. "," .. hash .. "," .. get_var(i, "$ip")
+        end
+    end
+    
     local file = io.open('sapp\\bos.data', "r")
     if file then
         for line in file:lines() do
@@ -73,13 +95,13 @@ function OnPlayerPrejoin(PlayerIndex)
             local entry_name = words[1]
             for i = 1, 16 do
                 if player_present(i) and isAdmin(i) then
-                    -- Tell Admins currently in server that this player is banned from BoS
+                
                     rprint(i, "Rejecting " .. entry_name .. " - banned from BoS.")
                     rprint(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - " .. words[3])
                     
-                    -- Send message to banned player.
-                    -- To do: Find a way to "silently" kick this player. 
                     rprint(PlayerIndex, "Unable to connect. You are currently banned!")
+                    
+                    -- TO DO: find a way to "silently" kick this player
                     execute_command("k" .. " " .. PlayerIndex .. " \"[Auto Ban on Sight]\"")
                     break
                 end
