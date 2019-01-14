@@ -23,7 +23,7 @@ api_version = '1.12.0.0'
 min_admin_level = 1
 
 -- Custom command(s)
-base_command = {"pl", "players", "playerlist", "playerslist"}
+base_command = { "pl", "players", "playerlist", "playerslist" }
 
 -- Message Alignment:
 -- Left = l,    Right = r,    Center = c,    Tab: t
@@ -44,7 +44,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     for k, v in pairs(base_command) do
         if v then
             local cmds = tokenizestring(v, ",")
-            for i = 1,#cmds do
+            for i = 1, #cmds do
                 if (t[1] == cmds[i]) then
                     if isAdmin(PlayerIndex) then
                         listPlayers(PlayerIndex, count)

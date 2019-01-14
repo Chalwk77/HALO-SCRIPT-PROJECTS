@@ -41,7 +41,7 @@ coordiantes["bloodgulch"] = {
     { "vehicles\\warthog\\mp_warthog", 46.341, -64.700, 1.113, 5, 111.826, -139.331, 0.311, 0.3, 1 },
 }
 
--- To add other maps, repeat the structure above. 
+-- To add other maps, repeat the structure above.
 -- Where    x,y,z|radius|x,y,z|height|seat    is located in the table, replace with data as seen above.
 coordiantes["mapname"] = {
     { "vehicle_tag_id", x, y, z, radius, x, y, z, height, seat },
@@ -147,7 +147,7 @@ end
      Scorpion Tank
      Seat 0 = Drivers Seat
      Seat 1 - 5 = Passengers Seat
-    
+
      -- VEHICLE ID --
     "vehicles\\warthog\\mp_warthog"
     "vehicles\\ghost\\ghost_mp"
@@ -155,13 +155,13 @@ end
     "vehicles\\banshee\\banshee_mp"
     "vehicles\\scorpion\\scorpion_mp"
     "vehicles\\c gun turret\\c gun turret_mp"
- 
+
     -- VEHICLE COORDINATES --
                     X Coord   Y Coord   Z Coord   radius
     Example:        33.631,   -65.569,   0.370,     5
-     
+
     -- HEIGHT (#) --
-    Sometimes your vehicle will become stuck in the ground upon teleporting. 
+    Sometimes your vehicle will become stuck in the ground upon teleporting.
     We can compensate for this by adding additional HEIGHT to the vectors.
     Height = number of meters to spawn above the ground on teleport.
 ]]

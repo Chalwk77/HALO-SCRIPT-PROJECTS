@@ -43,15 +43,15 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    
-    for i = 1,16 do 
+
+    for i = 1, 16 do
         if player_present(i) then
             local name = get_var(i, "$name")
             local hash = get_var(i, "$hash")
             bos_table[i] = name .. "," .. hash .. "," .. get_var(i, "$ip")
         end
     end
-    
+
     local file = io.open('sapp\\bos.data', "r")
     if file then
         for line in file:lines() do
@@ -95,12 +95,12 @@ function OnPlayerPrejoin(PlayerIndex)
             local entry_name = words[1]
             for i = 1, 16 do
                 if player_present(i) and isAdmin(i) then
-                
+
                     rprint(i, "Rejecting " .. entry_name .. " - banned from BoS.")
                     rprint(i, "Entry: " .. entry_name .. " - " .. words[2] .. " - " .. words[3])
-                    
+
                     rprint(PlayerIndex, "Unable to connect. You are currently banned!")
-                    
+
                     -- TO DO: find a way to "silently" kick this player
                     execute_command("k" .. " " .. PlayerIndex .. " \"[Auto Ban on Sight]\"")
                     break

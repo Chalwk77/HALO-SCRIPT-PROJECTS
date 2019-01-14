@@ -261,8 +261,12 @@ function concatValues(PlayerIndex, start_index, end_index)
                     row = table.concat(word_table, ", ")
                 end
             end
-            if row ~= nil then rprint(PlayerIndex, "|" .. Message_Alignment .. " " .. row) end
-            for _ in pairs(word_table) do word_table[_] = nil end
+            if row ~= nil then
+                rprint(PlayerIndex, "|" .. Message_Alignment .. " " .. row)
+            end
+            for _ in pairs(word_table) do
+                word_table[_] = nil
+            end
             break
         end
     end
