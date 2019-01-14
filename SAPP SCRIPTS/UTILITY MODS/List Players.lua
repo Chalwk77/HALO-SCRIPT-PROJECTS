@@ -30,8 +30,6 @@ base_command = {"pl", "players", "playerlist", "playerslist"}
 Message_Alignment = "l"
 -- Configuration [ends] --
 
-player_count = 0
-
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
