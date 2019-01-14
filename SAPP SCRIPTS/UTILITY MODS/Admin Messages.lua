@@ -10,7 +10,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 api_version = "1.11.0.0"
-custom_messages = {} -- do not touch
+custom_messages = {} -- do not touch!
 
 -- Configuration [starts]
 -- output:            [prefix]              [message] (note: player name is automatically inserted between [prefix] and [message])
