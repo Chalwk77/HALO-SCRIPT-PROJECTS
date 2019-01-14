@@ -10,49 +10,39 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 api_version = "1.11.0.0"
+custom_messages = {} -- do not touch
 
-messages = {}
+-- Configuration [starts]
+-- output:            [prefix]              [message] (note: player name is automatically inserted between [prefix] and [message])
+custom_messages[1] = {"[TRIAL-MOD] ",       " joined the server. Everybody hide!"}
+custom_messages[2] = {"[MODERATOR] ",       " just showed up. Hold my beer!"}
+custom_messages[3] = {"[ADMIN] ",           " just joined. Hide your bananas!"}
+custom_messages[4] = {"[SENIOR-ADMIN] ",    " joined the server."}
+-- Configuration [ends]
 
--- output: [prefix] [player name] [message]
-messages[1] = {"[TRIAL-MOD] ",       " joined the server like a boss"}
-messages[2] = {"[MODERATOR]",               " joined with a vengeance"}
-messages[3] = {"[ADMIN]",                   " joined like a pro admin"}
-messages[4] = {"[SENIOR-ADMIN]",            " joined the server"}
-
-
+-- do not touch below this point unless you know what you're doing
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
 end
 
 function OnScriptUnload()
-    
+
 end
 
 function OnPlayerJoin(PlayerIndex)
-    local _message
-    for k,v in pairs(messages) do
-        if (tonumber(get_var(PlayerIndex, "$lvl"))) == 1 then
-            _message = messages[1][1] .. get_var(PlayerIndex, "$name") .. messages[1][2]
-            
-        elseif (tonumber(get_var(PlayerIndex, "$lvl"))) == 2 then
-            _message = messages[2][1] .. get_var(PlayerIndex, "$name") .. messages[1][2]
-            
-        elseif (tonumber(get_var(PlayerIndex, "$lvl"))) == 3 then
-            _message = messages[3][1] .. get_var(PlayerIndex, "$name") .. messages[1][2]
-            
-        elseif (tonumber(get_var(PlayerIndex, "$lvl"))) == 4 then
-            _message = messages[4][1] .. get_var(PlayerIndex, "$name") .. messages[4][2]
-        else 
-            return false
-        end
+    local name = get_var(PlayerIndex, "$name")
+    local admin_level = tonumber(get_var(PlayerIndex, "$lvl"))
+    local join_message = custom_messages[admin_level][1] .. name .. custom_messages[admin_level][2]
+    if (admin_level < 1) then
+        return false
     end
-    announceJoin(_message)
+    announceJoin(join_message)
 end
 
-function announceJoin(_message)
+function announceJoin(join_message)
     for i = 1,16 do
         if player_present(i) then
-            rprint(i, _message)
+            rprint(i, join_message)
         end
     end
 end
