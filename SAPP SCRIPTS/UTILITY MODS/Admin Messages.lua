@@ -14,10 +14,10 @@ api_version = "1.11.0.0"
 messages = {}
 
 -- output: [prefix] [player name] [message]
-messages[1] = {"[ADMIN IN TRAINING] ",       " joined the server like a boss"}
+messages[1] = {"[TRIAL-MOD] ",       " joined the server like a boss"}
 messages[2] = {"[MODERATOR]",               " joined with a vengeance"}
 messages[3] = {"[ADMIN]",                   " joined like a pro admin"}
-messages[4] = {"[SENIOR ADMIN]",            " joined the server"}
+messages[4] = {"[SENIOR-ADMIN]",            " joined the server"}
 
 
 function OnScriptLoad()
