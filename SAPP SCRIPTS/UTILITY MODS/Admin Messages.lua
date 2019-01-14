@@ -32,8 +32,10 @@ end
 function OnPlayerJoin(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local admin_level = tonumber(get_var(PlayerIndex, "$lvl"))
-    local join_message = custom_messages[admin_level][1] .. name .. custom_messages[admin_level][2]
-    if (admin_level < 1) then
+    local join_message
+    if (admin_level >= 1) then
+        join_message = custom_messages[admin_level][1] .. name .. custom_messages[admin_level][2]
+    else
         return false
     end
     announceJoin(join_message)
