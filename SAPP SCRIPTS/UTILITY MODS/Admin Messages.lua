@@ -1,14 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Admin Join Messages, for SAPP (PC & CE)
-* Implements API Version 1.11.0.0
-
 Description: Customize admin join messages on a per-admin-level basis.
 
-Copyright © 2016-2018 Jericho Crosby <jericho.crosby227@gmail.com>
-You do not have permission to use this document.
-
-* Written by Jericho Crosby (Chalwk)
+Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+~ Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 api_version = "1.11.0.0"
@@ -44,9 +42,7 @@ function OnPlayerJoin(PlayerIndex)
             
         elseif (tonumber(get_var(PlayerIndex, "$lvl"))) == 4 then
             _message = messages[4][1] .. get_var(PlayerIndex, "$name") .. messages[4][2]
-            
-            -- otherwise, do nothing
-        else
+        else 
             return false
         end
     end
@@ -60,3 +56,4 @@ function announceJoin(_message)
         end
     end
 end
+
