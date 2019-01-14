@@ -34,20 +34,10 @@ player_count = 0
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 end
 
 function OnScriptUnload()
 
-end
-
-function OnPlayerJoin(PlayerIndex)
-    player_count = player_count + 1
-end
-
-function OnPlayerLeave(PlayerIndex)
-    player_count = player_count - 1
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -73,7 +63,7 @@ end
 function listPlayers(PlayerIndex, count)
     if (count == 1) then
         rprint(PlayerIndex, "|" .. Message_Alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]")
-        for i = 1, player_count do
+        for i = 1, 16 do
             if player_present(i) then
                 local name = get_var(i, "$name")
                 local id = get_var(i, "$n")

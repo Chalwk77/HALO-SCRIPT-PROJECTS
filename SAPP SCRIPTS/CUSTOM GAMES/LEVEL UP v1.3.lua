@@ -1477,6 +1477,9 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     DAMAGE_APPLIED[PlayerIndex] = MetaID
     -- Assault Rifle Projectile
     if MetaID == ASSAULT_RIFLE_BULLET then
+        local vname = get_var(PlayerIndex, "$name")
+        local kname = get_var(CauserIndex, "$name")
+        say_all(kname .. " killed " .. kname .. " with an assault rifle")
         return true, Damage * AssaultRifle_Multiplier
     end
     -- Pistol Bullet Projectile
