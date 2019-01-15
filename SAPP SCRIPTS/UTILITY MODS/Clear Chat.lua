@@ -52,7 +52,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-
 function tokenizestring(inputstr, sep)
     if sep == nil then
         sep = "%s"
