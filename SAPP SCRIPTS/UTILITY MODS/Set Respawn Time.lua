@@ -51,31 +51,26 @@ function OnServerCommand(PlayerIndex, Command, Environment)
     local response = nil
     local t = tokenizestring(Command)
     if (Environment ~= 0) and t[1] ~= nil then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
-            if (t[1] == string.lower(command)) then
-                response = false
-                if not string.match(t[2], "%d") then
-                    say(PlayerIndex, "Please enter a number!")
-                else
-                    value = tonumber(t[2])
-                    unregister_callback(cb['EVENT_DIE'])
-                    register_callback(cb['EVENT_DIE'], "setRespawnTime")
-                    say(PlayerIndex, "Respawn Time set to " .. tostring(value))
-                    if (ANNOUNCE_CHANGE == true) then
-                        for i = 1, 16 do
-                            if player_present(i) then
-                                if i ~= PlayerIndex then
-                                    say(i, string.gsub(message, "$VALUE", value))
-                                end
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL and (t[1] == string.lower(command)) then
+            response = false
+            if not string.match(t[2], "%d") then
+                say(PlayerIndex, "Please enter a number!")
+            else
+                value = tonumber(t[2])
+                unregister_callback(cb['EVENT_DIE'])
+                register_callback(cb['EVENT_DIE'], "setRespawnTime")
+                say(PlayerIndex, "Respawn Time set to " .. tostring(value))
+                if (ANNOUNCE_CHANGE == true) then
+                    for i = 1, 16 do
+                        if player_present(i) then
+                            if i ~= PlayerIndex then
+                                say(i, string.gsub(message, "$VALUE", value))
                             end
                         end
-
                     end
+
                 end
             end
-        else
-            response = false
-            say(PlayerIndex, no_permission)
         end
     end
     return response
