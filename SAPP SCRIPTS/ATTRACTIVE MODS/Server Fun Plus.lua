@@ -14,7 +14,7 @@ Features:
 *   god:                broadcast a message as god
 *   nuke:               nuke the target player
     colour changer:     change a player's colour
-    crash:              crash player's game client
+*   crash:              crash player's game client
 
     IN DEVELOPMENT
 
