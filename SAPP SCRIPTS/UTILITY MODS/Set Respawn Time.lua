@@ -47,10 +47,10 @@ function OnPlayerKill(player_index)
     write_dword(player + 0x2C, RespawnTime * 33)
 end
 
-function OnServerCommand(PlayerIndex, Command)
+function OnServerCommand(PlayerIndex, Command, Environment)
     local response = nil
     local t = tokenizestring(Command)
-    if t[1] ~= nil then
+    if (Environment ~= 0) and t[1] ~= nil then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= ADMIN_LEVEL then
             if (t[1] == string.lower(command)) then
                 response = false
