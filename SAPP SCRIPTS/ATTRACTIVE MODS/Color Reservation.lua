@@ -100,7 +100,7 @@ function setColor(PlayerIndex, ColorID, param, hash)
     else
     
         -- Iterates over the entire array 
-        -- and sets determines the appropriate color.
+        -- and determines the appropriate color.
         
         local color
         for k,v in pairs(color_table) do
