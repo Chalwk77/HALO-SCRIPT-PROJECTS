@@ -46,12 +46,20 @@ color_table[18] = {17,      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- salmon
 -- Configuration [ends] -----------------------------------------------------------------
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
 function OnScriptUnload()
 
+end
+
+function OnNewGame()
+    if (get_var(1, "$gt") == "slayer") then
+        register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    else
+        cprint("[!] Warning: Color Reservation doesn't support " .. get_var(0, "$gt") .. "!", 4+8)
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
