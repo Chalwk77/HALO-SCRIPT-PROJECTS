@@ -10,6 +10,6 @@ Change to this:
 Click Apply, then OK.
 
 Open Halo, then press ~
-Type "devcam 1" to enable Fly Cam.
+Type "devcam 1" to enable Fly Cam, press ENTER.
 
-Use W.A.S.D to move Middle Mouse button to activate velovity. 
+Use W.A.S.D to move around. (HOLD Middle Mouse button) to activate movement.
