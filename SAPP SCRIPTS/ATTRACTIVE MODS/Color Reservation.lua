@@ -3,6 +3,8 @@
 Script Name: Color Reservation, for SAPP (PC & CE)
 Description: Reserve spartan armor color for VIP members! 
 
+Implementing Lua API version 1.11.0.0 (works fine on the latest version: 1.12.0.0)
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
