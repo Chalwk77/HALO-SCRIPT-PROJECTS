@@ -52,8 +52,9 @@ end
 
 function OnNewGame()
     if (get_var(1, "$gt") == "slayer") then
-        -- Check if team based game
+        -- Call getTeamPlay() | Returns true/false (is team play / not team play)
         if not getTeamPlay() then
+            -- Game is FFA, register SAPP events to listener functions.
             register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
             register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
         else
@@ -91,16 +92,20 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+-- Set this player's color to something random (EXCLUDING TEAL)
 function setColor(PlayerIndex, ColorID, param, hash)
-    -- Set this player's color to something random (EXCLUDING TEAL)
     local player = getPlayer(PlayerIndex)
     if (param == true) then
         write_byte(player + 0x60, tonumber(selectRandomColor(12)))
     else
-        -- iterate over the entire array and set the appropriate color according to table index
+    
+        -- Iterates over the entire array 
+        -- and sets determines the appropriate color.
+        
         local color
         for k,v in pairs(color_table) do
             for i = 1, #v do 
+                -- v[1] is determined by the table index that this player's hash was located on.
                 if string.find(v[i], tostring(hash)) then
                     write_byte(player + 0x60, tonumber(v[1]))
                     bool[PlayerIndex] = true
@@ -110,11 +115,13 @@ function setColor(PlayerIndex, ColorID, param, hash)
     end
 end
 
+-- math.random() generates pseudo-random numbers uniformly distributed.
+-- The math.randomseed() function sets a seed for the pseudo-random generator.
 function selectRandomColor(exclude)
     math.randomseed(os.time())
     math.random(); math.random(); math.random()
     local num = math.random(0, 17)
-    -- If the number selected is equal to the value of "exclude", repeat.
+    -- If the 'num' chosen is equal to the value of "exclude", repeat.
     if num == tonumber(exclude) then
         selectRandomColor(exclude)
     else
@@ -122,6 +129,7 @@ function selectRandomColor(exclude)
     end
 end
 
+-- Returns the static memory address of the player table entry.
 function getPlayer(PlayerIndex)
     if tonumber(PlayerIndex) then
         if tonumber(PlayerIndex) ~= 0 then
@@ -134,6 +142,7 @@ function getPlayer(PlayerIndex)
     return nil
 end
 
+-- Returns player hash
 function getHash(PlayerIndex)
     if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
         local hash = get_var(PlayerIndex, "$hash")
@@ -142,12 +151,13 @@ function getHash(PlayerIndex)
     return nil
 end
 
+-- Determines team play
 function getTeamPlay()
-    -- Game Mode is team based.
+    -- Game mode is team based.
     if (get_var(0, "$ffa") == "0") then
         return true
     else
-        -- Game Mode is NOT team based.
+        -- Game mode is NOT team based.
         return false
     end
 end
