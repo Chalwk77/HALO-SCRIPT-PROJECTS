@@ -53,15 +53,15 @@ expressions = {
         "Son of a gun!",
         "Egad!",
         "Great Scott!",
-        "Caesar�s ghost!",
-        "Merlin�s beard!",
-        "Merlin�s pants!",
+        "Caesar's ghost!",
+        "Merlin's beard!",
+        "Merlin's pants!",
         "Shucks!",
         "Darn!",
         "Dagnabbit!",
         "Dang rabbit!",
         "Dadgummit!",
-        "Jumpin� Jiminy!"
+        "Jumpin' Jiminy!"
         -- Make sure the last entry in the table doesn't have a comma.
         -- Repeat the structure to add more entries.
     },
@@ -79,7 +79,7 @@ expressions = {
         "Time to fit you for a coffin!",
         "Your life ends in the wasteland...",
         "Sell your PC. Just do it.",
-        "Don't be shy� You can shoot at me next time, I don't mind!",
+        "Don't be shy! You can shoot at me next time, I don't mind!",
         "You must be new at this!",
         "Is that really a gun in your hand or is it just wishful thinkin'!"
         -- Make sure the last entry in the table doesn't have a comma.
