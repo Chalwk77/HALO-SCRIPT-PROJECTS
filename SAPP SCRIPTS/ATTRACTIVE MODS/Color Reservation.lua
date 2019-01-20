@@ -28,7 +28,7 @@ color_table[4] = {3,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- blue
 color_table[5] = {4,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- gray
 color_table[6] = {5,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- yellow
 color_table[7] = {6,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- green
-color_table[8] = {7,        "6c8f0bc306e0108b4904812110185edd"}    -- pink
+color_table[8] = {7,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- pink
 color_table[9] = {8,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- purple
 color_table[10] = {9,       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- cyan
 color_table[11] = {10,      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- cobalt
@@ -106,7 +106,6 @@ function setColor(PlayerIndex, ColorID, param, hash)
             for i = 1, #v do 
                 if string.find(v[i], tostring(hash)) then
                     write_byte(player + 0x60, tonumber(v[1]))
-                    cprint(v[1])
                     bool[PlayerIndex] = true
                 end
             end
@@ -149,10 +148,13 @@ end
 function getTeamPlay()
     -- Game Mode is team based.
     if (get_var(0, "$ffa") == "0") then
-        -- Game Mode is team based.
         return true
     else
         -- Game Mode is NOT team based.
         return false
     end
+end
+
+function OnError(Message)
+    print(debug.traceback())
 end
