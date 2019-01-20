@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Color Reservation, for SAPP (PC & CE)
-Description: Reserve spartan armor color for VIP members! 
+Description: Reserve spartan armor colors for VIP members)! 
 
 Implementing Lua API version 1.11.0.0 (works fine on the latest version: 1.12.0.0)
 
@@ -108,9 +108,7 @@ end
 
 function selectRandomColor(exclude)
     math.randomseed(os.time())
-    math.random();
-    math.random();
-    math.random()
+    math.random(); math.random(); math.random()
     local num = math.random(0, 17)
     -- If the number selected is equal to the value of "exclude", repeat.
     if num == tonumber(exclude) then
