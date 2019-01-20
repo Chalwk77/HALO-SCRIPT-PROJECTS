@@ -1,11 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Color Reservation, for SAPP (PC & CE)
-Description: Reserve spartan armor colors for VIP members)! 
+Description: Reserve spartan armor colors for VIP members (based on hash)
 
-Implementing Lua API version 1.11.0.0 (works fine on the latest version: 1.12.0.0)
-
-NOTE: This mod only works on non-team-based game modes!
+* Implementing Lua API version 1.11.0.0 (works fine on the latest version: 1.12.0.0)
+* NOTE: This mod will only work on NON team based game modes!
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -41,8 +40,6 @@ color_table[17] = {16,      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- maroon
 color_table[18] = {17,      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- salmon
 -- Note: Make sure you encapsulate hashes in quotes and separate entries with a comma!
 -- Like so: color_table[1] = {0, "player hash 1", "player hash 2"}
-
--- [!] DO NOT TOUCH THE "Color ID"
 -- Configuration [ends] -----------------------------------------------------------------
 
 function OnScriptLoad()
