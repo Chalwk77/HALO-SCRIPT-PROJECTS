@@ -15,7 +15,7 @@ api_version = "1.11.0.0"
 color_table = {}
 bool = {}
 
--- Configuration [starts]
+-- Configuration [starts] [!] DO NOT TOUCH THE "Color ID"
 --             Color ID     Hash
 color_table[1] = {0,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}  -- white (both of these hashes will trigger white)
 color_table[2] = {1,        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- black
@@ -38,11 +38,7 @@ color_table[18] = {17,      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- salmon
 -- Note: Make sure you encapsulate hashes in quotes and separate entries with a comma!
 -- Like so: color_table[1] = {0, "player hash 1", "player hash 2"}
 
--- [!]
--- DO NOT TOUCH THE "Color ID"
-
-
-
+-- [!] DO NOT TOUCH THE "Color ID"
 -- Configuration [ends] -----------------------------------------------------------------
 
 function OnScriptLoad()
@@ -68,7 +64,7 @@ function OnPlayerConnect(PlayerIndex)
     for k, v in ipairs(color_table) do
         for i = 1, #v do 
             if not string.find(v[i], tostring(hash)) then 
-                -- Check if their color is TEAL | if TRUE then set new color
+                -- Check if their color is TEAL | if TRUE then set new color (Shoo's color reservation)
                 if (read_byte(player + 0x60) == 12) then
                     bool[PlayerIndex] = true
                     setColor(PlayerIndex, nil, true, hash)
@@ -90,7 +86,6 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function setColor(PlayerIndex, ColorID, param, hash)
-    cprint("setting new color...", 2+8)
     -- Set this player's color to something random (EXCLUDING TEAL)
     local player = getPlayer(PlayerIndex)
     if (param == true) then
