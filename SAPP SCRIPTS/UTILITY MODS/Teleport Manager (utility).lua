@@ -52,6 +52,8 @@ delete_command = { }
 delete_command[1] = { "delwarp", "tpd" }
 
 sapp_dir = "sapp\\teleports.txt"
+
+-- Set to -1 all players (including non admins). Admins are levels 1 thru 4 - Level 1 is the lowest Admin level.
 permission_level = -1
 -- configuration ends  --
 
@@ -99,7 +101,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             return false
         end
         if Message ~= "yes" or Message ~= "no" then
-            rprint(PlayerIndex, "That is not a valid response, please try again. Type YES|NO")
+            rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
             wait_for_response[PlayerIndex] = true
             return false
         end
@@ -317,14 +319,19 @@ function OnServerCommand(PlayerIndex, Command, Environment)
             ---------------------------------------------------------
             -- LIST COMMAND --
         elseif t[1] == string.lower(list_command) then
+            local found = false
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
                 check_file_status(PlayerIndex)
                 if not empty_file then
                     local lines = lines_from(sapp_dir)
                     for k, v in pairs(lines) do
-                        if v:match(mapname) then
+                        if string.find(v, mapname) then
+                            found = true
                             rprint(PlayerIndex, "[" .. k .. "] " .. v)
                         end
+                    end
+                    if not found then 
+                        rprint(PlayerIndex, "There are no warps for the current map.")
                     end
                 else
                     rprint(PlayerIndex, "The teleport list is empty!")

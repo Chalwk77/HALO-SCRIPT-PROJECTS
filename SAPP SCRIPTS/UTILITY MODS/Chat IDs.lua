@@ -37,7 +37,7 @@ function OnPlayerChat(PlayerIndex, Message)
             if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                 return true
             else
-                if (GetTeamPlay == true) then
+                if getTeamPlay() then
                     if type == 0 or type == 2 then
                         SendToAll(Message, PlayerIndex)
                         return false
@@ -80,13 +80,14 @@ function SendToAll(Message, PlayerIndex)
     end
 end
 
-function GetTeamPlay()
-    if get_var(0, "$ffa") == "0" then
+function getTeamPlay()
+    -- Game Mode is team based.
+    if (get_var(0, "$ffa") == "0") then
         return true
     else
+        -- Game Mode is NOT team based.
         return false
     end
-    return
 end
 
 function tokenizestring(inputstr, sep)
