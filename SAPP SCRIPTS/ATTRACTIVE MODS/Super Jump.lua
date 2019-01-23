@@ -148,9 +148,9 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-	jumping_state[PlayerIndex] = 0
-	cooldown_bool[PlayerIndex] = false
-    
+    jumping_state[PlayerIndex] = 0
+    cooldown_bool[PlayerIndex] = false
+
     players[get_var(PlayerIndex, "$n")].cooldown = 0
 end
 
