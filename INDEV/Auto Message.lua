@@ -23,8 +23,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-welcome_timer = { }
-new_timer = { }
 
 -- Configuration [starts]
 prefix = "[Broadcast] "
@@ -48,7 +46,7 @@ announcements = {
 -- How long should rcon-bound messages be displayed on screen for? (in seconds) --
 display_duration = 10
 
--- Message Alignment:
+-- Message Alignment (for rcon messages):
 -- Left = l,    Right = r,    Center = c,    Tab: t
 message_alignment = "t"
 -- Configuration [ends] -------------------------
@@ -57,23 +55,29 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    -- cancel timer
+    -- stop timer
 end
 
 function OnNewGame()
-    -- cancel timer
+    -- start timer
 end
 
 function OnGameEnd()
-    -- cancel timer
+    -- stop timer
 end
 
 function OnTick()
     -- broadcast logic
+    
 end
 
-function cls(PlayerIndex)
-    for _ = 1, 25 do
-        rprint(PlayerIndex, " ")
+-- Clear 
+function cls()
+    for i = 1,16 do
+        if player_present(i) then
+            for _ = 1, 25 do
+                rprint(i, " ")
+            end
+        end
     end
 end
