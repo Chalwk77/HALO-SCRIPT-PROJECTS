@@ -25,59 +25,147 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-prefix = "[Broadcast] "
+prefix = "[Broadcast]"
+server_prefix = "**SERVER**"
 
--- #messages
--- You can specify where the message will be displayed on a per-message basis (rcon or global chat)
--- At the very beginning of each line, either put %rcon% or %chat% (self-explanatory?)
--- If the line doesn't have either of these identifiers then the script will throw a formatting error (by design).
--- When a message is broadcast, the identifiers will not be visible.
+-- Custom broadcast command:
+base_command = "broadcast"
+
+-- Minimum admin level required to use /base_command
+min_privilege_level = 1
+
+-- #Errors
+insufficient_permission = "Insufficient Permission!"
+environment_error = "This command can only be executed by a player"
+
+-- #Messages
 announcements = {
-    "%rcon% The first announcement",
-    "%rcon% The second announcement",
-    "%rcon% The third announcement",
-    "%chat% The fourth announcement",
-    "%chat% The fifth announcement",
-    "%chat% The sixth announcement"
+    "Like us on Facebook | facebook.com/page_id",
+    
+    "Follow us on Twitter | twitter.com/twitter_id",
+    
+    "We are recruiting. Sign up on our website | website url",
+    
+    "Rules / Server Information",
+    
+    "announcement 5",
+    
+    "other information here"
     -- Make sure the last entry in the table doesn't have a comma.
     -- Repeat the structure to add more entries.
 }
 
--- How long should rcon-bound messages be displayed on screen for? (in seconds) --
-display_duration = 10
+-- How often should messages be displayed? (in seconds)
+time_between_messages = 300 -- 300 = 5 minutes
 
--- Message Alignment (for rcon messages):
--- Left = l,    Right = r,    Center = c,    Tab: t
-message_alignment = "t"
 -- Configuration [ends] -------------------------
+
+init_timer = nil
+countdown = 0
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
+    
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    -- stop timer
+    
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+end
+
+function OnScriptUnload()
+    --
 end
 
 function OnNewGame()
     -- start timer
+    starting_index = 1
+    init_timer = true
 end
 
 function OnGameEnd()
-    -- stop timer
+    init_timer = false
+    countdown = 0
 end
 
 function OnTick()
-    -- broadcast logic
-    
+    if (init_timer == true) then
+        timeUntilNext()
+    end
 end
 
--- Clear 
-function cls()
-    for i = 1,16 do
-        if player_present(i) then
-            for _ = 1, 25 do
-                rprint(i, " ")
+function timeUntilNext()
+    countdown = countdown + 0.030
+    if (countdown >= (time_between_messages)) then
+        countdown = 0
+        broadcast()
+    end
+end
+
+function broadcast()
+    -- Broadcast logic
+    for i = 1, #announcements do
+        if (starting_index == #announcements + 1) then
+            starting_index = 1
+        end
+        local message = announcements[starting_index]
+        execute_command("msg_prefix \"\"")
+        say_all(message)
+        execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+        cprint(message)
+        break
+    end
+    starting_index = starting_index + 1
+end
+
+function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    local t = tokenizeString(Command)
+    if (t[1] == base_command) then
+        if (Environment ~= 0) then
+            if hasPermission(PlayerIndex) then
+                if t[2] ~= nil then 
+                    if (t[2] == t[2]:match("list")) then
+                        rprint(PlayerIndex, "-------- MESSAGES --------")
+                        for i = 1, #announcements do
+                            rprint(PlayerIndex, "[" .. i .. "] " .. announcements[i])
+                        end
+                    elseif (t[2] == string.match(t[2], "^%d+$") and t[3] == nil) then
+                        execute_command("msg_prefix \"\"")
+                        say_all(announcements[tonumber(t[2])])
+                        execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax. Usage: /" .. base_command .. " list|id")
+                end
+            else
+                rprint(PlayerIndex, insufficient_permission)
             end
+            return false
+        else
+            cprint(environment_error, 2+8)
+            return false
         end
     end
+end
+
+function hasPermission(PlayerIndex)
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_privilege_level then
+        return true
+    else
+        return false
+    end
+end
+
+function tokenizeString(inputString, Separator)
+    if Separator == nil then
+        Separator = "%s"
+    end
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputString, '([^' .. Separator .. ']+)') do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
