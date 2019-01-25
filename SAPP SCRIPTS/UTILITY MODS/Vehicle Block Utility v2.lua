@@ -5,7 +5,7 @@ Implementing API version: 1.12.0.0
 Description:    Block Vehicle Entry on a per map basis
                 See Vehicle Settings function on line 141 for configuration.
                 
-                This is an improved version of Vehicle Block Utility!
+                This is an improved version of my Vehicle Block Utility (v1) mod!
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
