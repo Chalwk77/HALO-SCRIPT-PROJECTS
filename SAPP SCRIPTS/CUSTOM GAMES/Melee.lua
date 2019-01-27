@@ -1,10 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Melee, for SAPP (PC & CE)
-Description: Custom Melee game (requested)
+Description: Custom Melee game (requested by RoadHog)
 
-Fight to the death with melee only! 
-* You cannot pick up or drop weapons nor enter vehicles.
+Fight to the death with melee attacks only!
+* You cannot pick up or drop weapons nor enter vehicles, however, you can pick up health packs, camouflage and overshield.
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -84,10 +84,11 @@ end
 
 function OnTick()
     for i = 1, 16 do
-        if (player_alive(i)) then
-            local player = get_dynamic_player(i)
-            if (bool[i] == true) then
-                assignWeapon(i)
+        if player_present(i) then
+            if (player_alive(i)) then
+                if (bool[i] == true) then
+                    assignWeapon(i)
+                end
             end
         end
     end
