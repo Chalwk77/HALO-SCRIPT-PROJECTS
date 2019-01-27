@@ -15,9 +15,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--- configuration starts --
+-- Configuration [starts]
 local height_from_ground = 35
-local invulnerability_time = 7
+local invulnerability_time = 9
 
 base_loc = { }
 base_loc["bloodgulch"] = {
@@ -98,64 +98,75 @@ base_loc["wizard"] = {
     { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
     { 9.1828498840332, -9.1805400848389, -2.5999999046326 }
 }
--- configuration ends --
+-- Configuration [ends] -------------------------
 
-game_timer = nil
-init_timer = { }
-invulnerable_timer = { }
-join_trigger = { }
+players = {}
+init_timer = {}
+first_join = {}
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], 'OnNewGame')
-    register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin')
+    register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
     register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
 end
 
 function OnScriptUnload()
-
-end
-
-function OnNewGame()
-    game_timer = os.clock()
+    --
 end
 
 function OnPlayerJoin(PlayerIndex)
-    join_trigger[PlayerIndex] = true
+    players[get_var(PlayerIndex, "$name")] = { }
+    players[get_var(PlayerIndex, "$name")].timer = 0
+    
+    init_timer[PlayerIndex] = true
+    first_join[PlayerIndex] = true
 end
 
-function OnPlayerPrespawn(PlayerIndex)
-    if (join_trigger[PlayerIndex] == true) then
-        join_trigger[PlayerIndex] = false
-        local map = get_var(0, "$map")
-        if (get_var(PlayerIndex, "$team") == "red") then
-            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, base_loc[map][1][1], base_loc[map][1][2], base_loc[map][1][3] + math.floor(height_from_ground))
-            execute_command("god " .. PlayerIndex)
-            init_timer[PlayerIndex] = true
-        elseif (get_var(PlayerIndex, "$team") == "blue") then
-            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, base_loc[map][2][1], base_loc[map][2][2], base_loc[map][2][3] + math.floor(height_from_ground))
-            execute_command("god " .. PlayerIndex)
-            init_timer[PlayerIndex] = true
-        end
-    end
+function OnPlayerLeave(PlayerIndex)
+    if init_timer == true then init_timer[PlayerIndex] = false end
+    if first_join == true then first_join[PlayerIndex] = false end
+    players[get_var(PlayerIndex, "$name")].timer = 0
 end
 
 function OnTick()
-    for i = 1, 16 do
+    for i = 1,16 do 
         if player_present(i) then
             if (init_timer[i] == true) then
-                SetInvulnerability(tonumber(i))
+                timeUntilRestore(i)
             end
         end
     end
 end
 
-function SetInvulnerability(PlayerIndex)
-    if (game_timer ~= nil) then
-        invulnerable_timer[PlayerIndex] = math.floor(os.clock())
-        if (invulnerable_timer[PlayerIndex] == invulnerability_time) then
-            init_timer[PlayerIndex] = false
-            execute_command("ungod " .. PlayerIndex)
-        end
+function timeUntilRestore(PlayerIndex)
+    players[get_var(PlayerIndex, "$name")].timer = players[get_var(PlayerIndex, "$name")].timer + 0.030
+    if (players[get_var(PlayerIndex, "$name")].timer >= (invulnerability_time)) then
+        players[get_var(PlayerIndex, "$name")].timer = 0
+        init_timer[tonumber(PlayerIndex)] = false
+        execute_command("ungod " .. tonumber(PlayerIndex))
     end
+end
+
+function OnPlayerPrespawn(PlayerIndex)
+    if (first_join[PlayerIndex] == true) then
+        first_join[PlayerIndex] = false
+        
+        local team = get_var(PlayerIndex, "$team")
+        if (team == "red") then
+            Teleport(PlayerIndex, 1)
+        elseif (team == "blue") then
+            Teleport(PlayerIndex, 2)
+        end
+        
+    end
+end
+
+function Teleport(PlayerIndex, TableIndex)
+    local map = get_var(0, "$map")
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
+        base_loc[map][tonumber(TableIndex)][1], 
+        base_loc[map][tonumber(TableIndex)][2], 
+        base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
+    execute_command("god " .. tonumber(PlayerIndex))
 end
