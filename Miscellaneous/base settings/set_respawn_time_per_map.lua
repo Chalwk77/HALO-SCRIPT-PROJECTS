@@ -40,8 +40,8 @@ map["longest"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,    
 -- Configuration [ends] <<----------
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 end
 
 function OnScriptUnload()
@@ -50,7 +50,6 @@ end
 
 function OnNewGame()
     mapname = get_var(1, "$map")
-
 end
 
 function OnPlayerKill(PlayerIndex)
@@ -58,7 +57,7 @@ function OnPlayerKill(PlayerIndex)
     write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
 end
 
-function getGameType()
+function getSpawnTime()
     local spawntime
     if (get_var(1, "$gt") == "ctf") then
             spawntime = map[mapname][1]

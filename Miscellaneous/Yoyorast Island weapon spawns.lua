@@ -2,6 +2,9 @@
     ------------------------------------
 Script Name: Yoyoroast (spawn with sniper), for SAPP | (PC\CE)
 
+This script was requested!
+
+
 * A simplified version of my Custom Weapon spawn script. 
 * Designed for use on the Yoyorast Island V2 map only.
 * Player's will only spawn with the sniper rifle.
@@ -16,7 +19,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-weapon = { }
+bool = { }
 weapons = { }
 weapons[1] = "deathstar\\Yoyorast Island V2\\weapon\\tag_1769"
 
@@ -26,12 +29,11 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    weapon = { }
-    weapons = { }
+
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    weapon[PlayerIndex] = true
+    bool[PlayerIndex] = true
 end
 
 
@@ -39,11 +41,11 @@ function OnTick()
     for i = 1, 16 do
         if (player_alive(i)) then
             local player = get_dynamic_player(i)
-            if (weapon[i] == true) then
+            if (bool[i] == true) then
                 execute_command("wdel " .. i)
                 local x, y, z = read_vector3d(player + 0x5C)
                 assign_weapon(spawn_object("weap", weapons[1], x, y, z), i)
-                weapon[i] = false
+                bool[i] = false
             end
         end
     end

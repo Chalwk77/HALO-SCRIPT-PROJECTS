@@ -14,10 +14,10 @@ custom_messages = {} -- do not touch!
 
 -- Configuration [starts]
 -- output:            [prefix]              [message] (note: player name is automatically inserted between [prefix] and [message])
-custom_messages[1] = {"[TRIAL-MOD] ",       " joined the server. Everybody hide!"}
-custom_messages[2] = {"[MODERATOR] ",       " just showed up. Hold my beer!"}
-custom_messages[3] = {"[ADMIN] ",           " just joined. Hide your bananas!"}
-custom_messages[4] = {"[SENIOR-ADMIN] ",    " joined the server."}
+custom_messages[1] = {"[TRIAL-MOD] ", " joined the server. Everybody hide!"}
+custom_messages[2] = {"[MODERATOR] ", " just showed up. Hold my beer!"}
+custom_messages[3] = {"[ADMIN] ", " just joined. Hide your bananas!"}
+custom_messages[4] = {"[SENIOR-ADMIN] ", " joined the server."}
 -- Configuration [ends]
 
 -- do not touch below this point unless you know what you're doing
@@ -31,9 +31,9 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
-    local admin_level = tonumber(get_var(PlayerIndex, "$lvl"))
+    local level = tonumber(get_var(PlayerIndex, "$lvl"))
     local join_message
-    if (admin_level >= 1) then
+    if (level >= 1) then
         join_message = custom_messages[admin_level][1] .. name .. custom_messages[admin_level][2]
     else
         return false
@@ -42,10 +42,9 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function announceJoin(join_message)
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             rprint(i, join_message)
         end
     end
 end
-
