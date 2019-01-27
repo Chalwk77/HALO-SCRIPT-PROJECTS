@@ -18,7 +18,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
-time_until_gamestarts = 5 -- In Seconds
+delay = 5 -- In Seconds
 
 -- Configuration [ends] << ----------
 
@@ -38,14 +38,18 @@ function OnGameEnd()
 end
 
 function OnTick()
-    if (init_gamestart == true) then
+    if (init_countdown == true) then
         countdown = countdown + 0.030
+        
         local seconds = secondsToTime(countdown)
-        delay = time_until_gamestarts - math.floor(seconds)
-        cprint("Game will begin in " .. delay .. " seconds", 4+8)
-        if (time_until_gamestarts - math.floor(seconds) <= 0) then
+        timeRemaining = delay - math.floor(seconds)
+        
+        cprint("Game will begin in " .. timeRemaining .. " seconds", 4+8)
+        
+        if (timeRemaining <= 0) then
             cprint("The game has begun!", 2+8)
             stopTimer()
+            
             ----------
             -- DO SOMETHING HERE
             ----------
@@ -60,13 +64,13 @@ end
 
 function startTimer()
     countdown = 0
-    init_gamestart = true
+    init_countdown = true
 end
 
 function stopTimer()
     countdown = 0
-    init_gamestart = false
-    -- if delay ~= nil then
-        -- cprint("The countdown was stopped at " .. delay .. " seconds")
-    -- end
+    init_countdown = false
+    if timeRemaining ~= nil then
+        cprint("The countdown was stopped at " .. timeRemaining .. " seconds")
+    end
 end
