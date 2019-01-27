@@ -1,8 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Set Respawn Time (per map), for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
-Description: This script will allow you to set player respawn time (in seconds) on a per map basis.
+Description: This script will allow you to set player respawn time (in seconds) on a per-map/per-gametype basis
 
 This script is also available on my github! Check my github for regular updates on my projects, including this script.
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
@@ -16,168 +15,87 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-map_respawn_settings = { }
+map = { }
 
--- ** Map Resapwn Time settings (in seconds) **
-beavercreek_time = 3.5
-bloodgulch_time = 2.5
-boardingaction_time = 5
-carousel_time = 2.5
-dangercanyon_time = 3.5
-deathisland_time = 4
-gephyrophobia_time = 4
-icefields_time = 2.5
-infinity_time = 4
-sidewinder_time = 5
-timberland_time = 3.5
-hangemhigh_time = 2.5
-ratrace_time = 4
-damnation_time = 2.5
-putput_time = 3.5
-prisoner_time = 3.5
-wizard_time = 4.5
+-- Configuration [starts]...
+--                       CTF | SLAYER | TEAM-S | KOTH |   TEAM-KOTH |   ODDBALL |   TEAM-ODDBALL |   RACE |   TEAM-RACE
+map["beavercreek"] =    {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["bloodgulch"] =     {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["boardingaction"] = {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["carousel"] =       {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["dangercanyon"] =   {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["deathisland"] =    {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["gephyrophobia"] =  {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["icefields"] =      {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["infinity"] =       {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["sidewinder"] =     {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["timberland"] =     {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["hangemhigh"] =     {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["ratrace"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["damnation"] =      {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["putput"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["prisoner"] =       {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["wizard"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+map["longest"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+-- Configuration [ends] <<----------
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    map_name = get_var(1, "$map")
-    LoadMaps()
 end
 
 function OnScriptUnload()
-    map_respawn_settings = { }
-end
-
-function OnPlayerKill(PlayerIndex)
-    if map_name == "beavercreek" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, beavercreek_time * 33)
-    end
-
-    if map_name == "bloodgulch" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, bloodgulch_time * 33)
-    end
-
-    if map_name == "boardingaction" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, boardingaction_time * 33)
-    end
-
-    if map_name == "carousel" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, carousel_time * 33)
-    end
-
-    if map_name == "chillout" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, chillout_time * 33)
-    end
-
-    if map_name == "damnation" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, damnation_time * 33)
-    end
-
-    if map_name == "dangercanyon" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, dangercanyon_time * 33)
-    end
-
-    if map_name == "deathisland" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, deathisland_time * 33)
-    end
-
-    if map_name == "gephyrophobia" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, gephyrophobia_time * 33)
-    end
-
-    if map_name == "hangemhigh" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, hangemhigh_time * 33)
-    end
-
-    if map_name == "icefields" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, icefields_time * 33)
-    end
-
-    if map_name == "infinity" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, infinity_time * 33)
-    end
-
-    if map_name == "longest" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, longest_time * 33)
-    end
-
-    if map_name == "prisoner" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, prisoner_time * 33)
-    end
-
-    if map_name == "putput" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, putput_time * 33)
-    end
-
-    if map_name == "ratrace" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, ratrace_time * 33)
-    end
-
-    if map_name == "sidewinder" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, sidewinder_time * 33)
-    end
-
-    if map_name == "timberland" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, timberland_time * 33)
-    end
-
-    if map_name == "wizard" then
-        local player = get_player(PlayerIndex)
-        write_dword(player + 0x2C, wizard_time * 33)
-    end
-end
-
-function LoadMaps()
-    map_respawn_settings = {
-        "beavercreek",
-        "bloodgulch",
-        "boardingaction",
-        "carousel",
-        "chillout",
-        "damnation",
-        "dangercanyon",
-        "deathisland",
-        "gephyrophobia",
-        "hangemhigh",
-        "icefields",
-        "infinity",
-        "longest",
-        "prisoner",
-        "putput",
-        "ratrace",
-        "sidewinder",
-        "timberland",
-        "wizard"
-    }
-    map_name = get_var(1, "$map")
-    map_respawn_settings[map_name] = map_respawn_settings[map_name] or false
+    --
 end
 
 function OnNewGame()
-    LoadMaps()
+    mapname = get_var(1, "$map")
+
 end
 
-function OnGameEnd()
-    map_respawn_settings = { }
+function OnPlayerKill(PlayerIndex)
+    local player = get_player(PlayerIndex)
+    write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+end
+
+function getGameType()
+    local spawntime
+    if (get_var(1, "$gt") == "ctf") then
+            spawntime = map[mapname][1]
+        elseif (get_var(1, "$gt") == "slayer") then
+            if not getTeamPlay() then
+                spawntime = map[mapname][2]
+            else
+                spawntime = map[mapname][3]
+            end
+        elseif (get_var(1, "$gt") == "koth") then
+            if not getTeamPlay() then
+                spawntime = map[mapname][4]
+            else
+                spawntime = map[mapname][5]
+            end
+        elseif (get_var(1, "$gt") == "oddball") then
+            if not getTeamPlay() then
+                spawntime = map[mapname][6]
+            else
+                spawntime = map[mapname][7]
+            end
+        elseif (get_var(1, "$gt") == "race") then
+            if not getTeamPlay() then
+                spawntime = map[mapname][8]
+            else
+                spawntime = map[mapname][9]
+            end
+        end
+    return spawntime
+end
+
+function getTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    else
+        return false
+    end
 end
 
 function OnError(Message)
