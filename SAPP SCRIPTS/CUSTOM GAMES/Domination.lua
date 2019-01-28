@@ -20,16 +20,45 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 0 -- In Seconds
+delay = 5 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
 server_prefix = "**SERVER** "
 
+-- #Commands
 sort_command = "sort"
 list_command = "list"
 
+
+--[[
+    Color IDs
+    0       =   white
+    1       =   black
+    2       =   red
+    3       =   blue
+    4       =   gray
+    5       =   yellow
+    6       =   green
+    7       =   pink
+    8       =   purple
+    9       =   cyan
+    10      =   cobalt
+    11      =   orange
+    12      =   teal
+    13      =   sage
+    14      =   brown
+    15      =   tan
+    16      =   maroon
+    17      =   salmon
+]]--
+
+red_team_color = 2
+blue_team_color = 3
+
 -- Configuration [ends] << ----------
+
+
 
 -- tables --
 spawns = { }
@@ -55,6 +84,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb['EVENT_SPAWN'], 'OnPlayerSpawn')
     register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn')
 
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
@@ -194,7 +224,7 @@ function determineTeam(PlayerIndex, team)
     elseif team == "blue" then
         blue_count = blue_count + 1
     end
-    killPlayer(PlayerIndex)
+    killPlayer(PlayerIndex, players[get_var(PlayerIndex, "$name")].team)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -210,15 +240,18 @@ function OnPlayerJoin(PlayerIndex)
                 players[get_var(PlayerIndex, "$name")].team = "red"
                 red_count = red_count + 1
                 saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
+                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
                 -- Blue team has less players (join this team)
             elseif (blue_count < red_count) then
                 players[get_var(PlayerIndex, "$name")].team = "blue"
                 blue_count = blue_count + 1
                 saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
+                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
                 -- Teams are even
             elseif (blue_count == red_count) then
                 local new_team = pickRandomTeam()
                 players[get_var(PlayerIndex, "$name")].team = new_team
+                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
                 saveTable(get_var(PlayerIndex, "$name"), new_team)
                 if (new_team == "red") then
                     red_count = red_count + 1
@@ -266,13 +299,17 @@ function OnPlayerPrespawn(PlayerIndex)
         if (gamestarted == true) then
             local team = players[get_var(PlayerIndex, "$name")].team
             spawnPlayer(PlayerIndex, team)
-            
+
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You are on " .. team .. " team")
             execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
             --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
         end
     end
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    --
 end
 
 function spawnPlayer(PlayerIndex, Team)
@@ -433,8 +470,9 @@ function gameOver(message)
     execute_command("sv_map_next")
 end
 
-function killPlayer(PlayerIndex)
+function killPlayer(PlayerIndex, team)
     local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
+    setColor(tonumber(PlayerIndex), team)
     if PlayerObject ~= nil then
         destroy_object(PlayerObject)
     end
@@ -452,6 +490,17 @@ function hasPermission(PlayerIndex)
     else
         return false
     end
+end
+
+function setColor(PlayerIndex, team)
+    local color
+    if (team == "red") then 
+        color = red_team_color
+    else
+        color = blue_team_color
+    end
+    local player = get_player(PlayerIndex)
+    write_byte(player + 0x60, tonumber(color))
 end
 
 function saveTable(name, team, update)
