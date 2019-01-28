@@ -28,8 +28,15 @@ api_version = "1.12.0.0"
 -- This is a game-start countdown initiated at the beginning of each game.
 delay = 5
 
--- Message emitted when the game is over. (%team% will be replaced with the winning team)
+-- #End of Game message (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
+
+-- #Pre Game message
+pre_game_message = "Game will begin in %time_remaining% seconds"
+
+-- # Continuous player count message
+playerCountMessage = "REDS: %red_count%, BLUES: %blue_count%"
+
 -- Server Prefix
 server_prefix = "**SERVER** "
 
@@ -42,6 +49,9 @@ sort_command = "sort"
 
 -- Lists all players and their team. (global override)
 list_command = "list"
+
+-- Left = l,    Right = r,    Centre = c,    Tab: t
+message_alignment = "l"
 
 -- #Team Colors
 --[[
@@ -139,11 +149,13 @@ function OnTick()
         local seconds = secondsToTime(countdown)
         timeRemaining = delay - math.floor(seconds)
 
+        -- Pre-Game message.
         for i = 1, 16 do
             if (player_present(i) and not gamestarted) then
                 if (print_countdown[tonumber(i)] == true) then
                     cls(i)
-                    rprint(i, "Game will begin in " .. timeRemaining .. " seconds")
+                    local preGameMessage = string.gsub(pre_game_message, "%%time_remaining%%", tonumber(timeRemaining))
+                    rprint(i, preGameMessage)
                 end
             end
         end
@@ -168,7 +180,13 @@ function OnTick()
             if player_present(k) then
                 if (print_counts[tonumber(k)] == true) then
                     cls(k)
-                    rprint(k, "REDS: " .. red_count .. ", BLUES: " .. blue_count)
+                    local function formatMessage(message)
+                        message = string.gsub(message, "%%red_count%%", tonumber(red_count))
+                        message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
+                        return message
+                    end
+                    local message = formatMessage(playerCountMessage)
+                    rprint(k, "|" .. message_alignment .. " " ..message)
                 end
             end
         end
