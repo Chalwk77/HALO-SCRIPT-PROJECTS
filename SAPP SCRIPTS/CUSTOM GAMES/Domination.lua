@@ -114,9 +114,7 @@ end
 
 -- Sorts players into teams of two
 function sortPlayers()
-    
     local t = {}
-
     if (isTeamPlay() == false) and (gamestarted) then
         for i = 1, 16 do
             if player_present(i) then
