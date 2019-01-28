@@ -6,6 +6,11 @@ Description: This game incorporates custom teams for FFA games.
              When you kill someone on the opposing team, the victim is switched to your team. 
              The main objective is to dominate the opposing team.
              When the aforementioned opposing team has no players left the game is over.
+             
+             * Bonus Features:
+             - Custom team colours
+             - /list command
+             - /sort command
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -25,6 +30,9 @@ delay = 5 -- In Seconds
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
 server_prefix = "**SERVER** "
+
+-- Minimum admin level require to use "/sort" command
+min_privilege_level = 1
 
 -- #Commands
 sort_command = "sort"
