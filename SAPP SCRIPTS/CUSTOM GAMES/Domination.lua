@@ -276,6 +276,10 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    clearListEntry(PlayerIndex)
+end
+
+function clearListEntry(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     for i, v in ipairs(stored_data) do 
         if string.match(v, name) then
@@ -365,16 +369,23 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(Command) == tostring(sort_command)) then
         if hasPermission(PlayerIndex) then
-            init_countdown = true
-            gamestarted = false
-            for i = 1, 16 do
-                if player_present(i) then
-                    players[get_var(i, "$name")].team = nil
+            local function resetGameParamaters()
+                for i = 1, 16 do
+                    if player_present(i) then
+                        players[get_var(i, "$name")].team = nil
+                        print_countdown[tonumber(i)] = true
+                        clearListEntry(tonumber(i))
+                    end
                 end
+                blue_count = 0
+                red_count = 0
+                gamestarted = false
             end
-            rprint(PlayerIndex, "Sorting Players...")
-            return false
+            resetGameParamaters()
+            startTimer()
         end
+        rprint(PlayerIndex, "Sorting Players...")
+        return false
     elseif (string.lower(Command) == tostring(list_command)) then
         -- counts showing | player list not showing | show player list | hide counts
         if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
