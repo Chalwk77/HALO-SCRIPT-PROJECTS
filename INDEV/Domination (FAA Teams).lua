@@ -107,7 +107,7 @@ function sortPlayers()
         for i = 1, #t / 2 do
             if player_present(i) then
                 players[get_var(i, "$name")].team = "blue"
-                blue_count = red_count + 1
+                blue_count = blue_count + 1
                 break
             end
         end
@@ -188,13 +188,11 @@ function spawnPlayer(PlayerIndex, Team)
         local x,y,z
         if (Team == "blue") then
             local id = chooseRandomSpawn("blue", map)
-            cprint(id)
             x = spawns[map].blue[id][1]
             y = spawns[map].blue[id][2]
             z = spawns[map].blue[id][3]
         elseif (Team == "red") then
             local id = chooseRandomSpawn("red", map)
-            cprint(id)
             x = spawns[map].red[id][1]
             y = spawns[map].red[id][2]
             z = spawns[map].red[id][3]
