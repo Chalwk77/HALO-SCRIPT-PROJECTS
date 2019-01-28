@@ -42,7 +42,7 @@ pre_game_message = "Game will begin in %time_remaining% seconds"
 playerCountMessage = "REDS: %red_count%, BLUES: %blue_count%"
 
 -- Server Prefix
-server_prefix = "**SERVER** "
+server_prefix = "SERVER "
 
 -- Minimum privilege level require to use "/sort" command
 min_privilege_level = 1
@@ -353,7 +353,7 @@ function OnPlayerPrespawn(PlayerIndex)
 
             execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You are on " .. team .. " team")
-            execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+            execute_command("msg_prefix \" " .. server_prefix .. "\"")
             --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
         end
     end
@@ -491,7 +491,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 local team = players[get_var(victim, "$name")].team
                 execute_command("msg_prefix \"\"")
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
-                execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+                execute_command("msg_prefix \" " .. server_prefix .. "\"")
                 setColor(tonumber(victim), team)
                 --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
             end
@@ -508,7 +508,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         if (causer_team == victim_team) then
             execute_command("msg_prefix \"\"")
             say(CauserIndex, get_var(CauserIndex, "$name") .. ", please don't team shoot!")
-            execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+            execute_command("msg_prefix \" " .. server_prefix .. "\"")
             return false
         end
         
@@ -524,7 +524,7 @@ function gameOver(message)
     gamestarted = false
     execute_command("msg_prefix \"\"")
     say_all(message)
-    execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+    execute_command("msg_prefix \" " .. server_prefix .. "\"")
     execute_command("sv_map_next")
 end
 
