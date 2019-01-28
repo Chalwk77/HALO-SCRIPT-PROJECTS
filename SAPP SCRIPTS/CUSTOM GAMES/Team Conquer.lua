@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Team Conquer, for SAPP (PC & CE)
+Script Name: Divide & Conquer, for SAPP (PC & CE)
 Description: This game incorporates custom teams for FFA games.
              The game mechanics are as follows:
              When you kill someone on the opposing team, the victim is switched to your team. 
@@ -25,7 +25,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- #Countdown delay (in seconds)
--- This is a game-start countdown initiated at the beginning of each game.
+-- This is a pre-game-start countdown initiated at the beginning of each game.
 delay = 5
 
 -- #End of Game message (%team% will be replaced with the winning team)
