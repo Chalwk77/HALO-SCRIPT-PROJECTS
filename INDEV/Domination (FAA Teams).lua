@@ -18,6 +18,11 @@ api_version = "1.12.0.0"
 -- Game Start Countdown Timer
 delay = 2 -- In Seconds
 
+-- Message emmited when the game is over.
+end_of_game = "The %team% won!"
+
+-- If a player commits suicide, do they switch teams?
+suicide_causes_switch = false
 
 -- Configuration [ends] << ----------
 
@@ -41,6 +46,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_COMMAND"], "DebugCommand")
     register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn')
+    
+    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
 end
 
 function OnNewGame()
@@ -177,8 +184,11 @@ function isTeamPlay()
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    local team = players[get_var(PlayerIndex, "$name")].team
-    spawnPlayer(PlayerIndex, team)
+    if not isTeamPlay() then
+        local team = players[get_var(PlayerIndex, "$name")].team
+        spawnPlayer(PlayerIndex, team)
+        say(PlayerIndex, "You are on " .. team .. " team")
+    end
 end
 
 function spawnPlayer(PlayerIndex, Team)
@@ -217,6 +227,39 @@ function DebugCommand(PlayerIndex, Command, Environment, Password)
         rprint(PlayerIndex, "Sorting Players...")
         return false
     end
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+
+    local victim = tonumber(PlayerIndex)
+    local killer = tonumber(KillerIndex)
+    
+    local killer_team = players[get_var(killer, "$name")].team
+    local killer_team = players[get_var(victim, "$name")].team
+    
+    if players[get_var(killer, "$name")].team == "red" then
+        blue_count = blue_count - 1
+        red_count = red_count + 1
+    elseif players[get_var(killer, "$name")].team == "blue" then
+        blue_count = blue_count + 1
+        red_count = red_count - 1
+    end
+
+    if (red_count == 0 and blue_count >= 1) then
+        local team = string.gsub(end_of_game, "%%team%%", "blue")
+        gameOver(team)
+    elseif (blue_count == 0 and red_count >= 1) then
+        local team = string.gsub(end_of_game, "%%team%%", "red")
+        gameOver(team)
+    elseif (blue_count ~= 0 and red_count ~= 0) then
+        players[get_var(victim, "$name")].team = killer_team
+    end
+    
+end
+
+function gameOver()
+    
+    say_all(end_of_game)
 end
 
 spawns["bloodgulch"] = {
