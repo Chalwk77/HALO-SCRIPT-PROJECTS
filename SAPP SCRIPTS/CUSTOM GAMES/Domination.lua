@@ -131,7 +131,6 @@ function sortPlayers()
                     end
                     killPlayer(i)
                 else
-                    -- If tonumber(PlayerIndex) is even, set to BLUE team
                     if (useEvenNumbers == true) then
                         if (tonumber(i) % 2 == 0) then
                             determineTeam(i, "blue")
