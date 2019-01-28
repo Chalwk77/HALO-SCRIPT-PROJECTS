@@ -125,24 +125,9 @@ end
 
 -- Sorts players into teams of two
 function sortPlayers()
-    local t = {}
     if (isTeamPlay() == false) and (gamestarted) then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(t, i)
-                if (#t == 1) then
-                    for _, v in ipairs(t) do
-                        table.remove(t, _)
-                    end
-                    local new_team = pickRandomTeam()
-                    players[get_var(i, "$name")].team = new_team
-                    if (new_team == "red") then
-                        red_count = red_count + 1
-                    elseif (new_team == "blue") then
-                        blue_count = blue_count + 1
-                    end
-                    killPlayer(i)
-                end
                 if (useEvenNumbers == true) then
                     if (tonumber(i) % 2 == 0) then
                         determineTeam(i, "blue")
@@ -285,7 +270,6 @@ function DebugCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         rprint(PlayerIndex, "Sorting Players...")
-        rprint(PlayerIndex, "Initializing countdown")
         return false
     end
 end
@@ -332,6 +316,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function SwitchTeam(PlayerIndex, team)
+    players[get_var(PlayerIndex, "$name")].team = nil
     players[get_var(PlayerIndex, "$name")].team = tostring(team)
 end
 
