@@ -20,7 +20,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 2 -- In Seconds
+delay = 0 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
@@ -35,10 +35,14 @@ list_command = "list"
 spawns = { }
 players = { }
 team = { }
+print_countdown = {}
+
+-- Tables for /list command
+stored_data = {}
 
 -- Booleans
 gamestarted = nil
-print_counts = nil
+print_counts = {}
 red_count = 0
 blue_count = 0
 
@@ -49,6 +53,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn')
 
@@ -78,6 +83,11 @@ end
 function OnGameEnd()
     stopTimer()
     gamestarted = false
+    for i = 1,16 do
+        if player_present(i) then
+            print_countdown[tonumber(i)] = false
+        end
+    end
 end
 
 function OnTick()
@@ -88,15 +98,23 @@ function OnTick()
         timeRemaining = delay - math.floor(seconds)
 
         for i = 1, 16 do
-            if player_present(i) then
-                cls(i)
-                rprint(i, "Game will begin in " .. timeRemaining .. " seconds")
+            if (player_present(i) and not gamestarted) then
+                if (print_countdown[tonumber(i)] == true) then
+                    cls(i)
+                    rprint(i, "Game will begin in " .. timeRemaining .. " seconds")
+                end
             end
         end
 
         --cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
 
         if (timeRemaining <= 0) then
+            for j = 1, 16 do
+                if (player_present(j)) then
+                    cls(j)
+                    print_countdown[tonumber(j)] = false
+                end
+            end
             --cprint("The game has begun!", 2 + 8)
             gamestarted = true
             sortPlayers()
@@ -104,11 +122,11 @@ function OnTick()
         end
     end
     if (gamestarted == true) then
-        if (print_counts == true) then
-            for i = 1, 16 do
-                if player_present(i) then
-                    cls(i)
-                    rprint(i, "REDS: " .. red_count .. ", BLUES: " .. blue_count)
+        for k = 1, 16 do
+            if player_present(k) then
+                if (print_counts[tonumber(k)] == true) then
+                    cls(k)
+                    rprint(k, "REDS: " .. red_count .. ", BLUES: " .. blue_count)
                 end
             end
         end
@@ -122,7 +140,9 @@ end
 
 function startTimer()
     countdown = 0
-    print_counts = true
+    for i = 1,16 do
+        print_counts[tonumber(i)] = true
+    end
     init_countdown = true
 end
 
@@ -165,7 +185,9 @@ function sortPlayers()
 end
 
 function determineTeam(PlayerIndex, team)
+    saveTable(get_var(PlayerIndex, "$name"), team)
     players[get_var(PlayerIndex, "$name")].team = tostring(team)
+  
     --cprint(get_var(PlayerIndex, "$name") .. "'s team is " .. team)
     if team == "red" then
         red_count = red_count + 1
@@ -177,6 +199,7 @@ end
 
 function OnPlayerJoin(PlayerIndex)
     if not isTeamPlay() then
+        print_countdown[tonumber(PlayerIndex)] = true
         players[get_var(PlayerIndex, "$name")] = { }
         players[get_var(PlayerIndex, "$name")].team = nil
 
@@ -186,20 +209,33 @@ function OnPlayerJoin(PlayerIndex)
             if (red_count < blue_count) then
                 players[get_var(PlayerIndex, "$name")].team = "red"
                 red_count = red_count + 1
+                saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
                 -- Blue team has less players (join this team)
             elseif (blue_count < red_count) then
                 players[get_var(PlayerIndex, "$name")].team = "blue"
                 blue_count = blue_count + 1
+                saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
                 -- Teams are even
             elseif (blue_count == red_count) then
                 local new_team = pickRandomTeam()
                 players[get_var(PlayerIndex, "$name")].team = new_team
+                saveTable(get_var(PlayerIndex, "$name"), new_team)
                 if (new_team == "red") then
                     red_count = red_count + 1
                 elseif (new_team == "blue") then
                     blue_count = blue_count + 1
                 end
             end
+        end
+    end
+end
+
+function OnPlayerLeave(PlayerIndex)
+    local name = get_var(PlayerIndex, "$name")
+    for i, v in ipairs(stored_data) do 
+        if string.match(v, name) then
+            table.remove(stored_data, i) 
+            break
         end
     end
 end
@@ -230,7 +266,10 @@ function OnPlayerPrespawn(PlayerIndex)
         if (gamestarted == true) then
             local team = players[get_var(PlayerIndex, "$name")].team
             spawnPlayer(PlayerIndex, team)
+            
+            execute_command("msg_prefix \"\"")
             say(PlayerIndex, "You are on " .. team .. " team")
+            execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
             --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
         end
     end
@@ -288,27 +327,34 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     elseif (string.lower(Command) == tostring(list_command)) then
-        print_counts = false
-        cls(PlayerIndex)
-        -- concatPlayers(i, 1, 4)
-        -- concatPlayers(i, 5, 8)
-        -- concatPlayers(i, 9, 12)
-        -- concatPlayers(i, 13, 16)
-        for i = 1,4 do
-            if player_present(i) then
-                local name = get_var(i, "$name")
-                local team = players[get_var(i, "$name")].team
-                rprint(PlayerIndex, name .. "   |   " .. team .. " team")
+        -- counts showing | player list not showing | show player list | hide counts
+        if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
+            print_counts[tonumber(PlayerIndex)] = false
+            cls(PlayerIndex)
+            for i = 1, 16 do
+                if player_present(i) then
+                    concatValues(i, 1, 16)
+                end
             end
+            timer(1000 * 3, "initPrintCounts", PlayerIndex)
+        -- counts showing | player list not showing | show player list | hide counts
+        elseif not (gamestarted) then
+            cls(PlayerIndex)
+            rprint(PlayerIndex, "Game is still starting...")
+            timer(1000 * 3, "PrintCountdown", PlayerIndex)
         end
-        timer(1000 * 3, "PrintCounts", PlayerIndex)
         return false
     end
 end
 
-function PrintCounts(PlayerIndex)
+function initPrintCounts(PlayerIndex)
     cls(PlayerIndex)
-    print_counts = true
+    print_counts[tonumber(PlayerIndex)] = true
+end
+
+function PrintCountdown(PlayerIndex)
+    cls(PlayerIndex)
+    print_countdown[tonumber(PlayerIndex)] = true
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -324,10 +370,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
             if players[get_var(killer, "$name")].team == "red" then
                 SwitchTeam(victim, "red")
+                saveTable(get_var(victim, "$name"), "red", true)
                 blue_count = blue_count - 1
                 red_count = red_count + 1
+                
             elseif players[get_var(killer, "$name")].team == "blue" then
                 SwitchTeam(victim, "blue")
+                saveTable(get_var(victim, "$name"), "blue", true)
                 blue_count = blue_count + 1
                 red_count = red_count - 1
             end
@@ -403,6 +452,52 @@ function hasPermission(PlayerIndex)
     else
         return false
     end
+end
+
+function saveTable(name, team, update)
+    if (update == true) then
+        for i, v in ipairs(stored_data) do 
+            if string.match(v, name) then
+                table.remove(stored_data, i) 
+                break
+            end
+        end
+    end
+    local input = name .. " | " .. team
+    table.insert(stored_data, input)
+end
+
+function concatValues(PlayerIndex, start_index, end_index)
+    for k, v in ipairs(stored_data) do
+        local words = tokenizestring(v, ",")
+        local word_table = {}
+        local row
+        for i = tonumber(start_index), tonumber(end_index) do
+            if words[i] ~= nil then
+                table.insert(word_table, words[i])
+                row = table.concat(word_table, ", ")
+            end
+        end
+        if row ~= nil then
+            rprint(PlayerIndex, row)
+        end
+        for _ in pairs(word_table) do
+            word_table[_] = nil
+        end
+    end
+end
+
+function tokenizestring(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = { };
+    i = 1
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
 
 spawns["bloodgulch"] = {
