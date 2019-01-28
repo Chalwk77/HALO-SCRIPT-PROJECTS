@@ -591,6 +591,22 @@ function tokenizestring(inputstr, sep)
     return t
 end
 
+
+-- To add a map, simply follow the following format and repeat the structure as needed for each map.
+spawns["mapnamehere"] = {
+    red = {
+        -- x,   y,    z
+        { 00000,00000,00000 },
+        { 00000,00000,00000 } -- Make sure the last entry in the table doesn't have a comma at the end. 
+
+    },
+    blue = {
+        { 00000,00000,00000 },
+        { 00000,00000,00000 }
+
+    },
+}
+
 spawns["bloodgulch"] = {
     red = {
         { 92.335815429688, -160.96267700195, 1.7034857273102 },
