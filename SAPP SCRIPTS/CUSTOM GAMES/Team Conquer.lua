@@ -311,6 +311,12 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    local team = players[get_var(PlayerIndex, "$name")].team
+    if (team == "red") then
+        red_count = red_count - 1
+    elseif (team == "blue") then
+        blue_count = blue_count - 1
+    end
     clearListEntry(PlayerIndex)
 end
 
