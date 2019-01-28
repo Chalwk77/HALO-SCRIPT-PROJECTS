@@ -382,7 +382,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             timer(1000 * 3, "initPrintCounts", PlayerIndex)
-        -- counts showing | player list not showing | show player list | hide counts
         elseif not (gamestarted) then
             cls(PlayerIndex)
             rprint(PlayerIndex, "Game is still starting...")
