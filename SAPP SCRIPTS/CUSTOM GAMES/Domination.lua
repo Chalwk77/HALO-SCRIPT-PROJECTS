@@ -19,7 +19,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 25 -- In Seconds
+delay = 0 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
@@ -60,8 +60,10 @@ function OnNewGame()
         end
     end
     if (oddOrEven(1,1000) % 2 == 0) then
+        -- Number is even
         useEvenNumbers = true
     else
+        -- Number is odd
         useEvenNumbers = false
     end
     startTimer()
@@ -86,10 +88,10 @@ function OnTick()
             end
         end
         
-        cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
+        --cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
 
         if (timeRemaining <= 0) then
-            cprint("The game has begun!", 2 + 8)
+            --cprint("The game has begun!", 2 + 8)
             gamestarted = true
             sortPlayers()
             stopTimer()
@@ -113,6 +115,11 @@ function stopTimer()
     if timeRemaining ~= nil then
         cprint("The countdown was stopped at " .. timeRemaining .. " seconds")
     end
+    for i = 1,16 do
+        if player_present(i) then
+            cls(i)
+        end
+    end
 end
 
 -- Sorts players into teams of two
@@ -121,8 +128,9 @@ function sortPlayers()
     if (isTeamPlay() == false) and (gamestarted) then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(t, i)
-                if (#t == 1) then 
+                table.insert(t, i)        
+                if (#t == 1) then
+                    for _,v in ipairs(t) do table.remove(t, _) end
                     local new_team = pickRandomTeam()
                     players[get_var(i, "$name")].team = new_team
                     if (new_team == "red") then
@@ -131,19 +139,18 @@ function sortPlayers()
                         blue_count = blue_count + 1
                     end
                     killPlayer(i)
-                else
-                    if (useEvenNumbers == true) then
-                        if (tonumber(i) % 2 == 0) then
-                            determineTeam(i, "blue")
-                        else
-                            determineTeam(i, "red")
-                        end
+                end
+                if (useEvenNumbers == true) then
+                    if (tonumber(i) % 2 == 0) then
+                        determineTeam(i, "blue")
                     else
-                        if (tonumber(i) % 2 == 0) then
-                            determineTeam(i, "red")
-                        else
-                            determineTeam(i, "blue")
-                        end
+                        determineTeam(i, "red")
+                    end
+                else
+                    if (tonumber(i) % 2 == 0) then
+                        determineTeam(i, "red")
+                    else
+                        determineTeam(i, "blue")
                     end
                 end
             end
@@ -155,6 +162,7 @@ end
 
 function determineTeam(PlayerIndex, team)
     players[get_var(PlayerIndex, "$name")].team = tostring(team)
+    --cprint(get_var(PlayerIndex, "$name") .. "'s team is " .. team)
     if team == "red" then
         red_count = red_count + 1
     elseif team == "blue" then
@@ -205,15 +213,6 @@ function pickRandomTeam()
     return team
 end
 
-function pickRandomCoord(Min, Max)
-    math.randomseed(os.time())
-    math.random();
-    local num = math.random(Min, Max)
-    if (num) then
-        return num
-    end
-end
-
 function isTeamPlay()
     if get_var(0, "$ffa") == "0" then
         return true
@@ -228,7 +227,7 @@ function OnPlayerPrespawn(PlayerIndex)
             local team = players[get_var(PlayerIndex, "$name")].team
             spawnPlayer(PlayerIndex, team)
             say(PlayerIndex, "You are on " .. team .. " team")
-            cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
+            --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
         end
     end
 end
@@ -249,24 +248,41 @@ function spawnPlayer(PlayerIndex, Team)
             y = spawns[map].red[id][2]
             z = spawns[map].red[id][3]
         end
+        --cprint(get_var(PlayerIndex, "$name") .. " spawned at " .. x .. ", " .. y .. ", " .. z)
         write_vector3d(player + 0x5C, x, y, z + 0.3)
     end
 end
 
 function chooseRandomSpawn(team, map)
-    local coordIndex
-    if (team =="blue") then
-        coordIndex = pickRandomCoord(1, #spawns[map].blue)
-    elseif (team =="red") then
-        coordIndex = pickRandomCoord(1, #spawns[map].red)
+    local coordIndex = 0
+    local function pickRandomCoord(Min, Max)
+        math.randomseed(os.time())
+        math.random()
+        local num = math.random(Min, Max)
+        --cprint("Number Chosen: " .. num)
+        if (num) then
+            return tonumber(num)
+        end
+    end
+    if (team == "blue") then
+        coordIndex = pickRandomCoord(1, tonumber(#spawns[map].blue))
+    elseif (team == "red") then
+        coordIndex = pickRandomCoord(1, tonumber(#spawns[map].red))
     end
     return coordIndex
 end
 
 function DebugCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(Command) == "sort") then
-        sortPlayers()
+        init_countdown = true
+        gamestarted = false
+        for i = 1, 16 do
+            if player_present(i) then
+                players[get_var(i, "$name")].team = nil
+            end
+        end
         rprint(PlayerIndex, "Sorting Players...")
+        rprint(PlayerIndex, "Initializing countdown")
         return false
     end
 end
@@ -306,7 +322,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             if (gamestarted) then
                 local team = players[get_var(victim, "$name")].team
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
-                cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+                --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
             end
         end
     end
