@@ -443,6 +443,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 execute_command("msg_prefix \"\"")
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
                 execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+                setColor(tonumber(victim), team)
                 --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
             end
         end
