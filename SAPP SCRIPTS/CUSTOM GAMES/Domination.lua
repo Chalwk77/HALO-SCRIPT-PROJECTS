@@ -1,10 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Domination, for SAPP (PC & CE)
-Description: This game creates two custom teams for Free for All games. 
-             When you kill someone, the victim is switched to your team, a bit like in Zombies. 
-             The objective is to dominate the opposing team. 
-             When the opposing team has no players left the game is over.
+Description: This game incorporates custom teams for FFA games.
+             The game mechanics are as follows:
+             When you kill someone on the opposing team, the victim is switched to your team. 
+             The main objective is to dominate the opposing team.
+             When the aforementioned opposing team has no players left the game is over.
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
