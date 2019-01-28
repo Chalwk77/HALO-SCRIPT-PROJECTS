@@ -16,7 +16,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 2 -- In Seconds
+delay = 15 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
@@ -67,9 +67,9 @@ function OnTick()
 
         if (timeRemaining <= 0) then
             cprint("The game has begun!", 2 + 8)
+            gamestarted = true
             sortPlayers()
             stopTimer()
-            gamestarted = true
         end
     end
 end
@@ -112,16 +112,19 @@ function sortPlayers()
             if player_present(i) then
                 players[get_var(i, "$name")].team = "blue"
                 blue_count = blue_count + 1
-                break
+                kill(i)
             end
         end
 
+        
         -- Red Team | second half
-        for i = #t / 2, #t do
+        for i = 1,16 do
             if player_present(i) then
-                players[get_var(i, "$name")].team = "red"
-                red_count = red_count + 1
-                break
+                if players[get_var(i, "$name")].team == nil then
+                    players[get_var(i, "$name")].team = "red"
+                    red_count = red_count + 1
+                    kill(i)
+                end
             end
         end
     end
@@ -131,8 +134,9 @@ function OnPlayerJoin(PlayerIndex)
     if not isTeamPlay() then
         players[get_var(PlayerIndex, "$name")] = { }
         players[get_var(PlayerIndex, "$name")].team = nil
-        if (gamestarted == true) then
         
+        -- Only sort player into new team if the game has already started...
+        if (gamestarted == true) then
                 -- Red team has less players (join this team)
             if (red_count < blue_count) then
                 players[get_var(PlayerIndex, "$name")].team = "red"
@@ -187,9 +191,11 @@ end
 
 function OnPlayerPrespawn(PlayerIndex)
     if not isTeamPlay() then
-        local team = players[get_var(PlayerIndex, "$name")].team
-        spawnPlayer(PlayerIndex, team)
-        say(PlayerIndex, "You are on " .. team .. " team")
+        if (gamestarted == true) then
+            local team = players[get_var(PlayerIndex, "$name")].team
+            spawnPlayer(PlayerIndex, team)
+            say(PlayerIndex, "You are on " .. team .. " team")
+        end
     end
 end
 
@@ -235,34 +241,36 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    
-    local killer_team = players[get_var(killer, "$name")].team
-    local killer_team = players[get_var(victim, "$name")].team
-    
-    if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
-        if players[get_var(killer, "$name")].team == "red" then
-            blue_count = blue_count - 1
-            red_count = red_count + 1
-        elseif players[get_var(killer, "$name")].team == "blue" then
-            blue_count = blue_count + 1
-            red_count = red_count - 1
-        end
+    if (killer ~= -1) then
 
-        -- No one left on RED team. | BLUE Team Wins
-        if (red_count == 0 and blue_count >= 1) then
-            local message = string.gsub(end_of_game, "%%team%%", "blue")
-            gameOver(message)
-        -- No one left on BLUE team. | RED Team Wins
-        elseif (blue_count == 0 and red_count >= 1) then
-            local message = string.gsub(end_of_game, "%%team%%", "red")
-            gameOver(message)
-        -- Game is in play | switch player
-        elseif (blue_count ~= 0 and red_count ~= 0) then
-            players[get_var(victim, "$name")].team = killer_team
-        end
-        if (gamestarted == true) then
-            local team = players[get_var(victim, "$name")].team
-            say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+        local killer_team = players[get_var(killer, "$name")].team
+        local killer_team = players[get_var(victim, "$name")].team
+        
+        if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
+            if players[get_var(killer, "$name")].team == "red" then
+                blue_count = blue_count - 1
+                red_count = red_count + 1
+            elseif players[get_var(killer, "$name")].team == "blue" then
+                blue_count = blue_count + 1
+                red_count = red_count - 1
+            end
+
+            -- No one left on RED team. | BLUE Team Wins
+            if (red_count == 0 and blue_count >= 1) then
+                local message = string.gsub(end_of_game, "%%team%%", "blue")
+                gameOver(message)
+            -- No one left on BLUE team. | RED Team Wins
+            elseif (blue_count == 0 and red_count >= 1) then
+                local message = string.gsub(end_of_game, "%%team%%", "red")
+                gameOver(message)
+            -- Game is in play | switch player
+            elseif (blue_count ~= 0 and red_count ~= 0) then
+                players[get_var(victim, "$name")].team = killer_team
+            end
+            if (gamestarted == true) then
+                local team = players[get_var(victim, "$name")].team
+                say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+            end
         end
     end
 end
