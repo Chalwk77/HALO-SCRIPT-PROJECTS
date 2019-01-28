@@ -138,6 +138,19 @@ end
 
 function OnGameEnd()
     stopTimer()
+    local function resetGameParamaters()
+        for i = 1, 16 do
+            if player_present(i) then
+                players[get_var(i, "$name")].team = nil
+                print_countdown[tonumber(i)] = false
+                clearListEntry(tonumber(i))
+            end
+        end
+        blue_count = 0
+        red_count = 0
+        gamestarted = false
+    end
+    resetGameParamaters()
     gamestarted = false
     for i = 1,16 do
         if player_present(i) then
