@@ -16,7 +16,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 15 -- In Seconds
+delay = 25 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
@@ -48,6 +48,19 @@ function OnScriptLoad()
 end
 
 function OnNewGame()
+    local function oddOrEven(Min, Max)
+        math.randomseed(os.time())
+        math.random();
+        local num = math.random(Min, Max)
+        if (num) then
+            return num
+        end
+    end
+    if (oddOrEven(1,1000) % 2 == 0) then
+        useEvenNumbers = true
+    else
+        useEvenNumbers = false
+    end
     startTimer()
 end
 
@@ -63,6 +76,13 @@ function OnTick()
         local seconds = secondsToTime(countdown)
         timeRemaining = delay - math.floor(seconds)
 
+        for i = 1,16 do
+            if player_present(i) then
+                cls(i)
+                rprint(i, "Game will begin in " .. timeRemaining .. " seconds")
+            end
+        end
+        
         cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
 
         if (timeRemaining <= 0) then
@@ -94,50 +114,53 @@ end
 
 -- Sorts players into teams of two
 function sortPlayers()
-    if (isTeamPlay() == true) then
-        -- Rely on SAPP's auto balance
-    else
-        -- Split players into custom teams of two | (ffa)
-        local t = {}
-        local total
+    
+    local t = {}
+
+    if (isTeamPlay() == false) and (gamestarted) then
         for i = 1, 16 do
             if player_present(i) then
-                total = tonumber(i)
-                table.insert(t, total)
-            end
-        end
-        
-        if #t == 1 then 
-            local new_team = pickRandomTeam()
-            players[get_var(total, "$name")].team = new_team
-            if (new_team == "red") then
-                red_count = red_count + 1
-            elseif (new_team == "blue") then
-                blue_count = blue_count + 1
-            end
-            killPlayer(total)
-        elseif #t >= 2 then 
-            -- Blue Team | first half
-            for i = 1, #t / 2 do
-                if player_present(i) then
-                    players[get_var(i, "$name")].team = "blue"
-                    blue_count = blue_count + 1
-                    killPlayer(i)
-                end
-            end
-            
-            -- Red Team | second half
-            for i = 1,16 do
-                if player_present(i) then
-                    if players[get_var(i, "$name")].team == nil then
-                        players[get_var(i, "$name")].team = "red"
+                table.insert(t, i)
+                if (#t == 1) then 
+                    local new_team = pickRandomTeam()
+                    players[get_var(i, "$name")].team = new_team
+                    if (new_team == "red") then
                         red_count = red_count + 1
-                        killPlayer(i)
+                    elseif (new_team == "blue") then
+                        blue_count = blue_count + 1
+                    end
+                    killPlayer(i)
+                else
+                    -- If tonumber(PlayerIndex) is even, set to BLUE team
+                    if (useEvenNumbers == true) then
+                        if (tonumber(i) % 2 == 0) then
+                            determineTeam(i, "blue")
+                        else
+                            determineTeam(i, "red")
+                        end
+                    else
+                        if (tonumber(i) % 2 == 0) then
+                            determineTeam(i, "red")
+                        else
+                            determineTeam(i, "blue")
+                        end
                     end
                 end
             end
         end
+    else
+        -- do nothing [for now]
     end
+end
+
+function determineTeam(PlayerIndex, team)
+    players[get_var(PlayerIndex, "$name")].team = tostring(team)
+    if team == "red" then
+        red_count = red_count + 1
+    elseif team == "blue" then
+        blue_count = blue_count + 1
+    end
+    killPlayer(PlayerIndex)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -205,6 +228,7 @@ function OnPlayerPrespawn(PlayerIndex)
             local team = players[get_var(PlayerIndex, "$name")].team
             spawnPlayer(PlayerIndex, team)
             say(PlayerIndex, "You are on " .. team .. " team")
+            cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
         end
     end
 end
@@ -230,13 +254,13 @@ function spawnPlayer(PlayerIndex, Team)
 end
 
 function chooseRandomSpawn(team, map)
-    local index
+    local coordIndex
     if (team =="blue") then
-        index = pickRandomCoord(1, #spawns[map].blue)
+        coordIndex = pickRandomCoord(1, #spawns[map].blue)
     elseif (team =="red") then
-        index = pickRandomCoord(1, #spawns[map].red)
+        coordIndex = pickRandomCoord(1, #spawns[map].red)
     end
-    return index
+    return coordIndex
 end
 
 function DebugCommand(PlayerIndex, Command, Environment, Password)
@@ -280,6 +304,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             if (gamestarted == true) then
                 local team = players[get_var(victim, "$name")].team
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+                cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
             end
         end
     end
@@ -297,6 +322,12 @@ function killPlayer(PlayerIndex)
     local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
     if PlayerObject ~= nil then
         destroy_object(PlayerObject)
+    end
+end
+
+function cls(PlayerIndex)
+    for _ = 1, 25 do
+        rprint(PlayerIndex, " ")
     end
 end
 
