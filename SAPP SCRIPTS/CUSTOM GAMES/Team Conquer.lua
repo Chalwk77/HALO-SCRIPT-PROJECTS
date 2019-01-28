@@ -42,7 +42,7 @@ pre_game_message = "Game will begin in %time_remaining% seconds"
 playerCountMessage = "REDS: %red_count%, BLUES: %blue_count%"
 
 -- Server Prefix
-server_prefix = "SERVER "
+server_prefix = "»L§R« "
 
 -- Minimum privilege level require to use "/sort" command
 min_privilege_level = 1
