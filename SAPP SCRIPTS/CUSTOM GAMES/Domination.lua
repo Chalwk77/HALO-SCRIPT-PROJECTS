@@ -1,7 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Domination, for SAPP (PC & CE)
-Description: N/A
+Description: This game creates two custom teams for Free for All games. 
+             When you kill someone, the victim is switched to your team, a bit like in Zombies. 
+             The objective is to dominate the opposing team. 
+             When the opposing team has no players left the game is over.
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -275,13 +278,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer ~= -1) then
 
         local killer_team = players[get_var(killer, "$name")].team
-        local killer_team = players[get_var(victim, "$name")].team
+        local victim_team = players[get_var(victim, "$name")].team
         
         if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
             if players[get_var(killer, "$name")].team == "red" then
+                SwitchTeam(victim, "red")
                 blue_count = blue_count - 1
                 red_count = red_count + 1
             elseif players[get_var(killer, "$name")].team == "blue" then
+                SwitchTeam(victim, "blue")
                 blue_count = blue_count + 1
                 red_count = red_count - 1
             end
@@ -298,7 +303,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             elseif (blue_count ~= 0 and red_count ~= 0) then
                 players[get_var(victim, "$name")].team = killer_team
             end
-            if (gamestarted == true) then
+            if (gamestarted) then
                 local team = players[get_var(victim, "$name")].team
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
                 cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
@@ -307,11 +312,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
 end
 
+function SwitchTeam(PlayerIndex, team)
+    players[get_var(PlayerIndex, "$name")].team = tostring(team)
+end
+
 function gameOver(message)
+    gamestarted = false
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
-    gamestarted = false
     execute_command("sv_map_next")
 end
 
