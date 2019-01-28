@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Divide & Conquer, for SAPP (PC & CE)
+Script Name: Team Conquer, for SAPP (PC & CE)
 Description: This game incorporates custom teams for FFA games.
              The game mechanics are as follows:
              When you kill someone on the opposing team, the victim is switched to your team. 
