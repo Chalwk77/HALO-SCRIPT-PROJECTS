@@ -24,21 +24,26 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
--- Game Start Countdown Timer
-delay = 5 -- In Seconds
+-- #Countdown delay (in seconds)
+-- This is a game-start countdown initiated at the beginning of each game.
+delay = 5
 
--- Message emmited when the game is over.
+-- Message emitted when the game is over. (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
+-- Server Prefix
 server_prefix = "**SERVER** "
 
--- Minimum admin level require to use "/sort" command
+-- Minimum privilege level require to use "/sort" command
 min_privilege_level = 1
 
 -- #Commands
+-- Resets all game parameters, sort players into teams of two and initiates the game-start countdown
 sort_command = "sort"
+
+-- Lists all players and their team. (global override)
 list_command = "list"
 
-
+-- #Team Colors
 --[[
     Color IDs
     0       =   white
@@ -60,7 +65,6 @@ list_command = "list"
     16      =   maroon
     17      =   salmon
 ]]--
-
 red_team_color = 2
 blue_team_color = 3
 
@@ -382,6 +386,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             timer(1000 * 3, "initPrintCounts", PlayerIndex)
+        -- counts showing | player list not showing | show player list | hide counts
         elseif not (gamestarted) then
             cls(PlayerIndex)
             rprint(PlayerIndex, "Game is still starting...")
