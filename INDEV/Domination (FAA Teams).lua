@@ -19,10 +19,8 @@ api_version = "1.12.0.0"
 delay = 2 -- In Seconds
 
 -- Message emmited when the game is over.
-end_of_game = "The %team% won!"
-
--- If a player commits suicide, do they switch teams?
-suicide_causes_switch = false
+end_of_game = "The %team% team won!"
+server_prefix = "**SERVER** "
 
 -- Configuration [ends] << ----------
 
@@ -30,7 +28,6 @@ suicide_causes_switch = false
 spawns = { }
 players = { }
 team = { }
-first_join = {}
 
 -- Booleans
 gamestarted = nil
@@ -131,7 +128,6 @@ function sortPlayers()
 end
 
 function OnPlayerJoin(PlayerIndex)
-    first_join[PlayerIndex] = true
     if not isTeamPlay() then
         players[get_var(PlayerIndex, "$name")] = { }
         players[get_var(PlayerIndex, "$name")].team = nil
@@ -140,14 +136,20 @@ function OnPlayerJoin(PlayerIndex)
                 -- Red team has less players (join this team)
             if (red_count < blue_count) then
                 players[get_var(PlayerIndex, "$name")].team = "red"
-
+                red_count = red_count + 1
                 -- Blue team has less players (join this team)
             elseif (blue_count < red_count) then
                 players[get_var(PlayerIndex, "$name")].team = "blue"
-
+                blue_count = blue_count + 1
                 -- Teams are even
             elseif (blue_count == red_count) then
-                players[get_var(PlayerIndex, "$name")].team = pickRandomTeam()
+                local new_team = pickRandomTeam()
+                players[get_var(PlayerIndex, "$name")].team = new_team
+                if (new_team == "red") then
+                    red_count = red_count + 1
+                elseif (new_team == "blue") then
+                    blue_count = blue_count + 1
+                end
             end
         end
     end
@@ -237,29 +239,40 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer_team = players[get_var(killer, "$name")].team
     local killer_team = players[get_var(victim, "$name")].team
     
-    if players[get_var(killer, "$name")].team == "red" then
-        blue_count = blue_count - 1
-        red_count = red_count + 1
-    elseif players[get_var(killer, "$name")].team == "blue" then
-        blue_count = blue_count + 1
-        red_count = red_count - 1
-    end
+    if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
+        if players[get_var(killer, "$name")].team == "red" then
+            blue_count = blue_count - 1
+            red_count = red_count + 1
+        elseif players[get_var(killer, "$name")].team == "blue" then
+            blue_count = blue_count + 1
+            red_count = red_count - 1
+        end
 
-    if (red_count == 0 and blue_count >= 1) then
-        local team = string.gsub(end_of_game, "%%team%%", "blue")
-        gameOver(team)
-    elseif (blue_count == 0 and red_count >= 1) then
-        local team = string.gsub(end_of_game, "%%team%%", "red")
-        gameOver(team)
-    elseif (blue_count ~= 0 and red_count ~= 0) then
-        players[get_var(victim, "$name")].team = killer_team
+        -- No one left on RED team. | BLUE Team Wins
+        if (red_count == 0 and blue_count >= 1) then
+            local message = string.gsub(end_of_game, "%%team%%", "blue")
+            gameOver(message)
+        -- No one left on BLUE team. | RED Team Wins
+        elseif (blue_count == 0 and red_count >= 1) then
+            local message = string.gsub(end_of_game, "%%team%%", "red")
+            gameOver(message)
+        -- Game is in play | switch player
+        elseif (blue_count ~= 0 and red_count ~= 0) then
+            players[get_var(victim, "$name")].team = killer_team
+        end
+        if (gamestarted == true) then
+            local team = players[get_var(victim, "$name")].team
+            say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+        end
     end
-    
 end
 
-function gameOver()
-    
-    say_all(end_of_game)
+function gameOver(message)
+    execute_command("msg_prefix \"\"")
+    say_all(message)
+    execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+    gamestarted = false
+    execute_command("sv_map_next")
 end
 
 spawns["bloodgulch"] = {
