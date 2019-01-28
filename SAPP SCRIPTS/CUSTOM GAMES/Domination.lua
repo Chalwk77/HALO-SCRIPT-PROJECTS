@@ -20,11 +20,14 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- Game Start Countdown Timer
-delay = 0 -- In Seconds
+delay = 2 -- In Seconds
 
 -- Message emmited when the game is over.
 end_of_game = "The %team% team won!"
 server_prefix = "**SERVER** "
+
+sort_command = "sort"
+list_command = "list"
 
 -- Configuration [ends] << ----------
 
@@ -35,6 +38,7 @@ team = { }
 
 -- Booleans
 gamestarted = nil
+print_counts = nil
 red_count = 0
 blue_count = 0
 
@@ -45,10 +49,11 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_COMMAND"], "DebugCommand")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn')
 
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
 function OnNewGame()
@@ -98,6 +103,16 @@ function OnTick()
             stopTimer()
         end
     end
+    if (gamestarted == true) then
+        if (print_counts == true) then
+            for i = 1, 16 do
+                if player_present(i) then
+                    cls(i)
+                    rprint(i, "REDS: " .. red_count .. ", BLUES: " .. blue_count)
+                end
+            end
+        end
+    end
 end
 
 function secondsToTime(seconds)
@@ -107,6 +122,7 @@ end
 
 function startTimer()
     countdown = 0
+    print_counts = true
     init_countdown = true
 end
 
@@ -114,7 +130,7 @@ function stopTimer()
     countdown = 0
     init_countdown = false
     if timeRemaining ~= nil then
-        cprint("The countdown was stopped at " .. timeRemaining .. " seconds")
+        --cprint("The countdown was stopped at " .. timeRemaining .. " seconds")
     end
     for i = 1, 16 do
         if player_present(i) then
@@ -244,46 +260,68 @@ end
 function chooseRandomSpawn(team, map)
     local coordIndex = 0
     local function pickRandomCoord(Min, Max)
-        math.randomseed(os.time())
-        math.random()
-        local num = math.random(Min, Max)
-        --cprint("Number Chosen: " .. num)
-        if (num) then
-            return tonumber(num)
-        end
+        return rand(Min, Max)
     end
     if (team == "blue") then
-        coordIndex = pickRandomCoord(1, tonumber(#spawns[map].blue))
+        local num = pickRandomCoord(1, tonumber(#spawns[map].blue))
+        coordIndex = num
+        --cprint("Blue number chosen: " .. num)
     elseif (team == "red") then
-        coordIndex = pickRandomCoord(1, tonumber(#spawns[map].red))
+        local num = pickRandomCoord(1, tonumber(#spawns[map].red))
+        coordIndex = num
+        --cprint("Red number chosen: " .. num)
     end
     return coordIndex
 end
 
-function DebugCommand(PlayerIndex, Command, Environment, Password)
-    if (string.lower(Command) == "sort") then
-        init_countdown = true
-        gamestarted = false
-        for i = 1, 16 do
+function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    if (string.lower(Command) == tostring(sort_command)) then
+        if hasPermission(PlayerIndex) then
+            init_countdown = true
+            gamestarted = false
+            for i = 1, 16 do
+                if player_present(i) then
+                    players[get_var(i, "$name")].team = nil
+                end
+            end
+            rprint(PlayerIndex, "Sorting Players...")
+            return false
+        end
+    elseif (string.lower(Command) == tostring(list_command)) then
+        print_counts = false
+        cls(PlayerIndex)
+        -- concatPlayers(i, 1, 4)
+        -- concatPlayers(i, 5, 8)
+        -- concatPlayers(i, 9, 12)
+        -- concatPlayers(i, 13, 16)
+        for i = 1,4 do
             if player_present(i) then
-                players[get_var(i, "$name")].team = nil
+                local name = get_var(i, "$name")
+                local team = players[get_var(i, "$name")].team
+                rprint(PlayerIndex, name .. "   |   " .. team .. " team")
             end
         end
-        rprint(PlayerIndex, "Sorting Players...")
+        timer(1000 * 3, "PrintCounts", PlayerIndex)
         return false
     end
+end
+
+function PrintCounts(PlayerIndex)
+    cls(PlayerIndex)
+    print_counts = true
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    
     if (killer ~= -1) then
 
         local killer_team = players[get_var(killer, "$name")].team
-        local victim_team = players[get_var(victim, "$name")].team
 
         if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
+        
             if players[get_var(killer, "$name")].team == "red" then
                 SwitchTeam(victim, "red")
                 blue_count = blue_count - 1
@@ -308,10 +346,28 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
             if (gamestarted) then
                 local team = players[get_var(victim, "$name")].team
+                execute_command("msg_prefix \"\"")
                 say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+                execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
                 --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
             end
         end
+    end
+end
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex then
+
+        local causer_team = players[get_var(CauserIndex, "$name")].team
+        local victim_team = players[get_var(PlayerIndex, "$name")].team
+        
+        if (causer_team == victim_team) then
+            execute_command("msg_prefix \"\"")
+            say(CauserIndex, get_var(CauserIndex, "$name") .. ", please don't team shoot!")
+            execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
+            return false
+        end
+        
     end
 end
 
@@ -338,6 +394,14 @@ end
 function cls(PlayerIndex)
     for _ = 1, 25 do
         rprint(PlayerIndex, " ")
+    end
+end
+
+function hasPermission(PlayerIndex)
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_privilege_level then
+        return true
+    else
+        return false
     end
 end
 
