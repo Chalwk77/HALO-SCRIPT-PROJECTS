@@ -12,6 +12,10 @@ Description: This game incorporates custom teams for FFA games.
              - /list command
              - /sort command
 
+             [!] WARNING: This game is in BETA and may contains bugs.
+                          Please report all bugs on my gighub...
+                          https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
+             
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -405,7 +409,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         rprint(PlayerIndex, "Sorting Players...")
         return false
     elseif (string.lower(Command) == tostring(list_command)) then
-        -- counts showing | player list not showing | show player list | hide counts
         if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
             print_counts[tonumber(PlayerIndex)] = false
             cls(PlayerIndex)
@@ -415,7 +418,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             timer(1000 * 3, "initPrintCounts", PlayerIndex)
-        -- counts showing | player list not showing | show player list | hide counts
         elseif not (gamestarted) then
             cls(PlayerIndex)
             rprint(PlayerIndex, "Game is still starting...")
@@ -471,6 +473,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             elseif (blue_count ~= 0 and red_count ~= 0) then
                 players[get_var(victim, "$name")].team = killer_team
             end
+            
             if (gamestarted) then
                 local team = players[get_var(victim, "$name")].team
                 execute_command("msg_prefix \"\"")
