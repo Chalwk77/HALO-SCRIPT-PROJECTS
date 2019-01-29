@@ -201,14 +201,16 @@ function OnTick()
             if player_present(k) then
                 if (print_counts[tonumber(k)] == true) then
                     cls(k)
-                    local function formatMessage(message)
-                        message = string.gsub(message, "%%red_count%%", tonumber(red_count))
-                        message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
-                        message = string.gsub(message, "%%team%%", players[get_var(k, "$name")].team)
-                        return message
+                    if players[get_var(k, "$name")].team ~= nil then
+                        local function formatMessage(message)
+                            message = string.gsub(message, "%%red_count%%", tonumber(red_count))
+                            message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
+                            message = string.gsub(message, "%%team%%", players[get_var(k, "$name")].team)
+                            return message
+                        end
+                        local message = formatMessage(playerCountMessage)
+                        rprint(k, "|" .. message_alignment .. " " ..message)
                     end
-                    local message = formatMessage(playerCountMessage)
-                    rprint(k, "|" .. message_alignment .. " " ..message)
                 end
             end
         end
