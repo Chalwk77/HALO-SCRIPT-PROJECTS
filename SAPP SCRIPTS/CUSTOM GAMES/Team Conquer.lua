@@ -117,6 +117,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
+function OnScriptUnload()
+
+end
+
 function OnNewGame()
     local function oddOrEven(Min, Max)
         math.randomseed(os.time())
