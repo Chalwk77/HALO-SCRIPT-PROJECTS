@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Team Conquer (REVISION 2), for SAPP (PC & CE)
+Script Name: Divide & Conquer, for SAPP (PC & CE)
 Description: N/A
 
              
@@ -27,7 +27,7 @@ pre_game_message = "Game will begin in %time_remaining% seconds"
 end_of_game = "The %team% team won!"
 
 -- #Server Prefix
-server_prefix = "SERVER "
+server_prefix = "»L§R« "
 
 -- #Numbers of players required to set the game in motion.
 required_players = 3
@@ -209,13 +209,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if not gamestarted then
-        return false
-    else
-        if tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex then
-            if (get_var(CauserIndex, "$team") == get_var(PlayerIndex, "$team")) then
-                return false
-            end
+    if tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex then
+        if (get_var(CauserIndex, "$team") == get_var(PlayerIndex, "$team")) then
+            return false
         end
     end
 end
