@@ -32,6 +32,11 @@ server_prefix = "»L§R« "
 -- #Numbers of players required to set the game in motion.
 required_players = 3
 
+-- #Respawn time
+-- When enabled, players who are killed by the opposing team will respawn immediately.
+respawn_override = true
+respawn_time = 0 -- In seconds (0 = immediate)
+
 -- Configuration [ends] << ----------
 
 
@@ -40,7 +45,6 @@ player_count = {}
 
 -- Booleans
 gamestarted = nil
-
 red_count = 0
 blue_count = 0
 
@@ -175,7 +179,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local kteam = get_var(killer, "$team")
         local vteam = get_var(victim, "$team")
         
-        
         if (killer ~= -1) and (killer ~= 0) and (killer ~= nil) and (killer > 0) and (victim ~= killer) then
         
             if kteam == "red" then
@@ -224,7 +227,21 @@ function killPlayer(PlayerIndex)
 end
 
 function SwitchTeam(PlayerIndex, team)
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    original = read_dword(kill_message_addresss)
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
+    
     execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
+    
+    safe_write(true)
+    write_dword(kill_message_addresss, original)
+    safe_write(false)
+    
+    if (respawn_override == true) then
+        write_dword(get_player(PlayerIndex) + 0x2C, respawn_time)  
+    end
 end
 
 function gameOver(message)
