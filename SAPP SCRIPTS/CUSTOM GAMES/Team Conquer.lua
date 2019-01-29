@@ -39,7 +39,7 @@ end_of_game = "The %team% team won!"
 pre_game_message = "Game will begin in %time_remaining% seconds"
 
 -- # Continuous player count message
-playerCountMessage = "REDS: %red_count%, BLUES: %blue_count%"
+playerCountMessage = "REDS: %red_count%, BLUES: %blue_count% | You are on %team% team."
 
 -- Server Prefix
 server_prefix = "»L§R« "
@@ -200,6 +200,7 @@ function OnTick()
                     local function formatMessage(message)
                         message = string.gsub(message, "%%red_count%%", tonumber(red_count))
                         message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
+                        message = string.gsub(message, "%%team%%", players[get_var(k, "$name")].team)
                         return message
                     end
                     local message = formatMessage(playerCountMessage)
