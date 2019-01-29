@@ -618,8 +618,12 @@ function removePlayer(PlayerIndex)
 end
 
 function getPlayerCount()
-    for k, v in ipairs(player_count) do 
-        count = tonumber(k)
+    local count
+    for k, v in ipairs(player_count) do
+        if (k == 0 or nil) then count = 0 end
+        if (count ~= 0 or count ~= nil) then
+            count = tonumber(k)
+        end
     end
     return count
 end
