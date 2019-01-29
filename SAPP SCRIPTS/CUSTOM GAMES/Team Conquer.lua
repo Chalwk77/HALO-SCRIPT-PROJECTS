@@ -30,7 +30,7 @@ api_version = "1.11.0.0"
 
 -- #Countdown delay (in seconds)
 -- This is a pre-game-start countdown initiated at the beginning of each game.
-delay = 5
+delay = 7
 
 -- #End of Game message (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
@@ -56,6 +56,9 @@ list_command = "list"
 
 -- Left = l,    Right = r,    Centre = c,    Tab: t
 message_alignment = "l"
+
+-- Numbers of players required to set the game in motion.
+required_players = 3
 
 -- #Team Colors
 --[[
@@ -92,6 +95,8 @@ players = { }
 team = { }
 print_countdown = {}
 
+player_count = {}
+
 -- Tables for /list command
 stored_data = {}
 
@@ -100,6 +105,8 @@ gamestarted = nil
 print_counts = {}
 red_count = 0
 blue_count = 0
+
+first_start = nil
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -137,7 +144,7 @@ function OnNewGame()
         -- Number is odd
         useEvenNumbers = false
     end
-    startTimer()
+    first_start = true
 end
 
 function OnGameEnd()
@@ -166,7 +173,7 @@ end
 function OnTick()
     if (init_countdown == true) then
         countdown = countdown + 0.030
-
+        
         local seconds = secondsToTime(countdown)
         timeRemaining = delay - math.floor(seconds)
 
@@ -282,6 +289,13 @@ function determineTeam(PlayerIndex, team)
 end
 
 function OnPlayerJoin(PlayerIndex)
+    
+    addPlayer(PlayerIndex)
+    if (first_start == true) and (getPlayerCount() >= required_players) then
+        first_start = false
+        startTimer()
+    end
+    
     if not isTeamPlay() then
         print_countdown[tonumber(PlayerIndex)] = true
         players[get_var(PlayerIndex, "$name")] = { }
@@ -325,6 +339,7 @@ function OnPlayerLeave(PlayerIndex)
         blue_count = blue_count - 1
     end
     clearListEntry(PlayerIndex)
+    removePlayer(PlayerIndex)
 end
 
 function clearListEntry(PlayerIndex)
@@ -392,7 +407,7 @@ function spawnPlayer(PlayerIndex, Team)
             y = spawns[map].red[id][2]
             z = spawns[map].red[id][3]
         end
-        cprint(get_var(PlayerIndex, "$name") .. " spawned at " .. x .. ", " .. y .. ", " .. z)
+        --cprint(get_var(PlayerIndex, "$name") .. " spawned at " .. x .. ", " .. y .. ", " .. z)
         write_vector3d(player + 0x5C, x, y, z + 0.3)
     end
 end
@@ -431,8 +446,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             resetGameParamaters()
             startTimer()
+            rprint(PlayerIndex, "Resetting game parameters...")
+        else
+            rprint(PlayerIndex, "Insufficient Permission")
         end
-        rprint(PlayerIndex, "Sorting Players...")
         return false
     elseif (string.lower(Command) == tostring(list_command)) then
         if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
@@ -468,46 +485,42 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     
-    if (killer ~= -1) then
-
+    if (killer ~= -1) and (killer ~= 0) and (killer ~= nil) and (killer > 0) and (victim ~= killer) then
+    
         local killer_team = players[get_var(killer, "$name")].team
-
-        if tonumber(PlayerIndex) ~= tonumber(KillerIndex) then
-        
-            if players[get_var(killer, "$name")].team == "red" then
-                SwitchTeam(victim, "red")
-                saveTable(get_var(victim, "$name"), "red", true)
-                blue_count = blue_count - 1
-                red_count = red_count + 1
-                
-            elseif players[get_var(killer, "$name")].team == "blue" then
-                SwitchTeam(victim, "blue")
-                saveTable(get_var(victim, "$name"), "blue", true)
-                blue_count = blue_count + 1
-                red_count = red_count - 1
-            end
-
-            -- No one left on RED team. | BLUE Team Wins
-            if (red_count == 0 and blue_count >= 1) then
-                local message = string.gsub(end_of_game, "%%team%%", "blue")
-                gameOver(message)
-                -- No one left on BLUE team. | RED Team Wins
-            elseif (blue_count == 0 and red_count >= 1) then
-                local message = string.gsub(end_of_game, "%%team%%", "red")
-                gameOver(message)
-                -- Game is in play | switch player
-            elseif (blue_count ~= 0 and red_count ~= 0) then
-                players[get_var(victim, "$name")].team = killer_team
-            end
+        if players[get_var(killer, "$name")].team == "red" then
+            SwitchTeam(victim, "red")
+            saveTable(get_var(victim, "$name"), "red", true)
+            blue_count = blue_count - 1
+            red_count = red_count + 1
             
-            if (gamestarted) then
-                local team = players[get_var(victim, "$name")].team
-                execute_command("msg_prefix \"\"")
-                say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
-                execute_command("msg_prefix \" " .. server_prefix .. "\"")
-                setColor(tonumber(victim), team)
-                --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
-            end
+        elseif players[get_var(killer, "$name")].team == "blue" then
+            SwitchTeam(victim, "blue")
+            saveTable(get_var(victim, "$name"), "blue", true)
+            blue_count = blue_count + 1
+            red_count = red_count - 1
+        end
+
+        -- No one left on RED team. | BLUE Team Wins
+        if (red_count == 0 and blue_count >= 1) then
+            local message = string.gsub(end_of_game, "%%team%%", "blue")
+            gameOver(message)
+            -- No one left on BLUE team. | RED Team Wins
+        elseif (blue_count == 0 and red_count >= 1) then
+            local message = string.gsub(end_of_game, "%%team%%", "red")
+            gameOver(message)
+            -- Game is in play | switch player
+        elseif (blue_count ~= 0 and red_count ~= 0) then
+            players[get_var(victim, "$name")].team = killer_team
+        end
+        
+        if (gamestarted) then
+            local team = players[get_var(victim, "$name")].team
+            execute_command("msg_prefix \"\"")
+            say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+            execute_command("msg_prefix \" " .. server_prefix .. "\"")
+            setColor(tonumber(victim), team)
+            --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
         end
     end
 end
@@ -524,7 +537,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             execute_command("msg_prefix \" " .. server_prefix .. "\"")
             return false
         end
-        
     end
 end
 
@@ -572,6 +584,29 @@ function setColor(PlayerIndex, team)
     end
     local player = get_player(PlayerIndex)
     write_byte(player + 0x60, tonumber(color))
+end
+
+
+
+-- Player Counts...
+function addPlayer(PlayerIndex)
+    table.insert(player_count, tonumber(PlayerIndex))
+end
+
+function removePlayer(PlayerIndex)
+    for i, v in ipairs(player_count) do 
+        if string.match(v, tonumber(PlayerIndex)) then
+            table.remove(player_count, i) 
+            break
+        end
+    end
+end
+
+function getPlayerCount()
+    for k, v in ipairs(player_count) do 
+        count = tonumber(k)
+    end
+    return count
 end
 
 function saveTable(name, team, update)
