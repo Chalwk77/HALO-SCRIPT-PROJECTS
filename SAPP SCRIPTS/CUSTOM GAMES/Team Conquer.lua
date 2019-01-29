@@ -340,6 +340,21 @@ function OnPlayerLeave(PlayerIndex)
     end
     clearListEntry(PlayerIndex)
     removePlayer(PlayerIndex)
+    if (gamestarted) then
+        if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
+            local function resetGameParamaters()
+            for i = 1, 16 do
+                    players[i].team = nil
+                    print_countdown[i] = false
+                end
+            end
+                blue_count = 0
+                red_count = 0
+                gamestarted = false
+            end
+            resetGameParamaters()
+        end
+    end
 end
 
 function clearListEntry(PlayerIndex)
