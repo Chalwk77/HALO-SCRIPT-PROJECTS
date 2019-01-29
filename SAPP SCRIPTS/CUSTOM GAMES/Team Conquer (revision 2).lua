@@ -167,7 +167,14 @@ function OnPlayerLeave(PlayerIndex)
     elseif (team == "blue") then
         blue_count = blue_count - 1
     end
-    removePlayer(PlayerIndex)
+    removePlayer(tonumber(PlayerIndex))
+    
+    if (gamestarted) then
+        if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
+            cprint("Resetting parameters...", 2+8)
+            resetAllParameters()
+        end
+    end
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -286,15 +293,18 @@ end
 function removePlayer(PlayerIndex)
     for i, v in ipairs(player_count) do 
         if string.match(v, tonumber(PlayerIndex)) then
-            table.remove(player_count, i) 
-            break
+            table.remove(player_count, i)
         end
     end
 end
 
 function getPlayerCount()
-    for k, v in ipairs(player_count) do 
-        count = tonumber(k)
+    local count
+    for k, v in ipairs(player_count) do
+        if (k == 0 or nil) then count = 0 end
+        if (count ~= 0 or count ~= nil) then
+            count = tonumber(k)
+        end
     end
     return count
 end
