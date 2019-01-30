@@ -1,7 +1,6 @@
 --[[
 --=====================================================================================================--
 Script Name: Divide & Conquer (V2), for SAPP (PC & CE)
-
 #Description: This version of Divide & Conquer is exactly the same as Divide & Conquer V1,
               however, it relies on Halo's built in team-management system and SAPP's auto team balance. 
               It is compatible with all Team-Based games: CTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall, etc.
