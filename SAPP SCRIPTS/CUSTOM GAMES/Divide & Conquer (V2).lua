@@ -30,7 +30,7 @@ api_version = "1.11.0.0"
 -- This is a pre-game-start countdown initiated at the beginning of each game.
 delay = 5
 
--- #Pre Game message
+-- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
 pre_game_message = "Game will begin in %time_remaining% seconds"
 
 -- #End of Game message (%team% will be replaced with the winning team)
@@ -46,7 +46,8 @@ required_players = 3
 not_enough_players = "The game will begin when %required_players% or more players are online."
 
 -- #Respawn time (override)
--- When enabled, players who are killed by the opposing team will respawn immediately.
+-- When enabled, players who are killed by the opposing team will respawn immediately. 
+-- Does not affect suicides or other deaths (PvP only by design).
 respawn_override = true
 respawn_time = 0 -- In seconds (0 = immediate)
 
@@ -60,6 +61,7 @@ gamestarted = nil
 -- Counts
 red_count = 0
 blue_count = 0
+-- Strings
 script_name = "Divide & Conquer V2"
 
 function OnScriptLoad()
@@ -155,7 +157,7 @@ function OnGameEnd()
     resetAllParameters()
 end
 
--- #This function all parameters are set to their default values.
+-- #This function ensures all parameters are set to their default values.
 function resetAllParameters()
     gamestarted = false
     print_nep = false
@@ -249,7 +251,7 @@ function OnPlayerLeave(PlayerIndex)
                 if (tonumber(i) ~= tonumber(PlayerIndex)) then
                     if player_present(i) then
                         local team = get_var(i, "$team")
-                        if (team == "red") and (team ~= "blue") or (team == "blue") and (team ~= "red") then
+                        if (team == "red" and team ~= "blue") or (team == "blue" and team ~= "red") then
                             gameOver(string.gsub(end_of_game, "%%team%%", team))
                             break
                         end
