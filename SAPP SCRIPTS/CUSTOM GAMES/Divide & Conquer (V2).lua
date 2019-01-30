@@ -128,7 +128,7 @@ end
 
 function OnNewGame()
     if not isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support FFA. \nSupported gamemodes are CTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall')
+        local error = string.format('[' .. script_name .. '] does not support FFA.\n\nSupported gamemodes are:\nCTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall, etc.')
         execute_command("log_note \"" .. error .. "\"")
         cprint(error, 4+8)
         unregister_callback(cb['EVENT_TICK'])
