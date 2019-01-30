@@ -37,6 +37,9 @@ required_players = 3
 respawn_override = true
 respawn_time = 0 -- In seconds (0 = immediate)
 
+
+-- Continuous message emitted when there aren't enough players.
+not_enough_players = "The game will begin when %required_players% or more players are online."
 -- Configuration [ends] << ----------
 
 
@@ -66,6 +69,18 @@ function OnScriptUnload()
 end
 
 function OnTick()
+    
+    -- # Continuous message emitted when ther aren't enough players to start the game.
+    for i = 1, 16 do
+        if (player_present(i) and not gamestarted) then 
+            if (getPlayerCount() ~= nil) and (getPlayerCount() < required_players) then
+                cls(i)
+                local notEnoughPlayers = string.gsub(not_enough_players, "%%required_players%%", tonumber(required_players))
+                rprint(i, notEnoughPlayers)
+            end
+        end
+    end
+    
     if (init_countdown == true) then
         countdown = countdown + 0.030
         
@@ -173,6 +188,8 @@ function OnPlayerLeave(PlayerIndex)
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
             cprint("Resetting parameters...", 2+8)
             resetAllParameters()
+        elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 1)) then
+            gameOver(nil, true)
         end
     end
 end
@@ -201,11 +218,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
             -- No one left on RED team. | BLUE Team Wins
             if (red_count == 0 and blue_count >= 1) then
-                gameOver(string.gsub(end_of_game, "%%team%%", "blue"))
+                gameOver(string.gsub(end_of_game, "%%team%%", "blue"), false)
                 
                 -- No one left on BLUE team. | RED Team Wins
             elseif (blue_count == 0 and red_count >= 1) then
-                gameOver(string.gsub(end_of_game, "%%team%%", "red"))
+                gameOver(string.gsub(end_of_game, "%%team%%", "red"), false)
                 
                 -- Game is in play | switch player
             elseif (blue_count ~= 0 and red_count ~= 0) then
@@ -251,12 +268,24 @@ function SwitchTeam(PlayerIndex, team)
     end
 end
 
-function gameOver(message)
-    gamestarted = false
-    execute_command("msg_prefix \"\"")
-    say_all(message)
-    execute_command("msg_prefix \" " .. server_prefix .. "\"")
-    execute_command("sv_map_next")
+function gameOver(message, bool)
+    if not (bool) and (message) then
+        gamestarted = false
+        execute_command("msg_prefix \"\"")
+        say_all(message)
+        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+        execute_command("sv_map_next")
+    else
+        timer(1000 * 1, "delayEndGame")
+    end
+end
+
+function delayEndGame()
+    for i = 1,16 do
+        if player_present(i) then
+            gameOver(string.gsub(end_of_game, "%%team%%", get_var(i, "$team")), false)
+        end
+    end
 end
 
 function secondsToTime(seconds)
