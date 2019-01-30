@@ -95,6 +95,8 @@ function OnTick()
     end
 
     if (init_countdown == true) then
+        --cprint("OnTick() | init_countdown = true", 4+8)
+    
         countdown = countdown + 0.030
 
         local seconds = secondsToTime(countdown)
@@ -105,12 +107,14 @@ function OnTick()
             if (player_present(j) and not gamestarted) then
                 cls(j)
                 local preGameMessage = string.gsub(pre_game_message, "%%time_remaining%%", tonumber(timeRemaining))
+                --cprint(preGameMessage, 2+8)
                 rprint(j, preGameMessage)
             end
         end
 
         -- Stop the countdown and begin the game...
         if (timeRemaining <= 0) then
+            --cprint("Time remaining: ".. tonumber(timeRemaining))
             gamestarted = true
             stopTimer()
             for k = 1, 16 do
@@ -172,7 +176,7 @@ end
 function OnPlayerJoin(PlayerIndex)
     addPlayer(PlayerIndex)
 
-    if (getPlayerCount() >= required_players and not init_countdown) then
+    if (getPlayerCount() >= required_players) and (init_countdown == false) and not (gamestarted) then
         startTimer()
     end
 
@@ -382,6 +386,7 @@ function startTimer()
 end
 
 function stopTimer()
+    --cprint("stopTimer() | called", 2+8)
     countdown = 0
     init_countdown = false
     for i = 1, 16 do
