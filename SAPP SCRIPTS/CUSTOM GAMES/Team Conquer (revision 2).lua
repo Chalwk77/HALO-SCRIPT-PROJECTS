@@ -57,11 +57,12 @@ gamestarted = nil
 -- Counts
 red_count = 0
 blue_count = 0
+script_name = "Team Conquer"
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb['EVENT_TICK'], "OnTick")
     
-    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
@@ -123,8 +124,20 @@ function OnTick()
 end
 
 function OnNewGame()
-    -- resetAllParameters() | Ensures all parameters are set to their default values.
-    resetAllParameters()
+    if not isTeamPlay() then
+        local error = string.format('[' .. script_name .. '] does not support FFA and will not load.')
+        execute_command("log_note \"" .. error .. "\"")
+        cprint(error, 4+8)
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+    else
+        -- resetAllParameters() | Ensures all parameters are set to their default values.
+        resetAllParameters()
+    end
 end
 
 function OnGameEnd()
@@ -338,6 +351,14 @@ end
 function cls(PlayerIndex)
     for _ = 1, 25 do
         rprint(PlayerIndex, " ")
+    end
+end
+
+function isTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    else
+        return false
     end
 end
 
