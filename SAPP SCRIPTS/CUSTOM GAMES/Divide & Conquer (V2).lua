@@ -172,24 +172,29 @@ end
 function OnPlayerJoin(PlayerIndex)
     addPlayer(PlayerIndex)
 
-    if (getPlayerCount() >= required_players) then
+    if (getPlayerCount() >= required_players and not init_countdown) then
         startTimer()
     end
 
+    -- If there is less than "required_players" then print the continuous message emitted when there aren't enough players to start the game. 
     if (getPlayerCount() >= 1 and getPlayerCount() < required_players) then
         print_nep = true
     end
-
+    
+    if (getPlayerCount() >= required_players) and (print_nep == true) then
+        print_nep = false
+    end
+    
     -- Only sort player into new team if the game has already started...
     if (gamestarted) then
         -- Red team has less players (join this team)
         if (red_count < blue_count) then
-            SwitchTeam(PlayerIndex, "red")
+            SwitchTeam(PlayerIndex, "red", true)
             red_count = red_count + 1
 
             -- Blue team has less players (join this team)
         elseif (blue_count < red_count) then
-            SwitchTeam(PlayerIndex, "blue")
+            SwitchTeam(PlayerIndex, "blue", true)
             blue_count = blue_count + 1
 
             -- Teams are even | Choose random team.
@@ -209,10 +214,10 @@ function OnPlayerJoin(PlayerIndex)
             local new_team = pickRandomTeam()
             if (new_team == "red") then
                 red_count = red_count + 1
-                SwitchTeam(PlayerIndex, "red")
+                SwitchTeam(PlayerIndex, "red", true)
             elseif (new_team == "blue") then
                 blue_count = blue_count + 1
-                SwitchTeam(PlayerIndex, "blue")
+                SwitchTeam(PlayerIndex, "blue", true)
             end
         end
     end
@@ -334,24 +339,28 @@ function killPlayer(PlayerIndex)
     end
 end
 
-function SwitchTeam(PlayerIndex, team)
-    -- Temporarily disables default death messages (to prevent "Player Died" message).
-    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-    original = read_dword(kill_message_addresss)
-    safe_write(true)
-    write_dword(kill_message_addresss, 0x03EB01B1)
-    safe_write(false)
+function SwitchTeam(PlayerIndex, team, bool)
+    if not (bool) then
+        -- Temporarily disables default death messages (to prevent "Player Died" message).
+        kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+        original = read_dword(kill_message_addresss)
+        safe_write(true)
+        write_dword(kill_message_addresss, 0x03EB01B1)
+        safe_write(false)
 
-    -- Switch player to relevant team
-    execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
+        -- Switch player to relevant team
+        execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
 
-    -- Re enables default death messages
-    safe_write(true)
-    write_dword(kill_message_addresss, original)
-    safe_write(false)
+        -- Re enables default death messages
+        safe_write(true)
+        write_dword(kill_message_addresss, original)
+        safe_write(false)
 
-    if (respawn_override == true) then
-        write_dword(get_player(PlayerIndex) + 0x2C, respawn_time)
+        if (respawn_override == true) then
+            write_dword(get_player(PlayerIndex) + 0x2C, respawn_time)
+        end
+    else
+        execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
     end
 end
 
@@ -402,11 +411,7 @@ function addPlayer(PlayerIndex)
 end
 
 function removePlayer(PlayerIndex)
-    for i, v in ipairs(player_count) do
-        if string.match(v, tonumber(PlayerIndex)) then
-            table.remove(player_count, i)
-        end
-    end
+    table.remove(player_count, tonumber(PlayerIndex))
 end
 
 function getPlayerCount()
@@ -466,11 +471,13 @@ end
 
 function deleteWeapons(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
-    local WeaponID = read_dword(PlayerObject + 0x118)
-    if WeaponID ~= 0 then
-        for j = 0, 3 do
-            local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
-            destroy_object(ObjectID)
+    if (PlayerObject ~= 0) then
+        local WeaponID = read_dword(PlayerObject + 0x118)
+        if WeaponID ~= 0 then
+            for j = 0, 3 do
+                local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
+                destroy_object(ObjectID)
+            end
         end
     end
 end
