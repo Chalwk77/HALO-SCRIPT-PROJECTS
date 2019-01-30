@@ -30,7 +30,7 @@ api_version = "1.11.0.0"
 
 -- #Countdown delay (in seconds)
 -- This is a pre-game-start countdown initiated at the beginning of each game.
-delay = 7
+delay = 5
 
 -- #End of Game message (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
@@ -42,7 +42,7 @@ pre_game_message = "Game will begin in %time_remaining% seconds"
 playerCountMessage = "REDS: %red_count%, BLUES: %blue_count% | You are on %team% team."
 
 -- Server Prefix
-server_prefix = "»L§R« "
+server_prefix = "SERVER "
 
 -- Minimum privilege level require to use "/sort" command
 min_privilege_level = 1
@@ -58,7 +58,7 @@ list_command = "list"
 message_alignment = "l"
 
 -- Numbers of players required to set the game in motion.
-required_players = 3
+required_players = 1
 
 -- #Team Colors
 --[[
@@ -208,16 +208,14 @@ function OnTick()
             if player_present(k) then
                 if (print_counts[tonumber(k)] == true) then
                     cls(k)
-                    if players[get_var(k, "$name")].team ~= nil then
-                        local function formatMessage(message)
-                            message = string.gsub(message, "%%red_count%%", tonumber(red_count))
-                            message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
-                            message = string.gsub(message, "%%team%%", players[get_var(k, "$name")].team)
-                            return message
-                        end
-                        local message = formatMessage(playerCountMessage)
-                        rprint(k, "|" .. message_alignment .. " " ..message)
+                    local function formatMessage(message)
+                        message = string.gsub(message, "%%red_count%%", tonumber(red_count))
+                        message = string.gsub(message, "%%blue_count%%", tonumber(blue_count))
+                        message = string.gsub(message, "%%team%%", players[get_var(k, "$name")].team)
+                        return message
                     end
+                    local message = formatMessage(playerCountMessage)
+                    rprint(k, "|" .. message_alignment .. " " ..message)
                 end
             end
         end
@@ -232,7 +230,9 @@ end
 function startTimer()
     countdown = 0
     for i = 1,16 do
-        print_counts[tonumber(i)] = true
+        if player_present(i) then
+            print_counts[tonumber(i)] = true
+        end
     end
     init_countdown = true
 end
@@ -245,6 +245,7 @@ function stopTimer()
     end
     for i = 1, 16 do
         if player_present(i) then
+            print_countdown[i] = false
             cls(i)
         end
     end
@@ -327,6 +328,7 @@ function OnPlayerJoin(PlayerIndex)
                     blue_count = blue_count + 1
                 end
             end
+            print_counts[tonumber(PlayerIndex)] = true
         end
     end
 end
@@ -344,13 +346,12 @@ function OnPlayerLeave(PlayerIndex)
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
             local function resetGameParamaters()
             for i = 1, 16 do
-                    players[i].team = nil
-                    print_countdown[i] = false
-                end
+                players[get_var(PlayerIndex, "$name")].team = nil
+                print_countdown[i] = false
             end
-                blue_count = 0
-                red_count = 0
-                gamestarted = false
+            blue_count = 0
+            red_count = 0
+            gamestarted = false
             end
             resetGameParamaters()
         end
@@ -470,16 +471,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
             print_counts[tonumber(PlayerIndex)] = false
             cls(PlayerIndex)
-            for i = 1, 16 do
-                if player_present(i) then
-                    concatValues(i, 1, 16)
-                end
-            end
+            concatValues(PlayerIndex, 1,2)
+            -- concatValues(PlayerIndex, 5,8)
+            -- concatValues(PlayerIndex, 9,12)
+            -- concatValues(PlayerIndex, 13,16)
             timer(1000 * 3, "initPrintCounts", PlayerIndex)
         elseif not (gamestarted) then
+            print_countdown[tonumber(PlayerIndex)] = false
             cls(PlayerIndex)
             rprint(PlayerIndex, "Game is still starting...")
-            timer(1000 * 3, "PrintCountdown", PlayerIndex)
+            timer(1000 * 1, "PrintCountdown", PlayerIndex)
         end
         return false
     end
@@ -642,22 +643,22 @@ function saveTable(name, team, update)
 end
 
 function concatValues(PlayerIndex, start_index, end_index)
-    for k, v in ipairs(stored_data) do
+    local word_table = {}
+    local row
+    for k, v in pairs(stored_data) do
         local words = tokenizestring(v, ",")
-        local word_table = {}
-        local row
         for i = tonumber(start_index), tonumber(end_index) do
             if words[i] ~= nil then
                 table.insert(word_table, words[i])
-                row = table.concat(word_table, ", ")
+                row = table.concat(word_table, ",   ")
             end
         end
-        if row ~= nil then
-            rprint(PlayerIndex, row)
-        end
-        for _ in pairs(word_table) do
-            word_table[_] = nil
-        end
+    end
+    if row ~= nil then
+        rprint(PlayerIndex, row)
+    end
+    for _ in pairs(word_table) do
+        word_table[_] = nil
     end
 end
 
