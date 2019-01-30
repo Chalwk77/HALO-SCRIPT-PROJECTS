@@ -120,6 +120,10 @@ function OnTick()
                         blue_count = blue_count + 1
                     end
                     rprint(j, "The game has begun")
+                    execute_command("score " .. j .. " 0")
+                    execute_command("kills " .. j .. " 0")
+                    execute_command("deaths " .. j .. " 0")
+                    execute_command("assists " .. j .. " 0")
                 end
             end
         end
