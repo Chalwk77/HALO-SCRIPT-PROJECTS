@@ -60,7 +60,7 @@ gamestarted = nil
 -- Counts
 red_count = 0
 blue_count = 0
-script_name = "Team Conquer (TEAMS)"
+script_name = "Divide & Conquer V2"
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
