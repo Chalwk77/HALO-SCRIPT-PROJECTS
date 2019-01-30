@@ -30,7 +30,7 @@ api_version = "1.11.0.0"
 
 -- #Countdown delay (in seconds)
 -- This is a pre-game-start countdown initiated at the beginning of each game.
-delay = 7
+delay = 5
 
 -- #End of Game message (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
@@ -134,35 +134,30 @@ end
 
 function OnNewGame()
     if isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support Team Play.\n\nSupported gamemodes are:\nSlayer, King-Slayer, Race-Slayer and OddBall-Slayer, etc.')
-        execute_command("log_note \"" .. error .. "\"")
-        cprint(error, 4 + 8)
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_GAME_END'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_COMMAND'])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_PRESPAWN'])
-        unregister_callback(cb['EVENT_DIE'])
-        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+        local error = 'does not support Team Play.\n\nSupported gamemodes are:\nSlayer, King-Slayer, Race-Slayer and OddBall-Slayer, etc.'
+        unregisterSAPPEvents(error)
     else
-        local function oddOrEven(Min, Max)
-            math.randomseed(os.time())
-            math.random();
-            local num = math.random(Min, Max)
-            if (num) then
-                return num
-            end
-        end
-        if (oddOrEven(1, 1000) % 2 == 0) then
-            -- Number is even
-            useEvenNumbers = true
+        if tonumber(required_players) < 3 then
+            local error = 'variable "required_players" cannot be less than 3!'
+            unregisterSAPPEvents(error)
         else
-            -- Number is odd
-            useEvenNumbers = false
+            local function oddOrEven(Min, Max)
+                math.randomseed(os.time())
+                math.random();
+                local num = math.random(Min, Max)
+                if (num) then
+                    return num
+                end
+            end
+            if (oddOrEven(1, 1000) % 2 == 0) then
+                -- Number is even
+                useEvenNumbers = true
+            else
+                -- Number is odd
+                useEvenNumbers = false
+            end
+            first_start = true
         end
-        first_start = true
     end
 end
 
@@ -172,8 +167,8 @@ function OnGameEnd()
         for i = 1, 16 do
             if player_present(i) then
                 players[get_var(i, "$name")].team = nil
-                print_countdown[tonumber(i)] = false
-                clearListEntry(tonumber(i))
+                hidePreGameCountdown(i)
+                clearPlayerList(tonumber(i))
                 removePlayer(i)
             end
         end
@@ -183,6 +178,19 @@ function OnGameEnd()
         gamestarted = false
     end
     resetGameParamaters()
+end
+
+function gameOver(message)
+    for i = 1,16 do
+        if player_present(i) then
+            cls(i)
+            rprint(i, "|c ======================================")
+            rprint(i, "|c " .. message)
+            rprint(i, "|c ======================================")
+            for _ = 1,10 do rprint(i, " ") end
+        end
+    end
+    execute_command("sv_map_next")
 end
 
 function OnTick()
@@ -221,8 +229,7 @@ function OnTick()
             for j = 1, 16 do
                 if (player_present(j)) then
                     cls(j)
-                    print_countdown[tonumber(j)] = false
-                    rprint(j, "The game has begun")
+                    hidePreGameCountdown(j)
                 end
             end
             --cprint("The game has begun!", 2 + 8)
@@ -259,7 +266,7 @@ function startTimer()
     countdown = 0
     for i = 1, 16 do
         if player_present(i) then
-            print_counts[tonumber(i)] = true
+            showPreGameCountdown(i)
         end
     end
     init_countdown = true
@@ -273,8 +280,7 @@ function stopTimer()
     end
     for i = 1, 16 do
         if player_present(i) then
-            print_countdown[i] = false
-            cls(i)
+            hidePreGameCountdown(i)
         end
     end
 end
@@ -318,16 +324,22 @@ end
 function OnPlayerJoin(PlayerIndex)
 
     addPlayer(PlayerIndex)
+    -- Pre-game countdown has already begun (required players are online). Show the countdown to the joining player.
+    if (getPlayerCount() >= required_players) and not (gamestarted) and (init_countdown == true) then
+        -- Show pre-game countdown to this player
+        showPreGameCountdown(PlayerIndex)
+    end
+    
     if (first_start == true) and (getPlayerCount() >= required_players) then
         first_start = false
         startTimer()
     end
 
+    
     if (getPlayerCount() >= 1 and getPlayerCount() < required_players) then
         print_nep = true
     end
-
-    print_countdown[tonumber(PlayerIndex)] = true
+    
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].team = nil
 
@@ -357,7 +369,8 @@ function OnPlayerJoin(PlayerIndex)
                 blue_count = blue_count + 1
             end
         end
-        print_counts[tonumber(PlayerIndex)] = true
+        -- If the game has already started call showTeamCounts()
+        showTeamCounts(PlayerIndex)
     end
 end
 
@@ -369,7 +382,7 @@ function OnPlayerLeave(PlayerIndex)
     elseif (team == "blue") then
         blue_count = blue_count - 1
     end
-    clearListEntry(PlayerIndex)
+    clearPlayerList(PlayerIndex)
 
     -- Deduct player from 'player_count' table.
     removePlayer(PlayerIndex)
@@ -427,7 +440,7 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
-function clearListEntry(PlayerIndex)
+function clearPlayerList(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     for i, v in ipairs(stored_data) do
         if string.match(v, name) then
@@ -462,10 +475,7 @@ function OnPlayerPrespawn(PlayerIndex)
     if (gamestarted == true) then
         local team = players[get_var(PlayerIndex, "$name")].team
         spawnPlayer(PlayerIndex, team)
-
-        execute_command("msg_prefix \"\"")
-        say(PlayerIndex, "You are on " .. team .. " team")
-        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+        rprint(PlayerIndex, "You are on " .. team .. " team")
         --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
     end
 end
@@ -515,53 +525,64 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(Command) == tostring(sort_command)) then
         if hasPermission(PlayerIndex) then
-            local function resetGameParamaters()
-                for i = 1, 16 do
-                    if player_present(i) then
-                        players[get_var(i, "$name")].team = nil
-                        print_countdown[tonumber(i)] = true
-                        clearListEntry(tonumber(i))
+            if (getPlayerCount() >= required_players) then
+                local function resetGameParamaters()
+                    for i = 1, 16 do
+                        if player_present(i) then
+                            players[get_var(i, "$name")].team = nil
+                            hidePreGameCountdown(i)
+                            clearPlayerList(tonumber(i))
+                        end
                     end
+                    blue_count = 0
+                    red_count = 0
+                    gamestarted = false
                 end
-                blue_count = 0
-                red_count = 0
-                gamestarted = false
+                resetGameParamaters()
+                startTimer()
+                rprint(PlayerIndex, "Resetting game parameters...")
+            else
+                rprint(PlayerIndex, "Not enough players!")
             end
-            resetGameParamaters()
-            startTimer()
-            rprint(PlayerIndex, "Resetting game parameters...")
         else
             rprint(PlayerIndex, "Insufficient Permission")
         end
         return false
     elseif (string.lower(Command) == tostring(list_command)) then
         if (gamestarted) and (print_counts[tonumber(PlayerIndex)] == true) then
-            print_counts[tonumber(PlayerIndex)] = false
-            cls(PlayerIndex)
+            hideTeamCounts(PlayerIndex)
             concatValues(PlayerIndex, 1, 2)
             -- concatValues(PlayerIndex, 5,8)
             -- concatValues(PlayerIndex, 9,12)
             -- concatValues(PlayerIndex, 13,16)
-            timer(1000 * 3, "initPrintCounts", PlayerIndex)
+            timer(1000 * 3, "showTeamCounts", PlayerIndex)
         elseif not (gamestarted) then
-            print_countdown[tonumber(PlayerIndex)] = false
+            hidePreGameCountdown(PlayerIndex)
             cls(PlayerIndex)
             rprint(PlayerIndex, "Game is still starting...")
-            timer(1000 * 1, "PrintCountdown", PlayerIndex)
+            timer(1000 * 2, "showPreGameCountdown", PlayerIndex)
         end
         return false
     end
 end
 
-function initPrintCounts(PlayerIndex)
-    cls(PlayerIndex)
+------------------------------------------------------------------
+function showTeamCounts(PlayerIndex)
     print_counts[tonumber(PlayerIndex)] = true
 end
 
-function PrintCountdown(PlayerIndex)
-    cls(PlayerIndex)
+function hideTeamCounts(PlayerIndex)
+    print_counts[tonumber(PlayerIndex)] = false
+end
+
+function showPreGameCountdown(PlayerIndex)
     print_countdown[tonumber(PlayerIndex)] = true
 end
+
+function hidePreGameCountdown(PlayerIndex)
+    print_countdown[tonumber(PlayerIndex)] = false
+end
+------------------------------------------------------------------
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
 
@@ -569,8 +590,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
 
     if (killer ~= -1) and (killer ~= 0) and (killer ~= nil) and (killer > 0) and (victim ~= killer) then
+        local kTeam = players[get_var(killer, "$name")].team
 
-        local killer_team = players[get_var(killer, "$name")].team
         if players[get_var(killer, "$name")].team == "red" then
             SwitchTeam(victim, "red")
             saveTable(get_var(victim, "$name"), "red", true)
@@ -592,45 +613,42 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             gameOver(string.gsub(end_of_game, "%%team%%", "red"), false)
             -- Game is in play | switch player
         elseif (blue_count ~= 0 and red_count ~= 0) then
-            players[get_var(victim, "$name")].team = killer_team
+            players[get_var(victim, "$name")].team = kTeam
         end
 
         if (gamestarted) then
-            local team = players[get_var(victim, "$name")].team
+
             execute_command("msg_prefix \"\"")
-            say_all(get_var(victim, "$name") .. " is now on " .. team .. " team.")
+            say_all(get_var(victim, "$name") .. " is now on " .. kTeam .. " team.")
             execute_command("msg_prefix \" " .. server_prefix .. "\"")
-            setColor(tonumber(victim), team)
+            
+            setColor(tonumber(victim), kTeam)
             --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
         end
     end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex then
+    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted ) then
 
-        local causer_team = players[get_var(CauserIndex, "$name")].team
-        local victim_team = players[get_var(PlayerIndex, "$name")].team
+        local cTeam = players[get_var(CauserIndex, "$name")].team
+        local vTeam = players[get_var(PlayerIndex, "$name")].team
 
-        if (causer_team == victim_team) then
-            execute_command("msg_prefix \"\"")
-            say(CauserIndex, get_var(CauserIndex, "$name") .. ", please don't team shoot!")
-            execute_command("msg_prefix \" " .. server_prefix .. "\"")
-            return false
+        if (cTeam == vTeam) then
+
+            -- Removed comments to use
+            -- hideTeamCounts(CauserIndex)
+            -- rprint(CauserIndex, "|l " .. get_var(CauserIndex, "$name") .. ", please don't team shoot!")
+            -- timer(1000 * 2, "showTeamCounts", CauserIndex)
+            
+            return false -- Return false to prevent team damage
         end
     end
 end
 
-function SwitchTeam(PlayerIndex, team)
+function SwitchTeam(PlayerIndex, Team)
     players[get_var(PlayerIndex, "$name")].team = nil
-    players[get_var(PlayerIndex, "$name")].team = tostring(team)
-end
-
-function gameOver(message, bool)
-    execute_command("msg_prefix \"\"")
-    say_all(message)
-    execute_command("msg_prefix \" " .. server_prefix .. "\"")
-    execute_command("sv_map_next")
+    players[get_var(PlayerIndex, "$name")].team = tostring(Team)
 end
 
 function killPlayer(PlayerIndex, team)
@@ -639,6 +657,7 @@ function killPlayer(PlayerIndex, team)
     if PlayerObject ~= nil then
         destroy_object(PlayerObject)
     end
+    showTeamCounts(PlayerIndex)
 end
 
 function cls(PlayerIndex)
@@ -666,7 +685,10 @@ function setColor(PlayerIndex, team)
     write_byte(player + 0x60, tonumber(color))
 end
 
+function sendToAll(PlayerIndex, Message)
+    
 
+end
 
 -- Player Counts...
 function addPlayer(PlayerIndex)
@@ -740,7 +762,6 @@ function tokenizestring(inputstr, sep)
     end
     return t
 end
-
 
 -- To add a map, simply follow the following format and repeat the structure as needed for each map.
 spawns["mapnamehere"] = {
@@ -1332,3 +1353,17 @@ spawns["wizard"] = {
         { 6.3624663352966, -9.9048795700073, -2.7504394054413 }
     }
 }
+
+function unregisterSAPPEvents(error)
+    unregister_callback(cb['EVENT_TICK'])
+    unregister_callback(cb['EVENT_GAME_END'])
+    unregister_callback(cb['EVENT_JOIN'])
+    unregister_callback(cb['EVENT_LEAVE'])
+    unregister_callback(cb['EVENT_COMMAND'])
+    unregister_callback(cb['EVENT_SPAWN'])
+    unregister_callback(cb['EVENT_PRESPAWN'])
+    unregister_callback(cb['EVENT_DIE'])
+    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+    execute_command("log_note \"" .. string.format('[' .. script_name .. '] ' .. error) .. "\"")
+    cprint(string.format('[' .. script_name .. '] ' .. error), 4 + 8)    
+end
