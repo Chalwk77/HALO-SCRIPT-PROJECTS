@@ -186,10 +186,16 @@ function OnPlayerLeave(PlayerIndex)
     
     if (gamestarted) then
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
-            cprint("Resetting parameters...", 2+8)
             resetAllParameters()
         elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 1)) then
             gameOver(nil, true)
+        end
+    end
+    
+    if not (gamestarted) and (init_countdown == true) then
+        if ((getPlayerCount() ~= nil) and (getPlayerCount() < required_players)) then
+            init_countdown = false
+            countdown = 0
         end
     end
 end
