@@ -134,7 +134,7 @@ end
 
 function OnNewGame()
     if isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support Team Play. \nSupported gamemodes are Slayer, King-Slayer, Race-Slayer and OddBall-Slayer')
+        local error = string.format('[' .. script_name .. '] does not support Team Play.\n\nSupported gamemodes are:\nSlayer, King-Slayer, Race-Slayer and OddBall-Slayer, etc.')
         execute_command("log_note \"" .. error .. "\"")
         cprint(error, 4+8)
         unregister_callback(cb['EVENT_TICK'])
