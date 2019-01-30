@@ -1,20 +1,21 @@
 --[[
 --=====================================================================================================--
-Script Name: Divide & Conquer, for SAPP (PC & CE)
-Description: This game incorporates custom teams for FFA games.
-             The game mechanics are as follows:
-             When you kill someone on the opposing team, the victim is switched to your team. 
-             The main objective is to dominate the opposing team.
-             When the aforementioned opposing team has no players left the game is over.
-             
-             * Bonus Features:
-             - Custom team colours
-             - /list command
-             - /sort command
+Script Name: Divide & Conquer (V1), for SAPP (PC & CE)
 
-             [!] WARNING: This game is in BETA and may contains bugs.
-                          Please report all bugs on my gighub...
-                          https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
+#Description: This version of Divide & Conquer incorporates CUSTOM TEAMS for FFA games: Slayer, King-Slayer, Race-Slayer and OddBall-Slayer, etc.
+              The game mechanics are as follows:
+              When you kill someone on the opposing team, the victim is switched to your team. 
+              The main objective is to dominate the opposing team.
+              When the aforementioned opposing team has no players left the game is over.
+             
+#Bonus Features:
+    - Editable custom team colors (see lines 90 & 91)
+    - /list command (list all players and their respective teams)
+    - /sort command (Reset all game parameters and initializes the pre-game countdown)
+
+[!] WARNING: This game is in BETA and may have bugs.
+    Please report all problems on gighub.
+    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -134,7 +135,7 @@ end
 
 function OnNewGame()
     if isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support Team Play. Support gametypes are FFA')
+        local error = string.format('[' .. script_name .. '] does not support Team Play. \nSupported gamemodes are Slayer, King-Slayer, Race-Slayer and OddBall-Slayer')
         execute_command("log_note \"" .. error .. "\"")
         cprint(error, 4+8)
         unregister_callback(cb['EVENT_TICK'])
