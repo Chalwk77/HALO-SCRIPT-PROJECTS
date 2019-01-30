@@ -99,11 +99,11 @@ function OnTick()
         timeRemaining = delay - math.floor(seconds)
 
         -- Pre-Game message.
-        for i = 1, 16 do
-            if (player_present(i) and not gamestarted) then
-                cls(i)
+        for j = 1, 16 do
+            if (player_present(j) and not gamestarted) then
+                cls(j)
                 local preGameMessage = string.gsub(pre_game_message, "%%time_remaining%%", tonumber(timeRemaining))
-                rprint(i, preGameMessage)
+                rprint(j, preGameMessage)
             end
         end
 
@@ -111,19 +111,10 @@ function OnTick()
         if (timeRemaining <= 0) then
             gamestarted = true
             stopTimer()
-            for j = 1, 16 do
-                if player_present(j) then
-                    killPlayer(tonumber(j))
-                    if (get_var(j, "$team") == "red") then
-                        red_count = red_count + 1
-                    elseif (get_var(j, "$team") == "blue") then
-                        blue_count = blue_count + 1
-                    end
-                    rprint(j, "The game has begun")
-                    execute_command("score " .. j .. " 0")
-                    execute_command("kills " .. j .. " 0")
-                    execute_command("deaths " .. j .. " 0")
-                    execute_command("assists " .. j .. " 0")
+            for k = 1, 16 do
+                if player_present(k) then
+                    sortPlayers(k)
+                    rprint(k, "The game has begun")
                 end
             end
         end
@@ -139,8 +130,22 @@ function OnNewGame()
             local error = 'variable "required_players" cannot be less than 3!'
             unregisterSAPPEvents(error)
         else
-            -- resetAllParameters() | Ensures all parameters are set to their default values.
             resetAllParameters()
+            local function oddOrEven(Min, Max)
+                math.randomseed(os.time())
+                math.random();
+                local num = math.random(Min, Max)
+                if (num) then
+                    return num
+                end
+            end
+            if (oddOrEven(1, 2) % 2 == 0) then
+                -- Number is even
+                useEvenNumbers = true
+            else
+                -- Number is odd
+                useEvenNumbers = false
+            end
         end
     end
 end
@@ -413,6 +418,59 @@ function getPlayerCount()
         end
     end
     return count
+end
+
+function sortPlayers(PlayerIndex)
+    if (gamestarted) then
+        if (useEvenNumbers == true) then
+            if (tonumber(PlayerIndex) % 2 == 0) then
+                setTeam(PlayerIndex, "blue")
+            else
+                setTeam(PlayerIndex, "red")
+            end
+        else
+            if (tonumber(PlayerIndex) % 2 == 0) then
+                setTeam(PlayerIndex, "red")
+            else
+                setTeam(PlayerIndex, "blue")
+            end
+        end
+    end
+end
+
+function setTeam(PlayerIndex, team)
+    
+    deleteWeapons(PlayerIndex)
+    local PlayerObject = get_dynamic_player(PlayerIndex)
+    if (PlayerObject ~= 0) then
+        write_word(PlayerObject + 0x31E, 0)
+        write_word(PlayerObject + 0x31F, 0)
+    end
+    
+    killPlayer(PlayerIndex)
+    SwitchTeam(tonumber(PlayerIndex), tostring(team))
+    
+    if team == "red" then
+        red_count = red_count + 1
+    elseif team == "blue" then
+        blue_count = blue_count + 1
+    end
+    
+    execute_command("score " .. PlayerIndex .. " 0")
+    execute_command("kills " .. PlayerIndex .. " 0")
+    execute_command("deaths " .. PlayerIndex .. " 0")
+    execute_command("assists " .. PlayerIndex .. " 0")
+end
+
+function deleteWeapons(PlayerIndex)
+    local PlayerObject = get_dynamic_player(PlayerIndex)
+    local WeaponID = read_dword(PlayerObject + 0x118)
+    if WeaponID ~= 0 then
+        for j = 0, 3 do
+            local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
+            destroy_object(ObjectID)
+        end
+    end
 end
 
 function unregisterSAPPEvents(error)
