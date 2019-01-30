@@ -110,7 +110,7 @@ red_count = 0
 blue_count = 0
 
 first_start = nil
-script_name = "Team Conquer (FFA)"
+script_name = "Divide & Conquer V1"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
