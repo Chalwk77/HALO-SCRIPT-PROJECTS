@@ -9,11 +9,6 @@ Script Name: Divide & Conquer (V2), for SAPP (PC & CE)
               When you kill someone on the opposing team, the victim is switched to your team. 
               The main objective is to dominate the opposing team.
               When the aforementioned opposing team has no players left the game is over.
-             
-#Bonus Features:
-    - Editable custom team colors (see lines 90 & 91)
-    - /list command (list all players and their respective teams)
-    - /sort command (Reset all game parameters and initializes the pre-game countdown)
 
 [!] WARNING: This game is in BETA and may have bugs.
     Please report all problems on gighub.
