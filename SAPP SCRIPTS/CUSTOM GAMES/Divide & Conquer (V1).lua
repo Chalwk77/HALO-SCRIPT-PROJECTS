@@ -181,13 +181,15 @@ function OnGameEnd()
 end
 
 function gameOver(message)
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             cls(i)
             rprint(i, "|c ======================================")
             rprint(i, "|c " .. message)
             rprint(i, "|c ======================================")
-            for _ = 1,10 do rprint(i, " ") end
+            for _ = 1, 10 do
+                rprint(i, " ")
+            end
         end
     end
     execute_command("sv_map_next")
@@ -329,17 +331,16 @@ function OnPlayerJoin(PlayerIndex)
         -- Show pre-game countdown to this player
         showPreGameCountdown(PlayerIndex)
     end
-    
+
     if (first_start == true) and (getPlayerCount() >= required_players) then
         first_start = false
         startTimer()
     end
 
-    
     if (getPlayerCount() >= 1 and getPlayerCount() < required_players) then
         print_nep = true
     end
-    
+
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].team = nil
 
@@ -621,7 +622,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             execute_command("msg_prefix \"\"")
             say_all(get_var(victim, "$name") .. " is now on " .. kTeam .. " team.")
             execute_command("msg_prefix \" " .. server_prefix .. "\"")
-            
+
             setColor(tonumber(victim), kTeam)
             --cprint(get_var(victim, "$name") .. " is now on " .. team .. " team.")
         end
@@ -629,7 +630,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted ) then
+    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
 
         local cTeam = players[get_var(CauserIndex, "$name")].team
         local vTeam = players[get_var(PlayerIndex, "$name")].team
@@ -640,7 +641,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             -- hideTeamCounts(CauserIndex)
             -- rprint(CauserIndex, "|l " .. get_var(CauserIndex, "$name") .. ", please don't team shoot!")
             -- timer(1000 * 2, "showTeamCounts", CauserIndex)
-            
+
             return false -- Return false to prevent team damage
         end
     end
@@ -686,7 +687,7 @@ function setColor(PlayerIndex, team)
 end
 
 function sendToAll(PlayerIndex, Message)
-    
+
 
 end
 
@@ -1365,5 +1366,5 @@ function unregisterSAPPEvents(error)
     unregister_callback(cb['EVENT_DIE'])
     unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
     execute_command("log_note \"" .. string.format('[' .. script_name .. '] ' .. error) .. "\"")
-    cprint(string.format('[' .. script_name .. '] ' .. error), 4 + 8)    
+    cprint(string.format('[' .. script_name .. '] ' .. error), 4 + 8)
 end
