@@ -30,7 +30,7 @@ api_version = "1.11.0.0"
 
 -- #Countdown delay (in seconds)
 -- This is a pre-game-start countdown initiated at the beginning of each game.
-delay = 5
+delay = 7
 
 -- #End of Game message (%team% will be replaced with the winning team)
 end_of_game = "The %team% team won!"
@@ -58,7 +58,10 @@ list_command = "list"
 message_alignment = "l"
 
 -- Numbers of players required to set the game in motion.
-required_players = 1
+required_players = 3
+
+-- Continuous message emitted when there aren't enough players.
+not_enough_players = "The game will begin when %required_players% or more players are online."
 
 -- #Team Colors
 --[[
@@ -107,6 +110,7 @@ red_count = 0
 blue_count = 0
 
 first_start = nil
+script_name = "Team Conquer (FFA)"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -129,22 +133,37 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    local function oddOrEven(Min, Max)
-        math.randomseed(os.time())
-        math.random();
-        local num = math.random(Min, Max)
-        if (num) then
-            return num
-        end
-    end
-    if (oddOrEven(1, 1000) % 2 == 0) then
-        -- Number is even
-        useEvenNumbers = true
+    if isTeamPlay() then
+        local error = string.format('[' .. script_name .. '] does not support Team Play. Support gametypes are FFA')
+        execute_command("log_note \"" .. error .. "\"")
+        cprint(error, 4+8)
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_PRESPAWN'])
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
     else
-        -- Number is odd
-        useEvenNumbers = false
+        local function oddOrEven(Min, Max)
+            math.randomseed(os.time())
+            math.random();
+            local num = math.random(Min, Max)
+            if (num) then
+                return num
+            end
+        end
+        if (oddOrEven(1, 1000) % 2 == 0) then
+            -- Number is even
+            useEvenNumbers = true
+        else
+            -- Number is odd
+            useEvenNumbers = false
+        end
+        first_start = true
     end
-    first_start = true
 end
 
 function OnGameEnd()
@@ -171,6 +190,18 @@ function OnGameEnd()
 end
 
 function OnTick()
+    
+    -- # Continuous message emitted when there aren't enough players to start the game.
+    for i = 1, 16 do
+        if (player_present(i) and not gamestarted) then 
+            if (getPlayerCount() ~= nil) and (getPlayerCount() < required_players) then
+                cls(i)
+                local notEnoughPlayers = string.gsub(not_enough_players, "%%required_players%%", tonumber(required_players))
+                rprint(i, notEnoughPlayers)
+            end
+        end
+    end
+    
     if (init_countdown == true) then
         countdown = countdown + 0.030
         
@@ -195,6 +226,7 @@ function OnTick()
                 if (player_present(j)) then
                     cls(j)
                     print_countdown[tonumber(j)] = false
+                    rprint(j, "The game has begun")
                 end
             end
             --cprint("The game has begun!", 2 + 8)
@@ -253,7 +285,7 @@ end
 
 -- Sorts players into teams of two
 function sortPlayers()
-    if (isTeamPlay() == false) and (gamestarted) then
+    if (gamestarted) then
         for i = 1, 16 do
             if player_present(i) then
                 if (useEvenNumbers == true) then
@@ -271,8 +303,6 @@ function sortPlayers()
                 end
             end
         end
-    else
-        -- do nothing [for now]
     end
 end
 
@@ -297,63 +327,79 @@ function OnPlayerJoin(PlayerIndex)
         startTimer()
     end
     
-    if not isTeamPlay() then
-        print_countdown[tonumber(PlayerIndex)] = true
-        players[get_var(PlayerIndex, "$name")] = { }
-        players[get_var(PlayerIndex, "$name")].team = nil
+    print_countdown[tonumber(PlayerIndex)] = true
+    players[get_var(PlayerIndex, "$name")] = { }
+    players[get_var(PlayerIndex, "$name")].team = nil
 
-        -- Only sort player into new team if the game has already started...
-        if (gamestarted == true) then
-            -- Red team has less players (join this team)
-            if (red_count < blue_count) then
-                players[get_var(PlayerIndex, "$name")].team = "red"
+    -- Only sort player into new team if the game has already started...
+    if (gamestarted == true) then
+        -- Red team has less players (join this team)
+        if (red_count < blue_count) then
+            players[get_var(PlayerIndex, "$name")].team = "red"
+            red_count = red_count + 1
+            saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
+            setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
+            -- Blue team has less players (join this team)
+        elseif (blue_count < red_count) then
+            players[get_var(PlayerIndex, "$name")].team = "blue"
+            blue_count = blue_count + 1
+            saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
+            setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
+            -- Teams are even | Choose random team.
+        elseif (blue_count == red_count) then
+            local new_team = pickRandomTeam()
+            players[get_var(PlayerIndex, "$name")].team = new_team
+            setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
+            saveTable(get_var(PlayerIndex, "$name"), new_team)
+            if (new_team == "red") then
                 red_count = red_count + 1
-                saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
-                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
-                -- Blue team has less players (join this team)
-            elseif (blue_count < red_count) then
-                players[get_var(PlayerIndex, "$name")].team = "blue"
+            elseif (new_team == "blue") then
                 blue_count = blue_count + 1
-                saveTable(get_var(PlayerIndex, "$name"), players[get_var(PlayerIndex, "$name")].team)
-                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
-                -- Teams are even
-            elseif (blue_count == red_count) then
-                local new_team = pickRandomTeam()
-                players[get_var(PlayerIndex, "$name")].team = new_team
-                setColor(tonumber(PlayerIndex), players[get_var(PlayerIndex, "$name")].team)
-                saveTable(get_var(PlayerIndex, "$name"), new_team)
-                if (new_team == "red") then
-                    red_count = red_count + 1
-                elseif (new_team == "blue") then
-                    blue_count = blue_count + 1
-                end
             end
-            print_counts[tonumber(PlayerIndex)] = true
         end
+        print_counts[tonumber(PlayerIndex)] = true
     end
 end
 
 function OnPlayerLeave(PlayerIndex)
     local team = players[get_var(PlayerIndex, "$name")].team
+    
     if (team == "red") then
         red_count = red_count - 1
     elseif (team == "blue") then
         blue_count = blue_count - 1
     end
     clearListEntry(PlayerIndex)
+    
+    -- Deduct player from 'player_count' table.
     removePlayer(PlayerIndex)
+    
     if (gamestarted) then
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
             local function resetGameParamaters()
             for i = 1, 16 do
-                players[get_var(PlayerIndex, "$name")].team = nil
+                players[get_var(i, "$name")].team = nil
                 print_countdown[i] = false
             end
             blue_count = 0
             red_count = 0
             gamestarted = false
             end
+             -- Ensures all parameters are set to their default values.
             resetGameParamaters()
+        elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 1)) then
+            gameOver(nil, true)
+        end
+    end
+    
+    -- Pre-Game countdown was initiated but someone left before the game began.
+    -- Stop the timer, reset the count and display the continuous 
+    -- message emitted when there aren't enough players to start the game.
+    if not (gamestarted) and (init_countdown == true) then
+        if ((getPlayerCount() ~= nil) and (getPlayerCount() < required_players)) then
+            init_countdown = false
+            countdown = 0
+            first_start = true
         end
     end
 end
@@ -390,16 +436,14 @@ function isTeamPlay()
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    if not isTeamPlay() then
-        if (gamestarted == true) then
-            local team = players[get_var(PlayerIndex, "$name")].team
-            spawnPlayer(PlayerIndex, team)
+    if (gamestarted == true) then
+        local team = players[get_var(PlayerIndex, "$name")].team
+        spawnPlayer(PlayerIndex, team)
 
-            execute_command("msg_prefix \"\"")
-            say(PlayerIndex, "You are on " .. team .. " team")
-            execute_command("msg_prefix \" " .. server_prefix .. "\"")
-            --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
-        end
+        execute_command("msg_prefix \"\"")
+        say(PlayerIndex, "You are on " .. team .. " team")
+        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+        --cprint(get_var(PlayerIndex, "$name") .. " is now on " .. team .. " team.")
     end
 end
 
@@ -519,12 +563,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
         -- No one left on RED team. | BLUE Team Wins
         if (red_count == 0 and blue_count >= 1) then
-            local message = string.gsub(end_of_game, "%%team%%", "blue")
-            gameOver(message)
+            gameOver(string.gsub(end_of_game, "%%team%%", "blue"), false)
             -- No one left on BLUE team. | RED Team Wins
         elseif (blue_count == 0 and red_count >= 1) then
-            local message = string.gsub(end_of_game, "%%team%%", "red")
-            gameOver(message)
+            gameOver(string.gsub(end_of_game, "%%team%%", "red"), false)
             -- Game is in play | switch player
         elseif (blue_count ~= 0 and red_count ~= 0) then
             players[get_var(victim, "$name")].team = killer_team
@@ -561,12 +603,16 @@ function SwitchTeam(PlayerIndex, team)
     players[get_var(PlayerIndex, "$name")].team = tostring(team)
 end
 
-function gameOver(message)
-    gamestarted = false
-    execute_command("msg_prefix \"\"")
-    say_all(message)
-    execute_command("msg_prefix \" " .. server_prefix .. "\"")
-    execute_command("sv_map_next")
+function gameOver(message, bool)
+    if not (bool) and (message) then
+        gamestarted = false
+        execute_command("msg_prefix \"\"")
+        say_all(message)
+        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+        execute_command("sv_map_next")
+    else
+        timer(1000 * 1, "delayEndGame")
+    end
 end
 
 function killPlayer(PlayerIndex, team)
