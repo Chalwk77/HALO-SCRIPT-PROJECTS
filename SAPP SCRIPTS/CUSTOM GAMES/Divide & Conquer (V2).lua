@@ -1,15 +1,24 @@
 --[[
 --=====================================================================================================--
-Script Name: Divide & Conquer, for SAPP (PC & CE)
-Description: The game mechanics are as follows:
+Script Name: Divide & Conquer (V2), for SAPP (PC & CE)
 
-             When you kill someone on the opposing team, the victim is switched to your team.
-             The main objective is to 'dominate' the opposing team.
-             When the aforementioned opposing team has no players left the game is over.
+#Description: This version of Divide & Conquer is exactly the same as Divide & Conquer V1,
+              however, it relies on Halo's built in team-management system and SAPP's auto team balance. 
+              It is compatible with all Team-Based games: CTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall, etc.
+              
+              The game mechanics are as follows:
+              When you kill someone on the opposing team, the victim is switched to your team. 
+              The main objective is to dominate the opposing team.
+              When the aforementioned opposing team has no players left the game is over.
+             
+#Bonus Features:
+    - Editable custom team colors (see lines 90 & 91)
+    - /list command (list all players and their respective teams)
+    - /sort command (Reset all game parameters and initializes the pre-game countdown)
 
-             [!] WARNING: This game is in BETA and may have bugs.
-                          Please report all problems on gighub.
-                          https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
+[!] WARNING: This game is in BETA and may have bugs.
+    Please report all problems on gighub.
+    https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -34,7 +43,7 @@ pre_game_message = "Game will begin in %time_remaining% seconds"
 end_of_game = "The %team% team won!"
 
 -- #Server Prefix
-server_prefix = "»L§R« "
+server_prefix = "SERVER "
 
 -- #Numbers of players required to set the game in motion.
 required_players = 3
@@ -125,7 +134,7 @@ end
 
 function OnNewGame()
     if not isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support FFA. Support gametypes are CTF, Team-Slayer, Team-Race, Team-KOTH, Team-OddBall')
+        local error = string.format('[' .. script_name .. '] does not support FFA. \nSupported gamemodes are CTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall')
         execute_command("log_note \"" .. error .. "\"")
         cprint(error, 4+8)
         unregister_callback(cb['EVENT_TICK'])
