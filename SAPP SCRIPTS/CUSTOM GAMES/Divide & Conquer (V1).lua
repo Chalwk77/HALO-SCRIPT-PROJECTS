@@ -1,7 +1,6 @@
 --[[
 --=====================================================================================================--
 Script Name: Divide & Conquer (V1), for SAPP (PC & CE)
-
 #Description: This version of Divide & Conquer incorporates CUSTOM TEAMS for FFA games: Slayer, King-Slayer, Race-Slayer and OddBall-Slayer, etc.
               The game mechanics are as follows:
               When you kill someone on the opposing team, the victim is switched to your team. 
