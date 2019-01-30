@@ -1,8 +1,15 @@
 --[[
 --=====================================================================================================--
 Script Name: Divide & Conquer, for SAPP (PC & CE)
-Description: N/A
+Description: The game mechanics are as follows:
 
+             When you kill someone on the opposing team, the victim is switched to your team.
+             The main objective is to 'dominate' the opposing team.
+             When the aforementioned opposing team has no players left the game is over.
+
+             [!] WARNING: This game is in BETA and may have bugs.
+                          Please report all problems on gighub.
+                          https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
              
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -32,22 +39,22 @@ server_prefix = "»L§R« "
 -- #Numbers of players required to set the game in motion.
 required_players = 3
 
--- #Respawn time
+-- Continuous message emitted when there aren't enough players.
+not_enough_players = "The game will begin when %required_players% or more players are online."
+
+-- #Respawn time (override)
 -- When enabled, players who are killed by the opposing team will respawn immediately.
 respawn_override = true
 respawn_time = 0 -- In seconds (0 = immediate)
 
-
--- Continuous message emitted when there aren't enough players.
-not_enough_players = "The game will begin when %required_players% or more players are online."
 -- Configuration [ends] << ----------
 
 
 -- tables --
 player_count = {}
-
 -- Booleans
 gamestarted = nil
+-- Counts
 red_count = 0
 blue_count = 0
 
@@ -65,12 +72,12 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    --
 end
 
 function OnTick()
     
-    -- # Continuous message emitted when ther aren't enough players to start the game.
+    -- # Continuous message emitted when there aren't enough players to start the game.
     for i = 1, 16 do
         if (player_present(i) and not gamestarted) then 
             if (getPlayerCount() ~= nil) and (getPlayerCount() < required_players) then
@@ -96,6 +103,7 @@ function OnTick()
             end
         end
         
+        -- Stop the countdown and begin the game...
         if (timeRemaining <= 0) then
             gamestarted = true
             stopTimer()
@@ -115,13 +123,16 @@ function OnTick()
 end
 
 function OnNewGame()
+    -- resetAllParameters() | Ensures all parameters are set to their default values.
     resetAllParameters()
 end
 
 function OnGameEnd()
+    -- resetAllParameters() | Ensures all parameters are set to their default values.
     resetAllParameters()
 end
 
+-- #This function all parameters are set to their default values.
 function resetAllParameters()
     gamestarted = false
     for i = 1,16 do
@@ -149,7 +160,7 @@ function OnPlayerJoin(PlayerIndex)
             SwitchTeam(PlayerIndex, "blue")
             blue_count = blue_count + 1
             
-            -- Teams are even
+            -- Teams are even | Choose random team.
         elseif (blue_count == red_count) then
             local function pickRandomTeam()
                 math.randomseed(os.time())
@@ -177,21 +188,28 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     local team = get_var(PlayerIndex, "$team")
+    
     if (team == "red") then
         red_count = red_count - 1
     elseif (team == "blue") then
         blue_count = blue_count - 1
     end
+    
+    -- Deduct player from 'player_count' table.
     removePlayer(tonumber(PlayerIndex))
     
     if (gamestarted) then
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
+            -- Ensures all parameters are set to their default values.
             resetAllParameters()
         elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 1)) then
             gameOver(nil, true)
         end
     end
     
+    -- Pre-Game countdown was initiated but someone left before the game began.
+    -- Stop the timer, reset the count and display the continuous 
+    -- message emitted when there aren't enough players to start the game.
     if not (gamestarted) and (init_countdown == true) then
         if ((getPlayerCount() ~= nil) and (getPlayerCount() < required_players)) then
             init_countdown = false
@@ -257,14 +275,17 @@ function killPlayer(PlayerIndex)
 end
 
 function SwitchTeam(PlayerIndex, team)
+    -- Temporarily disables default death messages (to prevent "Player Died" message).
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
     original = read_dword(kill_message_addresss)
     safe_write(true)
     write_dword(kill_message_addresss, 0x03EB01B1)
     safe_write(false)
     
+    -- Switch player to relevant team
     execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
     
+    -- Re enables default death messages
     safe_write(true)
     write_dword(kill_message_addresss, original)
     safe_write(false)
