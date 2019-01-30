@@ -28,7 +28,7 @@ api_version = "1.11.0.0"
 
 -- #Countdown delay (in seconds)
 -- This is a pre-game-start countdown initiated at the beginning of each game.
-delay = 7
+delay = 5
 
 -- #Pre Game message
 pre_game_message = "Game will begin in %time_remaining% seconds"
@@ -128,18 +128,16 @@ end
 
 function OnNewGame()
     if not isTeamPlay() then
-        local error = string.format('[' .. script_name .. '] does not support FFA.\n\nSupported gamemodes are:\nCTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall, etc.')
-        execute_command("log_note \"" .. error .. "\"")
-        cprint(error, 4 + 8)
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_GAME_END'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_DIE'])
-        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+        local error = 'does not support FFA.\n\nSupported gamemodes are:\nCTF, Team-Slayer, Team-Race, Team-KOTH and Team-OddBall, etc.'
+        unregisterSAPPEvents(error)
     else
-        -- resetAllParameters() | Ensures all parameters are set to their default values.
-        resetAllParameters()
+        if tonumber(required_players) < 3 then
+            local error = 'variable "required_players" cannot be less than 3!'
+            unregisterSAPPEvents(error)
+        else
+            -- resetAllParameters() | Ensures all parameters are set to their default values.
+            resetAllParameters()
+        end
     end
 end
 
@@ -305,9 +303,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex then
-        if (get_var(CauserIndex, "$team") == get_var(PlayerIndex, "$team")) then
-            return false
+    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
+
+        local cTeam = get_var(CauserIndex, "$team")
+        local vTeam = get_var(PlayerIndex, "$team")
+
+        if (cTeam == vTeam) then
+            -- Removed comments to use
+            -- rprint(CauserIndex, "|l " .. get_var(CauserIndex, "$name") .. ", please don't team shoot!")
+            return false -- Return false to prevent team damage
         end
     end
 end
@@ -405,4 +409,16 @@ function getPlayerCount()
         end
     end
     return count
+end
+
+function unregisterSAPPEvents(error)
+    unregister_callback(cb['EVENT_TICK'])
+    unregister_callback(cb['EVENT_GAME_END'])
+    unregister_callback(cb['EVENT_JOIN'])
+    unregister_callback(cb['EVENT_LEAVE'])
+    unregister_callback(cb['EVENT_DIE'])
+    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+
+    execute_command("log_note \"" .. string.format('[' .. script_name .. '] ' .. error) .. "\"")
+    cprint(string.format('[' .. script_name .. '] ' .. error), 4 + 8)
 end
