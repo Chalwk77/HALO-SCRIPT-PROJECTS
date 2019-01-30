@@ -232,6 +232,10 @@ function OnTick()
                 if (player_present(j)) then
                     cls(j)
                     hidePreGameCountdown(j)
+                    execute_command("score " .. j .. " 0")
+                    execute_command("kills " .. j .. " 0")
+                    execute_command("deaths " .. j .. " 0")
+                    execute_command("assists " .. j .. " 0")
                 end
             end
             --cprint("The game has begun!", 2 + 8)
