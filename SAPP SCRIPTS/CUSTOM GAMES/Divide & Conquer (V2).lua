@@ -282,6 +282,7 @@ function OnPlayerLeave(PlayerIndex)
         if ((getPlayerCount() ~= nil) and (getPlayerCount() < required_players)) then
             init_countdown = false
             countdown = 0
+            print_nep = true
         end
     end
 end
@@ -394,6 +395,7 @@ function stopTimer()
     --cprint("stopTimer() | called", 2+8)
     countdown = 0
     init_countdown = false
+    print_nep = false
     for i = 1, 16 do
         if player_present(i) then
             cls(i)
