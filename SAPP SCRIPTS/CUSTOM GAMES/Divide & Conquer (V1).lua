@@ -58,10 +58,10 @@ list_command = "list"
 message_alignment = "l"
 
 -- Numbers of players required to set the game in motion.
-required_players = 3
+required_players = 6
 
 -- Continuous message emitted when there aren't enough players.
-not_enough_players = "The game will begin when %required_players% or more players are online."
+not_enough_players = "%current_players%/%required_players% players needed to start the game"
 
 -- #Team Colors
 --[[
@@ -202,12 +202,18 @@ function OnTick()
         if (player_present(i) and (print_nep == true) and not (gamestarted)) then
             if (getPlayerCount() ~= nil) and (getPlayerCount() < required_players) then
                 cls(i)
-                local notEnoughPlayers = string.gsub(not_enough_players, "%%required_players%%", tonumber(required_players))
-                rprint(i, notEnoughPlayers)
+                local function formatMessage(String)
+                    String = string.gsub(String, "%%current_players%%", tonumber(getPlayerCount()))
+                    String = string.gsub(String, "%%required_players%%", tonumber(required_players))
+                    return String
+                end
+                local message = formatMessage(not_enough_players)
+                rprint(i, message)
             end
         end
     end
-
+    
+    
     if (init_countdown == true) then
         countdown = countdown + 0.030
 
