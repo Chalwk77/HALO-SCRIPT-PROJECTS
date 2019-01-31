@@ -40,7 +40,7 @@ end_of_game = "The %team% team won!"
 server_prefix = "SERVER "
 
 -- #Numbers of players required to set the game in motion.
-required_players = 3
+required_players = 6
 
 -- Continuous message emitted when there aren't enough players.
 not_enough_players = "%current_players%/%required_players% players needed to start the game"
