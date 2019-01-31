@@ -40,7 +40,7 @@ end_of_game = "The %team% team won!"
 server_prefix = "SERVER "
 
 -- #Numbers of players required to set the game in motion.
-required_players = 6
+required_players = 3
 
 -- Continuous message emitted when there aren't enough players.
 not_enough_players = "%current_players%/%required_players% players needed to start the game"
@@ -245,8 +245,8 @@ function OnPlayerLeave(PlayerIndex)
     removePlayer(tonumber(PlayerIndex))
 
     if (gamestarted) then
+        -- Ensures all parameters are set to their default values.
         if ((getPlayerCount() == nil) or (getPlayerCount() <= 0)) then
-            -- Ensures all parameters are set to their default values.
             resetAllParameters()
             -- One player remains | ends the game.
         elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 1)) then
@@ -259,18 +259,12 @@ function OnPlayerLeave(PlayerIndex)
                     end
                 end
             end
-            -- Checks if the remaining players are both on the same team | ends the game.
-        elseif ((getPlayerCount() ~= nil) and (getPlayerCount() == 2)) then
-            for i = 1, 16 do
-                if (tonumber(i) ~= tonumber(PlayerIndex)) then
-                    if player_present(i) then
-                        local team = get_var(i, "$team")
-                        if (team == "red" and team ~= "blue") or (team == "blue" and team ~= "red") then
-                            gameOver(string.gsub(end_of_game, "%%team%%", team))
-                            break
-                        end
-                    end
-                end
+            -- Checks if the remaining players are on the same team | ends the game.
+        elseif (getPlayerCount() ~= nil) then 
+            if (blue_count <= 0 and red_count >= 1) then
+                gameOver(string.gsub(end_of_game, "%%team%%", "red"))
+            elseif (red_count <= 0 and blue_count >= 1) then
+                gameOver(string.gsub(end_of_game, "%%team%%", "blue"))
             end
         end
     end
