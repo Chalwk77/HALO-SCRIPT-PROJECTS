@@ -421,7 +421,12 @@ function addPlayer(PlayerIndex)
 end
 
 function removePlayer(PlayerIndex)
-    table.remove(player_count, tonumber(PlayerIndex))
+    for i, v in ipairs(player_count) do
+        if string.match(v, tonumber(PlayerIndex)) then
+            table.remove(player_count, i)
+            break
+        end
+    end
 end
 
 function getPlayerCount()
