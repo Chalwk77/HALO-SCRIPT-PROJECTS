@@ -684,6 +684,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             response = false
                         end
                     end
+                    break
                 end
             end
         end
