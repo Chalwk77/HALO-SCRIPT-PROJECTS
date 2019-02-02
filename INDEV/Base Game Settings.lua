@@ -21,7 +21,7 @@ settings = {
             prefix = "[ADMIN CHAT]",
             restore_previous_state = true,
             environment = "rcon",
-            message_format = "%prefix% %sender_name% [%index%] %message%"
+            message_format = {"%prefix% %sender_name% [%index%] %message%"}
         },
         ["Chat IDs"] = {
             enabled = true,
@@ -588,40 +588,39 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
             if not data:match(message[1]) then
                 local function ChatHandler(PlayerIndex, Message)
-                    for b = 0, #message do
-                        if message[b] then
-                            if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
-                                local function SendToTeam(Message, PlayerIndex)
-                                    for i = 1, 16 do
-                                        if player_present(i) then
-                                            if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                                local TeamMessageFormat = settings.mod["Chat IDs"].team_format[1]
-                                                for k, v in pairs(settings.mod["Chat IDs"].team_format) do
-                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%sender_name%%", name)
-                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%index%%", id)
-                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%message%%", Message)
-                                                    execute_command("msg_prefix \"\"")
-                                                    say(i, TeamMessageFormat)
-                                                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                                    response = false
-                                                end
-
-                                            end
-                                        end
-                                    end
-                                end
-                                local function SendToAll(Message)
-                                    local GlobalMessageFormat = settings.mod["Chat IDs"].global_format[1]
-                                    for k, v in pairs(settings.mod["Chat IDs"].global_format) do
-                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%sender_name%%", name)
-                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%index%%", id)
-                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%message%%", Message)
+                    local function SendToTeam(Message, PlayerIndex)
+                        for i = 1, 16 do
+                            if player_present(i) then
+                                if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
+                                    local TeamMessageFormat = settings.mod["Chat IDs"].team_format[1]
+                                    for k, v in pairs(settings.mod["Chat IDs"].team_format) do
+                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%sender_name%%", name)
+                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%index%%", id)
+                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%message%%", Message)
                                         execute_command("msg_prefix \"\"")
-                                        say_all(GlobalMessageFormat)
+                                        say(i, TeamMessageFormat)
                                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                         response = false
                                     end
                                 end
+                            end
+                        end
+                    end
+                    local function SendToAll(Message)
+                        local GlobalMessageFormat = settings.mod["Chat IDs"].global_format[1]
+                        for k, v in pairs(settings.mod["Chat IDs"].global_format) do
+                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%sender_name%%", name)
+                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%index%%", id)
+                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%message%%", Message)
+                            execute_command("msg_prefix \"\"")
+                            say_all(GlobalMessageFormat)
+                            execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                            response = false
+                        end
+                    end
+                    for b = 0, #message do
+                        if message[b] then
+                            if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
                                 if (GetTeamPlay() == true) then
                                     if (type == 0 or type == 2) then
                                         SendToAll(Message)
@@ -634,6 +633,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             else
                                 response = true
                             end
+                            break
                         end
                     end
                 end
@@ -673,18 +673,15 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                         response = true
                     else
-
-                        local MessageFormat = settings.mod["Admin Chat"].message_format
-                        for k, v in pairs(MessageFormat) do
-                            for j = 1, #MessageFormat do
-                                local prefix = settings.mod["Admin Chat"].prefix
-                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%prefix%%", prefix)
-                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%sender_name%%", name)
-                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%index%%", id)
-                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%message%%", Message)
-                                AdminChat(MessageFormat[j])
-                                response = false
-                            end
+                        local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
+                        for k, v in pairs(settings.mod["Admin Chat"].message_format) do
+                            local prefix = settings.mod["Admin Chat"].prefix
+                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%prefix%%", prefix)
+                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%sender_name%%", name)
+                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%index%%", id)
+                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%message%%", Message)
+                            AdminChat(AdminMessageFormat)
+                            response = false
                         end
                     end
                 end
