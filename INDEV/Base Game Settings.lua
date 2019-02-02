@@ -20,12 +20,18 @@ settings = {
             permission_level = 1,
             prefix = "[ADMIN CHAT]",
             restore_previous_state = true,
-            Format = "rcon"
+            environment = "rcon",
+            message_format = {"%prefix% %sender_name% [%index%] %message%"}
         },
         ["Chat IDs"] = {
             enabled = true,
-            global_format = "%sender_name% [%index%]: %message%",
-            team_format = "[%sender_name%] [%index%]: %message%",
+            global_format = {"%sender_name% [%index%]: %message%"},
+            team_format = {"[%sender_name%] [%index%]: %message%"},
+            -- For a future update
+            trial_moderator = {"[T-MOD] [%sender_name%] [%index%]: %message%"},
+            moderator = {"[MOD] [%sender_name%] [%index%]: %message%"},
+            admin = {"[ADMIN] [%sender_name%] [%index%]: %message%"},
+            senior_admin = {"[S-ADMIN] [%sender_name%] [%index%]: %message%"},
             ignore_list = {
                 "skip", 
                 "rtv"
@@ -85,6 +91,7 @@ settings = {
         }
     },
     global = {
+        server_prefix = "**SERVER**",
         player_data = {
             "Player: %name%",
             "CD Hash: %hash%",
@@ -401,10 +408,10 @@ function OnPlayerJoin(PlayerIndex)
     
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
+        players[get_var(PlayerIndex, "$name")] = { }
+        players[get_var(PlayerIndex, "$name")].adminchat = nil
+        players[get_var(PlayerIndex, "$name")].boolean = nil
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
-            players[get_var(PlayerIndex, "$name")] = { }
-            players[get_var(PlayerIndex, "$name")].adminchat = nil
-            players[get_var(PlayerIndex, "$name")].boolean = nil
             if (settings.mod["Admin Chat"].restore_previous_state == true) then
                 local t = tokenizestring(tostring(data[PlayerIndex]), ":")
                 if t[2] == "true" then
@@ -485,7 +492,8 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
-    local id = get_var(PlayerIndex, "$id")
+    local id = get_var(PlayerIndex, "$n")
+    local response
     
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
@@ -513,10 +521,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
             local hidden_status = settings.mod["Command Spy"].hide_commands
             if (hidden_status == true and hidden == true) then
-                return false
+                response = false
             elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
                 CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. message .. "\"")
-                return true
+               response = true
             end
         end
     end
@@ -526,7 +534,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if (settings.mod["Chat Logging"].enabled == true) then
         local message = tostring(Message)
         local command = tokenizestring(message)
-        local name = get_var(PlayerIndex, "$name")
         iscommand = nil
         if string.sub(command[1], 1, 1) == "/" or string.sub(command[1], 1, 1) == "\\" then
             iscommand = true
@@ -534,13 +541,17 @@ function OnPlayerChat(PlayerIndex, Message, type)
         else
             iscommand = false
         end
+        
+        local chat_type = nil
+        
         if type == 0 then
-            Type = "[GLOBAL]  "
+            chat_type = "[GLOBAL]  "
         elseif type == 1 then
-            Type = "[TEAM]    "
+            chat_type = "[TEAM]    "
         elseif type == 2 then
-            Type = "[VEHICLE] "
+            chat_type = "[VEHICLE] "
         end
+        
         if (player_present(PlayerIndex) ~= nil) then
             local dir = settings.mod["Chat Logging"].dir
             local function LogChat(dir, value)
@@ -556,73 +567,80 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 LogChat(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. message)
                 cprint(chattype .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
             else
-                LogChat(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. message)
-                cprint(Type .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
+                LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. message)
+                cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
             end
         end
     end
     
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if (game_over == false) then
+        if not (game_over) then
+            local data
             local message = tokenizestring(Message)
             if (#message == 0) then return nil end
             local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
-            for i = 1,#messages_to_ignore do
-                if not messages_to_ignore[i]:match(message[1]) then
-                    local function ChatHandler(PlayerIndex, Message)
-                        for i = 0, #message do
-                            if message[i] then
-                                if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                                    return true
-                                else
-                                    local function SendToTeam(Message, PlayerIndex)
-                                        for i = 1, 16 do
-                                            if player_present(i) then
-                                                if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%sender_name%%", name)
-                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%index%%", id)
-                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%message%%", Message)
+            
+            for a = 1,#messages_to_ignore do
+                data = messages_to_ignore[a]
+            end
+            
+            if not data:match(message[1]) then
+                local function ChatHandler(PlayerIndex, Message)
+                    for b = 0, #message do
+                        if message[b] then
+                            if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
+                                local function SendToTeam(Message, PlayerIndex)
+                                    for i = 1, 16 do
+                                        if player_present(i) then
+                                            if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
+                                                local TeamMessageFormat = settings.mod["Chat IDs"].team_format
+                                                for j = 1, #TeamMessageFormat do
+                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%sender_name%%", name)
+                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%index%%", id)
+                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%message%%", Message)
                                                     execute_command("msg_prefix \"\"")
-                                                    say(i, team_format)
-                                                    execute_command("msg_prefix \" *  * SERVER *  * \"")
+                                                    say(i, TeamMessageFormat[j])
+                                                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                                    response = false
                                                 end
                                             end
                                         end
                                     end
-                                    local function SendToAll(Message, PlayerIndex)
-                                        if player_present(PlayerIndex) then
-                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%sender_name%%", name)
-                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%index%%", id)
-                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%message%%", Message)
-                                            execute_command("msg_prefix \"\"")
-                                            say_all(global_format)
-                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                                        end
-                                    end
-                                    if GetTeamPlay() == true then
-                                        if (type == 0 or type == 2) then
-                                            SendToAll(Message, PlayerIndex)
-                                        elseif (type == 1) then
-                                            SendToTeam(Message, PlayerIndex)
-                                        end
-                                    else
-                                        SendToAll(Message, PlayerIndex)
-                                    end
-                                    return false
                                 end
+                                local function SendToAll(Message)
+                                    local GlobalMessageFormat = settings.mod["Chat IDs"].global_format
+                                    for j = 1, #GlobalMessageFormat do
+                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%sender_name%%", name)
+                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%index%%", id)
+                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%message%%", Message)
+                                        execute_command("msg_prefix \"\"")
+                                        say_all(GlobalMessageFormat[j])
+                                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                        response = false
+                                    end
+                                end
+                                if (GetTeamPlay() == true) then
+                                    if (type == 0 or type == 2) then
+                                        SendToAll(Message)
+                                    elseif (type == 1) then
+                                        SendToTeam(Message, PlayerIndex)
+                                    end
+                                else
+                                    SendToAll(Message)
+                                end
+                            else
+                                response = true
                             end
                         end
                     end
-                    -- If Admin Chat Mod is enabled via settings[Admin Chat] then proceed.
-                    if settings.mod["Admin Chat"].enabled == true then
-                        -- Only send the message if their admin chat status is false
-                        if (players[get_var(PlayerIndex, "$name")].adminchat ~= true) then
-                            ChatHandler(PlayerIndex, Message)
-                        end
-                    else
+                end
+                if settings.mod["Admin Chat"].enabled == true then
+                    if (players[get_var(PlayerIndex, "$name")].adminchat ~= true) then
                         ChatHandler(PlayerIndex, Message)
                     end
+                else
+                    ChatHandler(PlayerIndex, Message)
                 end
             end
         end
@@ -632,17 +650,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if settings.mod["Admin Chat"].enabled == true then
         local function AdminChat(Message, PlayerIndex)
             for i = 1, 16 do
-                if player_present(i) then
-                    if isAdmin(i) then
-                        if (Format == "rcon") then
-                            rprint(i, "|l" .. Message)
-                        elseif (Format == "chat") then
-                            execute_command("msg_prefix \"\"")
-                            say(i, Message)
-                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                        else
-                            cprint("Error in adminchat.lua - Format not defined properly. Line 33", 4 + 8)
-                        end
+                if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    if (settings.mod["Admin Chat"].environment == "rcon") then
+                        rprint(i, "|l" .. Message)
+                    elseif (settings.mod["Admin Chat"].environment == "chat") then
+                        execute_command("msg_prefix \"\"")
+                        say(i, Message)
+                        execute_command("msg_prefix \" *  * SERVER *  * \"")
                     end
                 end
             end
@@ -650,18 +664,30 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local message = tokenizestring(Message)
         if #message == 0 then return nil end
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[get_var(PlayerIndex, "$name")].adminchat == true then
-            for i = 0, #message do
-                if message[i] then
+            for c = 0, #message do
+                if message[c] then
                     if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                        return true
+                        response = true
                     else
-                        AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
-                        return false
+                    
+                        local MessageFormat = settings.mod["Admin Chat"].message_format
+                        for k, v in pairs(MessageFormat) do
+                            for j = 1, #MessageFormat do
+                                local prefix = settings.mod["Admin Chat"].prefix
+                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%prefix%%", prefix)
+                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%sender_name%%", name)
+                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%index%%", id)
+                                MessageFormat[j] = string.gsub(MessageFormat[j], "%%message%%", Message)
+                                AdminChat(MessageFormat[j])
+                                response = false
+                            end
+                        end
                     end
                 end
             end
         end
     end
+    return response
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -697,22 +723,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             players[get_var(PlayerIndex, "$name")].adminchat = true
                             players[get_var(PlayerIndex, "$name")].boolean = true
                             rprint(PlayerIndex, "Admin Chat enabled.")
+                            return false
                         else
                             rprint(PlayerIndex, "Admin Chat is already enabled.")
+                            return false
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
                         if players[get_var(PlayerIndex, "$name")].boolean ~= false then
                             players[get_var(PlayerIndex, "$name")].adminchat = false
                             players[get_var(PlayerIndex, "$name")].boolean = false
                             rprint(PlayerIndex, "Admin Chat disabled.")
+                            return false
                         else
                             rprint(PlayerIndex, "Admin Chat is already disabled.")
+                            return false
                         end
                     else
                         rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
+                        return false
                     end
                 else
                     rprint(PlayerIndex, "You do not have permission to execute that command!")
+                    return false
                 end
             else
                 cprint("The Server cannot execute this command!", 4 + 8)
