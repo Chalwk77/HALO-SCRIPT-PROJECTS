@@ -1,7 +1,23 @@
 --[[
 --=====================================================================================================--
-Script Name: Base Game Settings
+Script Name: Base Game Settings, for SAPP (PC & CE)
+Description: An all-in-one package that combines many of my scripts into one place. 
+             Also, most of the scripts have been heavily refined and improved in this version.
 
+Combined Scripts:
+    - Admin Chat
+    - Chat IDs
+    - Message Board
+    - Chat Logging
+    - Command Spy
+    - Custom Weapons
+    - Anti Impersonator
+    - Console Logo
+    - List Players
+    - Alias System
+    - Respawn Time
+    - Teleport Manager
+             
 Copyright (c) 2016-2019 Jericho Crosby <jericho.crosby227@gmail.com>
 You do not have permission to use this document.
 
@@ -142,6 +158,26 @@ local function GameSettings()
                     ["wizard"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["longest"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                 }
+            },
+            ["Teleport Manager"] = {
+                enabled = true,
+                dir = "sapp\\teleports.txt",
+                permission_level = {
+                 setwarp = 1,
+                 warp = -1,
+                 back = -1,
+                 warplist = -1,
+                 warplistall = -1,
+                 delwarp = 1
+                },
+                commands = {
+                    "setwarp", -- set command
+                    "warp", -- go to command
+                    "back", -- go back command
+                    "warplist", --list command
+                    "warplistall", -- list all command
+                    "delwarp" -- delete command
+                }
             }
         },
         global = {
@@ -183,6 +219,12 @@ trigger = { }
 alias_timer = { }
 index = nil
 alias_bool = {}
+
+-- Teleport Manager
+canset = { }
+wait_for_response = { }
+previous_location = { }
+for i = 1, 16 do previous_location[i] = { } end
 
 function OnScriptLoad()
     loadWeaponTags()
@@ -349,6 +391,10 @@ function OnNewGame()
                 end
             end
         end
+    end
+    -- #Teleport Manager
+    if (settings.mod["Teleport Manager"].enabled == true) then
+        check_file_status(PlayerIndex)
     end
 end
 
@@ -735,6 +781,12 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
+    
+    -- #Teleport Manager
+    if (settings.mod["Teleport Manager"].enabled == true) then
+        wait_for_response[PlayerIndex] = false
+        for i = 1, 3 do previous_location[PlayerIndex][i] = nil end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -1002,6 +1054,27 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
+        -- #Teleport Manager
+        if (settings.mod["Teleport Manager"].enabled == true) then
+            if wait_for_response[PlayerIndex] then
+                if Message == ("yes") then
+                    local file_name = settings.mod["Teleport Manager"].dir
+                    delete_from_file(file_name, response_starting_line, response_num_lines, PlayerIndex)
+                    rprint(PlayerIndex, "Successfully deleted teleport id #" .. response_starting_line)
+                    wait_for_response[PlayerIndex] = false
+                    response = false
+                elseif Message == ("no") then
+                    rprint(PlayerIndex, "Process Cancelled")
+                    wait_for_response[PlayerIndex] = false
+                    response = false
+                end
+                if Message ~= "yes" or Message ~= "no" then
+                    rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
+                    wait_for_response[PlayerIndex] = true
+                    response = false
+                end
+            end
+        end
     end
     return response
 end
@@ -1116,6 +1189,299 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(PlayerIndex, "Insufficient Permission")
         end
     end
+    -- #Teleport Manager
+    if (settings.mod["Teleport Manager"].enabled == true) then
+        local file_name = settings.mod["Teleport Manager"].dir
+        local t = tokenizestring(Command)
+        if t[1] ~= nil then
+            if t[1] == string.lower(settings.mod["Teleport Manager"].commands[1]) then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "setwarp") then
+                    if t[2] ~= nil then
+                        check_file_status(PlayerIndex)
+                        if not empty_file then
+                            local lines = lines_from(file_name)
+                            for k, v in pairs(lines) do
+                                if t[2] == v:match("[%a%d+_]*") then
+                                    rprint(PlayerIndex, "That portal name already exists!")
+                                    canset[PlayerIndex] = false
+                                    break
+                                else
+                                    canset[PlayerIndex] = true
+                                end
+                            end
+                        else
+                            canset[PlayerIndex] = true
+                        end
+                        if t[2] == t[2]:match(mapname) then
+                            rprint(PlayerIndex, "Teleport name cannot be the same as the current map name!")
+                            canset[PlayerIndex] = false
+                        end
+                        if canset[PlayerIndex] == true then
+                            if PlayerInVehicle(PlayerIndex) then
+                                x1, y1, z1 = read_vector3d(get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x11C)) + 0x5c)
+                            else
+                                x1, y1, z1 = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                            end
+                            local file = io.open(file_name, "a+")
+                            local line = t[2] .. " [Map: " .. mapname .. "] X " .. x1 .. ", Y " .. y1 .. ", Z " .. z1
+                            file:write(line, "\n")
+                            file:close()
+                            rprint(PlayerIndex, "Teleport location set to: " .. x1 .. ", " .. y1 .. ", " .. z1)
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax. Command Usage: /" .. settings.mod["Teleport Manager"].commands[1] .. " <teleport name>")
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[1])
+                end
+                return false
+            end
+        end
+        ---------------------------------------------------------
+        -- GO TO COMMAND --
+        if t[1] ~= nil then
+            if t[1] == string.lower(settings.mod["Teleport Manager"].commands[2]) then
+                check_file_status(PlayerIndex)
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warp") then
+                    if t[2] ~= nil then
+                        if not empty_file then
+                            local found = nil
+                            local lines = lines_from(file_name)
+                            for k, v in pairs(lines) do
+                                local valid = nil
+                                if t[2] == v:match("[%a%d+_]*") then
+                                    if (player_alive(PlayerIndex)) then
+                                        if string.find(v, mapname) then
+                                            found = true
+                                            -- numbers without decimal points -----------------------------------------------------------------------------
+                                            if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                                valid = true -- 0
+                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
+                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                                valid = true -- *
+                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                                valid = true -- 1
+                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
+                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                                valid = true -- 2
+                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
+                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                                valid = true -- 3
+                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                                valid = true -- 1 & 2
+                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
+                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                                valid = true -- 1 & 3
+                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                                valid = true -- 2 & 3
+                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                                -- numbers with decimal points -----------------------------------------------------------------------------
+                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                valid = true -- 0
+                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                valid = true -- *
+                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                valid = true -- 1
+                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                valid = true -- 2
+                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                valid = true -- 3
+                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                valid = true -- 1 & 2
+                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                valid = true -- 1 & 3
+                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                valid = true  -- 2 & 3
+                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            else
+                                                rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
+                                                cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4 + 8)
+                                            end
+                                            if (v ~= nil and valid == true) then
+                                                if not PlayerInVehicle(PlayerIndex) then
+                                                    local prevX, prevY, prevZ = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                                                    previous_location[PlayerIndex][1] = prevX
+                                                    previous_location[PlayerIndex][2] = prevY
+                                                    previous_location[PlayerIndex][3] = prevZ
+                                                    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
+                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
+                                                    valid = false
+                                                else
+                                                    TeleportPlayer(read_dword(get_dynamic_player(PlayerIndex) + 0x11C), tonumber(x), tonumber(y), tonumber(z) + 0.5)
+                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
+                                                    valid = false
+                                                end
+                                            end
+                                        else
+                                            found = true
+                                            rprint(PlayerIndex, "That warp is not linked to this map!")
+                                        end
+                                    else
+                                        found = true
+                                        rprint(PlayerIndex, "You cannot teleport when dead!")
+                                    end
+                                end
+                            end
+                            if found ~= true then
+                                rprint(PlayerIndex, "That teleport name is not valid!")
+                            end
+                        else
+                            rprint(PlayerIndex, "The teleport list is empty!")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax. Command Usage: /" .. settings.mod["Teleport Manager"].commands[2] .. " <teleport name>")
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[2])
+                end
+                return false
+                ---------------------------------------------------------
+                -- BACK COMMAND --
+            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[3]) then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "back") then
+                    if not PlayerInVehicle(PlayerIndex) then
+                        if previous_location[PlayerIndex][1] ~= nil then
+                            write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, previous_location[PlayerIndex][1], previous_location[PlayerIndex][2], previous_location[PlayerIndex][3])
+                            rprint(PlayerIndex, "Returning to previous location!")
+                            for i = 1, 3 do
+                                previous_location[PlayerIndex][i] = nil
+                            end
+                        else
+                            rprint(PlayerIndex, "Unable to teleport back! You haven't been anywhere!")
+                        end
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[3])
+                end
+                return false
+                ---------------------------------------------------------
+                -- LIST COMMAND --
+            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[4]) then
+                local found = false
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warplist") then
+                    check_file_status(PlayerIndex)
+                    if not empty_file then
+                        local lines = lines_from(file_name)
+                        for k, v in pairs(lines) do
+                            if string.find(v, mapname) then
+                                found = true
+                                rprint(PlayerIndex, "[" .. k .. "] " .. v)
+                            end
+                        end
+                        if not found then 
+                            rprint(PlayerIndex, "There are no warps for the current map.")
+                        end
+                    else
+                        rprint(PlayerIndex, "The teleport list is empty!")
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[4])
+                end
+                return false
+                ---------------------------------------------------------
+                -- LIST ALL COMMAND --
+            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[5]) then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warplistall") then
+                    check_file_status(PlayerIndex)
+                    if not empty_file then
+                        local lines = lines_from(file_name)
+                        for k, v in pairs(lines) do
+                            rprint(PlayerIndex, "[" .. k .. "] " .. v)
+                        end
+                    else
+                        rprint(PlayerIndex, "The teleport list is empty!")
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[5])
+                end
+                return false
+                ---------------------------------------------------------
+                -- DELETE COMMAND --
+            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[6]) then
+                local command = t[1]
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "delwarp") then
+                    if t[2] ~= nil then
+                        check_file_status(PlayerIndex)
+                        if not empty_file then
+                            local lines = lines_from(file_name)
+                            local del_found = nil
+                            for k, v in pairs(lines) do
+                                if k ~= nil then
+                                    if t[2] == v:match(k) then
+                                        del_found = true
+                                        response_starting_line = nil
+                                        response_num_lines = nil
+                                        if string.find(v, mapname) then
+                                            delete_from_file(file_name, k, 1, PlayerIndex)
+                                            rprint(PlayerIndex, "Successfully deleted teleport id #" .. k)
+                                        else
+                                            wait_for_response[PlayerIndex] = true
+                                            rprint(PlayerIndex, "Warning: That teleport is not linked to this map.")
+                                            rprint(PlayerIndex, "Type 'YES' to delete, type 'NO' to cancel.")
+                                            response_starting_line = k
+                                            response_num_lines = 1
+                                        end
+                                    end
+                                end
+                            end
+                            if del_found ~= true then
+                                rprint(PlayerIndex, "Teleport Index ID does not exist!")
+                            end
+                        else
+                            rprint(PlayerIndex, "The teleport list is empty!")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax. Command Usage: /" .. settings.mod["Teleport Manager"].commands[6] .. " <index id>")
+                    end
+                else
+                    rprint(PlayerIndex, "You're not allowed to execute /" .. settings.mod["Teleport Manager"].commands[6])
+                end
+                return false
+            end
+        end
+    end
 end
 
 -- #List Players
@@ -1202,8 +1568,34 @@ function tokenizestring(inputString, Separator)
 end
 
 -- Used Globally
-function getPermLevel(script)
-    return settings.mod[script].permission_level
+function getPermLevel(script, bool, args)
+    if not bool then
+        return settings.mod[script].permission_level
+    else
+        -- Teleport Manager
+        if (settings.mod["Teleport Manager"].enabled == true) then
+            local level = settings.mod["Teleport Manager"].permission_level
+            for k, v in pairs(level) do
+                local words = tokenizestring(v, ",")
+                for i = 1, #words do
+                    if (args == "setwarp") and k:match(args) then
+                        level = i
+                    elseif (args == "warp") and k:match(args) then
+                        level = i
+                    elseif (args == "back") and k:match(args) then
+                        level = i
+                    elseif (args == "warplist") and k:match(args) then
+                        level = i
+                    elseif (args == "warplistall") and k:match(args) then
+                        level = i
+                    elseif (args == "delwarp") and k:match(args) then
+                        level = i
+                    end
+                end
+            end
+            return level
+        end
+    end
 end
 
 -- Used Globally
@@ -1222,6 +1614,28 @@ function lines_from(file)
         lines[#lines + 1] = line
     end
     return lines
+end
+
+-- Used Globally
+function PlayerInVehicle(PlayerIndex)
+    if (get_dynamic_player(PlayerIndex) ~= 0) then
+        local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
+
+-- Used Globally
+function TeleportPlayer(ObjectID, x, y, z)
+    if get_object_memory(ObjectID) ~= 0 then
+        local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
+        write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
+    end
 end
 
 -- Saves player join data (name, hash, ip address, id)
@@ -1338,6 +1752,7 @@ function checkFile()
     end
 end
 
+-- #Alias System
 function concatValues(PlayerIndex, start_index, end_index)
     local file_name = settings.mod["Alias System"].dir
     local lines = lines_from(file_name)
@@ -1362,6 +1777,58 @@ function concatValues(PlayerIndex, start_index, end_index)
             break
         end
     end
+end
+
+-- #Teleport Manager
+function check_file_status(PlayerIndex)
+    local file_name = settings.mod["Teleport Manager"].dir
+    local fileX = io.open(file_name, "rb")
+    if fileX then
+        fileX:close()
+    else
+        local fileY = io.open(file_name, "a+")
+        if fileY then
+            fileY:close()
+        end
+        if player_present(PlayerIndex) then
+            rprint(PlayerIndex, file_name .. " doesn't exist. Creating...")
+            cprint(file_name .. " doesn't exist. Creating...")
+        end
+    end
+    local fileZ = io.open(file_name, "r")
+    local line = fileZ:read()
+    if line == nil then
+        empty_file = true
+    else
+        empty_file = false
+    end
+    fileZ:close()
+end
+
+-- #Teleport Manager
+function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
+    local fp = io.open(filename, "r")
+    if fp == nil then
+        check_file_status(PlayerIndex)
+    end
+    content = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < starting_line or i >= starting_line + num_lines then
+            content[#content + 1] = line
+        end
+        i = i + 1
+    end
+    if i > starting_line and i < starting_line + num_lines then
+        rprint(PlayerIndex, "Warning: End of File! No entries to delete.")
+        cprint("Warning: End of File! No entries to delete.")
+    end
+    fp:close()
+    fp = io.open(filename, "w+")
+    for i = 1, #content do
+        fp:write(string.format("%s\n", content[i]))
+    end
+    fp:close()
 end
 
 function OnError(Message)
