@@ -22,7 +22,7 @@ settings = {
         },
         ["Message Board"] = {
             enabled = true,
-            duration = 25,
+            duration = 3,
             alignment = "l",
             messages = {
                 "Welcome to $SERVER_NAME",
@@ -36,7 +36,13 @@ settings = {
         },
         ["Command Spy"] = {
             enabled = true,
-            hide_commands = true,
+            permission_level = 1,
+            prefix = "[SPY]",
+            hide_commands = false,
+            commands_to_hide = {
+                "/afk",
+                "/lead",
+            }
         },
         ["Custom Weapons"] = {
             enabled = false,
@@ -51,6 +57,17 @@ settings = {
         },
         ["Console Logo"] = {
             enabled = true,
+        },
+        ["List Players"] = {
+            enabled = true,
+            permission_level = 1,
+            alignment = "l",
+            command_aliases = {
+                "pl", 
+                "players", 
+                "playerlist",
+                "playerslist" 
+            }
         }
     }
 }
@@ -73,8 +90,14 @@ message_board_timer = { }
 function OnScriptLoad()
     printEnabled()
     register_callback(cb['EVENT_TICK'], "OnTick")
+    
+    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    
+    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     
@@ -85,6 +108,13 @@ function OnScriptLoad()
                 players[get_var(i, "$n")].message_board_timer = 0
             end
         end
+    end
+    
+    -- Used OnPlayerJoin()
+    if halo_type == "PC" then
+        ce = 0x0
+    else
+        ce = 0x40
     end
 end
    
@@ -147,10 +177,6 @@ function OnGameEnd()
     end
 end
 
-function OnPlayerPrejoin(PlayerIndex)
-    --
-end
-
 function OnTick()
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -180,15 +206,32 @@ function OnTick()
     end
 end
 
+function OnPlayerPrejoin(PlayerIndex)
+    -- CONSOLE OUTPUT
+    os.execute("echo \7")
+    local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
+    cprint("--------------------------------------------------------------------------------")
+    cprint("Player: " .. read_widestring(cns, 12), 2 + 8)
+    cprint("CD Hash: " .. get_var(PlayerIndex, "$hash"))
+    cprint("IP Address: " .. get_var(PlayerIndex, "$ip"))
+    cprint("IndexID: " .. get_var(PlayerIndex, "$n"))
+end
+
 function OnPlayerJoin(PlayerIndex)
     local Name = get_var(PlayerIndex, "$name")
     local Hash = get_var(PlayerIndex, "$hash")
     local Index = get_var(PlayerIndex, "$n")
     
+    -- CONSOLE OUTPUT (todo: future update = store join data to table)
+    cprint("Join Time: " .. os.date("%A %d %B %Y - %X"))
+    cprint("Status: connected successfully.")
+    cprint("--------------------------------------------------------------------------------")
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
-        players[get_var(PlayerIndex, "$n")] = { }
-        players[get_var(PlayerIndex, "$n")].message_board_timer = 0
+        players[Index] = { }
+        players[Index].message_board_timer = 0
         welcome_timer[PlayerIndex] = true
     end
     
@@ -210,6 +253,8 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
+    local player_name = get_var(PlayerIndex, "$name")
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
@@ -217,13 +262,105 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
-function OnChatMessage(PlayerIndex, Message, type)
-    --
+function OnPlayerChat(PlayerIndex, Message, type)
+    local player_name = get_var(PlayerIndex, "$name")
+    
+    -- #Command Spy
+    if (settings.mod["Command Spy"].enabled == true) then
+        local command
+        local iscommand = nil
+        local message = tostring(Message)
+        local String = tokenizestring(message)
+        if string.sub(String[1], 1, 1) == "/" then
+            command = String[1]:gsub("\\", "/")
+            iscommand = true
+        else
+            iscommand = false
+        end
+        
+        local hidden_messages = settings.mod["Command Spy"].commands_to_hide
+        for k, v in pairs(hidden_messages) do
+            if (command == k) then
+                hidden = true
+                break
+            else
+                hidden = false
+            end
+        end
+        
+        if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
+            local hidden_status = settings.mod["Command Spy"].hide_commands
+            if (hidden_status == true and hidden == true) then
+                return false
+            elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
+                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. player_name .. ":    \"" .. message .. "\"")
+                return true
+            end
+        end
+    end
 end
 
+function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    -- #List Players
+    if (settings.mod["List Players"].enabled == true) then
+        local t = tokenizestring(Command)
+        local commands = settings.mod["List Players"].command_aliases
+        local count = #t
+        for k, v in pairs(commands) do
+            local cmds = tokenizestring(v, ",")
+            for i = 1, #cmds do
+                if (t[1] == cmds[i]) then
+                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then
+                        listPlayers(PlayerIndex, count)
+                    else
+                        rprint(PlayerIndex, "Insufficient Permission")
+                    end
+                    return false
+                end
+            end
+        end
+    end
+end
 
+-- #List Players
+function listPlayers(PlayerIndex, count)
+    if (count == 1) then
+        rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]")
+        for i = 1, 16 do
+            if player_present(i) then
+                local name = get_var(i, "$name")
+                local id = get_var(i, "$n")
+                local team = get_var(i, "$team")
+                local ip = get_var(i, "$ip")
+                local hash = get_var(i, "$hash")
+                if get_var(0, "$ffa") == "0" then
+                    if team == "red" then
+                        team = "Red Team"
+                    elseif team == "blue" then
+                        team = "Blue Team"
+                    else
+                        team = "Hidden"
+                    end
+                else
+                    team = "FFA"
+                end
+                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. id .. ".   " .. name .. "   |   " .. team .. "  -  IP: " .. ip)
+            end
+        end
+    else
+        rprint(PlayerIndex, "Invalid Syntax")
+        return false
+    end
+end
 
-
+-- #Command Spy
+function CommandSpy(Message)
+    for i = 1, 16 do
+        if (tonumber(get_var(i, "$lvl"))) >= getPermLevel("Command Spy") then
+            rprint(i, Message)
+        end
+    end
+end
 
 -- #Message Board
 function read_widestring(address, length)
@@ -261,11 +398,16 @@ function tokenizestring(inputString, Separator)
     end
     local t = {};
     i = 1
-    for str in string.gmatch(inputstr, "([^" .. Separator .. "]+)") do
+    for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
         t[i] = str
         i = i + 1
     end
     return t
+end
+
+-- Used globally
+function getPermLevel(script)
+    return settings.mod[script].permission_level
 end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
@@ -273,6 +415,8 @@ function printEnabled()
     for k, v in pairs(settings.mod) do
         if (settings.mod[k].enabled == true) then
             cprint(k .. " is enabled", 2 + 8)
+        else
+            cprint(k .. " is disabled", 4 + 8)
         end
     end
 end
