@@ -444,11 +444,10 @@ function OnPlayerPrejoin(PlayerIndex)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
     local name, hash, ip, id = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n")
     savePlayerData(name, hash, ip, id)
-    cprint("--------------------------------------------------------------------------------")
     for k, v in ipairs(player_data) do
         if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"))
             cprint("--------------------------------------------------------------------------------")
+            cprint("Player attempting to connect to the server...", 5+8)
             cprint(v, 2 + 8)
             break
         end
@@ -464,7 +463,8 @@ function OnPlayerJoin(PlayerIndex)
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("Status: " .. name .. " connected successfully.", 2 + 8)
+            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2+8)
+            cprint("Status: " .. name .. " connected successfully.", 5 + 8)
             cprint("--------------------------------------------------------------------------------")
         end
     end
@@ -548,7 +548,9 @@ function OnPlayerLeave(PlayerIndex)
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
             ip = settings.global.player_data[3]
+            cprint("--------------------------------------------------------------------------------")
             cprint(v, 4 + 8)
+            cprint("--------------------------------------------------------------------------------")
             table.remove(player_data, k)
             break
         end
