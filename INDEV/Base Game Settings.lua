@@ -63,9 +63,42 @@ settings = {
             }
         },
         ["Custom Weapons"] = {
-            enabled = false,
-            assign_custom_frags = false,
-            assign_custom_plasmas = false
+            enabled = true,
+            assign_custom_frags = true,
+            assign_custom_plasmas = true,
+            weapons = {
+                ["beavercreek"] = {sniper, pistol, rocket_launcher, shotgun, 4, 2},
+                ["bloodgulch"] = {sniper, pistol, nil, nil, 2, 2},
+                ["boardingaction"] = {plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3},
+                ["carousel"] = {nil, nil, pistol, needler, 3, 3},
+                ["dangercanyon"] = {nil, plasma_rifle, nil, pistol, 4, 4},
+                ["deathisland"] = {assault_rifle, nil, plasma_cannon, sniper, 1, 1},
+                ["gephyrophobia"] = {nil, nil, nil, shotgun, 3, 3},
+                ["icefields"] = {plasma_rifle, nil, plasma_rifle, nil, 2, 3},
+                ["infinity"] = {assault_rifle, nil, nil, nil, 2, 4},
+                ["sidewinder"] = {nil, rocket_launcher, nil, assault_rifle, 3, 2},
+                ["timberland"] = {nil, nil, nil, pistol, 2, 4},
+                ["hangemhigh"] = {flamethrower, nil, flamethrower, nil, 3, 3},
+                ["ratrace"] = {nil, nil, nil, nil, 3, 2},
+                ["damnation"] = {plasma_rifle, nil, nil, plasma_rifle, 1, 3},
+                ["putput"] = {nil, rocket_launcher, assault_rifle, pistol, 4, 1},
+                ["prisoner"] = {nil, nil, pistol, plasma_rifle, 2, 1},
+                ["wizard"] = {rocket_launcher, nil, shotgun, nil, 1, 2}
+                
+            },
+                        
+            weapon_tags = {
+                "weapons\\pistol\\pistol",
+                "weapons\\sniper rifle\\sniper rifle",
+                "weapons\\plasma_cannon\\plasma_cannon",
+                "weapons\\rocket launcher\\rocket launcher",
+                "weapons\\plasma pistol\\plasma pistol",
+                "weapons\\plasma rifle\\plasma rifle",
+                "weapons\\assault rifle\\assault rifle",
+                "weapons\\flamethrower\\flamethrower",
+                "weapons\\needler\\mp_needler",
+                "weapons\\shotgun\\shotgun"
+            },
         },
         ["Anti Impersonator"] = {
             enabled = true,
@@ -105,17 +138,35 @@ settings = {
 players = { }
 player_data = { }
 quit_data = { }
+mapname = ""
 
 -- #Message Board
 welcome_timer = { }
 message_board_timer = { }
 
--- Admin Chat
+-- #Admin Chat
 data = { }
 adminchat = { }
 stored_data = { }
 boolean = { }
 game_over = nil
+
+-- #Custom Weapons
+weapon = { }
+frags = { }
+plasmas = { }
+MapIsListed = nil
+
+pistol = "weapons\\pistol\\pistol"
+sniper = "weapons\\sniper rifle\\sniper rifle"
+plasma_cannon = "weapons\\plasma_cannon\\plasma_cannon"
+rocket_launcher = "weapons\\rocket launcher\\rocket launcher"
+plasma_pistol = "weapons\\plasma pistol\\plasma pistol"
+plasma_rifle = "weapons\\plasma rifle\\plasma rifle"
+assault_rifle = "weapons\\assault rifle\\assault rifle"
+flamethrower = "weapons\\flamethrower\\flamethrower"
+needler = "weapons\\needler\\mp_needler"
+shotgun = "weapons\\shotgun\\shotgun"
 
 function OnScriptLoad()
     printEnabled()
@@ -127,6 +178,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -160,6 +213,15 @@ function OnScriptLoad()
             end
         end
     end
+    
+    -- #Custom Weapons
+    if (settings.mod["Custom Weapons"].enabled == true) then
+        if not (game_over) then
+            if get_var(0, "$gt") ~= "n/a" then
+                mapname = get_var(0, "$map")
+            end
+        end
+    end
 end
 
 function OnScriptUnload()
@@ -181,7 +243,8 @@ function OnNewGame()
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
-
+    mapname = get_var(0, "$map")
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -244,6 +307,21 @@ function OnNewGame()
             end
         end
     end
+    
+    -- #Custom Weapons
+    if (settings.mod["Custom Weapons"].enabled == true) then
+        local map_table = settings.mod["Custom Weapons"].weapons
+        for i = 1, #map_table do
+            if (map_table[i]:match(mapname))  then
+                MapIsListed = true
+            else
+                MapIsListed = false
+                Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table"'
+                cprint(Error, 4 + 8)
+                execute_command("log_note \"" .. Error .. "\"")
+            end
+        end
+    end
 end
 
 function OnGameEnd()
@@ -277,7 +355,7 @@ function OnGameEnd()
 
 
     -- #Admin Chat
-    if settings.mod["Admin Chat"].enabled == true then
+    if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
@@ -327,7 +405,62 @@ function OnTick()
             end
         end
     end
+    -- Custom Weapons
+    if (settings.mod["Custom Weapons"].enabled == true) then
+        for i = 1, 16 do
+            if (player_alive(i)) then
+                if (MapIsListed) then
+                    local player = get_dynamic_player(i)
+                    if (weapon[i] == true) then
+                        execute_command("wdel " .. i)
+                        local x, y, z = read_vector3d(player + 0x5C)
+                        if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                        
+                            local WeaponID,Slot = select(1,determineWeapon())
+
+                            if (Slot == 1) then
+                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                            end
+                            if (Slot == 2) then
+                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                            end
+                            if (Slot == 3) then
+                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                            end
+                            if (Slot == 4) then
+                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                            end
+                        end
+                        weapon[i] = false
+                    end
+                else
+                    return false
+                end
+            end
+        end
+    end
 end
+
+function determineWeapon()
+    local WeaponID, Slot
+    for i = 1,4 do
+        local weapon = settings.mod["Custom Weapons"].weapons[mapname][i]
+        if weapon ~= nil then
+            WeaponID, Slot = tostring(weapon), tonumber(i)
+            cprint("Weapon: " .. weapon .. " index: " .. i)
+        else
+            return false
+        end
+    end
+    return WeaponID, Slot
+end
+
+local function test()
+    return "one","two","three","four","five","six","seven","eight","nine"
+end
+local third,fourth = select(3,test())
+print(third)
+print(fourth)
 
 function OnPlayerPrejoin(PlayerIndex)
     -- #CONSOLE OUTPUT
@@ -489,6 +622,26 @@ function OnPlayerLeave(PlayerIndex)
     end
 end
 
+function OnPlayerSpawn(PlayerIndex)
+    -- #Custom Weapons
+    if (settings.mod["Custom Weapons"].enabled == true) then
+        weapon[PlayerIndex] = true
+        if player_alive(PlayerIndex) then
+            local player_object = get_dynamic_player(PlayerIndex)
+            if (player_object ~= 0) then
+                if (settings.mod["Custom Weapons"].assign_custom_frags == true) then
+                    local frags = settings.mod["Custom Weapons"].weapons[mapname][5]
+                    write_word(player_object + 0x31E, tonumber(frags))
+                end
+                if (settings.mod["Custom Weapons"].assign_custom_plasmas == true) then
+                    local plasmas = settings.mod["Custom Weapons"].weapons[mapname][6]
+                    write_word(player_object + 0x31F, tonumber(plasmas))
+                end
+            end
+        end
+    end
+end
+
 function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
@@ -637,7 +790,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         end
                     end
                 end
-                if settings.mod["Admin Chat"].enabled == true then
+                if (settings.mod["Admin Chat"].enabled == true) then
                     if (players[get_var(PlayerIndex, "$name")].adminchat ~= true) then
                         ChatHandler(PlayerIndex, Message)
                     end
@@ -649,7 +802,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Admin Chat
-    if settings.mod["Admin Chat"].enabled == true then
+    if (settings.mod["Admin Chat"].enabled == true) then
         local function AdminChat(Message, PlayerIndex)
             for i = 1, 16 do
                 if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
@@ -911,6 +1064,47 @@ function table.tostring(tbl)
         end
     end
     return "{" .. table.concat(result, ",") .. "}"
+end
+
+function GrenadeTable()
+    frags = {
+        beavercreek = 3,
+        bloodgulch = 4,
+        boardingaction = 1,
+        carousel = 3,
+        dangercanyon = 4,
+        deathisland = 1,
+        gephyrophobia = 3,
+        icefields = 1,
+        infinity = 2,
+        sidewinder = 3,
+        timberland = 2,
+        hangemhigh = 3,
+        ratrace = 3,
+        damnation = 1,
+        putput = 4,
+        prisoner = 2,
+        wizard = 1
+    }
+    plasmas = {
+        beavercreek = 1,
+        bloodgulch = 2,
+        boardingaction = 3,
+        carousel = 3,
+        dangercanyon = 4,
+        deathisland = 1,
+        gephyrophobia = 3,
+        icefields = 1,
+        infinity = 4,
+        sidewinder = 2,
+        timberland = 4,
+        hangemhigh = 3,
+        ratrace = 2,
+        damnation = 3,
+        putput = 1,
+        prisoner = 1,
+        wizard = 2,
+    }
 end
 
 function OnError(Message)
