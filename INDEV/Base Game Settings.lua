@@ -10,129 +10,118 @@ You do not have permission to use this document.
 ]]--
 
 api_version = "1.12.0.0"
-
-settings = {
-    -- Enabled = true, Disabled = false
-    mod = {
-        ["Admin Chat"] = {
-            enabled = true,
-            base_command = "achat",
-            permission_level = 1,
-            prefix = "[ADMIN CHAT]",
-            restore_previous_state = true,
-            environment = "rcon",
-            message_format = {"%prefix% %sender_name% [%index%] %message%"}
-        },
-        ["Chat IDs"] = {
-            enabled = true,
-            global_format = { "%sender_name% [%index%]: %message%" },
-            team_format = { "[%sender_name%] [%index%]: %message%" },
-            -- For a future update
-            trial_moderator = { "[T-MOD] [%sender_name%] [%index%]: %message%" },
-            moderator = { "[MOD] [%sender_name%] [%index%]: %message%" },
-            admin = { "[ADMIN] [%sender_name%] [%index%]: %message%" },
-            senior_admin = { "[S-ADMIN] [%sender_name%] [%index%]: %message%" },
-            ignore_list = {
-                "skip",
-                "rtv"
+local function GameSettings()
+    settings = {
+        -- Enabled = true, Disabled = false
+        mod = {
+            ["Admin Chat"] = {
+                enabled = true,
+                base_command = "achat",
+                permission_level = 1,
+                prefix = "[ADMIN CHAT]",
+                restore_previous_state = true,
+                environment = "rcon",
+                message_format = {"%prefix% %sender_name% [%index%] %message%"}
             },
-        },
-        ["Message Board"] = {
-            enabled = true,
-            duration = 3,
-            alignment = "l",
-            messages = {
-                "Welcome to $SERVER_NAME",
-                "Bug reports and suggestions:",
-                "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
-                "This is a development & test server only!",
+            ["Chat IDs"] = {
+                enabled = true,
+                global_format = { "%sender_name% [%index%]: %message%" },
+                team_format = { "[%sender_name%] [%index%]: %message%" },
+                -- For a future update
+                trial_moderator = { "[T-MOD] [%sender_name%] [%index%]: %message%" },
+                moderator = { "[MOD] [%sender_name%] [%index%]: %message%" },
+                admin = { "[ADMIN] [%sender_name%] [%index%]: %message%" },
+                senior_admin = { "[S-ADMIN] [%sender_name%] [%index%]: %message%" },
+                ignore_list = {
+                    "skip",
+                    "rtv"
+                },
+            },
+            ["Message Board"] = {
+                enabled = true,
+                duration = 3,
+                alignment = "l",
+                messages = {
+                    "Welcome to $SERVER_NAME",
+                    "Bug reports and suggestions:",
+                    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
+                    "This is a development & test server only!",
+                }
+            },
+            ["Chat Logging"] = {
+                enabled = true,
+                dir = "sapp\\Server Chat.txt",
+            },
+            ["Command Spy"] = {
+                enabled = true,
+                permission_level = 1,
+                prefix = "[SPY]",
+                hide_commands = false,
+                commands_to_hide = {
+                    "/afk",
+                    "/lead",
+                }
+            },
+            ["Custom Weapons"] = {
+                enabled = true,
+                assign_custom_frags = true,
+                assign_custom_plasmas = true,
+                weapons = {
+                    -- Weap 1,Weap 2,Weap 3,Weap 4, , frags, plasmas
+                    ["beavercreek"] = {sniper, pistol, rocket_launcher, shotgun, 4, 2},
+                    ["bloodgulch"] = {sniper, pistol, nil, nil, 2, 2},
+                    ["boardingaction"] = {plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3},
+                    ["carousel"] = {nil, nil, pistol, needler, 3, 3},
+                    ["dangercanyon"] = {nil, plasma_rifle, nil, pistol, 4, 4},
+                    ["deathisland"] = {assault_rifle, nil, plasma_cannon, sniper, 1, 1},
+                    ["gephyrophobia"] = {nil, nil, nil, shotgun, 3, 3},
+                    ["icefields"] = {plasma_rifle, nil, plasma_rifle, nil, 2, 3},
+                    ["infinity"] = {assault_rifle, nil, nil, nil, 2, 4},
+                    ["sidewinder"] = {nil, rocket_launcher, nil, assault_rifle, 3, 2},
+                    ["timberland"] = {nil, nil, nil, pistol, 2, 4},
+                    ["hangemhigh"] = {flamethrower, nil, flamethrower, nil, 3, 3},
+                    ["ratrace"] = {nil, nil, nil, nil, 3, 2},
+                    ["damnation"] = {plasma_rifle, nil, nil, plasma_rifle, 1, 3},
+                    ["putput"] = {nil, rocket_launcher, assault_rifle, pistol, 4, 1},
+                    ["prisoner"] = {nil, nil, pistol, plasma_rifle, 2, 1},
+                    ["wizard"] = {rocket_launcher, nil, shotgun, nil, 1, 2}
+                    
+                }
+            },
+            ["Anti Impersonator"] = {
+                enabled = true,
+                action = "kick",
+                reason = "impersonating",
+                bantime = 10,
+                namelist = { "Chalwk" },
+                hashlist = { "6c8f0bc306e0108b4904812110185edd" },
+            },
+            ["Console Logo"] = {
+                enabled = true,
+            },
+            ["List Players"] = {
+                enabled = true,
+                permission_level = 1,
+                alignment = "l",
+                command_aliases = {
+                    "pl",
+                    "players",
+                    "playerlist",
+                    "playerslist"
+                }
             }
         },
-        ["Chat Logging"] = {
-            enabled = true,
-            dir = "sapp\\Server Chat.txt",
-        },
-        ["Command Spy"] = {
-            enabled = true,
-            permission_level = 1,
-            prefix = "[SPY]",
-            hide_commands = false,
-            commands_to_hide = {
-                "/afk",
-                "/lead",
-            }
-        },
-        ["Custom Weapons"] = {
-            enabled = true,
-            assign_custom_frags = true,
-            assign_custom_plasmas = true,
-            weapons = {
-                ["beavercreek"] = {sniper, pistol, rocket_launcher, shotgun, 4, 2},
-                ["bloodgulch"] = {sniper, pistol, nil, nil, 2, 2},
-                ["boardingaction"] = {plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3},
-                ["carousel"] = {nil, nil, pistol, needler, 3, 3},
-                ["dangercanyon"] = {nil, plasma_rifle, nil, pistol, 4, 4},
-                ["deathisland"] = {assault_rifle, nil, plasma_cannon, sniper, 1, 1},
-                ["gephyrophobia"] = {nil, nil, nil, shotgun, 3, 3},
-                ["icefields"] = {plasma_rifle, nil, plasma_rifle, nil, 2, 3},
-                ["infinity"] = {assault_rifle, nil, nil, nil, 2, 4},
-                ["sidewinder"] = {nil, rocket_launcher, nil, assault_rifle, 3, 2},
-                ["timberland"] = {nil, nil, nil, pistol, 2, 4},
-                ["hangemhigh"] = {flamethrower, nil, flamethrower, nil, 3, 3},
-                ["ratrace"] = {nil, nil, nil, nil, 3, 2},
-                ["damnation"] = {plasma_rifle, nil, nil, plasma_rifle, 1, 3},
-                ["putput"] = {nil, rocket_launcher, assault_rifle, pistol, 4, 1},
-                ["prisoner"] = {nil, nil, pistol, plasma_rifle, 2, 1},
-                ["wizard"] = {rocket_launcher, nil, shotgun, nil, 1, 2}
-                
+        global = {
+            server_prefix = "**SERVER**",
+            player_data = {
+                "Player: %name%",
+                "CD Hash: %hash%",
+                "IP Address: %ip_address%",
+                "Index ID: %index_id%",
             },
-                        
-            weapon_tags = {
-                "weapons\\pistol\\pistol",
-                "weapons\\sniper rifle\\sniper rifle",
-                "weapons\\plasma_cannon\\plasma_cannon",
-                "weapons\\rocket launcher\\rocket launcher",
-                "weapons\\plasma pistol\\plasma pistol",
-                "weapons\\plasma rifle\\plasma rifle",
-                "weapons\\assault rifle\\assault rifle",
-                "weapons\\flamethrower\\flamethrower",
-                "weapons\\needler\\mp_needler",
-                "weapons\\shotgun\\shotgun"
-            },
-        },
-        ["Anti Impersonator"] = {
-            enabled = true,
-            action = "kick",
-            reason = "impersonating",
-            bantime = 10,
-            namelist = { "Chalwk" },
-            hashlist = { "6c8f0bc306e0108b4904812110185edd" },
-        },
-        ["Console Logo"] = {
-            enabled = true,
-        },
-        ["List Players"] = {
-            enabled = true,
-            permission_level = 1,
-            alignment = "l",
-            command_aliases = {
-                "pl",
-                "players",
-                "playerlist",
-                "playerslist"
-            }
         }
-    },
-    global = {
-        server_prefix = "**SERVER**",
-        player_data = {
-            "Player: %name%",
-            "CD Hash: %hash%",
-            "IP Address: %ip_address%",
-            "Index ID: %index_id%",
-        },
     }
-}
+end
 
 -- Tables used globally
 players = { }
@@ -155,20 +144,10 @@ game_over = nil
 weapon = { }
 frags = { }
 plasmas = { }
-MapIsListed = nil
-
-pistol = "weapons\\pistol\\pistol"
-sniper = "weapons\\sniper rifle\\sniper rifle"
-plasma_cannon = "weapons\\plasma_cannon\\plasma_cannon"
-rocket_launcher = "weapons\\rocket launcher\\rocket launcher"
-plasma_pistol = "weapons\\plasma pistol\\plasma pistol"
-plasma_rifle = "weapons\\plasma rifle\\plasma rifle"
-assault_rifle = "weapons\\assault rifle\\assault rifle"
-flamethrower = "weapons\\flamethrower\\flamethrower"
-needler = "weapons\\needler\\mp_needler"
-shotgun = "weapons\\shotgun\\shotgun"
 
 function OnScriptLoad()
+    loadWeaponTags()
+    GameSettings()
     printEnabled()
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -307,21 +286,6 @@ function OnNewGame()
             end
         end
     end
-    
-    -- #Custom Weapons
-    if (settings.mod["Custom Weapons"].enabled == true) then
-        local map_table = settings.mod["Custom Weapons"].weapons
-        for i = 1, #map_table do
-            if (map_table[i]:match(mapname))  then
-                MapIsListed = true
-            else
-                MapIsListed = false
-                Error = 'Error: ' .. mapname .. ' is not listed in "mapnames table"'
-                cprint(Error, 4 + 8)
-                execute_command("log_note \"" .. Error .. "\"")
-            end
-        end
-    end
 end
 
 function OnGameEnd()
@@ -409,32 +373,38 @@ function OnTick()
     if (settings.mod["Custom Weapons"].enabled == true) then
         for i = 1, 16 do
             if (player_alive(i)) then
-                if (MapIsListed) then
-                    local player = get_dynamic_player(i)
-                    if (weapon[i] == true) then
-                        execute_command("wdel " .. i)
-                        local x, y, z = read_vector3d(player + 0x5C)
-                        if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
-                        
-                            local WeaponID,Slot = select(1,determineWeapon())
+                local player = get_dynamic_player(i)
+                if (weapon[i] == true) then
+                    execute_command("wdel " .. i)
+                    local x, y, z = read_vector3d(player + 0x5C)
+                    if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                    
+                        local primary, secondary, tertiary, quaternary, Slot = select(1,determineWeapon())
 
-                            if (Slot == 1) then
-                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                        if (secondary) then
+                            assign_weapon(spawn_object("weap", secondary, x, y, z), i)
+                        end
+                        
+                        if (primary) then
+                            assign_weapon(spawn_object("weap", primary, x, y, z), i)
+                        end
+                        
+                        if (Slot == 3 or Slot == 4) then
+                            timer(100, "delayAssign", player, x, y, z)
+                        end
+                        
+                        function delayAssign()
+                            if (quaternary) then
+                                assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
                             end
-                            if (Slot == 2) then
-                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
-                            end
-                            if (Slot == 3) then
-                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
-                            end
-                            if (Slot == 4) then
-                                assign_weapon(spawn_object("weap", WeaponID, x, y, z), i)
+                            
+                            if (tertiary) then
+                                assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
                             end
                         end
-                        weapon[i] = false
+                        
                     end
-                else
-                    return false
+                    weapon[i] = false
                 end
             end
         end
@@ -442,25 +412,30 @@ function OnTick()
 end
 
 function determineWeapon()
-    local WeaponID, Slot
+    local primary, secondary, tertiary, quaternary, Slot
     for i = 1,4 do
         local weapon = settings.mod["Custom Weapons"].weapons[mapname][i]
-        if weapon ~= nil then
-            WeaponID, Slot = tostring(weapon), tonumber(i)
-            cprint("Weapon: " .. weapon .. " index: " .. i)
-        else
-            return false
+        if (weapon ~= nil) then
+            if (i == 1 and settings.mod["Custom Weapons"].weapons[mapname][1] ~= nil) then 
+                primary = settings.mod["Custom Weapons"].weapons[mapname][1] 
+                Slot = 1
+            end
+            if (i == 2 and settings.mod["Custom Weapons"].weapons[mapname][2] ~= nil) then 
+                secondary = settings.mod["Custom Weapons"].weapons[mapname][2]
+                Slot = 2
+            end
+            if (i == 3 and settings.mod["Custom Weapons"].weapons[mapname][3] ~= nil) then 
+                tertiary = settings.mod["Custom Weapons"].weapons[mapname][3] 
+                Slot = 3
+            end
+            if (i == 4 and settings.mod["Custom Weapons"].weapons[mapname][4] ~= nil) then 
+                quaternary = settings.mod["Custom Weapons"].weapons[mapname][4] 
+                Slot = 4
+            end
         end
     end
-    return WeaponID, Slot
+    return primary, secondary, tertiary, quaternary, Slot
 end
-
-local function test()
-    return "one","two","three","four","five","six","seven","eight","nine"
-end
-local third,fourth = select(3,test())
-print(third)
-print(fourth)
 
 function OnPlayerPrejoin(PlayerIndex)
     -- #CONSOLE OUTPUT
@@ -1028,6 +1003,19 @@ function printEnabled()
             cprint(k .. " is disabled", 4 + 8)
         end
     end
+end
+
+function loadWeaponTags()
+    pistol = "weapons\\pistol\\pistol"
+    sniper = "weapons\\sniper rifle\\sniper rifle"
+    plasma_cannon = "weapons\\plasma_cannon\\plasma_cannon"
+    rocket_launcher = "weapons\\rocket launcher\\rocket launcher"
+    plasma_pistol = "weapons\\plasma pistol\\plasma pistol"
+    plasma_rifle = "weapons\\plasma rifle\\plasma rifle"
+    assault_rifle = "weapons\\assault rifle\\assault rifle"
+    flamethrower = "weapons\\flamethrower\\flamethrower"
+    needler = "weapons\\needler\\mp_needler"
+    shotgun = "weapons\\shotgun\\shotgun"
 end
 
 function table.val_to_str (v)
