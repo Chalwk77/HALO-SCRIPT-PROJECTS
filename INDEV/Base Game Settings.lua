@@ -21,19 +21,19 @@ settings = {
             prefix = "[ADMIN CHAT]",
             restore_previous_state = true,
             environment = "rcon",
-            message_format = {"%prefix% %sender_name% [%index%] %message%"}
+            message_format = "%prefix% %sender_name% [%index%] %message%"
         },
         ["Chat IDs"] = {
             enabled = true,
-            global_format = {"%sender_name% [%index%]: %message%"},
-            team_format = {"[%sender_name%] [%index%]: %message%"},
+            global_format = { "%sender_name% [%index%]: %message%" },
+            team_format = { "[%sender_name%] [%index%]: %message%" },
             -- For a future update
-            trial_moderator = {"[T-MOD] [%sender_name%] [%index%]: %message%"},
-            moderator = {"[MOD] [%sender_name%] [%index%]: %message%"},
-            admin = {"[ADMIN] [%sender_name%] [%index%]: %message%"},
-            senior_admin = {"[S-ADMIN] [%sender_name%] [%index%]: %message%"},
+            trial_moderator = { "[T-MOD] [%sender_name%] [%index%]: %message%" },
+            moderator = { "[MOD] [%sender_name%] [%index%]: %message%" },
+            admin = { "[ADMIN] [%sender_name%] [%index%]: %message%" },
+            senior_admin = { "[S-ADMIN] [%sender_name%] [%index%]: %message%" },
             ignore_list = {
-                "skip", 
+                "skip",
                 "rtv"
             },
         },
@@ -72,8 +72,8 @@ settings = {
             action = "kick",
             reason = "impersonating",
             bantime = 10,
-            namelist = {"Chalwk"},
-            hashlist = {"6c8f0bc306e0108b4904812110185edd"},
+            namelist = { "Chalwk" },
+            hashlist = { "6c8f0bc306e0108b4904812110185edd" },
         },
         ["Console Logo"] = {
             enabled = true,
@@ -83,10 +83,10 @@ settings = {
             permission_level = 1,
             alignment = "l",
             command_aliases = {
-                "pl", 
-                "players", 
+                "pl",
+                "players",
                 "playerlist",
-                "playerslist" 
+                "playerslist"
             }
         }
     },
@@ -120,17 +120,17 @@ game_over = nil
 function OnScriptLoad()
     printEnabled()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    
+
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    
+
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    
+
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -139,14 +139,14 @@ function OnScriptLoad()
             end
         end
     end
-    
+
     -- Used OnPlayerJoin()
     if halo_type == "PC" then
         ce = 0x0
     else
         ce = 0x40
     end
-    
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         if not (game_over) then
@@ -161,7 +161,7 @@ function OnScriptLoad()
         end
     end
 end
-   
+
 function OnScriptUnload()
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
@@ -181,8 +181,7 @@ function OnNewGame()
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
-    
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -193,8 +192,8 @@ function OnNewGame()
             end
         end
     end
-    
-    
+
+
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
         local function consoleLogo()
@@ -217,8 +216,8 @@ function OnNewGame()
         end
         consoleLogo()
     end
-    
-    
+
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -233,7 +232,7 @@ function OnNewGame()
             file:close()
         end
     end
-    
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
@@ -250,8 +249,8 @@ end
 function OnGameEnd()
     -- Used Globally
     game_over = true
-    
-    
+
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -263,8 +262,8 @@ function OnGameEnd()
             end
         end
     end
-    
-    
+
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -275,8 +274,8 @@ function OnGameEnd()
             file:close()
         end
     end
-    
-    
+
+
     -- #Admin Chat
     if settings.mod["Admin Chat"].enabled == true then
         for i = 1, 16 do
@@ -339,10 +338,10 @@ function OnPlayerPrejoin(PlayerIndex)
     savePlayerData(name, hash, ip, id)
     cprint("--------------------------------------------------------------------------------")
     for k, v in ipairs(player_data) do
-       if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
+        if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
             cprint("Join Time: " .. os.date("%A %d %B %Y - %X"))
             cprint("--------------------------------------------------------------------------------")
-            cprint(v, 2+8)
+            cprint(v, 2 + 8)
             break
         end
     end
@@ -353,47 +352,47 @@ function OnPlayerJoin(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
-    
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("Status: " .. name .. " connected successfully.", 2+8)
+            cprint("Status: " .. name .. " connected successfully.", 2 + 8)
             cprint("--------------------------------------------------------------------------------")
         end
     end
-   
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         players[id] = { }
         players[id].message_board_timer = 0
         welcome_timer[PlayerIndex] = true
     end
-    
+
     -- #Anti Impersonator
     if (settings.mod["Anti Impersonator"].enabled == true) then
-        
+
         local name_list = settings.mod["Anti Impersonator"].namelist
         local hash_list = settings.mod["Anti Impersonator"].hashlist
-        
-        for i = 1,#name_list do
-            for j = 1,#hash_list do
+
+        for i = 1, #name_list do
+            for j = 1, #hash_list do
                 if (name_list[i]:match(name)) and not (hash_list[i]:match(hash)) then
                     local action = settings.mod["Anti Impersonator"].action
                     local reason = settings.mod["Anti Impersonator"].reason
                     if (action == "kick") then
                         execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
-                        cprint(name .. " was kicked for " .. reason, 4+8)
+                        cprint(name .. " was kicked for " .. reason, 4 + 8)
                     elseif (action == "ban") then
                         local bantime = settings.mod["Anti Impersonator"].bantime
                         execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
-                        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4+8)
+                        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
                     end
                     break
                 end
             end
         end
     end
-    
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -404,8 +403,8 @@ function OnPlayerJoin(PlayerIndex)
             file:close()
         end
     end
-    
-    
+
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         players[get_var(PlayerIndex, "$name")] = { }
@@ -435,26 +434,26 @@ function OnPlayerLeave(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip
-    
-    
+
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
             ip = settings.global.player_data[3]
-            cprint(v, 4+8)
+            cprint(v, 4 + 8)
             table.remove(player_data, k)
             break
         end
     end
-    
-    
+
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
         players[get_var(PlayerIndex, "$n")].message_board_timer = 0
     end
-    
-    
+
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -465,7 +464,7 @@ function OnPlayerLeave(PlayerIndex)
             file:close()
         end
     end
-    
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
@@ -494,7 +493,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
     local id = get_var(PlayerIndex, "$n")
     local response
-    
+
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
         local command
@@ -507,7 +506,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         else
             iscommand = false
         end
-        
+
         local hidden_messages = settings.mod["Command Spy"].commands_to_hide
         for k, v in pairs(hidden_messages) do
             if (command == k) then
@@ -517,19 +516,19 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 hidden = false
             end
         end
-        
+
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
             local hidden_status = settings.mod["Command Spy"].hide_commands
             if (hidden_status == true and hidden == true) then
                 response = false
             elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
                 CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. message .. "\"")
-               response = true
+                response = true
             end
         end
     end
-    
-   
+
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local message = tostring(Message)
@@ -541,9 +540,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
         else
             iscommand = false
         end
-        
+
         local chat_type = nil
-        
+
         if type == 0 then
             chat_type = "[GLOBAL]  "
         elseif type == 1 then
@@ -551,7 +550,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         elseif type == 2 then
             chat_type = "[VEHICLE] "
         end
-        
+
         if (player_present(PlayerIndex) ~= nil) then
             local dir = settings.mod["Chat Logging"].dir
             local function LogChat(dir, value)
@@ -572,19 +571,21 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-    
+
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
         if not (game_over) then
             local data
             local message = tokenizestring(Message)
-            if (#message == 0) then return nil end
+            if (#message == 0) then
+                return nil
+            end
             local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
-            
-            for a = 1,#messages_to_ignore do
+
+            for a = 1, #messages_to_ignore do
                 data = messages_to_ignore[a]
             end
-            
+
             if not data:match(message[1]) then
                 local function ChatHandler(PlayerIndex, Message)
                     for b = 0, #message do
@@ -594,28 +595,29 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     for i = 1, 16 do
                                         if player_present(i) then
                                             if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                                local TeamMessageFormat = settings.mod["Chat IDs"].team_format
-                                                for j = 1, #TeamMessageFormat do
-                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%sender_name%%", name)
-                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%index%%", id)
-                                                    TeamMessageFormat[j] = string.gsub(TeamMessageFormat[j], "%%message%%", Message)
+                                                local TeamMessageFormat = settings.mod["Chat IDs"].team_format[1]
+                                                for k, v in pairs(settings.mod["Chat IDs"].team_format) do
+                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%sender_name%%", name)
+                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%index%%", id)
+                                                    TeamMessageFormat = string.gsub(TeamMessageFormat, "%%message%%", Message)
                                                     execute_command("msg_prefix \"\"")
-                                                    say(i, TeamMessageFormat[j])
+                                                    say(i, TeamMessageFormat)
                                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                                     response = false
                                                 end
+
                                             end
                                         end
                                     end
                                 end
                                 local function SendToAll(Message)
-                                    local GlobalMessageFormat = settings.mod["Chat IDs"].global_format
-                                    for j = 1, #GlobalMessageFormat do
-                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%sender_name%%", name)
-                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%index%%", id)
-                                        GlobalMessageFormat[j] = string.gsub(GlobalMessageFormat[j], "%%message%%", Message)
+                                    local GlobalMessageFormat = settings.mod["Chat IDs"].global_format[1]
+                                    for k, v in pairs(settings.mod["Chat IDs"].global_format) do
+                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%sender_name%%", name)
+                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%index%%", id)
+                                        GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%message%%", Message)
                                         execute_command("msg_prefix \"\"")
-                                        say_all(GlobalMessageFormat[j])
+                                        say_all(GlobalMessageFormat)
                                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                         response = false
                                     end
@@ -645,7 +647,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-    
+
     -- #Admin Chat
     if settings.mod["Admin Chat"].enabled == true then
         local function AdminChat(Message, PlayerIndex)
@@ -662,14 +664,16 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
         local message = tokenizestring(Message)
-        if #message == 0 then return nil end
+        if #message == 0 then
+            return nil
+        end
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[get_var(PlayerIndex, "$name")].adminchat == true then
             for c = 0, #message do
                 if message[c] then
                     if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
                         response = true
                     else
-                    
+
                         local MessageFormat = settings.mod["Admin Chat"].message_format
                         for k, v in pairs(MessageFormat) do
                             for j = 1, #MessageFormat do
@@ -710,7 +714,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         local t = tokenizestring(Command)
@@ -873,6 +877,42 @@ function printEnabled()
             cprint(k .. " is disabled", 4 + 8)
         end
     end
+end
+
+function table.val_to_str (v)
+    if "string" == type(v) then
+        v = string.gsub(v, "\n", "\\n")
+        if string.match(string.gsub(v, "[^'\"]", ""), '^"+$') then
+            return "'" .. v .. "'"
+        end
+        return '"' .. string.gsub(v, '"', '\\"') .. '"'
+    else
+        return "table" == type(v) and table.tostring(v) or
+                tostring(v)
+    end
+end
+
+function table.key_to_str (k)
+    if "string" == type(k) and string.match(k, "^[_%a][_%a%d]*$") then
+        return k
+    else
+        return "[" .. table.val_to_str(k) .. "]"
+    end
+end
+
+function table.tostring(tbl)
+    local result, done = {}, {}
+    for k, v in ipairs(tbl) do
+        table.insert(result, table.val_to_str(v))
+        done[k] = true
+    end
+    for k, v in pairs(tbl) do
+        if not done[k] then
+            table.insert(result,
+                    table.key_to_str(k) .. "=" .. table.val_to_str(v))
+        end
+    end
+    return "{" .. table.concat(result, ",") .. "}"
 end
 
 function OnError(Message)
