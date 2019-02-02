@@ -64,6 +64,7 @@ local function GameSettings()
             },
             ["Custom Weapons"] = {
                 enabled = true,
+                assign_weapons = true,
                 assign_custom_frags = true,
                 assign_custom_plasmas = true,
                 weapons = {
@@ -109,6 +110,14 @@ local function GameSettings()
                     "playerlist",
                     "playerslist"
                 }
+            },
+            ["Alias System"] = {
+                enabled = true,
+                base_command = "alias",
+                dir = "sapp\\alias.lua",
+                permission_level = 1,
+                alignment = "l",
+                duration = 10,
             }
         },
         global = {
@@ -123,7 +132,7 @@ local function GameSettings()
     }
 end
 
--- Tables used globally
+-- Tables used Globally
 players = { }
 player_data = { }
 quit_data = { }
@@ -144,6 +153,12 @@ game_over = nil
 weapon = { }
 frags = { }
 plasmas = { }
+
+-- #Alias System
+trigger = { }
+alias_timer = { }
+index = nil
+alias_bool = {}
 
 function OnScriptLoad()
     loadWeaponTags()
@@ -167,7 +182,18 @@ function OnScriptLoad()
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                players[get_var(i, "$n")].message_board_timer = 0
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].message_board_timer = 0
+            end
+        end
+    end
+    
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].alias_timer = 0
             end
         end
     end
@@ -185,8 +211,9 @@ function OnScriptLoad()
             for i = 1, 16 do
                 if player_present(i) then
                     if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
-                        players[get_var(i, "$name")].adminchat = nil
-                        players[get_var(i, "$name")].boolean = nil
+                        local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                        players[p_table].adminchat = nil
+                        players[p_table].boolean = nil
                     end
                 end
             end
@@ -209,8 +236,9 @@ function OnScriptUnload()
         for i = 1, 16 do
             if player_present(i) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
-                    players[get_var(i, "$name")].adminchat = false
-                    players[get_var(i, "$name")].boolean = false
+                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                    players[p_table].adminchat = false
+                    players[p_table].boolean = false
                 end
             end
         end
@@ -218,7 +246,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    -- Used globally
+    -- Used Globally
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
@@ -228,14 +256,24 @@ function OnNewGame()
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                if player_present(i) then
-                    players[get_var(i, "$n")].message_board_timer = 0
-                end
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].message_board_timer = 0
             end
         end
     end
 
-
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                alias_bool[i] = false
+                trigger[i] = false
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].alias_timer = 0
+            end
+        end
+    end
+    
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
         local function consoleLogo()
@@ -259,7 +297,6 @@ function OnNewGame()
         consoleLogo()
     end
 
-
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -280,8 +317,9 @@ function OnNewGame()
         for i = 1, 16 do
             if player_present(i) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
-                    players[get_var(i, "$name")].adminchat = false
-                    players[get_var(i, "$name")].boolean = false
+                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                    players[p_table].adminchat = false
+                    players[p_table].boolean = false
                 end
             end
         end
@@ -291,21 +329,37 @@ end
 function OnGameEnd()
     -- Used Globally
     game_over = true
-
-
+    
+    -- #Weapon Settings
+    for i = 1,16 do
+        if player_present(i) then
+            weapon[i] = false
+        end
+    end
+    
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                alias_bool[i] = false
+                trigger[i] = false
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].alias_timer = 0
+            end
+        end
+    end
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                if player_present(i) then
-                    welcome_timer[i] = false
-                    players[get_var(i, "$n")].message_board_timer = 0
-                end
+                welcome_timer[i] = false
+                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                players[p_table].message_board_timer = 0
             end
         end
     end
-
-
+    
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -317,14 +371,14 @@ function OnGameEnd()
         end
     end
 
-
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     if (Restore_Previous_State == true) then
-                        if players[get_var(i, "$name")].adminchat == true then
+                        if players[p_table].adminchat == true then
                             bool = "true"
                         else
                             bool = "false"
@@ -333,8 +387,8 @@ function OnGameEnd()
                         stored_data[data] = stored_data[data] or { }
                         table.insert(stored_data[data], tostring(data[i]))
                     else
-                        players[get_var(i, "$name")].adminchat = false
-                        players[get_var(i, "$name")].boolean = false
+                        players[p_table].adminchat = false
+                        players[p_table].boolean = false
                     end
                 end
             end
@@ -348,7 +402,8 @@ function OnTick()
         for i = 1, 16 do
             if player_present(i) then
                 if (welcome_timer[i] == true) then
-                    players[get_var(i, "$n")].message_board_timer = players[get_var(i, "$n")].message_board_timer + 0.030
+                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                    players[p_table].message_board_timer = players[p_table].message_board_timer + 0.030
                     cls(i)
                     local message_board = settings.mod["Message Board"].messages
                     for k, v in pairs(message_board) do
@@ -361,16 +416,16 @@ function OnTick()
                         end
                         rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. v)
                     end
-                    if players[get_var(i, "$n")].message_board_timer >= math.floor(settings.mod["Message Board"].duration) then
+                    if players[p_table].message_board_timer >= math.floor(settings.mod["Message Board"].duration) then
                         welcome_timer[i] = false
-                        players[get_var(i, "$n")].message_board_timer = 0
+                        players[p_table].message_board_timer = 0
                     end
                 end
             end
         end
     end
     -- Custom Weapons
-    if (settings.mod["Custom Weapons"].enabled == true) then
+    if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
         for i = 1, 16 do
             if (player_alive(i)) then
                 local player = get_dynamic_player(i)
@@ -405,6 +460,45 @@ function OnTick()
                         
                     end
                     weapon[i] = false
+                end
+            end
+        end
+    end
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if (trigger[i] == true) then
+                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                    players[p_table].alias_timer = players[p_table].alias_timer + 0.030
+                    cls(i)
+                    concatValues(i, 1, 6)
+                    concatValues(i, 7, 12)
+                    concatValues(i, 13, 18)
+                    concatValues(i, 19, 24)
+                    concatValues(i, 25, 30)
+                    concatValues(i, 31, 36)
+                    concatValues(i, 37, 42)
+                    concatValues(i, 43, 48)
+                    concatValues(i, 49, 55)
+                    concatValues(i, 56, 61)
+                    concatValues(i, 62, 67)
+                    concatValues(i, 68, 73)
+                    concatValues(i, 74, 79)
+                    concatValues(i, 80, 85)
+                    concatValues(i, 86, 91)
+                    concatValues(i, 92, 97)
+                    concatValues(i, 98, 100)
+                    if (alias_bool[i] == true) then
+                        local alignment = settings.mod["Alias System"].alignment
+                        rprint(i, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target_hash .. '"')
+                    end
+                    local duration = settings.mod["Alias System"].duration
+                    if players[p_table].alias_timer >= math.floor(duration) then
+                        trigger[i] = false
+                        alias_bool[i] = false
+                        players[p_table].alias_timer = 0
+                    end
                 end
             end
         end
@@ -459,7 +553,7 @@ function OnPlayerJoin(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
-
+    
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -469,10 +563,20 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
 
+    -- Used Globally
+    local p_table = name .. ", " .. hash
+    players[p_table] = { }
+   
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
-        players[id] = { }
-        players[id].message_board_timer = 0
+        players[p_table].message_board_timer = 0
+        welcome_timer[PlayerIndex] = true
+    end
+    
+        -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        addAlias(name, hash)
+        players[p_table].alias_timer = 0
         welcome_timer[PlayerIndex] = true
     end
 
@@ -515,23 +619,22 @@ function OnPlayerJoin(PlayerIndex)
 
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        players[get_var(PlayerIndex, "$name")] = { }
-        players[get_var(PlayerIndex, "$name")].adminchat = nil
-        players[get_var(PlayerIndex, "$name")].boolean = nil
+        players[p_table].adminchat = nil
+        players[p_table].boolean = nil
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
             if (settings.mod["Admin Chat"].restore_previous_state == true) then
                 local t = tokenizestring(tostring(data[PlayerIndex]), ":")
                 if t[2] == "true" then
                     rprint(PlayerIndex, "Your admin chat is on!")
-                    players[get_var(PlayerIndex, "$name")].adminchat = true
-                    players[get_var(PlayerIndex, "$name")].boolean = true
+                    players[p_table].adminchat = true
+                    players[p_table].boolean = true
                 else
-                    players[get_var(PlayerIndex, "$name")].adminchat = false
-                    players[get_var(PlayerIndex, "$name")].boolean = false
+                    players[p_table].adminchat = false
+                    players[p_table].boolean = false
                 end
             else
-                players[get_var(PlayerIndex, "$name")].adminchat = false
-                players[get_var(PlayerIndex, "$name")].boolean = false
+                players[p_table].adminchat = false
+                players[p_table].boolean = false
             end
         end
     end
@@ -543,7 +646,16 @@ function OnPlayerLeave(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip
 
-
+    -- Used Globally
+    local p_table = name .. ", " .. hash
+    
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        alias_bool[PlayerIndex] = false
+        trigger[PlayerIndex] = false
+        players[p_table].alias_timer = 0
+    end
+    
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -560,7 +672,7 @@ function OnPlayerLeave(PlayerIndex)
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
-        players[get_var(PlayerIndex, "$n")].message_board_timer = 0
+        players[p_table].message_board_timer = 0
     end
 
 
@@ -581,7 +693,7 @@ function OnPlayerLeave(PlayerIndex)
             if PlayerIndex ~= 0 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
-                        if players[get_var(PlayerIndex, "$name")].adminchat == true then
+                        if players[p_table].adminchat == true then
                             bool = "true"
                         else
                             bool = "false"
@@ -590,8 +702,8 @@ function OnPlayerLeave(PlayerIndex)
                         stored_data[data] = stored_data[data] or { }
                         table.insert(stored_data[data], tostring(data[PlayerIndex]))
                     else
-                        players[get_var(PlayerIndex, "$name")].adminchat = false
-                        players[get_var(PlayerIndex, "$name")].boolean = false
+                        players[p_table].adminchat = false
+                        players[p_table].boolean = false
                     end
                 end
             end
@@ -621,8 +733,12 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
+    local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local response
+    
+        -- Used Globally
+    local p_table = name .. ", " .. hash
 
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
@@ -768,7 +884,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
                 end
                 if (settings.mod["Admin Chat"].enabled == true) then
-                    if (players[get_var(PlayerIndex, "$name")].adminchat ~= true) then
+                    if (players[p_table].adminchat ~= true) then
                         ChatHandler(PlayerIndex, Message)
                     end
                 else
@@ -797,7 +913,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if #message == 0 then
             return nil
         end
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[get_var(PlayerIndex, "$name")].adminchat == true then
+        
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[p_table].adminchat == true then
             for c = 0, #message do
                 if message[c] then
                     if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
@@ -823,6 +940,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    local name = get_var(PlayerIndex, "$name")
+    local hash = get_var(PlayerIndex, "$hash")
+    
+    -- Used Globally
+    local p_table = name .. ", " .. hash
+    
     -- #List Players
     if (settings.mod["List Players"].enabled == true) then
         local t = tokenizestring(Command)
@@ -851,9 +974,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                        if players[get_var(PlayerIndex, "$name")].boolean ~= true then
-                            players[get_var(PlayerIndex, "$name")].adminchat = true
-                            players[get_var(PlayerIndex, "$name")].boolean = true
+                        if players[p_table].boolean ~= true then
+                            players[p_table].adminchat = true
+                            players[p_table].boolean = true
                             rprint(PlayerIndex, "Admin Chat enabled.")
                             return false
                         else
@@ -861,9 +984,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             return false
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                        if players[get_var(PlayerIndex, "$name")].boolean ~= false then
-                            players[get_var(PlayerIndex, "$name")].adminchat = false
-                            players[get_var(PlayerIndex, "$name")].boolean = false
+                        if players[p_table].boolean ~= false then
+                            players[p_table].adminchat = false
+                            players[p_table].boolean = false
                             rprint(PlayerIndex, "Admin Chat disabled.")
                             return false
                         else
@@ -881,6 +1004,49 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             else
                 cprint("The Server cannot execute this command!", 4 + 8)
             end
+        end
+    end
+    -- #Alias System
+    if (settings.mod["Alias System"].enabled == true) then
+        local t = tokenizestring(Command)
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then 
+            if t[1] == string.lower(settings.mod["Alias System"].base_command) then
+                if t[2] ~= nil then
+                    if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
+                        if player_present(tonumber(t[2])) then
+                            local index = tonumber(t[2])
+                            target_hash = tostring(get_var(index, "$hash"))
+                            if trigger[PlayerIndex] == true then
+                                -- aliases already showing (clear console then show again)
+                                cls(PlayerIndex)
+                                players[p_table].alias_timer = 0
+                                trigger[PlayerIndex] = true
+                                alias_bool[PlayerIndex] = true
+                            else
+                                -- show aliases (first time)
+                                trigger[PlayerIndex] = true
+                                alias_bool[PlayerIndex] = true
+                            end
+                        else
+                            players[p_table].alias_timer = 0
+                            trigger[PlayerIndex] = false
+                            cls(PlayerIndex)
+                            rprint(PlayerIndex, "Player not present")
+                        end
+                    else
+                        players[p_table].alias_timer = 0
+                        trigger[PlayerIndex] = false
+                        cls(PlayerIndex)
+                        rprint(PlayerIndex, "Invalid player id")
+                    end
+                    return false
+                else
+                    rprint(PlayerIndex, "Invalid syntax. Use /" .. base_command .. " [id]")
+                    return false
+                end
+            end
+        else
+            rprint(PlayerIndex, "Insufficient Permission")
         end
     end
 end
@@ -968,13 +1134,9 @@ function tokenizestring(inputString, Separator)
     return t
 end
 
--- Used globally
+-- Used Globally
 function getPermLevel(script)
     return settings.mod[script].permission_level
-end
-
-function getAdminChat(PlayerIndex)
-    return players[get_var(PlayerIndex, "$name")].adminchat
 end
 
 -- Used Globally
@@ -984,6 +1146,15 @@ function GetTeamPlay()
     else
         return false
     end
+end
+
+-- Used Globally
+function lines_from(file)
+    lines = {}
+    for line in io.lines(file) do
+        lines[#lines + 1] = line
+    end
+    return lines
 end
 
 -- Saves player join data (name, hash, ip address, id)
@@ -1007,6 +1178,7 @@ function printEnabled()
     end
 end
 
+-- #Weapon Settings
 function loadWeaponTags()
     pistol = "weapons\\pistol\\pistol"
     sniper = "weapons\\sniper rifle\\sniper rifle"
@@ -1054,6 +1226,75 @@ function table.tostring(tbl)
         end
     end
     return "{" .. table.concat(result, ",") .. "}"
+end
+
+-- #Alias System
+function addAlias(name, hash)
+    local file_name = settings.mod["Alias System"].dir
+    local file = io.open(file_name, "r")
+    local data = file:read("*a")
+    file:close()
+    if string.match(data, hash) then
+        local lines = lines_from(file_name)
+        for k, v in pairs(lines) do
+            if string.match(v, hash) then
+                if not v:match(name) then
+                    local alias = v .. ", " .. name
+                    local f = io.open(file_name, "r")
+                    local content = f:read("*all")
+                    f:close()
+                    content = string.gsub(content, v, alias)
+                    local f = io.open(file_name, "w")
+                    f:write(content)
+                    f:close()
+                end
+            end
+        end
+    else
+        local file = assert(io.open(file_name, "a+"))
+        file:write("\n" .. hash .. ":" .. name, "\n")
+        file:close()
+    end
+end
+
+-- #Alias System
+function checkFile()
+    local file_name = settings.mod["Alias System"].dir
+    local file = io.open(file_name, "rb")
+    if file then
+        file:close()
+    else
+        local file = io.open(file_name, "a+")
+        if file then
+            file:close()
+        end
+    end
+end
+
+function concatValues(PlayerIndex, start_index, end_index)
+    local file_name = settings.mod["Alias System"].dir
+    local lines = lines_from(file_name)
+    for k, v in pairs(lines) do
+        if v:match(target_hash) then
+            local aliases = string.match(v, (":(.+)"))
+            local words = tokenizestring(aliases, ", ")
+            local word_table = {}
+            local row
+            for i = tonumber(start_index), tonumber(end_index) do
+                if words[i] ~= nil then
+                    table.insert(word_table, words[i])
+                    row = table.concat(word_table, ", ")
+                end
+            end
+            if row ~= nil then
+                rprint(PlayerIndex, "|" .. settings.mod["Alias System"].alignment .. " " .. row)
+            end
+            for _ in pairs(word_table) do
+                word_table[_] = nil
+            end
+            break
+        end
+    end
 end
 
 function OnError(Message)
