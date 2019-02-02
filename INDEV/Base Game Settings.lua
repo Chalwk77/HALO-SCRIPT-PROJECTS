@@ -1066,47 +1066,6 @@ function table.tostring(tbl)
     return "{" .. table.concat(result, ",") .. "}"
 end
 
-function GrenadeTable()
-    frags = {
-        beavercreek = 3,
-        bloodgulch = 4,
-        boardingaction = 1,
-        carousel = 3,
-        dangercanyon = 4,
-        deathisland = 1,
-        gephyrophobia = 3,
-        icefields = 1,
-        infinity = 2,
-        sidewinder = 3,
-        timberland = 2,
-        hangemhigh = 3,
-        ratrace = 3,
-        damnation = 1,
-        putput = 4,
-        prisoner = 2,
-        wizard = 1
-    }
-    plasmas = {
-        beavercreek = 1,
-        bloodgulch = 2,
-        boardingaction = 3,
-        carousel = 3,
-        dangercanyon = 4,
-        deathisland = 1,
-        gephyrophobia = 3,
-        icefields = 1,
-        infinity = 4,
-        sidewinder = 2,
-        timberland = 4,
-        hangemhigh = 3,
-        ratrace = 2,
-        damnation = 3,
-        putput = 1,
-        prisoner = 1,
-        wizard = 2,
-    }
-end
-
 function OnError(Message)
     print(debug.traceback())
 end
