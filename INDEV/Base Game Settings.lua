@@ -21,7 +21,7 @@ local function GameSettings()
                 prefix = "[ADMIN CHAT]",
                 restore_previous_state = true,
                 environment = "rcon",
-                message_format = {"%prefix% %sender_name% [%index%] %message%"}
+                message_format = { "%prefix% %sender_name% [%index%] %message%" }
             },
             ["Chat IDs"] = {
                 enabled = true,
@@ -69,24 +69,24 @@ local function GameSettings()
                 assign_custom_plasmas = true,
                 weapons = {
                     -- Weap 1,Weap 2,Weap 3,Weap 4, , frags, plasmas
-                    ["beavercreek"] = {sniper, pistol, rocket_launcher, shotgun, 4, 2},
-                    ["bloodgulch"] = {sniper, pistol, nil, nil, 2, 2},
-                    ["boardingaction"] = {plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3},
-                    ["carousel"] = {nil, nil, pistol, needler, 3, 3},
-                    ["dangercanyon"] = {nil, plasma_rifle, nil, pistol, 4, 4},
-                    ["deathisland"] = {assault_rifle, nil, plasma_cannon, sniper, 1, 1},
-                    ["gephyrophobia"] = {nil, nil, nil, shotgun, 3, 3},
-                    ["icefields"] = {plasma_rifle, nil, plasma_rifle, nil, 2, 3},
-                    ["infinity"] = {assault_rifle, nil, nil, nil, 2, 4},
-                    ["sidewinder"] = {nil, rocket_launcher, nil, assault_rifle, 3, 2},
-                    ["timberland"] = {nil, nil, nil, pistol, 2, 4},
-                    ["hangemhigh"] = {flamethrower, nil, flamethrower, nil, 3, 3},
-                    ["ratrace"] = {nil, nil, nil, nil, 3, 2},
-                    ["damnation"] = {plasma_rifle, nil, nil, plasma_rifle, 1, 3},
-                    ["putput"] = {nil, rocket_launcher, assault_rifle, pistol, 4, 1},
-                    ["prisoner"] = {nil, nil, pistol, plasma_rifle, 2, 1},
-                    ["wizard"] = {rocket_launcher, nil, shotgun, nil, 1, 2}
-                    
+                    ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
+                    ["bloodgulch"] = { sniper, pistol, nil, nil, 2, 2 },
+                    ["boardingaction"] = { plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3 },
+                    ["carousel"] = { nil, nil, pistol, needler, 3, 3 },
+                    ["dangercanyon"] = { nil, plasma_rifle, nil, pistol, 4, 4 },
+                    ["deathisland"] = { assault_rifle, nil, plasma_cannon, sniper, 1, 1 },
+                    ["gephyrophobia"] = { nil, nil, nil, shotgun, 3, 3 },
+                    ["icefields"] = { plasma_rifle, nil, plasma_rifle, nil, 2, 3 },
+                    ["infinity"] = { assault_rifle, nil, nil, nil, 2, 4 },
+                    ["sidewinder"] = { nil, rocket_launcher, nil, assault_rifle, 3, 2 },
+                    ["timberland"] = { nil, nil, nil, pistol, 2, 4 },
+                    ["hangemhigh"] = { flamethrower, nil, flamethrower, nil, 3, 3 },
+                    ["ratrace"] = { nil, nil, nil, nil, 3, 2 },
+                    ["damnation"] = { plasma_rifle, nil, nil, plasma_rifle, 1, 3 },
+                    ["putput"] = { nil, rocket_launcher, assault_rifle, pistol, 4, 1 },
+                    ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
+                    ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 }
+
                 }
             },
             ["Anti Impersonator"] = {
@@ -118,6 +118,30 @@ local function GameSettings()
                 permission_level = 1,
                 alignment = "l",
                 duration = 10,
+            },
+            ["Respawn Time"] = {
+                enabled = true,
+                maps = {
+                    -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
+                    ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["boardingaction"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["carousel"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dangercanyon"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deathisland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gephyrophobia"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["icefields"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["infinity"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sidewinder"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["timberland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["hangemhigh"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ratrace"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["damnation"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["putput"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["prisoner"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["wizard"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["longest"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                }
             }
         },
         global = {
@@ -172,11 +196,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    
+
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+
+    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -187,7 +213,7 @@ function OnScriptLoad()
             end
         end
     end
-    
+
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         for i = 1, 16 do
@@ -219,7 +245,7 @@ function OnScriptLoad()
             end
         end
     end
-    
+
     -- #Custom Weapons
     if (settings.mod["Custom Weapons"].enabled == true) then
         if not (game_over) then
@@ -251,7 +277,7 @@ function OnNewGame()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
     mapname = get_var(0, "$map")
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -273,7 +299,7 @@ function OnNewGame()
             end
         end
     end
-    
+
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
         local function consoleLogo()
@@ -329,14 +355,14 @@ end
 function OnGameEnd()
     -- Used Globally
     game_over = true
-    
+
     -- #Weapon Settings
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             weapon[i] = false
         end
     end
-    
+
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         for i = 1, 16 do
@@ -348,7 +374,7 @@ function OnGameEnd()
             end
         end
     end
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -359,7 +385,7 @@ function OnGameEnd()
             end
         end
     end
-    
+
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -433,31 +459,31 @@ function OnTick()
                     execute_command("wdel " .. i)
                     local x, y, z = read_vector3d(player + 0x5C)
                     if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
-                    
-                        local primary, secondary, tertiary, quaternary, Slot = select(1,determineWeapon())
+
+                        local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
 
                         if (secondary) then
                             assign_weapon(spawn_object("weap", secondary, x, y, z), i)
                         end
-                        
+
                         if (primary) then
                             assign_weapon(spawn_object("weap", primary, x, y, z), i)
                         end
-                        
+
                         if (Slot == 3 or Slot == 4) then
                             timer(100, "delayAssign", player, x, y, z)
                         end
-                        
+
                         function delayAssign()
                             if (quaternary) then
                                 assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
                             end
-                            
+
                             if (tertiary) then
                                 assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
                             end
                         end
-                        
+
                     end
                     weapon[i] = false
                 end
@@ -507,23 +533,23 @@ end
 
 function determineWeapon()
     local primary, secondary, tertiary, quaternary, Slot
-    for i = 1,4 do
+    for i = 1, 4 do
         local weapon = settings.mod["Custom Weapons"].weapons[mapname][i]
         if (weapon ~= nil) then
-            if (i == 1 and settings.mod["Custom Weapons"].weapons[mapname][1] ~= nil) then 
-                primary = settings.mod["Custom Weapons"].weapons[mapname][1] 
+            if (i == 1 and settings.mod["Custom Weapons"].weapons[mapname][1] ~= nil) then
+                primary = settings.mod["Custom Weapons"].weapons[mapname][1]
                 Slot = 1
             end
-            if (i == 2 and settings.mod["Custom Weapons"].weapons[mapname][2] ~= nil) then 
+            if (i == 2 and settings.mod["Custom Weapons"].weapons[mapname][2] ~= nil) then
                 secondary = settings.mod["Custom Weapons"].weapons[mapname][2]
                 Slot = 2
             end
-            if (i == 3 and settings.mod["Custom Weapons"].weapons[mapname][3] ~= nil) then 
-                tertiary = settings.mod["Custom Weapons"].weapons[mapname][3] 
+            if (i == 3 and settings.mod["Custom Weapons"].weapons[mapname][3] ~= nil) then
+                tertiary = settings.mod["Custom Weapons"].weapons[mapname][3]
                 Slot = 3
             end
-            if (i == 4 and settings.mod["Custom Weapons"].weapons[mapname][4] ~= nil) then 
-                quaternary = settings.mod["Custom Weapons"].weapons[mapname][4] 
+            if (i == 4 and settings.mod["Custom Weapons"].weapons[mapname][4] ~= nil) then
+                quaternary = settings.mod["Custom Weapons"].weapons[mapname][4]
                 Slot = 4
             end
         end
@@ -541,7 +567,7 @@ function OnPlayerPrejoin(PlayerIndex)
     for k, v in ipairs(player_data) do
         if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
             cprint("--------------------------------------------------------------------------------")
-            cprint("Player attempting to connect to the server...", 5+8)
+            cprint("Player attempting to connect to the server...", 5 + 8)
             cprint(v, 2 + 8)
             break
         end
@@ -553,11 +579,11 @@ function OnPlayerJoin(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
-    
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2+8)
+            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
             cprint("Status: " .. name .. " connected successfully.", 5 + 8)
             cprint("--------------------------------------------------------------------------------")
         end
@@ -566,14 +592,14 @@ function OnPlayerJoin(PlayerIndex)
     -- Used Globally
     local p_table = name .. ", " .. hash
     players[p_table] = { }
-   
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         players[p_table].message_board_timer = 0
         welcome_timer[PlayerIndex] = true
     end
-    
-        -- #Alias System
+
+    -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         addAlias(name, hash)
         players[p_table].alias_timer = 0
@@ -648,14 +674,14 @@ function OnPlayerLeave(PlayerIndex)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-    
+
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         alias_bool[PlayerIndex] = false
         trigger[PlayerIndex] = false
         players[p_table].alias_timer = 0
     end
-    
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -731,13 +757,54 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+function OnPlayerKill(PlayerIndex)
+    -- #Respawn Time
+    if (settings.mod["Respawn Time"].enabled == true) then
+        local player = get_player(PlayerIndex)
+        write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+    end
+end
+
+-- #Respawn Time
+function getSpawnTime()
+    local spawntime
+    if (get_var(1, "$gt") == "ctf") then
+        spawntime = settings.mod["Respawn Time"].maps[mapname][1]
+    elseif (get_var(1, "$gt") == "slayer") then
+        if not getTeamPlay() then
+            spawntime = settings.mod["Respawn Time"].maps[mapname][2]
+        else
+            spawntime = settings.mod["Respawn Time"].maps[mapname][3]
+        end
+    elseif (get_var(1, "$gt") == "koth") then
+        if not getTeamPlay() then
+            spawntime = settings.mod["Respawn Time"].maps[mapname][4]
+        else
+            spawntime = settings.mod["Respawn Time"].maps[mapname][5]
+        end
+    elseif (get_var(1, "$gt") == "oddball") then
+        if not getTeamPlay() then
+            spawntime = settings.mod["Respawn Time"].maps[mapname][6]
+        else
+            spawntime = settings.mod["Respawn Time"].maps[mapname][7]
+        end
+    elseif (get_var(1, "$gt") == "race") then
+        if not getTeamPlay() then
+            spawntime = settings.mod["Respawn Time"].maps[mapname][8]
+        else
+            spawntime = settings.mod["Respawn Time"].maps[mapname][9]
+        end
+    end
+    return spawntime
+end
+
 function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local response
-    
-        -- Used Globally
+
+    -- Used Globally
     local p_table = name .. ", " .. hash
 
     -- #Command Spy
@@ -913,7 +980,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if #message == 0 then
             return nil
         end
-        
+
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[p_table].adminchat == true then
             for c = 0, #message do
                 if message[c] then
@@ -942,10 +1009,10 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
-    
+
     -- Used Globally
     local p_table = name .. ", " .. hash
-    
+
     -- #List Players
     if (settings.mod["List Players"].enabled == true) then
         local t = tokenizestring(Command)
@@ -1009,7 +1076,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         local t = tokenizestring(Command)
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then 
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then
             if t[1] == string.lower(settings.mod["Alias System"].base_command) then
                 if t[2] ~= nil then
                     if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
