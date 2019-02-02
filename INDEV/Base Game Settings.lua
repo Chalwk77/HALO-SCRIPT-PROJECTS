@@ -16,9 +16,20 @@ settings = {
     mod = {
         ["Admin Chat"] = {
             enabled = true,
+            base_command = "achat",
+            permission_level = 1,
+            prefix = "[ADMIN CHAT]",
+            restore_previous_state = true,
+            Format = "rcon"
         },
         ["Chat IDs"] = {
             enabled = true,
+            global_format = "%sender_name% [%index%]: %message%",
+            team_format = "[%sender_name%] [%index%]: %message%",
+            ignore_list = {
+                "skip", 
+                "rtv"
+            },
         },
         ["Message Board"] = {
             enabled = true,
@@ -92,6 +103,13 @@ quit_data = { }
 welcome_timer = { }
 message_board_timer = { }
 
+-- Admin Chat
+data = { }
+adminchat = { }
+stored_data = { }
+boolean = { }
+game_over = nil
+
 function OnScriptLoad()
     printEnabled()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -106,8 +124,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     
+    -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
-        -- #Message Board
         for i = 1, 16 do
             if player_present(i) then
                 players[get_var(i, "$n")].message_board_timer = 0
@@ -121,17 +139,42 @@ function OnScriptLoad()
     else
         ce = 0x40
     end
+    
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        if not (game_over) then
+            for i = 1, 16 do
+                if player_present(i) then
+                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                        players[get_var(i, "$name")].adminchat = nil
+                        players[get_var(i, "$name")].boolean = nil
+                    end
+                end
+            end
+        end
+    end
 end
    
 function OnScriptUnload()
-    --
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    players[get_var(i, "$name")].adminchat = false
+                    players[get_var(i, "$name")].boolean = false
+                end
+            end
+        end
+    end
 end
 
 function OnNewGame()
-    
     -- Used globally
+    game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
+    
     
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -143,6 +186,7 @@ function OnNewGame()
             end
         end
     end
+    
     
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
@@ -167,6 +211,7 @@ function OnNewGame()
         consoleLogo()
     end
     
+    
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -181,9 +226,25 @@ function OnNewGame()
             file:close()
         end
     end
+    
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    players[get_var(i, "$name")].adminchat = false
+                    players[get_var(i, "$name")].boolean = false
+                end
+            end
+        end
+    end
 end
 
 function OnGameEnd()
+    -- Used Globally
+    game_over = true
+    
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -195,6 +256,8 @@ function OnGameEnd()
             end
         end
     end
+    
+    
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -203,6 +266,30 @@ function OnGameEnd()
             local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
             file:write(data)
             file:close()
+        end
+    end
+    
+    
+    -- #Admin Chat
+    if settings.mod["Admin Chat"].enabled == true then
+        for i = 1, 16 do
+            if player_present(i) then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    if (Restore_Previous_State == true) then
+                        if players[get_var(i, "$name")].adminchat == true then
+                            bool = "true"
+                        else
+                            bool = "false"
+                        end
+                        data[i] = get_var(i, "$name") .. ":" .. bool
+                        stored_data[data] = stored_data[data] or { }
+                        table.insert(stored_data[data], tostring(data[i]))
+                    else
+                        players[get_var(i, "$name")].adminchat = false
+                        players[get_var(i, "$name")].boolean = false
+                    end
+                end
+            end
         end
     end
 end
@@ -243,8 +330,6 @@ function OnPlayerPrejoin(PlayerIndex)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
     local name, hash, ip, id = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n")
     savePlayerData(name, hash, ip, id)
-    
-    -- #CONSOLE OUTPUT
     cprint("--------------------------------------------------------------------------------")
     for k, v in ipairs(player_data) do
        if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
@@ -312,6 +397,30 @@ function OnPlayerJoin(PlayerIndex)
             file:close()
         end
     end
+    
+    
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+            players[get_var(PlayerIndex, "$name")] = { }
+            players[get_var(PlayerIndex, "$name")].adminchat = nil
+            players[get_var(PlayerIndex, "$name")].boolean = nil
+            if (settings.mod["Admin Chat"].restore_previous_state == true) then
+                local t = tokenizestring(tostring(data[PlayerIndex]), ":")
+                if t[2] == "true" then
+                    rprint(PlayerIndex, "Your admin chat is on!")
+                    players[get_var(PlayerIndex, "$name")].adminchat = true
+                    players[get_var(PlayerIndex, "$name")].boolean = true
+                else
+                    players[get_var(PlayerIndex, "$name")].adminchat = false
+                    players[get_var(PlayerIndex, "$name")].boolean = false
+                end
+            else
+                players[get_var(PlayerIndex, "$name")].adminchat = false
+                players[get_var(PlayerIndex, "$name")].boolean = false
+            end
+        end
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -319,6 +428,8 @@ function OnPlayerLeave(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip
+    
+    
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -329,11 +440,13 @@ function OnPlayerLeave(PlayerIndex)
         end
     end
     
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
         players[get_var(PlayerIndex, "$n")].message_board_timer = 0
     end
+    
     
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
@@ -345,10 +458,34 @@ function OnPlayerLeave(PlayerIndex)
             file:close()
         end
     end
+    
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+            if PlayerIndex ~= 0 then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+                    if (settings.mod["Admin Chat"].restore_previous_state == true) then
+                        if players[get_var(PlayerIndex, "$name")].adminchat == true then
+                            bool = "true"
+                        else
+                            bool = "false"
+                        end
+                        data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
+                        stored_data[data] = stored_data[data] or { }
+                        table.insert(stored_data[data], tostring(data[PlayerIndex]))
+                    else
+                        players[get_var(PlayerIndex, "$name")].adminchat = false
+                        players[get_var(PlayerIndex, "$name")].boolean = false
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
+    local id = get_var(PlayerIndex, "$id")
     
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
@@ -383,6 +520,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
+    
+   
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local message = tostring(Message)
@@ -422,6 +561,107 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
+    
+    -- #Chat IDs
+    if (settings.mod["Chat IDs"].enabled == true) then
+        if (game_over == false) then
+            local message = tokenizestring(Message)
+            if (#message == 0) then return nil end
+            local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
+            for i = 1,#messages_to_ignore do
+                if not messages_to_ignore[i]:match(message[1]) then
+                    local function ChatHandler(PlayerIndex, Message)
+                        for i = 0, #message do
+                            if message[i] then
+                                if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                                    return true
+                                else
+                                    local function SendToTeam(Message, PlayerIndex)
+                                        for i = 1, 16 do
+                                            if player_present(i) then
+                                                if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
+                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%sender_name%%", name)
+                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%index%%", id)
+                                                    local team_format = string.gsub(settings.mod["Chat IDs"].team_format, "%%message%%", Message)
+                                                    execute_command("msg_prefix \"\"")
+                                                    say(i, team_format)
+                                                    execute_command("msg_prefix \" *  * SERVER *  * \"")
+                                                end
+                                            end
+                                        end
+                                    end
+                                    local function SendToAll(Message, PlayerIndex)
+                                        if player_present(PlayerIndex) then
+                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%sender_name%%", name)
+                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%index%%", id)
+                                            local global_format = string.gsub(settings.mod["Chat IDs"].global_format, "%%message%%", Message)
+                                            execute_command("msg_prefix \"\"")
+                                            say_all(global_format)
+                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
+                                        end
+                                    end
+                                    if GetTeamPlay() == true then
+                                        if (type == 0 or type == 2) then
+                                            SendToAll(Message, PlayerIndex)
+                                        elseif (type == 1) then
+                                            SendToTeam(Message, PlayerIndex)
+                                        end
+                                    else
+                                        SendToAll(Message, PlayerIndex)
+                                    end
+                                    return false
+                                end
+                            end
+                        end
+                    end
+                    -- If Admin Chat Mod is enabled via settings[Admin Chat] then proceed.
+                    if settings.mod["Admin Chat"].enabled == true then
+                        -- Only send the message if their admin chat status is false
+                        if (players[get_var(PlayerIndex, "$name")].adminchat ~= true) then
+                            ChatHandler(PlayerIndex, Message)
+                        end
+                    else
+                        ChatHandler(PlayerIndex, Message)
+                    end
+                end
+            end
+        end
+    end
+    
+    -- #Admin Chat
+    if settings.mod["Admin Chat"].enabled == true then
+        local function AdminChat(Message, PlayerIndex)
+            for i = 1, 16 do
+                if player_present(i) then
+                    if isAdmin(i) then
+                        if (Format == "rcon") then
+                            rprint(i, "|l" .. Message)
+                        elseif (Format == "chat") then
+                            execute_command("msg_prefix \"\"")
+                            say(i, Message)
+                            execute_command("msg_prefix \" *  * SERVER *  * \"")
+                        else
+                            cprint("Error in adminchat.lua - Format not defined properly. Line 33", 4 + 8)
+                        end
+                    end
+                end
+            end
+        end
+        local message = tokenizestring(Message)
+        if #message == 0 then return nil end
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[get_var(PlayerIndex, "$name")].adminchat == true then
+            for i = 0, #message do
+                if message[i] then
+                    if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                        return true
+                    else
+                        AdminChat(prefix .. " " .. get_var(PlayerIndex, "$name") .. " [" .. get_var(PlayerIndex, "$n") .. "]: " .. Message)
+                        return false
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -441,6 +681,41 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     return false
                 end
+            end
+        end
+    end
+    
+    -- #Admin Chat
+    if (settings.mod["Admin Chat"].enabled == true) then
+        local t = tokenizestring(Command)
+        local command = settings.mod["Admin Chat"].base_command
+        if t[1] == (command) then
+            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+                    if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
+                        if players[get_var(PlayerIndex, "$name")].boolean ~= true then
+                            players[get_var(PlayerIndex, "$name")].adminchat = true
+                            players[get_var(PlayerIndex, "$name")].boolean = true
+                            rprint(PlayerIndex, "Admin Chat enabled.")
+                        else
+                            rprint(PlayerIndex, "Admin Chat is already enabled.")
+                        end
+                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                        if players[get_var(PlayerIndex, "$name")].boolean ~= false then
+                            players[get_var(PlayerIndex, "$name")].adminchat = false
+                            players[get_var(PlayerIndex, "$name")].boolean = false
+                            rprint(PlayerIndex, "Admin Chat disabled.")
+                        else
+                            rprint(PlayerIndex, "Admin Chat is already disabled.")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
+                    end
+                else
+                    rprint(PlayerIndex, "You do not have permission to execute that command!")
+                end
+            else
+                cprint("The Server cannot execute this command!", 4 + 8)
             end
         end
     end
@@ -532,6 +807,19 @@ end
 -- Used globally
 function getPermLevel(script)
     return settings.mod[script].permission_level
+end
+
+function getAdminChat(PlayerIndex)
+    return players[get_var(PlayerIndex, "$name")].adminchat
+end
+
+-- Used Globally
+function GetTeamPlay()
+    if get_var(0, "$ffa") == "0" then
+        return true
+    else
+        return false
+    end
 end
 
 -- Saves player join data (name, hash, ip address, id)
