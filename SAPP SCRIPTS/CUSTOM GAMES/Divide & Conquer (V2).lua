@@ -14,7 +14,7 @@ Script Name: Divide & Conquer (V2), for SAPP (PC & CE)
     Please report all problems on gighub.
     https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=bug_report.md
              
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
