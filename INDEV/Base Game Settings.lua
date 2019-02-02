@@ -33,6 +33,7 @@ settings = {
         },
         ["Chat Logging"] = {
             enabled = true,
+            dir = "sapp\\Server Chat.txt",
         },
         ["Command Spy"] = {
             enabled = true,
@@ -54,6 +55,8 @@ settings = {
             action = "kick",
             reason = "impersonating",
             bantime = 10,
+            namelist = {"Chalwk"},
+            hashlist = {"6c8f0bc306e0108b4904812110185edd"},
         },
         ["Console Logo"] = {
             enabled = true,
@@ -69,19 +72,21 @@ settings = {
                 "playerslist" 
             }
         }
+    },
+    global = {
+        player_data = {
+            "Player: %name%",
+            "CD Hash: %hash%",
+            "IP Address: %ip_address%",
+            "Index ID: %index_id%",
+        },
     }
 }
 
--- #Anti Impersonator
-NameList = {
-    "Chalwk",
-}
-HashList = {
-    "6c8f0bc306e0108b4904812110185edd",
-}
-
--- Table used globally
+-- Tables used globally
 players = { }
+player_data = { }
+quit_data = { }
 
 -- #Message Board
 welcome_timer = { }
@@ -123,10 +128,10 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
+    
     -- Used globally
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
-    
     
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -161,6 +166,21 @@ function OnNewGame()
         end
         consoleLogo()
     end
+    
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local map = get_var(0, "$map")
+            local gt = get_var(0, "$mode")
+            local n1 = "\n"
+            local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
+            local n2 = "\n---------------------------------------------------------------------------------------------\n"
+            file:write(n1, t1, n2)
+            file:close()
+        end
+    end
 end
 
 function OnGameEnd()
@@ -173,6 +193,16 @@ function OnGameEnd()
                     players[get_var(i, "$n")].message_board_timer = 0
                 end
             end
+        end
+    end
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+            file:write(data)
+            file:close()
         end
     end
 end
@@ -207,63 +237,118 @@ function OnTick()
 end
 
 function OnPlayerPrejoin(PlayerIndex)
-    -- CONSOLE OUTPUT
+    -- #CONSOLE OUTPUT
     os.execute("echo \7")
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
+    local name, hash, ip, id = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n")
+    savePlayerData(name, hash, ip, id)
+    
+    -- #CONSOLE OUTPUT
     cprint("--------------------------------------------------------------------------------")
-    cprint("Player: " .. read_widestring(cns, 12), 2 + 8)
-    cprint("CD Hash: " .. get_var(PlayerIndex, "$hash"))
-    cprint("IP Address: " .. get_var(PlayerIndex, "$ip"))
-    cprint("IndexID: " .. get_var(PlayerIndex, "$n"))
+    for k, v in ipairs(player_data) do
+       if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
+            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"))
+            cprint("--------------------------------------------------------------------------------")
+            cprint(v, 2+8)
+            break
+        end
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    local Name = get_var(PlayerIndex, "$name")
-    local Hash = get_var(PlayerIndex, "$hash")
-    local Index = get_var(PlayerIndex, "$n")
+    local name = get_var(PlayerIndex, "$name")
+    local hash = get_var(PlayerIndex, "$hash")
+    local id = get_var(PlayerIndex, "$n")
+    local ip = get_var(PlayerIndex, "$ip")
     
-    -- CONSOLE OUTPUT (todo: future update = store join data to table)
-    cprint("Join Time: " .. os.date("%A %d %B %Y - %X"))
-    cprint("Status: connected successfully.")
-    cprint("--------------------------------------------------------------------------------")
-    
+    -- #CONSOLE OUTPUT
+    for k, v in ipairs(player_data) do
+        if (v:match(name) and v:match(hash) and v:match(id)) then
+            cprint("Status: " .. name .. " connected successfully.", 2+8)
+            cprint("--------------------------------------------------------------------------------")
+        end
+    end
+   
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
-        players[Index] = { }
-        players[Index].message_board_timer = 0
+        players[id] = { }
+        players[id].message_board_timer = 0
         welcome_timer[PlayerIndex] = true
     end
     
     -- #Anti Impersonator
     if (settings.mod["Anti Impersonator"].enabled == true) then
-        if (table.match(NameList, Name)) and not (table.match(HashList, Hash)) then
-            local action = settings.mod["Anti Impersonator"].action
-            local reason = settings.mod["Anti Impersonator"].reason
-            if (action == "kick") then
-                execute_command("k" .. " " .. Index .. " \"" .. reason .. "\"")
-                cprint(Name .. " was kicked for " .. reason, 4+8)
-            elseif (action == "ban") then
-                local bantime = settings.mod["Anti Impersonator"].bantime
-                execute_command("b" .. " " .. Index .. " " .. bantime .. " \"" .. reason .. "\"")
-                cprint(Name .. " was banned for " .. bantime .. " minutes for " .. reason, 4+8)
+        
+        local name_list = settings.mod["Anti Impersonator"].namelist
+        local hash_list = settings.mod["Anti Impersonator"].hashlist
+        
+        for i = 1,#name_list do
+            for j = 1,#hash_list do
+                if (name_list[i]:match(name)) and not (hash_list[i]:match(hash)) then
+                    local action = settings.mod["Anti Impersonator"].action
+                    local reason = settings.mod["Anti Impersonator"].reason
+                    if (action == "kick") then
+                        execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
+                        cprint(name .. " was kicked for " .. reason, 4+8)
+                    elseif (action == "ban") then
+                        local bantime = settings.mod["Anti Impersonator"].bantime
+                        execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
+                        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4+8)
+                    end
+                    break
+                end
             end
+        end
+    end
+    
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
         end
     end
 end
 
 function OnPlayerLeave(PlayerIndex)
-    local player_name = get_var(PlayerIndex, "$name")
+    local name = get_var(PlayerIndex, "$name")
+    local hash = get_var(PlayerIndex, "$hash")
+    local id = get_var(PlayerIndex, "$n")
+    local ip
+    -- #CONSOLE OUTPUT
+    for k, v in ipairs(player_data) do
+        if (v:match(name) and v:match(hash) and v:match(id)) then
+            ip = settings.global.player_data[3]
+            cprint(v, 4+8)
+            table.remove(player_data, k)
+            break
+        end
+    end
     
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
         players[get_var(PlayerIndex, "$n")].message_board_timer = 0
     end
+    
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
+        end
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    local player_name = get_var(PlayerIndex, "$name")
+    local name = get_var(PlayerIndex, "$name")
     
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
@@ -293,8 +378,47 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if (hidden_status == true and hidden == true) then
                 return false
             elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
-                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. player_name .. ":    \"" .. message .. "\"")
+                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. message .. "\"")
                 return true
+            end
+        end
+    end
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local message = tostring(Message)
+        local command = tokenizestring(message)
+        local name = get_var(PlayerIndex, "$name")
+        iscommand = nil
+        if string.sub(command[1], 1, 1) == "/" or string.sub(command[1], 1, 1) == "\\" then
+            iscommand = true
+            chattype = "[COMMAND] "
+        else
+            iscommand = false
+        end
+        if type == 0 then
+            Type = "[GLOBAL]  "
+        elseif type == 1 then
+            Type = "[TEAM]    "
+        elseif type == 2 then
+            Type = "[VEHICLE] "
+        end
+        if (player_present(PlayerIndex) ~= nil) then
+            local dir = settings.mod["Chat Logging"].dir
+            local function LogChat(dir, value)
+                local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+                local file = io.open(dir, "a+")
+                if file ~= nil then
+                    local chatValue = string.format("%s\t%s\n", timestamp, tostring(value))
+                    file:write(chatValue)
+                    file:close()
+                end
+            end
+            if iscommand then
+                LogChat(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. message)
+                cprint(chattype .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
+            else
+                LogChat(dir, "   " .. Type .. "     " .. name .. " [" .. id .. "]: " .. message)
+                cprint(Type .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
             end
         end
     end
@@ -408,6 +532,16 @@ end
 -- Used globally
 function getPermLevel(script)
     return settings.mod[script].permission_level
+end
+
+-- Saves player join data (name, hash, ip address, id)
+function savePlayerData(name, hash, ip, id)
+    local a = string.gsub(settings.global.player_data[1], "%%name%%", name)
+    local b = string.gsub(settings.global.player_data[2], "%%hash%%", hash)
+    local c = string.gsub(settings.global.player_data[3], "%%ip_address%%", ip)
+    local d = string.gsub(settings.global.player_data[4], "%%index_id%%", id)
+    local data = a .. "\n" .. b .. "\n" .. c .. "\n" .. d
+    table.insert(player_data, data)
 end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
