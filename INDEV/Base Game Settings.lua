@@ -17,6 +17,7 @@ Combined Scripts:
     - Alias System
     - Respawn Time
     - Teleport Manager
+    - Get Coords
              
 Copyright (c) 2016-2019 Jericho Crosby <jericho.crosby227@gmail.com>
 You do not have permission to use this document.
@@ -43,7 +44,7 @@ local function GameSettings()
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                -- For a future update
+                use_admin_prefixes = false,
                 trial_moderator = { "[T-MOD] [%sender_name%] [%index%]: %message%" },
                 moderator = { "[MOD] [%sender_name%] [%index%]: %message%" },
                 admin = { "[ADMIN] [%sender_name%] [%index%]: %message%" },
@@ -178,10 +179,22 @@ local function GameSettings()
                     "warplistall", -- list all command
                     "delwarp" -- delete command
                 }
-            }
+            },
+            ["Get Coords"] = {
+                enabled = true,
+                base_command = "coords",
+                permission_level = 1,
+                environment = "console",
+            },
         },
         global = {
             server_prefix = "**SERVER**",
+            permission_level = {
+                trial_moderator = 1,
+                moderator = 2,
+                admin = 3,
+                senior_admin = 4
+            },
             player_data = {
                 "Player: %name%",
                 "CD Hash: %hash%",
@@ -278,7 +291,7 @@ function OnScriptLoad()
         if not (game_over) then
             for i = 1, 16 do
                 if player_present(i) then
-                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                         local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                         players[p_table].adminchat = nil
                         players[p_table].boolean = nil
@@ -303,7 +316,7 @@ function OnScriptUnload()
     if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     players[p_table].adminchat = false
                     players[p_table].boolean = false
@@ -384,7 +397,7 @@ function OnNewGame()
     if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     players[p_table].adminchat = false
                     players[p_table].boolean = false
@@ -447,7 +460,7 @@ function OnGameEnd()
     if (settings.mod["Admin Chat"].enabled == true) then
         for i = 1, 16 do
             if player_present(i) then
-                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     if (Restore_Previous_State == true) then
                         if players[p_table].adminchat == true then
@@ -693,7 +706,7 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Admin Chat"].enabled == true) then
         players[p_table].adminchat = nil
         players[p_table].boolean = nil
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
             if (settings.mod["Admin Chat"].restore_previous_state == true) then
                 local t = tokenizestring(tostring(data[PlayerIndex]), ":")
                 if t[2] == "true" then
@@ -761,9 +774,9 @@ function OnPlayerLeave(PlayerIndex)
 
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
             if PlayerIndex ~= 0 then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
                         if players[p_table].adminchat == true then
                             bool = "true"
@@ -950,7 +963,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             for a = 1, #messages_to_ignore do
                 data = messages_to_ignore[a]
             end
-
+            local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
             if not data:match(message[1]) then
                 local function ChatHandler(PlayerIndex, Message)
                     local function SendToTeam(Message, PlayerIndex)
@@ -988,7 +1001,25 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
                                 if (GetTeamPlay() == true) then
                                     if (type == 0 or type == 2) then
-                                        SendToAll(Message)
+                                        
+                                        --=========================================================================================================================--
+                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true)
+                                            if (privilege_level) == getPermLevel(nil, nil, "trial_moderator")) then
+                                                formatTMOD(Message)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "moderator")) then
+                                                formatMOD(Message)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "admin")) then
+                                                formatADMIN(Message)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin")) then
+                                                formatSADMIN(Message)
+                                            else
+                                                SendToAll(Message)
+                                            end
+                                        else
+                                            SendToAll(Message)
+                                        end
+                                        --=========================================================================================================================--
+                                        
                                     elseif (type == 1) then
                                         SendToTeam(Message, PlayerIndex)
                                     end
@@ -1016,8 +1047,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         local function AdminChat(Message, PlayerIndex)
+            cprint("called", 2+8)
             for i = 1, 16 do
-                if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat") then
+                if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].environment == "rcon") then
                         rprint(i, "|l" .. Message)
                     elseif (settings.mod["Admin Chat"].environment == "chat") then
@@ -1028,32 +1060,36 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
+        
         local message = tokenizestring(Message)
         if #message == 0 then
             return nil
         end
 
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") and players[p_table].adminchat == true then
-            for c = 0, #message do
-                if message[c] then
-                    if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                        response = true
-                    else
-                        local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
-                        for k, v in pairs(settings.mod["Admin Chat"].message_format) do
-                            local prefix = settings.mod["Admin Chat"].prefix
-                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%prefix%%", prefix)
-                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%sender_name%%", name)
-                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%index%%", id)
-                            AdminMessageFormat = string.gsub(AdminMessageFormat, "%%message%%", Message)
-                            AdminChat(AdminMessageFormat)
-                            response = false
+        if players[p_table].adminchat == true then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
+                for c = 0, #message do
+                    if message[c] then
+                        if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                            response = true
+                        else
+                            local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
+                            for k, v in pairs(settings.mod["Admin Chat"].message_format) do
+                                local prefix = settings.mod["Admin Chat"].prefix
+                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%prefix%%", prefix)
+                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%sender_name%%", name)
+                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%index%%", id)
+                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%message%%", Message)
+                                AdminChat(AdminMessageFormat)
+                                response = false
+                            end
                         end
+                        break
                     end
-                    break
                 end
             end
         end
+        
         -- #Teleport Manager
         if (settings.mod["Teleport Manager"].enabled == true) then
             if wait_for_response[PlayerIndex] then
@@ -1095,7 +1131,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local cmds = tokenizestring(v, ",")
             for i = 1, #cmds do
                 if (t[1] == cmds[i]) then
-                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then
+                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players", nil, nil) then
                         listPlayers(PlayerIndex, count)
                     else
                         rprint(PlayerIndex, "Insufficient Permission")
@@ -1105,14 +1141,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-
+    
+    -- #Get Coords
+    if (settings.mod["Get Coords"].enabled == true) then
+        if (string.lower(Command) == settings.mod["Get Coords"].base_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Get Coords", nil, nil) then
+                local player_object = get_dynamic_player(PlayerIndex)
+                if player_object ~= 0 then
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    if settings.mod["Get Coords"].environment == "console" then 
+                        cprint(x .. ", " .. y .. ", " .. z)
+                    elseif settings.mod["Get Coords"].environment == "rcon" then
+                        rprint(PlayerIndex, x .. ", " .. y .. ", " .. z)
+                    elseif settings.mod["Get Coords"].environment == "both" then
+                        rprint(PlayerIndex, x .. ", " .. y .. ", " .. z)
+                        cprint(x .. ", " .. y .. ", " .. z)
+                    end
+                    kill(PlayerIndex)
+                    local player = get_player(PlayerIndex)
+                    write_dword(player + 0x2C, 0 * 33)
+                    return false
+                end
+            end
+        end
+    end
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         local t = tokenizestring(Command)
         local command = settings.mod["Admin Chat"].base_command
         if t[1] == (command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
                         if players[p_table].boolean ~= true then
                             players[p_table].adminchat = true
@@ -1149,7 +1208,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         local t = tokenizestring(Command)
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players") then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
             if t[1] == string.lower(settings.mod["Alias System"].base_command) then
                 if t[2] ~= nil then
                     if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
@@ -1195,7 +1254,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         local t = tokenizestring(Command)
         if t[1] ~= nil then
             if t[1] == string.lower(settings.mod["Teleport Manager"].commands[1]) then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "setwarp") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "setwarp") then
                     if t[2] ~= nil then
                         check_file_status(PlayerIndex)
                         if not empty_file then
@@ -1242,7 +1301,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if t[1] ~= nil then
             if t[1] == string.lower(settings.mod["Teleport Manager"].commands[2]) then
                 check_file_status(PlayerIndex)
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warp") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warp") then
                     if t[2] ~= nil then
                         if not empty_file then
                             local found = nil
@@ -1380,7 +1439,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 ---------------------------------------------------------
                 -- BACK COMMAND --
             elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[3]) then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "back") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "back") then
                     if not PlayerInVehicle(PlayerIndex) then
                         if previous_location[PlayerIndex][1] ~= nil then
                             write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, previous_location[PlayerIndex][1], previous_location[PlayerIndex][2], previous_location[PlayerIndex][3])
@@ -1400,7 +1459,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 -- LIST COMMAND --
             elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[4]) then
                 local found = false
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warplist") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warplist") then
                     check_file_status(PlayerIndex)
                     if not empty_file then
                         local lines = lines_from(file_name)
@@ -1423,7 +1482,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 ---------------------------------------------------------
                 -- LIST ALL COMMAND --
             elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[5]) then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "warplistall") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warplistall") then
                     check_file_status(PlayerIndex)
                     if not empty_file then
                         local lines = lines_from(file_name)
@@ -1441,7 +1500,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 -- DELETE COMMAND --
             elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[6]) then
                 local command = t[1]
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", true, "delwarp") then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "delwarp") then
                     if t[2] ~= nil then
                         check_file_status(PlayerIndex)
                         if not empty_file then
@@ -1518,7 +1577,7 @@ end
 -- #Command Spy
 function CommandSpy(Message)
     for i = 1, 16 do
-        if (tonumber(get_var(i, "$lvl"))) >= getPermLevel("Command Spy") then
+        if (tonumber(get_var(i, "$lvl"))) >= getPermLevel("Command Spy", nil, nil) then
             rprint(i, Message)
         end
     end
@@ -1569,33 +1628,39 @@ end
 
 -- Used Globally
 function getPermLevel(script, bool, args)
-    if not bool then
-        return settings.mod[script].permission_level
-    else
+    local level = 0
+    
+    if (script ~= nil and bool == nil and args == nil) then
+        level = settings.mod[script].permission_level
+        
+    elseif (script == nil and bool == nil and args ~= nil) then
+        -- Global Permissions
+        local permission_table = settings.global.permission_level
+        for k, v in pairs(permission_table) do
+            local words = tokenizestring(v, ",")
+            for i = 1, #words do
+                if (tostring(k) == args) then 
+                    level = words[i]
+                    break
+                end
+            end
+        end
+    elseif (script ~= nil and bool == true and args ~= nil) then
         -- Teleport Manager
         if (settings.mod["Teleport Manager"].enabled == true) then
-            local level = settings.mod["Teleport Manager"].permission_level
-            for k, v in pairs(level) do
+            local permission_table = settings.mod["Teleport Manager"].permission_level
+            for k, v in pairs(permission_table) do
                 local words = tokenizestring(v, ",")
                 for i = 1, #words do
-                    if (args == "setwarp") and k:match(args) then
-                        level = i
-                    elseif (args == "warp") and k:match(args) then
-                        level = i
-                    elseif (args == "back") and k:match(args) then
-                        level = i
-                    elseif (args == "warplist") and k:match(args) then
-                        level = i
-                    elseif (args == "warplistall") and k:match(args) then
-                        level = i
-                    elseif (args == "delwarp") and k:match(args) then
-                        level = i
+                    if (tostring(k) == args) then 
+                        level = words[i]
+                        break
                     end
                 end
             end
-            return level
         end
     end
+    return tonumber(level)
 end
 
 -- Used Globally
