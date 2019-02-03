@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Base Game Settings, for SAPP (PC & CE)
-Description: An all-in-one package that combines many of SAPP scripts into one place. 
+Description: An all-in-one package that combines many of my scripts into one place. 
              
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
@@ -72,7 +72,7 @@ local function GameSettings()
                 },
             },
             ["Message Board"] = {
-                enabled = true,
+                enabled = false,
                 duration = 3,
                 alignment = "l",
                 messages = {
@@ -97,7 +97,7 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true,
+                enabled = false,
                 assign_weapons = true,
                 assign_custom_frags = true,
                 assign_custom_plasmas = true,
@@ -154,7 +154,7 @@ local function GameSettings()
                 duration = 10,
             },
             ["Respawn Time"] = {
-                enabled = true,
+                enabled = false,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -178,7 +178,7 @@ local function GameSettings()
                 }
             },
             ["Teleport Manager"] = {
-                enabled = true,
+                enabled = false,
                 dir = "sapp\\teleports.txt",
                 permission_level = {
                  setwarp = 1,
@@ -198,7 +198,7 @@ local function GameSettings()
                 }
             },
             ["Get Coords"] = {
-                enabled = true,
+                enabled = false,
                 base_command = "coords",
                 permission_level = 1,
                 environment = "console",
@@ -206,6 +206,9 @@ local function GameSettings()
         },
         global = {
             server_prefix = "**SERVER**",
+            handlemutes = true,
+            mute_dir = "sapp\\mutes.txt",
+            default_mute_time = 525600,
             beepOnLoad = false,
             beepOnJoin = true,
             permission_level = {
@@ -230,6 +233,10 @@ players = { }
 player_data = { }
 quit_data = { }
 mapname = ""
+
+mute_table = { }
+muted = { }
+mute_timer = {}
 
 -- #Message Board
 welcome_timer = { }
@@ -505,6 +512,36 @@ function OnGameEnd()
 end
 
 function OnTick()
+    
+    -- SAPP | Mute Handler
+    for i = 1,16 do
+        if player_present(i) then
+            local name = get_var(i, "$name")
+            local id = get_var(i, "$n")
+            local hash = get_var(i, "$hash")
+            for k, v in pairs(mute_table) do
+                if v then
+                    local entry = name .. ", " .. id .. ", " .. hash
+                    if (v:match(entry)) then
+                        local mute_time = string.match(v, (":(.+)"))
+                        if string.find(v, mute_time) then
+                            mute_timer[entry].timer = mute_timer[entry].timer + 0.030
+                            local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
+                            local time_remaining = mute_time - math.floor(minutes)
+                            if (time_remaining < 0) then
+                                table.remove(mute_table, k)
+                                muted[i] = false
+                            end
+                        end
+                        muted[i] = true
+                    else
+                        muted[i] = false
+                    end
+                end
+            end
+        end
+    end
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -664,6 +701,25 @@ function OnPlayerJoin(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
 
+    -- SAPP | Mute Handler
+    local file_name = settings.global.mute_dir
+    if checkFile(file_name) then
+        local file = io.open(file_name, "r")
+        local content = file:read("*a")
+        file:close()
+        local words = tokenizestring(content, ", ")
+        for i = 1,#words do
+            if (words[i]:match(name) and words[i]:match(hash)) then
+                local time_remaining = tonumber(string.match(words[i], (":(.+)")))
+                local new_entry = offender_name .. ", " .. offender_id .. ", " .. offender_hash .. ", :" .. time_remaining
+                table.insert(mute_table, new_entry)
+                rprint(PlayerIndex, "You are muted! Time remaining: " .. time_remaining)
+            else
+                muted[PlayerIndex] = false
+            end
+        end
+    end
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -676,7 +732,12 @@ function OnPlayerJoin(PlayerIndex)
     -- Used Globally
     local p_table = name .. ", " .. hash
     players[p_table] = { }
-
+    
+    local entry = name .. ", " .. id .. ", " .. hash
+    mute_timer[entry] = { }
+    mute_timer[entry].timer = 0
+    
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         players[p_table].message_board_timer = 0
@@ -777,7 +838,6 @@ function OnPlayerLeave(PlayerIndex)
             break
         end
     end
-
 
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -977,12 +1037,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if not (game_over) then
+        if not (game_over) and (muted[PlayerIndex] == false) then
             local data
             local message = tokenizestring(Message)
             if (#message == 0) then
                 return nil
             end
+            
             local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
 
             for a = 1, #messages_to_ignore do
@@ -1236,7 +1297,36 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
+    if muted[PlayerIndex] then
+        return false
+    end
     return response
+end
+
+-- SAPP | Saves mute entry to txt file
+function saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
+    local file_name = settings.global.mute_dir
+    if checkFile(file_name) then
+        local file = io.open(file_name, "r")
+        local content = file:read("*a")
+        file:close()
+        if not (string.match(content, offender_name) and string.match(content, offender_id) and string.match(content, offender_hash)) then
+            local new_entry = offender_name .. ", " .. offender_id .. ", " .. offender_hash .. ", :" .. mute_time
+            table.insert(mute_table, new_entry)
+            if (tonumber(mute_time) ~= settings.global.default_mute_time) then
+                rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
+                rprint(offender_id, "You have been muted for " .. mute_time .. " minute(s)")
+            else
+                rprint(PlayerIndex, offender_name .. " has been muted permanently")
+                rprint(offender_id, "You were muted permanently")
+            end
+            local file = assert(io.open(file_name, "a+"))
+            file:write("\n" .. new_entry, "\n")
+            file:close()
+        else
+            rprint(PlayerIndex, offender_name .. " is already muted!")
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -1245,7 +1335,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-
+    
+    -- SAPP | Mute command listener
+    if (settings.global.handlemutes == true) then
+        local t = tokenizestring(Command)
+        if (string.lower(t[1]) == "mute") then
+            if (t[2] ~= nil) then 
+                local offender_id = get_var(tonumber(t[2]), "$n")
+                if player_present(offender_id) then
+                    local offender_name = get_var(offender_id, "$name")
+                    local offender_hash = get_var(offender_id, "$hash")
+                    local mute_time = nil
+                    if t[3] == nil then
+                        mute_time = settings.global.default_mute_time
+                    else
+                        mute_time = tonumber(t[3])
+                    end
+                    saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
+                end
+                return false
+            end
+        end
+    end
+    
     -- #List Players
     if (settings.mod["List Players"].enabled == true) then
         local t = tokenizestring(Command)
@@ -1903,6 +2015,7 @@ end
 -- #Alias System
 function addAlias(name, hash)
     local file_name = settings.mod["Alias System"].dir
+    checkFile(file_name)
     local file = io.open(file_name, "r")
     local data = file:read("*a")
     file:close()
@@ -1929,16 +2042,18 @@ function addAlias(name, hash)
     end
 end
 
--- #Alias System
-function checkFile()
-    local file_name = settings.mod["Alias System"].dir
+-- Used Globally
+function checkFile(dir)
+    local file_name = dir
     local file = io.open(file_name, "rb")
     if file then
         file:close()
+        return true
     else
         local file = io.open(file_name, "a+")
         if file then
             file:close()
+            return true
         end
     end
 end
@@ -2020,6 +2135,34 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
         fp:write(string.format("%s\n", content[i]))
     end
     fp:close()
+end
+
+function secondsToTime(seconds, places)
+
+    local years = math.floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = math.floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = math.floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
+    local minutes = math.floor(seconds / 60)
+    seconds = seconds % 60
+
+    if places == 6 then
+        return string.format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
+    elseif places == 5 then
+        return string.format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
+    elseif not places or places == 4 then
+        return days, hours, minutes, seconds
+    elseif places == 3 then
+        return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+    elseif places == 2 then
+        return string.format("%02d:%02d", minutes, seconds)
+    elseif places == 1 then
+        return string.format("%02", seconds)
+    end
 end
 
 function OnError(Message)
