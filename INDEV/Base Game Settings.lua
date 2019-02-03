@@ -714,10 +714,10 @@ function OnPlayerJoin(PlayerIndex)
             if words[1]:match(name) and words[3]:match(hash) then
                 time_remaining[PlayerIndex] = tonumber(string.match(words[4], (":(.+)")))
                 
-                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. time_remaining[PlayerIndex]
+                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
                 table.insert(mute_table, new_entry)
                 
-                rprint(PlayerIndex, "You are muted! Time remaining: " .. time_remaining[PlayerIndex] .. " minute(s)")
+                rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
             else
                 time_remaining[PlayerIndex] = 0
                 muted[PlayerIndex] = false
@@ -834,7 +834,7 @@ function OnPlayerLeave(PlayerIndex)
     local lines = lines_from(file_name)
     for k, v in pairs(lines) do
         if string.match(v, name) and string.match(v, hash) then
-            local updated_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. time_remaining[PlayerIndex]
+            local updated_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
             local f = io.open(file_name, "r")
             local content = f:read("*all")
             f:close()
@@ -850,10 +850,7 @@ function OnPlayerLeave(PlayerIndex)
             local entry = name .. ", " .. id .. ", " .. hash
             if (v:match(entry)) then
                 table.remove(mute_table, k)
-                muted[PlayerIndex] = false
-                
                 local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
-                cprint(time_remaining[PlayerIndex])
                 table.insert(mute_table, new_entry)
             end
         end
