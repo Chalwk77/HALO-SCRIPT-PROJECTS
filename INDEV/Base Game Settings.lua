@@ -22,6 +22,9 @@ Combined Scripts:
     - Teleport Manager
     - Get Coords
              
+             
+             to do: finish Spawn From Sky
+             
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -203,6 +206,125 @@ local function GameSettings()
                 permission_level = 1,
                 environment = "console",
             },
+            ["Spawn From Sky"] = {
+                enabled = false,
+                maps = {
+                    ["bloodgulch"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 95.687797546387, -159.44900512695, -0.10000000149012 },
+                        { 40.240600585938, -79.123199462891, -0.10000000149012 }
+                    },
+                    ["deathisland"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -26.576030731201, -6.9761986732483, 9.6631727218628 },
+                        { 29.843469619751, 15.971487045288, 8.2952880859375 }
+                    },
+                    ["icefields"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 24.85000038147, -22.110000610352, 2.1110000610352 },
+                        { -77.860000610352, 86.550003051758, 2.1110000610352 }
+                    },
+                    ["infinity"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 0.67973816394806, -164.56719970703, 15.039022445679 },
+                        { -1.8581243753433, 47.779975891113, 11.791272163391 }
+                    },
+                    ["sidewinder"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -32.038200378418, -42.066699981689, -3.7000000476837 },
+                        { 30.351499557495, -46.108001708984, -3.7000000476837 }
+                    },
+                    ["timberland"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 17.322099685669, -52.365001678467, -17.751399993896 },
+                        { -16.329900741577, 52.360000610352, -17.741399765015 }
+                    },
+                    ["dangercanyon"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -12.104507446289, -3.4351840019226, -2.2419033050537 },
+                        { 12.007399559021, -3.4513700008392, -2.2418999671936 }
+                    },
+                    ["beavercreek"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 29.055599212646, 13.732000350952, -0.10000000149012 },
+                        { -0.86037802696228, 13.764800071716, -0.0099999997764826 }
+                    },
+                    ["boardingaction"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 1.723109960556, 0.4781160056591, 0.60000002384186 },
+                        { 18.204000473022, -0.53684097528458, 0.60000002384186 }
+                    },
+                    ["carousel"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 5.6063799858093, -13.548299789429, -3.2000000476837 },
+                        { -5.7499198913574, 13.886699676514, -3.2000000476837 }
+                    },
+                    ["chillout"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 7.4876899719238, -4.49059009552, 2.5 },
+                        { -7.5086002349854, 9.750340461731, 0.10000000149012 }
+                    },
+                    ["damnation"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 9.6933002471924, -13.340399742126, 6.8000001907349 },
+                        { -12.17884349823, 14.982703208923, -0.20000000298023 }
+                    },
+                    ["gephyrophobia"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 26.884338378906, -144.71551513672, -16.049139022827 },
+                        { 26.727857589722, 0.16621616482735, -16.048349380493 }
+                    },
+                    ["hangemhigh"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { 13.047902107239, 9.0331249237061, -3.3619771003723 },
+                        { 32.655700683594, -16.497299194336, -1.7000000476837 }
+                    },
+                    ["longest"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -12.791899681091, -21.6422996521, -0.40000000596046 },
+                        { 11.034700393677, -7.5875601768494, -0.40000000596046 }
+                    },
+                    ["prisoner"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -9.3684597015381, -4.9481601715088, 5.6999998092651 },
+                        { 9.3676500320435, 5.1193399429321, 5.6999998092651 }
+                    },
+                    ["putput"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -18.89049911499, -20.186100006104, 1.1000000238419 },
+                        { 34.865299224854, -28.194700241089, 0.10000000149012 }
+                    },
+                    ["ratrace"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -4.2277698516846, -0.85564690828323, -0.40000000596046 },
+                        { 18.613000869751, -22.652599334717, -3.4000000953674 }
+                    },
+                    ["wizard"] = {
+                        height = 1,
+                        invulnerability = 9,
+                        { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
+                        { 9.1828498840332, -9.1805400848389, -2.5999999046326 }
+                    }
+                }
+            }
         },
         global = {
             server_prefix = "**SERVER**",
@@ -267,6 +389,10 @@ wait_for_response = { }
 previous_location = { }
 for i = 1, 16 do previous_location[i] = { } end
 
+-- #Spawn From Sky
+init_timer = {}
+first_join = {}
+
 function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
@@ -281,6 +407,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -363,7 +490,7 @@ function OnNewGame()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
     mapname = get_var(0, "$map")
-
+    
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -651,6 +778,16 @@ function OnTick()
             end
         end
     end
+    -- #Spawn From Sky
+    if (settings.mod["Spawn From Sky"].enabled == true) then
+        for i = 1,16 do 
+            if player_present(i) then
+                if (init_timer[i] == true) then
+                    timeUntilRestore(i)
+                end
+            end
+        end
+    end
 end
 
 function determineWeapon()
@@ -743,6 +880,12 @@ function OnPlayerJoin(PlayerIndex)
     mute_timer[entry] = { }
     mute_timer[entry].timer = 0
     
+    -- #Spawn From Sky
+    if (settings.mod["Spawn From Sky"].enabled == true) then
+        players[p_table].sky_timer = 0
+        init_timer[PlayerIndex] = true
+        first_join[PlayerIndex] = true
+    end
     
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
@@ -825,6 +968,13 @@ function OnPlayerLeave(PlayerIndex)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
+    
+        -- #Spawn From Sky
+    if (settings.mod["Spawn From Sky"].enabled == true) then
+        if init_timer == true then init_timer[PlayerIndex] = false end
+        if first_join == true then first_join[PlayerIndex] = false end
+        players[p_table].sky_timer = 0
+    end
     
     -- SAPP | Mute Handler
     if (muted[PlayerIndex] == true) then
@@ -926,6 +1076,30 @@ function OnPlayerLeave(PlayerIndex)
         wait_for_response[PlayerIndex] = false
         for i = 1, 3 do previous_location[PlayerIndex][i] = nil end
     end
+end
+
+function OnPlayerPrespawn(PlayerIndex)
+    -- #Spawn From Sky
+    if (settings.mod["Spawn From Sky"].enabled == true) then
+        if (first_join[PlayerIndex] == true) then
+            first_join[PlayerIndex] = false
+            local team = get_var(PlayerIndex, "$team")
+            if (team == "red") then
+                Teleport(PlayerIndex, 1)
+            elseif (team == "blue") then
+                Teleport(PlayerIndex, 2)
+            end
+        end
+    end
+end
+
+function Teleport(PlayerIndex, TableIndex)
+    local x = settings.mod["Spawn From Sky"].maps[mapname]
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
+        base_loc[mapname][tonumber(TableIndex)][1], 
+        base_loc[map][tonumber(TableIndex)][2], 
+        base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
+    execute_command("god " .. tonumber(PlayerIndex))
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -2011,6 +2185,16 @@ function printEnabled()
     cprint("----------------------------------\n", 3+5)
 end
 
+-- #Spawn From Sky
+function timeUntilRestore(PlayerIndex)
+    players[get_var(PlayerIndex, "$name")].sky_timer = players[get_var(PlayerIndex, "$name")].sky_timer + 0.030
+    if (players[get_var(PlayerIndex, "$name")].sky_timer >= (invulnerability_time)) then
+        players[get_var(PlayerIndex, "$name")].sky_timer = 0
+        init_timer[tonumber(PlayerIndex)] = false
+        execute_command("ungod " .. tonumber(PlayerIndex))
+    end
+end
+
 -- #Weapon Settings
 function loadWeaponTags()
     pistol = "weapons\\pistol\\pistol"
@@ -2189,16 +2373,15 @@ end
 -- SAPP | Mute Handler
 function removeEntry(name, hash, num, PlayerIndex)
     local file_name = settings.global.mute_dir
-        if checkFile(file_name) then
-            local file = io.open(file_name, "r")
-            local data = file:read("*a")
-            file:close()
-            local lines = lines_from(file_name)
-            for K, W in pairs(lines) do
-                if K ~= nil then
-                    if string.match(W, name) and string.match(W, hash) then
-                        delete_from_file(file_name, num, 1, PlayerIndex)
-                    end
+    if checkFile(file_name) then
+        local file = io.open(file_name, "r")
+        local data = file:read("*a")
+        file:close()
+        local lines = lines_from(file_name)
+        for K, W in pairs(lines) do
+            if K ~= nil then
+                if string.match(W, name) and string.match(W, hash) then
+                    delete_from_file(file_name, num, 1, PlayerIndex)
                 end
             end
         end
