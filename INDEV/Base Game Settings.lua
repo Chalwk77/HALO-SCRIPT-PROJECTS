@@ -518,24 +518,42 @@ function OnTick()
     for i = 1,16 do
         if player_present(i) then
             local name = get_var(i, "$name")
-            local id = get_var(i, "$n")
             local hash = get_var(i, "$hash")
+            local id = get_var(i, "$n")
             for k, v in pairs(mute_table) do
                 if v then
-                    local entry = name .. ", " .. id .. ", " .. hash
+                    local entry = name .. ", " .. hash
                     if (v:match(entry)) then
+                    
+    
+                        
                         local mute_time = tonumber(string.match(v, (":(.+)")))
                         if string.find(v, mute_time) then
                             mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                             local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
                             time_remaining[i] = mute_time - math.floor(minutes)
-                            if (time_remaining[i] < 0) then
+                            cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
+                            muted[i] = true
+                            if (time_remaining[i] <= 0) then
                                 table.remove(mute_table, k)
                                 muted[i] = false
                                 rprint(i, "Your mute time has expired.")
+                                local file_name = settings.global.mute_dir
+                                if checkFile(file_name) then
+                                    local file = io.open(file_name, "r")
+                                    local data = file:read("*a")
+                                    file:close()
+                                    local lines = lines_from(file_name)
+                                    for K, W in pairs(lines) do
+                                        if K ~= nil then
+                                            if string.match(W, name) and string.match(W, hash) then
+                                                delete_from_file(file_name, K, 1, PlayerIndex)
+                                            end
+                                        end
+                                    end
+                                end
                             end
                         end
-                        muted[i] = true
                     else
                         muted[i] = false
                     end
@@ -714,7 +732,7 @@ function OnPlayerJoin(PlayerIndex)
             if words[1]:match(name) and words[3]:match(hash) then
                 time_remaining[PlayerIndex] = tonumber(string.match(words[4], (":(.+)")))
                 
-                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+                local new_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
                 table.insert(mute_table, new_entry)
                 
                 rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
@@ -738,7 +756,7 @@ function OnPlayerJoin(PlayerIndex)
     local p_table = name .. ", " .. hash
     players[p_table] = { }
     
-    local entry = name .. ", " .. id .. ", " .. hash
+    local entry = name .. ", " .. hash
     mute_timer[entry] = { }
     mute_timer[entry].timer = 0
     
@@ -826,32 +844,36 @@ function OnPlayerLeave(PlayerIndex)
     local p_table = name .. ", " .. hash
     
     -- SAPP | Mute Handler
-    local file_name = settings.global.mute_dir
-    checkFile(file_name)
-    local file = io.open(file_name, "r")
-    local data = file:read("*a")
-    file:close()
-    local lines = lines_from(file_name)
-    for k, v in pairs(lines) do
-        if string.match(v, name) and string.match(v, hash) then
-            local updated_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
-            local f = io.open(file_name, "r")
-            local content = f:read("*all")
-            f:close()
-            content = string.gsub(content, v, updated_entry)
-            local f = io.open(file_name, "w")
-            f:write(content)
-            f:close()
+    if (muted[PlayerIndex] == true) then
+        local file_name = settings.global.mute_dir
+        checkFile(file_name)
+        local file = io.open(file_name, "r")
+        local data = file:read("*a")
+        file:close()
+        local lines = lines_from(file_name)
+        for k, v in pairs(lines) do
+            if k ~= nil then
+                if string.match(v, name) and string.match(v, hash) then
+                    local updated_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+                    local f = io.open(file_name, "r")
+                    local content = f:read("*all")
+                    f:close()
+                    content = string.gsub(content, v, updated_entry)
+                    local f = io.open(file_name, "w")
+                    f:write(content)
+                    f:close()
+                end
+            end
         end
-    end
-    
-    for k, v in pairs(mute_table) do
-        if v then
-            local entry = name .. ", " .. id .. ", " .. hash
-            if (v:match(entry)) then
-                table.remove(mute_table, k)
-                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
-                table.insert(mute_table, new_entry)
+        
+        for k, v in pairs(mute_table) do
+            if v then
+                local entry = name .. ", " .. hash
+                if (v:match(entry)) then
+                    table.remove(mute_table, k)
+                    local new_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+                    table.insert(mute_table, new_entry)
+                end
             end
         end
     end
@@ -1347,7 +1369,7 @@ function saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, m
         local content = file:read("*a")
         file:close()
         if not (string.match(content, offender_name) and string.match(content, offender_id) and string.match(content, offender_hash)) then
-            local new_entry = offender_name .. ", " .. offender_id .. ", " .. offender_hash .. ", :" .. mute_time
+            local new_entry = offender_name .. ", " .. offender_hash .. ", :" .. mute_time
             table.insert(mute_table, new_entry)
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
