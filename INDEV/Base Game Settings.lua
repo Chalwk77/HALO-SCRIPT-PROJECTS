@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Base Game Settings, for SAPP (PC & CE)
-Description: An all-in-one package that combines many of my scripts into one place. 
+Description: An all-in-one package that combines many of SAPP scripts into one place. 
              
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
