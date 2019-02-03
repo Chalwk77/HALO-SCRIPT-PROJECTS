@@ -202,6 +202,8 @@ local function GameSettings()
         },
         global = {
             server_prefix = "**SERVER**",
+            beepOnLoad = false,
+            beepOnJoin = true,
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -322,6 +324,9 @@ function OnScriptLoad()
                 mapname = get_var(0, "$map")
             end
         end
+    end
+    if (settings.global.beepOnLoad == true) then
+        execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
 end
 
@@ -631,8 +636,10 @@ function determineWeapon()
 end
 
 function OnPlayerPrejoin(PlayerIndex)
+    if (settings.global.beepOnJoin == true) then
+        os.execute("echo \7")
+    end    
     -- #CONSOLE OUTPUT
-    os.execute("echo \7")
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
     local name, hash, ip, id = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n")
@@ -1828,6 +1835,7 @@ end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
 function printEnabled()
+    cprint("\n----- [ BASE GAME SETTINGS ] -----", 3+5)
     for k, v in pairs(settings.mod) do
         if (settings.mod[k].enabled == true) then
             cprint(k .. " is enabled", 2 + 8)
@@ -1835,6 +1843,7 @@ function printEnabled()
             cprint(k .. " is disabled", 4 + 8)
         end
     end
+    cprint("----------------------------------\n", 3+5)
 end
 
 -- #Weapon Settings
