@@ -44,11 +44,23 @@ local function GameSettings()
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                use_admin_prefixes = false,
-                trial_moderator = { "[T-MOD] [%sender_name%] [%index%]: %message%" },
-                moderator = { "[MOD] [%sender_name%] [%index%]: %message%" },
-                admin = { "[ADMIN] [%sender_name%] [%index%]: %message%" },
-                senior_admin = { "[S-ADMIN] [%sender_name%] [%index%]: %message%" },
+                use_admin_prefixes = true,
+                trial_moderator = {
+                    "[T-MOD] %sender_name% [%index%]: %message%", -- global 
+                    "[T-MOD] [%sender_name%] [%index%]: %message%" -- team
+                },
+                moderator = {
+                    "[MOD] %sender_name% [%index%]: %message%", -- global 
+                    "[MOD] [%sender_name%] [%index%]: %message%" -- team 
+                },
+                admin = {
+                    "[ADMIN] %sender_name% [%index%]: %message%", -- global 
+                    "[ADMIN] [%sender_name%] [%index%]: %message%" -- team 
+                },
+                senior_admin = {
+                    "[S-ADMIN] %sender_name% [%index%]: %message%", -- global 
+                    "[S-ADMIN] [%sender_name%] [%index%]: %message%" -- team 
+                },
                 ignore_list = {
                     "skip",
                     "rtv"
@@ -963,65 +975,165 @@ function OnPlayerChat(PlayerIndex, Message, type)
             for a = 1, #messages_to_ignore do
                 data = messages_to_ignore[a]
             end
+            
             local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
+            
+            -- GLOBAL FORMAT
+            local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
+            local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
+            local Global_ModFormat = settings.mod["Chat IDs"].moderator[1]
+            local Global_AdminFormat = settings.mod["Chat IDs"].admin[1]
+            local Global_SAdminFormat = settings.mod["Chat IDs"].senior_admin[1]
+            
+            --TEAM FORMAT
+            
+            local TeamDefault = settings.mod["Chat IDs"].team_format[1]
+            local Team_TModFormat = settings.mod["Chat IDs"].trial_moderator[2]
+            local Team_ModFormat = settings.mod["Chat IDs"].moderator[2]
+            local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
+            local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
+            
             if not data:match(message[1]) then
                 local function ChatHandler(PlayerIndex, Message)
-                    local function SendToTeam(Message, PlayerIndex)
-                        for i = 1, 16 do
-                            if player_present(i) then
+                
+                    local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
+                          for i = 1, 16 do
+                              if player_present(i) then
                                 if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                    local TeamMessageFormat = settings.mod["Chat IDs"].team_format[1]
-                                    for k, v in pairs(settings.mod["Chat IDs"].team_format) do
-                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%sender_name%%", name)
-                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%index%%", id)
-                                        TeamMessageFormat = string.gsub(TeamMessageFormat, "%%message%%", Message)
-                                        execute_command("msg_prefix \"\"")
-                                        say(i, TeamMessageFormat)
-                                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                        response = false
+                                    local message = ""
+                                    execute_command("msg_prefix \"\"")
+                                    if (Global == true) then
+                                        for k, v in pairs(settings.mod["Chat IDs"].team_format) do
+                                            TeamDefault = string.gsub(TeamDefault, "%%sender_name%%", name)
+                                            TeamDefault = string.gsub(TeamDefault, "%%index%%", id)
+                                            TeamDefault = string.gsub(TeamDefault, "%%message%%", Message)
+                                            message = TeamDefault
+                                        end
+                                        
+                                    elseif (Tmod == true) then
+                                        for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
+                                            Team_TModFormat = string.gsub(Team_TModFormat, "%%sender_name%%", name)
+                                            Team_TModFormat = string.gsub(Team_TModFormat, "%%index%%", id)
+                                            Team_TModFormat = string.gsub(Team_TModFormat, "%%message%%", Message)
+                                            message = Team_TModFormat
+                                        end
+                                        
+                                    elseif (Mod == true) then
+                                        for k, v in pairs(settings.mod["Chat IDs"].moderator) do
+                                            Team_ModFormat = string.gsub(Team_ModFormat, "%%sender_name%%", name)
+                                            Team_ModFormat = string.gsub(Team_ModFormat, "%%index%%", id)
+                                            Team_ModFormat = string.gsub(Team_ModFormat, "%%message%%", Message)
+                                            message = Team_ModFormat
+                                        end
+                                        
+                                    elseif (Admin == true) then
+                                        for k, v in pairs(settings.mod["Chat IDs"].admin) do
+                                            Team_AdminFormat = string.gsub(Team_AdminFormat, "%%sender_name%%", name)
+                                            Team_AdminFormat = string.gsub(Team_AdminFormat, "%%index%%", id)
+                                            Team_AdminFormat = string.gsub(Team_AdminFormat, "%%message%%", Message)
+                                            message = Team_AdminFormat
+                                        end
+                                        
+                                    elseif (sAdmin == true) then
+                                        for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
+                                            Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%sender_name%%", name)
+                                            Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%index%%", id)
+                                            Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%message%%", Message)
+                                            message = Team_SAdminFormat
+                                        end
                                     end
+                                    say(i, message)
+                                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                    response = false
                                 end
                             end
                         end
                     end
-                    local function SendToAll(Message)
-                        local GlobalMessageFormat = settings.mod["Chat IDs"].global_format[1]
-                        for k, v in pairs(settings.mod["Chat IDs"].global_format) do
-                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%sender_name%%", name)
-                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%index%%", id)
-                            GlobalMessageFormat = string.gsub(GlobalMessageFormat, "%%message%%", Message)
-                            execute_command("msg_prefix \"\"")
-                            say_all(GlobalMessageFormat)
-                            execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                            response = false
+                    
+                    local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
+                        local message = ""
+                        execute_command("msg_prefix \"\"")
+                        if (Global == true) then
+                            for k, v in pairs(settings.mod["Chat IDs"].global_format) do
+                                GlobalDefault = string.gsub(GlobalDefault, "%%sender_name%%", name)
+                                GlobalDefault = string.gsub(GlobalDefault, "%%index%%", id)
+                                GlobalDefault = string.gsub(GlobalDefault, "%%message%%", Message)
+                                message = GlobalDefault
+                            end
+                            
+                        elseif (Tmod == true) then
+                            for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
+                                Global_TModFormat = string.gsub(Global_TModFormat, "%%sender_name%%", name)
+                                Global_TModFormat = string.gsub(Global_TModFormat, "%%index%%", id)
+                                Global_TModFormat = string.gsub(Global_TModFormat, "%%message%%", Message)
+                                message = Global_TModFormat
+                            end
+                            
+                        elseif (Mod == true) then
+                            for k, v in pairs(settings.mod["Chat IDs"].moderator) do
+                                Global_ModFormat = string.gsub(Global_ModFormat, "%%sender_name%%", name)
+                                Global_ModFormat = string.gsub(Global_ModFormat, "%%index%%", id)
+                                Global_ModFormat = string.gsub(Global_ModFormat, "%%message%%", Message)
+                                message = Global_ModFormat
+                            end
+                            
+                        elseif (Admin == true) then
+                            for k, v in pairs(settings.mod["Chat IDs"].admin) do
+                                Global_AdminFormat = string.gsub(Global_AdminFormat, "%%sender_name%%", name)
+                                Global_AdminFormat = string.gsub(Global_AdminFormat, "%%index%%", id)
+                                Global_AdminFormat = string.gsub(Global_AdminFormat, "%%message%%", Message)
+                                message = Global_AdminFormat
+                            end
+                            
+                        elseif (sAdmin == true) then
+                            for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
+                                Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%sender_name%%", name)
+                                Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%index%%", id)
+                                Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%message%%", Message)
+                                message = Global_SAdminFormat
+                            end
                         end
+                        say_all(message)
+                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                        response = false
                     end
+                    
                     for b = 0, #message do
                         if message[b] then
                             if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
                                 if (GetTeamPlay() == true) then
                                     if (type == 0 or type == 2) then
-                                        
-                                        --=========================================================================================================================--
-                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true)
-                                            if (privilege_level) == getPermLevel(nil, nil, "trial_moderator")) then
-                                                formatTMOD(Message)
-                                        elseif (privilege_level) == getPermLevel(nil, nil, "moderator")) then
-                                                formatMOD(Message)
-                                        elseif (privilege_level) == getPermLevel(nil, nil, "admin")) then
-                                                formatADMIN(Message)
-                                        elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin")) then
-                                                formatSADMIN(Message)
+                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                            if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
+                                                SendToAll(Message, nil,true,nil,nil,nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "moderator") then
+                                                    SendToAll(Message, nil,nil,true,nil,nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "admin") then
+                                                    SendToAll(Message, nil,nil,nil,true,nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin") then
+                                                SendToAll(Message, nil,nil,nil,nil,true)
                                             else
-                                                SendToAll(Message)
+                                               SendToAll(Message, true,nil,nil,nil,nil)
                                             end
                                         else
-                                            SendToAll(Message)
+                                            SendToAll(Message, true, nil,nil,nil,nil)
                                         end
-                                        --=========================================================================================================================--
-                                        
                                     elseif (type == 1) then
-                                        SendToTeam(Message, PlayerIndex)
+                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                            if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
+                                                SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "moderator") then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, true, nil, nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "admin") then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, true, nil)
+                                            elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin") then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
+                                            else
+                                               SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+                                            end
+                                        else
+                                            SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+                                        end
                                     end
                                 else
                                     SendToAll(Message)
@@ -1047,7 +1159,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         local function AdminChat(Message, PlayerIndex)
-            cprint("called", 2+8)
             for i = 1, 16 do
                 if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].environment == "rcon") then
