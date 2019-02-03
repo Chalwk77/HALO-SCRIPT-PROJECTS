@@ -6,6 +6,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
 
+             [!] IN DEVELOPMENT. 70% COMPLETE.
              
 Combined Scripts:
     - Admin Chat
@@ -21,9 +22,8 @@ Combined Scripts:
     - Respawn Time
     - Teleport Manager
     - Get Coords
+    - Spawn From Sky
              
-             
-             to do: finish Spawn From Sky
              
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -37,7 +37,6 @@ api_version = "1.12.0.0"
 local function GameSettings()
     -- CONFIGURAITON [begins] >> ------------------------------------------------------------
     settings = {
-        -- Enabled = true, Disabled = false
         mod = {
             ["Admin Chat"] = {
                 enabled = true,
