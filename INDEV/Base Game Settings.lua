@@ -28,6 +28,7 @@ You do not have permission to use this document.
 
 api_version = "1.12.0.0"
 local function GameSettings()
+    -- CONFIGURAITON [begins] >> ------------------------------------------------------------
     settings = {
         -- Enabled = true, Disabled = false
         mod = {
@@ -215,6 +216,7 @@ local function GameSettings()
             },
         }
     }
+    -- CONFIGURAITON [ends] << ------------------------------------------------------------
 end
 
 -- Tables used Globally
