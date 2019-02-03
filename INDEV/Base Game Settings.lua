@@ -513,7 +513,6 @@ function OnGameEnd()
 end
 
 function OnTick()
-    
     -- SAPP | Mute Handler
     for i = 1,16 do
         if player_present(i) then
@@ -524,9 +523,6 @@ function OnTick()
                 if v then
                     local entry = name .. ", " .. hash
                     if (v:match(entry)) then
-                    
-    
-                        
                         local mute_time = tonumber(string.match(v, (":(.+)")))
                         if string.find(v, mute_time) then
                             mute_timer[entry].timer = mute_timer[entry].timer + 0.030
@@ -534,25 +530,12 @@ function OnTick()
                             time_remaining[i] = mute_time - math.floor(minutes)
                             --cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
                             muted[i] = true
-                            if (time_remaining[i] <= 0) then
-                                table.remove(mute_table, k)
-                                muted[i] = false
-                                rprint(i, "Your mute time has expired.")
-                                local file_name = settings.global.mute_dir
-                                if checkFile(file_name) then
-                                    local file = io.open(file_name, "r")
-                                    local data = file:read("*a")
-                                    file:close()
-                                    local lines = lines_from(file_name)
-                                    for K, W in pairs(lines) do
-                                        if K ~= nil then
-                                            if string.match(W, name) and string.match(W, hash) then
-                                                delete_from_file(file_name, K, 1, PlayerIndex)
-                                            end
-                                        end
-                                    end
-                                end
-                            end
+                        end
+                        if (time_remaining[i] <= 0) then
+                            table.remove(mute_table, k)
+                            muted[i] = false
+                            rprint(i, "Your mute time has expired.")
+                            removeEntry(name, hash, index, i)
                         end
                     else
                         muted[i] = false
@@ -2201,6 +2184,25 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
         fp:write(string.format("%s\n", content[i]))
     end
     fp:close()
+end
+
+-- SAPP | Mute Handler
+function removeEntry(name, hash, num, PlayerIndex)
+    local file_name = settings.global.mute_dir
+        if checkFile(file_name) then
+            local file = io.open(file_name, "r")
+            local data = file:read("*a")
+            file:close()
+            local lines = lines_from(file_name)
+            for K, W in pairs(lines) do
+                if K ~= nil then
+                    if string.match(W, name) and string.match(W, hash) then
+                        delete_from_file(file_name, num, 1, PlayerIndex)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function secondsToTime(seconds, places)
