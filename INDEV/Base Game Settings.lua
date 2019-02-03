@@ -97,7 +97,7 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = false,
+                enabled = true,
                 assign_weapons = true,
                 assign_custom_frags = true,
                 assign_custom_plasmas = true,
@@ -233,6 +233,7 @@ players = { }
 player_data = { }
 quit_data = { }
 mapname = ""
+time_remaining = { }
 
 mute_table = { }
 muted = { }
@@ -523,14 +524,15 @@ function OnTick()
                 if v then
                     local entry = name .. ", " .. id .. ", " .. hash
                     if (v:match(entry)) then
-                        local mute_time = string.match(v, (":(.+)"))
+                        local mute_time = tonumber(string.match(v, (":(.+)")))
                         if string.find(v, mute_time) then
                             mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                             local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
-                            local time_remaining = mute_time - math.floor(minutes)
-                            if (time_remaining < 0) then
+                            time_remaining[i] = mute_time - math.floor(minutes)
+                            if (time_remaining[i] < 0) then
                                 table.remove(mute_table, k)
                                 muted[i] = false
+                                rprint(i, "Your mute time has expired.")
                             end
                         end
                         muted[i] = true
@@ -708,13 +710,16 @@ function OnPlayerJoin(PlayerIndex)
         local content = file:read("*a")
         file:close()
         local words = tokenizestring(content, ", ")
-        for i = 1,#words do
-            if (words[i]:match(name) and words[i]:match(hash)) then
-                local time_remaining = tonumber(string.match(words[i], (":(.+)")))
-                local new_entry = offender_name .. ", " .. offender_id .. ", " .. offender_hash .. ", :" .. time_remaining
+        if #words > 1 then
+            if words[1]:match(name) and words[3]:match(hash) then
+                time_remaining[PlayerIndex] = tonumber(string.match(words[4], (":(.+)")))
+                
+                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. time_remaining[PlayerIndex]
                 table.insert(mute_table, new_entry)
-                rprint(PlayerIndex, "You are muted! Time remaining: " .. time_remaining)
+                
+                rprint(PlayerIndex, "You are muted! Time remaining: " .. time_remaining[PlayerIndex] .. " minute(s)")
             else
+                time_remaining[PlayerIndex] = 0
                 muted[PlayerIndex] = false
             end
         end
@@ -819,7 +824,41 @@ function OnPlayerLeave(PlayerIndex)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-
+    
+    -- SAPP | Mute Handler
+    local file_name = settings.global.mute_dir
+    checkFile(file_name)
+    local file = io.open(file_name, "r")
+    local data = file:read("*a")
+    file:close()
+    local lines = lines_from(file_name)
+    for k, v in pairs(lines) do
+        if string.match(v, name) and string.match(v, hash) then
+            local updated_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. time_remaining[PlayerIndex]
+            local f = io.open(file_name, "r")
+            local content = f:read("*all")
+            f:close()
+            content = string.gsub(content, v, updated_entry)
+            local f = io.open(file_name, "w")
+            f:write(content)
+            f:close()
+        end
+    end
+    
+    for k, v in pairs(mute_table) do
+        if v then
+            local entry = name .. ", " .. id .. ", " .. hash
+            if (v:match(entry)) then
+                table.remove(mute_table, k)
+                muted[PlayerIndex] = false
+                
+                local new_entry = name .. ", " .. id .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+                cprint(time_remaining[PlayerIndex])
+                table.insert(mute_table, new_entry)
+            end
+        end
+    end
+    
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         alias_bool[PlayerIndex] = false
@@ -1340,21 +1379,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.global.handlemutes == true) then
         local t = tokenizestring(Command)
         if (string.lower(t[1]) == "mute") then
-            if (t[2] ~= nil) then 
-                local offender_id = get_var(tonumber(t[2]), "$n")
-                if player_present(offender_id) then
-                    local offender_name = get_var(offender_id, "$name")
-                    local offender_hash = get_var(offender_id, "$hash")
-                    local mute_time = nil
-                    if t[3] == nil then
-                        mute_time = settings.global.default_mute_time
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
+                if (t[2] ~= nil) and string.match(t[2], "%d") then
+                    local offender_id = get_var(tonumber(t[2]), "$n")
+                    if player_present(offender_id) then
+                        local offender_name = get_var(offender_id, "$name")
+                        local offender_hash = get_var(offender_id, "$hash")
+                        local mute_time = nil
+                        if t[3] == nil then
+                            mute_time = settings.global.default_mute_time
+                        else
+                            mute_time = tonumber(t[3])
+                        end
+                        saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
                     else
-                        mute_time = tonumber(t[3])
+                        rprint(PlayerIndex, "Player not present")
                     end
-                    saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
+                else
+                    rprint(PlayerIndex, "Invalid player")
                 end
-                return false
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
             end
+            return false
         end
     end
     
