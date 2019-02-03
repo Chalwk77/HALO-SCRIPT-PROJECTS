@@ -532,7 +532,7 @@ function OnTick()
                             mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                             local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
                             time_remaining[i] = mute_time - math.floor(minutes)
-                            cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
+                            --cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
                             muted[i] = true
                             if (time_remaining[i] <= 0) then
                                 table.remove(mute_table, k)
