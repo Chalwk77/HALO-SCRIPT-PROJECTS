@@ -184,12 +184,12 @@ local function GameSettings()
                 enabled = false,
                 dir = "sapp\\teleports.txt",
                 permission_level = {
-                 setwarp = 1,
-                 warp = -1,
-                 back = -1,
-                 warplist = -1,
-                 warplistall = -1,
-                 delwarp = 1
+                    setwarp = 1,
+                    warp = -1,
+                    back = -1,
+                    warplist = -1,
+                    warplistall = -1,
+                    delwarp = 1
                 },
                 commands = {
                     "setwarp", -- set command
@@ -210,116 +210,116 @@ local function GameSettings()
                 enabled = false,
                 maps = {
                     ["bloodgulch"] = {
-                        height = 1,
+                        height = 35,
                         invulnerability = 9,
                         { 95.687797546387, -159.44900512695, -0.10000000149012 },
                         { 40.240600585938, -79.123199462891, -0.10000000149012 }
                     },
                     ["deathisland"] = {
-                        height = 1,
+                        height = 35,
                         invulnerability = 9,
                         { -26.576030731201, -6.9761986732483, 9.6631727218628 },
                         { 29.843469619751, 15.971487045288, 8.2952880859375 }
                     },
                     ["icefields"] = {
-                        height = 1,
+                        height = 35,
                         invulnerability = 9,
                         { 24.85000038147, -22.110000610352, 2.1110000610352 },
                         { -77.860000610352, 86.550003051758, 2.1110000610352 }
                     },
                     ["infinity"] = {
-                        height = 1,
+                        height = 35,
                         invulnerability = 9,
                         { 0.67973816394806, -164.56719970703, 15.039022445679 },
                         { -1.8581243753433, 47.779975891113, 11.791272163391 }
                     },
                     ["sidewinder"] = {
-                        height = 1,
+                        height = 35,
                         invulnerability = 9,
                         { -32.038200378418, -42.066699981689, -3.7000000476837 },
                         { 30.351499557495, -46.108001708984, -3.7000000476837 }
                     },
                     ["timberland"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 25,
+                        invulnerability = 5,
                         { 17.322099685669, -52.365001678467, -17.751399993896 },
                         { -16.329900741577, 52.360000610352, -17.741399765015 }
                     },
                     ["dangercanyon"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 25,
+                        invulnerability = 5,
                         { -12.104507446289, -3.4351840019226, -2.2419033050537 },
                         { 12.007399559021, -3.4513700008392, -2.2418999671936 }
                     },
                     ["beavercreek"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 25,
+                        invulnerability = 5,
                         { 29.055599212646, 13.732000350952, -0.10000000149012 },
                         { -0.86037802696228, 13.764800071716, -0.0099999997764826 }
                     },
                     ["boardingaction"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 4,
+                        invulnerability = 3,
                         { 1.723109960556, 0.4781160056591, 0.60000002384186 },
                         { 18.204000473022, -0.53684097528458, 0.60000002384186 }
                     },
                     ["carousel"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 3,
+                        invulnerability = 2,
                         { 5.6063799858093, -13.548299789429, -3.2000000476837 },
                         { -5.7499198913574, 13.886699676514, -3.2000000476837 }
                     },
                     ["chillout"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 2,
+                        invulnerability = 1,
                         { 7.4876899719238, -4.49059009552, 2.5 },
                         { -7.5086002349854, 9.750340461731, 0.10000000149012 }
                     },
                     ["damnation"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 3,
+                        invulnerability = 2,
                         { 9.6933002471924, -13.340399742126, 6.8000001907349 },
                         { -12.17884349823, 14.982703208923, -0.20000000298023 }
                     },
                     ["gephyrophobia"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 5,
+                        invulnerability = 4,
                         { 26.884338378906, -144.71551513672, -16.049139022827 },
                         { 26.727857589722, 0.16621616482735, -16.048349380493 }
                     },
                     ["hangemhigh"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 5,
+                        invulnerability = 4,
                         { 13.047902107239, 9.0331249237061, -3.3619771003723 },
                         { 32.655700683594, -16.497299194336, -1.7000000476837 }
                     },
                     ["longest"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 2,
+                        invulnerability = 1,
                         { -12.791899681091, -21.6422996521, -0.40000000596046 },
                         { 11.034700393677, -7.5875601768494, -0.40000000596046 }
                     },
                     ["prisoner"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 2,
+                        invulnerability = 1,
                         { -9.3684597015381, -4.9481601715088, 5.6999998092651 },
                         { 9.3676500320435, 5.1193399429321, 5.6999998092651 }
                     },
                     ["putput"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 3,
+                        invulnerability = 2,
                         { -18.89049911499, -20.186100006104, 1.1000000238419 },
                         { 34.865299224854, -28.194700241089, 0.10000000149012 }
                     },
                     ["ratrace"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 3,
+                        invulnerability = 2,
                         { -4.2277698516846, -0.85564690828323, -0.40000000596046 },
                         { 18.613000869751, -22.652599334717, -3.4000000953674 }
                     },
                     ["wizard"] = {
-                        height = 1,
-                        invulnerability = 9,
+                        height = 3,
+                        invulnerability = 2,
                         { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
                         { 9.1828498840332, -9.1805400848389, -2.5999999046326 }
                     }
@@ -383,11 +383,13 @@ alias_timer = { }
 index = nil
 alias_bool = {}
 
--- Teleport Manager
+-- #Teleport Manager
 canset = { }
 wait_for_response = { }
 previous_location = { }
-for i = 1, 16 do previous_location[i] = { } end
+for i = 1, 16 do
+    previous_location[i] = { }
+end
 
 -- #Spawn From Sky
 init_timer = {}
@@ -490,7 +492,7 @@ function OnNewGame()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     servername = read_widestring(network_struct + 0x8, 0x42)
     mapname = get_var(0, "$map")
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -641,7 +643,7 @@ end
 
 function OnTick()
     -- SAPP | Mute Handler
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             local name = get_var(i, "$name")
             local hash = get_var(i, "$hash")
@@ -671,7 +673,7 @@ function OnTick()
             end
         end
     end
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         for i = 1, 16 do
@@ -699,7 +701,7 @@ function OnTick()
             end
         end
     end
-    -- Custom Weapons
+    -- #Custom Weapons
     if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
         for i = 1, 16 do
             if (player_alive(i)) then
@@ -780,7 +782,7 @@ function OnTick()
     end
     -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
-        for i = 1,16 do 
+        for i = 1, 16 do
             if player_present(i) then
                 if (init_timer[i] == true) then
                     timeUntilRestore(i)
@@ -819,7 +821,7 @@ end
 function OnPlayerPrejoin(PlayerIndex)
     if (settings.global.beepOnJoin == true) then
         os.execute("echo \7")
-    end    
+    end
     -- #CONSOLE OUTPUT
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
@@ -851,10 +853,10 @@ function OnPlayerJoin(PlayerIndex)
         if #words > 1 then
             if words[1]:match(name) and words[3]:match(hash) then
                 time_remaining[PlayerIndex] = tonumber(string.match(words[4], (":(.+)")))
-                
+
                 local new_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
                 table.insert(mute_table, new_entry)
-                
+
                 rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
             else
                 time_remaining[PlayerIndex] = 0
@@ -875,18 +877,18 @@ function OnPlayerJoin(PlayerIndex)
     -- Used Globally
     local p_table = name .. ", " .. hash
     players[p_table] = { }
-    
+
     local entry = name .. ", " .. hash
     mute_timer[entry] = { }
     mute_timer[entry].timer = 0
-    
+
     -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
         players[p_table].sky_timer = 0
         init_timer[PlayerIndex] = true
         first_join[PlayerIndex] = true
     end
-    
+
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         players[p_table].message_board_timer = 0
@@ -968,14 +970,18 @@ function OnPlayerLeave(PlayerIndex)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-    
-        -- #Spawn From Sky
+
+    -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
-        if init_timer == true then init_timer[PlayerIndex] = false end
-        if first_join == true then first_join[PlayerIndex] = false end
+        if init_timer == true then
+            init_timer[PlayerIndex] = false
+        end
+        if first_join == true then
+            first_join[PlayerIndex] = false
+        end
         players[p_table].sky_timer = 0
     end
-    
+
     -- SAPP | Mute Handler
     if (muted[PlayerIndex] == true) then
         local file_name = settings.global.mute_dir
@@ -998,7 +1004,7 @@ function OnPlayerLeave(PlayerIndex)
                 end
             end
         end
-        
+
         for k, v in pairs(mute_table) do
             if v then
                 local entry = name .. ", " .. hash
@@ -1010,7 +1016,7 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
-    
+
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         alias_bool[PlayerIndex] = false
@@ -1070,11 +1076,13 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
-    
+
     -- #Teleport Manager
     if (settings.mod["Teleport Manager"].enabled == true) then
         wait_for_response[PlayerIndex] = false
-        for i = 1, 3 do previous_location[PlayerIndex][i] = nil end
+        for i = 1, 3 do
+            previous_location[PlayerIndex][i] = nil
+        end
     end
 end
 
@@ -1095,10 +1103,10 @@ end
 
 function Teleport(PlayerIndex, TableIndex)
     local x = settings.mod["Spawn From Sky"].maps[mapname]
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
-        base_loc[mapname][tonumber(TableIndex)][1], 
-        base_loc[map][tonumber(TableIndex)][2], 
-        base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
+            base_loc[mapname][tonumber(TableIndex)][1],
+            base_loc[map][tonumber(TableIndex)][2],
+            base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
     execute_command("god " .. tonumber(PlayerIndex))
 end
 
@@ -1258,36 +1266,35 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if (#message == 0) then
                 return nil
             end
-            
+
             local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
 
             for a = 1, #messages_to_ignore do
                 data = messages_to_ignore[a]
             end
-            
+
             local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
-            
+
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
             local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
             local Global_ModFormat = settings.mod["Chat IDs"].moderator[1]
             local Global_AdminFormat = settings.mod["Chat IDs"].admin[1]
             local Global_SAdminFormat = settings.mod["Chat IDs"].senior_admin[1]
-            
+
             --TEAM FORMAT
-            
             local TeamDefault = settings.mod["Chat IDs"].team_format[1]
             local Team_TModFormat = settings.mod["Chat IDs"].trial_moderator[2]
             local Team_ModFormat = settings.mod["Chat IDs"].moderator[2]
             local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
             local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
-            
+
             if not data:match(message[1]) then
                 local function ChatHandler(PlayerIndex, Message)
-                
+
                     local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
-                          for i = 1, 16 do
-                              if player_present(i) then
+                        for i = 1, 16 do
+                            if player_present(i) then
                                 if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
                                     local message = ""
                                     execute_command("msg_prefix \"\"")
@@ -1298,7 +1305,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             TeamDefault = string.gsub(TeamDefault, "%%message%%", Message)
                                             message = TeamDefault
                                         end
-                                        
+
                                     elseif (Tmod == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%sender_name%%", name)
@@ -1306,7 +1313,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%message%%", Message)
                                             message = Team_TModFormat
                                         end
-                                        
+
                                     elseif (Mod == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].moderator) do
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%sender_name%%", name)
@@ -1314,7 +1321,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%message%%", Message)
                                             message = Team_ModFormat
                                         end
-                                        
+
                                     elseif (Admin == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].admin) do
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%sender_name%%", name)
@@ -1322,7 +1329,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%message%%", Message)
                                             message = Team_AdminFormat
                                         end
-                                        
+
                                     elseif (sAdmin == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%sender_name%%", name)
@@ -1338,7 +1345,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             end
                         end
                     end
-                    
+
                     local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
                         local message = ""
                         execute_command("msg_prefix \"\"")
@@ -1349,7 +1356,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 GlobalDefault = string.gsub(GlobalDefault, "%%message%%", Message)
                                 message = GlobalDefault
                             end
-                            
+
                         elseif (Tmod == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%sender_name%%", name)
@@ -1357,7 +1364,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%message%%", Message)
                                 message = Global_TModFormat
                             end
-                            
+
                         elseif (Mod == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].moderator) do
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%sender_name%%", name)
@@ -1365,7 +1372,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%message%%", Message)
                                 message = Global_ModFormat
                             end
-                            
+
                         elseif (Admin == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].admin) do
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%sender_name%%", name)
@@ -1373,7 +1380,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%message%%", Message)
                                 message = Global_AdminFormat
                             end
-                            
+
                         elseif (sAdmin == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%sender_name%%", name)
@@ -1386,7 +1393,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                         response = false
                     end
-                    
+
                     for b = 0, #message do
                         if message[b] then
                             if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
@@ -1394,18 +1401,18 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     if (type == 0 or type == 2) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
                                             if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
-                                                SendToAll(Message, nil,true,nil,nil,nil)
+                                                SendToAll(Message, nil, true, nil, nil, nil)
                                             elseif (privilege_level) == getPermLevel(nil, nil, "moderator") then
-                                                    SendToAll(Message, nil,nil,true,nil,nil)
+                                                SendToAll(Message, nil, nil, true, nil, nil)
                                             elseif (privilege_level) == getPermLevel(nil, nil, "admin") then
-                                                    SendToAll(Message, nil,nil,nil,true,nil)
+                                                SendToAll(Message, nil, nil, nil, true, nil)
                                             elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin") then
-                                                SendToAll(Message, nil,nil,nil,nil,true)
+                                                SendToAll(Message, nil, nil, nil, nil, true)
                                             else
-                                               SendToAll(Message, true,nil,nil,nil,nil)
+                                                SendToAll(Message, true, nil, nil, nil, nil)
                                             end
                                         else
-                                            SendToAll(Message, true, nil,nil,nil,nil)
+                                            SendToAll(Message, true, nil, nil, nil, nil)
                                         end
                                     elseif (type == 1) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
@@ -1418,7 +1425,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin") then
                                                 SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
                                             else
-                                               SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+                                                SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
                                             end
                                         else
                                             SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
@@ -1460,7 +1467,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
-        
+
         local message = tokenizestring(Message)
         if #message == 0 then
             return nil
@@ -1489,7 +1496,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
-        
+
         -- #Teleport Manager
         if (settings.mod["Teleport Manager"].enabled == true) then
             if wait_for_response[PlayerIndex] then
@@ -1550,7 +1557,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-    
+
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         local t = tokenizestring(Command)
@@ -1580,7 +1587,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    
+
     -- #List Players
     if (settings.mod["List Players"].enabled == true) then
         local t = tokenizestring(Command)
@@ -1600,7 +1607,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
+
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
         if (string.lower(Command) == settings.mod["Get Coords"].base_command) then
@@ -1608,7 +1615,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local player_object = get_dynamic_player(PlayerIndex)
                 if player_object ~= 0 then
                     local x, y, z = read_vector3d(player_object + 0x5C)
-                    if settings.mod["Get Coords"].environment == "console" then 
+                    if settings.mod["Get Coords"].environment == "console" then
                         cprint(x .. ", " .. y .. ", " .. z)
                     elseif settings.mod["Get Coords"].environment == "rcon" then
                         rprint(PlayerIndex, x .. ", " .. y .. ", " .. z)
@@ -1928,7 +1935,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 rprint(PlayerIndex, "[" .. k .. "] " .. v)
                             end
                         end
-                        if not found then 
+                        if not found then
                             rprint(PlayerIndex, "There are no warps for the current map.")
                         end
                     else
@@ -2088,30 +2095,30 @@ end
 -- Used Globally
 function getPermLevel(script, bool, args)
     local level = 0
-    
+
     if (script ~= nil and bool == nil and args == nil) then
         level = settings.mod[script].permission_level
-        
+
     elseif (script == nil and bool == nil and args ~= nil) then
         -- Global Permissions
         local permission_table = settings.global.permission_level
         for k, v in pairs(permission_table) do
             local words = tokenizestring(v, ",")
             for i = 1, #words do
-                if (tostring(k) == args) then 
+                if (tostring(k) == args) then
                     level = words[i]
                     break
                 end
             end
         end
     elseif (script ~= nil and bool == true and args ~= nil) then
-        -- Teleport Manager
+        -- Teleport Manager (to do: remove. No sense in having duplicate logic)
         if (settings.mod["Teleport Manager"].enabled == true) then
             local permission_table = settings.mod["Teleport Manager"].permission_level
             for k, v in pairs(permission_table) do
                 local words = tokenizestring(v, ",")
                 for i = 1, #words do
-                    if (tostring(k) == args) then 
+                    if (tostring(k) == args) then
                         level = words[i]
                         break
                     end
@@ -2174,7 +2181,7 @@ end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
 function printEnabled()
-    cprint("\n----- [ BASE GAME SETTINGS ] -----", 3+5)
+    cprint("\n----- [ BASE GAME SETTINGS ] -----", 3 + 5)
     for k, v in pairs(settings.mod) do
         if (settings.mod[k].enabled == true) then
             cprint(k .. " is enabled", 2 + 8)
@@ -2182,7 +2189,7 @@ function printEnabled()
             cprint(k .. " is disabled", 4 + 8)
         end
     end
-    cprint("----------------------------------\n", 3+5)
+    cprint("----------------------------------\n", 3 + 5)
 end
 
 -- #Spawn From Sky
