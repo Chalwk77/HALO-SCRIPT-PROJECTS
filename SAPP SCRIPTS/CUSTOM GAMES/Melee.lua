@@ -208,9 +208,9 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (gamestarted == true) then
         for i = 1, #objects do
-            tag = objects[i][1]
-            name = objects[i][2]
-            bool = objects[i][3]
+            local tag = objects[i][1]
+            local name = objects[i][2]
+            local bool = objects[i][3]
             if (MapID == TagInfo(tag, name)) and (bool == false) then
                 --cprint("removing " .. tag .. ", " .. name)
                 return false;
