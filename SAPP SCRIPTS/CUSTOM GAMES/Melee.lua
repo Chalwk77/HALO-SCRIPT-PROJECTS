@@ -26,9 +26,9 @@ local scorelimit = 10
 local objects = {
     
     -- FALSE = prevent spawning | TRUE = allow spawning
-    { "eqip", "powerups\\active camouflage", false},
-    { "eqip", "powerups\\health pack", false},
-    { "eqip", "powerups\\over shield", false},
+    { "eqip", "powerups\\active camouflage", true},
+    { "eqip", "powerups\\health pack", true},
+    { "eqip", "powerups\\over shield", true},
     { "eqip", "weapons\\frag grenade\\frag grenade", false},
     { "eqip", "weapons\\plasma grenade\\plasma grenade", false},
 
@@ -208,8 +208,11 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (gamestarted == true) then
         for i = 1, #objects do
-            if (MapID == TagInfo(objects[i][1], objects[i][2])) and (objects[i][3] == false) then
-                --cprint("Removing " .. objects[i][1] .. ", " .. objects[i][2])
+            tag = objects[i][1]
+            name = objects[i][2]
+            bool = objects[i][3]
+            if (MapID == TagInfo(tag, name)) and (bool == false) then
+                --cprint("removing " .. tag .. ", " .. name)
                 return false;
             end
         end
