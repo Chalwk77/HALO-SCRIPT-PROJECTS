@@ -16,18 +16,54 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local melee_object = { }
 
-bool = {}
-melee_object = { }
+
 -- Configuration [starts]
 melee_object[1] = "weapons\\ball\\ball"
-scorelimit = 10
+local scorelimit = 10
+
+local objects = {
+    
+    -- FALSE = prevent spawning | TRUE = allow spawning
+    { "eqip", "powerups\\active camouflage", false},
+    { "eqip", "powerups\\health pack", false},
+    { "eqip", "powerups\\over shield", false},
+    { "eqip", "weapons\\frag grenade\\frag grenade", false},
+    { "eqip", "weapons\\plasma grenade\\plasma grenade", false},
+
+    { "vehi", "vehicles\\banshee\\banshee_mp", false},
+    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", false},
+    { "vehi", "vehicles\\ghost\\ghost_mp", false},
+    { "vehi", "vehicles\\scorpion\\scorpion_mp", false},
+    { "vehi", "vehicles\\rwarthog\\rwarthog", false},
+    { "vehi", "vehicles\\warthog\\mp_warthog", false},
+
+    { "weap", "weapons\\assault rifle\\assault rifle", false},
+    { "weap", "weapons\\ball\\ball", true}, -- DO NOT disable.
+    { "weap", "weapons\\flag\\flag", false},
+    { "weap", "weapons\\flamethrower\\flamethrower", false},
+    { "weap", "weapons\\needler\\mp_needler", false},
+    { "weap", "weapons\\pistol\\pistol", false},
+    { "weap", "weapons\\plasma pistol\\plasma pistol", false},
+    { "weap", "weapons\\plasma rifle\\plasma rifle", false},
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon", false},
+    { "weap", "weapons\\rocket launcher\\rocket launcher", false},
+    { "weap", "weapons\\shotgun\\shotgun", false},
+    { "weap", "weapons\\sniper rifle\\sniper rifle", false}
+}
+
 -- Configuration [ends] << ----------
 
-drones = {}
-clean_up_dones = {}
+local bool = {}
+local drones = {}
+local clean_up_dones = {}
 for i = 1, 16 do drones[i] = {} end
-obj_in_memory = {}
+local obj_in_memory = {}
+
+local tag_type
+local tag_name
+local tagbool
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -41,13 +77,11 @@ function OnNewGame()
     if not isTeamPlay() then
         register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
         register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-        
         register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
         register_callback(cb['EVENT_TICK'], "OnTick")
-        
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-        
         register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+        register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
         
         -- Disable all vehicles
         execute_command("disable_all_vehicles 0 1")
@@ -82,19 +116,7 @@ function OnPlayerLeave(PlayerIndex)
     CleanUpDrones(PlayerIndex)
 end
 
-function OnTick()
-    for i = 1, 16 do
-        if player_present(i) then
-            if (player_alive(i)) then
-                if (bool[i] == true) then
-                    assignWeapon(i)
-                end
-            end
-        end
-    end
-end
-
-function assignWeapon(PlayerIndex)
+local function assignWeapon(PlayerIndex)
     execute_command("wdel " .. PlayerIndex)
     local player = get_dynamic_player(PlayerIndex)
     local x, y, z = read_vector3d(player + 0x5C)
@@ -109,6 +131,18 @@ function assignWeapon(PlayerIndex)
     clean_up_dones[PlayerIndex] = true
     
     bool[PlayerIndex] = false
+end
+
+function OnTick()
+    for i = 1, 16 do
+        if player_present(i) then
+            if (player_alive(i)) then
+                if (bool[i] == true) then
+                    assignWeapon(i)
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -129,11 +163,7 @@ function OnWeaponDrop(PlayerIndex)
     end
 end
 
-function OnPlayerDeath(PlayerIndex, KillerIndex)
-    deleteWeapons(PlayerIndex)
-end
-
-function deleteWeapons(PlayerIndex)
+local function deleteWeapons(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
     local WeaponID = read_dword(PlayerObject + 0x118)
     if WeaponID ~= 0 then
@@ -142,6 +172,10 @@ function deleteWeapons(PlayerIndex)
             destroy_object(ObjectID)
         end
     end
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    deleteWeapons(PlayerIndex)
 end
 
 function isTeamPlay()
@@ -165,6 +199,22 @@ function CleanUpDrones(PlayerIndex)
                     end
                 end
             end
+        end
+    end
+end
+
+local function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+    for i = 1, #objects do
+        tag_type = tostring(objects[i][1])
+        tag_name = tostring(objects[i][2])
+        tagbool = objects[i][3]
+        if (MapID == TagInfo(tag_type, tag_name)) and (tagbool == false) then
+            return false;
         end
     end
 end
