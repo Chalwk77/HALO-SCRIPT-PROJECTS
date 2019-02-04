@@ -9,21 +9,12 @@ Description: An all-in-one package that combines many of my scripts into one pla
              [!] IN DEVELOPMENT. 70% COMPLETE.
              
 Combined Scripts:
-    - Admin Chat
-    - Chat IDs
-    - Message Board
-    - Chat Logging
-    - Command Spy
-    - Custom Weapons
-    - Anti Impersonator
-    - Console Logo
-    - List Players
-    - Alias System
-    - Respawn Time
-    - Teleport Manager
-    - Get Coords
-    - Spawn From Sky
-             
+    - Admin Chat            Chat IDs            Message Board
+    - Chat Logging          Command Spy         Custom Weapons
+    - Anti Impersonator     Console Logo        List Players
+    - Alias System          Respawn Time        Teleport Manager
+    - Get Coords            Spawn From Sky      Admin Join Messages
+    - Color Reservation
              
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -74,8 +65,9 @@ local function GameSettings()
                 }
             },
             ["Admin Join Messages"] = {
-                enabled = true,
+                enabled = false,
                 messages = {
+                    -- [prefix] [message] (note: player name is automatically inserted between [prefix] and [message])
                     [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
                     [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
                     [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
@@ -84,15 +76,39 @@ local function GameSettings()
             },
             ["Message Board"] = {
                 enabled = false,
-                duration = 3,
-                alignment = "l",
+                duration = 3, -- How long should the message be displayed on screen for? (in seconds)
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 messages = {
                     "Welcome to $SERVER_NAME",
                     "Bug reports and suggestions:",
                     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
                     "This is a development & test server only!"
                 }
+             },
+            ["Color Reservation"] = {
+                enabled = false,
+                color_table = {
+                    [1] = {"6c8f0bc306e0108b4904812110185edd"},  -- white
+                    [2] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- black
+                    [3] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- red
+                    [4] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- blue
+                    [5] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- gray
+                    [6] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- yellow
+                    [7] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- green
+                    [8] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- pink
+                    [9] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- purple
+                    [10] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- cyan
+                    [11] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- cobalt
+                    [12] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- orange
+                    [13] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- teal
+                    [14] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- sage
+                    [15] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- brown
+                    [16] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- tan
+                    [17] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- maroon
+                    [18] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- salmon
+                }
             },
+             -- Logs chat, commands and quit-join events.
             ["Chat Logging"] = {
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
@@ -108,12 +124,12 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true,
+                enabled = false,
                 assign_weapons = true,
                 assign_custom_frags = true,
                 assign_custom_plasmas = true,
                 weapons = {
-                    -- Weap 1,Weap 2,Weap 3,Weap 4, , frags, plasmas
+                    -- Weap 1,Weap 2,Weap 3,Weap 4, frags, plasmas
                     ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
                     ["bloodgulch"] = { sniper, pistol, nil, nil, 2, 2 },
                     ["boardingaction"] = { plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3 },
@@ -145,10 +161,11 @@ local function GameSettings()
             ["Console Logo"] = {
                 enabled = true
             },
+            -- An alternative player list mod. Overrides SAPP's built in /pl command.
             ["List Players"] = {
                 enabled = true,
                 permission_level = 1,
-                alignment = "l",
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 command_aliases = {
                     "pl",
                     "players",
@@ -156,13 +173,14 @@ local function GameSettings()
                     "playerslist"
                 }
             },
+            -- Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
                 enabled = true,
                 base_command = "alias",
                 dir = "sapp\\alias.lua",
-                permission_level = 1,
-                alignment = "l",
-                duration = 10
+                permission_level = 1, -- minimum admin level required to use /alias command
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
+                duration = 10 -- How long should the alias results be displayed for? (in seconds)
             },
             ["Respawn Time"] = {
                 enabled = false,
@@ -403,6 +421,9 @@ end
 init_timer = {}
 first_join = {}
 
+-- #Color Reservation
+colorres_bool = {}
+
 function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
@@ -495,6 +516,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
+    
     -- Used Globally
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -508,6 +530,13 @@ function OnNewGame()
                 local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                 players[p_table].message_board_timer = 0
             end
+        end
+    end
+    
+    -- #Color Reservation
+    if (settings.mod["Color Reservation"].enabled == true) then
+        if (GetTeamPlay() == true) then
+            cprint("[!] Warning: Color Reservation doesn't support Team Play!", 4+8)
         end
     end
 
@@ -850,6 +879,15 @@ function OnPlayerJoin(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
+    
+    -- #CONSOLE OUTPUT
+    for k, v in ipairs(player_data) do
+        if (v:match(name) and v:match(hash) and v:match(id)) then
+            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
+            cprint("Status: " .. name .. " connected successfully.", 5 + 8)
+            cprint("--------------------------------------------------------------------------------")
+        end
+    end
 
     -- SAPP | Mute Handler
     local file_name = settings.global.mute_dir
@@ -872,16 +910,24 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-
-    -- #CONSOLE OUTPUT
-    for k, v in ipairs(player_data) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
-            cprint("Status: " .. name .. " connected successfully.", 5 + 8)
-            cprint("--------------------------------------------------------------------------------")
+    
+    -- #Color Reservation
+    if (settings.mod["Color Reservation"].enabled == true) then
+        local t = settings.mod["Color Reservation"].color_table
+        local ColorTable = settings.mod["Color Reservation"].color_table
+        for k,v in pairs (ColorTable) do
+            for i = 1,#ColorTable do
+                local t = tokenizestring(ColorTable[i][1], ", ")
+                if string.find(ColorTable[i][1], hash) then
+                    colorres_bool[PlayerIndex] = true
+                    i = i - 1
+                    setColor(PlayerIndex, tonumber(i))
+                end
+            end
+            break
         end
     end
-
+    
     -- Used Globally
     local p_table = name .. ", " .. hash
     players[p_table] = { }
@@ -1158,6 +1204,15 @@ function OnPlayerSpawn(PlayerIndex)
                     write_word(player_object + 0x31F, tonumber(plasmas))
                 end
             end
+        end
+    end
+    
+    -- #Color Reservation
+    if (settings.mod["Color Reservation"].enabled == true) then
+        if (colorres_bool[PlayerIndex] == true) then
+            colorres_bool[PlayerIndex] = false
+            local player_object = read_dword(get_player(PlayerIndex) + 0x34)
+            destroy_object(player_object)
         end
     end
 end
@@ -2429,8 +2484,15 @@ function removeEntry(name, hash, num, PlayerIndex)
     end
 end
 
-function secondsToTime(seconds, places)
+-- #Color Reservation
+function setColor(PlayerIndex, ColorID)
+    local player = get_player(PlayerIndex)
+    write_byte(player + 0x60, tonumber(ColorID))
+    colorres_bool[PlayerIndex] = true
+end
 
+function secondsToTime(seconds, places)
+    
     local years = math.floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
     local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
