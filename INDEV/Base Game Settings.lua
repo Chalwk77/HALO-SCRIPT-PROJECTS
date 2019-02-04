@@ -76,10 +76,10 @@ local function GameSettings()
             ["Admin Join Messages"] = {
                 enabled = true,
                 messages = {
-                    [1] = {"[TRIAL-MOD] ", " joined the server. Everybody hide!"},
-                    [2] = {"[MODERATOR] ", " just showed up. Hold my beer!"},
-                    [3] = {"[ADMIN] ", " just joined. Hide your bananas!"},
-                    [4] = {"[SENIOR-ADMIN] ", " joined the server."}
+                    [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
+                    [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
+                    [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
+                    [4] = { "[SENIOR-ADMIN] ", " joined the server." }
                 }
             },
             ["Message Board"] = {
@@ -968,7 +968,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    
+
     -- #Admin Join Messages
     if (settings.mod["Admin Join Messages"].enabled == true) then
         local level = tonumber(get_var(PlayerIndex, "$lvl"))
@@ -1131,14 +1131,14 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function Teleport(PlayerIndex, team)
-    local x,y,z
+    local x, y, z
     local height = settings.mod["Spawn From Sky"].maps[mapname].height
     if (team == "red") then
-        x,y,z = settings.mod["Spawn From Sky"].maps[mapname][1][1], settings.mod["Spawn From Sky"].maps[mapname][1][2], settings.mod["Spawn From Sky"].maps[mapname][1][3]
+        x, y, z = settings.mod["Spawn From Sky"].maps[mapname][1][1], settings.mod["Spawn From Sky"].maps[mapname][1][2], settings.mod["Spawn From Sky"].maps[mapname][1][3]
     else
-        x,y,z = settings.mod["Spawn From Sky"].maps[mapname][2][1], settings.mod["Spawn From Sky"].maps[mapname][2][2], settings.mod["Spawn From Sky"].maps[mapname][2][3]
+        x, y, z = settings.mod["Spawn From Sky"].maps[mapname][2][1], settings.mod["Spawn From Sky"].maps[mapname][2][2], settings.mod["Spawn From Sky"].maps[mapname][2][3]
     end
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z + math.floor(height))
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z + math.floor(height))
     execute_command("god " .. tonumber(PlayerIndex))
 end
 
@@ -2227,7 +2227,7 @@ end
 -- #Spawn From Sky
 function timeUntilRestore(PlayerIndex)
     local p_table = get_var(PlayerIndex, "$name") .. ", " .. get_var(PlayerIndex, "$hash")
-    
+
     players[p_table].sky_timer = players[p_table].sky_timer + 0.030
     if (players[p_table].sky_timer >= (settings.mod["Spawn From Sky"].maps[mapname].invulnerability)) then
         players[p_table].sky_timer = 0
