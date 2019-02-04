@@ -61,10 +61,6 @@ local clean_up_dones = {}
 for i = 1, 16 do drones[i] = {} end
 local obj_in_memory = {}
 
-local tag_type
-local tag_name
-local tagbool
-
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
@@ -210,10 +206,7 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     for i = 1, #objects do
-        tag_type = tostring(objects[i][1])
-        tag_name = tostring(objects[i][2])
-        tagbool = objects[i][3]
-        if (MapID == TagInfo(tag_type, tag_name)) and (tagbool == false) then
+        if (MapID == TagInfo(objects[i][1], objects[i][2])) and (objects[i][3] == false) then
             return false;
         end
     end
