@@ -55,13 +55,15 @@ local objects = {
 
 -- Configuration [ends] << ----------
 
-local bool = {}
+local assign = {}
 local drones = {}
 local clean_up_dones = {}
 for i = 1, 16 do drones[i] = {} end
 local obj_in_memory = {}
+local gamestarted = nil
 
 function OnScriptLoad()
+    gamestarted = false
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
 end
 
@@ -99,6 +101,7 @@ function OnNewGame()
         execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
         
         execute_command("scorelimit " .. tonumber(scorelimit))
+        gamestarted = true
     else
         cprint("[!] Error (melee.lua) | This script doesn't support team play.", 4+8)
     end
@@ -108,32 +111,27 @@ function OnPlayerJoin(PlayerIndex)
     obj_in_memory[get_var(PlayerIndex, "$n")] = nil
 end
 
-function OnPlayerLeave(PlayerIndex)
-    CleanUpDrones(PlayerIndex)
-end
-
-local function assignWeapon(PlayerIndex)
-    execute_command("wdel " .. PlayerIndex)
-    local player = get_dynamic_player(PlayerIndex)
-    local x, y, z = read_vector3d(player + 0x5C)
-    
-    local oddball = spawn_object("weap", melee_object[1], x, y, z)
-    local object_spawned = assign_weapon(oddball, PlayerIndex)
-
-    local object = get_object_memory(oddball)
-    drones[PlayerIndex] = drones[PlayerIndex] or {}
-    table.insert(drones[PlayerIndex], oddball)
-    obj_in_memory[get_var(PlayerIndex, "$n")] = object
-    clean_up_dones[PlayerIndex] = true
-    
-    bool[PlayerIndex] = false
-end
-
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             if (player_alive(i)) then
-                if (bool[i] == true) then
+                if (assign[i] == true) then
+                    local function assignWeapon(i)
+                        execute_command("wdel " .. i)
+                        local player = get_dynamic_player(i)
+                        local x, y, z = read_vector3d(player + 0x5C)
+                        
+                        local oddball = spawn_object("weap", melee_object[1], x, y, z)
+                        local object_spawned = assign_weapon(oddball, i)
+
+                        local object = get_object_memory(oddball)
+                        drones[i] = drones[i] or {}
+                        table.insert(drones[i], oddball)
+                        obj_in_memory[get_var(i, "$n")] = object
+                        clean_up_dones[i] = true
+                        
+                        assign[i] = false
+                    end
                     assignWeapon(i)
                 end
             end
@@ -147,30 +145,22 @@ function OnPlayerSpawn(PlayerIndex)
         if (PlayerObject ~= 0) then
             write_word(PlayerObject + 0x31E, 0)
             write_word(PlayerObject + 0x31F, 0)
-            bool[PlayerIndex] = true
-        end
-    end
-end
-
-function OnWeaponDrop(PlayerIndex)
-    if player_alive(PlayerIndex) then
-        CleanUpDrones(PlayerIndex)
-        assignWeapon(PlayerIndex)
-    end
-end
-
-local function deleteWeapons(PlayerIndex)
-    local PlayerObject = get_dynamic_player(PlayerIndex)
-    local WeaponID = read_dword(PlayerObject + 0x118)
-    if WeaponID ~= 0 then
-        for j = 0, 3 do
-            local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
-            destroy_object(ObjectID)
+            assign[PlayerIndex] = true
         end
     end
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
+    local function deleteWeapons(PlayerIndex)
+        local PlayerObject = get_dynamic_player(PlayerIndex)
+        local WeaponID = read_dword(PlayerObject + 0x118)
+        if WeaponID ~= 0 then
+            for j = 0, 3 do
+                local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
+                destroy_object(ObjectID)
+            end
+        end
+    end
     deleteWeapons(PlayerIndex)
 end
 
@@ -182,7 +172,7 @@ function isTeamPlay()
     end
 end
 
-function CleanUpDrones(PlayerIndex)
+local function CleanUpDrones(PlayerIndex)
     if (clean_up_dones[PlayerIndex] == true) then
         if drones[PlayerIndex] ~= nil then
             for k, v in pairs(drones[PlayerIndex]) do
@@ -199,15 +189,29 @@ function CleanUpDrones(PlayerIndex)
     end
 end
 
+function OnPlayerLeave(PlayerIndex)
+    CleanUpDrones(PlayerIndex)
+end
+
+function OnWeaponDrop(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        CleanUpDrones(PlayerIndex)
+        assign[PlayerIndex] = true
+    end
+end
+
 local function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
-    for i = 1, #objects do
-        if (MapID == TagInfo(objects[i][1], objects[i][2])) and (objects[i][3] == false) then
-            return false;
+    if (gamestarted == true) then
+        for i = 1, #objects do
+            if (MapID == TagInfo(objects[i][1], objects[i][2])) and (objects[i][3] == false) then
+                --cprint("Removing " .. objects[i][1] .. ", " .. objects[i][2])
+                return false;
+            end
         end
     end
 end
