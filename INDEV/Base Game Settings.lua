@@ -120,7 +120,10 @@ local function GameSettings()
                 hide_commands = false,
                 commands_to_hide = {
                     "/afk",
-                    "/lead"
+                    "/lead",
+                    "/stfu",
+                    "/unstfu",
+                    "/skip"
                 }
             },
             ["Custom Weapons"] = {
