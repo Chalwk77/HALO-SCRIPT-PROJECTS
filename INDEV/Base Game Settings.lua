@@ -71,7 +71,16 @@ local function GameSettings()
                 ignore_list = {
                     "skip",
                     "rtv"
-                },
+                }
+            },
+            ["Admin Join Messages"] = {
+                enabled = true,
+                messages = {
+                    [1] = {"[TRIAL-MOD] ", " joined the server. Everybody hide!"},
+                    [2] = {"[MODERATOR] ", " just showed up. Hold my beer!"},
+                    [3] = {"[ADMIN] ", " just joined. Hide your bananas!"},
+                    [4] = {"[SENIOR-ADMIN] ", " joined the server."}
+                }
             },
             ["Message Board"] = {
                 enabled = false,
@@ -81,12 +90,12 @@ local function GameSettings()
                     "Welcome to $SERVER_NAME",
                     "Bug reports and suggestions:",
                     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
-                    "This is a development & test server only!",
+                    "This is a development & test server only!"
                 }
             },
             ["Chat Logging"] = {
                 enabled = true,
-                dir = "sapp\\Server Chat.txt",
+                dir = "sapp\\Server Chat.txt"
             },
             ["Command Spy"] = {
                 enabled = true,
@@ -95,7 +104,7 @@ local function GameSettings()
                 hide_commands = false,
                 commands_to_hide = {
                     "/afk",
-                    "/lead",
+                    "/lead"
                 }
             },
             ["Custom Weapons"] = {
@@ -131,10 +140,10 @@ local function GameSettings()
                 reason = "impersonating",
                 bantime = 10,
                 namelist = { "Chalwk" },
-                hashlist = { "6c8f0bc306e0108b4904812110185edd" },
+                hashlist = { "6c8f0bc306e0108b4904812110185edd" }
             },
             ["Console Logo"] = {
-                enabled = true,
+                enabled = true
             },
             ["List Players"] = {
                 enabled = true,
@@ -153,7 +162,7 @@ local function GameSettings()
                 dir = "sapp\\alias.lua",
                 permission_level = 1,
                 alignment = "l",
-                duration = 10,
+                duration = 10
             },
             ["Respawn Time"] = {
                 enabled = false,
@@ -176,7 +185,7 @@ local function GameSettings()
                     ["putput"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["prisoner"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["wizard"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["longest"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["longest"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
@@ -203,7 +212,7 @@ local function GameSettings()
                 enabled = false,
                 base_command = "coords",
                 permission_level = 1,
-                environment = "console",
+                environment = "console"
             },
             ["Spawn From Sky"] = {
                 enabled = false,
@@ -959,6 +968,27 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
+    
+    -- #Admin Join Messages
+    if (settings.mod["Admin Join Messages"].enabled == true) then
+        local level = tonumber(get_var(PlayerIndex, "$lvl"))
+        local join_message
+        if (level >= 1) then
+            local prefix = settings.mod["Admin Join Messages"].messages[level][1]
+            local suffix = settings.mod["Admin Join Messages"].messages[level][2]
+            join_message = prefix .. name .. suffix
+        else
+            return false
+        end
+        local function announceJoin(join_message)
+            for i = 1, 16 do
+                if player_present(i) then
+                    rprint(i, join_message)
+                end
+            end
+        end
+        announceJoin(join_message)
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -1092,20 +1122,23 @@ function OnPlayerPrespawn(PlayerIndex)
             first_join[PlayerIndex] = false
             local team = get_var(PlayerIndex, "$team")
             if (team == "red") then
-                Teleport(PlayerIndex, 1)
+                Teleport(PlayerIndex, "red")
             elseif (team == "blue") then
-                Teleport(PlayerIndex, 2)
+                Teleport(PlayerIndex, "blue")
             end
         end
     end
 end
 
-function Teleport(PlayerIndex, TableIndex)
-    local x = settings.mod["Spawn From Sky"].maps[mapname]
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
-            base_loc[mapname][tonumber(TableIndex)][1],
-            base_loc[map][tonumber(TableIndex)][2],
-            base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
+function Teleport(PlayerIndex, team)
+    local x,y,z
+    local height = settings.mod["Spawn From Sky"].maps[mapname].height
+    if (team == "red") then
+        x,y,z = settings.mod["Spawn From Sky"].maps[mapname][1][1], settings.mod["Spawn From Sky"].maps[mapname][1][2], settings.mod["Spawn From Sky"].maps[mapname][1][3]
+    else
+        x,y,z = settings.mod["Spawn From Sky"].maps[mapname][2][1], settings.mod["Spawn From Sky"].maps[mapname][2][2], settings.mod["Spawn From Sky"].maps[mapname][2][3]
+    end
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x,y,z + math.floor(height))
     execute_command("god " .. tonumber(PlayerIndex))
 end
 
@@ -2193,9 +2226,11 @@ end
 
 -- #Spawn From Sky
 function timeUntilRestore(PlayerIndex)
-    players[get_var(PlayerIndex, "$name")].sky_timer = players[get_var(PlayerIndex, "$name")].sky_timer + 0.030
-    if (players[get_var(PlayerIndex, "$name")].sky_timer >= (invulnerability_time)) then
-        players[get_var(PlayerIndex, "$name")].sky_timer = 0
+    local p_table = get_var(PlayerIndex, "$name") .. ", " .. get_var(PlayerIndex, "$hash")
+    
+    players[p_table].sky_timer = players[p_table].sky_timer + 0.030
+    if (players[p_table].sky_timer >= (settings.mod["Spawn From Sky"].maps[mapname].invulnerability)) then
+        players[p_table].sky_timer = 0
         init_timer[tonumber(PlayerIndex)] = false
         execute_command("ungod " .. tonumber(PlayerIndex))
     end
