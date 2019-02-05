@@ -6,7 +6,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
 
-             [!] IN DEVELOPMENT. 70% COMPLETE.
+             [!] IN DEVELOPMENT. 85% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -155,11 +155,23 @@ local function GameSettings()
             },
             ["Anti Impersonator"] = {
                 enabled = true,
-                action = "kick",
+                action = "kick", -- Valid actions, "kick", "ban"
                 reason = "impersonating",
-                bantime = 10,
-                namelist = { "Chalwk" },
-                hashlist = { "6c8f0bc306e0108b4904812110185edd" }
+                bantime = 10,  -- (In Minutes) -- Set to zero to ban permanently
+                namelist = { -- Make sure these names match exactly as they do in game.
+                    "Chalwk", 
+                    "Cysera@",
+                    "member3",
+                    "member4",
+                    "member5" -- Make sure the last entry in the table doesn't have a comma
+                }, 
+                hashlist = { -- You can retrieve the players hash by looking it up in the sapp.log file or Server Chat.txt
+                    "6c8f0bc306e0108b4904812110185edd", -- Chalwk's hash
+                    "95d4c1cd616c5df21fc27bfe0bd4a68b", -- Cysera@'s hash
+                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
             },
             ["Console Logo"] = {
                 enabled = true
@@ -178,7 +190,7 @@ local function GameSettings()
             },
             -- Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
-                enabled = true,
+                enabled = false,
                 base_command = "alias",
                 dir = "sapp\\alias.lua",
                 permission_level = 1, -- minimum admin level required to use /alias command
@@ -362,6 +374,7 @@ local function GameSettings()
             default_mute_time = 525600,
             beepOnLoad = false,
             beepOnJoin = true,
+            plugin_commands = {enable = "enable", disable = "disable", list = "plugins"},
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -1269,6 +1282,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
+    local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
 
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
@@ -1348,9 +1362,17 @@ function OnPlayerChat(PlayerIndex, Message, type)
         end
     end
 
+    
+    -- SAPP | Mute Handler
+    if not (game_over) and (muted[PlayerIndex]) then
+        rprint(PlayerIndex, "You are muted!")
+        return false
+    end
+    
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if not (game_over) and (muted[PlayerIndex] == false) then
+        if not (game_over) and muted[PlayerIndex] == false or  muted[PlayerIndex] == nil then
+        
             local data
             local message = tokenizestring(Message)
             if (#message == 0) then
@@ -1363,7 +1385,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 data = messages_to_ignore[a]
             end
 
-            local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
 
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
@@ -1609,9 +1630,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-    if muted[PlayerIndex] then
-        return false
-    end
     return response
 end
 
@@ -1642,31 +1660,74 @@ function saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, m
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
+   
+    -- Used Globally
+    local t = tokenizestring(Command)
+    local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
+   
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
-
-    -- Used Globally
     local p_table = name .. ", " .. hash
 
+    -- ENABLE or DISABLE a plugin (WIP)
+    if (string.lower(t[1]) == settings.global.plugin_commands.list) then
+        if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
+            rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
+            local count = 0
+            for k, v in pairs(settings.mod) do
+                count = count + 1
+                if (settings.mod[k].enabled == true) then
+                    rprint(PlayerIndex, "[" .. count .. "] "  .. k ..  " is enabled")
+                else
+                    rprint(PlayerIndex, "[" .. count .. "] "  .. k ..  " is disabled")
+                end
+            end
+            rprint(PlayerIndex, "-----------------------------------------------------\n")
+        else
+            rprint(PlayerIndex, "Insufficient Permission")
+       end
+    elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
+         if (t[2] ~= nil) and not t[2]:match("%d") then
+            for k, v in pairs(settings.mod) do
+                
+            end
+        else
+            rprint(PlayerIndex, "Invalid Syntax")
+        end
+        return false
+    elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
+         if (t[2] ~= nil) and not t[2]:match("%d") then
+            for k, v in pairs(settings.mod) do
+                
+            end
+        else
+            rprint(PlayerIndex, "Invalid Syntax")
+        end
+        return false
+    end
+    
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
-        local t = tokenizestring(Command)
         if (string.lower(t[1]) == "mute") then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
                 if (t[2] ~= nil) and string.match(t[2], "%d") then
                     local offender_id = get_var(tonumber(t[2]), "$n")
-                    if player_present(offender_id) then
-                        local offender_name = get_var(offender_id, "$name")
-                        local offender_hash = get_var(offender_id, "$hash")
-                        local mute_time = nil
-                        if t[3] == nil then
-                            mute_time = settings.global.default_mute_time
+                    if offender_id ~= get_var(PlayerIndex, "$n") then
+                        if player_present(offender_id) then
+                            local offender_name = get_var(offender_id, "$name")
+                            local offender_hash = get_var(offender_id, "$hash")
+                            local mute_time = nil
+                            if (t[3] == nil) then
+                                mute_time = settings.global.default_mute_time
+                            else
+                                mute_time = tonumber(t[3])
+                            end
+                            saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
                         else
-                            mute_time = tonumber(t[3])
+                            rprint(PlayerIndex, "Player not present")
                         end
-                        saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
                     else
-                        rprint(PlayerIndex, "Player not present")
+                        rprint(PlayerIndex, "You cannot mute yourself!")
                     end
                 else
                     rprint(PlayerIndex, "Invalid player")
@@ -1680,7 +1741,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- #List Players
     if (settings.mod["List Players"].enabled == true) then
-        local t = tokenizestring(Command)
         local commands = settings.mod["List Players"].command_aliases
         local count = #t
         for k, v in pairs(commands) do
@@ -1723,7 +1783,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        local t = tokenizestring(Command)
         local command = settings.mod["Admin Chat"].base_command
         if t[1] == (command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
@@ -1763,7 +1822,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
-        local t = tokenizestring(Command)
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
             if t[1] == string.lower(settings.mod["Alias System"].base_command) then
                 if t[2] ~= nil then
@@ -1807,7 +1865,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- #Teleport Manager
     if (settings.mod["Teleport Manager"].enabled == true) then
         local file_name = settings.mod["Teleport Manager"].dir
-        local t = tokenizestring(Command)
         if t[1] ~= nil then
             if t[1] == string.lower(settings.mod["Teleport Manager"].commands[1]) then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "setwarp") then
@@ -2285,7 +2342,6 @@ end
 -- #Spawn From Sky
 function timeUntilRestore(PlayerIndex)
     local p_table = get_var(PlayerIndex, "$name") .. ", " .. get_var(PlayerIndex, "$hash")
-
     players[p_table].sky_timer = players[p_table].sky_timer + 0.030
     if (players[p_table].sky_timer >= (settings.mod["Spawn From Sky"].maps[mapname].invulnerability)) then
         players[p_table].sky_timer = 0
@@ -2443,7 +2499,7 @@ function check_file_status(PlayerIndex)
     fileZ:close()
 end
 
--- #Teleport Manager
+-- Used Globally
 function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     local fp = io.open(filename, "r")
     if fp == nil then
@@ -2477,10 +2533,10 @@ function removeEntry(name, hash, num, PlayerIndex)
         local data = file:read("*a")
         file:close()
         local lines = lines_from(file_name)
-        for K, W in pairs(lines) do
-            if K ~= nil then
-                if string.match(W, name) and string.match(W, hash) then
-                    delete_from_file(file_name, num, 1, PlayerIndex)
+        for k, v in pairs(lines) do
+            if k ~= nil then
+                if string.match(v, name) and string.match(v, hash) then
+                    delete_from_file(file_name, k, 1, PlayerIndex)
                 end
             end
         end
