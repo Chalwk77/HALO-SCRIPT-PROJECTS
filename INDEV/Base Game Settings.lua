@@ -93,31 +93,31 @@ local function GameSettings()
                     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
                     "This is a development & test server only!"
                 }
-             },
+            },
             ["Color Reservation"] = {
                 enabled = false,
                 color_table = {
-                    [1] = {"6c8f0bc306e0108b4904812110185edd"},  -- white
-                    [2] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- black
-                    [3] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- red
-                    [4] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- blue
-                    [5] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- gray
-                    [6] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- yellow
-                    [7] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- green
-                    [8] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- pink
-                    [9] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},    -- purple
-                    [10] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- cyan
-                    [11] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- cobalt
-                    [12] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- orange
-                    [13] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- teal
-                    [14] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- sage
-                    [15] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- brown
-                    [16] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- tan
-                    [17] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},   -- maroon
-                    [18] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}    -- salmon
+                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white
+                    [2] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- black
+                    [3] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- red
+                    [4] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- blue
+                    [5] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- gray
+                    [6] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- yellow
+                    [7] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- green
+                    [8] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- pink
+                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- purple
+                    [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
+                    [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
+                    [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
+                    [13] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- teal
+                    [14] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- sage
+                    [15] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- brown
+                    [16] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- tan
+                    [17] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- maroon
+                    [18] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }    -- salmon
                 }
             },
-             -- Logs chat, commands and quit-join events.
+            -- Logs chat, commands and quit-join events.
             ["Chat Logging"] = {
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
@@ -166,14 +166,14 @@ local function GameSettings()
                 enabled = true,
                 action = "kick", -- Valid actions, "kick", "ban"
                 reason = "impersonating",
-                bantime = 10,  -- (In Minutes) -- Set to zero to ban permanently
+                bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
                 namelist = { -- Make sure these names match exactly as they do in game.
-                    "Chalwk", 
+                    "Chalwk",
                     "Cyser@",
                     "member3",
                     "member4",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
-                }, 
+                },
                 hashlist = { -- You can retrieve the players hash by looking it up in the sapp.log file or Server Chat.txt
                     "6c8f0bc306e0108b4904812110185edd", -- Chalwk's hash
                     "95d4c1cd616c5df21fc27bfe0bd4a68b", -- Cyser@'s hash
@@ -383,7 +383,7 @@ local function GameSettings()
             default_mute_time = 525600,
             beepOnLoad = false,
             beepOnJoin = true,
-            plugin_commands = {enable = "enable", disable = "disable", list = "plugins"},
+            plugin_commands = { enable = "enable", disable = "disable", list = "plugins" },
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -540,22 +540,22 @@ function OnScriptUnload()
     end
 end
 
-table.indexOf = function( t, object )
-	local result
+table.indexOf = function(t, object)
+    local result
 
-	if "table" == type( t ) then
-		for i=1,#t do
-			if object == t[i] then
-				result = i
-				break
-			end
-		end
-	end
-	return result
+    if "table" == type(t) then
+        for i = 1, #t do
+            if object == t[i] then
+                result = i
+                break
+            end
+        end
+    end
+    return result
 end
 
 function OnNewGame()
-    
+
     -- Used Globally
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -571,11 +571,11 @@ function OnNewGame()
             end
         end
     end
-    
+
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled == true) then
         if (GetTeamPlay() == true) then
-            cprint("[!] Warning: Color Reservation doesn't support Team Play!", 4+8)
+            cprint("[!] Warning: Color Reservation doesn't support Team Play!", 4 + 8)
         end
     end
 
@@ -918,7 +918,7 @@ function OnPlayerJoin(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
-    
+
     -- #CONSOLE OUTPUT
     for k, v in ipairs(player_data) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
@@ -949,13 +949,13 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    
+
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled == true) then
         local t = settings.mod["Color Reservation"].color_table
         local ColorTable = settings.mod["Color Reservation"].color_table
-        for k,v in pairs (ColorTable) do
-            for i = 1,#ColorTable do
+        for k, v in pairs(ColorTable) do
+            for i = 1, #ColorTable do
                 local t = tokenizestring(ColorTable[i][1], ", ")
                 if string.find(ColorTable[i][1], hash) then
                     colorres_bool[PlayerIndex] = true
@@ -966,7 +966,7 @@ function OnPlayerJoin(PlayerIndex)
             break
         end
     end
-    
+
     -- Used Globally
     local p_table = name .. ", " .. hash
     players[p_table] = { }
@@ -1245,7 +1245,7 @@ function OnPlayerSpawn(PlayerIndex)
             end
         end
     end
-    
+
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled == true) then
         if (colorres_bool[PlayerIndex] == true) then
@@ -1385,17 +1385,17 @@ function OnPlayerChat(PlayerIndex, Message, type)
         end
     end
 
-    
+
     -- SAPP | Mute Handler
     if not (game_over) and (muted[PlayerIndex]) then
         rprint(PlayerIndex, "You are muted!")
         return false
     end
-    
+
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if not (game_over) and muted[PlayerIndex] == false or  muted[PlayerIndex] == nil then
-        
+        if not (game_over) and muted[PlayerIndex] == false or muted[PlayerIndex] == nil then
+
             local data
             local message = tokenizestring(Message)
             if (#message == 0) then
@@ -1683,11 +1683,11 @@ function saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, m
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
-   
+
     -- Used Globally
     local t = tokenizestring(Command)
     local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
-   
+
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
@@ -1696,24 +1696,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
-                local temp = {}
-                for k, v in pairs(settings.mod) do
-                    table.insert(temp, k)
-                end
-                for k, v in pairs(temp) do
-                    if v then
-                        if (settings.mod[v].enabled == true) then
-                            rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is enabled")
-                        else
-                            rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is disabled")
-                        end
+            local temp = {}
+            for k, v in pairs(settings.mod) do
+                table.insert(temp, k)
+            end
+            for k, v in pairs(temp) do
+                if v then
+                    if (settings.mod[v].enabled == true) then
+                        rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is enabled")
+                    else
+                        rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is disabled")
                     end
                 end
+            end
             rprint(PlayerIndex, "-----------------------------------------------------\n")
         else
             rprint(PlayerIndex, "Insufficient Permission")
-       end
-       return false
+        end
+        return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
         if (t[2] ~= nil) and t[2]:match("%d") then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
@@ -1727,7 +1727,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if (tonumber(id) == tonumber(k)) then
                             if (settings.mod[v].enabled == false) then
                                 settings.mod[v].enabled = true
-                                rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is enabled")
+                                rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is enabled")
                             else
                                 rprint(PlayerIndex, v .. " is already enabled!")
                             end
@@ -1742,8 +1742,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
-         if (t[2] ~= nil) and t[2]:match("%d") then
-             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
+        if (t[2] ~= nil) and t[2]:match("%d") then
+            if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
                 local temp = {}
                 for k, v in pairs(settings.mod) do
@@ -1754,7 +1754,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if (tonumber(id) == tonumber(k)) then
                             if (settings.mod[v].enabled == true) then
                                 settings.mod[v].enabled = false
-                                rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is disabled")
+                                rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is disabled")
                             else
                                 rprint(PlayerIndex, v .. " is already enabled!")
                             end
@@ -1766,10 +1766,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         else
             rprint(PlayerIndex, "Invalid Syntax")
-         end
+        end
         return false
     end
-    
+
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (string.lower(t[1]) == "mute") then
@@ -2615,7 +2615,7 @@ function setColor(PlayerIndex, ColorID)
 end
 
 function secondsToTime(seconds, places)
-    
+
     local years = math.floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
     local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
