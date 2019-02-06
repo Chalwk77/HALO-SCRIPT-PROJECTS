@@ -401,53 +401,53 @@ local function GameSettings()
 end
 
 -- Tables used Globally
-players = { }
-player_data = { }
-quit_data = { }
-mapname = ""
-time_remaining = { }
+local players = { }
+local player_data = { }
+local quit_data = { }
+local mapname = ""
+local time_remaining = { }
 
-mute_table = { }
-muted = { }
-mute_timer = { }
-ip_table = {}
+local mute_table = { }
+local muted = { }
+local mute_timer = { }
+local ip_table = {}
 
 -- #Message Board
-welcome_timer = { }
-message_board_timer = { }
+local welcome_timer = { }
+local message_board_timer = { }
 
 -- #Admin Chat
-data = { }
-adminchat = { }
-stored_data = { }
-boolean = { }
-game_over = nil
+local data = { }
+local adminchat = { }
+local stored_data = { }
+local boolean = { }
+local game_over = nil
 
 -- #Custom Weapons
-weapon = { }
-frags = { }
-plasmas = { }
+local weapon = { }
+local frags = { }
+local plasmas = { }
 
 -- #Alias System
-trigger = { }
-alias_timer = { }
-index = nil
-alias_bool = {}
+local trigger = { }
+local alias_timer = { }
+local index = nil
+local alias_bool = {}
 
 -- #Teleport Manager
-canset = { }
-wait_for_response = { }
-previous_location = { }
+local canset = { }
+local wait_for_response = { }
+local previous_location = { }
 for i = 1, 16 do
     previous_location[i] = { }
 end
 
 -- #Spawn From Sky
-init_timer = {}
-first_join = {}
+local init_timer = {}
+local first_join = {}
 
 -- #Color Reservation
-colorres_bool = {}
+local colorres_bool = {}
 
 function OnScriptLoad()
     loadWeaponTags()
@@ -1172,6 +1172,14 @@ function OnPlayerPrespawn(PlayerIndex)
         if (first_join[PlayerIndex] == true) then
             first_join[PlayerIndex] = false
             local team = get_var(PlayerIndex, "$team")
+            local function Teleport(PlayerIndex, id)
+                local height = settings.mod["Spawn From Sky"].maps[mapname].height
+                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
+                    settings.mod["Spawn From Sky"].maps[mapname][id][1], 
+                    settings.mod["Spawn From Sky"].maps[mapname][id][2], 
+                    settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
+                execute_command("god " .. tonumber(PlayerIndex))
+            end
             if (team == "red") then
                 Teleport(PlayerIndex, 1)
             elseif (team == "blue") then
@@ -1179,15 +1187,6 @@ function OnPlayerPrespawn(PlayerIndex)
             end
         end
     end
-end
-
-function Teleport(PlayerIndex, id)
-    local height = settings.mod["Spawn From Sky"].maps[mapname].height
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
-        settings.mod["Spawn From Sky"].maps[mapname][id][1], 
-        settings.mod["Spawn From Sky"].maps[mapname][id][2], 
-        settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
-    execute_command("god " .. tonumber(PlayerIndex))
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -1223,41 +1222,39 @@ function OnPlayerKill(PlayerIndex)
     -- #Respawn Time
     if (settings.mod["Respawn Time"].enabled == true) then
         local player = get_player(PlayerIndex)
+        local function getSpawnTime()
+            local spawntime
+            if (get_var(1, "$gt") == "ctf") then
+                spawntime = settings.mod["Respawn Time"].maps[mapname][1]
+            elseif (get_var(1, "$gt") == "slayer") then
+                if not getTeamPlay() then
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][2]
+                else
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][3]
+                end
+            elseif (get_var(1, "$gt") == "koth") then
+                if not getTeamPlay() then
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][4]
+                else
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][5]
+                end
+            elseif (get_var(1, "$gt") == "oddball") then
+                if not getTeamPlay() then
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][6]
+                else
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][7]
+                end
+            elseif (get_var(1, "$gt") == "race") then
+                if not getTeamPlay() then
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][8]
+                else
+                    spawntime = settings.mod["Respawn Time"].maps[mapname][9]
+                end
+            end
+            return spawntime
+        end
         write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
     end
-end
-
--- #Respawn Time
-function getSpawnTime()
-    local spawntime
-    if (get_var(1, "$gt") == "ctf") then
-        spawntime = settings.mod["Respawn Time"].maps[mapname][1]
-    elseif (get_var(1, "$gt") == "slayer") then
-        if not getTeamPlay() then
-            spawntime = settings.mod["Respawn Time"].maps[mapname][2]
-        else
-            spawntime = settings.mod["Respawn Time"].maps[mapname][3]
-        end
-    elseif (get_var(1, "$gt") == "koth") then
-        if not getTeamPlay() then
-            spawntime = settings.mod["Respawn Time"].maps[mapname][4]
-        else
-            spawntime = settings.mod["Respawn Time"].maps[mapname][5]
-        end
-    elseif (get_var(1, "$gt") == "oddball") then
-        if not getTeamPlay() then
-            spawntime = settings.mod["Respawn Time"].maps[mapname][6]
-        else
-            spawntime = settings.mod["Respawn Time"].maps[mapname][7]
-        end
-    elseif (get_var(1, "$gt") == "race") then
-        if not getTeamPlay() then
-            spawntime = settings.mod["Respawn Time"].maps[mapname][8]
-        else
-            spawntime = settings.mod["Respawn Time"].maps[mapname][9]
-        end
-    end
-    return spawntime
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -1304,7 +1301,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-
 
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
