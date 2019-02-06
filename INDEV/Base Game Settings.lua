@@ -6,7 +6,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
 
-             [!] IN DEVELOPMENT. 90% COMPLETE.
+             [!] IN DEVELOPMENT. 92% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -382,7 +382,7 @@ local function GameSettings()
             default_mute_time = 525600,
             beepOnLoad = false,
             beepOnJoin = true,
-            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute"},
+            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -470,22 +470,29 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
-    -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+    for i = 1, 16 do
+        if player_present(i) then
+
+            local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+
+            -- #Message Board
+            if (settings.mod["Message Board"].enabled == true) then
                 players[p_table].message_board_timer = 0
             end
-        end
-    end
 
-    -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+            -- #Alias System
+            if (settings.mod["Alias System"].enabled == true) then
                 players[p_table].alias_timer = 0
+            end
+
+            -- #Admin Chat
+            if (settings.mod["Admin Chat"].enabled == true) then
+                if not (game_over) then
+                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
+                        players[p_table].adminchat = nil
+                        players[p_table].boolean = nil
+                    end
+                end
             end
         end
     end
@@ -495,21 +502,6 @@ function OnScriptLoad()
         ce = 0x0
     else
         ce = 0x40
-    end
-
-    -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
-        if not (game_over) then
-            for i = 1, 16 do
-                if player_present(i) then
-                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                        local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
-                        players[p_table].adminchat = nil
-                        players[p_table].boolean = nil
-                    end
-                end
-            end
-        end
     end
 
     -- #Custom Weapons
@@ -548,12 +540,28 @@ function OnNewGame()
     servername = read_widestring(network_struct + 0x8, 0x42)
     mapname = get_var(0, "$map")
 
-    -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+    for i = 1, 16 do
+        if player_present(i) then
+            local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+
+            -- #Message Board
+            if (settings.mod["Message Board"].enabled == true) then
                 players[p_table].message_board_timer = 0
+            end
+
+            -- #Alias System
+            if (settings.mod["Alias System"].enabled == true) then
+                alias_bool[i] = false
+                trigger[i] = false
+                players[p_table].alias_timer = 0
+            end
+
+            -- #Admin Chat
+            if (settings.mod["Admin Chat"].enabled == true) then
+                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
+                    players[p_table].adminchat = false
+                    players[p_table].boolean = false
+                end
             end
         end
     end
@@ -565,16 +573,24 @@ function OnNewGame()
         end
     end
 
-    -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                alias_bool[i] = false
-                trigger[i] = false
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
-                players[p_table].alias_timer = 0
-            end
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local map = get_var(0, "$map")
+            local gt = get_var(0, "$mode")
+            local n1 = "\n"
+            local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
+            local n2 = "\n---------------------------------------------------------------------------------------------\n"
+            file:write(n1, t1, n2)
+            file:close()
         end
+    end
+
+    -- #Teleport Manager
+    if (settings.mod["Teleport Manager"].enabled == true) then
+        check_file_status(PlayerIndex)
     end
 
     -- #Console Logo
@@ -599,91 +615,37 @@ function OnNewGame()
         end
         consoleLogo()
     end
-
-    -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
-        local dir = settings.mod["Chat Logging"].dir
-        local file = io.open(dir, "a+")
-        if file ~= nil then
-            local map = get_var(0, "$map")
-            local gt = get_var(0, "$mode")
-            local n1 = "\n"
-            local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
-            local n2 = "\n---------------------------------------------------------------------------------------------\n"
-            file:write(n1, t1, n2)
-            file:close()
-        end
-    end
-
-    -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
-                    players[p_table].adminchat = false
-                    players[p_table].boolean = false
-                end
-            end
-        end
-    end
-    -- #Teleport Manager
-    if (settings.mod["Teleport Manager"].enabled == true) then
-        check_file_status(PlayerIndex)
-    end
 end
 
 function OnGameEnd()
     -- Used Globally
     game_over = true
 
-    -- #Weapon Settings
     for i = 1, 16 do
         if player_present(i) then
-            weapon[i] = false
-        end
-    end
+            local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+            -- #Weapon Settings
+            if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
+                weapon[i] = false
+            end
 
-    -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+            -- #Alias System
+            if (settings.mod["Alias System"].enabled == true) then
                 alias_bool[i] = false
                 trigger[i] = false
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                 players[p_table].alias_timer = 0
             end
-        end
-    end
 
-    -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+            -- #Message Board
+            if (settings.mod["Message Board"].enabled == true) then
                 welcome_timer[i] = false
                 local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                 players[p_table].message_board_timer = 0
             end
-        end
-    end
 
-    -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
-        local dir = settings.mod["Chat Logging"].dir
-        local file = io.open(dir, "a+")
-        if file ~= nil then
-            local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
-            file:write(data)
-            file:close()
-        end
-    end
-
-    -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+            -- #Admin Chat
+            if (settings.mod["Admin Chat"].enabled == true) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     if (Restore_Previous_State == true) then
                         if players[p_table].adminchat == true then
                             bool = "true"
@@ -701,13 +663,26 @@ function OnGameEnd()
             end
         end
     end
+
+    -- #Chat Logging
+    if (settings.mod["Chat Logging"].enabled == true) then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+            file:write(data)
+            file:close()
+        end
+    end
 end
 
 function OnTick()
-    -- SAPP | Mute Handler
-    if (settings.global.handlemutes == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+    for i = 1, 16 do
+        if player_present(i) then
+            local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+
+            -- SAPP | Mute Handler
+            if (settings.global.handlemutes == true) then
                 for k, v in pairs(mute_table) do
                     if v then
                         local ip = get_var(i, "$ip")
@@ -717,14 +692,13 @@ function OnTick()
                             local words = tokenizestring(v, ",")
                             local mute_time = tonumber(string.match(words[3], (";(.+)")))
                             if string.find(v, mute_time) then
-                                 if (tonumber(mute_time) == settings.global.default_mute_time) then
+                                if (tonumber(mute_time) == settings.global.default_mute_time) then
                                     muted[i] = true
                                     time_remaining[i] = settings.global.default_mute_time
                                 else
                                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                                     local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
                                     time_remaining[i] = mute_time - math.floor(minutes)
-                                    --cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
                                     muted[i] = true
                                     if (time_remaining[i] <= 0) then
                                         table.remove(mute_table, k)
@@ -740,15 +714,10 @@ function OnTick()
                     end
                 end
             end
-        end
-    end
 
-    -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+            -- #Message Board
+            if (settings.mod["Message Board"].enabled == true) then
                 if (welcome_timer[i] == true) then
-                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     players[p_table].message_board_timer = players[p_table].message_board_timer + 0.030
                     cls(i)
                     local message_board = settings.mod["Message Board"].messages
@@ -768,54 +737,48 @@ function OnTick()
                     end
                 end
             end
-        end
-    end
-    -- #Custom Weapons
-    if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
-        for i = 1, 16 do
-            if (player_alive(i)) then
-                local player = get_dynamic_player(i)
-                if (weapon[i] == true) then
-                    execute_command("wdel " .. i)
-                    local x, y, z = read_vector3d(player + 0x5C)
-                    if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
 
-                        local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
+            -- #Custom Weapons
+            if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
+                if (player_alive(i)) then
+                    if (weapon[i] == true) then
+                        execute_command("wdel " .. i)
+                        local player = get_dynamic_player(i)
+                        local x, y, z = read_vector3d(player + 0x5C)
+                        if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                            local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
 
-                        if (secondary) then
-                            assign_weapon(spawn_object("weap", secondary, x, y, z), i)
-                        end
-
-                        if (primary) then
-                            assign_weapon(spawn_object("weap", primary, x, y, z), i)
-                        end
-
-                        if (Slot == 3 or Slot == 4) then
-                            timer(100, "delayAssign", player, x, y, z)
-                        end
-
-                        function delayAssign()
-                            if (quaternary) then
-                                assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
+                            if (primary) then
+                                assign_weapon(spawn_object("weap", primary, x, y, z), i)
                             end
 
-                            if (tertiary) then
-                                assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
+                            if (secondary) then
+                                assign_weapon(spawn_object("weap", secondary, x, y, z), i)
                             end
-                        end
 
+                            if (Slot == 3 or Slot == 4) then
+                                timer(100, "delayAssign", player, x, y, z)
+                            end
+
+                            function delayAssign()
+                                if (quaternary) then
+                                    assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
+                                end
+
+                                if (tertiary) then
+                                    assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
+                                end
+                            end
+
+                        end
+                        weapon[i] = false
                     end
-                    weapon[i] = false
                 end
             end
-        end
-    end
-    -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+
+            -- #Alias System
+            if (settings.mod["Alias System"].enabled == true) then
                 if (trigger[i] == true) then
-                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     players[p_table].alias_timer = players[p_table].alias_timer + 0.030
                     cls(i)
                     concatValues(i, 1, 6)
@@ -847,12 +810,8 @@ function OnTick()
                     end
                 end
             end
-        end
-    end
-    -- #Spawn From Sky
-    if (settings.mod["Spawn From Sky"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+            -- #Spawn From Sky
+            if (settings.mod["Spawn From Sky"].enabled == true) then
                 if (init_timer[i] == true) then
                     timeUntilRestore(i)
                 end
@@ -921,7 +880,7 @@ function OnPlayerJoin(PlayerIndex)
             cprint("--------------------------------------------------------------------------------")
         end
     end
-    
+
     if (settings.global.handlemutes == false) then
         muted[PlayerIndex] = false or nil
     end
@@ -937,7 +896,7 @@ function OnPlayerJoin(PlayerIndex)
                     local timeFound = string.match(v, (";(.+)"))
                     local words = tokenizestring(timeFound, ", ")
                     time_remaining[PlayerIndex] = tonumber(words[1])
-                    
+
                     local new_entry = ip .. ", " .. hash .. ", ;" .. tostring(time_remaining[PlayerIndex])
                     table.insert(mute_table, new_entry)
                     if (tonumber(time_remaining[PlayerIndex]) == settings.global.default_mute_time) then
@@ -1004,21 +963,17 @@ function OnPlayerJoin(PlayerIndex)
         local name_list = settings.mod["Anti Impersonator"].namelist
         local hash_list = settings.mod["Anti Impersonator"].hashlist
 
-        for i = 1, #name_list do
-            for j = 1, #hash_list do
-                if (name_list[i]:match(name)) and not (hash_list[i]:match(hash)) then
-                    local action = settings.mod["Anti Impersonator"].action
-                    local reason = settings.mod["Anti Impersonator"].reason
-                    if (action == "kick") then
-                        execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
-                        cprint(name .. " was kicked for " .. reason, 4 + 8)
-                    elseif (action == "ban") then
-                        local bantime = settings.mod["Anti Impersonator"].bantime
-                        execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
-                        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
-                    end
-                    break
-                end
+
+        if (table.match(name_list, name) and not table.match(hash_list, hash)) then
+            local action = settings.mod["Anti Impersonator"].action
+            local reason = settings.mod["Anti Impersonator"].reason
+            if (action == "kick") then
+                execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
+                cprint(name .. " was kicked for " .. reason, 4 + 8)
+            elseif (action == "ban") then
+                local bantime = settings.mod["Anti Impersonator"].bantime
+                execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
+                cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
             end
         end
     end
@@ -1033,7 +988,6 @@ function OnPlayerJoin(PlayerIndex)
             file:close()
         end
     end
-
 
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
@@ -1087,7 +1041,7 @@ function OnPlayerLeave(PlayerIndex)
     -- Used Globally
     local p_table = name .. ", " .. hash
     local ip
-    for k,v in pairs(ip_table) do
+    for k, v in pairs(ip_table) do
         if (v:match(name) and v:match(hash) and v:match(id)) then
             local words = tokenizestring(v, ", ")
             ip = string.match(words[4], ("@(.+)"))
@@ -1310,7 +1264,7 @@ function getSpawnTime()
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    
+
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
@@ -1415,18 +1369,18 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if (settings.mod["Chat IDs"].enabled == true) then
         if not (game_over) and muted[PlayerIndex] == false or muted[PlayerIndex] == nil then
 
-            local data
+            local keyword = nil
             local message = tokenizestring(Message)
             if (#message == 0) then
                 return nil
             end
 
-            local messages_to_ignore = settings.mod["Chat IDs"].ignore_list
-
-            for a = 1, #messages_to_ignore do
-                data = messages_to_ignore[a]
+            local keywords_to_ignore = settings.mod["Chat IDs"].ignore_list
+            if (table.match(keywords_to_ignore, message[1])) then
+                keyword = true
+            else
+                keyword = false
             end
-
 
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
@@ -1442,9 +1396,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
             local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
 
-            if not data:match(message[1]) then
+            if not (keyword) or (keyword == nil) then
                 local function ChatHandler(PlayerIndex, Message)
-
                     local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
                         for i = 1, 16 do
                             if player_present(i) then
