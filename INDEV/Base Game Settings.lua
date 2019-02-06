@@ -1097,7 +1097,6 @@ function OnPlayerLeave(PlayerIndex)
             if (v:match(name) and v:match(hash) and v:match(id)) then
                 local words = tokenizestring(v, ", ")
                 ip = string.match(words[4], ("@(.+)"))
-                cprint(ip)
             end
         end
         local file_name = settings.global.mute_dir
