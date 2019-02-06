@@ -16,6 +16,10 @@ Combined Scripts:
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation
              
+             
+        You can now enabled or disable a mod in game with /enable [id]
+        Use /list to get a list of mods. (the list will show mods enabled and disabled with mod id)
+             
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -529,6 +533,20 @@ function OnScriptUnload()
             end
         end
     end
+end
+
+table.indexOf = function( t, object )
+	local result
+
+	if "table" == type( t ) then
+		for i=1,#t do
+			if object == t[i] then
+				result = i
+				break
+			end
+		end
+	end
+	return result
 end
 
 function OnNewGame()
@@ -1673,32 +1691,57 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
-            local count = 0
-            for k, v in pairs(settings.mod) do
-                count = count + 1
-                if (settings.mod[k].enabled == true) then
-                    rprint(PlayerIndex, "[" .. count .. "] "  .. k ..  " is enabled")
-                else
-                    rprint(PlayerIndex, "[" .. count .. "] "  .. k ..  " is disabled")
+                local temp = {}
+                for k, v in pairs(settings.mod) do
+                    table.insert(temp, k)
                 end
-            end
+                for k, v in pairs(temp) do
+                    if (settings.mod[v].enabled == true) then
+                        rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is enabled")
+                    else
+                        rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is disabled")
+                    end
+                end
             rprint(PlayerIndex, "-----------------------------------------------------\n")
         else
             rprint(PlayerIndex, "Insufficient Permission")
        end
+       return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
-         if (t[2] ~= nil) and not t[2]:match("%d") then
+         if (t[2] ~= nil) and t[2]:match("%d") then
+            local temp = {}
             for k, v in pairs(settings.mod) do
-                
+                table.insert(temp, k)
+            end
+            for k, v in pairs(temp) do
+                if t[2]:match(tonumber(k)) then
+                    if (settings.mod[v].enabled == false) then
+                        settings.mod[v].enabled = true
+                        rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is enabled")
+                    else
+                        rprint(PlayerIndex, v .. " is already enabled!")
+                    end
+                end
             end
         else
             rprint(PlayerIndex, "Invalid Syntax")
         end
         return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
-         if (t[2] ~= nil) and not t[2]:match("%d") then
+         if (t[2] ~= nil) and t[2]:match("%d") then
+            local temp = {}
             for k, v in pairs(settings.mod) do
-                
+                table.insert(temp, k)
+            end
+            for k, v in pairs(temp) do
+                if t[2]:match(tonumber(k)) then
+                    if (settings.mod[v].enabled == true) then
+                        settings.mod[v].enabled = false
+                        rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is disabled")
+                    else
+                        rprint(PlayerIndex, v .. " is already enabled!")
+                    end
+                end
             end
         else
             rprint(PlayerIndex, "Invalid Syntax")
