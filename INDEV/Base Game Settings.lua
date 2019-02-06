@@ -515,6 +515,28 @@ function OnScriptLoad()
     if (settings.global.beepOnLoad == true) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
+    -- #Console Logo
+    if (settings.mod["Console Logo"].enabled == true) then
+        function consoleLogo()
+            local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+            local servername = read_widestring(network_struct + 0x8, 0x42)
+            -- Logo: ascii: 'kban'
+            cprint("================================================================================", 2 + 8)
+            cprint(os.date("%A, %d %B %Y - %X"), 6)
+            cprint("")
+            cprint("          ..|'''.| '||'  '||'     |     '||'      '|| '||'  '|' '||'  |'    ", 4 + 8)
+            cprint("          .|'     '   ||    ||     |||     ||        '|. '|.  .'   || .'    ", 4 + 8)
+            cprint("          ||          ||''''||    |  ||    ||         ||  ||  |    ||'|.    ", 4 + 8)
+            cprint("          '|.      .  ||    ||   .''''|.   ||          ||| |||     ||  ||   ", 4 + 8)
+            cprint("          ''|....'  .||.  .||. .|.  .||. .||.....|     |   |     .||.  ||.  ", 4 + 8)
+            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+            cprint("                         " .. servername)
+            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+            cprint("")
+            cprint("================================================================================", 2 + 8)
+        end
+        timer(50, "consoleLogo")
+    end
 end
 
 function OnScriptUnload()
@@ -592,29 +614,6 @@ function OnNewGame()
     if (settings.mod["Teleport Manager"].enabled == true) then
         check_file_status(PlayerIndex)
     end
-
-    -- #Console Logo
-    if (settings.mod["Console Logo"].enabled == true) then
-        local function consoleLogo()
-            local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-            local servername = read_widestring(network_struct + 0x8, 0x42)
-            -- Logo: ascii: 'kban'
-            cprint("================================================================================", 2 + 8)
-            cprint(os.date("%A, %d %B %Y - %X"), 6)
-            cprint("")
-            cprint("          ..|'''.| '||'  '||'     |     '||'      '|| '||'  '|' '||'  |'    ", 4 + 8)
-            cprint("          .|'     '   ||    ||     |||     ||        '|. '|.  .'   || .'    ", 4 + 8)
-            cprint("          ||          ||''''||    |  ||    ||         ||  ||  |    ||'|.    ", 4 + 8)
-            cprint("          '|.      .  ||    ||   .''''|.   ||          ||| |||     ||  ||   ", 4 + 8)
-            cprint("          ''|....'  .||.  .||. .|.  .||. .||.....|     |   |     .||.  ||.  ", 4 + 8)
-            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                         " .. servername)
-            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("")
-            cprint("================================================================================", 2 + 8)
-        end
-        consoleLogo()
-    end
 end
 
 function OnGameEnd()
@@ -676,6 +675,13 @@ function OnGameEnd()
     end
 end
 
+function table.empty(self)
+    for _, _ in pairs(self) do
+        return false
+    end
+    return true
+end
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
@@ -685,8 +691,10 @@ function OnTick()
             if (settings.global.handlemutes == true) then
                 for k, v in pairs(mute_table) do
                     if v then
-                        local ip = get_var(i, "$ip")
+                        local name = get_var(i, "$name")
                         local hash = get_var(i, "$hash")
+                        local id = get_var(i, "$n")
+                        local ip = getIP(name, hash, id)
                         local entry = ip .. ", " .. hash
                         if (v:match(entry)) then
                             local words = tokenizestring(v, ",")
@@ -1040,14 +1048,8 @@ function OnPlayerLeave(PlayerIndex)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-    local ip
-    for k, v in pairs(ip_table) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            local words = tokenizestring(v, ", ")
-            ip = string.match(words[4], ("@(.+)"))
-        end
-    end
-
+    local ip = getIP(name, hash, id)
+    
     -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
         if init_timer == true then
@@ -1080,11 +1082,11 @@ function OnPlayerLeave(PlayerIndex)
                         f:write(content)
                         f:close()
                         local function updateTable(ip, hash, PlayerIndex)
-                            for K, V in pairs(mute_table) do
-                                if V then
+                            for key, value in pairs(mute_table) do
+                                if value then
                                     local entry = ip .. ", " .. hash
-                                    if (V:match(entry)) then
-                                        table.remove(mute_table, K)
+                                    if (value:match(entry)) then
+                                        table.remove(mute_table, key)
                                         local new_entry = ip .. ", " .. hash .. ", ;" .. tostring(time_remaining[PlayerIndex])
                                         table.insert(mute_table, new_entry)
                                     end
@@ -2455,6 +2457,15 @@ function table.tostring(tbl)
         end
     end
     return "{" .. table.concat(result, ",") .. "}"
+end
+
+function getIP(name, hash, id)
+    for k, v in pairs(ip_table) do
+        if (v:match(name) and v:match(hash) and v:match(id)) then
+            local words = tokenizestring(v, ", ")
+            return string.match(words[4], ("@(.+)"))
+        end
+    end
 end
 
 -- #Alias System
