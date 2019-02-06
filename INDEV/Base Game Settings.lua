@@ -675,13 +675,6 @@ function OnGameEnd()
     end
 end
 
-function table.empty(self)
-    for _, _ in pairs(self) do
-        return false
-    end
-    return true
-end
-
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
@@ -2464,6 +2457,8 @@ function getIP(name, hash, id)
         if (v:match(name) and v:match(hash) and v:match(id)) then
             local words = tokenizestring(v, ", ")
             return string.match(words[4], ("@(.+)"))
+        else
+            return nil
         end
     end
 end
