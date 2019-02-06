@@ -1714,12 +1714,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
        return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
          if (t[2] ~= nil) and t[2]:match("%d") then
+            local id = t[2]
             local temp = {}
             for k, v in pairs(settings.mod) do
                 table.insert(temp, k)
             end
             for k, v in pairs(temp) do
-                if t[2]:match(tonumber(k)) then
+                if (tonumber(id) == tonumber(k)) then
                     if (settings.mod[v].enabled == false) then
                         settings.mod[v].enabled = true
                         rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is enabled")
@@ -1734,12 +1735,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
          if (t[2] ~= nil) and t[2]:match("%d") then
+            local id = t[2]
             local temp = {}
             for k, v in pairs(settings.mod) do
                 table.insert(temp, k)
             end
             for k, v in pairs(temp) do
-                if t[2]:match(tonumber(k)) then
+                if (tonumber(id) == tonumber(k)) then
                     if (settings.mod[v].enabled == true) then
                         settings.mod[v].enabled = false
                         rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is disabled")
