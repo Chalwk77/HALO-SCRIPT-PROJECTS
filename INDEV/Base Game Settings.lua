@@ -74,7 +74,7 @@ local function GameSettings()
                 }
             },
             ["Admin Join Messages"] = {
-                enabled = false,
+                enabled = true,
                 messages = {
                     -- [prefix] [message] (note: player name is automatically inserted between [prefix] and [message])
                     [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
@@ -169,14 +169,12 @@ local function GameSettings()
                 bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
                 namelist = { -- Make sure these names match exactly as they do in game.
                     "Chalwk",
-                    --"Cyser@",
                     "member3",
                     "member4",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
                 },
                 hashlist = { -- You can retrieve the players hash by looking it up in the sapp.log file or Server Chat.txt
                     "6c8f0bc306e0108b4904812110185edd", -- Chalwk's hash
-                    --"95d4c1cd616c5df21fc27bfe0bd4a68b", -- Cyser@'s hash
                     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -199,7 +197,7 @@ local function GameSettings()
             },
             -- Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
-                enabled = false,
+                enabled = true,
                 base_command = "alias",
                 dir = "sapp\\alias.lua",
                 permission_level = 1, -- minimum admin level required to use /alias command
