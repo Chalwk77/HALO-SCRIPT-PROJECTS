@@ -1701,10 +1701,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     table.insert(temp, k)
                 end
                 for k, v in pairs(temp) do
-                    if (settings.mod[v].enabled == true) then
-                        rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is enabled")
-                    else
-                        rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is disabled")
+                    if v then
+                        if (settings.mod[v].enabled == true) then
+                            rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is enabled")
+                        else
+                            rprint(PlayerIndex, "[" .. k .. "] "  .. v .. " is disabled")
+                        end
                     end
                 end
             rprint(PlayerIndex, "-----------------------------------------------------\n")
@@ -1713,21 +1715,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
        end
        return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
-         if (t[2] ~= nil) and t[2]:match("%d") then
-            local id = t[2]
-            local temp = {}
-            for k, v in pairs(settings.mod) do
-                table.insert(temp, k)
-            end
-            for k, v in pairs(temp) do
-                if (tonumber(id) == tonumber(k)) then
-                    if (settings.mod[v].enabled == false) then
-                        settings.mod[v].enabled = true
-                        rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is enabled")
-                    else
-                        rprint(PlayerIndex, v .. " is already enabled!")
+        if (t[2] ~= nil) and t[2]:match("%d") then
+            if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
+                local id = t[2]
+                local temp = {}
+                for k, v in pairs(settings.mod) do
+                    table.insert(temp, k)
+                end
+                for k, v in pairs(temp) do
+                    if v then
+                        if (tonumber(id) == tonumber(k)) then
+                            if (settings.mod[v].enabled == false) then
+                                settings.mod[v].enabled = true
+                                rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is enabled")
+                            else
+                                rprint(PlayerIndex, v .. " is already enabled!")
+                            end
+                        end
                     end
                 end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
             end
         else
             rprint(PlayerIndex, "Invalid Syntax")
@@ -1735,24 +1743,30 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
          if (t[2] ~= nil) and t[2]:match("%d") then
-            local id = t[2]
-            local temp = {}
-            for k, v in pairs(settings.mod) do
-                table.insert(temp, k)
-            end
-            for k, v in pairs(temp) do
-                if (tonumber(id) == tonumber(k)) then
-                    if (settings.mod[v].enabled == true) then
-                        settings.mod[v].enabled = false
-                        rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is disabled")
-                    else
-                        rprint(PlayerIndex, v .. " is already enabled!")
+             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
+                local id = t[2]
+                local temp = {}
+                for k, v in pairs(settings.mod) do
+                    table.insert(temp, k)
+                end
+                for k, v in pairs(temp) do
+                    if v then
+                        if (tonumber(id) == tonumber(k)) then
+                            if (settings.mod[v].enabled == true) then
+                                settings.mod[v].enabled = false
+                                rprint(PlayerIndex, "[" .. k .. "] "  .. v ..  " is disabled")
+                            else
+                                rprint(PlayerIndex, v .. " is already enabled!")
+                            end
+                        end
                     end
                 end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
             end
         else
             rprint(PlayerIndex, "Invalid Syntax")
-        end
+         end
         return false
     end
     
