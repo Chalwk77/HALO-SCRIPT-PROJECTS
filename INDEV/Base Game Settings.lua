@@ -17,8 +17,13 @@ Combined Scripts:
     - Color Reservation
              
              
-        You can now enabled or disable a mod in game with /enable [id]
-        Use /list to get a list of mods. (the list will show mods enabled and disabled with mod id)
+    BGS Commands:
+    /plugins
+    /enable [id]
+    /disable [id]
+
+    "/plugins" shows you a list of all mods and tells you which ones are enabled/disabled.
+    You can enable or disable any mod in game at any time with /enable [id], /disable [id].
              
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
