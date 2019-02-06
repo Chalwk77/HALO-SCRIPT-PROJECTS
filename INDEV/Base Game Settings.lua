@@ -2264,7 +2264,7 @@ function CommandSpy(Message)
     end
 end
 
--- #Message Board
+-- Used Globally
 function read_widestring(address, length)
     local count = 0
     local byte_table = {}
@@ -2277,7 +2277,7 @@ function read_widestring(address, length)
     return table.concat(byte_table)
 end
 
--- #Anti Impersonator
+-- Used Globally
 function table.match(table, value)
     for k, v in pairs(table) do
         if v == value then
@@ -2310,33 +2310,28 @@ end
 -- Used Globally
 function getPermLevel(script, bool, args)
     local level = 0
+    local trigger = nil
+    local permission_table = nil
 
     if (script ~= nil and bool == nil and args == nil) then
         level = settings.mod[script].permission_level
 
     elseif (script == nil and bool == nil and args ~= nil) then
-        -- Global Permissions
-        local permission_table = settings.global.permission_level
+        permission_table = settings.global.permission_level
+        trigger = true
+        
+    elseif (script ~= nil and bool == true and args ~= nil) then
+        trigger = true
+        permission_table = settings.mod["Teleport Manager"].permission_level
+    end
+    
+    if (trigger) and (permission_table ~= nil) then
         for k, v in pairs(permission_table) do
             local words = tokenizestring(v, ",")
             for i = 1, #words do
                 if (tostring(k) == args) then
                     level = words[i]
                     break
-                end
-            end
-        end
-    elseif (script ~= nil and bool == true and args ~= nil) then
-        -- Teleport Manager (to do: remove. No sense in having duplicate logic)
-        if (settings.mod["Teleport Manager"].enabled == true) then
-            local permission_table = settings.mod["Teleport Manager"].permission_level
-            for k, v in pairs(permission_table) do
-                local words = tokenizestring(v, ",")
-                for i = 1, #words do
-                    if (tostring(k) == args) then
-                        level = words[i]
-                        break
-                    end
                 end
             end
         end
@@ -2440,8 +2435,7 @@ function table.val_to_str (v)
         end
         return '"' .. string.gsub(v, '"', '\\"') .. '"'
     else
-        return "table" == type(v) and table.tostring(v) or
-                tostring(v)
+        return "table" == type(v) and table.tostring(v) or tostring(v)
     end
 end
 
@@ -2461,8 +2455,7 @@ function table.tostring(tbl)
     end
     for k, v in pairs(tbl) do
         if not done[k] then
-            table.insert(result,
-                    table.key_to_str(k) .. "=" .. table.val_to_str(v))
+            table.insert(result, table.key_to_str(k) .. "=" .. table.val_to_str(v))
         end
     end
     return "{" .. table.concat(result, ",") .. "}"
