@@ -489,8 +489,8 @@ function OnScriptLoad()
             if (settings.mod["Admin Chat"].enabled == true) then
                 if not (game_over) then
                     if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                        players[p_table].adminchat = nil
-                        players[p_table].boolean = nil
+                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
+                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
                     end
                 end
             end
@@ -559,8 +559,8 @@ function OnNewGame()
             -- #Admin Chat
             if (settings.mod["Admin Chat"].enabled == true) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    players[p_table].adminchat = false
-                    players[p_table].boolean = false
+                    players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = false
+                    players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = false
                 end
             end
         end
@@ -639,7 +639,6 @@ function OnGameEnd()
             -- #Message Board
             if (settings.mod["Message Board"].enabled == true) then
                 welcome_timer[i] = false
-                local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                 players[p_table].message_board_timer = 0
             end
 
@@ -647,7 +646,8 @@ function OnGameEnd()
             if (settings.mod["Admin Chat"].enabled == true) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (Restore_Previous_State == true) then
-                        if players[p_table].adminchat == true then
+                        local bool
+                        if players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat == true then
                             bool = "true"
                         else
                             bool = "false"
@@ -656,8 +656,8 @@ function OnGameEnd()
                         stored_data[data] = stored_data[data] or { }
                         table.insert(stored_data[data], tostring(data[i]))
                     else
-                        players[p_table].adminchat = false
-                        players[p_table].boolean = false
+                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = false
+                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = false
                     end
                 end
             end
@@ -1173,23 +1173,20 @@ function OnPlayerPrespawn(PlayerIndex)
             first_join[PlayerIndex] = false
             local team = get_var(PlayerIndex, "$team")
             if (team == "red") then
-                Teleport(PlayerIndex, "red")
+                Teleport(PlayerIndex, 1)
             elseif (team == "blue") then
-                Teleport(PlayerIndex, "blue")
+                Teleport(PlayerIndex, 2)
             end
         end
     end
 end
 
-function Teleport(PlayerIndex, team)
-    local x, y, z
+function Teleport(PlayerIndex, id)
     local height = settings.mod["Spawn From Sky"].maps[mapname].height
-    if (team == "red") then
-        x, y, z = settings.mod["Spawn From Sky"].maps[mapname][1][1], settings.mod["Spawn From Sky"].maps[mapname][1][2], settings.mod["Spawn From Sky"].maps[mapname][1][3]
-    else
-        x, y, z = settings.mod["Spawn From Sky"].maps[mapname][2][1], settings.mod["Spawn From Sky"].maps[mapname][2][2], settings.mod["Spawn From Sky"].maps[mapname][2][3]
-    end
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z + math.floor(height))
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
+        settings.mod["Spawn From Sky"].maps[mapname][id][1], 
+        settings.mod["Spawn From Sky"].maps[mapname][id][2], 
+        settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
     execute_command("god " .. tonumber(PlayerIndex))
 end
 
