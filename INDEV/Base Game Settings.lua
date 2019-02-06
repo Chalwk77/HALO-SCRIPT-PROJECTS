@@ -410,7 +410,8 @@ time_remaining = { }
 
 mute_table = { }
 muted = { }
-mute_timer = {}
+mute_timer = { }
+ip_table = {}
 
 -- #Message Board
 welcome_timer = { }
@@ -707,26 +708,31 @@ function OnTick()
     -- SAPP | Mute Handler
     for i = 1, 16 do
         if player_present(i) then
-            local name = get_var(i, "$name")
-            local hash = get_var(i, "$hash")
-            local id = get_var(i, "$n")
             for k, v in pairs(mute_table) do
                 if v then
-                    local entry = name .. ", " .. hash
+                    local ip = get_var(i, "$ip")
+                    local hash = get_var(i, "$hash")
+                    local entry = ip .. ", " .. hash
                     if (v:match(entry)) then
-                        local mute_time = tonumber(string.match(v, (":(.+)")))
+                        local words = tokenizestring(v, ",")
+                        local mute_time = tonumber(string.match(words[3], (";(.+)")))
                         if string.find(v, mute_time) then
-                            mute_timer[entry].timer = mute_timer[entry].timer + 0.030
-                            local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
-                            time_remaining[i] = mute_time - math.floor(minutes)
-                            --cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
-                            muted[i] = true
-                        end
-                        if (time_remaining[i] <= 0) then
-                            table.remove(mute_table, k)
-                            muted[i] = false
-                            rprint(i, "Your mute time has expired.")
-                            removeEntry(name, hash, index, i)
+                             if (tonumber(mute_time) == settings.global.default_mute_time) then
+                                muted[i] = true
+                                time_remaining[i] = settings.global.default_mute_time
+                            else
+                                mute_timer[entry].timer = mute_timer[entry].timer + 0.030
+                                local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
+                                time_remaining[i] = mute_time - math.floor(minutes)
+                                --cprint("Elapsed time: M: " .. time_remaining[i] - math.floor(minutes) .. " S: "  .. seconds)
+                                muted[i] = true
+                                if (time_remaining[i] <= 0) then
+                                    table.remove(mute_table, k)
+                                    muted[i] = false
+                                    rprint(i, "Your mute time has expired.")
+                                    removeEntry(ip, hash, i)
+                                end
+                            end
                         end
                     else
                         muted[i] = false
@@ -897,6 +903,8 @@ function OnPlayerPrejoin(PlayerIndex)
             break
         end
     end
+    -- Temporarily store player IP
+    table.insert(ip_table, name .. ", " .. hash .. ", " .. id .. ", @" .. ip)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -917,18 +925,21 @@ function OnPlayerJoin(PlayerIndex)
     -- SAPP | Mute Handler
     local file_name = settings.global.mute_dir
     if checkFile(file_name) then
-        local file = io.open(file_name, "r")
-        local content = file:read("*a")
-        file:close()
-        local words = tokenizestring(content, ", ")
-        if #words > 1 then
-            if words[1]:match(name) and words[3]:match(hash) then
-                time_remaining[PlayerIndex] = tonumber(string.match(words[4], (":(.+)")))
-
-                local new_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+        local stringToMatch = ip .. ", " .. hash .. ", ;(%d+)"
+        local lines = lines_from(file_name)
+        for k, v in pairs(lines) do
+            if v:match(stringToMatch) then
+                local timeFound = string.match(v, (";(.+)"))
+                local words = tokenizestring(timeFound, ", ")
+                time_remaining[PlayerIndex] = tonumber(words[1])
+                
+                local new_entry = ip .. ", " .. hash .. ", ;" .. tostring(time_remaining[PlayerIndex])
                 table.insert(mute_table, new_entry)
-
-                rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
+                if (tonumber(time_remaining[PlayerIndex]) == settings.global.default_mute_time) then
+                    rprint(PlayerIndex, "You are muted permanently.")
+                else
+                    rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
+                end
             else
                 time_remaining[PlayerIndex] = 0
                 muted[PlayerIndex] = false
@@ -957,7 +968,7 @@ function OnPlayerJoin(PlayerIndex)
     local p_table = name .. ", " .. hash
     players[p_table] = { }
 
-    local entry = name .. ", " .. hash
+    local entry = ip .. ", " .. hash
     mute_timer[entry] = { }
     mute_timer[entry].timer = 0
 
@@ -1066,7 +1077,6 @@ function OnPlayerLeave(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
-    local ip
 
     -- Used Globally
     local p_table = name .. ", " .. hash
@@ -1084,6 +1094,14 @@ function OnPlayerLeave(PlayerIndex)
 
     -- SAPP | Mute Handler
     if (muted[PlayerIndex] == true) then
+        local ip
+        for k,v in pairs(ip_table) do
+            if (v:match(name) and v:match(hash) and v:match(id)) then
+                local words = tokenizestring(v, ", ")
+                ip = string.match(words[4], ("@(.+)"))
+                cprint(ip)
+            end
+        end
         local file_name = settings.global.mute_dir
         checkFile(file_name)
         local file = io.open(file_name, "r")
@@ -1092,8 +1110,8 @@ function OnPlayerLeave(PlayerIndex)
         local lines = lines_from(file_name)
         for k, v in pairs(lines) do
             if k ~= nil then
-                if string.match(v, name) and string.match(v, hash) then
-                    local updated_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
+                if string.match(v, ip) and string.match(v, hash) then
+                    local updated_entry = ip .. ", " .. hash .. ", ;" .. tostring(time_remaining[PlayerIndex])
                     local f = io.open(file_name, "r")
                     local content = f:read("*all")
                     f:close()
@@ -1101,17 +1119,19 @@ function OnPlayerLeave(PlayerIndex)
                     local f = io.open(file_name, "w")
                     f:write(content)
                     f:close()
-                end
-            end
-        end
-
-        for k, v in pairs(mute_table) do
-            if v then
-                local entry = name .. ", " .. hash
-                if (v:match(entry)) then
-                    table.remove(mute_table, k)
-                    local new_entry = name .. ", " .. hash .. ", :" .. tostring(time_remaining[PlayerIndex])
-                    table.insert(mute_table, new_entry)
+                    local function updateTable(ip, hash, PlayerIndex)
+                        for K, V in pairs(mute_table) do
+                            if V then
+                                local entry = ip .. ", " .. hash
+                                if (V:match(entry)) then
+                                    table.remove(mute_table, K)
+                                    local new_entry = ip .. ", " .. hash .. ", ;" .. tostring(time_remaining[PlayerIndex])
+                                    table.insert(mute_table, new_entry)
+                                end
+                            end
+                        end
+                    end
+                    updateTable(ip, hash, PlayerIndex)
                 end
             end
         end
@@ -1284,6 +1304,7 @@ function getSpawnTime()
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
+    
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
@@ -1373,8 +1394,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
 
     -- SAPP | Mute Handler
-    if not (game_over) and (muted[PlayerIndex]) then
-        rprint(PlayerIndex, "You are muted!")
+    if not (game_over) and (muted[PlayerIndex] == true) then
+        if (tonumber(time_remaining[PlayerIndex]) == settings.global.default_mute_time) then
+            rprint(PlayerIndex, "You are muted permanently.")
+        else
+            rprint(PlayerIndex, "You are muted! Time remaining: " .. tostring(time_remaining[PlayerIndex]) .. " minute(s)")
+        end
         return false
     end
 
@@ -1643,14 +1668,15 @@ function OnPlayerChat(PlayerIndex, Message, type)
 end
 
 -- SAPP | Saves mute entry to txt file
-function saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
+function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mute_time)
     local file_name = settings.global.mute_dir
     if checkFile(file_name) then
         local file = io.open(file_name, "r")
         local content = file:read("*a")
         file:close()
-        if not (string.match(content, offender_name) and string.match(content, offender_id) and string.match(content, offender_hash)) then
-            local new_entry = offender_name .. ", " .. offender_hash .. ", :" .. mute_time
+        local offender_name = get_var(offender_id, "$name")
+        if not (string.match(content, offender_ip) and string.match(content, offender_id) and string.match(content, offender_hash)) then
+            local new_entry = offender_ip .. ", " .. offender_hash .. ", ;" .. mute_time
             table.insert(mute_table, new_entry)
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
@@ -1764,7 +1790,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
-                            local offender_name = get_var(offender_id, "$name")
+                            local offender_ip = get_var(offender_id, "$ip")
                             local offender_hash = get_var(offender_id, "$hash")
                             local mute_time = nil
                             if (t[3] == nil) then
@@ -1772,12 +1798,46 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             else
                                 mute_time = tonumber(t[3])
                             end
-                            saveMuteEntry(PlayerIndex, offender_name, offender_id, offender_hash, mute_time)
+                            saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mute_time)
                         else
                             rprint(PlayerIndex, "Player not present")
                         end
                     else
                         rprint(PlayerIndex, "You cannot mute yourself!")
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid player")
+                end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
+            end
+            return false
+        elseif (string.lower(t[1]) == "unmute") then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
+                if (t[2] ~= nil) and string.match(t[2], "%d") then
+                    local offender_id = get_var(tonumber(t[2]), "$n")
+                    if offender_id ~= get_var(PlayerIndex, "$n") then
+                        if player_present(offender_id) then
+                            local offender_name = get_var(offender_id, "$name")
+                            local offender_ip = get_var(offender_id, "$ip")
+                            local offender_hash = get_var(offender_id, "$hash")
+                            for k, v in pairs(mute_table) do
+                                if v then
+                                    local entry = offender_ip .. ", " .. offender_hash
+                                    if (v:match(entry)) then
+                                        table.remove(mute_table, k)
+                                        muted[tonumber(offender_id)] = false
+                                        removeEntry(tostring(offender_ip), tostring(offender_hash), tonumber(offender_id))
+                                        rprint(PlayerIndex, offender_name .. " has been unmuted")
+                                        rprint(offender_id, "You have been  unmuted")
+                                    end
+                                end
+                            end
+                        else
+                            rprint(PlayerIndex, "Player not present")
+                        end
+                    else
+                        rprint(PlayerIndex, "Error. You cannot mute or unmute yourself.")
                     end
                 else
                     rprint(PlayerIndex, "Invalid player")
@@ -2551,6 +2611,7 @@ end
 
 -- Used Globally
 function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
+
     local fp = io.open(filename, "r")
     if fp == nil then
         check_file_status(PlayerIndex)
@@ -2576,7 +2637,7 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
 end
 
 -- SAPP | Mute Handler
-function removeEntry(name, hash, num, PlayerIndex)
+function removeEntry(ip, hash, PlayerIndex)
     local file_name = settings.global.mute_dir
     if checkFile(file_name) then
         local file = io.open(file_name, "r")
@@ -2585,7 +2646,7 @@ function removeEntry(name, hash, num, PlayerIndex)
         local lines = lines_from(file_name)
         for k, v in pairs(lines) do
             if k ~= nil then
-                if string.match(v, name) and string.match(v, hash) then
+                if string.match(v, ip) and string.match(v, hash) then
                     delete_from_file(file_name, k, 1, PlayerIndex)
                 end
             end
