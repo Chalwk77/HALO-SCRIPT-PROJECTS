@@ -4,7 +4,8 @@ Script Name: Base Game Settings, for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place. 
              
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
-             with the addition of many new features not found in the standalone versions.
+             with the addition of many new features not found in the standalone versions. This mod is heavy on said features and highly customizable, but also user friendly. 
+             I am aiming to start documenting soon (with Lua Comments) so people know what certain configuration options do (coming in a later update).
 
              [!] IN DEVELOPMENT. 96% COMPLETE.
              
