@@ -862,7 +862,7 @@ function OnPlayerPrejoin(PlayerIndex)
             break
         end
     end
-    table.insert(ip_table, name .. ", " .. hash .. ", " .. id .. ", @" .. ip)
+    table.insert(ip_table, name .. ", " .. hash .. ", " .. id .. ", &" .. ip)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -1658,11 +1658,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
     
-    if Command == "!admin" then
-        rprint(PlayerIndex, "nice!")
-        return false
-    end
-
     -- ENABLE or DISABLE a plugin (WIP)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
@@ -2467,7 +2462,7 @@ function getIP(name, hash, id)
         if v then
             local stringToMatch = name .. ", " .. hash .. ", " .. id
             if string.find(v, stringToMatch) then
-                local ip = string.match(v, ("@(.+)"))
+                local ip = string.match(v, ("&(.+)"))
                 local words = tokenizestring(ip, ", ")
                 return tostring(words[1])
             end
