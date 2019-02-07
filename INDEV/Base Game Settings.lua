@@ -381,6 +381,7 @@ local function GameSettings()
             handlemutes = true,
             mute_dir = "sapp\\mutes.txt",
             default_mute_time = 525600,
+            can_mute_admins = true,
             beepOnLoad = false,
             beepOnJoin = true,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
@@ -409,7 +410,7 @@ local ip_table = {}
 local mapname = ""
 
 -- Mute Handler
-local time_remaining = { }
+local mute_duration = { }
 local time_diff = { }
 local muted = { }
 local mute_timer = { }
@@ -678,7 +679,7 @@ function OnGameEnd()
                     for k, v in pairs(lines) do
                         if k ~= nil then
                             if string.match(v, ip) and string.match(v, hash) then
-                                local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[i]
+                                local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(i)]
                                 local f = io.open(file_name, "r")
                                 local content = f:read("*all")
                                 f:close()
@@ -721,11 +722,11 @@ function OnTick()
                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                 
                     local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
-                    local mute_time = (time_remaining[tonumber(i)]) - math.floor(minutes)
-                    time_diff[i] = mute_time
-
+                    local mute_time = (mute_duration[tonumber(i)]) - math.floor(minutes)
+                    time_diff[tonumber(i)] = mute_time
+                    
                     if (mute_time <= 0) then
-                        time_diff[i] = 0
+                        time_diff[tonumber(i)] = 0
                         muted[tonumber(i)] = false
                         init_mute_timer[tonumber(i)] = false
                         removeEntry(ip, hash, i)
@@ -916,18 +917,16 @@ function OnPlayerJoin(PlayerIndex)
                 if v:match(stringToMatch) then
                     local timeFound = string.match(v, (";(.+)"))
                     local words = tokenizestring(timeFound, ", ")
-                    
-                    time_remaining[tonumber(PlayerIndex)] = tonumber(words[1])
-                    
+                    mute_duration[tonumber(PlayerIndex)] = tonumber(words[1])
                     muted[tonumber(PlayerIndex)] = true
-                    if (time_remaining[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
+                    if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
                         rprint(PlayerIndex, "You are muted permanently.")
                     else
                         init_mute_timer[tonumber(PlayerIndex)] = true
-                        rprint(PlayerIndex, "You were muted! Time remaining: " .. time_remaining[tonumber(PlayerIndex)] .. " minute(s)")
+                        rprint(PlayerIndex, "You were muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
                     end
                 else
-                    time_remaining[tonumber(PlayerIndex)] = 0
+                    mute_duration[tonumber(PlayerIndex)] = 0
                     muted[tonumber(PlayerIndex)] = false
                     init_mute_timer[tonumber(PlayerIndex)] = false
                 end
@@ -1098,7 +1097,8 @@ function OnPlayerLeave(PlayerIndex)
             for k, v in pairs(lines) do
                 if k ~= nil then
                     if string.match(v, ip) and string.match(v, hash) then
-                        local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[PlayerIndex]
+                        local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
+                        cprint(updated_entry)
                         local f = io.open(file_name, "r")
                         local content = f:read("*all")
                         f:close()
@@ -1361,10 +1361,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
         if (muted[tonumber(PlayerIndex)] == true) then
-            if (time_remaining[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
+            if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
                 rprint(PlayerIndex, "You are muted permanently.")
             else
-                rprint(PlayerIndex, "You are muted! Time remaining: " .. time_remaining[tonumber(PlayerIndex)] .. " minute(s)")
+                rprint(PlayerIndex, "You are muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
             end
             return false
         end
@@ -1757,26 +1757,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
+                            local proceed = nil
+                            local valid = nil
+                            
+                            if (settings.global.can_mute_admins == true) then
+                                proceed = true
+                            elseif tonumber(get_var(offender_id, "$lvl")) >= getPermLevel(nil, nil, "trial_moderator") then
+                                proceed = false
+                                rprint(PlayerIndex, "You cannot mute admins.")
+                            else
+                                proceed = true
+                            end
+                            
                             local offender_ip = get_var(offender_id, "$ip")
                             local offender_hash = get_var(offender_id, "$hash")
-                            local proceed = nil
-                            time_remaining[tonumber(offender_id)] = 0
+                            mute_duration[tonumber(offender_id)] = 0
                             if (t[3] == nil) then
-                                time_remaining[tonumber(offender_id)] = tonumber(settings.global.default_mute_time)
-                                proceed = true
+                                time_diff[tonumber(offender_id)] = tonumber(settings.global.default_mute_time)
+                                mute_duration[tonumber(offender_id)] = tonumber(settings.global.default_mute_time)
+                                valid = true
+                            elseif string.match(t[3], "%d+") then
+                                time_diff[tonumber(offender_id)] = tonumber(t[3])
+                                mute_duration[tonumber(offender_id)] = tonumber(t[3])
+                                init_mute_timer[tonumber(offender_id)] = true
+                                valid = true
                             else
-                                if string.match(t[3], "%d+") then
-                                    time_remaining[tonumber(offender_id)] = tonumber(t[3])
-                                    init_mute_timer[tonumber(offender_id)] = true
-                                    proceed = true
-                                else
-                                    proceed = false
-                                    rprint(PlayerIndex, "Invalid syntax. Usage: /" .. settings.global.plugin_commands.mute .. " [id] <time dif>")
-                                end
+                                valid = false
+                                rprint(PlayerIndex, "Invalid syntax. Usage: /" .. settings.global.plugin_commands.mute .. " [id] <time dif>")
                             end
-                            if proceed then
+                            if (proceed) and (valid) then
                                 muted[tonumber(offender_id)] = true
-                                saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, time_remaining[tonumber(offender_id)])
+                                saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mute_duration[tonumber(offender_id)])
                             end
                         else
                             rprint(PlayerIndex, "Player not present")
@@ -1804,7 +1815,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             
                                 muted[tonumber(offender_id)] = false
                                 init_mute_timer[tonumber(offender_id)] = false
-                                time_diff[PlayerIndex] = 0
+                                time_diff[tonumber(PlayerIndex)] = 0
                                 
                                 removeEntry(tostring(offender_ip), tostring(offender_hash), tonumber(offender_id))
                                 
