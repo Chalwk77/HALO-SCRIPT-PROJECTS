@@ -2469,8 +2469,6 @@ function getIP(name, hash, id)
                 local ip = string.match(v, ("@(.+)"))
                 local words = tokenizestring(ip, ", ")
                 return tostring(words[1])
-           else
-               return error("Unable to obtain IP-Address")
             end
         end
     end
