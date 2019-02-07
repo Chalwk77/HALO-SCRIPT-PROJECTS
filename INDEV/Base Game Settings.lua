@@ -6,7 +6,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
 
-             [!] IN DEVELOPMENT. 92% COMPLETE.
+             [!] IN DEVELOPMENT. 94% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -1039,6 +1039,17 @@ function OnPlayerLeave(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
 
+    -- #CONSOLE OUTPUT
+    for k, v in ipairs(player_data) do
+        if (v:match(name) and v:match(hash) and v:match(id)) then
+            cprint("--------------------------------------------------------------------------------")
+            cprint(v, 4 + 8)
+            cprint("--------------------------------------------------------------------------------")
+            table.remove(player_data, k)
+            break
+        end
+    end
+    
     -- Used Globally
     local p_table = name .. ", " .. hash
     local ip = getIP(name, hash, id)
@@ -1100,17 +1111,6 @@ function OnPlayerLeave(PlayerIndex)
         players[p_table].alias_timer = 0
     end
 
-    -- #CONSOLE OUTPUT
-    for k, v in ipairs(player_data) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("--------------------------------------------------------------------------------")
-            cprint(v, 4 + 8)
-            cprint("--------------------------------------------------------------------------------")
-            table.remove(player_data, k)
-            break
-        end
-    end
-
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         welcome_timer[PlayerIndex] = false
@@ -1157,6 +1157,15 @@ function OnPlayerLeave(PlayerIndex)
         wait_for_response[PlayerIndex] = false
         for i = 1, 3 do
             previous_location[PlayerIndex][i] = nil
+        end
+    end
+    
+    -- REMOVE IP entry from temporary ip_table
+    for k, v in pairs(ip_table) do
+        if v then
+            if (v:match(name) and v:match(hash) and v:match(id)) then
+                table.remove(ip_table, k)
+            end
         end
     end
 end
@@ -1755,7 +1764,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(PlayerIndex, "Error. You cannot mute or unmute yourself.")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid player. Usage: /mute [id] <time dif>")
+                    rprint(PlayerIndex, "Invalid player. Usage: /" .. settings.global.plugin_commands.mute .. " [id] <time dif>")
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission.")
@@ -1789,7 +1798,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(PlayerIndex, "Error. You cannot mute or unmute yourself.")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid player. Usage: /mute [id] <time dif>")
+                    rprint(PlayerIndex, "Invalid player. Usage: /" .. settings.global.plugin_commands.unmute .. " [id]")
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
@@ -1867,7 +1876,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             return false
                         end
                     else
-                        rprint(PlayerIndex, "Invalid Syntax: Type /achat on|off")
+                        rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Admin Chat"].base_command .. " on|off")
                         return false
                     end
                 else
@@ -1913,7 +1922,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     return false
                 else
-                    rprint(PlayerIndex, "Invalid syntax. Use /" .. base_command .. " [id]")
+                    rprint(PlayerIndex, "Invalid syntax. Use /" .. settings.mod["Alias System"].base_command .. " [id]")
                     return false
                 end
             end
@@ -2228,16 +2237,16 @@ function listPlayers(PlayerIndex, count)
                 local hash = get_var(i, "$hash")
                 if get_var(0, "$ffa") == "0" then
                     if team == "red" then
-                        team = "Red Team"
+                        team = "Red"
                     elseif team == "blue" then
-                        team = "Blue Team"
+                        team = "Blue"
                     else
                         team = "Hidden"
                     end
                 else
                     team = "FFA"
                 end
-                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. id .. ".   " .. name .. "   |   " .. team .. "  -  IP: " .. ip)
+                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team ..   "   |   IP: " .. ip)
             end
         end
     else
@@ -2454,11 +2463,15 @@ end
 
 function getIP(name, hash, id)
     for k, v in pairs(ip_table) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            local words = tokenizestring(v, ", ")
-            return string.match(words[4], ("@(.+)"))
-        else
-            return nil
+        if v then
+            local stringToMatch = name .. ", " .. hash .. ", " .. id
+            if string.find(v, stringToMatch) then
+                local ip = string.match(v, ("@(.+)"))
+                local words = tokenizestring(ip, ", ")
+                return tostring(words[1])
+           else
+               return error("Unable to obtain IP-Address")
+            end
         end
     end
 end
