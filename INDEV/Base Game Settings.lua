@@ -1026,8 +1026,6 @@ function OnPlayerJoin(PlayerIndex)
                 end
             end
             announceJoin(join_message)
-        else
-            return false
         end
     end
 end
