@@ -1657,6 +1657,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
+    
+    if Command == "!admin" then
+        rprint(PlayerIndex, "nice!")
+        return false
+    end
 
     -- ENABLE or DISABLE a plugin (WIP)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
