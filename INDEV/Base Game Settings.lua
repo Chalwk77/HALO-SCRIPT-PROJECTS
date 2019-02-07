@@ -6,7 +6,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions.
 
-             [!] IN DEVELOPMENT. 94% COMPLETE.
+             [!] IN DEVELOPMENT. 96% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -663,9 +663,36 @@ function OnGameEnd()
                     end
                 end
             end
+            
+            -- SAPP | Mute Handler
+            if (settings.global.handlemutes == true) then
+                if (muted[tonumber(i)] == true) then
+                    local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
+                    local ip = getIP(name, hash, id)
+                    local file_name = settings.global.mute_dir
+                    checkFile(file_name)
+                    local file = io.open(file_name, "r")
+                    local data = file:read("*a")
+                    file:close()
+                    local lines = lines_from(file_name)
+                    for k, v in pairs(lines) do
+                        if k ~= nil then
+                            if string.match(v, ip) and string.match(v, hash) then
+                                local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[i]
+                                local f = io.open(file_name, "r")
+                                local content = f:read("*all")
+                                f:close()
+                                content = string.gsub(content, v, updated_entry)
+                                local f = io.open(file_name, "w")
+                                f:write(content)
+                                f:close()
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
-
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
         local dir = settings.mod["Chat Logging"].dir
@@ -873,11 +900,13 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
 
+
+    -- SAPP | Mute Handler
+    
     if (settings.global.handlemutes == false) then
         muted[tonumber(PlayerIndex)] = false or nil
     end
-
-    -- SAPP | Mute Handler
+    
     if (settings.global.handlemutes == true) then
         local file_name = settings.global.mute_dir
         if checkFile(file_name) then
@@ -1059,6 +1088,7 @@ function OnPlayerLeave(PlayerIndex)
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
         if (muted[tonumber(PlayerIndex)] == true) then
+            muted[tonumber(PlayerIndex)] = false
             local file_name = settings.global.mute_dir
             checkFile(file_name)
             local file = io.open(file_name, "r")
@@ -1068,7 +1098,7 @@ function OnPlayerLeave(PlayerIndex)
             for k, v in pairs(lines) do
                 if k ~= nil then
                     if string.match(v, ip) and string.match(v, hash) then
-                        local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[PlayerIndex])
+                        local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[PlayerIndex]
                         local f = io.open(file_name, "r")
                         local content = f:read("*all")
                         f:close()
@@ -1330,7 +1360,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
-        if not (game_over) and (muted[tonumber(PlayerIndex)] == true) then
+        if (muted[tonumber(PlayerIndex)] == true) then
             if (time_remaining[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
                 rprint(PlayerIndex, "You are muted permanently.")
             else
