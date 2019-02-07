@@ -376,12 +376,13 @@ local function GameSettings()
                 }
             }
         },
+        -- GLOBAL SETTINGS
         global = {
             server_prefix = "**SERVER**",
             handlemutes = true,
             mute_dir = "sapp\\mutes.txt",
             default_mute_time = 525600,
-            can_mute_admins = true,
+            can_mute_admins = false,
             beepOnLoad = false,
             beepOnJoin = true,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
