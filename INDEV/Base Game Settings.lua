@@ -1018,17 +1018,17 @@ function OnPlayerJoin(PlayerIndex)
             local prefix = settings.mod["Admin Join Messages"].messages[level][1]
             local suffix = settings.mod["Admin Join Messages"].messages[level][2]
             join_message = prefix .. name .. suffix
+            local function announceJoin(join_message)
+                for i = 1, 16 do
+                    if player_present(i) then
+                        rprint(i, join_message)
+                    end
+                end
+            end
+            announceJoin(join_message)
         else
             return false
         end
-        local function announceJoin(join_message)
-            for i = 1, 16 do
-                if player_present(i) then
-                    rprint(i, join_message)
-                end
-            end
-        end
-        announceJoin(join_message)
     end
 end
 
