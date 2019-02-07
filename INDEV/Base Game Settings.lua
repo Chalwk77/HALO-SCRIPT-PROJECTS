@@ -689,28 +689,26 @@ function OnTick()
                         local id = get_var(i, "$n")
                         local ip = getIP(name, hash, id)
                         local entry = ip .. ", " .. hash
-                        if (v:match(entry)) then
+                        if string.find(v, entry) then
                             local words = tokenizestring(v, ",")
                             local mute_time = tonumber(string.match(words[3], (";(.+)")))
                             if string.find(v, mute_time) then
                                 if (tonumber(mute_time) == settings.global.default_mute_time) then
-                                    muted[i] = true
+                                    muted[tonumber(i)] = true
                                     time_remaining[i] = settings.global.default_mute_time
                                 else
                                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
                                     local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
                                     time_remaining[i] = mute_time - math.floor(minutes)
-                                    muted[i] = true
+                                    muted[tonumber(i)] = true
                                     if (time_remaining[i] <= 0) then
                                         table.remove(mute_table, k)
-                                        muted[i] = false
+                                        muted[tonumber(i)] = false
                                         rprint(i, "Your mute time has expired.")
                                         removeEntry(ip, hash, i)
                                     end
                                 end
                             end
-                        else
-                            muted[i] = false
                         end
                     end
                 end
