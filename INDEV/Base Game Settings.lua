@@ -386,6 +386,7 @@ local function GameSettings()
             can_mute_admins = false,
             beepOnLoad = false,
             beepOnJoin = true,
+            script_version = "1.5"
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
@@ -1672,6 +1673,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
+    
+    
+    -- remove later
+    if (string.lower(Command) == "bgs") then
+        rprint(PlayerIndex, "BSG Version " .. settings.global.script_version)
+        return false
+    end
     
     -- ENABLE or DISABLE a plugin (WIP)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
