@@ -1677,7 +1677,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     
     -- remove later
     if (string.lower(Command) == "bgs") then
-        rprint(PlayerIndex, "BSG Version " .. settings.global.script_version)
+        rprint(PlayerIndex, "BGS Version " .. settings.global.script_version)
         return false
     end
     
