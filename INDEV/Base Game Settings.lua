@@ -88,7 +88,7 @@ local function GameSettings()
             },
             ["Message Board"] = {
                 enabled = false,
-                duration = 3, -- How long should the message be displayed on screen for? (in seconds)
+                duration = 100, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 messages = {
                     "Welcome to $SERVER_NAME",
@@ -383,10 +383,10 @@ local function GameSettings()
             handlemutes = true,
             mute_dir = "sapp\\mutes.txt",
             default_mute_time = 525600,
-            can_mute_admins = false,
+            can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = "1.5",
+            script_version = 1.5,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
@@ -460,6 +460,7 @@ function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
     printEnabled()
+    getCurrentVersion()
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -903,7 +904,18 @@ function OnPlayerJoin(PlayerIndex)
             cprint("--------------------------------------------------------------------------------")
         end
     end
-
+    
+    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
+        if (getCurrentVersion() ~= settings.global.script_version) then
+            rprint(PlayerIndex, "============================================================================", 5+8)
+            rprint(PlayerIndex, "[BGS] Version "  .. version .. " is available for download.")
+            rprint(PlayerIndex, "Current version: v" .. settings.global.script_version, 5+8)
+            
+            rprint(PlayerIndex, "Download the latest version here: ")
+            rprint(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/INDEV/Base%20Game%20Settings.lua", 5+8)
+            rprint(PlayerIndex, "============================================================================", 5+8)
+        end
+    end
 
     -- SAPP | Mute Handler
     
@@ -1361,6 +1373,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
 
+    
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
         if (muted[tonumber(PlayerIndex)] == true) then
@@ -1656,7 +1669,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
             
             local new_entry = offender_ip .. ", " .. offender_hash .. ", ;" .. mute_time
             local file = assert(io.open(file_name, "a+"))
-            file:write("\n" .. new_entry, "\n")
+            file:write(new_entry .. "\n")
             file:close()
         else
             rprint(PlayerIndex, offender_name .. " is already muted!")
@@ -2623,7 +2636,7 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     if fp == nil then
         check_file_status(PlayerIndex)
     end
-    content = {}
+    local content = {}
     i = 1;
     for line in fp:lines() do
         if i < starting_line or i >= starting_line + num_lines then
@@ -2694,6 +2707,48 @@ function secondsToTime(seconds, places)
     elseif places == 1 then
         return string.format("%02", seconds)
     end
+end
+
+function getCurrentVersion(PlayerIndex)
+    
+    ffi = require("ffi")
+    ffi.cdef [[
+        typedef void http_response;
+        http_response *http_get(const char *url, bool async);
+        void http_destroy_response(http_response *);
+        void http_wait_async(const http_response *);
+        bool http_response_is_null(const http_response *);
+        bool http_response_received(const http_response *);
+        const char *http_read_response(const http_response *);
+        uint32_t http_response_length(const http_response *);
+    ]]
+    http_client = ffi.load("lua_http_client")
+    
+    local function GetPage(URL)
+        local response = http_client.http_get(URL, false)
+        local returning = nil
+        if http_client.http_response_is_null(response) ~= true then
+            local response_text_ptr = http_client.http_read_response(response)
+            returning = ffi.string(response_text_ptr)
+        end
+        http_client.http_destroy_response(response)
+        return returning
+    end
+    
+    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
+    local data = string.match(GetPage(url), 'script_version = "%d+.%d+"') or string.match(GetPage(url), 'script_version = "%d+"')
+    local version = string.gsub(data, "script_version = ", " ")
+    
+    
+    if (version ~= settings.global.script_version) then
+        cprint("============================================================================", 5+8)
+        cprint("[BGS] Version "  .. version .. " is available for download. Current version: " .. settings.global.script_version, 5+8)
+        cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/INDEV/Base%20Game%20Settings.lua", 5+8)
+        cprint("============================================================================", 5+8)
+    else
+        cprint("[BGS] Version " .. settings.global.script_version, 2+8)
+    end
+    return version
 end
 
 function OnError(Message)
