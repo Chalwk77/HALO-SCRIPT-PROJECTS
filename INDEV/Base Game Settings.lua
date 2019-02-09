@@ -386,7 +386,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.7,
+            script_version = 1.5,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
@@ -907,10 +907,10 @@ function OnPlayerJoin(PlayerIndex)
     
     if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
         if (getCurrentVersion(false) ~= settings.global.script_version) then
-            rprint(PlayerIndex, "============================================================================", 5+8)
+            rprint(PlayerIndex, "============================================================================")
             rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
-            rprint(PlayerIndex, "Current version: v" .. settings.global.script_version, 5+8)
-            rprint(PlayerIndex, "============================================================================", 5+8)
+            rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
+            rprint(PlayerIndex, "============================================================================")
         end
     end
 
@@ -1689,10 +1689,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (string.lower(Command) == "bgs") then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
-                rprint(PlayerIndex, "============================================================================", 5+8)
+                rprint(PlayerIndex, "============================================================================")
                 rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
-                rprint(PlayerIndex, "Current version: v" .. settings.global.script_version, 5+8)
-                rprint(PlayerIndex, "============================================================================", 5+8)
+                rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
+                rprint(PlayerIndex, "============================================================================")
             end
         else
             rprint(PlayerIndex, "BGS Version " .. settings.global.script_version)
@@ -2742,9 +2742,9 @@ function getCurrentVersion(bool)
     end
     
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
-    local data = string.match(GetPage(url), 'script_version = %d+.%d+') or string.match(GetPage(url), 'script_version = %d+')
+    local data = string.match(GetPage(url), 'script_version = %d+.%d+')
     local version = string.gsub(data, "script_version =", "")
-    
+
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5+8)
