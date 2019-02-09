@@ -910,9 +910,6 @@ function OnPlayerJoin(PlayerIndex)
             rprint(PlayerIndex, "============================================================================", 5+8)
             rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
             rprint(PlayerIndex, "Current version: v" .. settings.global.script_version, 5+8)
-            
-            rprint(PlayerIndex, "Download the latest version here: ")
-            rprint(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/INDEV/Base%20Game%20Settings.lua", 5+8)
             rprint(PlayerIndex, "============================================================================", 5+8)
         end
     end
@@ -1695,9 +1692,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "============================================================================", 5+8)
                 rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
                 rprint(PlayerIndex, "Current version: v" .. settings.global.script_version, 5+8)
-                
-                rprint(PlayerIndex, "Download the latest version here: ")
-                rprint(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/INDEV/Base%20Game%20Settings.lua", 5+8)
                 rprint(PlayerIndex, "============================================================================", 5+8)
             end
         else
@@ -2752,17 +2746,17 @@ function getCurrentVersion(bool)
     local version = string.gsub(data, "script_version =", "")
     
     if (bool == true) then
-        if (version ~= settings.global.script_version) then
+        if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5+8)
-            cprint("[BGS] Version "  .. version .. " is available for download. Current version: " .. settings.global.script_version, 5+8)
-            cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/INDEV/Base%20Game%20Settings.lua", 5+8)
+            cprint("[BGS] Version "  .. tostring(version) .. " is available for download.")
+            cprint("Current version: v" .. settings.global.script_version, 5+8)
             cprint("============================================================================", 5+8)
         else
             cprint("[BGS] Version " .. settings.global.script_version, 2+8)
         end
     end
     
-    return version
+    return tonumber(version)
 end
 
 function OnError(Message)
