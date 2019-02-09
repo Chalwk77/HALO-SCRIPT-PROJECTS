@@ -526,6 +526,22 @@ function OnScriptLoad()
     if (settings.global.beepOnLoad == true) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
+    
+    if settings.mod["Alias System"].enabled == true then
+        local f1 = settings.mod["Alias System"].dir
+        checkFile(f1)
+    end
+    
+    if settings.global.handlemutes == true then
+        local f2 = settings.global.mute_dir
+        checkFile(f2)
+    end
+    
+    if settings.mod["Teleport Manager"].enabled == true then
+        local f3 = settings.mod["Teleport Manager"].dir
+        checkFile(f3)
+    end
+    
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
         function consoleLogo()
@@ -2564,7 +2580,7 @@ function addAlias(name, hash)
         end
     else
         local file = assert(io.open(file_name, "a+"))
-        file:write("\n" .. hash .. ":" .. name, "\n")
+        file:write(hash .. ":" .. name .. "\n")
         file:close()
     end
 end
