@@ -27,6 +27,9 @@ Combined Scripts:
 
     "/plugins" shows you a list of all mods and tells you which ones are enabled/disabled.
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
+    
+    This script requires this plugin to run: https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+    Credits to Kavawuvi (002) for HTTP functionality.
              
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
