@@ -29,7 +29,7 @@ Combined Scripts:
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
     
     This script requires this plugin to run: https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-    Credits to Kavawuvi (002) for HTTP functionality.
+    Credits to Kavawuvi (002) for HTTP client functionality.
              
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -389,7 +389,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.5,
+            script_version = 1.0,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
