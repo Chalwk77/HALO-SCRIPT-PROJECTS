@@ -7,7 +7,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              with the addition of many new features not found in the standalone versions. This mod is heavy on said features and highly customizable, but also user friendly. 
              I am aiming to start documenting soon (with Lua Comments) so people know what certain configuration options do (coming in a later update).
 
-             [!] IN DEVELOPMENT. 96% COMPLETE.
+             [!] IN DEVELOPMENT. 98% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -2718,48 +2718,56 @@ function secondsToTime(seconds, places)
     end
 end
 
-function getCurrentVersion(bool)
-    
-    ffi = require("ffi")
-    ffi.cdef [[
-        typedef void http_response;
-        http_response *http_get(const char *url, bool async);
-        void http_destroy_response(http_response *);
-        void http_wait_async(const http_response *);
-        bool http_response_is_null(const http_response *);
-        bool http_response_received(const http_response *);
-        const char *http_read_response(const http_response *);
-        uint32_t http_response_length(const http_response *);
-    ]]
-    http_client = ffi.load("lua_http_client")
-    
-    local function GetPage(URL)
-        local response = http_client.http_get(URL, false)
-        local returning = nil
-        if http_client.http_response_is_null(response) ~= true then
-            local response_text_ptr = http_client.http_read_response(response)
-            returning = ffi.string(response_text_ptr)
-        end
-        http_client.http_destroy_response(response)
-        return returning
+function isModuleAvailable(name)
+    for _, searcher in ipairs(package.searchers or package.loaders) do
+        return true
     end
-    
-    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
-    local data = string.match(GetPage(url), 'script_version = %d+.%d+')
-    local version = string.gsub(data, "script_version =", "")
+end
 
-    if (bool == true) then
-        if (tonumber(version) ~= settings.global.script_version) then
-            cprint("============================================================================", 5+8)
-            cprint("[BGS] Version "  .. tostring(version) .. " is available for download.")
-            cprint("Current version: v" .. settings.global.script_version, 5+8)
-            cprint("============================================================================", 5+8)
-        else
-            cprint("[BGS] Version " .. settings.global.script_version, 2+8)
+function getCurrentVersion(bool)
+    if isModuleAvailable("lua_http_client") then 
+        ffi = require("ffi")
+        ffi.cdef [[
+            typedef void http_response;
+            http_response *http_get(const char *url, bool async);
+            void http_destroy_response(http_response *);
+            void http_wait_async(const http_response *);
+            bool http_response_is_null(const http_response *);
+            bool http_response_received(const http_response *);
+            const char *http_read_response(const http_response *);
+            uint32_t http_response_length(const http_response *);
+        ]]
+        http_client = ffi.load("lua_http_client")
+        
+        local function GetPage(URL)
+            local response = http_client.http_get(URL, false)
+            local returning = nil
+            if http_client.http_response_is_null(response) ~= true then
+                local response_text_ptr = http_client.http_read_response(response)
+                returning = ffi.string(response_text_ptr)
+            end
+            http_client.http_destroy_response(response)
+            return returning
         end
+        
+        local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
+        local data = string.match(GetPage(url), 'script_version = %d+.%d+')
+        local version = string.gsub(data, "script_version =", "")
+
+        if (bool == true) then
+            if (tonumber(version) ~= settings.global.script_version) then
+                cprint("============================================================================", 5+8)
+                cprint("[BGS] Version "  .. tostring(version) .. " is available for download.")
+                cprint("Current version: v" .. settings.global.script_version, 5+8)
+                cprint("============================================================================", 5+8)
+            else
+                cprint("[BGS] Version " .. settings.global.script_version, 2+8)
+            end
+        end
+        return tonumber(version)
+    else
+        cprint("[BGS] Error: Unable to check for updates. 'lua_http_client' module missing!", 4+8)
     end
-    
-    return tonumber(version)
 end
 
 function OnError(Message)
