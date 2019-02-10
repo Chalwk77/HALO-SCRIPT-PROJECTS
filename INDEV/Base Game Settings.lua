@@ -214,24 +214,24 @@ local function GameSettings()
                 enabled = false,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
-                    ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["bloodgulch"] = { 0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["boardingaction"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["carousel"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["dangercanyon"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["deathisland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["gephyrophobia"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["icefields"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["infinity"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["sidewinder"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["timberland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["hangemhigh"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["ratrace"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["damnation"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["putput"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["prisoner"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["wizard"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["longest"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["boardingaction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["carousel"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dangercanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deathisland"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gephyrophobia"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["icefields"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["infinity"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sidewinder"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["timberland"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["hangemhigh"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ratrace"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["damnation"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["putput"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["prisoner"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["wizard"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["longest"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
@@ -502,11 +502,9 @@ function OnScriptLoad()
 
             -- #Admin Chat
             if (settings.mod["Admin Chat"].enabled == true) then
-                if not (game_over) then
-                    if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
-                        players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
-                    end
+                if not (game_over) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
+                    players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
+                    players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
                 end
             end
         end
@@ -621,7 +619,9 @@ function OnNewGame()
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled == true) then
         if (GetTeamPlay() == true) then
-            cprint("[!] Warning: Color Reservation doesn't support Team Play!", 4 + 8)
+            can_use_colorres = false
+        else
+            can_use_colorres = true
         end
     end
 
@@ -972,30 +972,32 @@ function OnPlayerJoin(PlayerIndex)
 
     -- #Color Reservation | WIP
     if (settings.mod["Color Reservation"].enabled == true) then
-        local ColorTable = settings.mod["Color Reservation"].color_table
-        local player = getPlayer(PlayerIndex)
-        for k, v in ipairs(ColorTable) do
-            for i = 1, #ColorTable do
-                if ColorTable[k][i] ~= nil then
-                    if string.find(ColorTable[k][i], hash) then
-                        k = k - 1
-                        write_byte(player + 0x60, tonumber(k))
-                        colorres_bool[PlayerIndex] = true
-                    else
-                        -- Get all indices that contain valid hashes
-                        if (ColorTable[k][i] ~= "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") then
-                            if (read_byte(getPlayer(PlayerIndex) + 0x60) == k) then
-                                local function selectRandomColor(exclude)
-                                    math.randomseed(os.time())
-                                    local num = math.random(1, 18)
-                                    if num == tonumber(exclude) then
-                                        selectRandomColor(12)
-                                    else
-                                        return num
+        if (can_use_colorres == true) then
+            local ColorTable = settings.mod["Color Reservation"].color_table
+            local player = getPlayer(PlayerIndex)
+            for k, v in ipairs(ColorTable) do
+                for i = 1, #ColorTable do
+                    if ColorTable[k][i] ~= nil then
+                        if string.find(ColorTable[k][i], hash) then
+                            k = k - 1
+                            write_byte(player + 0x60, tonumber(k))
+                            colorres_bool[PlayerIndex] = true
+                        else
+                            -- Get all indices that contain valid hashes
+                            if (ColorTable[k][i] ~= "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") then
+                                if (read_byte(getPlayer(PlayerIndex) + 0x60) == k) then
+                                    local function selectRandomColor(exclude)
+                                        math.randomseed(os.time())
+                                        local num = math.random(1, 18)
+                                        if num == tonumber(exclude) then
+                                            selectRandomColor(12)
+                                        else
+                                            return num
+                                        end
                                     end
+                                    write_byte(player + 0x60, tonumber(selectRandomColor(k)))
+                                    colorres_bool[PlayerIndex] = true
                                 end
-                                write_byte(player + 0x60, tonumber(selectRandomColor(k)))
-                                colorres_bool[PlayerIndex] = true
                             end
                         end
                     end
@@ -1274,10 +1276,12 @@ function OnPlayerSpawn(PlayerIndex)
 
     -- #Color Reservation | WIP
     if (settings.mod["Color Reservation"].enabled == true) then
-        if (colorres_bool[PlayerIndex] == true) then
-            colorres_bool[PlayerIndex] = false
-            local player_object = read_dword(get_player(PlayerIndex) + 0x34)
-            destroy_object(player_object)
+        if (can_use_colorres == true) then
+            if (colorres_bool[PlayerIndex] == true) then
+                colorres_bool[PlayerIndex] = false
+                local player_object = read_dword(get_player(PlayerIndex) + 0x34)
+                destroy_object(player_object)
+            end
         end
     end
 end
