@@ -91,19 +91,19 @@ local function GameSettings()
             },
             ["Message Board"] = {
                 enabled = false,
-                duration = 100, -- How long should the message be displayed on screen for? (in seconds)
+                duration = 10, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 messages = {
                     "Welcome to $SERVER_NAME",
-                    "Bug reports and suggestions:",
-                    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
-                    "This is a development & test server only!"
+                    -- "Bug reports and suggestions:",
+                    -- "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
+                    -- "This is a development & test server only!"
                 }
             },
             ["Color Reservation"] = {
                 enabled = false,
                 color_table = {
-                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white
+                    [1] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- white
                     [2] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- black
                     [3] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- red
                     [4] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- blue
@@ -111,7 +111,7 @@ local function GameSettings()
                     [6] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- yellow
                     [7] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- green
                     [8] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- pink
-                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- purple
+                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "6c8f0bc306e0108b4904812110185edd" }, -- purple
                     [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
                     [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
                     [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
@@ -390,7 +390,8 @@ local function GameSettings()
             beepOnLoad = false,
             beepOnJoin = true,
             script_version = 1.2,
-            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
+            check_for_updates = false,
+            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute", clearchat = "clear"},
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -463,7 +464,9 @@ function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
     printEnabled()
-    getCurrentVersion(true)
+    if (settings.global.check_for_updates) then
+        getCurrentVersion(true)
+    end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -485,7 +488,8 @@ function OnScriptLoad()
         if player_present(i) then
 
             local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
-
+            players[p_table] = { }
+            
             -- #Message Board
             if (settings.mod["Message Board"].enabled == true) then
                 players[p_table].message_board_timer = 0
@@ -508,7 +512,6 @@ function OnScriptLoad()
         end
     end
 
-    -- Used OnPlayerJoin()
     if halo_type == "PC" then
         ce = 0x0
     else
@@ -551,14 +554,14 @@ function OnScriptLoad()
             cprint("================================================================================", 2 + 8)
             cprint(os.date("%A, %d %B %Y - %X"), 6)
             cprint("")
-            cprint("          ..|'''.| '||'  '||'     |     '||'      '|| '||'  '|' '||'  |'    ", 4 + 8)
-            cprint("          .|'     '   ||    ||     |||     ||        '|. '|.  .'   || .'    ", 4 + 8)
-            cprint("          ||          ||''''||    |  ||    ||         ||  ||  |    ||'|.    ", 4 + 8)
-            cprint("          '|.      .  ||    ||   .''''|.   ||          ||| |||     ||  ||   ", 4 + 8)
-            cprint("          ''|....'  .||.  .||. .|.  .||. .||.....|     |   |     .||.  ||.  ", 4 + 8)
-            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                         " .. servername)
-            cprint("                  ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+            cprint("     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 4 + 8)
+            cprint("      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 4 + 8)
+            cprint("      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 4 + 8)
+            cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
+            cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
+            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
+            cprint("                      " .. servername)
+            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
             cprint("")
             cprint("================================================================================", 2 + 8)
         end
@@ -924,12 +927,14 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
     
-    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
-        if (getCurrentVersion(false) ~= settings.global.script_version) then
-            rprint(PlayerIndex, "============================================================================")
-            rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
-            rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
-            rprint(PlayerIndex, "============================================================================")
+    if (settings.global.check_for_updates) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
+            if (getCurrentVersion(false) ~= settings.global.script_version) then
+                rprint(PlayerIndex, "============================================================================")
+                rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
+                rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
+                rprint(PlayerIndex, "============================================================================")
+            end
         end
     end
 
@@ -965,20 +970,22 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
 
-    -- #Color Reservation
+    -- #Color Reservation | WIP
     if (settings.mod["Color Reservation"].enabled == true) then
-        local t = settings.mod["Color Reservation"].color_table
         local ColorTable = settings.mod["Color Reservation"].color_table
-        for k, v in pairs(ColorTable) do
+        for k,v in ipairs(ColorTable) do
             for i = 1, #ColorTable do
-                local t = tokenizestring(ColorTable[i][1], ", ")
-                if string.find(ColorTable[i][1], hash) then
-                    colorres_bool[PlayerIndex] = true
-                    i = i - 1
-                    setColor(PlayerIndex, tonumber(i))
+                if ColorTable[k][i] ~= nil then
+                    if not ColorTable[k][i]:match(hash) then
+                        if (read_byte(getPlayer(PlayerIndex) + 0x60) == 12) then
+                            colorres_bool[PlayerIndex] = true
+                            setColor(PlayerIndex, nil, true, hash)
+                        end
+                    else
+                        setColor(PlayerIndex, nil, false, hash)
+                    end
                 end
             end
-            break
         end
     end
 
@@ -1251,7 +1258,7 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
 
-    -- #Color Reservation
+    -- #Color Reservation | WIP
     if (settings.mod["Color Reservation"].enabled == true) then
         if (colorres_bool[PlayerIndex] == true) then
             colorres_bool[PlayerIndex] = false
@@ -1405,7 +1412,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
         if not (game_over) and muted[tonumber(PlayerIndex)] == false or muted[tonumber(PlayerIndex)] == nil then
-
+        
             local keyword = nil
             local message = tokenizestring(Message)
             if (#message == 0) then
@@ -1439,14 +1446,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         for i = 1, 16 do
                             if player_present(i) then
                                 if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                    local message = ""
+                                    local content = ""
                                     execute_command("msg_prefix \"\"")
                                     if (Global == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].team_format) do
                                             TeamDefault = string.gsub(TeamDefault, "%%sender_name%%", name)
                                             TeamDefault = string.gsub(TeamDefault, "%%index%%", id)
                                             TeamDefault = string.gsub(TeamDefault, "%%message%%", Message)
-                                            message = TeamDefault
+                                            content = TeamDefault
                                         end
 
                                     elseif (Tmod == true) then
@@ -1454,7 +1461,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%sender_name%%", name)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%index%%", id)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%message%%", Message)
-                                            message = Team_TModFormat
+                                            content = Team_TModFormat
                                         end
 
                                     elseif (Mod == true) then
@@ -1462,7 +1469,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%sender_name%%", name)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%index%%", id)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%message%%", Message)
-                                            message = Team_ModFormat
+                                            content = Team_ModFormat
                                         end
 
                                     elseif (Admin == true) then
@@ -1470,7 +1477,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%sender_name%%", name)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%index%%", id)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%message%%", Message)
-                                            message = Team_AdminFormat
+                                            content = Team_AdminFormat
                                         end
 
                                     elseif (sAdmin == true) then
@@ -1478,10 +1485,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%sender_name%%", name)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%index%%", id)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%message%%", Message)
-                                            message = Team_SAdminFormat
+                                            content = Team_SAdminFormat
                                         end
                                     end
-                                    say(i, message)
+                                    say(i, content)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     response = false
                                 end
@@ -1490,14 +1497,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
 
                     local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
-                        local message = ""
+                        local content = ""
                         execute_command("msg_prefix \"\"")
                         if (Global == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].global_format) do
                                 GlobalDefault = string.gsub(GlobalDefault, "%%sender_name%%", name)
                                 GlobalDefault = string.gsub(GlobalDefault, "%%index%%", id)
                                 GlobalDefault = string.gsub(GlobalDefault, "%%message%%", Message)
-                                message = GlobalDefault
+                                content = GlobalDefault
                             end
 
                         elseif (Tmod == true) then
@@ -1505,7 +1512,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%sender_name%%", name)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%index%%", id)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%message%%", Message)
-                                message = Global_TModFormat
+                                content = Global_TModFormat
                             end
 
                         elseif (Mod == true) then
@@ -1513,7 +1520,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%sender_name%%", name)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%index%%", id)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%message%%", Message)
-                                message = Global_ModFormat
+                                content = Global_ModFormat
                             end
 
                         elseif (Admin == true) then
@@ -1521,7 +1528,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%sender_name%%", name)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%index%%", id)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%message%%", Message)
-                                message = Global_AdminFormat
+                                content = Global_AdminFormat
                             end
 
                         elseif (sAdmin == true) then
@@ -1529,10 +1536,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%sender_name%%", name)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%index%%", id)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%message%%", Message)
-                                message = Global_SAdminFormat
+                                content = Global_SAdminFormat
                             end
                         end
-                        say_all(message)
+                        say_all(content)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                         response = false
                     end
@@ -1575,7 +1582,21 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         end
                                     end
                                 else
-                                    SendToAll(Message)
+                                    if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                        if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
+                                            SendToAll(Message, nil, true, nil, nil, nil)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "moderator") then
+                                            SendToAll(Message, nil, nil, true, nil, nil)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "admin") then
+                                            SendToAll(Message, nil, nil, nil, true, nil)
+                                        elseif (privilege_level) == getPermLevel(nil, nil, "senior_admin") then
+                                            SendToAll(Message, nil, nil, nil, nil, true)
+                                        else
+                                            SendToAll(Message, true, nil, nil, nil, nil)
+                                        end
+                                    else
+                                        SendToAll(Message, true, nil, nil, nil, nil)
+                                    end
                                 end
                             else
                                 response = true
@@ -1609,11 +1630,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
                 end
             end
-        end
-
-        local message = tokenizestring(Message)
-        if #message == 0 then
-            return nil
         end
 
         if players[p_table].adminchat == true then
@@ -1703,23 +1719,38 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
     
+    if (settings.global.check_for_updates) then
+        if (string.lower(Command) == "bgs") then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
+                if (getCurrentVersion(false) ~= settings.global.script_version) then
+                    rprint(PlayerIndex, "============================================================================")
+                    rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
+                    rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
+                    rprint(PlayerIndex, "============================================================================")
+                else
+                    rprint(PlayerIndex, "BGS Version " .. settings.global.script_version)
+                end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
+            end
+            return false
+        end
+    end
     
-    -- remove later
-    if (string.lower(Command) == "bgs") then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
-            if (getCurrentVersion(false) ~= settings.global.script_version) then
-                rprint(PlayerIndex, "============================================================================")
-                rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
-                rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
-                rprint(PlayerIndex, "============================================================================")
+    -- #Clear Chat
+    if (string.lower(t[1]) == settings.global.plugin_commands.clearchat) then
+        if (privilege_level) >= getPermLevel(nil, nil, "trial_moderator") then
+            for i = 1,20 do
+                execute_command("msg_prefix \"\"")
+                say_all(" ")
+                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
             end
         else
-            rprint(PlayerIndex, "BGS Version " .. settings.global.script_version)
+            rprint(PlayerIndex, "Insufficient Permission")
         end
         return false
     end
     
-    -- ENABLE or DISABLE a plugin (WIP)
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
@@ -1932,8 +1963,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        local command = settings.mod["Admin Chat"].base_command
-        if t[1] == (command) then
+        if t[1] == (settings.mod["Admin Chat"].base_command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
@@ -1961,7 +1991,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         return false
                     end
                 else
-                    rprint(PlayerIndex, "You do not have permission to execute that command!")
+                    rprint(PlayerIndex, "Insufficient Permission")
                     return false
                 end
             else
@@ -1971,8 +2001,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
-            if t[1] == string.lower(settings.mod["Alias System"].base_command) then
+        if t[1] == string.lower(settings.mod["Alias System"].base_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
                 if t[2] ~= nil then
                     if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
                         if player_present(tonumber(t[2])) then
@@ -2006,9 +2036,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(PlayerIndex, "Invalid syntax. Use /" .. settings.mod["Alias System"].base_command .. " [id]")
                     return false
                 end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
             end
-        else
-            rprint(PlayerIndex, "Insufficient Permission")
         end
     end
     -- #Teleport Manager
@@ -2508,6 +2538,27 @@ function loadWeaponTags()
     shotgun = "weapons\\shotgun\\shotgun"
 end
 
+-- Returns the static memory address of the player table entry.
+function getPlayer(PlayerIndex)
+    if tonumber(PlayerIndex) then
+        if tonumber(PlayerIndex) ~= 0 then
+            local player = get_player(PlayerIndex)
+            if player ~= 0 then
+                return player
+            end
+        end
+    end
+    return nil
+end
+-- Returns player hash
+function getHash(PlayerIndex)
+    if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
+        local hash = get_var(PlayerIndex, "$hash")
+        return hash
+    end
+    return nil
+end
+
 function table.val_to_str (v)
     if "string" == type(v) then
         v = string.gsub(v, "\n", "\\n")
@@ -2699,12 +2750,35 @@ function removeEntry(ip, hash, PlayerIndex)
     end
 end
 
--- #Color Reservation
-function setColor(PlayerIndex, ColorID)
-    local player = get_player(PlayerIndex)
-    write_byte(player + 0x60, tonumber(ColorID))
-    colorres_bool[PlayerIndex] = true
+-- #Color Reservation | WIP
+function setColor(PlayerIndex, ColorID, param, hash)
+    local player = getPlayer(PlayerIndex)
+    local ColorTable = settings.mod["Color Reservation"].color_table
+    if (param == true) then
+        local function selectRandomColor(exclude)
+            math.randomseed(os.time())
+            local num = math.random(1, 18)
+            if num == tonumber(exclude) then
+                selectRandomColor(12)
+            else
+                return num
+            end
+        end
+        write_byte(player + 0x60, tonumber(selectRandomColor(12)))
+    else
+        for k,v in ipairs(ColorTable) do
+            for i = 1, #ColorTable do
+                if ColorTable[k][i] ~= nil then
+                    if ColorTable[k][i]:match(hash) then
+                        write_byte(player + 0x60, tonumber(i))
+                        colorres_bool[PlayerIndex] = true
+                    end
+                end
+            end
+        end
+    end
 end
+
 
 function secondsToTime(seconds, places)
 
@@ -2762,7 +2836,7 @@ function getCurrentVersion(bool)
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
     local data = string.match(GetPage(url), 'script_version = %d+.%d+')
     local version = string.gsub(data, "script_version =", "")
-
+    
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5+8)
