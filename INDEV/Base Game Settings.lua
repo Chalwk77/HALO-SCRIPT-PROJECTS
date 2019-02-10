@@ -2834,6 +2834,14 @@ function getCurrentVersion(bool)
     return tonumber(version)
 end
 
+function report()
+    cprint("--------------------------------------------------------", 5+8)
+    cprint("Please report this error on github:", 7+8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7+8)
+    cprint("--------------------------------------------------------", 5+8)
+end
+
 function OnError(Message)
-    print(debug.traceback())
+    cprint(debug.traceback(), 4+8)
+    timer(50, "report")
 end
