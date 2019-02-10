@@ -101,7 +101,7 @@ local function GameSettings()
                 }
             },
             ["Color Reservation"] = {
-                enabled = false,
+                enabled = true,
                 color_table = {
                     [1] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- white
                     [2] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- black
@@ -111,7 +111,7 @@ local function GameSettings()
                     [6] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- yellow
                     [7] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- green
                     [8] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- pink
-                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "6c8f0bc306e0108b4904812110185edd" }, -- purple
+                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}, -- purple
                     [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
                     [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
                     [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
@@ -235,7 +235,7 @@ local function GameSettings()
                 }
             },
             ["Teleport Manager"] = {
-                enabled = false,
+                enabled = true,
                 dir = "sapp\\teleports.txt",
                 permission_level = {
                     setwarp = 1,
@@ -976,13 +976,15 @@ function OnPlayerJoin(PlayerIndex)
         for k,v in ipairs(ColorTable) do
             for i = 1, #ColorTable do
                 if ColorTable[k][i] ~= nil then
-                    if not ColorTable[k][i]:match(hash) then
+                    --if not ColorTable[k][i]:match(hash) then
+                    if not string.find(ColorTable[k][i], hash) then
                         if (read_byte(getPlayer(PlayerIndex) + 0x60) == 12) then
                             colorres_bool[PlayerIndex] = true
-                            setColor(PlayerIndex, nil, true, hash)
+                            setColor(PlayerIndex, "random", hash)
                         end
                     else
-                        setColor(PlayerIndex, nil, false, hash)
+                        k = k - 1
+                        setColor(PlayerIndex, k, hash)
                     end
                 end
             end
@@ -2751,10 +2753,10 @@ function removeEntry(ip, hash, PlayerIndex)
 end
 
 -- #Color Reservation | WIP
-function setColor(PlayerIndex, ColorID, param, hash)
+function setColor(PlayerIndex, id, hash)
     local player = getPlayer(PlayerIndex)
     local ColorTable = settings.mod["Color Reservation"].color_table
-    if (param == true) then
+    if (id == "random") then
         local function selectRandomColor(exclude)
             math.randomseed(os.time())
             local num = math.random(1, 18)
@@ -2766,16 +2768,8 @@ function setColor(PlayerIndex, ColorID, param, hash)
         end
         write_byte(player + 0x60, tonumber(selectRandomColor(12)))
     else
-        for k,v in ipairs(ColorTable) do
-            for i = 1, #ColorTable do
-                if ColorTable[k][i] ~= nil then
-                    if ColorTable[k][i]:match(hash) then
-                        write_byte(player + 0x60, tonumber(i))
-                        colorres_bool[PlayerIndex] = true
-                    end
-                end
-            end
-        end
+        write_byte(player + 0x60, tonumber(id))
+        colorres_bool[PlayerIndex] = true
     end
 end
 
