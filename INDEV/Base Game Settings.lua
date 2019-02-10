@@ -1198,9 +1198,11 @@ function OnPlayerLeave(PlayerIndex)
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
                         if players[p_table].adminchat == true then
+                            cprint("admin chat on!", 2+8)
                             bool = "true"
                         else
                             bool = "false"
+                            cprint("admin chat off!", 2+8)
                         end
                         data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
                         stored_data[data] = stored_data[data] or { }
@@ -1336,19 +1338,42 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local p_table = name .. ", " .. hash
     local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
 
-    -- #Command Spy
-    if (settings.mod["Command Spy"].enabled == true) then
-        local command
-        local iscommand = nil
-        local message = tostring(Message)
-        local String = tokenizestring(message)
-        if string.sub(String[1], 1, 1) == "/" then
-            command = String[1]:gsub("\\", "/")
+    -- Used throughout OnPlayerChat()
+    local message = tokenizestring(Message)
+    if (#message == 0) then
+        return nil
+    end
+    
+    -- #Chat IDs & Admin Chat
+    local keyword = nil
+    if (settings.mod["Chat IDs"].enabled == true) or (settings.mod["Admin Chat"].enabled == true) then
+        local keywords_to_ignore = settings.mod["Chat IDs"].ignore_list
+        if (table.match(keywords_to_ignore, message[1])) then
+            keyword = true
+        else
+            keyword = false
+        end
+    end
+    
+    -- #Command Spy & Chat Logging
+    local command
+    local iscommand = nil
+    if (settings.mod["Command Spy"].enabled == true) or (settings.mod["Chat Logging"].enabled == true) then
+        local content = tokenizestring(Message)
+        if (#content == 0) then
+            return nil
+        end
+        if string.sub(content[1], 1, 1) == "/" or string.sub(content[1], 1, 1) == "\\" then
+            command = content[1]:gsub("\\", "/")
             iscommand = true
+            cmd_prefix = "[COMMAND] "
         else
             iscommand = false
         end
-
+    end
+    
+    -- #Command Spy
+    if (settings.mod["Command Spy"].enabled == true) then
         local hidden_messages = settings.mod["Command Spy"].commands_to_hide
         for k, v in pairs(hidden_messages) do
             if (command == k) then
@@ -1358,13 +1383,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 hidden = false
             end
         end
-
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
             local hidden_status = settings.mod["Command Spy"].hide_commands
             if (hidden_status == true and hidden == true) then
                 response = false
             elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
-                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. message .. "\"")
+                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. Message .. "\"")
                 response = true
             end
         end
@@ -1372,16 +1396,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled == true) then
-        local message = tostring(Message)
-        local command = tokenizestring(message)
-        iscommand = nil
-        if string.sub(command[1], 1, 1) == "/" or string.sub(command[1], 1, 1) == "\\" then
-            iscommand = true
-            chattype = "[COMMAND] "
-        else
-            iscommand = false
-        end
-
         local chat_type = nil
 
         if type == 0 then
@@ -1404,16 +1418,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
             if iscommand then
-                LogChat(dir, "   " .. chattype .. "     " .. name .. " [" .. id .. "]: " .. message)
-                cprint(chattype .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
+                LogChat(dir, "   " .. cmd_prefix .. "     " .. name .. " [" .. id .. "]: " .. Message)
+                cprint(cmd_prefix .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
             else
-                LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. message)
-                cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. message, 3 + 8)
+                LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. Message)
+                cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
             end
         end
     end
-
-
 
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
@@ -1430,20 +1442,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
         if not (game_over) and muted[tonumber(PlayerIndex)] == false or muted[tonumber(PlayerIndex)] == nil then
-
-            local keyword = nil
-            local message = tokenizestring(Message)
-            if (#message == 0) then
-                return nil
-            end
-
-            local keywords_to_ignore = settings.mod["Chat IDs"].ignore_list
-            if (table.match(keywords_to_ignore, message[1])) then
-                keyword = true
-            else
-                keyword = false
-            end
-
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
             local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
@@ -1464,14 +1462,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         for i = 1, 16 do
                             if player_present(i) then
                                 if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                    local content = ""
+                                    local StringContent = ""
                                     execute_command("msg_prefix \"\"")
                                     if (Global == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].team_format) do
                                             TeamDefault = string.gsub(TeamDefault, "%%sender_name%%", name)
                                             TeamDefault = string.gsub(TeamDefault, "%%index%%", id)
                                             TeamDefault = string.gsub(TeamDefault, "%%message%%", Message)
-                                            content = TeamDefault
+                                            StringContent = TeamDefault
                                         end
 
                                     elseif (Tmod == true) then
@@ -1479,7 +1477,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%sender_name%%", name)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%index%%", id)
                                             Team_TModFormat = string.gsub(Team_TModFormat, "%%message%%", Message)
-                                            content = Team_TModFormat
+                                            StringContent = Team_TModFormat
                                         end
 
                                     elseif (Mod == true) then
@@ -1487,7 +1485,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%sender_name%%", name)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%index%%", id)
                                             Team_ModFormat = string.gsub(Team_ModFormat, "%%message%%", Message)
-                                            content = Team_ModFormat
+                                            StringContent = Team_ModFormat
                                         end
 
                                     elseif (Admin == true) then
@@ -1495,7 +1493,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%sender_name%%", name)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%index%%", id)
                                             Team_AdminFormat = string.gsub(Team_AdminFormat, "%%message%%", Message)
-                                            content = Team_AdminFormat
+                                            StringContent = Team_AdminFormat
                                         end
 
                                     elseif (sAdmin == true) then
@@ -1503,10 +1501,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%sender_name%%", name)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%index%%", id)
                                             Team_SAdminFormat = string.gsub(Team_SAdminFormat, "%%message%%", Message)
-                                            content = Team_SAdminFormat
+                                            StringContent = Team_SAdminFormat
                                         end
                                     end
-                                    say(i, content)
+                                    say(i, StringContent)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     response = false
                                 end
@@ -1515,14 +1513,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
 
                     local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
-                        local content = ""
+                        local StringContent = ""
                         execute_command("msg_prefix \"\"")
                         if (Global == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].global_format) do
                                 GlobalDefault = string.gsub(GlobalDefault, "%%sender_name%%", name)
                                 GlobalDefault = string.gsub(GlobalDefault, "%%index%%", id)
                                 GlobalDefault = string.gsub(GlobalDefault, "%%message%%", Message)
-                                content = GlobalDefault
+                                StringContent = GlobalDefault
                             end
 
                         elseif (Tmod == true) then
@@ -1530,7 +1528,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%sender_name%%", name)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%index%%", id)
                                 Global_TModFormat = string.gsub(Global_TModFormat, "%%message%%", Message)
-                                content = Global_TModFormat
+                                StringContent = Global_TModFormat
                             end
 
                         elseif (Mod == true) then
@@ -1538,7 +1536,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%sender_name%%", name)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%index%%", id)
                                 Global_ModFormat = string.gsub(Global_ModFormat, "%%message%%", Message)
-                                content = Global_ModFormat
+                                StringContent = Global_ModFormat
                             end
 
                         elseif (Admin == true) then
@@ -1546,7 +1544,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%sender_name%%", name)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%index%%", id)
                                 Global_AdminFormat = string.gsub(Global_AdminFormat, "%%message%%", Message)
-                                content = Global_AdminFormat
+                                StringContent = Global_AdminFormat
                             end
 
                         elseif (sAdmin == true) then
@@ -1554,10 +1552,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%sender_name%%", name)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%index%%", id)
                                 Global_SAdminFormat = string.gsub(Global_SAdminFormat, "%%message%%", Message)
-                                content = Global_SAdminFormat
+                                StringContent = Global_SAdminFormat
                             end
                         end
-                        say_all(content)
+                        say_all(StringContent)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                         response = false
                     end
@@ -1654,18 +1652,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                 for c = 0, #message do
                     if message[c] then
-                        if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                            response = true
-                        else
-                            local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
-                            for k, v in pairs(settings.mod["Admin Chat"].message_format) do
-                                local prefix = settings.mod["Admin Chat"].prefix
-                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%prefix%%", prefix)
-                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%sender_name%%", name)
-                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%index%%", id)
-                                AdminMessageFormat = string.gsub(AdminMessageFormat, "%%message%%", Message)
-                                AdminChat(AdminMessageFormat)
-                                response = false
+                        if not (keyword) or (keyword == nil) then
+                            if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                                response = true
+                            else
+                                local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
+                                for k, v in pairs(settings.mod["Admin Chat"].message_format) do
+                                    local prefix = settings.mod["Admin Chat"].prefix
+                                    AdminMessageFormat = string.gsub(AdminMessageFormat, "%%prefix%%", prefix)
+                                    AdminMessageFormat = string.gsub(AdminMessageFormat, "%%sender_name%%", name)
+                                    AdminMessageFormat = string.gsub(AdminMessageFormat, "%%index%%", id)
+                                    AdminMessageFormat = string.gsub(AdminMessageFormat, "%%message%%", Message)
+                                    AdminChat(AdminMessageFormat)
+                                    response = false
+                                end
                             end
                         end
                         break
@@ -1673,26 +1673,26 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
+    end
 
-        -- #Teleport Manager
-        if (settings.mod["Teleport Manager"].enabled == true) then
-            if wait_for_response[PlayerIndex] then
-                if Message == ("yes") then
-                    local file_name = settings.mod["Teleport Manager"].dir
-                    delete_from_file(file_name, response_starting_line, response_num_lines, PlayerIndex)
-                    rprint(PlayerIndex, "Successfully deleted teleport id #" .. response_starting_line)
-                    wait_for_response[PlayerIndex] = false
-                    response = false
-                elseif Message == ("no") then
-                    rprint(PlayerIndex, "Process Cancelled")
-                    wait_for_response[PlayerIndex] = false
-                    response = false
-                end
-                if Message ~= "yes" or Message ~= "no" then
-                    rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
-                    wait_for_response[PlayerIndex] = true
-                    response = false
-                end
+    -- #Teleport Manager
+    if (settings.mod["Teleport Manager"].enabled == true) then
+        if wait_for_response[PlayerIndex] then
+            if Message == ("yes") then
+                local file_name = settings.mod["Teleport Manager"].dir
+                delete_from_file(file_name, response_starting_line, response_num_lines, PlayerIndex)
+                rprint(PlayerIndex, "Successfully deleted teleport id #" .. response_starting_line)
+                wait_for_response[PlayerIndex] = false
+                response = false
+            elseif Message == ("no") then
+                rprint(PlayerIndex, "Process Cancelled")
+                wait_for_response[PlayerIndex] = false
+                response = false
+            end
+            if Message ~= "yes" or Message ~= "no" then
+                rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
+                wait_for_response[PlayerIndex] = true
+                response = false
             end
         end
     end
