@@ -973,18 +973,31 @@ function OnPlayerJoin(PlayerIndex)
     -- #Color Reservation | WIP
     if (settings.mod["Color Reservation"].enabled == true) then
         local ColorTable = settings.mod["Color Reservation"].color_table
+        local player = getPlayer(PlayerIndex)
         for k,v in ipairs(ColorTable) do
             for i = 1, #ColorTable do
                 if ColorTable[k][i] ~= nil then
-                    --if not ColorTable[k][i]:match(hash) then
-                    if not string.find(ColorTable[k][i], hash) then
-                        if (read_byte(getPlayer(PlayerIndex) + 0x60) == 12) then
-                            colorres_bool[PlayerIndex] = true
-                            setColor(PlayerIndex, "random", hash)
-                        end
-                    else
+                    if string.find(ColorTable[k][i], hash) then
                         k = k - 1
-                        setColor(PlayerIndex, k, hash)
+                        write_byte(player + 0x60, tonumber(k))
+                        colorres_bool[PlayerIndex] = true
+                    else
+                        -- Get all indices that contain valid hashes
+                        if (ColorTable[k][i] ~= "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") then
+                            if (read_byte(getPlayer(PlayerIndex) + 0x60) == k) then
+                                local function selectRandomColor(exclude)
+                                    math.randomseed(os.time())
+                                    local num = math.random(1, 18)
+                                    if num == tonumber(exclude) then
+                                        selectRandomColor(12)
+                                    else
+                                        return num
+                                    end
+                                end
+                                write_byte(player + 0x60, tonumber(selectRandomColor(k)))
+                                colorres_bool[PlayerIndex] = true
+                            end
+                        end
                     end
                 end
             end
@@ -2751,28 +2764,6 @@ function removeEntry(ip, hash, PlayerIndex)
         end
     end
 end
-
--- #Color Reservation | WIP
-function setColor(PlayerIndex, id, hash)
-    local player = getPlayer(PlayerIndex)
-    local ColorTable = settings.mod["Color Reservation"].color_table
-    if (id == "random") then
-        local function selectRandomColor(exclude)
-            math.randomseed(os.time())
-            local num = math.random(1, 18)
-            if num == tonumber(exclude) then
-                selectRandomColor(12)
-            else
-                return num
-            end
-        end
-        write_byte(player + 0x60, tonumber(selectRandomColor(12)))
-    else
-        write_byte(player + 0x60, tonumber(id))
-        colorres_bool[PlayerIndex] = true
-    end
-end
-
 
 function secondsToTime(seconds, places)
 
