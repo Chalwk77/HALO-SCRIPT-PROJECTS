@@ -57,7 +57,7 @@ local function GameSettings()
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                use_admin_prefixes = true,
+                use_admin_prefixes = false,
                 trial_moderator = {
                     "[T-MOD] %sender_name% [%index%]: %message%", -- global 
                     "[T-MOD] [%sender_name%] [%index%]: %message%" -- team
@@ -143,9 +143,9 @@ local function GameSettings()
             },
             ["Custom Weapons"] = {
                 enabled = false,
-                assign_weapons = true,
-                assign_custom_frags = true,
-                assign_custom_plasmas = true,
+                assign_weapons = false,
+                assign_custom_frags = false,
+                assign_custom_plasmas = false,
                 weapons = {
                     -- Weap 1,Weap 2,Weap 3,Weap 4, frags, plasmas
                     ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
