@@ -2762,7 +2762,7 @@ function getCurrentVersion(bool)
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
     local data = string.match(GetPage(url), 'script_version = %d+.%d+')
     local version = string.gsub(data, "script_version =", "")
-    
+
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5+8)
