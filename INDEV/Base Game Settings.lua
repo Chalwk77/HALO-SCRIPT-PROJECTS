@@ -389,7 +389,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.3,
+            script_version = 1.2,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute" },
             permission_level = {
                 trial_moderator = 1,
@@ -2762,7 +2762,7 @@ function getCurrentVersion(bool)
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
     local data = string.match(GetPage(url), 'script_version = %d+.%d+')
     local version = string.gsub(data, "script_version =", "")
-
+    
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5+8)
