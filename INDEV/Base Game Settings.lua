@@ -111,7 +111,7 @@ local function GameSettings()
                     [6] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- yellow
                     [7] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- green
                     [8] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- pink
-                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}, -- purple
+                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- purple
                     [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
                     [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
                     [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
@@ -120,7 +120,7 @@ local function GameSettings()
                     [15] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- brown
                     [16] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- tan
                     [17] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- maroon
-                    [18] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }    -- salmon
+                    [18] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }  -- salmon
                 }
             },
             -- Logs chat, commands and quit-join events.
@@ -391,7 +391,7 @@ local function GameSettings()
             beepOnJoin = true,
             script_version = 1.2,
             check_for_updates = false,
-            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute", clearchat = "clear"},
+            plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute", clearchat = "clear" },
             permission_level = {
                 trial_moderator = 1,
                 moderator = 2,
@@ -489,7 +489,7 @@ function OnScriptLoad()
 
             local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
             players[p_table] = { }
-            
+
             -- #Message Board
             if (settings.mod["Message Board"].enabled == true) then
                 players[p_table].message_board_timer = 0
@@ -529,22 +529,22 @@ function OnScriptLoad()
     if (settings.global.beepOnLoad == true) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
-    
+
     if settings.mod["Alias System"].enabled == true then
         local f1 = settings.mod["Alias System"].dir
         checkFile(f1)
     end
-    
+
     if settings.global.handlemutes == true then
         local f2 = settings.global.mute_dir
         checkFile(f2)
     end
-    
+
     if settings.mod["Teleport Manager"].enabled == true then
         local f3 = settings.mod["Teleport Manager"].dir
         checkFile(f3)
     end
-    
+
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
         function consoleLogo()
@@ -690,7 +690,7 @@ function OnGameEnd()
                     end
                 end
             end
-            
+
             -- SAPP | Mute Handler
             if (settings.global.handlemutes == true) then
                 if (muted[tonumber(i)] == true) then
@@ -740,17 +740,17 @@ function OnTick()
             -- SAPP | Mute Handler
             if (settings.global.handlemutes == true) then
                 if init_mute_timer[tonumber(i)] == true then
-                
+
                     local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
                     local ip = getIP(name, hash, id)
                     local entry = ip .. ", " .. hash
 
                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
-                
+
                     local days, hours, minutes, seconds = secondsToTime(mute_timer[entry].timer, 4)
                     local mute_time = (mute_duration[tonumber(i)]) - math.floor(minutes)
                     time_diff[tonumber(i)] = mute_time
-                    
+
                     if (mute_time <= 0) then
                         time_diff[tonumber(i)] = 0
                         muted[tonumber(i)] = false
@@ -926,12 +926,12 @@ function OnPlayerJoin(PlayerIndex)
             cprint("--------------------------------------------------------------------------------")
         end
     end
-    
+
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
                 rprint(PlayerIndex, "============================================================================")
-                rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
+                rprint(PlayerIndex, "[BGS] Version " .. getCurrentVersion(false) .. " is available for download.")
                 rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
                 rprint(PlayerIndex, "============================================================================")
             end
@@ -939,11 +939,11 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- SAPP | Mute Handler
-    
+
     if (settings.global.handlemutes == false) then
         muted[tonumber(PlayerIndex)] = false or nil
     end
-    
+
     if (settings.global.handlemutes == true) then
         local file_name = settings.global.mute_dir
         if checkFile(file_name) then
@@ -974,7 +974,7 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Color Reservation"].enabled == true) then
         local ColorTable = settings.mod["Color Reservation"].color_table
         local player = getPlayer(PlayerIndex)
-        for k,v in ipairs(ColorTable) do
+        for k, v in ipairs(ColorTable) do
             for i = 1, #ColorTable do
                 if ColorTable[k][i] ~= nil then
                     if string.find(ColorTable[k][i], hash) then
@@ -1037,7 +1037,6 @@ function OnPlayerJoin(PlayerIndex)
 
         local name_list = settings.mod["Anti Impersonator"].namelist
         local hash_list = settings.mod["Anti Impersonator"].hashlist
-
 
         if (table.match(name_list, name) and not table.match(hash_list, hash)) then
             local action = settings.mod["Anti Impersonator"].action
@@ -1121,11 +1120,11 @@ function OnPlayerLeave(PlayerIndex)
             break
         end
     end
-    
+
     -- Used Globally
     local p_table = name .. ", " .. hash
     local ip = getIP(name, hash, id)
-    
+
     -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
         if init_timer == true then
@@ -1220,7 +1219,7 @@ function OnPlayerLeave(PlayerIndex)
             previous_location[PlayerIndex][i] = nil
         end
     end
-    
+
     -- REMOVE IP entry from temporary ip_table
     for k, v in pairs(ip_table) do
         if v then
@@ -1239,10 +1238,10 @@ function OnPlayerPrespawn(PlayerIndex)
             local team = get_var(PlayerIndex, "$team")
             local function Teleport(PlayerIndex, id)
                 local height = settings.mod["Spawn From Sky"].maps[mapname].height
-                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
-                    settings.mod["Spawn From Sky"].maps[mapname][id][1], 
-                    settings.mod["Spawn From Sky"].maps[mapname][id][2], 
-                    settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
+                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
+                        settings.mod["Spawn From Sky"].maps[mapname][id][1],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][2],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
                 execute_command("god " .. tonumber(PlayerIndex))
             end
             if (team == "red") then
@@ -1411,7 +1410,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
 
-    
+
     -- SAPP | Mute Handler
     if (settings.global.handlemutes == true) then
         if (muted[tonumber(PlayerIndex)] == true) then
@@ -1427,7 +1426,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
         if not (game_over) and muted[tonumber(PlayerIndex)] == false or muted[tonumber(PlayerIndex)] == nil then
-        
+
             local keyword = nil
             local message = tokenizestring(Message)
             if (#message == 0) then
@@ -1705,7 +1704,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         file:close()
         local offender_name = get_var(offender_id, "$name")
         if not (string.match(content, offender_ip) and string.match(content, offender_id) and string.match(content, offender_hash)) then
-        
+
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
                 rprint(offender_id, "You have been muted for " .. mute_time .. " minute(s)")
@@ -1713,7 +1712,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
                 rprint(PlayerIndex, offender_name .. " has been muted permanently")
                 rprint(offender_id, "You were muted permanently")
             end
-            
+
             local new_entry = offender_ip .. ", " .. offender_hash .. ", ;" .. mute_time
             local file = assert(io.open(file_name, "a+"))
             file:write(new_entry .. "\n")
@@ -1733,13 +1732,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
-    
+
     if (settings.global.check_for_updates) then
         if (string.lower(Command) == "bgs") then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
                     rprint(PlayerIndex, "============================================================================")
-                    rprint(PlayerIndex, "[BGS] Version "  .. getCurrentVersion(false) .. " is available for download.")
+                    rprint(PlayerIndex, "[BGS] Version " .. getCurrentVersion(false) .. " is available for download.")
                     rprint(PlayerIndex, "Current version: v" .. settings.global.script_version)
                     rprint(PlayerIndex, "============================================================================")
                 else
@@ -1751,11 +1750,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    
+
     -- #Clear Chat
     if (string.lower(t[1]) == settings.global.plugin_commands.clearchat) then
         if (privilege_level) >= getPermLevel(nil, nil, "trial_moderator") then
-            for i = 1,20 do
+            for i = 1, 20 do
                 execute_command("msg_prefix \"\"")
                 say_all(" ")
                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
@@ -1765,7 +1764,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-    
+
     if (string.lower(t[1]) == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
@@ -1853,7 +1852,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if player_present(offender_id) then
                             local proceed = nil
                             local valid = nil
-                            
+
                             if (settings.global.can_mute_admins == true) then
                                 proceed = true
                             elseif tonumber(get_var(offender_id, "$lvl")) >= getPermLevel(nil, nil, "trial_moderator") then
@@ -1862,7 +1861,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             else
                                 proceed = true
                             end
-                            
+
                             local offender_ip = get_var(offender_id, "$ip")
                             local offender_hash = get_var(offender_id, "$hash")
                             mute_duration[tonumber(offender_id)] = 0
@@ -1906,13 +1905,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             local offender_ip = get_var(offender_id, "$ip")
                             local offender_hash = get_var(offender_id, "$hash")
                             if (muted[tonumber(offender_id)] == true) then
-                            
+
                                 muted[tonumber(offender_id)] = false
                                 init_mute_timer[tonumber(offender_id)] = false
                                 time_diff[tonumber(PlayerIndex)] = 0
-                                
+
                                 removeEntry(tostring(offender_ip), tostring(offender_hash), tonumber(offender_id))
-                                
+
                                 rprint(PlayerIndex, offender_name .. " has been unmuted")
                                 rprint(offender_id, "You have been  unmuted")
                             else
@@ -2372,7 +2371,7 @@ function listPlayers(PlayerIndex, count)
                 else
                     team = "FFA"
                 end
-                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team ..   "   |   IP: " .. ip)
+                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   IP: " .. ip)
             end
         end
     else
@@ -2445,12 +2444,12 @@ function getPermLevel(script, bool, args)
     elseif (script == nil and bool == nil and args ~= nil) then
         permission_table = settings.global.permission_level
         trigger = true
-        
+
     elseif (script ~= nil and bool == true and args ~= nil) then
         trigger = true
         permission_table = settings.mod["Teleport Manager"].permission_level
     end
-    
+
     if (trigger) and (permission_table ~= nil) then
         for k, v in pairs(permission_table) do
             local words = tokenizestring(v, ",")
@@ -2806,7 +2805,7 @@ function getCurrentVersion(bool)
         uint32_t http_response_length(const http_response *);
     ]]
     http_client = ffi.load("lua_http_client")
-    
+
     local function GetPage(URL)
         local response = http_client.http_get(URL, false)
         local returning = nil
@@ -2817,19 +2816,19 @@ function getCurrentVersion(bool)
         http_client.http_destroy_response(response)
         return returning
     end
-    
+
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
     local data = string.match(GetPage(url), 'script_version = %d+.%d+')
     local version = string.gsub(data, "script_version =", "")
-    
+
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
-            cprint("============================================================================", 5+8)
-            cprint("[BGS] Version "  .. tostring(version) .. " is available for download.")
-            cprint("Current version: v" .. settings.global.script_version, 5+8)
-            cprint("============================================================================", 5+8)
+            cprint("============================================================================", 5 + 8)
+            cprint("[BGS] Version " .. tostring(version) .. " is available for download.")
+            cprint("Current version: v" .. settings.global.script_version, 5 + 8)
+            cprint("============================================================================", 5 + 8)
         else
-            cprint("[BGS] Version " .. settings.global.script_version, 2+8)
+            cprint("[BGS] Version " .. settings.global.script_version, 2 + 8)
         end
     end
     return tonumber(version)
