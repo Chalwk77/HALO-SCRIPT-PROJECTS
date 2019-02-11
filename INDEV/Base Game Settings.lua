@@ -1991,6 +1991,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     else
                                         rprint(target_id, StringFormat)
                                     end
+                                    execute_command("msg_prefix \"\"")
+                                    say(PlayerIndex, "[you] -> " .. target_name ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message,"%%executors_name%%:",""),"%%target_name%%,", ""))
+                                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     return false
                                 else
                                     rprint(executor, "Invalid Player Index")
