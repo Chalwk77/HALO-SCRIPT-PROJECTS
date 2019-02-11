@@ -213,7 +213,7 @@ local function GameSettings()
                 duration = 10 -- How long should the alias results be displayed for? (in seconds)
             },
             ["Respawn Time"] = {
-                enabled = true,
+                enabled = false,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -408,7 +408,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.3,
+            script_version = 1.4,
             check_for_updates = false,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute", clearchat = "clear" },
             permission_level = {
@@ -1474,39 +1474,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         for i = 1, 16 do
                             if player_present(i) then
                                 if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                    local StringContent = ""
+                                    local formattedString = ""
                                     execute_command("msg_prefix \"\"")
                                     if (Global == true) then
-                                        for k, v in pairs(settings.mod["Chat IDs"].team_format) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                            StringContent = Format
-                                        end
-
+                                        formattedString = (string.gsub(string.gsub(string.gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Tmod == true) then
-                                        for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                            StringContent = Format
-                                        end
-
+                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Mod == true) then
-                                        for k, v in pairs(settings.mod["Chat IDs"].moderator) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                            StringContent = Format
-                                        end
-
+                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Admin == true) then
-                                        for k, v in pairs(settings.mod["Chat IDs"].admin) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                            StringContent = Format
-                                        end
-
+                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (sAdmin == true) then
-                                        for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                            StringContent = Format
-                                        end
+                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     end
-                                    say(i, StringContent)
+                                    say(i, formattedString)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     response = false
                                 end
@@ -1515,39 +1496,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
 
                     local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
-                        local StringContent = ""
+                        local formattedString = ""
                         execute_command("msg_prefix \"\"")
                         if (Global == true) then
-                            for k, v in pairs(settings.mod["Chat IDs"].global_format) do
-                                local Format = (string.gsub(string.gsub(string.gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                StringContent = Format
-                            end
-
+                            formattedString = (string.gsub(string.gsub(string.gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Tmod == true) then
-                            for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                StringContent = Format
-                            end
-
+                            formattedString = (string.gsub(string.gsub(string.gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Mod == true) then
-                            for k, v in pairs(settings.mod["Chat IDs"].moderator) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                StringContent = Format
-                            end
-
+                            formattedString = (string.gsub(string.gsub(string.gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Admin == true) then
-                            for k, v in pairs(settings.mod["Chat IDs"].admin) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                StringContent = Format
-                            end
-
+                            formattedString = (string.gsub(string.gsub(string.gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (sAdmin == true) then
-                            for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                StringContent = Format
-                            end
+                            formattedString = (string.gsub(string.gsub(string.gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         end
-                        say_all(StringContent)
+                        say_all(formattedString)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                         response = false
                     end
@@ -1649,13 +1611,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 response = true
                             else
                                 local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
-                                for k, v in pairs(settings.mod["Admin Chat"].message_format) do
-                                    local prefix = settings.mod["Admin Chat"].prefix
-                                    local Format = (string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
-                                            "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    AdminChat(Format)
-                                    response = false
-                                end
+                                local prefix = settings.mod["Admin Chat"].prefix
+                                local Format = (
+                                string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
+                                    "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message
+                                    )
+                                )
+                                AdminChat(Format)
+                                response = false
                             end
                         end
                         break
@@ -1697,7 +1660,9 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         local content = file:read("*a")
         file:close()
         local offender_name = get_var(offender_id, "$name")
-        if not (string.match(content, offender_ip) and string.match(content, offender_id) and string.match(content, offender_hash)) then
+        if not (string.match(content, offender_ip) 
+            and string.match(content, offender_id) 
+            and string.match(content, offender_hash)) then
 
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
