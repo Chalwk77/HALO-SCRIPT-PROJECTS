@@ -382,7 +382,7 @@ local function GameSettings()
         },
         -- GLOBAL SETTINGS
         global = {
-            server_prefix = "**SERVER**",
+            server_prefix = "**SERVER** ",
             handlemutes = true,
             mute_dir = "sapp\\mutes.txt",
             default_mute_time = 525600,
