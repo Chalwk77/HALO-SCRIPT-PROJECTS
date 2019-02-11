@@ -266,8 +266,11 @@ local function GameSettings()
             ["wctdydt"] = {
                 enabled = true,
                 base_command = "cute",
-                show_executors_name = false,
-                message = "%executors_name%: %target_name%, what cute things did you do today?",
+                
+                -- Use %executors_name% (optional) variable to output the executor's name.
+                -- Use %target_name% (optional) variable to output the target's name.
+                
+                message = "%target_name%, what cute things did you do today?",
                 permission_level = 1,
                 environment = "chat" -- Valid environments: "rcon", "chat".
             },
@@ -1956,11 +1959,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             if target_id ~= nil and target_id > 0 and target_id < 17 then
                                 if player_present(target_id) then
                                     local StringFormat = settings.mod["wctdydt"].message
-                                    if (settings.mod["wctdydt"].show_executors_name) then
-                                        StringFormat = (string.gsub(string.gsub(StringFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
-                                    else
-                                        StringFormat = (string.gsub(StringFormat, "%%target_name%%", get_var(target_id, "$name")))
-                                    end
+                                    StringFormat = (string.gsub(string.gsub(StringFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
                                     if (settings.mod["wctdydt"].environment == "chat") then
                                         execute_command("msg_prefix \"\"")
                                         say(target_id, StringFormat)
@@ -1969,7 +1968,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         rprint(target_id, StringFormat)
                                     end
                                     execute_command("msg_prefix \"\"")
-                                    say(PlayerIndex, "[you] -> " .. target_name .. ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message, "%%executors_name%%:", ""), "%%target_name%%,", ""))
+                                    say(PlayerIndex, "[you] -> " .. target_name .. ", what cute things did you do today?")
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     return false
                                 else
