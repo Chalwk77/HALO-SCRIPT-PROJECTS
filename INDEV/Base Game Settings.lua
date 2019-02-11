@@ -142,8 +142,8 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = false,
-                assign_weapons = false,
+                enabled = true,
+                assign_weapons = true,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
@@ -164,7 +164,8 @@ local function GameSettings()
                     ["damnation"] = { plasma_rifle, nil, nil, plasma_rifle, 1, 3 },
                     ["putput"] = { nil, rocket_launcher, assault_rifle, pistol, 4, 1 },
                     ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
-                    ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 }
+                    ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
+                    ["dummy"] = { rocket_launcher, nil, nil, nil, 1, 2 }
 
                 }
             },
