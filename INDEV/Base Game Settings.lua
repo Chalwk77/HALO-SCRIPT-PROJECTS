@@ -97,9 +97,9 @@ local function GameSettings()
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
                     "Welcome to %server_name%",
---                    "line 2",
---                    "line 3",
---                    "line 4"
+                    --                    "line 2",
+                    --                    "line 3",
+                    --                    "line 4"
                 }
             },
             ["Color Reservation"] = {
@@ -168,7 +168,6 @@ local function GameSettings()
                     ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
                     ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
                     ["dummy"] = { rocket_launcher, nil, nil, nil, 1, 1 }
-
                 }
             },
             ["Anti Impersonator"] = {
@@ -214,11 +213,11 @@ local function GameSettings()
                 duration = 10 -- How long should the alias results be displayed for? (in seconds)
             },
             ["Respawn Time"] = {
-                enabled = false,
+                enabled = true,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["bloodgulch"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["boardingaction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["carousel"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["dangercanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -780,7 +779,7 @@ function OnTick()
                     cls(i)
                     local message_board = settings.mod["Message Board"].messages
                     for k, v in pairs(message_board) do
-                        local StringFormat = (string.gsub(string.gsub(message_board[k],"%%server_name%%",servername),"%%player_name%%", get_var(i, "$name")))
+                        local StringFormat = (string.gsub(string.gsub(message_board[k], "%%server_name%%", servername), "%%player_name%%", get_var(i, "$name")))
                         rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. StringFormat)
                     end
                     if players[p_table].message_board_timer >= math.floor(settings.mod["Message Board"].duration) then
@@ -1204,11 +1203,11 @@ function OnPlayerLeave(PlayerIndex)
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
                         if players[p_table].adminchat == true then
-                            cprint("admin chat on!", 2+8)
+                            cprint("admin chat on!", 2 + 8)
                             bool = "true"
                         else
                             bool = "false"
-                            cprint("admin chat off!", 2+8)
+                            cprint("admin chat off!", 2 + 8)
                         end
                         data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
                         stored_data[data] = stored_data[data] or { }
@@ -1349,7 +1348,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if (#message == 0) then
         return nil
     end
-    
+
     -- #Chat IDs & Admin Chat
     local keyword = nil
     if (settings.mod["Chat IDs"].enabled == true) or (settings.mod["Admin Chat"].enabled == true) then
@@ -1360,7 +1359,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             keyword = false
         end
     end
-    
+
     -- #Command Spy & Chat Logging
     local command
     local iscommand = nil
@@ -1377,7 +1376,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             iscommand = false
         end
     end
-    
+
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
         local hidden_messages = settings.mod["Command Spy"].commands_to_hide
@@ -1472,31 +1471,31 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     execute_command("msg_prefix \"\"")
                                     if (Global == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].team_format) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(TeamDefault,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                            local Format = (string.gsub(string.gsub(string.gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                             StringContent = Format
                                         end
 
                                     elseif (Tmod == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_TModFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                            local Format = (string.gsub(string.gsub(string.gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                             StringContent = Format
                                         end
 
                                     elseif (Mod == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].moderator) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_ModFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                            local Format = (string.gsub(string.gsub(string.gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                             StringContent = Format
                                         end
 
                                     elseif (Admin == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].admin) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_AdminFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                            local Format = (string.gsub(string.gsub(string.gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                             StringContent = Format
                                         end
 
                                     elseif (sAdmin == true) then
                                         for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
-                                            local Format = (string.gsub(string.gsub(string.gsub(Team_SAdminFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                            local Format = (string.gsub(string.gsub(string.gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                             StringContent = Format
                                         end
                                     end
@@ -1513,31 +1512,31 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         execute_command("msg_prefix \"\"")
                         if (Global == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].global_format) do
-                                local Format = (string.gsub(string.gsub(string.gsub(GlobalDefault,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                local Format = (string.gsub(string.gsub(string.gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 StringContent = Format
                             end
 
                         elseif (Tmod == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].trial_moderator) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_TModFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                local Format = (string.gsub(string.gsub(string.gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 StringContent = Format
                             end
 
                         elseif (Mod == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].moderator) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_ModFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                local Format = (string.gsub(string.gsub(string.gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 StringContent = Format
                             end
 
                         elseif (Admin == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].admin) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_AdminFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                local Format = (string.gsub(string.gsub(string.gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 StringContent = Format
                             end
 
                         elseif (sAdmin == true) then
                             for k, v in pairs(settings.mod["Chat IDs"].senior_admin) do
-                                local Format = (string.gsub(string.gsub(string.gsub(Global_SAdminFormat,"%%sender_name%%",name),"%%index%%",id), "%%message%%",Message))
+                                local Format = (string.gsub(string.gsub(string.gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 StringContent = Format
                             end
                         end
@@ -1646,7 +1645,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 for k, v in pairs(settings.mod["Admin Chat"].message_format) do
                                     local prefix = settings.mod["Admin Chat"].prefix
                                     local Format = (string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
-                                        "%%prefix%%",prefix),"%%sender_name%%",name), "%%index%%",id), "%%message%%",Message))
+                                            "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     AdminChat(Format)
                                     response = false
                                 end
@@ -1715,14 +1714,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- Used Globally
     local t = tokenizestring(Command)
-    if t[1] == nil then return nil end
+    if t[1] == nil then
+        return nil
+    end
     local command = t[1]:gsub("\\", "/")
     local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
 
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
-    
+
     if (settings.global.check_for_updates) then
         if (string.lower(Command) == "bgs") then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
@@ -1832,7 +1833,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-    
+
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
@@ -1942,6 +1943,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
+
     -- #What cute things did you do today
     if (settings.mod["wctdydt"].enabled == true) then
         if (command == settings.mod["wctdydt"].base_command) then
@@ -1955,9 +1957,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if player_present(target_id) then
                                     local StringFormat = settings.mod["wctdydt"].message
                                     if (settings.mod["wctdydt"].show_executors_name) then
-                                        StringFormat = (string.gsub(string.gsub(StringFormat,"%%executors_name%%",get_var(PlayerIndex, "$name")),"%%target_name%%", get_var(target_id,"$name")))
+                                        StringFormat = (string.gsub(string.gsub(StringFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
                                     else
-                                        StringFormat = (string.gsub(StringFormat,"%%target_name%%",get_var(target_id, "$name")))
+                                        StringFormat = (string.gsub(StringFormat, "%%target_name%%", get_var(target_id, "$name")))
                                     end
                                     if (settings.mod["wctdydt"].environment == "chat") then
                                         execute_command("msg_prefix \"\"")
@@ -1967,7 +1969,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         rprint(target_id, StringFormat)
                                     end
                                     execute_command("msg_prefix \"\"")
-                                    say(PlayerIndex, "[you] -> " .. target_name .. ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message,"%%executors_name%%:",""),"%%target_name%%,", ""))
+                                    say(PlayerIndex, "[you] -> " .. target_name .. ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message, "%%executors_name%%:", ""), "%%target_name%%,", ""))
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     return false
                                 else
@@ -1990,7 +1992,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
 
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
@@ -2015,6 +2016,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
+
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
         if (command == settings.mod["Admin Chat"].base_command) then
@@ -2053,6 +2055,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
+
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         if (command == settings.mod["Alias System"].base_command) then
@@ -2095,6 +2098,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
+
     -- #Teleport Manager
     if (settings.mod["Teleport Manager"].enabled == true) then
         local file_name = settings.mod["Teleport Manager"].dir
@@ -2875,13 +2879,13 @@ function getCurrentVersion(bool)
 end
 
 function report()
-    cprint("--------------------------------------------------------", 5+8)
-    cprint("Please report this error on github:", 7+8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7+8)
-    cprint("--------------------------------------------------------", 5+8)
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
 end
 
 function OnError(Message)
-    cprint(debug.traceback(), 4+8)
+    cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
 end
