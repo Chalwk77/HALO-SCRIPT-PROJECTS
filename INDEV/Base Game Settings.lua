@@ -264,7 +264,7 @@ local function GameSettings()
             ["wctdydt"] = {
                 enabled = true,
                 base_command = "cute",
-                show_executors_name = true,
+                show_executors_name = false,
                 message = "%executors_name%: %target_name%, what cute things did you do today?",
                 permission_level = 1,
                 environment = "chat" -- Valid environments: "rcon", "chat".
@@ -1974,7 +1974,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (t[2] ~= nil) then
                     if string.match(t[2], "%d") then
                         local target_id = tonumber(get_var(tonumber(t[2]), "$n"))
-                        local target_name = get_var(tonumber(t[2]), "$name")
+                        local target_name = get_var(target_id, "$name")
                         if target_id ~= tonumber(PlayerIndex) then
                             if target_id ~= nil and target_id > 0 and target_id < 17 then
                                 if player_present(target_id) then
@@ -1992,7 +1992,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         rprint(target_id, StringFormat)
                                     end
                                     execute_command("msg_prefix \"\"")
-                                    say(PlayerIndex, "[you] -> " .. target_name ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message,"%%executors_name%%:",""),"%%target_name%%,", ""))
+                                    say(PlayerIndex, "[you] -> " .. target_name .. ", " .. string.gsub(string.gsub(settings.mod["wctdydt"].message,"%%executors_name%%:",""),"%%target_name%%,", ""))
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     return false
                                 else
