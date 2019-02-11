@@ -1731,12 +1731,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- Used Globally
     local t = tokenizestring(Command)
+    if t[1] == nil then return nil end
+    local command = t[1]:gsub("\\", "/")
     local privilege_level = tonumber(get_var(PlayerIndex, "$lvl"))
 
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
-
+    
     if (settings.global.check_for_updates) then
         if (string.lower(Command) == "bgs") then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
@@ -1756,20 +1758,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     -- #Clear Chat
-    if (string.lower(t[1]) == settings.global.plugin_commands.clearchat) then
+    if (command == settings.global.plugin_commands.clearchat) then
         if (privilege_level) >= getPermLevel(nil, nil, "trial_moderator") then
             for i = 1, 20 do
                 execute_command("msg_prefix \"\"")
                 say_all(" ")
                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
             end
+            rprint(PlayerIndex, "Chat was cleared!")
         else
             rprint(PlayerIndex, "Insufficient Permission")
         end
         return false
     end
 
-    if (string.lower(t[1]) == settings.global.plugin_commands.list) then
+    if (command == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
             local temp = {}
@@ -1790,7 +1793,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(PlayerIndex, "Insufficient Permission")
         end
         return false
-    elseif (string.lower(t[1]) == settings.global.plugin_commands.enable) then
+    elseif (command == settings.global.plugin_commands.enable) then
         if (t[2] ~= nil) and t[2]:match("%d") then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
@@ -1817,7 +1820,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(PlayerIndex, "Invalid Syntax")
         end
         return false
-    elseif (string.lower(t[1]) == settings.global.plugin_commands.disable) then
+    elseif (command == settings.global.plugin_commands.disable) then
         if (t[2] ~= nil) and t[2]:match("%d") then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
@@ -1848,7 +1851,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
-        if (string.lower(t[1]) == settings.global.plugin_commands.mute) then
+        if (command == settings.global.plugin_commands.mute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
                 if (t[2] ~= nil) and string.match(t[2], "%d") then
                     local offender_id = get_var(tonumber(t[2]), "$n")
@@ -1899,7 +1902,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "Insufficient Permission.")
             end
             return false
-        elseif (string.lower(t[1]) == settings.global.plugin_commands.unmute) then
+        elseif (command == settings.global.plugin_commands.unmute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
                 if (t[2] ~= nil) and string.match(t[2], "%d") then
                     local offender_id = get_var(tonumber(t[2]), "$n")
@@ -1958,7 +1961,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
-        if (string.lower(Command) == settings.mod["Get Coords"].base_command) then
+        if (command == settings.mod["Get Coords"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Get Coords", nil, nil) then
                 local player_object = get_dynamic_player(PlayerIndex)
                 if player_object ~= 0 then
@@ -1981,7 +1984,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        if t[1] == (settings.mod["Admin Chat"].base_command) then
+        if (command == settings.mod["Admin Chat"].base_command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
@@ -2019,7 +2022,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
-        if t[1] == string.lower(settings.mod["Alias System"].base_command) then
+        if (command == settings.mod["Alias System"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
                 if t[2] ~= nil then
                     if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
@@ -2063,7 +2066,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.mod["Teleport Manager"].enabled == true) then
         local file_name = settings.mod["Teleport Manager"].dir
         if t[1] ~= nil then
-            if t[1] == string.lower(settings.mod["Teleport Manager"].commands[1]) then
+            if (command == settings.mod["Teleport Manager"].commands[1]) then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "setwarp") then
                     if t[2] ~= nil then
                         check_file_status(PlayerIndex)
@@ -2109,7 +2112,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         ---------------------------------------------------------
         -- GO TO COMMAND --
         if t[1] ~= nil then
-            if t[1] == string.lower(settings.mod["Teleport Manager"].commands[2]) then
+            if (command == settings.mod["Teleport Manager"].commands[2]) then
                 check_file_status(PlayerIndex)
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warp") then
                     if t[2] ~= nil then
@@ -2248,7 +2251,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
                 ---------------------------------------------------------
                 -- BACK COMMAND --
-            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[3]) then
+            elseif (command == settings.mod["Teleport Manager"].commands[3]) then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "back") then
                     if not PlayerInVehicle(PlayerIndex) then
                         if previous_location[PlayerIndex][1] ~= nil then
@@ -2267,7 +2270,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
                 ---------------------------------------------------------
                 -- LIST COMMAND --
-            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[4]) then
+            elseif (command == settings.mod["Teleport Manager"].commands[4]) then
                 local found = false
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warplist") then
                     check_file_status(PlayerIndex)
@@ -2291,7 +2294,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
                 ---------------------------------------------------------
                 -- LIST ALL COMMAND --
-            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[5]) then
+            elseif (command == settings.mod["Teleport Manager"].commands[5]) then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "warplistall") then
                     check_file_status(PlayerIndex)
                     if not empty_file then
@@ -2308,7 +2311,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
                 ---------------------------------------------------------
                 -- DELETE COMMAND --
-            elseif t[1] == string.lower(settings.mod["Teleport Manager"].commands[6]) then
+            elseif (command == settings.mod["Teleport Manager"].commands[6]) then
                 local command = t[1]
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Teleport Manager", true, "delwarp") then
                     if t[2] ~= nil then
