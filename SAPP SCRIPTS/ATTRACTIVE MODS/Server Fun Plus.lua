@@ -69,6 +69,7 @@ fake_permission_level = 1
 
 -- BROADCAST AS GOD --
 god_command = "bgod"
+god_prefix = "[god]"
 god_permission_level = 1
 
 -- EXPLODE --
@@ -150,8 +151,13 @@ function OnPlayerChat(PlayerIndex, Message)
                             if index ~= tonumber(executor) then
                                 if index ~= nil and index > 0 and index < 17 then
                                     if player_present(index) then
+                                        local broadcast
+                                        if (string.sub(t[1], 1, 1) == "/") then
+                                            broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
+                                        elseif (string.sub(t[1], 1, 1) == "\\") then
+                                            broadcast = string.gsub(Message, "\\" .. force_chat_command .. " %d", "")
+                                        end
                                         execute_command("msg_prefix \"\"")
-                                        local broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
                                         say_all(get_var(index, "$name") .. ":" .. broadcast)
                                         execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         return false
@@ -249,9 +255,10 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local UnknownCMD
     local t = tokenizestring(Command)
-    local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
-        if t[1] == string.lower(rocket_command) then
+        local command = t[1]:gsub("\\", "/")
+        local executor = get_var(PlayerIndex, "$n")
+        if (command == rocket_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
                 local index = tonumber(t[2])
                 -- /rocket
@@ -337,7 +344,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     if t[1] ~= nil then
-        if t[1] == string.lower(slap_command) then
+        if (command == slap_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= slap_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -373,7 +380,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     if t[1] ~= nil then
-        if t[1] == string.lower(fake_join_command) then
+        if (command == fake_join_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
                 if t[2] ~= nil then
                     if t[3] == nil then
@@ -396,7 +403,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif t[1] == string.lower(fake_quit_command) then
+        elseif (command == fake_quit_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
                 if t[2] ~= nil then
                     if t[3] == nil then
@@ -419,7 +426,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif t[1] == string.lower(nuke_command) then
+        elseif (command == nuke_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -494,7 +501,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(executor, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif t[1] == string.lower(take_command) then
+        elseif (command == take_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
                     if string.match(t[2], "%d") then
@@ -528,7 +535,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif t[1] == string.lower(crash_command) then
+        elseif (command == crash_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
                     if string.match(t[2], "%d") then
