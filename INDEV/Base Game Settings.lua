@@ -260,6 +260,15 @@ local function GameSettings()
                 permission_level = 1,
                 environment = "console"
             },
+            -- What cute things did you do today?
+            ["wctdydt"] = {
+                enabled = true,
+                base_command = "cute",
+                show_executors_name = true,
+                message = "%executors_name%: %target_name%, what cute things did you do today?",
+                permission_level = 1,
+                environment = "chat" -- Valid environments: "rcon", "chat".
+            },
             ["Spawn From Sky"] = {
                 enabled = false,
                 maps = {
@@ -1848,7 +1857,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-
+    
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
@@ -1958,6 +1967,52 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
+    -- #What cute things did you do today
+    if (settings.mod["wctdydt"].enabled == true) then
+        if (command == settings.mod["wctdydt"].base_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= settings.mod["wctdydt"].permission_level then
+                if (t[2] ~= nil) then
+                    if string.match(t[2], "%d") then
+                        local target_id = tonumber(get_var(tonumber(t[2]), "$n"))
+                        local target_name = get_var(tonumber(t[2]), "$name")
+                        if target_id ~= tonumber(PlayerIndex) then
+                            if target_id ~= nil and target_id > 0 and target_id < 17 then
+                                if player_present(target_id) then
+                                    local StringFormat = settings.mod["wctdydt"].message
+                                    if (settings.mod["wctdydt"].show_executors_name) then
+                                        StringFormat = (string.gsub(string.gsub(StringFormat,"%%executors_name%%",get_var(PlayerIndex, "$name")),"%%target_name%%", get_var(target_id,"$name")))
+                                    else
+                                        StringFormat = (string.gsub(StringFormat,"%%target_name%%",get_var(target_id, "$name")))
+                                    end
+                                    if (settings.mod["wctdydt"].environment == "chat") then
+                                        execute_command("msg_prefix \"\"")
+                                        say(target_id, StringFormat)
+                                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                    else
+                                        rprint(target_id, StringFormat)
+                                    end
+                                    return false
+                                else
+                                    rprint(executor, "Invalid Player Index")
+                                    return false
+                                end
+                            else
+                                rprint(PlayerIndex, "Invalid player!")
+                                return false
+                            end
+                        else
+                            rprint(PlayerIndex, "You cannot execute this on yourself!")
+                            return false
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid player!")
+                        return false
+                    end
+                end
+            end
+        end
+    end
+    
 
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
