@@ -270,7 +270,12 @@ local function GameSettings()
                 -- Use %executors_name% (optional) variable to output the executor's name.
                 -- Use %target_name% (optional) variable to output the target's name.
                 
-                message = "%target_name%, what cute things did you do today?",
+                messages = {
+                    -- Target sees this message
+                    "%target_name%, what cute things did you do today?",
+                    -- Command response (to executor)
+                    "[you] -> %target_name%, what cute things did you do today?",
+                    },
                 permission_level = 1,
                 environment = "chat" -- Valid environments: "rcon", "chat".
             },
@@ -597,7 +602,6 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-
     -- Used Globally
     game_over = false
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -1958,17 +1962,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if target_id ~= tonumber(PlayerIndex) then
                             if target_id ~= nil and target_id > 0 and target_id < 17 then
                                 if player_present(target_id) then
-                                    local StringFormat = settings.mod["wctdydt"].message
-                                    StringFormat = (string.gsub(string.gsub(StringFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
+                                
+                                    local toTargetFormat = settings.mod["wctdydt"].messages[1]
+                                    local toExecutorFormat = settings.mod["wctdydt"].messages[2]
+                                    
+                                    local TargetResponse = (string.gsub(string.gsub(toTargetFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
                                     if (settings.mod["wctdydt"].environment == "chat") then
                                         execute_command("msg_prefix \"\"")
-                                        say(target_id, StringFormat)
+                                        say(target_id, TargetResponse)
                                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     else
-                                        rprint(target_id, StringFormat)
+                                        rprint(target_id, TargetResponse)
                                     end
+                                    
+                                    local ExecutorResponse = (string.gsub(string.gsub(toExecutorFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
+                                    
                                     execute_command("msg_prefix \"\"")
-                                    say(PlayerIndex, "[you] -> " .. target_name .. ", what cute things did you do today?")
+                                    say(PlayerIndex, ExecutorResponse)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                                     return false
                                 else
