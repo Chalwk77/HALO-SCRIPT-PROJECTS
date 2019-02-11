@@ -389,7 +389,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.2,
+            script_version = 1.3,
             check_for_updates = false,
             plugin_commands = { enable = "enable", disable = "disable", list = "plugins", mute = "mute", unmute = "unmute", clearchat = "clear" },
             permission_level = {
