@@ -255,9 +255,9 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local UnknownCMD
     local t = tokenizestring(Command)
+    local command = t[1]:gsub("\\", "/")
+    local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
-        local command = t[1]:gsub("\\", "/")
-        local executor = get_var(PlayerIndex, "$n")
         if (command == rocket_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
                 local index = tonumber(t[2])
