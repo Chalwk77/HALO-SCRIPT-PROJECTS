@@ -798,12 +798,12 @@ function OnTick()
 
             -- #Custom Weapons
             if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
-                if (player_alive(i)) then
-                    if (weapon[i] == true) then
-                        execute_command("wdel " .. i)
-                        local player = get_dynamic_player(i)
-                        local x, y, z = read_vector3d(player + 0x5C)
-                        if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                    if (player_alive(i)) then
+                        if (weapon[i] == true) then
+                            execute_command("wdel " .. i)
+                            local player = get_dynamic_player(i)
+                            local x, y, z = read_vector3d(player + 0x5C)
                             local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
 
                             if (primary) then
