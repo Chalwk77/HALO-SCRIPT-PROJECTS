@@ -97,9 +97,9 @@ local function GameSettings()
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
                     "Welcome to %server_name%",
-                    --                    "line 2",
-                    --                    "line 3",
-                    --                    "line 4"
+                    -- "line 2",
+                    -- "line 3",
+                    -- "line 4"
                 }
             },
             ["Color Reservation"] = {
@@ -144,8 +144,8 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true,
-                assign_weapons = true,
+                enabled = false,
+                assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
@@ -217,7 +217,7 @@ local function GameSettings()
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["bloodgulch"] = { 0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["boardingaction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["carousel"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["dangercanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
