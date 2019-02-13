@@ -170,6 +170,7 @@ local function GameSettings()
             ["Item Spawner"] = {
                 enabled = true,
                 base_command = "spawn",
+                permission_level = 1,
                 list = "itemlist",
                 distance_from_playerX = 2.5,
                 distance_from_playerY = 2.5,
@@ -650,6 +651,11 @@ function OnScriptUnload()
             end
         end
     end
+end
+
+local function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function OnNewGame()
@@ -2030,90 +2036,94 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- #Item Spawner
     if (settings.mod["Item Spawner"].enabled == true) then
         if (command == settings.mod["Item Spawner"].base_command) then
-            if t[2] ~= nil then
-                local objects_table = settings.mod["Item Spawner"].objects
-                local found = nil
-                local _error = nil
-                for i = 1, #objects_table do
-                    if t[2]:match(objects_table[i][1]) then
-                        local tag_type = objects_table[i][2]
-                        local tag_name = objects_table[i][3]
-
-                        local function TagInfo(obj_type, obj_name)
-                            local tag = lookup_tag(obj_type, obj_name)
-                            return tag ~= 0 and read_dword(tag + 0xC) or nil
-                        end
-
-                        if TagInfo(tag_type, tag_name) then
-                            local function SpawnObject(PlayerIndex, tag_type, tag_name)
-                                local player_object = get_dynamic_player(PlayerIndex)
-                                if player_object ~= 0 then
-                                    local x_aim = read_float(player_object + 0x230)
-                                    local y_aim = read_float(player_object + 0x234)
-                                    local z_aim = read_float(player_object + 0x238)
-                                    local x = read_float(player_object + 0x5C)
-                                    local y = read_float(player_object + 0x60)
-                                    local z = read_float(player_object + 0x64)
-                                    local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
-                                    local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
-                                    local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
-                                    local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
-                                    rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
-                                    response = false
-                                    found = true
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
+                if t[2] ~= nil then
+                    local objects_table = settings.mod["Item Spawner"].objects
+                    local found = nil
+                    local _error = nil
+                    for i = 1, #objects_table do
+                        if t[2]:match(objects_table[i][1]) then
+                            local tag_type = objects_table[i][2]
+                            local tag_name = objects_table[i][3]
+                            if TagInfo(tag_type, tag_name) then
+                                local function SpawnObject(PlayerIndex, tag_type, tag_name)
+                                    local player_object = get_dynamic_player(PlayerIndex)
+                                    if player_object ~= 0 then
+                                        local x_aim = read_float(player_object + 0x230)
+                                        local y_aim = read_float(player_object + 0x234)
+                                        local z_aim = read_float(player_object + 0x238)
+                                        local x = read_float(player_object + 0x5C)
+                                        local y = read_float(player_object + 0x60)
+                                        local z = read_float(player_object + 0x64)
+                                        local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
+                                        local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
+                                        local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
+                                        local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                        rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
+                                        found = true
+                                        return false
+                                    end
                                 end
+                                SpawnObject(PlayerIndex, tag_type, tag_name)
+                            else
+                                _error = true
+                                rprint(PlayerIndex, "Error. '" .. t[2] .. "' is not available on this map. (missing tag id)")
+                                return false
                             end
-                            SpawnObject(PlayerIndex, tag_type, tag_name)
-                        else
-                            _error = true
-                            rprint(PlayerIndex, "Error. '" .. t[2] .. "' is not available on this map. (missing tag id)")
+                            break
                         end
-                        break
                     end
+                else
+                    rprint(PlayerIndex, "Insufficient Permission")
+                    return false
                 end
                 if found == nil and _error == nil then
                     rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object")
-                    response = false
+                    return false
                 end
             else
                 rprint(PlayerIndex, "Invalid Syntax")
                 return false
             end
-            return false
         elseif (command == settings.mod["Item Spawner"].list) then
-            function concatItems(PlayerIndex, start_index, end_index)
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
+                function concatItems(PlayerIndex, start_index, end_index)
+                    local content_table = {}
+                    local row
 
-                local content_table = {}
-                local row
+                    for j = tonumber(start_index), tonumber(end_index) do
+                        if temp_objects_table[j] ~= nil then
+                            table.insert(content_table, temp_objects_table[j])
+                            row = table.concat(content_table, ",    ")
+                        end
+                    end
 
-                for j = tonumber(start_index), tonumber(end_index) do
-                    if temp_objects_table[j] ~= nil then
-                        table.insert(content_table, temp_objects_table[j])
-                        row = table.concat(content_table, ",    ")
+                    if row ~= nil then
+                        rprint(PlayerIndex, row)
+                        return false
+                    end
+                    for _ in pairs(content_table) do
+                        content_table[_] = nil
                     end
                 end
-
-                if row ~= nil then
-                    rprint(PlayerIndex, row)
-                    return false
-                end
-                for _ in pairs(content_table) do
-                    content_table[_] = nil
-                end
+                rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
+                concatItems(PlayerIndex, 1, 5)
+                concatItems(PlayerIndex, 6, 10)
+                concatItems(PlayerIndex, 11, 15)
+                concatItems(PlayerIndex, 16, 20)
+                concatItems(PlayerIndex, 21, 25)
+                concatItems(PlayerIndex, 26, 30)
+                concatItems(PlayerIndex, 31, 35)
+                concatItems(PlayerIndex, 36, 40)
+                concatItems(PlayerIndex, 41, 45)
+                concatItems(PlayerIndex, 46, 50)
+                concatItems(PlayerIndex, 46, 50)
+                rprint(PlayerIndex, "-----------------------------------------------------------")
+                return false
+            else
+                rprint(PlayerIndex,, "Insufficient Permission")
             end
-            rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
-            concatItems(PlayerIndex, 1, 5)
-            concatItems(PlayerIndex, 6, 10)
-            concatItems(PlayerIndex, 11, 15)
-            concatItems(PlayerIndex, 16, 20)
-            concatItems(PlayerIndex, 21, 25)
-            concatItems(PlayerIndex, 26, 30)
-            concatItems(PlayerIndex, 31, 35)
-            concatItems(PlayerIndex, 36, 40)
-            concatItems(PlayerIndex, 41, 45)
-            concatItems(PlayerIndex, 46, 50)
-            concatItems(PlayerIndex, 46, 50)
-            rprint(PlayerIndex, "-----------------------------------------------------------")
+            return false
         end
     end
 
