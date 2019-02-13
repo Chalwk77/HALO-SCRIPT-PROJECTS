@@ -2069,7 +2069,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local _max = settings.mod["Infinite Ammo"].multiplier_max
                     
                     local function EnableInfAmmo(TargetID, specified, multiplier)
-                        if (modify_damage[TargetID] ~= true) then
+                        if (lurker[TargetID] ~= true) then
                             infammo[TargetID] = true
                             frag_check[TargetID] = true
                             adjust_ammo(TargetID)
@@ -2875,15 +2875,26 @@ end
 
 function setLurker(PlayerIndex, bool)
     if bool then
-        lurker[PlayerIndex] = true
-        if (settings.mod["Lurker"].speed == true) then
-            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+        local validate = nil
+        if (settings.mod["Infinite Ammo"].enabled == true) then
+            if (infammo[PlayerIndex] ~= true) then
+                validate = true
+            end
+        else
+            validate = true
         end
-        if (settings.mod["Lurker"].god == true) then
-            execute_command("god " .. tonumber(PlayerIndex))
-        end
-        if (settings.mod["Lurker"].camouflage == true) then
-            execute_command("camo " .. tonumber(PlayerIndex))
+        if validate then
+                lurker[PlayerIndex] = true
+                if (settings.mod["Lurker"].speed == true) then
+                    execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+                end
+                if (settings.mod["Lurker"].god == true) then
+                    execute_command("god " .. tonumber(PlayerIndex))
+                end
+                if (settings.mod["Lurker"].camouflage == true) then
+                    execute_command("camo " .. tonumber(PlayerIndex))
+                end
+            end
         end
     else
         lurker[PlayerIndex] = false
