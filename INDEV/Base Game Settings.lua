@@ -90,18 +90,27 @@ local function GameSettings()
             ["Lurker"] = {
                 enabled = true,
                 base_command = "lurker",
-                permission_level = 1,
-                running_speed = 2,
-                default_running_speed = 1,
-                time_until_death = 10,
-                warnings = 4,
+                permission_level = 1,       -- Minimum level required to execute /infammo
+                speed = true,               -- Enable/Disable SPEED
+                god = true,                 -- Enable/Disable GOD
+                camouflage = true,          -- Enable/Disable CAMO
+                running_speed = 2,          -- Speed boost applied (default running speed is 1)
+                default_running_speed = 1,  -- Speed the player returns to when they exit out of Lurker Mode.
+                
+                -- If the player picks up the oddball or flag, they receive a warning and are asked to drop the objective.
+                -- If they do not drop the objective before the timer reaches 0, they are killed automatically. 
+                -- Warnings are given immediately upon picking up the objective.
+                -- If the player has no warnings left their Lurker will be disabled (however, not revoked).
+                -- ...
+                time_until_death = 10, -- Time (in seconds) until the player is killed after picking up the objective.
+                warnings = 4, 
             },
             ["Infinite Ammo"] = {
                 enabled = true,
                 base_command = "infammo",
-                permission_level = 1,
-                multiplier_min = 0.001,
-                multiplier_max = 10,
+                permission_level = 1,       -- Minimum level required to execute /infammo
+                multiplier_min = 0.001,     -- minimum damage multiplier
+                multiplier_max = 10,        -- maximum damage multiplier
             },
             ["Message Board"] = {
                 enabled = false,
@@ -2864,13 +2873,23 @@ end
 
 function setLurker(PlayerIndex, bool)
     if bool then
-        execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
-        execute_command("god " .. tonumber(PlayerIndex))
-        execute_command("camo " .. tonumber(PlayerIndex))
+        if (settings.mod["Lurker"].speed == true) then
+            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+        end
+        if (settings.mod["Lurker"].god == true) then
+            execute_command("god " .. tonumber(PlayerIndex))
+        end
+        if (settings.mod["Lurker"].camouflage == true) then
+            execute_command("camo " .. tonumber(PlayerIndex))
+        end
     else
         lurker[PlayerIndex] = false
-        execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].default_running_speed))
-        execute_command("ungod " .. tonumber(PlayerIndex))
+        if (settings.mod["Lurker"].speed == true) then
+            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].default_running_speed))
+        end
+        if (settings.mod["Lurker"].god == true) then
+            execute_command("ungod " .. tonumber(PlayerIndex))
+        end
         killSilently(PlayerIndex)
         resetLurkerTimer(PlayerIndex)
         cls(PlayerIndex)
