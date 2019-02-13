@@ -2046,8 +2046,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Lurker"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
-                    setLurker(PlayerIndex, true)
-                    rprint(PlayerIndex, "Lurker mode enabled!")
+                    local validate = nil
+                    if (settings.mod["Infinite Ammo"].enabled == true) then
+                        if (infammo[PlayerIndex] ~= true) then
+                            validate = true
+                        end
+                    else
+                        validate = true
+                    end
+                    if validate then
+                        setLurker(PlayerIndex, true)
+                        rprint(PlayerIndex, "Lurker mode enabled!")
+                    else
+                        rprint(PlayerIndex, "Unable to activate Lurker while Infinite Ammo is enabled")
+                    end
                 else
                     setLurker(PlayerIndex, false)
                     rprint(PlayerIndex, "Lurker mode disabled!")
@@ -2875,25 +2887,15 @@ end
 
 function setLurker(PlayerIndex, bool)
     if bool then
-        local validate = nil
-        if (settings.mod["Infinite Ammo"].enabled == true) then
-            if (infammo[PlayerIndex] ~= true) then
-                validate = true
-            end
-        else
-            validate = true
+        lurker[PlayerIndex] = true
+        if (settings.mod["Lurker"].speed == true) then
+            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
         end
-        if validate then
-            lurker[PlayerIndex] = true
-            if (settings.mod["Lurker"].speed == true) then
-                execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
-            end
-            if (settings.mod["Lurker"].god == true) then
-                execute_command("god " .. tonumber(PlayerIndex))
-            end
-            if (settings.mod["Lurker"].camouflage == true) then
-                execute_command("camo " .. tonumber(PlayerIndex))
-            end
+        if (settings.mod["Lurker"].god == true) then
+            execute_command("god " .. tonumber(PlayerIndex))
+        end
+        if (settings.mod["Lurker"].camouflage == true) then
+            execute_command("camo " .. tonumber(PlayerIndex))
         end
     else
         lurker[PlayerIndex] = false
