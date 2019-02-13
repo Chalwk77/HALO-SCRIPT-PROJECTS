@@ -2293,22 +2293,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     execute_command("msg_prefix \"\"")
                                     say(PlayerIndex, ExecutorResponse)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                    return false
                                 else
                                     rprint(executor, "Invalid Player Index")
-                                    return false
                                 end
                             else
                                 rprint(PlayerIndex, "Invalid player!")
-                                return false
                             end
                         else
                             rprint(PlayerIndex, "You cannot execute this on yourself!")
-                            return false
                         end
                     else
                         rprint(PlayerIndex, "Invalid player!")
-                        return false
                     end
                 else
                     rprint(PlayerIndex, "Invalid syntax. Use /" .. settings.mod["wctdydt"].base_command .. " [id]")
@@ -2316,6 +2311,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             else
                 rprint(PlayerIndex, "Insufficient Permission")
             end
+            return false
         end
     end
 
