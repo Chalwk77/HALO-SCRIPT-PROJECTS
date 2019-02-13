@@ -2310,7 +2310,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(PlayerIndex, "Invalid player!")
                         return false
                     end
+                else
+                    rprint(PlayerIndex, "Invalid syntax. Use /" .. settings.mod["wctdydt"].base_command .. " [id]")
                 end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
             end
         end
     end
