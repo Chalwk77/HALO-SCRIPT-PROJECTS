@@ -2159,10 +2159,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         else
-                            rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
                         end
                     else
-                        rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                        rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
                     end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
@@ -2326,7 +2326,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(PlayerIndex, "Invalid player!")
                     end
                 else
-                    rprint(PlayerIndex, "Invalid syntax. Use /" .. settings.mod["wctdydt"].base_command .. " [id]")
+                    rprint(PlayerIndex, "Invalid syntax. Usage: /" .. settings.mod["wctdydt"].base_command .. " [id]")
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
