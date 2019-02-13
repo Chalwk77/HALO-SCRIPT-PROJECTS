@@ -1383,8 +1383,6 @@ function OnPlayerLeave(PlayerIndex)
         DisableInfAmmo(PlayerIndex)
     end
 
-    end
-
     -- #Alias System
     if (settings.mod["Alias System"].enabled == true) then
         alias_bool[PlayerIndex] = false
