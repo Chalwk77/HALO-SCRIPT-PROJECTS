@@ -2079,7 +2079,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     return false
                 end
                 if found == nil and _error == nil then
-                    rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object")
+                    rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or missing in 'objects' table.")
                     return false
                 end
             else
