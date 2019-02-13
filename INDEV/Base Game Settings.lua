@@ -100,6 +100,8 @@ local function GameSettings()
                 enabled = true,
                 base_command = "infammo",
                 permission_level = 1,
+                multiplier_min = 0.001,
+                multiplier_max = 10,
             },
             ["Message Board"] = {
                 enabled = false,
@@ -695,6 +697,18 @@ end
 local function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+local function adjust_ammo(PlayerIndex)
+    for i = 1, 5 do
+        execute_command("ammo " .. tonumber(PlayerIndex) .. " 999 " .. i)
+        execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
+    end
+end
+
+local function DisableInfAmmo(TargetID)
+    infammo[TargetID] = false
+    frag_check[TargetID] = false
 end
 
 function OnNewGame()
@@ -1366,7 +1380,9 @@ function OnPlayerLeave(PlayerIndex)
     
     -- #Infinite Ammo
     if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
-        frag_check[PlayerIndex] = false
+        DisableInfAmmo(PlayerIndex)
+    end
+
     end
 
     -- #Alias System
@@ -2043,47 +2059,81 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Infinite Ammo"].base_command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
-                    if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
-                        local specified = nil
-                        if t[3] ~= nil then
-                            if t[3]:match("%d+") then
-                                if tonumber(t[3]) >= 0.001 and tonumber(t[3]) < 10 then
-                                    specified = true
-                                    local multiplier = tonumber(t[3])
-                                    modify_damage[PlayerIndex] = true
-                                    damage_multiplier[PlayerIndex] = multiplier
-                                else
-                                    specified = false
-                                    rprint(PlayerIndex, "Invalid multiplier. Choose a number between 0.1-10")
+                    
+                    local _min = settings.mod["Infinite Ammo"].multiplier_min
+                    local _max = settings.mod["Infinite Ammo"].multiplier_max
+                    
+                    local function EnableInfAmmo(TargetID, specified, multiplier)
+                        infammo[TargetID] = true
+                        frag_check[TargetID] = true
+                        adjust_ammo(TargetID)
+                        if specified then
+                            local mult = tonumber(multiplier)
+                            modify_damage[TargetID] = true
+                            damage_multiplier[TargetID] = mult
+                            rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                            rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                        else
+                            rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                        end
+                    end
+                    
+                    local function validate(T3)
+                        if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
+                            return true
+                        else
+                            rprint(PlayerIndex, "Invalid multiplier. Choose a number between 0.001-10")
+                        end
+                        return false
+                    end
+                    
+                    if t[2] ~= nil then
+                        if t[2] == "me" then
+                            if t[3] == nil then
+                                EnableInfAmmo(PlayerIndex, false, 0)
+                            elseif t[3]:match("%d+") then
+                                if validate(tonumber(t[3])) then
+                                    EnableInfAmmo(PlayerIndex, true, tonumber(t[3]))
+                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
                                 end
                             else
-                                rprint(PlayerIndex, "Invalid number format")
+                                rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
                             end
-                        end
-                        if (infammo[PlayerIndex] == false or infammo[PlayerIndex] == nil) then
-                            infammo[PlayerIndex] = true
-                            frag_check[PlayerIndex] = true
-                            if specified ~= false then
-                                rprint(PlayerIndex, "[cheat] Infinite Ammo enabled!")
+                        elseif t[2]:match("%d+") then 
+                            if t[3] == nil then
+                                if player_present(tonumber(t[2])) then
+                                    EnableInfAmmo(tonumber(t[2]), false, 0)
+                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[2]), "$name"))
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
+                            elseif t[3]:match("%d+") then
+                                if player_present(tonumber(t[2])) then
+                                    if validate(tonumber(t[3])) then
+                                        EnableInfAmmo(tonumber(t[2]), true, tonumber(t[3]))
+                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                    end
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
                             end
-                            if specified then
-                                rprint(PlayerIndex, damage_multiplier[PlayerIndex] .. "% damage multiplier applied")
+                        elseif t[2] == "off" then 
+                            if t[3] == nil or t[3] == "me" then
+                                DisableInfAmmo(PlayerIndex)
+                                rprint(PlayerIndex, "[cheat] Disabled infammo")
+                            elseif t[3]:match("%d+") then
+                                if player_present(tonumber(t[3])) then
+                                    DisableInfAmmo(tonumber(t[3]))
+                                    rprint(PlayerIndex, "[cheat] Disabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
                             end
                         else
-                            rprint(PlayerIndex, "Infinite Ammo is already enabled.")
-                        end
-                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
-                        if (infammo[PlayerIndex] == true) then
-                            infammo[PlayerIndex] = false
-                            frag_check[PlayerIndex] = false
-                            modify_damage[PlayerIndex] = false
-                            damage_multiplier[PlayerIndex] = 0
-                            rprint(PlayerIndex, "[cheat] Infinite Ammo disabled!")
-                        else
-                            rprint(PlayerIndex, "Infinite Ammo is already disabled.")
+                            rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
                         end
                     else
-                        rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " on|off")
+                        rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
                     end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
@@ -2883,33 +2933,6 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if PlayerIndex then
         -- #Infinite Ammo
         if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
-            local function adjust_ammo(PlayerIndex)
-            for i = 1, 5 do
-                execute_command("ammo " .. tonumber(PlayerIndex) .. " 999 " .. i)
-                execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
-            end
-                -- if getPlayer(PlayerIndex) then
-                    -- local player_object = get_dynamic_player(PlayerIndex)
-                    -- if player_object ~= 0 then
-                        -- execute_command("nades " .. tonumber(PlayerIndex) .. " 7")
-                        -- local weapon_id = read_dword(player_object + 0x118)
-                        -- for i = 0, 3 do
-                            -- local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
-                            -- if (weapon_id ~= 0xFFFFFFFF) then
-                                -- local weap_object = get_object_memory(weapon_id)
-                                -- if weap_object then
-                                    -- write_word(weap_object + 0x2B8, 999)
-                                    -- write_word(weap_object + 0x2B6, 999)
-                                    -- write_word(weap_object + 0x2C6, 999)
-                                    -- write_word(weap_object + 0x2C8, 999)
-                                    -- write_float(weap_object + 0x240, 1)
-                                    -- sync_ammo(weapon_id)
-                                -- end
-                            -- end
-                        -- end
-                    -- end
-                -- end
-            end
             adjust_ammo(PlayerIndex)
         end
     end
