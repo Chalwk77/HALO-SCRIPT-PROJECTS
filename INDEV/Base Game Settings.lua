@@ -14,6 +14,7 @@ Combined Scripts:
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
+    - Lurker                Infinite Ammo        
              
     BGS Commands:
     /plugins
@@ -86,6 +87,20 @@ local function GameSettings()
                     [4] = { "[SENIOR-ADMIN] ", " joined the server." }
                 }
             },
+            ["Lurker"] = {
+                enabled = true,
+                base_command = "lurker",
+                permission_level = 1,
+                running_speed = 2,
+                default_running_speed = 1,
+                time_until_death = 10,
+                warnings = 4,
+            },
+            ["Infinite Ammo"] = {
+                enabled = true,
+                base_command = "infammo",
+                permission_level = 1,
+            },
             ["Message Board"] = {
                 enabled = false,
                 duration = 10, -- How long should the message be displayed on screen for? (in seconds)
@@ -148,7 +163,7 @@ local function GameSettings()
                 weapons = {
                     -- Weap 1,Weap 2,Weap 3,Weap 4, frags, plasmas
                     ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
-                    ["bloodgulch"] = { sniper, pistol, nil, nil, 2, 2 },
+                    ["bloodgulch"] = { pistol, sniper, nil, nil, 2, 2 },
                     ["boardingaction"] = { plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3 },
                     ["carousel"] = { nil, nil, pistol, needler, 3, 3 },
                     ["dangercanyon"] = { nil, plasma_rifle, nil, pistol, 4, 4 },
@@ -529,7 +544,21 @@ local first_join = {}
 local colorres_bool = {}
 
 -- #Item Spawner
-temp_objects_table = {}
+local temp_objects_table = {}
+
+-- #Lurker
+local lurker = { }
+local lurker_warn = { }
+local object_picked_up = { }
+local has_objective = { }
+local lurker_timer = { }
+local lurker_warnings = { }
+
+-- #Infinite Ammo
+local infammo = { }
+local frag_check = { }
+local modify_damage = { }
+local damage_multiplier = { }
 
 function OnScriptLoad()
     loadWeaponTags()
@@ -554,6 +583,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
+    
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 
     for i = 1, 16 do
         if player_present(i) then
@@ -577,6 +611,11 @@ function OnScriptLoad()
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
                 end
+            end
+            
+            -- #Lurker
+            if (settings.mod["Lurker"].enabled == true) then
+                resetLurkerTimer(i)
             end
         end
     end
@@ -680,6 +719,11 @@ function OnNewGame()
                 trigger[i] = false
                 players[p_table].alias_timer = 0
             end
+            
+            -- #Lurker
+            if (settings.mod["Lurker"].enabled == true) then
+                resetLurkerTimer(i)
+            end
 
             -- #Admin Chat
             if (settings.mod["Admin Chat"].enabled == true) then
@@ -747,6 +791,11 @@ function OnGameEnd()
                 alias_bool[i] = false
                 trigger[i] = false
                 players[p_table].alias_timer = 0
+            end
+            
+            -- #Lurker
+            if (settings.mod["Lurker"].enabled == true) then
+                resetLurkerTimer(i)
             end
 
             -- #Message Board
@@ -859,6 +908,57 @@ function OnTick()
                         welcome_timer[i] = false
                         players[p_table].message_board_timer = 0
                     end
+                end
+            end
+            
+            -- #Lurker
+            if (settings.mod["Lurker"].enabled == true) then
+                if (lurker[i] == true) and (lurker_warn[i] == true) then
+                
+                    local id = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+                    players[id].lurker_timer = players[id].lurker_timer + 0.030
+                    
+                    if (getWarnings(i) <= 0) then
+                        lurker_warn[i] = false
+                        cls(i)
+                        say(i, "Lurker mode was disabled!")
+                        cls(i)
+                        -- No warnings left: Turn off lurker and reset counters
+                        setLurker(i, false)
+                        write_dword(get_player(i) + 0x2C, 0 * 33)
+                    end
+                        
+                    cls(i)
+                    local days, hours, minutes, seconds = secondsToTime(players[id].lurker_timer, 4)
+                    rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
+                    rprint(i, "|cYou will be killed in " .. settings.mod["Lurker"].time_until_death - math.floor(seconds) .. " seconds")
+                    rprint(i, "|c[ warnings left ] ")
+                    rprint(i, "|c" .. lurker_warnings[i])
+                    rprint(i, "|c ")
+                    rprint(i, "|c ")
+                    rprint(i, "|c ")
+                    
+                    if (players[id].lurker_timer >= settings.mod["Lurker"].time_until_death) then
+                        lurker_warn[i] = false
+                        killSilently(i)
+                        write_dword(get_player(i) + 0x2C, 0 * 33)
+                        cls(i)
+                        rprint(i, "|c=========================================================")
+                        rprint(i, "|cYou were killed!")
+                        rprint(i, "|c=========================================================")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        object_picked_up[i] = ""
+                    end
+                end
+            end
+            
+            -- #Infinite Ammo
+            if (settings.mod["Infinite Ammo"].enabled == true and infammo[i] == true) then
+                if (frag_check[i] == true) and getFrags(i) == true then
+                    execute_command("nades " .. tonumber(i) .. " 7")
                 end
             end
 
@@ -1017,7 +1117,6 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- SAPP | Mute Handler
-
     if (settings.global.handlemutes == false) then
         muted[tonumber(PlayerIndex)] = false or nil
     end
@@ -1098,7 +1197,22 @@ function OnPlayerJoin(PlayerIndex)
         init_timer[PlayerIndex] = true
         first_join[PlayerIndex] = true
     end
-
+    
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        lurker[PlayerIndex] = false
+        has_objective[PlayerIndex] = false
+        resetLurkerTimer(PlayerIndex)
+        lurker_warnings[PlayerIndex] = settings.mod["Lurker"].warnings
+    end
+    
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true) then
+        infammo[PlayerIndex] = false
+        modify_damage[PlayerIndex] = false
+        damage_multiplier[PlayerIndex] = 0
+    end
+   
     -- #Message Board
     if (settings.mod["Message Board"].enabled == true) then
         players[p_table].message_board_timer = 0
@@ -1230,7 +1344,6 @@ function OnPlayerLeave(PlayerIndex)
                 if k ~= nil then
                     if string.match(v, ip) and string.match(v, hash) then
                         local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
-                        cprint(updated_entry)
                         local f = io.open(file_name, "r")
                         local content = f:read("*all")
                         f:close()
@@ -1242,6 +1355,18 @@ function OnPlayerLeave(PlayerIndex)
                 end
             end
         end
+    end
+    
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        has_objective[PlayerIndex] = false
+        lurker[PlayerIndex] = false
+        resetLurkerTimer(PlayerIndex)
+    end
+    
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+        frag_check[PlayerIndex] = false
     end
 
     -- #Alias System
@@ -1276,11 +1401,9 @@ function OnPlayerLeave(PlayerIndex)
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
                         if players[p_table].adminchat == true then
-                            cprint("admin chat on!", 2 + 8)
                             bool = "true"
                         else
                             bool = "false"
-                            cprint("admin chat off!", 2 + 8)
                         end
                         data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
                         stored_data[data] = stored_data[data] or { }
@@ -1364,6 +1487,20 @@ function OnPlayerSpawn(PlayerIndex)
             end
         end
     end
+    
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        if (lurker[PlayerIndex] == true) then
+            has_objective[PlayerIndex] = false
+            resetLurkerTimer(PlayerIndex)
+            setLurker(PlayerIndex, true)
+        end
+    end
+    
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+        frag_check[PlayerIndex] = true
+    end
 end
 
 function OnPlayerKill(PlayerIndex)
@@ -1402,6 +1539,15 @@ function OnPlayerKill(PlayerIndex)
             return spawntime
         end
         write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+    end
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        has_objective[PlayerIndex] = false
+        resetLurkerTimer(PlayerIndex)
+    end
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+        frag_check[PlayerIndex] = false
     end
 end
 
@@ -1872,6 +2018,83 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        if (command == settings.mod["Lurker"].base_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
+                if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
+                    lurker[PlayerIndex] = true
+                    setLurker(PlayerIndex, true)
+                    rprint(PlayerIndex, "Lurker mode enabled!")
+                else
+                    lurker[PlayerIndex] = false
+                    setLurker(PlayerIndex, false)
+                    rprint(PlayerIndex, "Lurker mode disabled!")
+                end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
+            end
+            return false
+        end
+    end
+    
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true) then
+        if (command == settings.mod["Infinite Ammo"].base_command) then
+            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
+                    if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
+                        local specified = nil
+                        if t[3] ~= nil then
+                            if t[3]:match("%d+") then
+                                if tonumber(t[3]) >= 0.001 and tonumber(t[3]) < 10 then
+                                    specified = true
+                                    local multiplier = tonumber(t[3])
+                                    modify_damage[PlayerIndex] = true
+                                    damage_multiplier[PlayerIndex] = multiplier
+                                else
+                                    specified = false
+                                    rprint(PlayerIndex, "Invalid multiplier. Choose a number between 0.1-10")
+                                end
+                            else
+                                rprint(PlayerIndex, "Invalid number format")
+                            end
+                        end
+                        if (infammo[PlayerIndex] == false or infammo[PlayerIndex] == nil) then
+                            infammo[PlayerIndex] = true
+                            frag_check[PlayerIndex] = true
+                            if specified ~= false then
+                                rprint(PlayerIndex, "[cheat] Infinite Ammo enabled!")
+                            end
+                            if specified then
+                                rprint(PlayerIndex, damage_multiplier[PlayerIndex] .. "% damage multiplier applied")
+                            end
+                        else
+                            rprint(PlayerIndex, "Infinite Ammo is already enabled.")
+                        end
+                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" or t[2] == '"off"' or t[2] == '"0"' or t[2] == '"false"' then
+                        if (infammo[PlayerIndex] == true) then
+                            infammo[PlayerIndex] = false
+                            frag_check[PlayerIndex] = false
+                            modify_damage[PlayerIndex] = false
+                            damage_multiplier[PlayerIndex] = 0
+                            rprint(PlayerIndex, "[cheat] Infinite Ammo disabled!")
+                        else
+                            rprint(PlayerIndex, "Infinite Ammo is already disabled.")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " on|off")
+                    end
+                else
+                    rprint(PlayerIndex, "Insufficient Permission")
+                end
+            else
+                cprint("The Server cannot execute this command!", 4 + 8)
+            end
+            return false
+        end
+    end
+    
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
@@ -2061,7 +2284,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                         rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
                                         found = true
-                                        return false
                                     end
                                 end
                                 SpawnObject(PlayerIndex, tag_type, tag_name)
@@ -2069,40 +2291,34 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 _error = true
                                 rprint(PlayerIndex, "[Base Game Settings]")
                                 rprint(PlayerIndex, "Error: Missing tag id for '" .. t[2] .. "' in 'objects' table.")
-                                return false
                             end
                             break
                         end
                     end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
-                    return false
                 end
                 if found == nil and _error == nil then
                     rprint(PlayerIndex, "[Base Game Settings]")
                     rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
-                    return false
                 end
             else
                 rprint(PlayerIndex, "Invalid Syntax")
-                return false
             end
+            return false
         elseif (command == settings.mod["Item Spawner"].list) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
                 function concatItems(PlayerIndex, start_index, end_index)
                     local content_table = {}
                     local row
-
                     for j = tonumber(start_index), tonumber(end_index) do
                         if temp_objects_table[j] ~= nil then
                             table.insert(content_table, temp_objects_table[j])
                             row = table.concat(content_table, ",    ")
                         end
                     end
-
                     if row ~= nil then
                         rprint(PlayerIndex, row)
-                        return false
                     end
                     for _ in pairs(content_table) do
                         content_table[_] = nil
@@ -2121,7 +2337,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 concatItems(PlayerIndex, 46, 50)
                 concatItems(PlayerIndex, 46, 50)
                 rprint(PlayerIndex, "-----------------------------------------------------------")
-                return false
             else
                 rprint(PlayerIndex, "Insufficient Permission")
             end
@@ -2529,6 +2744,101 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
+-- Used Globally
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+            if (lurker[PlayerIndex] == true) then
+                return false
+            end
+        end
+    end
+    -- #Infinite Ammo
+    if (settings.mod["Infinite Ammo"].enabled == true) then
+        if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+            if (modify_damage[CauserIndex] == true) then
+                return true, Damage * tonumber(damage_multiplier[CauserIndex])
+            end
+        end
+    end
+end
+
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        if (lurker[PlayerIndex] == true) then
+            if tonumber(Type) == 1 then
+                local PlayerObj = get_dynamic_player(PlayerIndex)
+                local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+                local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
+                if (name == "weapons\\flag\\flag" or name == "weapons\\ball\\ball") then
+                    if (name == "weapons\\flag\\flag") then 
+                        object_picked_up[PlayerIndex] = "flag"
+                    elseif (name == "weapons\\ball\\ball") then
+                        object_picked_up[PlayerIndex] = "oddball"
+                    end
+                    lurker_warnings[PlayerIndex] = lurker_warnings[PlayerIndex] - 1
+                    lurker_warn[PlayerIndex] = true
+                    has_objective[PlayerIndex] = true
+                end
+            end
+        end
+    end
+end
+
+function OnWeaponDrop(PlayerIndex, Slot)
+    -- #Lurker
+    if (settings.mod["Lurker"].enabled == true) then
+        if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
+            cls(PlayerIndex)
+            has_objective[PlayerIndex] = false
+            resetLurkerTimer(PlayerIndex)
+        end
+    end
+end
+
+function killSilently(PlayerIndex)
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    original = read_dword(kill_message_addresss)
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
+    execute_command("kill " .. tonumber(PlayerIndex))
+    safe_write(true)
+    write_dword(kill_message_addresss, original)
+    safe_write(false)
+    
+    -- Deduct one death
+    local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
+    execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
+end
+
+function setLurker(PlayerIndex, bool)
+    if bool then
+        execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+        execute_command("god " .. tonumber(PlayerIndex))
+        execute_command("camo " .. tonumber(PlayerIndex))
+    else
+        lurker[PlayerIndex] = false
+        execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].default_running_speed))
+        execute_command("ungod " .. tonumber(PlayerIndex))
+        killSilently(PlayerIndex)
+        resetLurkerTimer(PlayerIndex)
+        cls(PlayerIndex)
+    end
+end
+
+function resetLurkerTimer(PlayerIndex)
+    local p_table = get_var(PlayerIndex, "$name") .. ", " .. get_var(PlayerIndex, "$hash")
+    lurker_warn[PlayerIndex] = false
+    players[p_table].lurker_timer = 0
+end
+
+function getWarnings(PlayerIndex)
+    return lurker_warnings[PlayerIndex]
+end
+
 -- #List Players
 function listPlayers(PlayerIndex, count)
     if (count == 1) then
@@ -2565,6 +2875,42 @@ function CommandSpy(Message)
     for i = 1, 16 do
         if (tonumber(get_var(i, "$lvl"))) >= getPermLevel("Command Spy", nil, nil) then
             rprint(i, Message)
+        end
+    end
+end
+
+function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+    if PlayerIndex then
+        -- #Infinite Ammo
+        if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+            local function adjust_ammo(PlayerIndex)
+            for i = 1, 5 do
+                execute_command("ammo " .. tonumber(PlayerIndex) .. " 999 " .. i)
+                execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
+            end
+                -- if getPlayer(PlayerIndex) then
+                    -- local player_object = get_dynamic_player(PlayerIndex)
+                    -- if player_object ~= 0 then
+                        -- execute_command("nades " .. tonumber(PlayerIndex) .. " 7")
+                        -- local weapon_id = read_dword(player_object + 0x118)
+                        -- for i = 0, 3 do
+                            -- local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+                            -- if (weapon_id ~= 0xFFFFFFFF) then
+                                -- local weap_object = get_object_memory(weapon_id)
+                                -- if weap_object then
+                                    -- write_word(weap_object + 0x2B8, 999)
+                                    -- write_word(weap_object + 0x2B6, 999)
+                                    -- write_word(weap_object + 0x2C6, 999)
+                                    -- write_word(weap_object + 0x2C8, 999)
+                                    -- write_float(weap_object + 0x240, 1)
+                                    -- sync_ammo(weapon_id)
+                                -- end
+                            -- end
+                        -- end
+                    -- end
+                -- end
+            end
+            adjust_ammo(PlayerIndex)
         end
     end
 end
@@ -2718,6 +3064,21 @@ function timeUntilRestore(PlayerIndex)
     end
 end
 
+-- #Infinite Ammo
+function getFrags(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object ~= 0 and player_present(PlayerIndex) then
+        safe_read(true)
+        local frags = read_byte(player_object + 0x31E)
+        local plasmas = read_byte(player_object + 0x31F)
+        safe_read(false)
+        if tonumber(frags) <= 0 or tonumber(plasmas) <= 0 then
+            return true
+        end
+    end
+    return false
+end
+
 -- #Weapon Settings
 function loadWeaponTags()
     pistol = "weapons\\pistol\\pistol"
@@ -2744,6 +3105,7 @@ function getPlayer(PlayerIndex)
     end
     return nil
 end
+
 -- Returns player hash
 function getHash(PlayerIndex)
     if PlayerIndex ~= nil and PlayerIndex ~= "-1" then
@@ -2942,6 +3304,25 @@ function removeEntry(ip, hash, PlayerIndex)
             end
         end
     end
+end
+
+function CheckForFlag(PlayerIndex)
+    local bool = false
+    local player_object = get_dynamic_player(PlayerIndex)
+    for i = 0, 3 do
+        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+        if (weapon_id ~= 0xFFFFFFFF) then
+            local weap_object = get_object_memory(weapon_id)
+            if (weap_object ~= 0) then
+                local tag_address = read_word(weap_object)
+                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tagdata + 0x308, 3) == 1) then
+                    bool = true
+                end
+            end
+        end
+    end
+    return bool
 end
 
 function secondsToTime(seconds, places)
