@@ -142,7 +142,8 @@ function OnPlayerChat(PlayerIndex, Message)
     local t = tokenizestring(Message)
     local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
-        if t[1] == ("/" .. string.lower(force_chat_command)) or t[1] == ("\\" .. string.lower(force_chat_command)) then
+        local command = t[1]:gsub("\\", "/")
+        if (command == string.lower(force_chat_command)) then
             if tonumber(get_var(executor, "$lvl")) >= fc_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -151,14 +152,9 @@ function OnPlayerChat(PlayerIndex, Message)
                             if index ~= tonumber(executor) then
                                 if index ~= nil and index > 0 and index < 17 then
                                     if player_present(index) then
-                                        local broadcast
-                                        if (string.sub(t[1], 1, 1) == "/") then
-                                            broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
-                                        elseif (string.sub(t[1], 1, 1) == "\\") then
-                                            broadcast = string.gsub(Message, "\\" .. force_chat_command .. " %d", "")
-                                        end
                                         execute_command("msg_prefix \"\"")
-                                        say_all(get_var(index, "$name") .. " [" ..get_var(index, "$n") .. "]: " .. broadcast)
+                                        local broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
+                                        say_all(get_var(index, "$name") .. ":" .. broadcast)
                                         execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         return false
                                     else
@@ -191,7 +187,7 @@ function OnPlayerChat(PlayerIndex, Message)
                 if t[2] ~= nil then
                     execute_command("msg_prefix \"\"")
                     local broadcast = string.gsub(Message, "/" .. god_command, "")
-                    say_all("God:" .. broadcast)
+                    say_all(god_prefix .. " " .. broadcast)
                     execute_command("msg_prefix \" *  * SERVER *  * \"")
                     return false
                 else
@@ -255,10 +251,9 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local UnknownCMD
     local t = tokenizestring(Command)
-    local command = t[1]:gsub("\\", "/")
     local executor = get_var(PlayerIndex, "$n")
     if t[1] ~= nil then
-        if (command == rocket_command) then
+        if t[1] == string.lower(rocket_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
                 local index = tonumber(t[2])
                 -- /rocket
@@ -344,7 +339,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     if t[1] ~= nil then
-        if (command == slap_command) then
+        if t[1] == string.lower(slap_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= slap_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -380,7 +375,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     if t[1] ~= nil then
-        if (command == fake_join_command) then
+        if t[1] == string.lower(fake_join_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
                 if t[2] ~= nil then
                     if t[3] == nil then
@@ -403,7 +398,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif (command == fake_quit_command) then
+        elseif t[1] == string.lower(fake_quit_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
                 if t[2] ~= nil then
                     if t[3] == nil then
@@ -426,7 +421,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif (command == nuke_command) then
+        elseif t[1] == string.lower(nuke_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
@@ -501,7 +496,7 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(executor, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif (command == take_command) then
+        elseif t[1] == string.lower(take_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
                     if string.match(t[2], "%d") then
@@ -535,17 +530,25 @@ function OnServerCommand(PlayerIndex, Command)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             UnknownCMD = false
-        elseif (command == crash_command) then
+        elseif t[1] == string.lower(crash_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
                     if string.match(t[2], "%d") then
                         local target = tonumber(t[2])
                         if player_present(target) then
                             if (tonumber(target) ~= tonumber(executor)) then
-                                local player_object = get_dynamic_player(target)
-                                if player_object ~= 0 then
-                                    timer(0, "CrashPlayer", target)
-                                    rprint(executor, "You have crashed " .. get_var(target, "$name") .. "'s game client")
+                                local function TagInfo(obj_type, obj_name)
+                                    local tag = lookup_tag(obj_type, obj_name)
+                                    return tag ~= 0 and read_dword(tag + 0xC) or nil
+                                end
+                                if TagInfo("vehi", "vehicles\\rwarthog\\rwarthog") then
+                                    local player_object = get_dynamic_player(target)
+                                    if player_object ~= 0 then
+                                        timer(0, "CrashPlayer", target)
+                                        rprint(executor, "You have crashed " .. get_var(target, "$name") .. "'s game client")
+                                    end
+                                else
+                                    rprint(PlayerIndex, "Error. Crash does not work on this map!")
                                 end
                             else
                                 rprint(executor, "You cannot crash your own game client!")
