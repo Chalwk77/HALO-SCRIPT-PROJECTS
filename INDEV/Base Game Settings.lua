@@ -314,16 +314,16 @@ local function GameSettings()
             ["wctdydt"] = {
                 enabled = true,
                 base_command = "cute",
-                
+
                 -- Use %executors_name% (optional) variable to output the executor's name.
                 -- Use %target_name% (optional) variable to output the target's name.
-                
+
                 messages = {
                     -- Target sees this message
                     "%target_name%, what cute things did you do today?",
                     -- Command response (to executor)
                     "[you] -> %target_name%, what cute things did you do today?",
-                    },
+                },
                 permission_level = 1,
                 environment = "chat" -- Valid environments: "rcon", "chat".
             },
@@ -713,11 +713,11 @@ function OnNewGame()
     if (settings.mod["Teleport Manager"].enabled == true) then
         check_file_status(PlayerIndex)
     end
-    
+
     -- #Item Spawner
     if (settings.mod["Item Spawner"].enabled == true) then
         local objects_table = settings.mod["Item Spawner"].objects
-        for i = 1,#objects_table do
+        for i = 1, #objects_table do
             local content = objects_table[i][1]
             table.insert(temp_objects_table, content)
         end
@@ -1673,9 +1673,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
                                 local Format = (
-                                string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
-                                    "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message
-                                    )
+                                        string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
+                                                "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message
+                                        )
                                 )
                                 AdminChat(Format)
                                 response = false
@@ -1720,9 +1720,9 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         local content = file:read("*a")
         file:close()
         local offender_name = get_var(offender_id, "$name")
-        if not (string.match(content, offender_ip) 
-            and string.match(content, offender_id) 
-            and string.match(content, offender_hash)) then
+        if not (string.match(content, offender_ip)
+                and string.match(content, offender_id)
+                and string.match(content, offender_hash)) then
 
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
@@ -1987,10 +1987,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if target_id ~= tonumber(PlayerIndex) then
                             if target_id ~= nil and target_id > 0 and target_id < 17 then
                                 if player_present(target_id) then
-                                
+
                                     local toTargetFormat = settings.mod["wctdydt"].messages[1]
                                     local toExecutorFormat = settings.mod["wctdydt"].messages[2]
-                                    
+
                                     local TargetResponse = (string.gsub(string.gsub(toTargetFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
                                     if (settings.mod["wctdydt"].environment == "chat") then
                                         execute_command("msg_prefix \"\"")
@@ -1999,9 +1999,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     else
                                         rprint(target_id, TargetResponse)
                                     end
-                                    
+
                                     local ExecutorResponse = (string.gsub(string.gsub(toExecutorFormat, "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
-                                    
+
                                     execute_command("msg_prefix \"\"")
                                     say(PlayerIndex, ExecutorResponse)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
@@ -2026,7 +2026,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
+
     -- #Item Spawner
     if (settings.mod["Item Spawner"].enabled == true) then
         if (command == settings.mod["Item Spawner"].base_command) then
@@ -2034,16 +2034,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local objects_table = settings.mod["Item Spawner"].objects
                 local found = nil
                 local _error = nil
-                for i = 1,#objects_table do
+                for i = 1, #objects_table do
                     if t[2]:match(objects_table[i][1]) then
                         local tag_type = objects_table[i][2]
                         local tag_name = objects_table[i][3]
-                        
+
                         local function TagInfo(obj_type, obj_name)
                             local tag = lookup_tag(obj_type, obj_name)
                             return tag ~= 0 and read_dword(tag + 0xC) or nil
                         end
-                        
+
                         if TagInfo(tag_type, tag_name) then
                             local function SpawnObject(PlayerIndex, tag_type, tag_name)
                                 local player_object = get_dynamic_player(PlayerIndex)
@@ -2080,19 +2080,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
             end
             return false
-        elseif (command == settings.mod["Item Spawner"].list) then            
+        elseif (command == settings.mod["Item Spawner"].list) then
             function concatItems(PlayerIndex, start_index, end_index)
-            
+
                 local content_table = {}
                 local row
-                
+
                 for j = tonumber(start_index), tonumber(end_index) do
                     if temp_objects_table[j] ~= nil then
                         table.insert(content_table, temp_objects_table[j])
                         row = table.concat(content_table, ",    ")
                     end
                 end
-                
+
                 if row ~= nil then
                     rprint(PlayerIndex, row)
                     return false
@@ -2116,7 +2116,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(PlayerIndex, "-----------------------------------------------------------")
         end
     end
-    
+
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
         if (command == settings.mod["Get Coords"].base_command) then
