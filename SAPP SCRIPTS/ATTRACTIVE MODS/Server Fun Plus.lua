@@ -158,7 +158,7 @@ function OnPlayerChat(PlayerIndex, Message)
                                             broadcast = string.gsub(Message, "\\" .. force_chat_command .. " %d", "")
                                         end
                                         execute_command("msg_prefix \"\"")
-                                        say_all(get_var(index, "$name") .. " [" ..get_var(index, "$n") .. "]: " .. broadcast)
+                                        say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
                                         execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         return false
                                     else
