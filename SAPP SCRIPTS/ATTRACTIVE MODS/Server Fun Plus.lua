@@ -151,15 +151,12 @@ function OnPlayerChat(PlayerIndex, Message)
                             if index ~= tonumber(executor) then
                                 if index ~= nil and index > 0 and index < 17 then
                                     if player_present(index) then
-                                        local broadcast
-                                        if (string.sub(t[1], 1, 1) == "/") then
-                                            broadcast = string.gsub(Message, "/" .. force_chat_command .. " %d", "")
-                                        elseif (string.sub(t[1], 1, 1) == "\\") then
-                                            broadcast = string.gsub(Message, "\\" .. force_chat_command .. " %d", "")
+                                        if (string.sub(t[1], 1, 1) == "/") or (string.sub(t[1], 1, 1) == "\\") then
+                                            local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. force_chat_command .. " %d", "")
+                                            execute_command("msg_prefix \"\"")
+                                            say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
+                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         end
-                                        execute_command("msg_prefix \"\"")
-                                        say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
-                                        execute_command("msg_prefix \" *  * SERVER *  * \"")
                                         return false
                                     else
                                         rprint(executor, "Invalid Player Index")
