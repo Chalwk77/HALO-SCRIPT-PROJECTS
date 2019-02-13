@@ -2046,15 +2046,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Lurker"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
-                    local validate = nil
-                    if (settings.mod["Infinite Ammo"].enabled == true) then
-                        if (infammo[PlayerIndex] ~= true) then
-                            validate = true
+                    local function validate(PlayerIndex)
+                        if (settings.mod["Infinite Ammo"].enabled == true) then
+                            if (infammo[PlayerIndex] ~= true) then return true end
+                        else
+                            return true
                         end
-                    else
-                        validate = true
+                        return false
                     end
-                    if validate then
+                    if validate(PlayerIndex) then
                         setLurker(PlayerIndex, true)
                         rprint(PlayerIndex, "Lurker mode enabled!")
                     else
@@ -2081,7 +2081,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local _max = settings.mod["Infinite Ammo"].multiplier_max
                     
                     local function EnableInfAmmo(TargetID, specified, multiplier)
-                        if (lurker[TargetID] ~= true) then
+                      local function validate(TargetID)
+                            if (settings.mod["Lurker"].enabled == true) then
+                                if (lurker[TargetID] ~= true) then return true end
+                            else
+                                return true
+                            end
+                            return false
+                        end
+                        if validate(TargetID) then
                             infammo[TargetID] = true
                             frag_check[TargetID] = true
                             adjust_ammo(TargetID)
