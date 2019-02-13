@@ -156,8 +156,8 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = false,
-                assign_weapons = false,
+                enabled = true,
+                assign_weapons = true,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
