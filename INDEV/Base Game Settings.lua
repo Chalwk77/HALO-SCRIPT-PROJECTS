@@ -5,9 +5,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
              
              Nearly every aspect of the combined scripts have been heavily refined and improved in this version, 
              with the addition of many new features not found in the standalone versions. This mod is heavy on said features and highly customizable, but also user friendly. 
-             I am aiming to start documenting soon (with Lua Comments) so people know what certain configuration options do (coming in a later update).
 
-             [!] IN DEVELOPMENT. 98% COMPLETE.
              
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -15,8 +13,7 @@ Combined Scripts:
     - Anti Impersonator     Console Logo        List Players
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
-    - Color Reservation
-             
+    - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
              
     BGS Commands:
     /plugins
@@ -168,6 +165,57 @@ local function GameSettings()
                     ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
                     ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
                     ["dummy"] = { rocket_launcher, nil, nil, nil, 1, 1 }
+                },
+            },
+            ["Item Spawner"] = {
+                enabled = true,
+                base_command = "spawn",
+                list = "itemlist",
+                distance_from_playerX = 2.5,
+                distance_from_playerY = 2.5,
+                objects = {
+                    [1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" },
+                    [2] = { "camo", "eqip", "powerups\\active camouflage" },
+                    [3] = { "health", "eqip", "powerups\\health pack" },
+                    [4] = { "overshield", "eqip", "powerups\\over shield" },
+                    [5] = { "frag", "eqip", "weapons\\frag grenade\\frag grenade" },
+                    [6] = { "plasma", "eqip", "weapons\\plasma grenade\\plasma grenade" },
+                    [7] = { "banshee", "vehi", "vehicles\\banshee\\banshee_mp" },
+                    [8] = { "turret", "vehi", "vehicles\\c gun turret\\c gun turret_mp" },
+                    [9] = { "ghost", "vehi", "vehicles\\ghost\\ghost_mp" },
+                    [10] = { "tank", "vehi", "vehicles\\scorpion\\scorpion_mp" },
+                    [11] = { "rhog", "vehi", "vehicles\\rwarthog\\rwarthog" },
+                    [12] = { "hog", "vehi", "vehicles\\warthog\\mp_warthog" },
+                    [13] = { "rifle", "weap", "weapons\\assault rifle\\assault rifle" },
+                    [14] = { "ball", "weap", "weapons\\ball\\ball" },
+                    [15] = { "flag", "weap", "weapons\\flag\\flag" },
+                    [16] = { "flamethrower", "weap", "weapons\\flamethrower\\flamethrower" },
+                    [17] = { "needler", "weap", "weapons\\needler\\mp_needler" },
+                    [18] = { "pistol", "weap", "weapons\\pistol\\pistol" },
+                    [19] = { "ppistol", "weap", "weapons\\plasma pistol\\plasma pistol" },
+                    [20] = { "prifle", "weap", "weapons\\plasma rifle\\plasma rifle" },
+                    [21] = { "frg", "weap", "weapons\\plasma_cannon\\plasma_cannon" },
+                    [22] = { "rocket", "weap", "weapons\\rocket launcher\\rocket launcher" },
+                    [23] = { "shotgun", "weap", "weapons\\shotgun\\shotgun" },
+                    [24] = { "sniper", "weap", "weapons\\sniper rifle\\sniper rifle" },
+                    [25] = { "sheebolt", "proj", "vehicles\\banshee\\banshee bolt" },
+                    [26] = { "sheerod", "proj", "vehicles\\banshee\\mp_banshee fuel rod" },
+                    [27] = { "turretbolt", "proj", "vehicles\\c gun turret\\mp gun turret" },
+                    [28] = { "ghostbolt", "proj", "vehicles\\ghost\\ghost bolt" },
+                    [29] = { "tankbullet", "proj", "vehicles\\scorpion\\bullet" },
+                    [30] = { "tankshell", "proj", "vehicles\\scorpion\\tank shell" },
+                    [31] = { "hogbullet", "proj", "vehicles\\warthog\\bullet" },
+                    [32] = { "riflebullet", "proj", "weapons\\assault rifle\\bullet" },
+                    [33] = { "flame", "proj", "weapons\\flamethrower\\flame" },
+                    [34] = { "needle", "proj", "weapons\\needler\\mp_needle" },
+                    [35] = { "pistolbullet", "proj", "weapons\\pistol\\bullet" },
+                    [36] = { "ppistolbolt", "proj", "weapons\\plasma pistol\\bolt" },
+                    [37] = { "priflebolt", "proj", "weapons\\plasma rifle\\bolt" },
+                    [38] = { "priflecbolt", "proj", "weapons\\plasma rifle\\charged bolt" },
+                    [39] = { "rocketproj", "proj", "weapons\\rocket launcher\\rocket" },
+                    [40] = { "shottyshot", "proj", "weapons\\shotgun\\pellet" },
+                    [41] = { "snipershot", "proj", "weapons\\sniper rifle\\sniper bullet" },
+                    [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" }
                 }
             },
             ["Anti Impersonator"] = {
@@ -479,6 +527,9 @@ local first_join = {}
 -- #Color Reservation
 local colorres_bool = {}
 
+-- #Item Spawner
+temp_objects_table = {}
+
 function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
@@ -661,6 +712,15 @@ function OnNewGame()
     -- #Teleport Manager
     if (settings.mod["Teleport Manager"].enabled == true) then
         check_file_status(PlayerIndex)
+    end
+    
+    -- #Item Spawner
+    if (settings.mod["Item Spawner"].enabled == true) then
+        local objects_table = settings.mod["Item Spawner"].objects
+        for i = 1,#objects_table do
+            local content = objects_table[i][1]
+            table.insert(temp_objects_table, content)
+        end
     end
 end
 
@@ -1966,7 +2026,97 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-
+    
+    -- #Item Spawner
+    if (settings.mod["Item Spawner"].enabled == true) then
+        if (command == settings.mod["Item Spawner"].base_command) then
+            if t[2] ~= nil then
+                local objects_table = settings.mod["Item Spawner"].objects
+                local found = nil
+                local _error = nil
+                for i = 1,#objects_table do
+                    if t[2]:match(objects_table[i][1]) then
+                        local tag_type = objects_table[i][2]
+                        local tag_name = objects_table[i][3]
+                        
+                        local function TagInfo(obj_type, obj_name)
+                            local tag = lookup_tag(obj_type, obj_name)
+                            return tag ~= 0 and read_dword(tag + 0xC) or nil
+                        end
+                        
+                        if TagInfo(tag_type, tag_name) then
+                            local function SpawnObject(PlayerIndex, tag_type, tag_name)
+                                local player_object = get_dynamic_player(PlayerIndex)
+                                if player_object ~= 0 then
+                                    local x_aim = read_float(player_object + 0x230)
+                                    local y_aim = read_float(player_object + 0x234)
+                                    local z_aim = read_float(player_object + 0x238)
+                                    local x = read_float(player_object + 0x5C)
+                                    local y = read_float(player_object + 0x60)
+                                    local z = read_float(player_object + 0x64)
+                                    local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
+                                    local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
+                                    local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
+                                    local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                    rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
+                                    response = false
+                                    found = true
+                                end
+                            end
+                            SpawnObject(PlayerIndex, tag_type, tag_name)
+                        else
+                            _error = true
+                            rprint(PlayerIndex, "Error. '" .. t[2] .. "' is not available on this map. (missing tag id)")
+                        end
+                        break
+                    end
+                end
+                if found == nil and _error == nil then
+                    rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object")
+                    response = false
+                end
+            else
+                rprint(PlayerIndex, "Invalid Syntax")
+                return false
+            end
+            return false
+        elseif (command == settings.mod["Item Spawner"].list) then            
+            function concatItems(PlayerIndex, start_index, end_index)
+            
+                local content_table = {}
+                local row
+                
+                for j = tonumber(start_index), tonumber(end_index) do
+                    if temp_objects_table[j] ~= nil then
+                        table.insert(content_table, temp_objects_table[j])
+                        row = table.concat(content_table, ",    ")
+                    end
+                end
+                
+                if row ~= nil then
+                    rprint(PlayerIndex, row)
+                    return false
+                end
+                for _ in pairs(content_table) do
+                    content_table[_] = nil
+                end
+            end
+            rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
+            concatItems(PlayerIndex, 1, 5)
+            concatItems(PlayerIndex, 6, 10)
+            concatItems(PlayerIndex, 11, 15)
+            concatItems(PlayerIndex, 16, 20)
+            concatItems(PlayerIndex, 21, 25)
+            concatItems(PlayerIndex, 26, 30)
+            concatItems(PlayerIndex, 31, 35)
+            concatItems(PlayerIndex, 36, 40)
+            concatItems(PlayerIndex, 41, 45)
+            concatItems(PlayerIndex, 46, 50)
+            concatItems(PlayerIndex, 46, 50)
+            rprint(PlayerIndex, "-----------------------------------------------------------")
+        end
+    end
+    
     -- #Get Coords
     if (settings.mod["Get Coords"].enabled == true) then
         if (command == settings.mod["Get Coords"].base_command) then
@@ -2389,7 +2539,7 @@ function listPlayers(PlayerIndex, count)
                 else
                     team = "FFA"
                 end
-                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   IP: " .. ip)
+                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip)
             end
         end
     else
