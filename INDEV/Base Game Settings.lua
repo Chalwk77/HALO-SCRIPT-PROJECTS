@@ -626,7 +626,7 @@ function OnScriptLoad()
             
             -- #Lurker
             if (settings.mod["Lurker"].enabled == true) then
-                resetLurkerTimer(i)
+                resetLurker(i)
             end
         end
     end
@@ -745,7 +745,7 @@ function OnNewGame()
             
             -- #Lurker
             if (settings.mod["Lurker"].enabled == true) then
-                resetLurkerTimer(i)
+                resetLurker(i)
             end
 
             -- #Admin Chat
@@ -818,7 +818,7 @@ function OnGameEnd()
             
             -- #Lurker
             if (settings.mod["Lurker"].enabled == true) then
-                resetLurkerTimer(i)
+                resetLurker(i)
             end
 
             -- #Message Board
@@ -1225,7 +1225,7 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Lurker"].enabled == true) then
         lurker[PlayerIndex] = false
         has_objective[PlayerIndex] = false
-        resetLurkerTimer(PlayerIndex)
+        resetLurker(PlayerIndex)
         lurker_warnings[PlayerIndex] = settings.mod["Lurker"].warnings
     end
     
@@ -1384,7 +1384,7 @@ function OnPlayerLeave(PlayerIndex)
     if (settings.mod["Lurker"].enabled == true) then
         has_objective[PlayerIndex] = false
         lurker[PlayerIndex] = false
-        resetLurkerTimer(PlayerIndex)
+        resetLurker(PlayerIndex)
     end
     
     -- #Infinite Ammo
@@ -1515,7 +1515,7 @@ function OnPlayerSpawn(PlayerIndex)
     if (settings.mod["Lurker"].enabled == true) then
         if (lurker[PlayerIndex] == true) then
             has_objective[PlayerIndex] = false
-            resetLurkerTimer(PlayerIndex)
+            resetLurker(PlayerIndex)
             setLurker(PlayerIndex, true)
         end
     end
@@ -1566,7 +1566,7 @@ function OnPlayerKill(PlayerIndex)
     -- #Lurker
     if (settings.mod["Lurker"].enabled == true) then
         has_objective[PlayerIndex] = false
-        resetLurkerTimer(PlayerIndex)
+        resetLurker(PlayerIndex)
     end
     -- #Infinite Ammo
     if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
@@ -2046,11 +2046,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Lurker"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
-                    lurker[PlayerIndex] = true
                     setLurker(PlayerIndex, true)
                     rprint(PlayerIndex, "Lurker mode enabled!")
                 else
-                    lurker[PlayerIndex] = false
                     setLurker(PlayerIndex, false)
                     rprint(PlayerIndex, "Lurker mode disabled!")
                 end
@@ -2066,22 +2064,26 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Infinite Ammo"].base_command) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
-                    
+                
                     local _min = settings.mod["Infinite Ammo"].multiplier_min
                     local _max = settings.mod["Infinite Ammo"].multiplier_max
                     
                     local function EnableInfAmmo(TargetID, specified, multiplier)
-                        infammo[TargetID] = true
-                        frag_check[TargetID] = true
-                        adjust_ammo(TargetID)
-                        if specified then
-                            local mult = tonumber(multiplier)
-                            modify_damage[TargetID] = true
-                            damage_multiplier[TargetID] = mult
-                            rprint(TargetID, "[cheat] Infinite Ammo enabled!")
-                            rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                        if (modify_damage[TargetID] ~= true) then
+                            infammo[TargetID] = true
+                            frag_check[TargetID] = true
+                            adjust_ammo(TargetID)
+                            if specified then
+                                local mult = tonumber(multiplier)
+                                modify_damage[TargetID] = true
+                                damage_multiplier[TargetID] = mult
+                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                                rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                            else
+                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                            end
                         else
-                            rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                            rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
                         end
                     end
                     
@@ -2807,6 +2809,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if (settings.mod["Lurker"].enabled == true) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (lurker[PlayerIndex] == true) then
+                
                 return false
             end
         end
@@ -2850,7 +2853,7 @@ function OnWeaponDrop(PlayerIndex, Slot)
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
             cls(PlayerIndex)
             has_objective[PlayerIndex] = false
-            resetLurkerTimer(PlayerIndex)
+            resetLurker(PlayerIndex)
         end
     end
 end
@@ -2873,6 +2876,7 @@ end
 
 function setLurker(PlayerIndex, bool)
     if bool then
+        lurker[PlayerIndex] = true
         if (settings.mod["Lurker"].speed == true) then
             execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
         end
@@ -2891,12 +2895,12 @@ function setLurker(PlayerIndex, bool)
             execute_command("ungod " .. tonumber(PlayerIndex))
         end
         killSilently(PlayerIndex)
-        resetLurkerTimer(PlayerIndex)
+        resetLurker(PlayerIndex)
         cls(PlayerIndex)
     end
 end
 
-function resetLurkerTimer(PlayerIndex)
+function resetLurker(PlayerIndex)
     local p_table = get_var(PlayerIndex, "$name") .. ", " .. get_var(PlayerIndex, "$hash")
     lurker_warn[PlayerIndex] = false
     players[p_table].lurker_timer = 0
