@@ -2121,7 +2121,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "-----------------------------------------------------------")
                 return false
             else
-                rprint(PlayerIndex,, "Insufficient Permission")
+                rprint(PlayerIndex, "Insufficient Permission")
             end
             return false
         end
