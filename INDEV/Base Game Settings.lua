@@ -2884,16 +2884,15 @@ function setLurker(PlayerIndex, bool)
             validate = true
         end
         if validate then
-                lurker[PlayerIndex] = true
-                if (settings.mod["Lurker"].speed == true) then
-                    execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
-                end
-                if (settings.mod["Lurker"].god == true) then
-                    execute_command("god " .. tonumber(PlayerIndex))
-                end
-                if (settings.mod["Lurker"].camouflage == true) then
-                    execute_command("camo " .. tonumber(PlayerIndex))
-                end
+            lurker[PlayerIndex] = true
+            if (settings.mod["Lurker"].speed == true) then
+                execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+            end
+            if (settings.mod["Lurker"].god == true) then
+                execute_command("god " .. tonumber(PlayerIndex))
+            end
+            if (settings.mod["Lurker"].camouflage == true) then
+                execute_command("camo " .. tonumber(PlayerIndex))
             end
         end
     else
