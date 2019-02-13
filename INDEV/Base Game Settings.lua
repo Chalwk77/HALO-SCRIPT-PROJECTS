@@ -2808,7 +2808,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     -- #Lurker
     if (settings.mod["Lurker"].enabled == true) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-            cprint("pass")
             if (lurker[CauserIndex] == true) then
                 return false
             end
