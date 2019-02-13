@@ -2067,7 +2067,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 SpawnObject(PlayerIndex, tag_type, tag_name)
                             else
                                 _error = true
-                                rprint(PlayerIndex, "Error. '" .. t[2] .. "' is not available on this map. (missing tag id)")
+                                rprint(PlayerIndex, "[Base Game Settings]")
+                                rprint(PlayerIndex, "Error: Missing tag id for '" .. t[2] .. "' in 'objects' table.")
                                 return false
                             end
                             break
