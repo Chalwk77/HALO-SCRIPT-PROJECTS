@@ -509,6 +509,7 @@ local player_data = { }
 local quit_data = { }
 local ip_table = {}
 local mapname = ""
+local unload_called = nil
 
 -- Mute Handler
 local mute_duration = { }
@@ -689,16 +690,18 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
-        for i = 1, 16 do
-            if player_present(i) then
+    for i = 1, 16 do
+        if player_present(i) then
+            local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
+            
+            -- #Admin Chat
+            if (settings.mod["Admin Chat"].enabled == true) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
                     players[p_table].adminchat = false
                     players[p_table].boolean = false
                 end
             end
+            
         end
     end
 end
@@ -2374,12 +2377,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             break
                         end
                     end
+                    if (found == nil) and (_error == nil) then
+                        rprint(PlayerIndex, "[Base Game Settings]")
+                        rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
+                    end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
-                end
-                if found == nil and _error == nil then
-                    rprint(PlayerIndex, "[Base Game Settings]")
-                    rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
                 end
             else
                 rprint(PlayerIndex, "Invalid Syntax")
