@@ -509,7 +509,6 @@ local player_data = { }
 local quit_data = { }
 local ip_table = {}
 local mapname = ""
-local unload_called = nil
 
 -- Mute Handler
 local mute_duration = { }
