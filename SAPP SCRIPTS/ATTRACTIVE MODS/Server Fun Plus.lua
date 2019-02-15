@@ -348,13 +348,17 @@ function OnServerCommand(PlayerIndex, Command)
                         if string.match(t[2], "%d") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
-                                    if not PlayerInVehicle(index) then
-                                        local xC, yC, zC = read_vector3d(get_dynamic_player(index) + 0x5C)
-                                        write_vector3d(get_dynamic_player(index) + 0x5C, xC + 0.50, yC + 0.50, zC + 4)
-                                        rprint(executor, "You slapped " .. get_var(index, "$name"))
-                                        rprint(index, "You were slapped by " .. get_var(executor, "$name"))
+                                    if player_alive(index) then
+                                        if not PlayerInVehicle(index) then
+                                            local xC, yC, zC = read_vector3d(get_dynamic_player(index) + 0x5C)
+                                            write_vector3d(get_dynamic_player(index) + 0x5C, xC + 0.50, yC + 0.50, zC + 4)
+                                            rprint(executor, "You slapped " .. get_var(index, "$name"))
+                                            rprint(index, "You were slapped by " .. get_var(executor, "$name"))
+                                        else
+                                            rprint(executor, get_var(index, "$name") .. " is in a vehicle!")
+                                        end
                                     else
-                                        rprint(executor, get_var(index, "$name") .. " is in a vehicle!")
+                                        rprint(executor, "Unable to execute. Player is dead! Wait until they respawn.")
                                     end
                                 else
                                     rprint(executor, "Invalid Player ID!")
@@ -409,7 +413,7 @@ function OnServerCommand(PlayerIndex, Command)
                             rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
                         else
                             execute_command("msg_prefix \"\"")
-                            say_all(fake_name .. " Quit")
+                            say_all(fake_name .. " quit")
                             execute_command("msg_prefix \" *  * SERVER *  * \"")
                         end
                     else
