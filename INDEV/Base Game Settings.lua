@@ -1137,7 +1137,7 @@ function OnPlayerPrejoin(PlayerIndex)
         os.execute("echo \7")
     end
     player_info[PlayerIndex] = { }
-    cprint("--------------------------------------------------------------------------------")
+    cprint("________________________________________________________________________________", 2+8)
     cprint("Player attempting to connect to the server...", 5 + 8)
     -- #CONSOLE OUTPUT
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -1178,8 +1178,7 @@ function OnPlayerJoin(PlayerIndex)
     -- #CONSOLE OUTPUT
     cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
     cprint("Status: " .. name .. " connected successfully.", 5 + 8)
-    cprint("--------------------------------------------------------------------------------")
-
+    cprint("________________________________________________________________________________", 2+8)
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
@@ -1387,6 +1386,7 @@ function OnPlayerLeave(PlayerIndex)
     -- #CONSOLE OUTPUT
     for k, v in pairs(player_info) do
         if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+            cprint("________________________________________________________________________________", 4+8)
             for key, value in ipairs(player_info[PlayerIndex]) do
                 cprint(getPlayerInfo(PlayerIndex, "name"), 4+8)
                 cprint(getPlayerInfo(PlayerIndex, "hash"), 4+8)
@@ -1395,6 +1395,7 @@ function OnPlayerLeave(PlayerIndex)
                 cprint(getPlayerInfo(PlayerIndex, "level"), 4+8)
                 table.remove(player_info, k)
             end
+            cprint("________________________________________________________________________________", 4+8)
         end
     end
 
