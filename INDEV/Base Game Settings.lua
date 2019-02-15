@@ -45,20 +45,36 @@ local function GameSettings()
     -- CONFIGURAITON [begins] >> ------------------------------------------------------------
     settings = {
         mod = {
+            -- # This feature allows admins to communicate in a "private chat channel".
             ["Admin Chat"] = {
-                enabled = true,
+                enabled = true, -- Enabled = true, Disabled = false
                 base_command = "achat",
-                permission_level = 1,
+                permission_level = 1, -- Minimum level required to execute /achat [on / off]
                 prefix = "[ADMIN CHAT]",
                 restore_previous_state = true,
-                environment = "rcon",
+                environment = "rcon", -- Valid environments: "rcon", "chat".
                 message_format = { "%prefix% %sender_name% [%index%] %message%" }
             },
             ["Chat IDs"] = {
+                --[[
+                    This feature modifies player chat messages.
+                    --> Adds a Player Index ID in front of their name in square [] brackets.
+                
+                    Example: 
+                    Team output: [Chalwk] [1]: This is a test message
+                    Global output: Chalwk [1]: This is a test message
+                --]]
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                use_admin_prefixes = false,
+                
+                -- [ coming in a later update (vehicle output)
+                vehicle_output_global = { "[%sender_name%] [%index%]: %message%" },
+                vehicle_output_team = { "[%sender_name%] [%index%]: %message%" },
+                -- ]
+                
+                use_admin_prefixes = false, -- Set to TRUE to enable the below bonus feature.
+                -- Ability to have separate chat formats on a per-admin-level basis...
                 trial_moderator = {
                     "[T-MOD] %sender_name% [%index%]: %message%", -- global
                     "[T-MOD] [%sender_name%] [%index%]: %message%" -- team
@@ -80,23 +96,26 @@ local function GameSettings()
                     "rtv"
                 }
             },
-            ["Admin Join Messages"] = {
+            -- # Custom (separate) join messages for staff on a per-level basis
+            ["Admin Join Messages"] = { 
                 enabled = true,
                 messages = {
-                    -- [prefix] [message] (note: player name is automatically inserted between [prefix] and [message])
+                    -- [prefix] [message] (note: the joining player's name is automatically inserted between [prefix] and [message])
                     [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
                     [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
                     [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
                     [4] = { "[SENIOR-ADMIN] ", " joined the server." }
                 }
             },
-            ["Lurker"] = {
+            -- # This is a spectator-like feature.
+            ["Lurker"] = { 
+                -- To enable a feature, set 'false' to 'true'
                 enabled = true,
                 base_command = "lurker",
-                permission_level = 1, -- Minimum level required to execute /lurker
-                speed = true, -- Enable/Disable SPEED
-                god = true, -- Enable/Disable GOD
-                camouflage = true, -- Enable/Disable CAMO
+                permission_level = 1,
+                speed = true,
+                god = true, 
+                camouflage = true,
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -111,11 +130,11 @@ local function GameSettings()
             ["Infinite Ammo"] = {
                 enabled = true,
                 base_command = "infammo",
-                permission_level = 1, -- Minimum level required to execute /infammo
+                permission_level = 1,
                 multiplier_min = 0.001, -- minimum damage multiplier
                 multiplier_max = 10, -- maximum damage multiplier
             },
-            ["Message Board"] = {
+            ["Message Board"] = { -- Welcome messages | OnPlayerJoin()
                 enabled = false,
                 duration = 10, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
@@ -129,7 +148,7 @@ local function GameSettings()
                 }
             },
             ["Color Reservation"] = {
-                enabled = true,
+                enabled = true, -- Enabled = true, Disabled = false
                 color_table = {
                     [1] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- white
                     [2] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- black
@@ -143,7 +162,7 @@ local function GameSettings()
                     [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
                     [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
                     [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
-                    [13] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- teal
+                    [13] = { "abd5c96cd22517b4e2f358598147c606" }, -- teal (Shoo)
                     [14] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- sage
                     [15] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- brown
                     [16] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- tan
@@ -151,9 +170,9 @@ local function GameSettings()
                     [18] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } -- salmon
                 }
             },
-            -- Logs chat, commands and quit-join events.
+            -- # Logs chat, commands and quit-join events.
             ["Chat Logging"] = {
-                enabled = true,
+                enabled = true, -- Enabled = true, Disabled = false
                 dir = "sapp\\Server Chat.txt"
             },
             ["Command Spy"] = {
@@ -170,12 +189,12 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = false,
+                enabled = false, -- Enabled = true, Disabled = false
                 assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
-                    -- Weap 1,Weap 2,Weap 3,Weap 4, frags, plasmas
+                    -- Weap slot 1, Weap slot 2, Weap slot 3, Weap slot 4, frags, plasmas. Set to 'nil' if not used (weapon slots only)
                     ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
                     ["bloodgulch"] = { pistol, sniper, nil, nil, 2, 2 },
                     ["boardingaction"] = { plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3 },
@@ -204,6 +223,8 @@ local function GameSettings()
                 distance_from_playerX = 2.5,
                 distance_from_playerY = 2.5,
                 objects = {
+                    -- To spawn an object, type /spawn [item name]
+                    -- "Item Name", "tag type", "tag name"
                     [1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" },
                     [2] = { "camo", "eqip", "powerups\\active camouflage" },
                     [3] = { "health", "eqip", "powerups\\health pack" },
@@ -257,21 +278,21 @@ local function GameSettings()
                     -- Make sure these names match exactly as they do in game.
                     "Chalwk",
                     "Ro@dhog",
-                    "member4",
+                    "§hoo",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
                 },
                 hashlist = {
                     -- You can retrieve the players hash by looking it up in the sapp.log file or Server Chat.txt
                     "6c8f0bc306e0108b4904812110185edd", -- Chalwk's hash
                     "0ca756f62f9ecb677dc94238dcbc6c75", -- Ro@dhog's hash
-                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                    "abd5c96cd22517b4e2f358598147c606", -- Shoo's hash
                     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 }
             },
             ["Console Logo"] = {
                 enabled = true
             },
-            -- An alternative player list mod. Overrides SAPP's built in /pl command.
+            -- # An alternative player list mod. Overrides SAPP's built in /pl command.
             ["List Players"] = {
                 enabled = true,
                 permission_level = 1,
@@ -283,12 +304,12 @@ local function GameSettings()
                     "playerslist"
                 }
             },
-            -- Query a player's hash to check what aliases have been used with it.
+            -- # Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
                 enabled = true,
                 base_command = "alias",
                 dir = "sapp\\alias.lua",
-                permission_level = 1, -- minimum admin level required to use /alias command
+                permission_level = 1,
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 duration = 10 -- How long should the alias results be displayed for? (in seconds)
             },
@@ -342,8 +363,8 @@ local function GameSettings()
                 permission_level = 1,
                 environment = "console"
             },
-            -- What cute things did you do today?
             ["wctdydt"] = {
+                -- # What cute things did you do today? (requested by Shoo)
                 enabled = true,
                 base_command = "cute",
 
@@ -509,6 +530,7 @@ local function GameSettings()
                 "CD Hash: %hash%",
                 "IP Address: %ip_address%",
                 "Index ID: %index_id%",
+                "Privilege Level: %level%",
             },
         }
     }
@@ -517,8 +539,7 @@ end
 
 -- Tables used Globally
 local players = {}
-local player_data = {}
-local ip_table = {}
+local player_info = {}
 local mapname = ""
 local ce
 local empty_file
@@ -734,6 +755,14 @@ local function DisableInfAmmo(TargetID)
     frag_check[TargetID] = false
 end
 
+local function getPlayerInfo(PlayerIndex, id)
+    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+        for key, value in ipairs(player_info[PlayerIndex]) do
+            return player_info[PlayerIndex][key][id]
+        end
+    end
+end
+
 function OnNewGame()
     -- Used Globally
     game_over = false
@@ -862,7 +891,7 @@ function OnGameEnd()
             if (settings.global.handlemutes == true) then
                 if (muted[tonumber(i)] == true) then
                     local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
-                    local ip = getIP(name, hash, id)
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local file_name = settings.global.mute_dir
                     checkFile(file_name)
                     local file = io.open(file_name, "r")
@@ -908,7 +937,7 @@ function OnTick()
                 if init_mute_timer[tonumber(i)] == true then
 
                     local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
-                    local ip = getIP(name, hash, id)
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local entry = ip .. ", " .. hash
 
                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
@@ -1103,40 +1132,97 @@ function determineWeapon()
     return primary, secondary, tertiary, quaternary, Slot
 end
 
+function __genOrderedIndex( t )
+    local orderedIndex = {}
+    for key in pairs(t) do
+        table.insert( orderedIndex, key )
+    end
+    table.sort( orderedIndex )
+    return orderedIndex
+end
+
+function orderedNext(t, state)
+    -- Equivalent of the next function, but returns the keys in the alphabetic
+    -- order. We use a temporary ordered key table that is stored in the
+    -- table being iterated.
+
+    local key = nil
+    --print("orderedNext: state = "..tostring(state) )
+    if state == nil then
+        -- the first time, generate the index
+        t.__orderedIndex = __genOrderedIndex( t )
+        key = t.__orderedIndex[1]
+    else
+        -- fetch the next value
+        for i = 1,table.getn(t.__orderedIndex) do
+            if t.__orderedIndex[i] == state then
+                key = t.__orderedIndex[i+1]
+            end
+        end
+    end
+
+    if key then
+        return key, t[key]
+    end
+
+    -- no more value to return, cleanup
+    t.__orderedIndex = nil
+    return
+end
+
+function orderedPairs(t)
+    -- Equivalent of the pairs() function on tables. Allows to iterate
+    -- in order
+    return orderedNext, t, nil
+end
+
 function OnPlayerPrejoin(PlayerIndex)
     if (settings.global.beepOnJoin == true) then
         os.execute("echo \7")
     end
+    player_info[PlayerIndex] = { }
+    cprint("--------------------------------------------------------------------------------")
+    cprint("Player attempting to connect to the server...", 5 + 8)
     -- #CONSOLE OUTPUT
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-    local name, hash, ip, id = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n")
-    savePlayerData(name, hash, ip, id)
-    for _, v in ipairs(player_data) do
-        if (string.match(v, name) and string.match(v, hash) and string.match(v, id)) then
-            cprint("--------------------------------------------------------------------------------")
-            cprint("Player attempting to connect to the server...", 5 + 8)
-            cprint(v, 2 + 8)
-            break
+    local name, hash, ip, id, level = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n"), tonumber(get_var(PlayerIndex, "$lvl"))
+
+    -- Matching and replacing in case the OP decides to reorder the player_data table
+    local a,b,c,d,e
+    local tab = settings.global.player_data
+    for i = 1,#tab do
+        if tab[i]:match("%%name%%") then
+            a = string.gsub(tab[i], "%%name%%", name)
+        elseif tab[i]:match("%%hash%%") then
+            b = string.gsub(tab[i], "%%hash%%", hash)
+        elseif tab[i]:match("%%index_id%%") then
+            d = string.gsub(tab[i], "%%index_id%%", id)
+        elseif tab[i]:match("%%ip_address%%") then
+            c = string.gsub(tab[i], "%%ip_address%%", ip)
+        elseif tab[i]:match("%%level%%") then
+            e = string.gsub(tab[i], "%%level%%", level)
         end
     end
-    table.insert(ip_table, name .. ", " .. hash .. ", " .. id .. ", &" .. ip)
+    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e} )
+    
+    cprint(getPlayerInfo(PlayerIndex, "name"), 2+8)
+    cprint(getPlayerInfo(PlayerIndex, "hash"), 2+8)
+    cprint(getPlayerInfo(PlayerIndex, "ip"), 2+8)
+    cprint(getPlayerInfo(PlayerIndex, "id"), 2+8)
+    cprint(getPlayerInfo(PlayerIndex, "level"), 2+8)
 end
 
 function OnPlayerJoin(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
-    local ip = get_var(PlayerIndex, "$ip")
+    local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
 
     -- #CONSOLE OUTPUT
-    for _, v in ipairs(player_data) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
-            cprint("Status: " .. name .. " connected successfully.", 5 + 8)
-            cprint("--------------------------------------------------------------------------------")
-        end
-    end
+    cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
+    cprint("Status: " .. name .. " connected successfully.", 5 + 8)
+    cprint("--------------------------------------------------------------------------------")
 
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
@@ -1298,13 +1384,15 @@ function OnPlayerJoin(PlayerIndex)
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
             if (settings.mod["Admin Chat"].restore_previous_state == true) then
                 local t = tokenizestring(tostring(data[PlayerIndex]), ":")
-                if t[2] == "true" then
-                    rprint(PlayerIndex, "Your admin chat is on!")
-                    players[p_table].adminchat = true
-                    players[p_table].boolean = true
-                else
-                    players[p_table].adminchat = false
-                    players[p_table].boolean = false
+                if (t[2] ~= nil) then 
+                    if (t[2] == "true") then
+                        rprint(PlayerIndex, "[reminder] Your admin chat is on!")
+                        players[p_table].adminchat = true
+                        players[p_table].boolean = true
+                    else
+                        players[p_table].adminchat = false
+                        players[p_table].boolean = false
+                    end
                 end
             else
                 players[p_table].adminchat = false
@@ -1328,7 +1416,6 @@ function OnPlayerJoin(PlayerIndex)
                     end
                 end
             end
-
             announceJoin(join_message)
         end
     end
@@ -1338,21 +1425,25 @@ function OnPlayerLeave(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
+    local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
+    local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
     -- #CONSOLE OUTPUT
-    for k, v in ipairs(player_data) do
-        if (v:match(name) and v:match(hash) and v:match(id)) then
-            cprint("--------------------------------------------------------------------------------")
-            cprint(v, 4 + 8)
-            cprint("--------------------------------------------------------------------------------")
-            table.remove(player_data, k)
-            break
+    for k, v in pairs(player_info) do
+        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+            for key, value in ipairs(player_info[PlayerIndex]) do
+                cprint(getPlayerInfo(PlayerIndex, "name"), 4+8)
+                cprint(getPlayerInfo(PlayerIndex, "hash"), 4+8)
+                cprint(getPlayerInfo(PlayerIndex, "ip"), 4+8)
+                cprint(getPlayerInfo(PlayerIndex, "id"), 4+8)
+                cprint(getPlayerInfo(PlayerIndex, "level"), 4+8)
+                table.remove(player_info, k)
+            end
         end
     end
 
     -- Used Globally
     local p_table = name .. ", " .. hash
-    local ip = getIP(name, hash, id)
 
     -- #Spawn From Sky
     if (settings.mod["Spawn From Sky"].enabled == true) then
@@ -1378,13 +1469,13 @@ function OnPlayerLeave(PlayerIndex)
                 if k ~= nil then
                     if string.match(v, ip) and string.match(v, hash) then
                         local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
-                        local f = io.open(file_name, "r")
-                        local content = f:read("*all")
-                        f:close()
+                        local f1 = io.open(file_name, "r")
+                        local content = f1:read("*all")
+                        f1:close()
                         content = string.gsub(content, v, updated_entry)
-                        local f = io.open(file_name, "w")
-                        f:write(content)
-                        f:close()
+                        local f2 = io.open(file_name, "w")
+                        f2:write(content)
+                        f2:close()
                     end
                 end
             end
@@ -1430,24 +1521,20 @@ function OnPlayerLeave(PlayerIndex)
 
     -- #Admin Chat
     if (settings.mod["Admin Chat"].enabled == true) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-            if PlayerIndex ~= 0 then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    if (settings.mod["Admin Chat"].restore_previous_state == true) then
-                        local bool
-                        if players[p_table].adminchat == true then
-                            bool = "true"
-                        else
-                            bool = "false"
-                        end
-                        data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
-                        stored_data[data] = stored_data[data] or {}
-                        table.insert(stored_data[data], tostring(data[PlayerIndex]))
-                    else
-                        players[p_table].adminchat = false
-                        players[p_table].boolean = false
-                    end
+        if (tonumber(level) >= getPermLevel("Admin Chat", nil, nil)) then
+            if (settings.mod["Admin Chat"].restore_previous_state == true) then
+                local bool
+                if players[p_table].adminchat == true then
+                    bool = "true"
+                else
+                    bool = "false"
                 end
+                data[PlayerIndex] = get_var(PlayerIndex, "$name") .. ":" .. bool
+                stored_data[data] = stored_data[data] or {}
+                table.insert(stored_data[data], tostring(data[PlayerIndex]))
+            else
+                players[p_table].adminchat = false
+                players[p_table].boolean = false
             end
         end
     end
@@ -1457,15 +1544,6 @@ function OnPlayerLeave(PlayerIndex)
         wait_for_response[PlayerIndex] = false
         for i = 1, 3 do
             previous_location[PlayerIndex][i] = nil
-        end
-    end
-
-    -- REMOVE IP entry from temporary ip_table
-    for k, v in pairs(ip_table) do
-        if v then
-            if (v:match(name) and v:match(hash) and v:match(id)) then
-                table.remove(ip_table, k)
-            end
         end
     end
 end
@@ -1980,11 +2058,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (command == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
             rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
-            local temp = {}
+            local t = {}
             for k, _ in pairs(settings.mod) do
-                temp[#temp + 1] = k
+                t[#t + 1] = k
             end
-            for k, v in pairs(temp) do
+            for k, v in pairs(t) do
                 if v then
                     if (settings.mod[v].enabled == true) then
                         rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is enabled")
@@ -1994,8 +2072,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             rprint(PlayerIndex, "-----------------------------------------------------\n")
-            for _ in pairs(temp) do
-                temp[_] = nil
+            for _ in pairs(t) do
+                t[_] = nil
             end
         else
             rprint(PlayerIndex, "Insufficient Permission")
@@ -2005,11 +2083,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if t[2]:match("%d") then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
-                local temp = {}
+                local t = {}
                 for k, _ in pairs(settings.mod) do
-                    temp[#temp + 1] = k
+                    t[#t + 1] = k
                 end
-                for k, v in pairs(temp) do
+                for k, v in pairs(t) do
                     if v then
                         if (tonumber(id) == tonumber(k)) then
                             if (settings.mod[v].enabled == false) then
@@ -2021,8 +2099,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 end
-                for _ in pairs(temp) do
-                    temp[_] = nil
+                for _ in pairs(t) do
+                    t[_] = nil
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
@@ -2035,11 +2113,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if t[2]:match("%d") then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
-                local temp = {}
+                local t = {}
                 for k, _ in pairs(settings.mod) do
-                    temp[#temp + 1] = k
+                    t[#t + 1] = k
                 end
-                for k, v in pairs(temp) do
+                for k, v in pairs(t) do
                     if v then
                         if (tonumber(id) == tonumber(k)) then
                             if (settings.mod[v].enabled == true) then
@@ -2051,8 +2129,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 end
-                for _ in pairs(temp) do
-                    temp[_] = nil
+                for _ in pairs(t) do
+                    t[_] = nil
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
@@ -2365,44 +2443,47 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Item Spawner"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
                 if t[2] ~= nil then
-                    local objects_table = settings.mod["Item Spawner"].objects
-                    local is_valid
-                    local is_error
-                    for i = 1, #objects_table do
-                        if t[2]:match(objects_table[i][1]) then
-                            local tag_type = objects_table[i][2]
-                            local tag_name = objects_table[i][3]
-                            if TagInfo(tag_type, tag_name) then
-                                local function SpawnObject(PlayerIndex, tag_type, tag_name)
-                                    local player_object = get_dynamic_player(PlayerIndex)
-                                    if player_object ~= 0 then
-                                        local x_aim = read_float(player_object + 0x230)
-                                        local y_aim = read_float(player_object + 0x234)
-                                        local z_aim = read_float(player_object + 0x238)
-                                        local x = read_float(player_object + 0x5C)
-                                        local y = read_float(player_object + 0x60)
-                                        local z = read_float(player_object + 0x64)
-                                        local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
-                                        local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
-                                        local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
-                                        spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
-                                        rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
-                                        is_valid = true
+                    if player_alive(PlayerIndex) then
+                        local objects_table = settings.mod["Item Spawner"].objects
+                        local is_valid
+                        local is_error
+                        for i = 1, #objects_table do
+                            if t[2]:match(objects_table[i][1]) then
+                                local tag_type = objects_table[i][2]
+                                local tag_name = objects_table[i][3]
+                                if TagInfo(tag_type, tag_name) then
+                                    local function SpawnObject(PlayerIndex, tag_type, tag_name)
+                                        local player_object = get_dynamic_player(PlayerIndex)
+                                        if player_object ~= 0 then
+                                            local x_aim = read_float(player_object + 0x230)
+                                            local y_aim = read_float(player_object + 0x234)
+                                            local z_aim = read_float(player_object + 0x238)
+                                            local x = read_float(player_object + 0x5C)
+                                            local y = read_float(player_object + 0x60)
+                                            local z = read_float(player_object + 0x64)
+                                            local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
+                                            local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
+                                            local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
+                                            spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                            rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
+                                            is_valid = true
+                                        end
                                     end
+                                    SpawnObject(PlayerIndex, tag_type, tag_name)
+                                else
+                                    is_error = true
+                                    rprint(PlayerIndex, "[Base Game Settings]")
+                                    rprint(PlayerIndex, "Error: Missing tag id for '" .. t[2] .. "' in 'objects' table.")
                                 end
-
-                                SpawnObject(PlayerIndex, tag_type, tag_name)
-                            else
-                                is_error = true
-                                rprint(PlayerIndex, "[Base Game Settings]")
-                                rprint(PlayerIndex, "Error: Missing tag id for '" .. t[2] .. "' in 'objects' table.")
+                                break
                             end
-                            break
                         end
-                    end
-                    if not (is_valid) and not (is_error) then
-                        rprint(PlayerIndex, "[Base Game Settings]")
-                        rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
+                        if not (is_valid) and not (is_error) then
+                            rprint(PlayerIndex, "[Base Game Settings]")
+                            rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
+                        end
+                    else
+                        rprint(PlayerIndex, "[dead] - Unable to execute. Wait until you respawn.")
                     end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
@@ -2414,19 +2495,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         elseif (command == settings.mod["Item Spawner"].list) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
                 local function concatTableObjects(PlayerIndex, start_index, end_index)
-                    local content = {}
+                    local t = {}
                     local row
                     for j = tonumber(start_index), tonumber(end_index) do
                         if temp_objects_table[j] ~= nil then
-                            content[#content + 1] = temp_objects_table[j]
-                            row = table.concat(content, ",    ")
+                            t[#t + 1] = temp_objects_table[j]
+                            row = table.concat(t, ",    ")
                         end
                     end
                     if row ~= nil then
                         rprint(PlayerIndex, row)
                     end
-                    for _ in pairs(content) do
-                        content[_] = nil
+                    for _ in pairs(t) do
+                        t[_] = nil
                     end
                 end
 
@@ -3053,18 +3134,21 @@ function getPermLevel(script, bool, args)
     local trigger
     local permission_table
 
+    -- getPermLevel("Script Name", nil, nil)
     if (script ~= nil and bool == nil and args == nil) then
         level = settings.mod[script].permission_level
 
+    -- getPermLevel(nil, nil, "admin_type")
     elseif (script == nil and bool == nil and args ~= nil) then
         permission_table = settings.global.permission_level
         trigger = true
-
+        
+    -- [ getPermLevel("Script Name", true, "admin_type")
     elseif (script ~= nil and bool == true and args ~= nil) then
         trigger = true
         permission_table = settings.mod["Teleport Manager"].permission_level
     end
-
+    
     if (trigger) and (permission_table ~= nil) then
         for k, v in pairs(permission_table) do
             local words = tokenizestring(v, ",")
@@ -3076,6 +3160,7 @@ function getPermLevel(script, bool, args)
             end
         end
     end
+    -- ]
     return tonumber(level)
 end
 
@@ -3117,16 +3202,6 @@ function TeleportPlayer(ObjectID, x, y, z)
         local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
-end
-
--- Saves player join data (name, hash, ip address, id)
-function savePlayerData(name, hash, ip, id)
-    local a = string.gsub(settings.global.player_data[1], "%%name%%", name)
-    local b = string.gsub(settings.global.player_data[2], "%%hash%%", hash)
-    local c = string.gsub(settings.global.player_data[3], "%%ip_address%%", ip)
-    local d = string.gsub(settings.global.player_data[4], "%%index_id%%", id)
-    local data = a .. "\n" .. b .. "\n" .. c .. "\n" .. d
-    table.insert(player_data, data)
 end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
@@ -3238,19 +3313,6 @@ function table.tostring(tbl)
     return "{" .. table.concat(result, ",") .. "}"
 end
 
-function getIP(name, hash, id)
-    for _, v in pairs(ip_table) do
-        if v then
-            local stringToMatch = name .. ", " .. hash .. ", " .. id
-            if string.find(v, stringToMatch) then
-                local ip = string.match(v, ("&(.+)"))
-                local words = tokenizestring(ip, ", ")
-                return tostring(words[1])
-            end
-        end
-    end
-end
-
 -- #Alias System
 function addAlias(name, hash)
     local file_name = settings.mod["Alias System"].dir
@@ -3305,19 +3367,19 @@ function concatValues(PlayerIndex, start_index, end_index)
         if v:match(target_hash) then
             local aliases = string.match(v, (":(.+)"))
             local words = tokenizestring(aliases, ", ")
-            local word_table = {}
+            local t = {}
             local row
             for i = tonumber(start_index), tonumber(end_index) do
                 if words[i] ~= nil then
-                    word_table[#word_table + 1] = words[i]
-                    row = table.concat(word_table, ", ")
+                    t[#t + 1] = words[i]
+                    row = table.concat(t, ", ")
                 end
             end
             if row ~= nil then
                 rprint(PlayerIndex, "|" .. settings.mod["Alias System"].alignment .. " " .. row)
             end
-            for _ in pairs(word_table) do
-                word_table[_] = nil
+            for _ in pairs(t) do
+                t[_] = nil
             end
             break
         end
@@ -3357,11 +3419,11 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     if fp == nil then
         check_file_status(PlayerIndex)
     end
-    local content = {}
+    local t = {}
     i = 1;
     for line in fp:lines() do
         if i < starting_line or i >= starting_line + num_lines then
-            content[#content + 1] = line
+            t[#t + 1] = line
         end
         i = i + 1
     end
@@ -3371,8 +3433,8 @@ function delete_from_file(filename, starting_line, num_lines, PlayerIndex)
     end
     fp:close()
     fp = io.open(filename, "w+")
-    for i = 1, #content do
-        fp:write(string.format("%s\n", content[i]))
+    for i = 1, #t do
+        fp:write(string.format("%s\n", t[i]))
     end
     fp:close()
 end
