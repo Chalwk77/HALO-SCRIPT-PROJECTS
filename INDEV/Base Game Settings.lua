@@ -520,6 +520,8 @@ local players = {}
 local player_data = {}
 local ip_table = {}
 local mapname = ""
+local ce
+local empty_file
 
 -- Mute Handler
 local mute_duration = {}
@@ -557,6 +559,7 @@ local first_join = {}
 
 -- #Color Reservation
 local colorres_bool = {}
+local can_use_colorres
 
 -- #Item Spawner
 local temp_objects_table = {}
@@ -573,6 +576,12 @@ local infammo = {}
 local frag_check = {}
 local modify_damage = {}
 local damage_multiplier = {}
+
+local function getServerName()
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local servername = read_widestring(network_struct + 0x8, 0x42)
+    return servername
+end
 
 function OnScriptLoad()
     loadWeaponTags()
@@ -669,9 +678,8 @@ function OnScriptLoad()
 
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled == true) then
+        --noinspection GlobalCreationOutsideO
         function consoleLogo()
-            local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-            local servername = read_widestring(network_struct + 0x8, 0x42)
             -- Logo: ascii: 'kban'
             cprint("================================================================================", 2 + 8)
             cprint(os.date("%A, %d %B %Y - %X"), 6)
@@ -682,7 +690,7 @@ function OnScriptLoad()
             cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
             cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                      " .. servername)
+            cprint("                      " .. getServerName())
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
             cprint("")
             cprint("================================================================================", 2 + 8)
@@ -726,12 +734,9 @@ local function DisableInfAmmo(TargetID)
     frag_check[TargetID] = false
 end
 
-
 function OnNewGame()
     -- Used Globally
     game_over = false
-    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    servername = read_widestring(network_struct + 0x8, 0x42)
     mapname = get_var(0, "$map")
 
     for i = 1, 16 do
@@ -929,7 +934,7 @@ function OnTick()
                     cls(i)
                     local message_board = settings.mod["Message Board"].messages
                     for k, _ in pairs(message_board) do
-                        local StringFormat = (string.gsub(string.gsub(message_board[k], "%%server_name%%", servername), "%%player_name%%", get_var(i, "$name")))
+                        local StringFormat = (string.gsub(string.gsub(message_board[k], "%%server_name%%", getServerName()), "%%player_name%%", get_var(i, "$name")))
                         rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. StringFormat)
                     end
                     if players[p_table].message_board_timer >= math.floor(settings.mod["Message Board"].duration) then
@@ -1009,10 +1014,11 @@ function OnTick()
                             end
 
                             if (Slot == 3 or Slot == 4) then
-                                timer(100, "delayAssign", player, x, y, z)
+                                timer(100, "delayAssignMore", player, x, y, z)
                             end
 
-                            function delayAssign()
+                            --noinspection GlobalCreationOutsideO
+                            function delayAssignMore(player, x, y, z)
                                 if (tertiary) then
                                     assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
                                 end
@@ -1428,6 +1434,7 @@ function OnPlayerLeave(PlayerIndex)
             if PlayerIndex ~= 0 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if (settings.mod["Admin Chat"].restore_previous_state == true) then
+                        local bool
                         if players[p_table].adminchat == true then
                             bool = "true"
                         else
@@ -1612,6 +1619,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Command Spy & Chat Logging
     local command
     local iscommand
+    local cmd_prefix
     if (settings.mod["Command Spy"].enabled == true) or (settings.mod["Chat Logging"].enabled == true) then
         local content = tokenizestring(Message)
         if (#content == 0) then
@@ -1629,6 +1637,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Command Spy
     if (settings.mod["Command Spy"].enabled == true) then
         local hidden_messages = settings.mod["Command Spy"].commands_to_hide
+        local hidden
         for k, _ in pairs(hidden_messages) do
             if (command == k) then
                 hidden = true
@@ -1874,20 +1883,18 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if wait_for_response[PlayerIndex] then
             if Message == ("yes") then
                 local file_name = settings.mod["Teleport Manager"].dir
-                delete_from_file(file_name, response_starting_line, response_num_lines, PlayerIndex)
-                rprint(PlayerIndex, "Successfully deleted teleport id #" .. response_starting_line)
+                local warp_num = tonumber(getWarp())
+                delete_from_file(file_name, warp_num, 1, PlayerIndex)
+                rprint(PlayerIndex, "Successfully deleted teleport id #" .. warp_num)
                 wait_for_response[PlayerIndex] = false
-                response = false
             elseif Message == ("no") then
                 rprint(PlayerIndex, "Process Cancelled")
                 wait_for_response[PlayerIndex] = false
-                response = false
             end
             if Message ~= "yes" or Message ~= "no" then
                 rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
-                wait_for_response[PlayerIndex] = true
-                response = false
             end
+            response = false
         end
     end
     return response
@@ -2309,7 +2316,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["wctdydt"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= settings.mod["wctdydt"].permission_level then
                 if string.match(t[2], "%d") then
-                    local target_id = tonumber(get_var(tonumber(t[2]), "$n"))
+                    local target_id = tonumber(t[2])
                     if target_id ~= tonumber(PlayerIndex) then
                         if target_id ~= nil and target_id > 0 and target_id < 17 then
                             if player_present(target_id) then
@@ -2335,7 +2342,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 say(PlayerIndex, ExecutorResponse)
                                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
                             else
-                                rprint(executor, "Invalid Player Index")
+                                rprint(PlayerIndex, "Invalid Player Index")
                             end
                         else
                             rprint(PlayerIndex, "Invalid player!")
@@ -2406,7 +2413,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         elseif (command == settings.mod["Item Spawner"].list) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
-                function concatItems(PlayerIndex, start_index, end_index)
+                local function concatTableObjects(PlayerIndex, start_index, end_index)
                     local content = {}
                     local row
                     for j = tonumber(start_index), tonumber(end_index) do
@@ -2424,17 +2431,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
 
                 rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
-                concatItems(PlayerIndex, 1, 5)
-                concatItems(PlayerIndex, 6, 10)
-                concatItems(PlayerIndex, 11, 15)
-                concatItems(PlayerIndex, 16, 20)
-                concatItems(PlayerIndex, 21, 25)
-                concatItems(PlayerIndex, 26, 30)
-                concatItems(PlayerIndex, 31, 35)
-                concatItems(PlayerIndex, 36, 40)
-                concatItems(PlayerIndex, 41, 45)
-                concatItems(PlayerIndex, 46, 50)
-                concatItems(PlayerIndex, 46, 50)
+                concatTableObjects(PlayerIndex, 1, 5)
+                concatTableObjects(PlayerIndex, 6, 10)
+                concatTableObjects(PlayerIndex, 11, 15)
+                concatTableObjects(PlayerIndex, 16, 20)
+                concatTableObjects(PlayerIndex, 21, 25)
+                concatTableObjects(PlayerIndex, 26, 30)
+                concatTableObjects(PlayerIndex, 31, 35)
+                concatTableObjects(PlayerIndex, 36, 40)
+                concatTableObjects(PlayerIndex, 41, 45)
+                concatTableObjects(PlayerIndex, 46, 50)
+                concatTableObjects(PlayerIndex, 46, 50)
                 rprint(PlayerIndex, "-----------------------------------------------------------")
             else
                 rprint(PlayerIndex, "Insufficient Permission")
@@ -2613,6 +2620,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         if string.find(v, mapname) then
                                             found = true
                                             -- numbers without decimal points -----------------------------------------------------------------------------
+                                            local x, y, z
                                             if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                                 valid = true -- 0
                                                 x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
@@ -2809,8 +2817,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if k ~= nil then
                                     if t[2] == v:match(k) then
                                         del_found = true
-                                        response_starting_line = nil
-                                        response_num_lines = nil
                                         if string.find(v, mapname) then
                                             delete_from_file(file_name, k, 1, PlayerIndex)
                                             rprint(PlayerIndex, "Successfully deleted teleport id #" .. k)
@@ -2818,8 +2824,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                             wait_for_response[PlayerIndex] = true
                                             rprint(PlayerIndex, "Warning: That teleport is not linked to this map.")
                                             rprint(PlayerIndex, "Type 'YES' to delete, type 'NO' to cancel.")
-                                            response_starting_line = k
-                                            response_num_lines = 1
+                                            --noinspection GlobalCreationOutsideO
+                                            function getWarp()
+                                                return tonumber(k)
+                                            end
                                         end
                                     end
                                 end
@@ -2897,8 +2905,8 @@ function OnWeaponDrop(PlayerIndex)
 end
 
 function killSilently(PlayerIndex)
-    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-    original = read_dword(kill_message_addresss)
+    local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    local original = read_dword(kill_message_addresss)
     safe_write(true)
     write_dword(kill_message_addresss, 0x03EB01B1)
     safe_write(false)
@@ -3031,7 +3039,7 @@ function tokenizestring(inputString, Separator)
         Separator = "%s"
     end
     local t = {};
-    i = 1
+    local i = 1
     for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
         t[i] = str
         i = i + 1
@@ -3042,8 +3050,8 @@ end
 -- Used Globally
 function getPermLevel(script, bool, args)
     local level = 0
-    local trigger = nil
-    local permission_table = nil
+    local trigger
+    local permission_table
 
     if (script ~= nil and bool == nil and args == nil) then
         level = settings.mod[script].permission_level
@@ -3434,7 +3442,8 @@ function secondsToTime(seconds, places)
 end
 
 function getCurrentVersion(bool)
-    ffi = require("ffi")
+    local http_client
+    local ffi = require("ffi")
     ffi.cdef [[
         typedef void http_response;
         http_response *http_get(const char *url, bool async);
