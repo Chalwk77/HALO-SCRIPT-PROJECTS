@@ -610,6 +610,33 @@ local function getServerName()
     return servername
 end
 
+local function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+-- TODO: (check when ammo/batter is < 500/0) - Potential boost in performance
+local function adjust_ammo(PlayerIndex)
+    for i = 1, 4 do
+        execute_command("ammo " .. tonumber(PlayerIndex) .. " 9999 " .. i)
+        execute_command("mag " .. tonumber(PlayerIndex) .. " 9999 " .. i)
+        execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
+    end
+end
+
+local function DisableInfAmmo(TargetID)
+    infammo[TargetID] = false
+    frag_check[TargetID] = false
+end
+
+local function getPlayerInfo(PlayerIndex, id)
+    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+        for key, value in ipairs(player_info[PlayerIndex]) do
+            return player_info[PlayerIndex][key][id]
+        end
+    end
+end
+
 function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
@@ -739,32 +766,6 @@ function OnScriptUnload()
                     players[p_table].boolean = false
                 end
             end
-        end
-    end
-end
-
-local function TagInfo(obj_type, obj_name)
-    local tag = lookup_tag(obj_type, obj_name)
-    return tag ~= 0 and read_dword(tag + 0xC) or nil
-end
-
-local function adjust_ammo(PlayerIndex)
-    for i = 1, 4 do
-        execute_command("ammo " .. tonumber(PlayerIndex) .. " 9999 " .. i)
-        execute_command("mag " .. tonumber(PlayerIndex) .. " 9999 " .. i)
-        execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
-    end
-end
-
-local function DisableInfAmmo(TargetID)
-    infammo[TargetID] = false
-    frag_check[TargetID] = false
-end
-
-local function getPlayerInfo(PlayerIndex, id)
-    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
-        for key, value in ipairs(player_info[PlayerIndex]) do
-            return player_info[PlayerIndex][key][id]
         end
     end
 end
