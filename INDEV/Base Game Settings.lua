@@ -1019,7 +1019,7 @@ function OnTick()
 
             -- #Lurker
             if (settings.mod["Lurker"].enabled == true) then
-                if (lurker[i] == true)
+                if (lurker[i] == true) then
                     if (settings.mod["Lurker"].speed == true) then
                         execute_command("s " .. tonumber(i) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
                     end
