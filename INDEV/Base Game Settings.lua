@@ -615,7 +615,10 @@ local function TagInfo(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
--- TODO: (check when ammo/battery is < 500/0) - Potential boost in performance
+-- TODO:
+-- Check when ammo is less than 500 bullets & battery is 0.
+-- When this condition is met, then adjust. - Potential boost in performance.
+-- ^ instead of adjusting every time OnObjectSpawn() is called.
 local function adjust_ammo(PlayerIndex)
     for i = 1, 4 do
         execute_command("ammo " .. tonumber(PlayerIndex) .. " 9999 " .. i)
