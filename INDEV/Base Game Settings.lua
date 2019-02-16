@@ -598,6 +598,11 @@ local frag_check = {}
 local modify_damage = {}
 local damage_multiplier = {}
 
+
+local sub, gsub, find, lower, format, match = string.sub, string.gsub, string.find, string.lower, string.format, string.match
+local floor = math.floor
+local concat = table.concat
+
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local servername = read_widestring(network_struct + 0x8, 0x42)
@@ -899,12 +904,12 @@ function OnGameEnd()
                     local lines = lines_from(file_name)
                     for k, v in pairs(lines) do
                         if k ~= nil then
-                            if string.match(v, ip) and string.match(v, hash) then
+                            if match(v, ip) and match(v, hash) then
                                 local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(i)]
                                 local f1 = io.open(file_name, "r")
                                 local content = f1:read("*all")
                                 f1:close()
-                                content = string.gsub(content, v, updated_entry)
+                                content = gsub(content, v, updated_entry)
                                 local f2 = io.open(file_name, "w")
                                 f2:write(content)
                                 f2:close()
@@ -943,7 +948,7 @@ function OnTick()
                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
 
                     local minutes = secondsToTime(mute_timer[entry].timer, 4)
-                    local mute_time = (mute_duration[tonumber(i)]) - math.floor(minutes)
+                    local mute_time = (mute_duration[tonumber(i)]) - floor(minutes)
                     time_diff[tonumber(i)] = mute_time
 
                     if (mute_time <= 0) then
@@ -963,10 +968,10 @@ function OnTick()
                     cls(i)
                     local message_board = settings.mod["Message Board"].messages
                     for k, _ in pairs(message_board) do
-                        local StringFormat = (string.gsub(string.gsub(message_board[k], "%%server_name%%", getServerName()), "%%player_name%%", get_var(i, "$name")))
+                        local StringFormat = (gsub(gsub(message_board[k], "%%server_name%%", getServerName()), "%%player_name%%", get_var(i, "$name")))
                         rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. StringFormat)
                     end
-                    if players[p_table].message_board_timer >= math.floor(settings.mod["Message Board"].duration) then
+                    if players[p_table].message_board_timer >= floor(settings.mod["Message Board"].duration) then
                         welcome_timer[i] = false
                         players[p_table].message_board_timer = 0
                     end
@@ -993,7 +998,7 @@ function OnTick()
                     cls(i)
                     local days, hours, minutes, seconds = secondsToTime(players[id].lurker_timer, 4)
                     rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
-                    rprint(i, "|cYou will be killed in " .. settings.mod["Lurker"].time_until_death - math.floor(seconds) .. " seconds")
+                    rprint(i, "|cYou will be killed in " .. settings.mod["Lurker"].time_until_death - floor(seconds) .. " seconds")
                     rprint(i, "|c[ warnings left ] ")
                     rprint(i, "|c" .. lurker_warnings[i])
                     rprint(i, "|c ")
@@ -1089,7 +1094,7 @@ function OnTick()
                         rprint(i, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target_hash .. '"')
                     end
                     local duration = settings.mod["Alias System"].duration
-                    if players[p_table].alias_timer >= math.floor(duration) then
+                    if players[p_table].alias_timer >= floor(duration) then
                         trigger[i] = false
                         alias_bool[i] = false
                         players[p_table].alias_timer = 0
@@ -1149,15 +1154,15 @@ function OnPlayerPrejoin(PlayerIndex)
     local tab = settings.global.player_data
     for i = 1,#tab do
         if tab[i]:match("%%name%%") then
-            a = string.gsub(tab[i], "%%name%%", name)
+            a = gsub(tab[i], "%%name%%", name)
         elseif tab[i]:match("%%hash%%") then
-            b = string.gsub(tab[i], "%%hash%%", hash)
+            b = gsub(tab[i], "%%hash%%", hash)
         elseif tab[i]:match("%%index_id%%") then
-            d = string.gsub(tab[i], "%%index_id%%", id)
+            d = gsub(tab[i], "%%index_id%%", id)
         elseif tab[i]:match("%%ip_address%%") then
-            c = string.gsub(tab[i], "%%ip_address%%", ip)
+            c = gsub(tab[i], "%%ip_address%%", ip)
         elseif tab[i]:match("%%level%%") then
-            e = string.gsub(tab[i], "%%level%%", level)
+            e = gsub(tab[i], "%%level%%", level)
         end
     end
     table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e} )
@@ -1202,7 +1207,7 @@ function OnPlayerJoin(PlayerIndex)
             local lines = lines_from(file_name)
             for _, v in pairs(lines) do
                 if v:match(stringToMatch) then
-                    local timeFound = string.match(v, (";(.+)"))
+                    local timeFound = match(v, (";(.+)"))
                     local words = tokenizestring(timeFound, ", ")
                     mute_duration[tonumber(PlayerIndex)] = tonumber(words[1])
                     muted[tonumber(PlayerIndex)] = true
@@ -1226,10 +1231,11 @@ function OnPlayerJoin(PlayerIndex)
         if (can_use_colorres == true) then
             local ColorTable = settings.mod["Color Reservation"].color_table
             local player = getPlayer(PlayerIndex)
+            local ran = math.random
             for k, _ in ipairs(ColorTable) do
                 for i = 1, #ColorTable do
                     if ColorTable[k][i] ~= nil then
-                        if string.find(ColorTable[k][i], hash) then
+                        if find(ColorTable[k][i], hash) then
                             k = k - 1
                             write_byte(player + 0x60, tonumber(k))
                             colorres_bool[PlayerIndex] = true
@@ -1239,14 +1245,13 @@ function OnPlayerJoin(PlayerIndex)
                                 if (read_byte(getPlayer(PlayerIndex) + 0x60) == k) then
                                     local function selectRandomColor(exclude)
                                         math.randomseed(os.time())
-                                        local num = math.random(1, 18)
+                                        local num = ran(1, 18)
                                         if num == tonumber(exclude) then
                                             selectRandomColor(12)
                                         else
                                             return num
                                         end
                                     end
-
                                     write_byte(player + 0x60, tonumber(selectRandomColor(k)))
                                     colorres_bool[PlayerIndex] = true
                                 end
@@ -1424,12 +1429,12 @@ function OnPlayerLeave(PlayerIndex)
             local lines = lines_from(file_name)
             for k, v in pairs(lines) do
                 if k ~= nil then
-                    if string.match(v, ip) and string.match(v, hash) then
+                    if match(v, ip) and match(v, hash) then
                         local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
                         local f1 = io.open(file_name, "r")
                         local content = f1:read("*all")
                         f1:close()
-                        content = string.gsub(content, v, updated_entry)
+                        content = gsub(content, v, updated_entry)
                         local f2 = io.open(file_name, "w")
                         f2:write(content)
                         f2:close()
@@ -1516,7 +1521,7 @@ function OnPlayerPrespawn(PlayerIndex)
                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
                     settings.mod["Spawn From Sky"].maps[mapname][id][1],
                     settings.mod["Spawn From Sky"].maps[mapname][id][2],
-                    settings.mod["Spawn From Sky"].maps[mapname][id][3] + math.floor(height))
+                    settings.mod["Spawn From Sky"].maps[mapname][id][3] + floor(height))
                 execute_command("god " .. tonumber(PlayerIndex))
             end
 
@@ -1660,7 +1665,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if (#content == 0) then
             return nil
         end
-        if string.sub(content[1], 1, 1) == "/" or string.sub(content[1], 1, 1) == "\\" then
+        if sub(content[1], 1, 1) == "/" or sub(content[1], 1, 1) == "\\" then
             command = content[1]:gsub("\\", "/")
             iscommand = true
             cmd_prefix = "[COMMAND] "
@@ -1764,15 +1769,15 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     local formattedString = ""
                                     execute_command("msg_prefix \"\"")
                                     if (Global == true) then
-                                        formattedString = (string.gsub(string.gsub(string.gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Tmod == true) then
-                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Mod == true) then
-                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (Admin == true) then
-                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     elseif (sAdmin == true) then
-                                        formattedString = (string.gsub(string.gsub(string.gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                     end
                                     say(i, formattedString)
                                     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
@@ -1786,15 +1791,15 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         local formattedString = ""
                         execute_command("msg_prefix \"\"")
                         if (Global == true) then
-                            formattedString = (string.gsub(string.gsub(string.gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                            formattedString = (gsub(gsub(gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Tmod == true) then
-                            formattedString = (string.gsub(string.gsub(string.gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                            formattedString = (gsub(gsub(gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Mod == true) then
-                            formattedString = (string.gsub(string.gsub(string.gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                            formattedString = (gsub(gsub(gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Admin == true) then
-                            formattedString = (string.gsub(string.gsub(string.gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                            formattedString = (gsub(gsub(gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (sAdmin == true) then
-                            formattedString = (string.gsub(string.gsub(string.gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                            formattedString = (gsub(gsub(gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         end
                         say_all(formattedString)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
@@ -1803,7 +1808,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
                     for b = 0, #message do
                         if message[b] then
-                            if not (string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\") then
+                            if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
                                 if (GetTeamPlay() == true) then
                                     if (type == 0 or type == 2) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
@@ -1895,12 +1900,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 for c = 0, #message do
                     if message[c] then
                         if not (keyword) or (keyword == nil) then
-                            if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
+                            if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
                                 response = true
                             else
                                 local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
-                                local Format = (string.gsub(string.gsub(string.gsub(string.gsub(AdminMessageFormat,
+                                local Format = (gsub(gsub(gsub(gsub(AdminMessageFormat,
                                     "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 AdminChat(Format)
                                 response = false
@@ -1943,9 +1948,9 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         local content = file:read("*a")
         file:close()
         local offender_name = get_var(offender_id, "$name")
-        if not (string.match(content, offender_ip)
-                and string.match(content, offender_id)
-                and string.match(content, offender_hash)) then
+        if not (match(content, offender_ip)
+                and match(content, offender_id)
+                and match(content, offender_hash)) then
 
             if (tonumber(mute_time) ~= settings.global.default_mute_time) then
                 rprint(PlayerIndex, offender_name .. " has been muted for " .. mute_time .. " minute(s)")
@@ -1980,7 +1985,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local p_table = name .. ", " .. hash
 
     if (settings.global.check_for_updates) then
-        if (string.lower(Command) == "bgs") then
+        if (lower(Command) == "bgs") then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
                     rprint(PlayerIndex, "============================================================================")
@@ -2037,7 +2042,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == settings.global.plugin_commands.enable) then
-        if t[2]:match("%d") then
+        if (t[2] ~= nil and t[2]:match("%d")) then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
                 local t = {}
@@ -2067,7 +2072,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == settings.global.plugin_commands.disable) then
-        if t[2]:match("%d") then
+        if (t[2] ~= nil and t[2]:match("%d")) then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
                 local t = {}
@@ -2241,7 +2246,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
-                if string.match(t[2], "%d") then
+                if (t[2] ~= nil and t[2]:match("%d")) then
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
@@ -2263,7 +2268,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 time_diff[tonumber(offender_id)] = tonumber(settings.global.default_mute_time)
                                 mute_duration[tonumber(offender_id)] = tonumber(settings.global.default_mute_time)
                                 valid = true
-                            elseif string.match(t[3], "%d+") then
+                            elseif match(t[3], "%d+") then
                                 time_diff[tonumber(offender_id)] = tonumber(t[3])
                                 mute_duration[tonumber(offender_id)] = tonumber(t[3])
                                 init_mute_timer[tonumber(offender_id)] = true
@@ -2291,7 +2296,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         elseif (command == settings.global.plugin_commands.unmute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
-                if string.match(t[2], "%d") then
+                if (t[2] ~= nil and t[2]:match("%d")) then
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
@@ -2350,7 +2355,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.mod["wctdydt"].enabled == true) then
         if (command == settings.mod["wctdydt"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= settings.mod["wctdydt"].permission_level then
-                if string.match(t[2], "%d") then
+                if (t[2] ~= nil and t[2]:match("%d")) then
                     local target_id = tonumber(t[2])
                     if target_id ~= tonumber(PlayerIndex) then
                         if target_id ~= nil and target_id > 0 and target_id < 17 then
@@ -2359,7 +2364,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local toTargetFormat = settings.mod["wctdydt"].messages[1]
                                 local toExecutorFormat = settings.mod["wctdydt"].messages[2]
 
-                                local TargetResponse = (string.gsub(string.gsub(toTargetFormat,
+                                local TargetResponse = (gsub(gsub(toTargetFormat,
                                     "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
 
                                 if (settings.mod["wctdydt"].environment == "chat") then
@@ -2370,7 +2375,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     rprint(target_id, TargetResponse)
                                 end
 
-                                local ExecutorResponse = (string.gsub(string.gsub(toExecutorFormat,
+                                local ExecutorResponse = (gsub(gsub(toExecutorFormat,
                                     "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
 
                                 execute_command("msg_prefix \"\"")
@@ -2404,6 +2409,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local objects_table = settings.mod["Item Spawner"].objects
                         local is_valid
                         local is_error
+                        local sin = math.sin
                         for i = 1, #objects_table do
                             if t[2]:match(objects_table[i][1]) then
                                 local tag_type = objects_table[i][2]
@@ -2418,9 +2424,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                             local x = read_float(player_object + 0x5C)
                                             local y = read_float(player_object + 0x60)
                                             local z = read_float(player_object + 0x64)
-                                            local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * math.sin(x_aim)
-                                            local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * math.sin(y_aim)
-                                            local obj_z = z + 0.3 * math.sin(z_aim) + 0.5
+                                            local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * sin(x_aim)
+                                            local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * sin(y_aim)
+                                            local obj_z = z + 0.3 * sin(z_aim) + 0.5
                                             spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                             rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
                                             is_valid = true
@@ -2457,7 +2463,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     for j = tonumber(start_index), tonumber(end_index) do
                         if temp_objects_table[j] ~= nil then
                             t[#t + 1] = temp_objects_table[j]
-                            row = table.concat(t, ",    ")
+                            row = concat(t, ",    ")
                         end
                     end
                     if row ~= nil then
@@ -2556,7 +2562,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (command == settings.mod["Alias System"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
                 if t[2] ~= nil then
-                    if t[2] == string.match(t[2], "^%d+$") and t[3] == nil then
+                    if t[2] == match(t[2], "^%d+$") and t[3] == nil then
                         if player_present(tonumber(t[2])) then
                             local index = tonumber(t[2])
                             target_hash = tostring(get_var(index, "$hash"))
@@ -2616,7 +2622,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         else
                             canset[PlayerIndex] = true
                         end
-                        if t[2] == t[2]:match(mapname) then
+                        if t[2]:match(mapname) then
                             rprint(PlayerIndex, "Teleport name cannot be the same as the current map name!")
                             canset[PlayerIndex] = false
                         end
@@ -2655,91 +2661,91 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             for _, v in pairs(lines) do
                                 if t[2] == v:match("[%a%d+_]*") then
                                     if (player_alive(PlayerIndex)) then
-                                        if string.find(v, mapname) then
+                                        if find(v, mapname) then
                                             found = true
                                             -- numbers without decimal points -----------------------------------------------------------------------------
                                             local x, y, z
-                                            if string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                            if match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                                 valid = true -- 0
-                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                                            elseif match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
                                                 valid = true -- *
-                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
                                                 valid = true -- 1
-                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                                            elseif match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
                                                 valid = true -- 2
-                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                                            elseif match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
                                                 valid = true -- 3
-                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
                                                 valid = true -- 1 & 2
-                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+"), "Z%s*%d+", string.match(string.match(v, "Z%s*%d+"), "%d+"))
-                                            elseif string.match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                                            elseif match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
                                                 valid = true -- 1 & 3
-                                                x = string.gsub(string.match(v, "X%s*-%d+"), "X%s*-%d+", string.match(string.match(v, "X%s*-%d+"), "-%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+"), "Y%s*%d+", string.match(string.match(v, "Y%s*%d+"), "%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
-                                            elseif string.match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                                            elseif match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
                                                 valid = true -- 2 & 3
-                                                x = string.gsub(string.match(v, "X%s*%d+"), "X%s*%d+", string.match(string.match(v, "X%s*%d+"), "%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+"), "Y%s*-%d+", string.match(string.match(v, "Y%s*-%d+"), "-%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+"), "Z%s*-%d+", string.match(string.match(v, "Z%s*-%d+"), "-%d+"))
+                                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
                                                 -- numbers with decimal points -----------------------------------------------------------------------------
-                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
                                                 valid = true -- 0
-                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
-                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                                 valid = true -- *
-                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
-                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
                                                 valid = true -- 1
-                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
-                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
                                                 valid = true -- 2
-                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
-                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                                 valid = true -- 3
-                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
-                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
                                                 valid = true -- 1 & 2
-                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", string.match(string.match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
-                                            elseif string.match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                                 valid = true -- 1 & 3
-                                                x = string.gsub(string.match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", string.match(string.match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", string.match(string.match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
-                                            elseif string.match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
                                                 valid = true -- 2 & 3
-                                                x = string.gsub(string.match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", string.match(string.match(v, "X%s*%d+.%d+"), "%d+.%d+"))
-                                                y = string.gsub(string.match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", string.match(string.match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
-                                                z = string.gsub(string.match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", string.match(string.match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
                                             else
                                                 rprint(PlayerIndex, "Script Error! Coordinates for that teleport do not match the regex expression!")
                                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4 + 8)
@@ -2751,11 +2757,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                                     previous_location[PlayerIndex][2] = prevY
                                                     previous_location[PlayerIndex][3] = prevZ
                                                     write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
-                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
+                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z))
                                                     valid = false
                                                 else
                                                     TeleportPlayer(read_dword(get_dynamic_player(PlayerIndex) + 0x11C), tonumber(x), tonumber(y), tonumber(z) + 0.5)
-                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. math.floor(x) .. ", " .. math.floor(y) .. ", " .. math.floor(z))
+                                                    rprint(PlayerIndex, "Teleporting to [" .. t[2] .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z))
                                                     valid = false
                                                 end
                                             end
@@ -2810,7 +2816,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if not empty_file then
                         local lines = lines_from(file_name)
                         for k, v in pairs(lines) do
-                            if string.find(v, mapname) then
+                            if find(v, mapname) then
                                 found = true
                                 rprint(PlayerIndex, "[" .. k .. "] " .. v)
                             end
@@ -2855,7 +2861,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if k ~= nil then
                                     if t[2] == v:match(k) then
                                         del_found = true
-                                        if string.find(v, mapname) then
+                                        if find(v, mapname) then
                                             delete_from_file(file_name, k, 1, PlayerIndex)
                                             rprint(PlayerIndex, "Successfully deleted teleport id #" .. k)
                                         else
@@ -3052,7 +3058,7 @@ function read_widestring(address, length)
         end
         count = count + 2
     end
-    return table.concat(byte_table)
+    return concat(byte_table)
 end
 
 -- Used Globally
@@ -3238,18 +3244,18 @@ end
 
 function table.val_to_str(v)
     if "string" == type(v) then
-        v = string.gsub(v, "\n", "\\n")
-        if string.match(string.gsub(v, "[^'\"]", ""), '^" + $') then
+        v = gsub(v, "\n", "\\n")
+        if match(gsub(v, "[^'\"]", ""), '^" + $') then
             return "'" .. v .. "'"
         end
-        return '"' .. string.gsub(v, '"', '\\"') .. '"'
+        return '"' .. gsub(v, '"', '\\"') .. '"'
     else
         return "table" == type(v) and table.tostring(v) or tostring(v)
     end
 end
 
 function table.key_to_str(k)
-    if "string" == type(k) and string.match(k, "^[_%a][_%a%d]*$") then
+    if "string" == type(k) and match(k, "^[_%a][_%a%d]*$") then
         return k
     else
         return "[" .. table.val_to_str(k) .. "]"
@@ -3267,7 +3273,7 @@ function table.tostring(tbl)
             table.insert(result, table.key_to_str(k) .. "=" .. table.val_to_str(v))
         end
     end
-    return "{" .. table.concat(result, ",") .. "}"
+    return "{" .. concat(result, ",") .. "}"
 end
 
 -- #Alias System
@@ -3277,16 +3283,16 @@ function addAlias(name, hash)
     local file = io.open(file_name, "r")
     local data = file:read("*a")
     file:close()
-    if string.match(data, hash) then
+    if match(data, hash) then
         local lines = lines_from(file_name)
         for _, v in pairs(lines) do
-            if string.match(v, hash) then
+            if match(v, hash) then
                 if not v:match(name) then
                     local alias = v .. ", " .. name
                     local f1 = io.open(file_name, "r")
                     local content = f1:read("*all")
                     f1:close()
-                    content = string.gsub(content, v, alias)
+                    content = gsub(content, v, alias)
                     local f2 = io.open(file_name, "w")
                     f2:write(content)
                     f2:close()
@@ -3322,14 +3328,14 @@ function concatValues(PlayerIndex, start_index, end_index)
     local lines = lines_from(file_name)
     for _, v in pairs(lines) do
         if v:match(target_hash) then
-            local aliases = string.match(v, (":(.+)"))
+            local aliases = match(v, (":(.+)"))
             local words = tokenizestring(aliases, ", ")
             local t = {}
             local row
             for i = tonumber(start_index), tonumber(end_index) do
                 if words[i] ~= nil then
                     t[#t + 1] = words[i]
-                    row = table.concat(t, ", ")
+                    row = concat(t, ", ")
                 end
             end
             if row ~= nil then
@@ -3405,7 +3411,7 @@ function removeEntry(ip, hash, PlayerIndex)
         local lines = lines_from(file_name)
         for k, v in pairs(lines) do
             if k ~= nil then
-                if string.match(v, ip) and string.match(v, hash) then
+                if match(v, ip) and match(v, hash) then
                     delete_from_file(file_name, k, 1, PlayerIndex)
                 end
             end
@@ -3434,15 +3440,15 @@ end
 
 function secondsToTime(seconds, places)
 
-    local years = math.floor(seconds / (60 * 60 * 24 * 365))
+    local years = floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
-    local weeks = math.floor(seconds / (60 * 60 * 24 * 7))
+    local weeks = floor(seconds / (60 * 60 * 24 * 7))
     seconds = seconds % (60 * 60 * 24 * 7)
-    local days = math.floor(seconds / (60 * 60 * 24))
+    local days = floor(seconds / (60 * 60 * 24))
     seconds = seconds % (60 * 60 * 24)
-    local hours = math.floor(seconds / (60 * 60))
+    local hours = floor(seconds / (60 * 60))
     seconds = seconds % (60 * 60)
-    local minutes = math.floor(seconds / 60)
+    local minutes = floor(seconds / 60)
     seconds = seconds % 60
 
     if places == 6 then
@@ -3487,8 +3493,8 @@ function getCurrentVersion(bool)
     end
 
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
-    local data = string.match(GetPage(url), 'script_version = %d+.%d+')
-    local version = string.gsub(data, "script_version =", "")
+    local data = match(GetPage(url), 'script_version = %d+.%d+')
+    local version = gsub(data, "script_version =", "")
 
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
