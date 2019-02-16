@@ -3604,7 +3604,7 @@ function getCurrentVersion(bool)
         return returning
     end
 
-    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
+    local url = 'http://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
     local version = GetPage(url):match("script_version = (%d+.%d+)")
 
     if (bool == true) then
