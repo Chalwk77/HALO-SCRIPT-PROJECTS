@@ -136,12 +136,12 @@ local function GameSettings()
                 multiplier_max = 10, -- maximum damage multiplier
             },
             ["Suggestions Box"] = {
-                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestion.txt
+                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
                 enabled = true,
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
-                dir = "sapp\\suggestions.txt",
-                response = "Thank you for your suggestion, %player_name%"
+                dir = "sapp\\suggestions.txt", -- file directory
+                response = "Thank you for your suggestion, %player_name%" -- Message omitted to the player when they execute /suggest
             },
             ["Crouch Teleport"] = {
                 enabled = true,
@@ -2177,13 +2177,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local file = io.open(dir, "a+")
                 local content
                 if (file) then
-                    for k,v in pairs(t) do content = v end
-                    local StringFormat = name .. ":" .. content .. "\n"
-                    file:write(StringFormat)
+                    for k,v in pairs(t) do text = v end
+                    local StringFormat = name .. ":" .. text .. "\n"
+                    local timestamp = os.date("%d/%m/%Y - %H:%M:%S")
+                    file:write("[".. timestamp .. "]" .. " " .. StringFormat)
                     file:close()
                     rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
-                    rprint(PlayerIndex, "------------[ MESSAGE ] -------------------------------------------------")
-                    rprint(PlayerIndex, content)
+                    rprint(PlayerIndex, "------------ [ MESSAGE ] ------------------------------------------------")
+                    rprint(PlayerIndex, text)
                     rprint(PlayerIndex, "-------------------------------------------------------------------------")
                 end
             end
