@@ -1019,6 +1019,11 @@ function OnTick()
 
             -- #Lurker
             if (settings.mod["Lurker"].enabled == true) then
+                if (lurker[i] == true)
+                    if (settings.mod["Lurker"].speed == true) then
+                        execute_command("s " .. tonumber(i) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
+                    end
+                end
                 if (lurker[i] == true) and (lurker_warn[i] == true) then
 
                     local id = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
@@ -3034,9 +3039,6 @@ end
 function setLurker(PlayerIndex, bool)
     if bool then
         lurker[PlayerIndex] = true
-        if (settings.mod["Lurker"].speed == true) then
-            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
-        end
         if (settings.mod["Lurker"].god == true) then
             execute_command("god " .. tonumber(PlayerIndex))
         end
