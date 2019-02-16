@@ -15,7 +15,7 @@ Combined Scripts:
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
-    - Lurker                Infinite Ammo
+    - Lurker                Infinite Ammo       Crouch Teleport (request by Shoo)
 
     BGS Commands:
     /plugins
@@ -133,6 +133,11 @@ local function GameSettings()
                 permission_level = 1,
                 multiplier_min = 0.001, -- minimum damage multiplier
                 multiplier_max = 10, -- maximum damage multiplier
+            },
+            ["Crouch Teleport"] = {
+                enabled = true,
+                base_command = "portalgun",
+                permission_level = 1,
             },
             ["Message Board"] = { -- Welcome messages | OnPlayerJoin()
                 enabled = false,
@@ -599,6 +604,10 @@ local frag_check = {}
 local modify_damage = {}
 local damage_multiplier = {}
 
+-- #Crouch Teleport
+local weapon_status = {}
+local portalgun_mode = {}
+
 
 local sub, gsub, find, lower, format, match = string.sub, string.gsub, string.find, string.lower, string.format, string.match
 local floor = math.floor
@@ -615,14 +624,10 @@ local function TagInfo(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
--- TODO:
--- Check when ammo is less than 500 bullets & battery is 0.
--- When this condition is met, then adjust. - Potential boost in performance.
--- ^ instead of adjusting every time OnObjectSpawn() is called, which is virtually every time a bullet projectile is created.
 local function adjust_ammo(PlayerIndex)
     for i = 1, 4 do
-        execute_command("ammo " .. tonumber(PlayerIndex) .. " 9999 " .. i)
-        execute_command("mag " .. tonumber(PlayerIndex) .. " 9999 " .. i)
+        execute_command("ammo " .. tonumber(PlayerIndex) .. " 0 " .. i)
+        execute_command("mag " .. tonumber(PlayerIndex) .. " 100 " .. i)
         execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
     end
 end
@@ -979,6 +984,35 @@ function OnTick()
                     if players[p_table].message_board_timer >= floor(settings.mod["Message Board"].duration) then
                         welcome_timer[i] = false
                         players[p_table].message_board_timer = 0
+                    end
+                end
+            end
+            -- #Crouch Teleport
+            if (settings.mod["Crouch Teleport"].enabled == true) then
+                if (player_present(i) and player_alive(i)) then
+                    if (portalgun_mode[i] == true) then
+                        local player_object = get_dynamic_player(i)
+                        local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
+                        local shot_fired
+                        local is_crouching
+                        local couching = read_float(player_object + 0x50C)
+                        local px, py, pz = read_vector3d(player_object + 0x5c)
+                        if (couching == 0) then
+                            pz = pz + 0.65
+                            is_crouching = false
+                        else
+                            pz = pz + (0.35 * couching)
+                            is_crouching = true
+                        end
+                        local ignore_player = read_dword(get_player(i) + 0x34)
+                        local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
+                        if (success == true and target ~= nil) then
+                            shot_fired = read_float(player_object + 0x490)
+                            if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                                execute_command("boost " .. i)
+                            end
+                            weapon_status[i] = shot_fired
+                        end
                     end
                 end
             end
@@ -1569,6 +1603,12 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
 
+    
+    -- #Crouch Teleport
+    if (settings.mod["Crouch Teleport"].enabled == true) then
+        weapon_status[PlayerIndex] = 0
+    end
+    
     -- #Lurker
     if (settings.mod["Lurker"].enabled == true) then
         if (lurker[PlayerIndex] == true) then
@@ -2096,9 +2136,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 end
-                for _ in pairs(t) do
-                    t[_] = nil
-                end
+                for _ in pairs(t) do t[_] = nil end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
             end
@@ -2161,7 +2199,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                             return false
                         end
-
                         if validate(TargetID) then
                             infammo[TargetID] = true
                             frag_check[TargetID] = true
@@ -2353,6 +2390,36 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     return false
                 end
             end
+        end
+    end
+    
+    -- #Crouch Teleport
+    if (settings.mod["Crouch Teleport"].enabled == true) then
+        if (command == settings.mod["Crouch Teleport"].base_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Crouch Teleport", nil, nil) then
+                if t[2] ~= nil then
+                    if t[2] == "on" or t[2] == "1" or t[2] == "true" then
+                        if portalgun_mode[PlayerIndex] == true then
+                            rprint(PlayerIndex, "Portal Gun mode is already on!")
+                        else
+                            portalgun_mode[PlayerIndex] = true
+                            rprint(PlayerIndex, "Portalgun Mode enabled.")
+                        end
+                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
+                        if portalgun_mode[PlayerIndex] == false then
+                            rprint(PlayerIndex, "Portal Gun mode is already off!")
+                        else
+                            portalgun_mode[PlayerIndex] = false
+                            rprint(PlayerIndex, "Portalgun Mode disabled.")
+                        end
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax")
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute that command!")
+            end
+            return false
         end
     end
 
