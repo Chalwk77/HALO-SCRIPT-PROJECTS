@@ -141,6 +141,7 @@ local function GameSettings()
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
+                file_format = "[%time_stamp%] %player_name%: %message%",
                 response = "Thank you for your suggestion, %player_name%" -- Message omitted to the player when they execute /suggest
             },
             ["Crouch Teleport"] = {
@@ -2168,25 +2169,31 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- #Suggestions Box (requested by Cyser@)
     if (settings.mod["Suggestions Box"].enabled == true) then
         if (command == settings.mod["Suggestions Box"].base_command) then
-            local name = get_var(PlayerIndex, "$name")
-            local t = { }
-            local dir = settings.mod["Suggestions Box"].dir
-            local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
-            t[#t + 1] = content
-            if (t) then
-                local file = io.open(dir, "a+")
-                local content
-                if (file) then
-                    for k,v in pairs(t) do text = v end
-                    local StringFormat = name .. ":" .. text .. "\n"
-                    local timestamp = os.date("%d/%m/%Y - %H:%M:%S")
-                    file:write("[".. timestamp .. "]" .. " " .. StringFormat)
-                    file:close()
-                    rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
-                    rprint(PlayerIndex, "------------ [ MESSAGE ] ------------------------------------------------")
-                    rprint(PlayerIndex, text)
-                    rprint(PlayerIndex, "-------------------------------------------------------------------------")
+            if (t[2] ~= nil) then
+                local name = get_var(PlayerIndex, "$name")
+                local t = { }
+                local dir = settings.mod["Suggestions Box"].dir
+                local txt_format = settings.mod["Suggestions Box"].file_format
+                local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
+                
+                t[#t + 1] = content
+                if (t) then
+                    local file = io.open(dir, "a+")
+                    local content
+                    if (file) then
+                        for _,v in pairs(t) do text = v end
+                        local tstamp = os.date("%d/%m/%Y - %H:%M:%S")
+                        local str = gsub(gsub(gsub(txt_format, "%%time_stamp%%", tstamp), "%%player_name%%", name), "%%message%%", text .. "\n")
+                        file:write(str)
+                        file:close()
+                        rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
+                        rprint(PlayerIndex, "------------ [ MESSAGE ] ------------------------------------------------")
+                        rprint(PlayerIndex, text)
+                        rprint(PlayerIndex, "-------------------------------------------------------------------------------------------------------------")
+                    end
                 end
+            else
+                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Suggestions Box"].base_command .. " {message}")
             end
             for _ in pairs(t) do _ = nil end
             return false
