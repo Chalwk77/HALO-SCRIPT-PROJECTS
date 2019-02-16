@@ -618,7 +618,7 @@ end
 -- TODO:
 -- Check when ammo is less than 500 bullets & battery is 0.
 -- When this condition is met, then adjust. - Potential boost in performance.
--- ^ instead of adjusting every time OnObjectSpawn() is called.
+-- ^ instead of adjusting every time OnObjectSpawn() is called, which is virtually every time a bullet projectile is created.
 local function adjust_ammo(PlayerIndex)
     for i = 1, 4 do
         execute_command("ammo " .. tonumber(PlayerIndex) .. " 9999 " .. i)
