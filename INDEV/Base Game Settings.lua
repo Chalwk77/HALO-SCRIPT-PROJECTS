@@ -16,7 +16,7 @@ Combined Scripts:
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinite Ammo       Crouch Teleport (request by Shoo)
-    - Suggestions Box
+    - Suggestions Box (request by Cyser@)
 
     BGS Commands:
     /plugins
