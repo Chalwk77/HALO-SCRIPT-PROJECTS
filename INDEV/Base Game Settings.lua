@@ -2467,14 +2467,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             row = concat(t, ",    ")
                         end
                     end
-                    if row ~= nil then
-                        rprint(PlayerIndex, row)
-                    end
-                    for _ in pairs(t) do
-                        t[_] = nil
-                    end
+                    if row ~= nil then rprint(PlayerIndex, row) end
+                    for _ in pairs(t) do t[_] = nil end
                 end
-
                 rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
                 concatTableObjects(PlayerIndex, 1, 5)
                 concatTableObjects(PlayerIndex, 6, 10)
