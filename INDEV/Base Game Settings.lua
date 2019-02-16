@@ -134,6 +134,12 @@ local function GameSettings()
                 multiplier_min = 0.001, -- minimum damage multiplier
                 multiplier_max = 10, -- maximum damage multiplier
             },
+            ["Suggestions Box"] = {
+                enabled = true,
+                base_command = "suggestion", -- Command Syntax: /suggestion {message}
+                permission_level = -1, -- Minimum admin level required to execute /suggestion (-1 for all players, 1-4 for admins)
+                dir = "sapp\\suggestions.txt"
+            },
             ["Crouch Teleport"] = {
                 enabled = true,
                 base_command = "portalgun",
@@ -271,7 +277,10 @@ local function GameSettings()
                     [39] = { "rocketproj", "proj", "weapons\\rocket launcher\\rocket" },
                     [40] = { "shottyshot", "proj", "weapons\\shotgun\\pellet" },
                     [41] = { "snipershot", "proj", "weapons\\sniper rifle\\sniper bullet" },
-                    [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" }
+                    [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" },
+                    -- Custom Vehicles [ Bitch Slap ]
+                    [43] = { "slap1", "vehi", "deathstar\\1\\vehicle\\tag_2830" }, -- Chain Gun Hog
+                    [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" } -- Quad Bike
                 }
             },
             ["Anti Impersonator"] = {
@@ -914,7 +923,7 @@ function OnGameEnd()
                     local lines = lines_from(file_name)
                     for k, v in pairs(lines) do
                         if k ~= nil then
-                            if match(v, ip) and match(v, hash) then
+                            if v:match(ip) and v:match(hash) then
                                 local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(i)]
                                 local f1 = io.open(file_name, "r")
                                 local content = f1:read("*all")
@@ -1473,7 +1482,7 @@ function OnPlayerLeave(PlayerIndex)
             local lines = lines_from(file_name)
             for k, v in pairs(lines) do
                 if k ~= nil then
-                    if match(v, ip) and match(v, hash) then
+                    if v:match(ip) and v:match(hash) then
                         local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
                         local f1 = io.open(file_name, "r")
                         local content = f1:read("*all")
@@ -2151,6 +2160,35 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
+    -- #Suggestions Box
+    if (settings.mod["Suggestions Box"].enabled == true) then
+        if (command == settings.mod["Suggestions Box"].base_command) then
+            local name = get_var(PlayerIndex, "$name")
+            local t = { }
+            local dir = settings.mod["Suggestions Box"].dir
+            t[#t + 1] = Command
+            
+            if (t) then
+                local file = io.open(dir, "a+")
+                local content
+                if (file) then
+              
+                    for k,v in pairs(t) do
+                        content = gsub(v, "suggestion", "")
+                    end
+                    
+                    local StringFormat = name .. ":" .. content .. "\n"
+              
+                    file:write(StringFormat)
+                    file:close()
+                    rprint(PlayerIndex, "Thank you for your suggestion, " .. name)
+                end
+            end
+            for _ in pairs(t) do _ = nil end
+            return false
+        end
+    end
+    
     -- #Lurker
     if (settings.mod["Lurker"].enabled == true) then
         if (command == settings.mod["Lurker"].base_command) then
@@ -2230,6 +2268,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                         return false
                     end
+
 
                     if t[2] ~= nil then
                         if t[2] == "me" then
