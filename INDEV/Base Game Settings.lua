@@ -565,6 +565,7 @@ local weapon = {}
 -- #Alias System
 local trigger = {}
 local alias_bool = {}
+local target_hash
 
 -- #Teleport Manager
 local canset = {}
@@ -1072,23 +1073,23 @@ function OnTick()
                 if (trigger[i] == true) then
                     players[p_table].alias_timer = players[p_table].alias_timer + 0.030
                     cls(i)
-                    concatValues(i, 1, 6)
-                    concatValues(i, 7, 12)
-                    concatValues(i, 13, 18)
-                    concatValues(i, 19, 24)
-                    concatValues(i, 25, 30)
-                    concatValues(i, 31, 36)
-                    concatValues(i, 37, 42)
-                    concatValues(i, 43, 48)
-                    concatValues(i, 49, 55)
-                    concatValues(i, 56, 61)
-                    concatValues(i, 62, 67)
-                    concatValues(i, 68, 73)
-                    concatValues(i, 74, 79)
-                    concatValues(i, 80, 85)
-                    concatValues(i, 86, 91)
-                    concatValues(i, 92, 97)
-                    concatValues(i, 98, 100)
+                    concatAliases(i, 1, 6)
+                    concatAliases(i, 7, 12)
+                    concatAliases(i, 13, 18)
+                    concatAliases(i, 19, 24)
+                    concatAliases(i, 25, 30)
+                    concatAliases(i, 31, 36)
+                    concatAliases(i, 37, 42)
+                    concatAliases(i, 43, 48)
+                    concatAliases(i, 49, 55)
+                    concatAliases(i, 56, 61)
+                    concatAliases(i, 62, 67)
+                    concatAliases(i, 68, 73)
+                    concatAliases(i, 74, 79)
+                    concatAliases(i, 80, 85)
+                    concatAliases(i, 86, 91)
+                    concatAliases(i, 92, 97)
+                    concatAliases(i, 98, 100)
                     if (alias_bool[i] == true) then
                         local alignment = settings.mod["Alias System"].alignment
                         rprint(i, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target_hash .. '"')
@@ -3323,30 +3324,23 @@ function checkFile(dir)
 end
 
 -- #Alias System
-function concatValues(PlayerIndex, start_index, end_index)
+function concatAliases(i, start_index, end_index)
+    local t = {}
+    local row, words, aliases
     local file_name = settings.mod["Alias System"].dir
     local lines = lines_from(file_name)
     for _, v in pairs(lines) do
         if v:match(target_hash) then
-            local aliases = match(v, (":(.+)"))
-            local words = tokenizestring(aliases, ", ")
-            local t = {}
-            local row
-            for i = tonumber(start_index), tonumber(end_index) do
-                if words[i] ~= nil then
-                    t[#t + 1] = words[i]
-                    row = concat(t, ", ")
-                end
-            end
-            if row ~= nil then
-                rprint(PlayerIndex, "|" .. settings.mod["Alias System"].alignment .. " " .. row)
-            end
-            for _ in pairs(t) do
-                t[_] = nil
-            end
-            break
+            aliases = v:match(":(.+)")
+            words = tokenizestring(aliases, ",")
         end
     end
+    for j = tonumber(start_index), tonumber(end_index) do
+        t[#t + 1] = words[j]
+        row = concat(t, ", ")
+    end
+    if row ~= nil then rprint(i, row) end
+    for _ in pairs(t) do t[_] = nil end
 end
 
 -- #Teleport Manager
