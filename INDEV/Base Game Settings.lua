@@ -16,6 +16,7 @@ Combined Scripts:
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinite Ammo       Crouch Teleport (request by Shoo)
+    - Suggestions Box
 
     BGS Commands:
     /plugins
@@ -135,10 +136,12 @@ local function GameSettings()
                 multiplier_max = 10, -- maximum damage multiplier
             },
             ["Suggestions Box"] = {
+                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestion.txt
                 enabled = true,
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
-                permission_level = -1, -- Minimum admin level required to execute /suggestion (-1 for all players, 1-4 for admins)
-                dir = "sapp\\suggestions.txt"
+                permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
+                dir = "sapp\\suggestions.txt",
+                response = "Thank you for your suggestion, %player_name%"
             },
             ["Crouch Teleport"] = {
                 enabled = true,
@@ -523,7 +526,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.5,
+            script_version = 1.4,
             check_for_updates = false,
             plugin_commands = {
                 enable = "enable",
@@ -647,9 +650,11 @@ local function DisableInfAmmo(TargetID)
 end
 
 local function getPlayerInfo(PlayerIndex, id)
-    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
-        for key, value in ipairs(player_info[PlayerIndex]) do
-            return player_info[PlayerIndex][key][id]
+    if player_present(PlayerIndex) then
+        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+            for key, value in ipairs(player_info[PlayerIndex]) do
+                return player_info[PlayerIndex][key][id]
+            end
         end
     end
 end
@@ -2160,28 +2165,26 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
-    -- #Suggestions Box
+    -- #Suggestions Box (requested by Cyser@)
     if (settings.mod["Suggestions Box"].enabled == true) then
         if (command == settings.mod["Suggestions Box"].base_command) then
             local name = get_var(PlayerIndex, "$name")
             local t = { }
             local dir = settings.mod["Suggestions Box"].dir
-            t[#t + 1] = Command
-            
+            local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
+            t[#t + 1] = content
             if (t) then
                 local file = io.open(dir, "a+")
                 local content
                 if (file) then
-              
-                    for k,v in pairs(t) do
-                        content = gsub(v, "suggestion", "")
-                    end
-                    
+                    for k,v in pairs(t) do content = v end
                     local StringFormat = name .. ":" .. content .. "\n"
-              
                     file:write(StringFormat)
                     file:close()
-                    rprint(PlayerIndex, "Thank you for your suggestion, " .. name)
+                    rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
+                    rprint(PlayerIndex, "------------[ MESSAGE ] -------------------------------------------------")
+                    rprint(PlayerIndex, content)
+                    rprint(PlayerIndex, "-------------------------------------------------------------------------")
                 end
             end
             for _ in pairs(t) do _ = nil end
@@ -2986,7 +2989,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         end
                                     end
                                 end
-                            end
+                                end
                             if del_found ~= true then
                                 rprint(PlayerIndex, "Teleport Index ID does not exist!")
                             end
@@ -3593,7 +3596,7 @@ function getCurrentVersion(bool)
         return returning
     end
 
-    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Base%20Game%20Settings.lua'
+    local url = 'https://pastebin.com/raw/6iryJmyq'
     local data = match(GetPage(url), 'script_version = %d+.%d+')
     local version = gsub(data, "script_version =", "")
 
