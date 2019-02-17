@@ -146,22 +146,18 @@ function OnPlayerChat(PlayerIndex, Message)
             if tonumber(get_var(executor, "$lvl")) >= fc_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         if t[3] ~= nil then
                             if index ~= tonumber(executor) then
-                                if index ~= nil and index > 0 and index < 17 then
-                                    if player_present(index) then
-                                        if (string.sub(t[1], 1, 1) == "/") or (string.sub(t[1], 1, 1) == "\\") then
-                                            local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. force_chat_command .. " %d", "")
-                                            execute_command("msg_prefix \"\"")
-                                            say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
-                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                                        end
-                                        return false
-                                    else
-                                        rprint(executor, "Invalid Player Index")
-                                        return false
-                                    end
+                                if player_present(index) then
+                                    local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. force_chat_command .. " %d+", "")
+                                    execute_command("msg_prefix \"\"")
+                                    say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
+                                    execute_command("msg_prefix \" *  * SERVER *  * \"")
+                                    return false
+                                else
+                                    rprint(executor, "Invalid Player Index")
+                                    return false
                                 end
                             else
                                 rprint(executor, "You cannot broadcast as yourself!")
@@ -187,7 +183,7 @@ function OnPlayerChat(PlayerIndex, Message)
             if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
                 if t[2] ~= nil then
                     execute_command("msg_prefix \"\"")
-                    local broadcast = string.gsub(Message, "/" .. god_command, "")
+                    local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. god_command, "")
                     say_all("God:" .. broadcast)
                     execute_command("msg_prefix \" *  * SERVER *  * \"")
                     return false
@@ -210,7 +206,7 @@ function OnPlayerChat(PlayerIndex, Message)
                                     if index ~= nil and index > 0 and index < 17 then
                                         if player_present(index) then
                                             execute_command("msg_prefix \"\"")
-                                            spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d", "")
+                                            spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d+", "")
                                             spam[index] = true
                                             say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
                                             execute_command("msg_prefix \" *  * SERVER *  * \"")
