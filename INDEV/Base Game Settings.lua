@@ -2181,7 +2181,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 t[#t + 1] = content
                 if (t) then
                     local file = io.open(dir, "a+")
-                    local content
                     if (file) then
                         for _,v in pairs(t) do text = v end
                         local tstamp = os.date("%d/%m/%Y - %H:%M:%S")
