@@ -141,7 +141,7 @@ local function GameSettings()
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
-                file_format = "[%time_stamp%] %player_name%: %message%",
+                file_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
                 response = "Thank you for your suggestion, %player_name%" -- Message omitted to the player when they execute /suggest
             },
             ["Crouch Teleport"] = {
@@ -535,6 +535,7 @@ local function GameSettings()
                 list = "plugins",
                 mute = "mute",
                 unmute = "unmute",
+                mutelist = "mutelist",
                 clearchat = "clear"
             },
             permission_level = {
@@ -1262,7 +1263,7 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.global.handlemutes == true) then
         local file_name = settings.global.mute_dir
         if checkFile(file_name) then
-            local stringToMatch = ip .. ", " .. hash .. ", ;(%d+)"
+            local stringToMatch = ip .. ", " .. hash
             local lines = lines_from(file_name)
             for _, v in pairs(lines) do
                 if v:match(stringToMatch) then
@@ -1489,7 +1490,7 @@ function OnPlayerLeave(PlayerIndex)
             for k, v in pairs(lines) do
                 if k ~= nil then
                     if v:match(ip) and v:match(hash) then
-                        local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(PlayerIndex)]
+                        local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(PlayerIndex)]
                         local f1 = io.open(file_name, "r")
                         local content = f1:read("*all")
                         f1:close()
@@ -2013,6 +2014,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         local content = file:read("*a")
         file:close()
         local offender_name = get_var(offender_id, "$name")
+        
         if not (match(content, offender_ip)
                 and match(content, offender_id)
                 and match(content, offender_hash)) then
@@ -2025,7 +2027,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
                 rprint(offender_id, "You were muted permanently")
             end
 
-            local new_entry = offender_ip .. ", " .. offender_hash .. ", ;" .. mute_time
+            local new_entry = offender_ip .. ", " .. offender_hash .. ", " .. offender_name .. ", ;" .. mute_time
             local file = assert(io.open(file_name, "a+"))
             file:write(new_entry .. "\n")
             file:close()
@@ -2107,7 +2109,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == settings.global.plugin_commands.enable) then
-        if (t[2] ~= nil and t[2]:match("%d")) then
+        if (t[2] ~= nil and t[2]:match("%d+")) then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
                 local t = {}
@@ -2137,7 +2139,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == settings.global.plugin_commands.disable) then
-        if (t[2] ~= nil and t[2]:match("%d")) then
+        if (t[2] ~= nil and t[2]:match("%d+")) then
             if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
                 local id = t[2]
                 local t = {}
@@ -2343,7 +2345,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
-                if (t[2] ~= nil and t[2]:match("%d")) then
+                if (t[2] ~= nil and t[2]:match("%d+")) then
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
@@ -2393,7 +2395,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         elseif (command == settings.global.plugin_commands.unmute) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
-                if (t[2] ~= nil and t[2]:match("%d")) then
+                if (t[2] ~= nil and t[2]:match("%d+")) then
                     local offender_id = get_var(tonumber(t[2]), "$n")
                     if offender_id ~= get_var(PlayerIndex, "$n") then
                         if player_present(offender_id) then
@@ -2421,6 +2423,32 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 else
                     rprint(PlayerIndex, "Invalid player. Usage: /" .. settings.global.plugin_commands.unmute .. " [id]")
+                end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
+            end
+            return false
+        elseif (command == settings.global.plugin_commands.mutelist) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
+                local file_name = settings.global.mute_dir
+                rprint(PlayerIndex, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ")
+                local lines = lines_from(file_name)
+                for k, v in pairs(lines) do
+                    if k ~= nil then
+                        if t[2] == nil then
+                            rprint(PlayerIndex, gsub(v, "(;)", "(") .. "m)")
+                        elseif t[2] == "-o" then
+                            for i = 1,16 do
+                                if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
+                                    local content = gsub(gsub(v, "(%d+.%d+.%d+.%d+:%d+, %d+%w+, )", ""), "(, ;)", ": ") .. " minutes left"
+                                    rprint(PlayerIndex, content)
+                                end
+                            end
+                        else
+                            rprint(PlayerIndex, "Invalid Syntax")
+                            break
+                        end
+                    end
                 end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
@@ -2482,7 +2510,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (settings.mod["wctdydt"].enabled == true) then
         if (command == settings.mod["wctdydt"].base_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= settings.mod["wctdydt"].permission_level then
-                if (t[2] ~= nil and t[2]:match("%d")) then
+                if (t[2] ~= nil and t[2]:match("%d+")) then
                     local target_id = tonumber(t[2])
                     if target_id ~= tonumber(PlayerIndex) then
                         if target_id ~= nil and target_id > 0 and target_id < 17 then
