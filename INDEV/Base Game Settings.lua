@@ -2440,8 +2440,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         elseif t[2] == "-o" then
                             for i = 1,16 do
                                 if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
-                                    local content = gsub(gsub(v, "(%d+.%d+.%d+.%d+:%d+, %d+%w+, )", ""), "(, ;)", ": ") .. " minutes left"
-                                    rprint(PlayerIndex, content)
+                                    local timeFound = v:match(";(.+)")
+                                    local name = get_var(i, "$name")
+                                    rprint(PlayerIndex, name .. " [" .. get_var(i, "$n") .. "]: " .. timeFound .. " minutes left")
                                 end
                             end
                         else
