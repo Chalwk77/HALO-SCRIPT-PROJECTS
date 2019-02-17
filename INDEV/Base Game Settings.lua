@@ -1449,20 +1449,20 @@ function OnPlayerLeave(PlayerIndex)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
     -- #CONSOLE OUTPUT
+    cprint("________________________________________________________________________________", 4+8)
     for k, v in pairs(player_info) do
         if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
-            cprint("________________________________________________________________________________", 4+8)
             for key, value in ipairs(player_info[PlayerIndex]) do
                 cprint(getPlayerInfo(PlayerIndex, "name"), 4+8)
                 cprint(getPlayerInfo(PlayerIndex, "hash"), 4+8)
                 cprint(getPlayerInfo(PlayerIndex, "ip"), 4+8)
                 cprint(getPlayerInfo(PlayerIndex, "id"), 4+8)
                 cprint(getPlayerInfo(PlayerIndex, "level"), 4+8)
-                table.remove(player_info, k)
+                table.remove(player_info[PlayerIndex], k)
             end
-            cprint("________________________________________________________________________________", 4+8)
         end
     end
+    cprint("________________________________________________________________________________", 4+8)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
@@ -2431,18 +2431,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         elseif (command == settings.global.plugin_commands.mutelist) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= 1 then
                 local file_name = settings.global.mute_dir
-                rprint(PlayerIndex, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ")
+                if (t[2] == nil) then
+                    rprint(PlayerIndex, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ")
+                else
+                    rprint(PlayerIndex, "----------- NAME - TIME REMAINING (in minutes) ----------- ")
+                end
                 local lines = lines_from(file_name)
                 for k, v in pairs(lines) do
                     if k ~= nil then
-                        if t[2] == nil then
+                        if (t[2] == nil) then
                             rprint(PlayerIndex, gsub(v, "(;)", "(") .. "m)")
                         elseif t[2] == "-o" then
                             for i = 1,16 do
                                 if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
-                                    local timeFound = v:match(";(.+)")
                                     local name = get_var(i, "$name")
-                                    rprint(PlayerIndex, name .. " [" .. get_var(i, "$n") .. "]: " .. timeFound .. " minutes left")
+                                    local id = get_var(i, "$n")
+                                    local time = time_diff[tonumber(i)]
+                                    rprint(PlayerIndex, name .. " [" .. id .. "]: " .. time .. " minutes left")
                                 end
                             end
                         else
