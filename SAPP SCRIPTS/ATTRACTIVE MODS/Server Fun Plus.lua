@@ -199,7 +199,7 @@ function OnPlayerChat(PlayerIndex, Message)
             if tonumber(get_var(executor, "$lvl")) >= spam_permission_level then
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         if spam[index] == false then
                             if t[3] ~= nil then
                                 if index ~= tonumber(executor) then
@@ -258,34 +258,40 @@ function OnServerCommand(PlayerIndex, Command)
                     Rocket(PlayerIndex, executor)
                     values_specified[PlayerIndex] = false
                     ypr[PlayerIndex] = false
+                    
                     -- /rocket me
                 elseif t[2] == "me" and t[3] == nil then
                     Rocket(PlayerIndex, executor)
                     values_specified[PlayerIndex] = false
                     ypr[PlayerIndex] = false
+                    
                     -- /rocket x,y,z
-                elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] == nil then
+                elseif t[2] ~= "me" and t[5] == nil then
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = false
+                    
                     -- /rocket me x,y,z
-                elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
+                elseif t[2] == "me" and t[6] == nil then
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = false
+                    
                     -- /rocket me x,y,z,yaw,pitch,roll
-                elseif t[2] == "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
+                elseif t[2] == "me" and t[9] == nil then
                     Rocket(PlayerIndex, executor, t[3], t[4], t[5], t[6], t[7], t[8])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = true
+                    
                     -- /rocket x,y,z,yaw,pitch,roll
-                elseif t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] == nil then
+                elseif t[2] ~= "me" and t[8] == nil then
                     Rocket(PlayerIndex, executor, t[2], t[3], t[4], t[5], t[6], t[7])
                     values_specified[PlayerIndex] = true
                     ypr[PlayerIndex] = true
+                    
                     -- /rocket index
-                elseif t[2] ~= nil and t[2] ~= "me" and t[3] == nil then
-                    if string.match(t[2], "%d") then
+                elseif t[2] ~= "me" and t[3] == nil then
+                    if string.match(t[2], "%d+") then
                         if player_present(index) then
                             if index > 0 and index < 17 then
                                 Rocket(index, executor)
@@ -300,7 +306,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                     -- /rocket index x,y,z
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         if player_present(index) then
                             if index > 0 and index < 17 then
                                 Rocket(index, executor, t[3], t[4], t[5])
@@ -315,7 +321,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                     -- /rocket index x,y,z,yaw,pitch,roll
                 elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         if player_present(index) then
                             if index > 0 and index < 17 then
                                 Rocket(index, executor, t[3], t[4], t[5], t[6], t[7], t[8])
@@ -341,13 +347,13 @@ function OnServerCommand(PlayerIndex, Command)
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
                     if index ~= tonumber(executor) then
-                        if string.match(t[2], "%d") then
+                        if string.match(t[2], "%d+") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
                                     if player_alive(index) then
                                         if not PlayerInVehicle(index) then
-                                            local xC, yC, zC = read_vector3d(get_dynamic_player(index) + 0x5C)
-                                            write_vector3d(get_dynamic_player(index) + 0x5C, xC + 0.50, yC + 0.50, zC + 4)
+                                            local pX, pY, pX = read_vector3d(get_dynamic_player(index) + 0x5C)
+                                            write_vector3d(get_dynamic_player(index) + 0x5C, pX + 0.50, pY + 0.50, pX + 4)
                                             rprint(executor, "You slapped " .. get_var(index, "$name"))
                                             rprint(index, "You were slapped by " .. get_var(executor, "$name"))
                                         else
@@ -427,55 +433,93 @@ function OnServerCommand(PlayerIndex, Command)
                 if t[2] ~= nil then
                     local index = tonumber(t[2])
                     if index ~= tonumber(executor) then
-                        if string.match(t[2], "%d") then
+                        if string.match(t[2], "%d+") then
                             if index ~= nil and index > 0 and index < 17 then
                                 if player_present(index) then
                                     if (player_alive(index)) then
+                                    
+                                        local function TagInfo(obj_type, obj_name)
+                                            local tag = lookup_tag(obj_type, obj_name)
+                                            return tag ~= 0 and read_dword(tag + 0xC) or nil
+                                        end
+                                    
                                         local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
                                         local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
+                                        
                                         for i = 1, math.random(1, 15) do
                                             -- frag grenade
                                             spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 5.5), y1 + math.random(0.1, 5.5), z1 + math.random(0.1, 1))
-                                            -- rocket launcher projectile
-                                            local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(1, 20))
-                                            local rocket_projectile = get_object_memory(rocket)
-                                            write_float(rocket_projectile + 0x70, -math.random(1, 3))
-                                            -- plasma cannon projectile
-                                            local plasma_cannon = spawn_object("proj", "weapons\\plasma_cannon\\plasma_cannon", x1, y1, z1 + math.random(1, 20))
-                                            local plasma_cannon_projectile = get_object_memory(plasma_cannon)
-                                            write_float(plasma_cannon_projectile + 0x70, -math.random(1, 3))
-                                            -- needle projectile
-                                            local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1, 5))
-                                            local needle_projectile = get_object_memory(needle)
-                                            write_float(needle_projectile + 0x70, -math.random(1, 3))
-                                            -- banshee plasma bolt
-                                            local banshee_bolt = spawn_object("proj", "vehicles\\banshee\\banshee bolt", x1, y1, z1 + math.random(1, 20))
-                                            local banshee_bolt_projectile = get_object_memory(banshee_bolt)
-                                            write_float(banshee_bolt_projectile + 0x70, -math.random(1, 3))
-                                            -- banshee fuel rod
-                                            local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
-                                            local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
-                                            write_float(banshee_fuel_rod_projectile + 0x70, -math.random(1, 3))
-                                            -- tank shell
-                                            local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
-                                            local tank_shell_projectile = get_object_memory(tank_shell)
-                                            write_float(tank_shell_projectile + 0x70, -math.random(1, 3))
-                                            -- flames
-                                            local flames = spawn_object("proj", "weapons\\flamethrower\\flame", x1, y1, z1 + 0.2)
-                                            local flame_projectile = get_object_memory(flames)
-                                            write_float(flame_projectile + 0x70, -math.random(0.2, 0.5))
-                                            -- sniper bullet projectile
-                                            local sniper = spawn_object("proj", "weapons\\sniper rifle\\sniper bullet", x1, y1, z1 + math.random(1, 20))
-                                            local sniper_projectile = get_object_memory(sniper)
-                                            write_float(sniper_projectile + 0x70, -math.random(1, 3))
-                                            -- plasma rile charged bolt projectile
-                                            local plasma_rile_bolt = spawn_object("proj", "weapons\\plasma rifle\\charged bolt", x1, y1, z1 + math.random(1, 20))
-                                            local plasma_rile_bolt_projectile = get_object_memory(plasma_rile_bolt)
-                                            write_float(plasma_rile_bolt_projectile + 0x70, -math.random(1, 3))
-                                            -- ghost bolt projectile
-                                            local ghost_bolt = spawn_object("proj", "vehicles\\ghost\\ghost bolt", x1, y1, z1 + math.random(1, 20))
-                                            local ghost_bolt_projectile = get_object_memory(ghost_bolt)
-                                            write_float(ghost_bolt_projectile + 0x70, -math.random(1, 3))
+                                            
+                                            
+                                            if TagInfo("proj", "weapons\\rocket launcher\\rocket") then
+                                                -- rocket launcher projectile
+                                                local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(1, 20))
+                                                local rocket_projectile = get_object_memory(rocket)
+                                                write_float(rocket_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "weapons\\plasma_cannon\\plasma_cannon") then
+                                                -- plasma cannon projectile
+                                                local plasma_cannon = spawn_object("proj", "weapons\\plasma_cannon\\plasma_cannon", x1, y1, z1 + math.random(1, 20))
+                                                local plasma_cannon_projectile = get_object_memory(plasma_cannon)
+                                                write_float(plasma_cannon_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "weapons\\needler\\mp_needle") then
+                                                -- needle projectile
+                                                local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1, 5))
+                                                local needle_projectile = get_object_memory(needle)
+                                                write_float(needle_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "vehicles\\banshee\\banshee bolt") then
+                                                -- banshee plasma bolt
+                                                local banshee_bolt = spawn_object("proj", "vehicles\\banshee\\banshee bolt", x1, y1, z1 + math.random(1, 20))
+                                                local banshee_bolt_projectile = get_object_memory(banshee_bolt)
+                                                write_float(banshee_bolt_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "vehicles\\banshee\\mp_banshee fuel rod") then
+                                                -- banshee fuel rod
+                                                local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
+                                                local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
+                                                write_float(banshee_fuel_rod_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "vehicles\\scorpion\\tank shell") then
+                                                -- tank shell
+                                                local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
+                                                local tank_shell_projectile = get_object_memory(tank_shell)
+                                                write_float(tank_shell_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "weapons\\flamethrower\\flame") then
+                                                -- flames
+                                                local flames = spawn_object("proj", "weapons\\flamethrower\\flame", x1, y1, z1 + 0.2)
+                                                local flame_projectile = get_object_memory(flames)
+                                                write_float(flame_projectile + 0x70, -math.random(0.2, 0.5))
+                                            end
+                                            
+                                            if TagInfo("proj", "weapons\\sniper rifle\\sniper bullet") then
+                                                -- sniper bullet projectile
+                                                local sniper = spawn_object("proj", "weapons\\sniper rifle\\sniper bullet", x1, y1, z1 + math.random(1, 20))
+                                                local sniper_projectile = get_object_memory(sniper)
+                                                write_float(sniper_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "weapons\\plasma rifle\\charged bolt") then
+                                                -- plasma rile charged bolt projectile
+                                                local plasma_rile_bolt = spawn_object("proj", "weapons\\plasma rifle\\charged bolt", x1, y1, z1 + math.random(1, 20))
+                                                local plasma_rile_bolt_projectile = get_object_memory(plasma_rile_bolt)
+                                                write_float(plasma_rile_bolt_projectile + 0x70, -math.random(1, 3))
+                                            end
+                                            
+                                            if TagInfo("proj", "vehicles\\ghost\\ghost bolt") then
+                                                -- ghost bolt projectile
+                                                local ghost_bolt = spawn_object("proj", "vehicles\\ghost\\ghost bolt", x1, y1, z1 + math.random(1, 20))
+                                                local ghost_bolt_projectile = get_object_memory(ghost_bolt)
+                                                write_float(ghost_bolt_projectile + 0x70, -math.random(1, 3))
+                                            end
                                         end
                                     else
                                         rprint(executor, get_var(index, "$name") .. " is dead!")
@@ -500,7 +544,7 @@ function OnServerCommand(PlayerIndex, Command)
         elseif t[1] == string.lower(take_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         local target = tonumber(t[2])
                         if player_present(target) then
                             if (tonumber(target) ~= tonumber(executor)) then
@@ -534,7 +578,7 @@ function OnServerCommand(PlayerIndex, Command)
         elseif t[1] == string.lower(crash_command) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
                 if t[2] ~= nil then
-                    if string.match(t[2], "%d") then
+                    if string.match(t[2], "%d+") then
                         local target = tonumber(t[2])
                         if player_present(target) then
                             if (tonumber(target) ~= tonumber(executor)) then
