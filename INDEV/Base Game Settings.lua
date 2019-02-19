@@ -706,7 +706,7 @@ function OnScriptLoad()
 
             -- #Admin Chat
             if (settings.mod["Admin Chat"].enabled == true) then
-                if (game_over == false) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
+                if not (game_over) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
                 end
@@ -727,7 +727,7 @@ function OnScriptLoad()
 
     -- #Custom Weapons
     if (settings.mod["Custom Weapons"].enabled == true) then
-        if (game_over == false) then
+        if not (game_over) then
             if get_var(0, "$gt") ~= "n/a" then
                 mapname = get_var(0, "$map")
             end
@@ -954,6 +954,7 @@ function OnGameEnd()
             file:close()
         end
     end
+    game_over = true
 end
 
 function OnTick()
@@ -1809,7 +1810,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if (game_over == false) --[[and (muted[tonumber(PlayerIndex)] == false or muted[tonumber(PlayerIndex)] == nil)]] then
+        if not (game_over) and muted[tonumber(PlayerIndex)] == false or muted[tonumber(PlayerIndex)] == nil then
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
             local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
