@@ -156,10 +156,8 @@ local function GameSettings()
                 -- Use %server_name% variable to output the server name.
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
-                    "Welcome to %server_name%",
-                    -- "line 2",
-                    -- "line 3",
-                    -- "line 4"
+                    "Welcome to %server_name%, %player_name%",
+                    "line 2",
                 }
             },
             ["Color Reservation"] = {
@@ -329,7 +327,7 @@ local function GameSettings()
                 dir = "sapp\\alias.lua",
                 permission_level = 1,
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
-                duration = 10 -- How long should the alias results be displayed for? (in seconds)
+                duration = 5 -- How long should the alias results be displayed for? (in seconds)
             },
             ["Respawn Time"] = {
                 enabled = false,
