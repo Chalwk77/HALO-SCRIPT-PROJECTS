@@ -257,176 +257,184 @@ function OnServerCommand(PlayerIndex, Command)
     local UnknownCMD
     local t = tokenizestring(Command)
     if t[1] == string.lower(enable_launcher_command) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            -- enable|disable launcher mode
-            if t[2] ~= nil then
-                if string.match(t[2], "1") or string.match(t[2], "on") or string.match(t[2], "true") then
-                    if player_alive(PlayerIndex) then
-                        if launcher_mode[PlayerIndex] ~= true then
-                            launcher_mode[PlayerIndex] = true
-                            if use_weapon_assignment then
-                                local inventory = {}
-                                inventory.loadout = {}
-                                for i = 0, 3 do
-                                    equipment_saved = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + i * 4))
-                                    if equipment_saved ~= 0 then
-                                        inventory.loadout[i + 1] = {
-                                            ["id"] = read_dword(equipment_saved),
-                                            ["ammo"] = read_word(equipment_saved + 0x2B6),
-                                            ["clip"] = read_word(equipment_saved + 0x2B8),
-                                            ["ammo2"] = read_word(equipment_saved + 0x2C6),
-                                            ["clip2"] = read_word(equipment_saved + 0x2C8),
-                                            ["age"] = read_float(equipment_saved + 0x240)
-                                        }
+        local function TagInfo(obj_type, obj_name)
+            local tag = lookup_tag(obj_type, obj_name)
+            return tag ~= 0 and read_dword(tag + 0xC) or nil
+        end
+        if TagInfo("eqip", "weapons\\frag grenade\\frag grenade") and TagInfo("eqip", "weapons\\plasma grenade\\plasma grenade") then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
+                -- enable|disable launcher mode
+                if t[2] ~= nil then
+                    if string.match(t[2], "1") or string.match(t[2], "on") or string.match(t[2], "true") then
+                        if player_alive(PlayerIndex) then
+                            if launcher_mode[PlayerIndex] ~= true then
+                                launcher_mode[PlayerIndex] = true
+                                if use_weapon_assignment then
+                                    local inventory = {}
+                                    inventory.loadout = {}
+                                    for i = 0, 3 do
+                                        equipment_saved = get_object_memory(read_dword(get_dynamic_player(PlayerIndex) + 0x2F8 + i * 4))
+                                        if equipment_saved ~= 0 then
+                                            inventory.loadout[i + 1] = {
+                                                ["id"] = read_dword(equipment_saved),
+                                                ["ammo"] = read_word(equipment_saved + 0x2B6),
+                                                ["clip"] = read_word(equipment_saved + 0x2B8),
+                                                ["ammo2"] = read_word(equipment_saved + 0x2C6),
+                                                ["clip2"] = read_word(equipment_saved + 0x2C8),
+                                                ["age"] = read_float(equipment_saved + 0x240)
+                                            }
+                                        end
                                     end
+                                    inventory.frag_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31E)
+                                    inventory.plasma_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31F)
+                                    player_equipment[get_var(PlayerIndex, "$n")] = inventory
+                                    local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                                    AssignNew(PlayerIndex, x, y, z)
                                 end
-                                inventory.frag_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31E)
-                                inventory.plasma_grenades = read_byte(get_dynamic_player(PlayerIndex) + 0x31F)
-                                player_equipment[get_var(PlayerIndex, "$n")] = inventory
-                                local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-                                AssignNew(PlayerIndex, x, y, z)
-                            end
-                            if (set_initial[PlayerIndex] == true) then
-                                set_initial[PlayerIndex] = false
-                                local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
-                                local weapon_object = get_object_memory(weapon_id)
-                                if weapon_object ~= 0 then
-                                    local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-                                    for k, v in pairs(weapons[PlayerIndex]) do
-                                        if string.find(weapon_name, v[2]) then
-                                            for _, V in pairs(original_data) do
-                                                v[6] = original_data[k]
-                                                available_shots[PlayerIndex] = tonumber(original_data[k])
+                                if (set_initial[PlayerIndex] == true) then
+                                    set_initial[PlayerIndex] = false
+                                    local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
+                                    local weapon_object = get_object_memory(weapon_id)
+                                    if weapon_object ~= 0 then
+                                        local weapon_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+                                        for k, v in pairs(weapons[PlayerIndex]) do
+                                            if string.find(weapon_name, v[2]) then
+                                                for _, V in pairs(original_data) do
+                                                    v[6] = original_data[k]
+                                                    available_shots[PlayerIndex] = tonumber(original_data[k])
+                                                end
                                             end
                                         end
                                     end
                                 end
+                                rprint(PlayerIndex, "Grenade Launcher Activated")
+                                UnknownCMD = false
+                            else
+                                rprint(PlayerIndex, "Grenade Launcher is already enabled!")
+                                UnknownCMD = false
                             end
-                            rprint(PlayerIndex, "Grenade Launcher Activated")
+                        else
+                            rprint(PlayerIndex, "You are dead! Unable to activate Grenade Launcher Mode.")
+                        end
+                    elseif string.match(t[2], "0") or string.match(t[2], "off") or string.match(t[2], "false") then
+                        if launcher_mode[PlayerIndex] ~= false then
+                            launcher_mode[PlayerIndex] = false
+                            if use_weapon_assignment then
+                                deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
+                                original = read_dword(deathmessages)
+                                safe_write(true)
+                                write_dword(deathmessages, 0x03EB01B1)
+                                safe_write(false)
+                                local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
+                                death_location[PlayerIndex][1] = x
+                                death_location[PlayerIndex][2] = y
+                                death_location[PlayerIndex][3] = z
+                                DeleteWeapons[PlayerIndex] = true
+                                execute_command("kill " .. PlayerIndex)
+                                AssignWeapon[PlayerIndex] = true
+                            end
+                            rprint(PlayerIndex, "Grenade Launcher Deactivated")
                             UnknownCMD = false
                         else
-                            rprint(PlayerIndex, "Grenade Launcher is already enabled!")
+                            rprint(PlayerIndex, "Grenade Launcher is already disabled!")
+                            UnknownCMD = false
+                        end
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax! Use: /" .. enable_launcher_command .. " on|off or 1|2 or true|false")
+                    UnknownCMD = false
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute /" .. t[1] .. " " .. t[2])
+                UnknownCMD = false
+            end
+            -- reset velocity|distance to default values
+        elseif t[1] == string.lower(reset_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
+                local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
+                local weapon_object = get_object_memory(weapon_id)
+                if weapon_object ~= 0 then
+                    for k, v in pairs(weapons[tonumber(PlayerIndex)]) do
+                        if string.find("weap", v[1]) then
+                            for _, V in pairs(original_data) do
+                                v[6] = original_data[k]
+                                available_shots[PlayerIndex] = v[6]
+                                has_ammo[PlayerIndex] = true
+                                reset_values[PlayerIndex] = true
+                                reset_bool[PlayerIndex] = true
+                            end
+                        end
+                    end
+                end
+                rprint(PlayerIndex, "Values reset to default")
+                UnknownCMD = false
+            else
+                rprint(PlayerIndex, "You do not have permission to execute /" .. t[1])
+                UnknownCMD = false
+            end
+            -- set projectile velocity|distance
+        elseif t[1] == string.lower(change_vd_command) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
+                if t[2] ~= nil and t[3] ~= nil then
+                    if launcher_mode[PlayerIndex] == true then
+                        if string.match(t[2], "%d+") and string.match(t[3], "%d+") then
+                            values_specified[PlayerIndex] = true
+                            new_velocity[PlayerIndex] = tonumber(t[2])
+                            new_distance[PlayerIndex] = tonumber(t[3])
+                            rprint(PlayerIndex, "Velocity set to: " .. t[2] .. "    Distance set to: " .. t[3])
                             UnknownCMD = false
                         end
                     else
-                        rprint(PlayerIndex, "You are dead! Unable to activate Grenade Launcher Mode.")
-                    end
-                elseif string.match(t[2], "0") or string.match(t[2], "off") or string.match(t[2], "false") then
-                    if launcher_mode[PlayerIndex] ~= false then
-                        launcher_mode[PlayerIndex] = false
-                        if use_weapon_assignment then
-                            deathmessages = sig_scan("8B42348A8C28D500000084C9") + 3
-                            original = read_dword(deathmessages)
-                            safe_write(true)
-                            write_dword(deathmessages, 0x03EB01B1)
-                            safe_write(false)
-                            local x, y, z = read_vector3d(get_dynamic_player(PlayerIndex) + 0x5C)
-                            death_location[PlayerIndex][1] = x
-                            death_location[PlayerIndex][2] = y
-                            death_location[PlayerIndex][3] = z
-                            DeleteWeapons[PlayerIndex] = true
-                            execute_command("kill " .. PlayerIndex)
-                            AssignWeapon[PlayerIndex] = true
-                        end
-                        rprint(PlayerIndex, "Grenade Launcher Deactivated")
+                        rprint(PlayerIndex, 'Grenade Launcher is not activated! Type "/launcher on" to activate.')
                         UnknownCMD = false
+                    end
+                else
+                    rprint(PlayerIndex, "Invalid Syntax! Type: /" .. change_vd_command .. " [velocity] [distance]")
+                    UnknownCMD = false
+                end
+            else
+                rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
+                UnknownCMD = false
+            end
+            -- change projectile type
+        elseif t[1] == string.lower(change_projectile_type) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
+                if t[2] ~= nil then
+                    if launcher_mode[PlayerIndex] == true then
+                        if string.match(t[2], "frag") or string.match(t[2], "1") then
+                            new_projectile[PlayerIndex] = "weapons\\frag grenade\\frag grenade"
+                            grenade_type_changed[PlayerIndex] = true
+                            reset_values[PlayerIndex] = false
+                            rprint(PlayerIndex, "Now shooting Frag Grenades")
+                            UnknownCMD = false
+                        elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
+                            new_projectile[PlayerIndex] = "weapons\\plasma grenade\\plasma grenade"
+                            grenade_type_changed[PlayerIndex] = true
+                            reset_values[PlayerIndex] = false
+                            rprint(PlayerIndex, "Now shooting Plasma Grenades")
+                            UnknownCMD = false
+                        elseif string.match(t[2], "rocket") or string.match(t[2], "3") then
+                            new_projectile[PlayerIndex] = "weapons\\rocket launcher\\rocket"
+                            grenade_type_changed[PlayerIndex] = true
+                            reset_values[PlayerIndex] = false
+                            rprint(PlayerIndex, "Now shooting Rocket Projectiles")
+                            UnknownCMD = false
+                        end
                     else
-                        rprint(PlayerIndex, "Grenade Launcher is already disabled!")
-                        UnknownCMD = false
-                    end
-                end
-            else
-                rprint(PlayerIndex, "Invalid Syntax! Use: /" .. enable_launcher_command .. " on|off or 1|2 or true|false")
-                UnknownCMD = false
-            end
-        else
-            rprint(PlayerIndex, "You do not have permission to execute /" .. t[1] .. " " .. t[2])
-            UnknownCMD = false
-        end
-        -- reset velocity|distance to default values
-    elseif t[1] == string.lower(reset_command) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            local weapon_id = read_dword(get_dynamic_player(PlayerIndex) + 0x118)
-            local weapon_object = get_object_memory(weapon_id)
-            if weapon_object ~= 0 then
-                for k, v in pairs(weapons[tonumber(PlayerIndex)]) do
-                    if string.find("weap", v[1]) then
-                        for _, V in pairs(original_data) do
-                            v[6] = original_data[k]
-                            available_shots[PlayerIndex] = v[6]
-                            has_ammo[PlayerIndex] = true
-                            reset_values[PlayerIndex] = true
-                            reset_bool[PlayerIndex] = true
-                        end
-                    end
-                end
-            end
-            rprint(PlayerIndex, "Values reset to default")
-            UnknownCMD = false
-        else
-            rprint(PlayerIndex, "You do not have permission to execute /" .. t[1])
-            UnknownCMD = false
-        end
-        -- set projectile velocity|distance
-    elseif t[1] == string.lower(change_vd_command) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            if t[2] ~= nil and t[3] ~= nil then
-                if launcher_mode[PlayerIndex] == true then
-                    if string.match(t[2], "%d+") and string.match(t[3], "%d+") then
-                        values_specified[PlayerIndex] = true
-                        new_velocity[PlayerIndex] = tonumber(t[2])
-                        new_distance[PlayerIndex] = tonumber(t[3])
-                        rprint(PlayerIndex, "Velocity set to: " .. t[2] .. "    Distance set to: " .. t[3])
+                        rprint(PlayerIndex, 'Grenade Launcher is not activated! Type "/launcher on" to activate.')
                         UnknownCMD = false
                     end
                 else
-                    rprint(PlayerIndex, 'Grenade Launcher is not activated! Type "/launcher on" to activate.')
+                    rprint(PlayerIndex, "Invalid Syntax! Type /" .. change_projectile_type .. " frag|plasma|1|2")
                     UnknownCMD = false
                 end
             else
-                rprint(PlayerIndex, "Invalid Syntax! Type: /" .. change_vd_command .. " [velocity] [distance]")
+                rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
                 UnknownCMD = false
             end
-        else
-            rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
-            UnknownCMD = false
         end
-        -- change projectile type
-    elseif t[1] == string.lower(change_projectile_type) then
-        if tonumber(get_var(PlayerIndex, "$lvl")) >= command_permission_level then
-            if t[2] ~= nil then
-                if launcher_mode[PlayerIndex] == true then
-                    if string.match(t[2], "frag") or string.match(t[2], "1") then
-                        new_projectile[PlayerIndex] = "weapons\\frag grenade\\frag grenade"
-                        grenade_type_changed[PlayerIndex] = true
-                        reset_values[PlayerIndex] = false
-                        rprint(PlayerIndex, "Now shooting Frag Grenades")
-                        UnknownCMD = false
-                    elseif string.match(t[2], "plasma") or string.match(t[2], "2") then
-                        new_projectile[PlayerIndex] = "weapons\\plasma grenade\\plasma grenade"
-                        grenade_type_changed[PlayerIndex] = true
-                        reset_values[PlayerIndex] = false
-                        rprint(PlayerIndex, "Now shooting Plasma Grenades")
-                        UnknownCMD = false
-                    elseif string.match(t[2], "rocket") or string.match(t[2], "3") then
-                        new_projectile[PlayerIndex] = "weapons\\rocket launcher\\rocket"
-                        grenade_type_changed[PlayerIndex] = true
-                        reset_values[PlayerIndex] = false
-                        rprint(PlayerIndex, "Now shooting Rocket Projectiles")
-                        UnknownCMD = false
-                    end
-                else
-                    rprint(PlayerIndex, 'Grenade Launcher is not activated! Type "/launcher on" to activate.')
-                    UnknownCMD = false
-                end
-            else
-                rprint(PlayerIndex, "Invalid Syntax! Type /" .. change_projectile_type .. " frag|plasma|1|2")
-                UnknownCMD = false
-            end
-        else
-            rprint(PlayerIndex, "You do not have permission to execute /" .. t[2])
-            UnknownCMD = false
-        end
+    else
+        rprint(PlayerIndex, "Unable to use Grenade Launcher on this map.")
     end
     return UnknownCMD
 end
