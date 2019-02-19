@@ -24,6 +24,7 @@ Combined Scripts:
     /disable [id]
     /mute [id] <time dif>
     /unmute [id]
+    /clear (clears chat)
 
     "/plugins" shows you a list of all mods and tells you which ones are enabled/disabled.
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
@@ -665,6 +666,8 @@ function OnScriptLoad()
     printEnabled()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
+    else
+        cprint("[BGS] Current Version: " .. settings.global.script_version, 2+8)
     end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -695,17 +698,17 @@ function OnScriptLoad()
             players[p_table] = {}
 
             -- #Message Board
-            if (settings.mod["Message Board"].enabled == true) then
+            if (settings.mod["Message Board"].enabled) then
                 players[p_table].message_board_timer = 0
             end
 
             -- #Alias System
-            if (settings.mod["Alias System"].enabled == true) then
+            if (settings.mod["Alias System"].enabled) then
                 players[p_table].alias_timer = 0
             end
 
             -- #Admin Chat
-            if (settings.mod["Admin Chat"].enabled == true) then
+            if (settings.mod["Admin Chat"].enabled) then
                 if not (game_over) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = nil
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = nil
@@ -713,7 +716,7 @@ function OnScriptLoad()
             end
 
             -- #Lurker
-            if (settings.mod["Lurker"].enabled == true) then
+            if (settings.mod["Lurker"].enabled) then
                 resetLurker(i)
             end
         end
@@ -726,34 +729,34 @@ function OnScriptLoad()
     end
 
     -- #Custom Weapons
-    if (settings.mod["Custom Weapons"].enabled == true) then
+    if (settings.mod["Custom Weapons"].enabled) then
         if not (game_over) then
             if get_var(0, "$gt") ~= "n/a" then
                 mapname = get_var(0, "$map")
             end
         end
     end
-    if (settings.global.beepOnLoad == true) then
+    if (settings.global.beepOnLoad) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
 
-    if settings.mod["Alias System"].enabled == true then
+    if settings.mod["Alias System"].enabled then
         local f1 = settings.mod["Alias System"].dir
         checkFile(f1)
     end
 
-    if settings.global.handlemutes == true then
+    if settings.global.handlemutes then
         local f2 = settings.global.mute_dir
         checkFile(f2)
     end
 
-    if settings.mod["Teleport Manager"].enabled == true then
+    if settings.mod["Teleport Manager"].enabled then
         local f3 = settings.mod["Teleport Manager"].dir
         checkFile(f3)
     end
 
     -- #Console Logo
-    if (settings.mod["Console Logo"].enabled == true) then
+    if (settings.mod["Console Logo"].enabled) then
         --noinspection GlobalCreationOutsideO
         function consoleLogo()
             -- Logo: ascii: 'kban'
@@ -771,7 +774,6 @@ function OnScriptLoad()
             cprint("")
             cprint("================================================================================", 2 + 8)
         end
-
         timer(50, "consoleLogo")
     end
 end
@@ -782,7 +784,7 @@ function OnScriptUnload()
             local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
 
             -- #Admin Chat
-            if (settings.mod["Admin Chat"].enabled == true) then
+            if (settings.mod["Admin Chat"].enabled) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     players[p_table].adminchat = false
                     players[p_table].boolean = false
@@ -802,24 +804,24 @@ function OnNewGame()
             local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
 
             -- #Message Board
-            if (settings.mod["Message Board"].enabled == true) then
+            if (settings.mod["Message Board"].enabled) then
                 players[p_table].message_board_timer = 0
             end
 
             -- #Alias System
-            if (settings.mod["Alias System"].enabled == true) then
+            if (settings.mod["Alias System"].enabled) then
                 alias_bool[i] = false
                 trigger[i] = false
                 players[p_table].alias_timer = 0
             end
 
             -- #Lurker
-            if (settings.mod["Lurker"].enabled == true) then
+            if (settings.mod["Lurker"].enabled) then
                 resetLurker(i)
             end
 
             -- #Admin Chat
-            if (settings.mod["Admin Chat"].enabled == true) then
+            if (settings.mod["Admin Chat"].enabled) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat = false
                     players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].boolean = false
@@ -829,7 +831,7 @@ function OnNewGame()
     end
 
     -- #Color Reservation
-    if (settings.mod["Color Reservation"].enabled == true) then
+    if (settings.mod["Color Reservation"].enabled) then
         if (GetTeamPlay() == true) then
             can_use_colorres = false
         else
@@ -838,7 +840,7 @@ function OnNewGame()
     end
 
     -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Chat Logging"].enabled) then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
@@ -853,12 +855,12 @@ function OnNewGame()
     end
 
     -- #Teleport Manager
-    if (settings.mod["Teleport Manager"].enabled == true) then
+    if (settings.mod["Teleport Manager"].enabled) then
         check_file_status(PlayerIndex)
     end
 
     -- #Item Spawner
-    if (settings.mod["Item Spawner"].enabled == true) then
+    if (settings.mod["Item Spawner"].enabled) then
         local objects_table = settings.mod["Item Spawner"].objects
         for i = 1, #objects_table do
             temp_objects_table[#temp_objects_table + 1] = objects_table[i][1]
@@ -874,32 +876,32 @@ function OnGameEnd()
         if player_present(i) then
             local p_table = get_var(i, "$name") .. ", " .. get_var(i, "$hash")
             -- #Weapon Settings
-            if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
+            if (settings.mod["Custom Weapons"].enabled and settings.mod["Custom Weapons"].assign_weapons) then
                 weapon[i] = false
             end
 
             -- #Alias System
-            if (settings.mod["Alias System"].enabled == true) then
+            if (settings.mod["Alias System"].enabled) then
                 alias_bool[i] = false
                 trigger[i] = false
                 players[p_table].alias_timer = 0
             end
 
             -- #Lurker
-            if (settings.mod["Lurker"].enabled == true) then
+            if (settings.mod["Lurker"].enabled) then
                 resetLurker(i)
             end
 
             -- #Message Board
-            if (settings.mod["Message Board"].enabled == true) then
+            if (settings.mod["Message Board"].enabled) then
                 welcome_timer[i] = false
                 players[p_table].message_board_timer = 0
             end
 
             -- #Admin Chat
-            if (settings.mod["Admin Chat"].enabled == true) then
+            if (settings.mod["Admin Chat"].enabled) then
                 if tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
-                    if (Restore_Previous_State == true) then
+                    if (Restore_Previous_State) then
                         local bool
                         if players[get_var(i, "$name") .. ", " .. get_var(i, "$hash")].adminchat == true then
                             bool = "true"
@@ -945,7 +947,7 @@ function OnGameEnd()
         end
     end
     -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Chat Logging"].enabled) then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
@@ -986,7 +988,7 @@ function OnTick()
             end
 
             -- #Message Board
-            if (settings.mod["Message Board"].enabled == true) then
+            if (settings.mod["Message Board"].enabled) then
                 if (welcome_timer[i] == true) then
                     players[p_table].message_board_timer = players[p_table].message_board_timer + 0.030
                     cls(i)
@@ -1002,7 +1004,7 @@ function OnTick()
                 end
             end
             -- #Crouch Teleport
-            if (settings.mod["Crouch Teleport"].enabled == true) then
+            if (settings.mod["Crouch Teleport"].enabled) then
                 if (player_present(i) and player_alive(i)) then
                     if (portalgun_mode[i] == true) then
                         local player_object = get_dynamic_player(i)
@@ -1032,7 +1034,7 @@ function OnTick()
             end
 
             -- #Lurker
-            if (settings.mod["Lurker"].enabled == true) then
+            if (settings.mod["Lurker"].enabled) then
                 if (lurker[i] == true) then
                     if (settings.mod["Lurker"].speed == true) then
                         execute_command("s " .. tonumber(i) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
@@ -1081,14 +1083,14 @@ function OnTick()
             end
 
             -- #Infinite Ammo
-            if (settings.mod["Infinite Ammo"].enabled == true and infammo[i] == true) then
+            if (settings.mod["Infinite Ammo"].enabled and infammo[i]) then
                 if (frag_check[i] == true) and getFrags(i) == true then
                     execute_command("nades " .. tonumber(i) .. " 7")
                 end
             end
 
             -- #Custom Weapons
-            if (settings.mod["Custom Weapons"].enabled == true and settings.mod["Custom Weapons"].assign_weapons == true) then
+            if (settings.mod["Custom Weapons"].enabled and settings.mod["Custom Weapons"].assign_weapons) then
                 if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
                     if (player_alive(i)) then
                         if (weapon[i] == true) then
@@ -1126,7 +1128,7 @@ function OnTick()
             end
 
             -- #Alias System
-            if (settings.mod["Alias System"].enabled == true) then
+            if (settings.mod["Alias System"].enabled) then
                 if (trigger[i] == true) then
                     players[p_table].alias_timer = players[p_table].alias_timer + 0.030
                     cls(i)
@@ -1160,7 +1162,7 @@ function OnTick()
                 end
             end
             -- #Spawn From Sky
-            if (settings.mod["Spawn From Sky"].enabled == true) then
+            if (settings.mod["Spawn From Sky"].enabled) then
                 if (init_timer[i] == true) then
                     timeUntilRestore(i)
                 end
@@ -1285,7 +1287,7 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- #Color Reservation | WIP
-    if (settings.mod["Color Reservation"].enabled == true) then
+    if (settings.mod["Color Reservation"].enabled) then
         if (can_use_colorres == true) then
             local ColorTable = settings.mod["Color Reservation"].color_table
             local player = getPlayer(PlayerIndex)
@@ -1330,14 +1332,14 @@ function OnPlayerJoin(PlayerIndex)
     mute_timer[entry].timer = 0
 
     -- #Spawn From Sky
-    if (settings.mod["Spawn From Sky"].enabled == true) then
+    if (settings.mod["Spawn From Sky"].enabled) then
         players[p_table].sky_timer = 0
         init_timer[PlayerIndex] = true
         first_join[PlayerIndex] = true
     end
 
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         lurker[PlayerIndex] = false
         has_objective[PlayerIndex] = false
         resetLurker(PlayerIndex)
@@ -1345,27 +1347,27 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true) then
+    if (settings.mod["Infinite Ammo"].enabled) then
         infammo[PlayerIndex] = false
         modify_damage[PlayerIndex] = false
         damage_multiplier[PlayerIndex] = 0
     end
 
     -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
+    if (settings.mod["Message Board"].enabled) then
         players[p_table].message_board_timer = 0
         welcome_timer[PlayerIndex] = true
     end
 
     -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
+    if (settings.mod["Alias System"].enabled) then
         addAlias(name, hash)
         players[p_table].alias_timer = 0
         welcome_timer[PlayerIndex] = true
     end
 
     -- #Anti Impersonator
-    if (settings.mod["Anti Impersonator"].enabled == true) then
+    if (settings.mod["Anti Impersonator"].enabled) then
 
         local name_list = settings.mod["Anti Impersonator"].namelist
         local hash_list = settings.mod["Anti Impersonator"].hashlist
@@ -1385,7 +1387,7 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Chat Logging"].enabled) then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
@@ -1396,7 +1398,7 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
+    if (settings.mod["Admin Chat"].enabled) then
         players[p_table].adminchat = nil
         players[p_table].boolean = nil
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
@@ -1420,7 +1422,7 @@ function OnPlayerJoin(PlayerIndex)
     end
 
     -- #Admin Join Messages
-    if (settings.mod["Admin Join Messages"].enabled == true) then
+    if (settings.mod["Admin Join Messages"].enabled) then
         local level = tonumber(get_var(PlayerIndex, "$lvl"))
         local join_message
         if (level >= 1) then
@@ -1466,7 +1468,7 @@ function OnPlayerLeave(PlayerIndex)
     local p_table = name .. ", " .. hash
 
     -- #Spawn From Sky
-    if (settings.mod["Spawn From Sky"].enabled == true) then
+    if (settings.mod["Spawn From Sky"].enabled) then
         if init_timer == true then
             init_timer[PlayerIndex] = false
         end
@@ -1503,33 +1505,33 @@ function OnPlayerLeave(PlayerIndex)
     end
 
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         has_objective[PlayerIndex] = false
         lurker[PlayerIndex] = false
         resetLurker(PlayerIndex)
     end
 
     -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
         DisableInfAmmo(PlayerIndex)
     end
 
     -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
+    if (settings.mod["Alias System"].enabled) then
         alias_bool[PlayerIndex] = false
         trigger[PlayerIndex] = false
         players[p_table].alias_timer = 0
     end
 
     -- #Message Board
-    if (settings.mod["Message Board"].enabled == true) then
+    if (settings.mod["Message Board"].enabled) then
         welcome_timer[PlayerIndex] = false
         players[p_table].message_board_timer = 0
     end
 
 
     -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Chat Logging"].enabled) then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
@@ -1540,9 +1542,9 @@ function OnPlayerLeave(PlayerIndex)
     end
 
     -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
+    if (settings.mod["Admin Chat"].enabled) then
         if (tonumber(level) >= getPermLevel("Admin Chat", nil, nil)) then
-            if (settings.mod["Admin Chat"].restore_previous_state == true) then
+            if (settings.mod["Admin Chat"].restore_previous_state) then
                 local bool
                 if players[p_table].adminchat == true then
                     bool = "true"
@@ -1560,7 +1562,7 @@ function OnPlayerLeave(PlayerIndex)
     end
 
     -- #Teleport Manager
-    if (settings.mod["Teleport Manager"].enabled == true) then
+    if (settings.mod["Teleport Manager"].enabled) then
         wait_for_response[PlayerIndex] = false
         for i = 1, 3 do
             previous_location[PlayerIndex][i] = nil
@@ -1570,7 +1572,7 @@ end
 
 function OnPlayerPrespawn(PlayerIndex)
     -- #Spawn From Sky
-    if (settings.mod["Spawn From Sky"].enabled == true) then
+    if (settings.mod["Spawn From Sky"].enabled) then
         if (first_join[PlayerIndex] == true) then
             first_join[PlayerIndex] = false
             local team = get_var(PlayerIndex, "$team")
@@ -1594,7 +1596,7 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     -- #Custom Weapons
-    if (settings.mod["Custom Weapons"].enabled == true) then
+    if (settings.mod["Custom Weapons"].enabled) then
         weapon[PlayerIndex] = true
         if player_alive(PlayerIndex) then
             local player_object = get_dynamic_player(PlayerIndex)
@@ -1612,9 +1614,9 @@ function OnPlayerSpawn(PlayerIndex)
     end
 
     -- #Color Reservation | WIP
-    if (settings.mod["Color Reservation"].enabled == true) then
+    if (settings.mod["Color Reservation"].enabled) then
         if (can_use_colorres == true) then
-            if (colorres_bool[PlayerIndex] == true) then
+            if (colorres_bool[PlayerIndex]) then
                 colorres_bool[PlayerIndex] = false
                 local player_object = read_dword(get_player(PlayerIndex) + 0x34)
                 destroy_object(player_object)
@@ -1624,12 +1626,12 @@ function OnPlayerSpawn(PlayerIndex)
 
     
     -- #Crouch Teleport
-    if (settings.mod["Crouch Teleport"].enabled == true) then
+    if (settings.mod["Crouch Teleport"].enabled) then
         weapon_status[PlayerIndex] = 0
     end
     
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         if (lurker[PlayerIndex] == true) then
             has_objective[PlayerIndex] = false
             resetLurker(PlayerIndex)
@@ -1638,14 +1640,14 @@ function OnPlayerSpawn(PlayerIndex)
     end
 
     -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = true
     end
 end
 
 function OnPlayerKill(PlayerIndex)
     -- #Respawn Time
-    if (settings.mod["Respawn Time"].enabled == true) then
+    if (settings.mod["Respawn Time"].enabled) then
         local player = get_player(PlayerIndex)
         local function getSpawnTime()
             local spawntime
@@ -1687,7 +1689,7 @@ function OnPlayerKill(PlayerIndex)
         resetLurker(PlayerIndex)
     end
     -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = false
     end
 end
@@ -1711,7 +1713,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- #Chat IDs & Admin Chat
     local keyword
-    if (settings.mod["Chat IDs"].enabled == true) or (settings.mod["Admin Chat"].enabled == true) then
+    if (settings.mod["Chat IDs"].enabled) or (settings.mod["Admin Chat"].enabled) then
         local keywords_to_ignore = settings.mod["Chat IDs"].ignore_list
         if (table.match(keywords_to_ignore, message[1])) then
             keyword = true
@@ -1724,7 +1726,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local command
     local iscommand
     local cmd_prefix
-    if (settings.mod["Command Spy"].enabled == true) or (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Command Spy"].enabled) or (settings.mod["Chat Logging"].enabled) then
         local content = tokenizestring(Message)
         if (#content == 0) then
             return nil
@@ -1739,7 +1741,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Command Spy
-    if (settings.mod["Command Spy"].enabled == true) then
+    if (settings.mod["Command Spy"].enabled) then
         local hidden_messages = settings.mod["Command Spy"].commands_to_hide
         local hidden
         for k, _ in pairs(hidden_messages) do
@@ -1762,7 +1764,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Chat Logging
-    if (settings.mod["Chat Logging"].enabled == true) then
+    if (settings.mod["Chat Logging"].enabled) then
         local chat_type
 
         if type == 0 then
@@ -1808,7 +1810,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Chat IDs
-    if (settings.mod["Chat IDs"].enabled == true) then
+    if (settings.mod["Chat IDs"].enabled) then
         if not (game_over) and not (muted[tonumber(PlayerIndex)]) then
 
             -- GLOBAL FORMAT
@@ -1933,7 +1935,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
                 end
 
-                if (settings.mod["Admin Chat"].enabled == true) then
+                if (settings.mod["Admin Chat"].enabled) then
                     if (players[p_table].adminchat ~= true) then
                         ChatHandler(PlayerIndex, Message)
                     end
@@ -1945,7 +1947,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
+    if (settings.mod["Admin Chat"].enabled) then
         local function AdminChat(Message)
             for i = 1, 16 do
                 if player_present(i) and tonumber(get_var(i, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
@@ -1984,7 +1986,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Teleport Manager
-    if (settings.mod["Teleport Manager"].enabled == true) then
+    if (settings.mod["Teleport Manager"].enabled) then
         if wait_for_response[PlayerIndex] then
             if Message == ("yes") then
                 local file_name = settings.mod["Teleport Manager"].dir
@@ -2085,24 +2087,22 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     if (command == settings.global.plugin_commands.list) then
         if (privilege_level) >= getPermLevel(nil, nil, "senior_admin") then
-            rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
+            --rprint(PlayerIndex, "\n----- [ BASE GAME SETTINGS ] -----")
             local t = {}
             for k, _ in pairs(settings.mod) do
                 t[#t + 1] = k
             end
             for k, v in pairs(t) do
                 if v then
-                    if (settings.mod[v].enabled == true) then
+                    if (settings.mod[v].enabled) then
                         rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is enabled")
                     else
                         rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is disabled")
                     end
                 end
             end
-            rprint(PlayerIndex, "-----------------------------------------------------\n")
-            for _ in pairs(t) do
-                t[_] = nil
-            end
+            --rprint(PlayerIndex, "-----------------------------------------------------\n")
+            for _ in pairs(t) do t[_] = nil end
         else
             rprint(PlayerIndex, "Insufficient Permission")
         end
@@ -2118,7 +2118,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 for k, v in pairs(t) do
                     if v then
                         if (tonumber(id) == tonumber(k)) then
-                            if (settings.mod[v].enabled == false) then
+                            if not (settings.mod[v].enabled) then
                                 settings.mod[v].enabled = true
                                 rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is enabled")
                             else
@@ -2148,7 +2148,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 for k, v in pairs(t) do
                     if v then
                         if (tonumber(id) == tonumber(k)) then
-                            if (settings.mod[v].enabled == true) then
+                            if (settings.mod[v].enabled) then
                                 settings.mod[v].enabled = false
                                 rprint(PlayerIndex, "[" .. k .. "] " .. v .. " is disabled")
                             else
@@ -2166,179 +2166,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-
-    -- #Suggestions Box (requested by Cyser@)
-    if (settings.mod["Suggestions Box"].enabled == true) then
-        if (command == settings.mod["Suggestions Box"].base_command) then
-            if (t[2] ~= nil) then
-                local name = get_var(PlayerIndex, "$name")
-                local t = { }
-                local dir = settings.mod["Suggestions Box"].dir
-                local txt_format = settings.mod["Suggestions Box"].file_format
-                local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
-                
-                t[#t + 1] = content
-                if (t) then
-                    local file = io.open(dir, "a+")
-                    if (file) then
-                        for _,v in pairs(t) do text = v end
-                        local tstamp = os.date("%d/%m/%Y - %H:%M:%S")
-                        local str = gsub(gsub(gsub(txt_format, "%%time_stamp%%", tstamp), "%%player_name%%", name), "%%message%%", text .. "\n")
-                        file:write(str)
-                        file:close()
-                        rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
-                        rprint(PlayerIndex, "------------ [ MESSAGE ] ------------------------------------------------")
-                        rprint(PlayerIndex, text)
-                        rprint(PlayerIndex, "-------------------------------------------------------------------------------------------------------------")
-                    end
-                end
-            else
-                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Suggestions Box"].base_command .. " {message}")
-            end
-            for _ in pairs(t) do _ = nil end
-            return false
-        end
-    end
     
-    -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
-        if (command == settings.mod["Lurker"].base_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
-                if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
-                    local function validate(PlayerIndex)
-                        if (settings.mod["Infinite Ammo"].enabled == true) then
-                            if (infammo[PlayerIndex] ~= true) then
-                                return true
-                            end
-                        else
-                            return true
-                        end
-                        return false
-                    end
-
-                    if validate(PlayerIndex) then
-                        setLurker(PlayerIndex, true)
-                        rprint(PlayerIndex, "Lurker mode enabled!")
-                    else
-                        rprint(PlayerIndex, "Unable to activate Lurker while Infinite Ammo is enabled")
-                    end
-                else
-                    setLurker(PlayerIndex, false)
-                    rprint(PlayerIndex, "Lurker mode disabled!")
-                end
-            else
-                rprint(PlayerIndex, "Insufficient Permission")
-            end
-            return false
-        end
-    end
-
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true) then
-        if (command == settings.mod["Infinite Ammo"].base_command) then
-            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
-
-                    local _min = settings.mod["Infinite Ammo"].multiplier_min
-                    local _max = settings.mod["Infinite Ammo"].multiplier_max
-
-                    local function EnableInfAmmo(TargetID, specified, multiplier)
-                        local function validate(TargetID)
-                            if (settings.mod["Lurker"].enabled == true) then
-                                if (lurker[TargetID] ~= true) then
-                                    return true
-                                end
-                            else
-                                return true
-                            end
-                            return false
-                        end
-                        if validate(TargetID) then
-                            infammo[TargetID] = true
-                            frag_check[TargetID] = true
-                            adjust_ammo(TargetID)
-                            if specified then
-                                local mult = tonumber(multiplier)
-                                modify_damage[TargetID] = true
-                                damage_multiplier[TargetID] = mult
-                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
-                                rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
-                            else
-                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
-                            end
-                        else
-                            rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
-                        end
-                    end
-
-                    local function validate(T3)
-                        if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
-                            return true
-                        else
-                            rprint(PlayerIndex, "Invalid multiplier. Choose a number between 0.001-10")
-                        end
-                        return false
-                    end
-
-
-                    if t[2] ~= nil then
-                        if t[2] == "me" then
-                            if t[3] == nil then
-                                EnableInfAmmo(PlayerIndex, false, 0)
-                            elseif t[3]:match("%d+") then
-                                if validate(tonumber(t[3])) then
-                                    EnableInfAmmo(PlayerIndex, true, tonumber(t[3]))
-                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
-                                end
-                            else
-                                rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
-                            end
-                        elseif t[2]:match("%d+") then
-                            if t[3] == nil then
-                                if player_present(tonumber(t[2])) then
-                                    EnableInfAmmo(tonumber(t[2]), false, 0)
-                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[2]), "$name"))
-                                else
-                                    rprint(PlayerIndex, "Player not present")
-                                end
-                            elseif t[3]:match("%d+") then
-                                if player_present(tonumber(t[2])) then
-                                    if validate(tonumber(t[3])) then
-                                        EnableInfAmmo(tonumber(t[2]), true, tonumber(t[3]))
-                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
-                                    end
-                                else
-                                    rprint(PlayerIndex, "Player not present")
-                                end
-                            end
-                        elseif t[2] == "off" then
-                            if t[3] == nil or t[3] == "me" then
-                                DisableInfAmmo(PlayerIndex)
-                                rprint(PlayerIndex, "[cheat] Disabled infammo")
-                            elseif t[3]:match("%d+") then
-                                if player_present(tonumber(t[3])) then
-                                    DisableInfAmmo(tonumber(t[3]))
-                                    rprint(PlayerIndex, "[cheat] Disabled infammo for " .. get_var(tonumber(t[3]), "$name"))
-                                else
-                                    rprint(PlayerIndex, "Player not present")
-                                end
-                            end
-                        else
-                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
-                        end
-                    else
-                        rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
-                    end
-                else
-                    rprint(PlayerIndex, "Insufficient Permission")
-                end
-            else
-                cprint("The Server cannot execute this command!", 4 + 8)
-            end
-            return false
-        end
-    end
-
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
@@ -2461,8 +2289,188 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    -- #Suggestions Box (requested by Cyser@)
+    if (command == settings.mod["Suggestions Box"].base_command) then
+        if (settings.mod["Suggestions Box"].enabled) then
+            if (t[2] ~= nil) then
+                local name = get_var(PlayerIndex, "$name")
+                local t = { }
+                local dir = settings.mod["Suggestions Box"].dir
+                local txt_format = settings.mod["Suggestions Box"].file_format
+                local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
+                
+                t[#t + 1] = content
+                if (t) then
+                    local file = io.open(dir, "a+")
+                    if (file) then
+                        for _,v in pairs(t) do text = v end
+                        local tstamp = os.date("%d/%m/%Y - %H:%M:%S")
+                        local str = gsub(gsub(gsub(txt_format, "%%time_stamp%%", tstamp), "%%player_name%%", name), "%%message%%", text .. "\n")
+                        file:write(str)
+                        file:close()
+                        rprint(PlayerIndex, gsub(settings.mod["Suggestions Box"].response, "%%player_name%%", name))
+                        rprint(PlayerIndex, "------------ [ MESSAGE ] ------------------------------------------------")
+                        rprint(PlayerIndex, text)
+                        rprint(PlayerIndex, "-------------------------------------------------------------------------------------------------------------")
+                    end
+                end
+            else
+                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Suggestions Box"].base_command .. " {message}")
+            end
+            for _ in pairs(t) do _ = nil end
+            return false
+        else
+            rprint(PlayerIndex, "Unable to execute. Suggestions Box is disabled.")
+            return false
+        end
+    end
+    
+    -- #Lurker
+    if (command == settings.mod["Lurker"].base_command) then
+        if (settings.mod["Lurker"].enabled) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
+                if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
+                    local function validate(PlayerIndex)
+                        if (settings.mod["Infinite Ammo"].enabled) then
+                            if (infammo[PlayerIndex] ~= true) then
+                                return true
+                            end
+                        else
+                            return true
+                        end
+                        return false
+                    end
+
+                    if validate(PlayerIndex) then
+                        setLurker(PlayerIndex, true)
+                        rprint(PlayerIndex, "Lurker mode enabled!")
+                    else
+                        rprint(PlayerIndex, "Unable to activate Lurker while Infinite Ammo is enabled")
+                    end
+                else
+                    setLurker(PlayerIndex, false)
+                    rprint(PlayerIndex, "Lurker mode disabled!")
+                end
+            else
+                rprint(PlayerIndex, "Insufficient Permission")
+            end
+            return false
+        else
+            rprint(PlayerIndex, "Unable to execute. Lurker is disabled.")
+            return false
+        end
+    end
+
+    -- #Infinite Ammo
+    if (command == settings.mod["Infinite Ammo"].base_command) then
+        if (settings.mod["Infinite Ammo"].enabled) then
+            if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+                if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
+
+                    local _min = settings.mod["Infinite Ammo"].multiplier_min
+                    local _max = settings.mod["Infinite Ammo"].multiplier_max
+
+                    local function EnableInfAmmo(TargetID, specified, multiplier)
+                        local function validate(TargetID)
+                            if (settings.mod["Lurker"].enabled) then
+                                if (lurker[TargetID] ~= true) then
+                                    return true
+                                end
+                            else
+                                return true
+                            end
+                            return false
+                        end
+                        if validate(TargetID) then
+                            infammo[TargetID] = true
+                            frag_check[TargetID] = true
+                            adjust_ammo(TargetID)
+                            if specified then
+                                local mult = tonumber(multiplier)
+                                modify_damage[TargetID] = true
+                                damage_multiplier[TargetID] = mult
+                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                                rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                            else
+                                rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                            end
+                        else
+                            rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
+                        end
+                    end
+
+                    local function validate(T3)
+                        if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
+                            return true
+                        else
+                            rprint(PlayerIndex, "Invalid multiplier. Choose a number between 0.001-10")
+                        end
+                        return false
+                    end
+                    
+                    if t[2] ~= nil then
+                        if t[2] == "me" then
+                            if t[3] == nil then
+                                EnableInfAmmo(PlayerIndex, false, 0)
+                            elseif t[3]:match("%d+") then
+                                if validate(tonumber(t[3])) then
+                                    EnableInfAmmo(PlayerIndex, true, tonumber(t[3]))
+                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                end
+                            else
+                                rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                            end
+                        elseif t[2]:match("%d+") then
+                            if t[3] == nil then
+                                if player_present(tonumber(t[2])) then
+                                    EnableInfAmmo(tonumber(t[2]), false, 0)
+                                    rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[2]), "$name"))
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
+                            elseif t[3]:match("%d+") then
+                                if player_present(tonumber(t[2])) then
+                                    if validate(tonumber(t[3])) then
+                                        EnableInfAmmo(tonumber(t[2]), true, tonumber(t[3]))
+                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                    end
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
+                            end
+                        elseif t[2] == "off" then
+                            if t[3] == nil or t[3] == "me" then
+                                DisableInfAmmo(PlayerIndex)
+                                rprint(PlayerIndex, "[cheat] Disabled infammo")
+                            elseif t[3]:match("%d+") then
+                                if player_present(tonumber(t[3])) then
+                                    DisableInfAmmo(tonumber(t[3]))
+                                    rprint(PlayerIndex, "[cheat] Disabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                else
+                                    rprint(PlayerIndex, "Player not present")
+                                end
+                            end
+                        else
+                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                    end
+                else
+                    rprint(PlayerIndex, "Insufficient Permission")
+                end
+            else
+                cprint("The Server cannot execute this command!", 4 + 8)
+            end
+            return false
+        else
+            rprint(PlayerIndex, "Unable to execute. Infinite Ammo is disabled.")
+            return false
+        end
+    end
+
     -- #List Players
-    if (settings.mod["List Players"].enabled == true) then
+    if (settings.mod["List Players"].enabled) then
         local commands = settings.mod["List Players"].command_aliases
         local count = #t
         for _, v in pairs(commands) do
@@ -2481,8 +2489,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     
     -- #Crouch Teleport
-    if (settings.mod["Crouch Teleport"].enabled == true) then
-        if (command == settings.mod["Crouch Teleport"].base_command) then
+    if (command == settings.mod["Crouch Teleport"].base_command) then
+        if (settings.mod["Crouch Teleport"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Crouch Teleport", nil, nil) then
                 if t[2] ~= nil then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" then
@@ -2507,12 +2515,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
             end
             return false
+        else
+            rprint(PlayerIndex, "Unable to execute. Crouch Teleport is disabled.")
+            return false
         end
     end
 
     -- #What cute things did you do today
-    if (settings.mod["wctdydt"].enabled == true) then
-        if (command == settings.mod["wctdydt"].base_command) then
+    if (command == settings.mod["wctdydt"].base_command) then
+        if (settings.mod["wctdydt"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= settings.mod["wctdydt"].permission_level then
                 if (t[2] ~= nil and t[2]:match("%d+")) then
                     local target_id = tonumber(t[2])
@@ -2556,12 +2567,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "Insufficient Permission")
             end
             return false
+        else
+            rprint(PlayerIndex, "Unable to execute. wctdydt is disabled.")
+            return false
         end
     end
 
     -- #Item Spawner
-    if (settings.mod["Item Spawner"].enabled == true) then
-        if (command == settings.mod["Item Spawner"].base_command) then
+    if (command == settings.mod["Item Spawner"].base_command) then
+        if (settings.mod["Item Spawner"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
                 if t[2] ~= nil then
                     if player_alive(PlayerIndex) then
@@ -2614,7 +2628,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "Invalid Syntax")
             end
             return false
-        elseif (command == settings.mod["Item Spawner"].list) then
+        else
+            rprint(PlayerIndex, "Unable to execute. Item Spawner is disabled.")
+            return false
+        end
+    elseif (command == settings.mod["Item Spawner"].list) then
+        if (settings.mod["Item Spawner"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Item Spawner", nil, nil) then
                 local function concatTableObjects(PlayerIndex, start_index, end_index)
                     local t = {}
@@ -2645,12 +2664,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "Insufficient Permission")
             end
             return false
+        else
+            rprint(PlayerIndex, "Unable to execute. Item Spawner is disabled.")
+            return false
         end
     end
 
     -- #Get Coords
-    if (settings.mod["Get Coords"].enabled == true) then
-        if (command == settings.mod["Get Coords"].base_command) then
+    if (command == settings.mod["Get Coords"].base_command) then
+        if (settings.mod["Get Coords"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Get Coords", nil, nil) then
                 local player_object = get_dynamic_player(PlayerIndex)
                 if player_object ~= 0 then
@@ -2669,12 +2691,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     return false
                 end
             end
+        else
+            rprint(PlayerIndex, "Unable to execute. Get Coords is disabled.")
+            return false
         end
     end
 
     -- #Admin Chat
-    if (settings.mod["Admin Chat"].enabled == true) then
-        if (command == settings.mod["Admin Chat"].base_command) then
+    if (command == settings.mod["Admin Chat"].base_command) then
+        if (settings.mod["Admin Chat"].enabled) then
             if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                 if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" or t[2] == '"1"' or t[2] == '"on"' or t[2] == '"true"' then
@@ -2708,12 +2733,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             else
                 cprint("The Server cannot execute this command!", 4 + 8)
             end
+        else
+            rprint(PlayerIndex, "Unable to execute. Admin Chat is disabled.")
+            return false
         end
     end
 
     -- #Alias System
-    if (settings.mod["Alias System"].enabled == true) then
-        if (command == settings.mod["Alias System"].base_command) then
+    if (command == settings.mod["Alias System"].base_command) then
+        if (settings.mod["Alias System"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Alias System", nil, nil) then
                 if t[2] ~= nil then
                     if t[2] == match(t[2], "^%d+$") and t[3] == nil then
@@ -2751,11 +2779,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             else
                 rprint(PlayerIndex, "Insufficient Permission")
             end
+        else
+            rprint(PlayerIndex, "Unable to execute. Alias System is disabled.")
+            return false
         end
     end
 
     -- #Teleport Manager
-    if (settings.mod["Teleport Manager"].enabled == true) then
+    if (settings.mod["Teleport Manager"].enabled) then
         local file_name = settings.mod["Teleport Manager"].dir
         if t[1] ~= nil then
             if (command == settings.mod["Teleport Manager"].commands[1]) then
@@ -3051,7 +3082,7 @@ end
 -- Used Globally
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (lurker[CauserIndex] == true) then
                 return false
@@ -3059,7 +3090,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         end
     end
     -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled == true) then
+    if (settings.mod["Infinite Ammo"].enabled) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (modify_damage[CauserIndex] == true) then
                 return true, Damage * tonumber(damage_multiplier[CauserIndex])
@@ -3070,7 +3101,7 @@ end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         if (lurker[PlayerIndex] == true) then
             if tonumber(Type) == 1 then
                 local PlayerObj = get_dynamic_player(PlayerIndex)
@@ -3093,7 +3124,7 @@ end
 
 function OnWeaponDrop(PlayerIndex)
     -- #Lurker
-    if (settings.mod["Lurker"].enabled == true) then
+    if (settings.mod["Lurker"].enabled) then
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
             cls(PlayerIndex)
             has_objective[PlayerIndex] = false
@@ -3193,7 +3224,7 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if PlayerIndex then
         -- #Infinite Ammo
-        if (settings.mod["Infinite Ammo"].enabled == true and infammo[PlayerIndex] == true) then
+        if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
             adjust_ammo(PlayerIndex)
         end
     end
@@ -3322,7 +3353,7 @@ end
 function printEnabled()
     cprint("\n----- [ BASE GAME SETTINGS ] -----", 3 + 5)
     for k, _ in pairs(settings.mod) do
-        if (settings.mod[k].enabled == true) then
+        if (settings.mod[k].enabled) then
             cprint(k .. " is enabled", 2 + 8)
         else
             cprint(k .. " is disabled", 4 + 8)
@@ -3564,7 +3595,6 @@ function removeEntry(ip, hash, PlayerIndex)
 end
 
 function CheckForFlag(PlayerIndex)
-    local bool = false
     local player_object = get_dynamic_player(PlayerIndex)
     for i = 0, 3 do
         local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
@@ -3574,12 +3604,12 @@ function CheckForFlag(PlayerIndex)
                 local tag_address = read_word(weap_object)
                 local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
                 if (read_bit(tagdata + 0x308, 3) == 1) then
-                    bool = true
+                    return true
                 end
             end
         end
     end
-    return bool
+    return false
 end
 
 function secondsToTime(seconds, places)
