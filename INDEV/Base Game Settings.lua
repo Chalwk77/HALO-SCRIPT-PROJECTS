@@ -954,6 +954,7 @@ function OnGameEnd()
             file:close()
         end
     end
+    game_over = true
 end
 
 function OnTick()
