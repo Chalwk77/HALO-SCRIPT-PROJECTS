@@ -1809,7 +1809,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
     -- #Chat IDs
     if (settings.mod["Chat IDs"].enabled == true) then
-        if not (game_over) and (muted[tonumber(PlayerIndex)] ~= true) then
+        if not (game_over) and not (muted[tonumber(PlayerIndex)]) then
 
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
