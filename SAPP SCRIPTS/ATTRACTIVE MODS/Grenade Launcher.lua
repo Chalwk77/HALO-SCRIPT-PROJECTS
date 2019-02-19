@@ -21,7 +21,7 @@ default_velocity = 0.6
 default_distance = 0.5
 
 -- Enables Custom Weapon Assignment.
-use_weapon_assignment = true
+use_weapon_assignment = false
 weapon_assignment = {}
 -- Set 'true' to 'false' to disable that weapon assignment upon typing /launcher on
 weapon_assignment[1] = { "weap", "weapons\\assault rifle\\assault rifle", true }
