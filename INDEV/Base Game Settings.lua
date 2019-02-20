@@ -2725,6 +2725,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         else
                             portalgun_mode[PlayerIndex] = true
                             rprint(PlayerIndex, "Portalgun Mode enabled.")
+                            for i = 1,16 do
+                                if (player_present(i) and i ~= PlayerIndex) then
+                                    say(i, get_var(i, "$name") .. " is now in portalgun mode!")
+                                end
+                            end
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
                         if portalgun_mode[PlayerIndex] == false then
