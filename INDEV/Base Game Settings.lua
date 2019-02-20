@@ -3843,7 +3843,6 @@ function DelayCleanUpDrones(PlayerIndex)
                 if v then
                     destroy_object(v)
                     vehicle_drone_table[PlayerIndex][k] = nil
-                    vehicle_drone_table[PlayerIndex] = nil
                 end
             end
         end
