@@ -581,6 +581,7 @@ local player_info = {}
 local mapname = ""
 local ce
 local empty_file
+local console_address_patch = nil
 
 -- Mute Handler
 local mute_duration = {}
@@ -809,6 +810,13 @@ function OnScriptLoad()
         end
         timer(50, "consoleLogo")
     end
+    local rcon = sig_scan("B8????????E8??000000A1????????55")
+    if (rcon ~= 0) then
+        console_address_patch = read_dword(rcon + 1)
+        safe_write(true)
+        write_byte(console_address_patch,0)
+        safe_write(false)
+    end
 end
 
 function OnScriptUnload()
@@ -824,6 +832,11 @@ function OnScriptUnload()
                 end
             end
         end
+    end
+    if console_address_patch ~= nil then
+        safe_write(true)
+        write_byte(console_address_patch, 0x72)
+        safe_write(false)
     end
 end
 
@@ -2408,27 +2421,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if t[2]:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
                                     if TagInfo(objects_table[i][2], objects_table[i][3]) then
                                     
-                                        local x,y,z
+                                        local x,y,z, offset
                                         
                                         local player_object = get_dynamic_player(PlayerIndex)
                                         if PlayerInVehicle(PlayerIndex) then
                                             local VehicleID = read_dword(player_object + 0x11C)
-                                            if (VehicleID == 0xFFFFFFFF) then
-                                                return false
-                                            end
+                                            if (VehicleID == 0xFFFFFFFF) then return false end
                                             local vehicle = get_object_memory(VehicleID)
                                             x, y, z = read_vector3d(vehicle + 0x5c)
                                             ev_OldVehicle[PlayerIndex] = VehicleID
                                         else
                                             x, y, z = read_vector3d(player_object + 0x5c)
-                                            local camera_x = read_float(player_object + 0x230)
-                                            local camera_y = read_float(player_object + 0x234)
-                                            x = x + camera_x * 2
-                                            y = y + camera_y * 2
-                                            z = z + 2
                                         end
                                         
-                                        ev_NewVehicle[PlayerIndex] = spawn_object("vehi", objects_table[i][3], x, y, z + 0.5)
+                                        offset = 0.3
+                                        
+                                        local camera_x = read_float(player_object + 0x230)
+                                        local camera_y = read_float(player_object + 0x234)
+                                        x = x + camera_x * 2
+                                        y = y + camera_y * 2
+                                        z = z + offset
+                                    
+                                        ev_NewVehicle[PlayerIndex] = spawn_object("vehi", objects_table[i][3], x, y, z)
                                         
                                         local multi_control = settings.mod["Enter Vehicle"].multi_control
                                         
@@ -2465,9 +2479,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
 
+                            if (is_valid) then
+                                rprint(PlayerIndex, "Entering vehicle")
+                            end
                             
                             if not (is_valid) and (no_match) and not (is_error) then
                                 rprint(PlayerIndex, "Failed to spawn object. [unknown object name]")
+                                
                             elseif (is_valid == nil or is_valid == false) and (is_error) and (no_match) then
                                 rprint(PlayerIndex, "Failed to spawn object. [missing tag id]")
                             end
