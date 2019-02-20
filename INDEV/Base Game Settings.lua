@@ -15,7 +15,7 @@ Combined Scripts:
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
-    - Lurker                Infinity Ammo       Crouch Teleport (request by Shoo)
+    - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
 
     BGS Commands:
@@ -115,6 +115,7 @@ local function GameSettings()
                 enabled = true,
                 base_command = "lurker",
                 permission_level = 1,
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
                 speed = true,
                 god = true, 
                 camouflage = true,
@@ -133,6 +134,7 @@ local function GameSettings()
                 enabled = true,
                 server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
                 base_command = "infammo",
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
                 permission_level = 1,
                 multiplier_min = 0.001, -- minimum damage multiplier
                 multiplier_max = 10, -- maximum damage multiplier
@@ -146,9 +148,10 @@ local function GameSettings()
                 file_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
                 response = "Thank you for your suggestion, %player_name%" -- Message omitted to the player when they execute /suggest
             },
-            ["Crouch Teleport"] = {
+            ["Portal Gun"] = {
                 enabled = true,
                 base_command = "portalgun",
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
             },
             ["Message Board"] = { -- Welcome messages | OnPlayerJoin()
@@ -639,7 +642,7 @@ local frag_check = {}
 local modify_damage = {}
 local damage_multiplier = {}
 
--- #Crouch Teleport
+-- #Portal Gun
 local weapon_status = {}
 local portalgun_mode = {}
 
@@ -691,6 +694,14 @@ end
 local function enterVehicle(PlayerIndex, Vehicle)
     enter_vehicle(Vehicle, PlayerIndex, 0)
     ev[PlayerIndex] = true
+end
+
+local function announce(PlayerIndex, message)
+    for i = 1,16 do
+        if (player_present(i) and i ~= PlayerIndex) then
+            say(i, message)
+        end
+    end
 end
 
 function OnScriptLoad()
@@ -1050,8 +1061,8 @@ function OnTick()
                     end
                 end
             end
-            -- #Crouch Teleport
-            if (settings.mod["Crouch Teleport"].enabled) then
+            -- #Portal Gun
+            if (settings.mod["Portal Gun"].enabled) then
                 if (player_present(i) and player_alive(i)) then
                     if (portalgun_mode[i] == true) then
                         local player_object = get_dynamic_player(i)
@@ -1705,8 +1716,8 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
     
-    -- #Crouch Teleport
-    if (settings.mod["Crouch Teleport"].enabled) then
+    -- #Portal Gun
+    if (settings.mod["Portal Gun"].enabled) then
         weapon_status[PlayerIndex] = 0
     end
     
@@ -2615,6 +2626,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
                                 else
                                     rprint(TargetID, "[cheat] Infinity Ammo enabled!")
+                                    if (settings.mod["Infinity Ammo"].announcer) then
+                                        announce(PlayerIndex, get_var(i, "$name") .. " is now in Infinity Ammo mode.")
+                                    end
                                 end
                             else
                                 rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
@@ -2714,10 +2728,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
     
-    -- #Crouch Teleport
-    if (command == settings.mod["Crouch Teleport"].base_command) then
-        if (settings.mod["Crouch Teleport"].enabled) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Crouch Teleport", nil, nil) then
+    -- #Portal Gun
+    if (command == settings.mod["Portal Gun"].base_command) then
+        if (settings.mod["Portal Gun"].enabled) then
+            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Portal Gun", nil, nil) then
                 if t[2] ~= nil then
                     if t[2] == "on" or t[2] == "1" or t[2] == "true" then
                         if portalgun_mode[PlayerIndex] == true then
@@ -2725,10 +2739,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         else
                             portalgun_mode[PlayerIndex] = true
                             rprint(PlayerIndex, "Portalgun Mode enabled.")
-                            for i = 1,16 do
-                                if (player_present(i) and i ~= PlayerIndex) then
-                                    say(i, get_var(i, "$name") .. " is now in portalgun mode!")
-                                end
+                            if (settings.mod["Portal Gun"].announcer) then
+                                announce(PlayerIndex, get_var(i, "$name") .. " is now in portalgun mode!")
                             end
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
@@ -2747,7 +2759,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Failed to execute. Crouch Teleport is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Portal Gun is disabled.")
             return false
         end
     end
@@ -3388,10 +3400,8 @@ function setLurker(PlayerIndex, bool)
         if (settings.mod["Lurker"].camouflage == true) then
             execute_command("camo " .. tonumber(PlayerIndex))
         end
-        for i = 1,16 do
-            if (player_present(i) and i ~= PlayerIndex) then
-                say(i, get_var(i, "$name") .. " is now in lurker mode! [spectator]")
-            end
+        if (settings.mod["Lurker"].announcer) then
+            announce(PlayerIndex, get_var(i, "$name") .. " is now in lurker mode! [spectator]")
         end
     else
         lurker[PlayerIndex] = false
