@@ -15,7 +15,7 @@ Combined Scripts:
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
-    - Lurker                Infinite Ammo       Crouch Teleport (request by Shoo)
+    - Lurker                Infinity Ammo       Crouch Teleport (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
 
     BGS Commands:
@@ -129,9 +129,9 @@ local function GameSettings()
                 time_until_death = 10, -- Time (in seconds) until the player is killed after picking up the objective.
                 warnings = 4,
             },
-            ["Infinite Ammo"] = {
+            ["Infinity Ammo"] = {
                 enabled = true,
-                server_override = false, -- If this is enabled, all players will have infinite (perma-ammo) by default.
+                server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
                 base_command = "infammo",
                 permission_level = 1,
                 multiplier_min = 0.001, -- minimum damage multiplier
@@ -633,7 +633,7 @@ local object_picked_up = {}
 local has_objective = {}
 local lurker_warnings = {}
 
--- #Infinite Ammo
+-- #Infinity Ammo
 local infammo = {}
 local frag_check = {}
 local modify_damage = {}
@@ -1129,8 +1129,8 @@ function OnTick()
                 end
             end
 
-            -- #Infinite Ammo
-            if (settings.mod["Infinite Ammo"].enabled and infammo[i]) then
+            -- #Infinity Ammo
+            if (settings.mod["Infinity Ammo"].enabled and infammo[i]) then
                 if (frag_check[i] == true) and getFrags(i) == true then
                     execute_command("nades " .. tonumber(i) .. " 7")
                 end
@@ -1406,10 +1406,10 @@ function OnPlayerJoin(PlayerIndex)
         lurker_warnings[PlayerIndex] = settings.mod["Lurker"].warnings
     end
 
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled) then
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled) then
         damage_multiplier[PlayerIndex] = 0
-        if not settings.mod["Infinite Ammo"].server_override then
+        if not settings.mod["Infinity Ammo"].server_override then
             infammo[PlayerIndex] = false
             modify_damage[PlayerIndex] = false
             damage_multiplier[PlayerIndex] = 0
@@ -1583,8 +1583,8 @@ function OnPlayerLeave(PlayerIndex)
         resetLurker(PlayerIndex)
     end
 
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
         DisableInfAmmo(PlayerIndex)
     end
 
@@ -1719,8 +1719,8 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
 
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = true
         adjust_ammo(PlayerIndex)
     end
@@ -1777,8 +1777,8 @@ function OnPlayerKill(PlayerIndex)
         has_objective[PlayerIndex] = false
         resetLurker(PlayerIndex)
     end
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = false
     end
 end
@@ -2552,7 +2552,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
                     local function validate(PlayerIndex)
-                        if (settings.mod["Infinite Ammo"].enabled) then
+                        if (settings.mod["Infinity Ammo"].enabled) then
                             if (infammo[PlayerIndex] ~= true) then
                                 return true
                             end
@@ -2566,7 +2566,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         setLurker(PlayerIndex, true)
                         rprint(PlayerIndex, "Lurker mode enabled!")
                     else
-                        rprint(PlayerIndex, "Unable to activate Lurker while Infinite Ammo is enabled")
+                        rprint(PlayerIndex, "Unable to activate Lurker while Infinity Ammo is enabled")
                     end
                 else
                     setLurker(PlayerIndex, false)
@@ -2582,15 +2582,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- #Infinite Ammo
-    if (command == settings.mod["Infinite Ammo"].base_command) then
-        if (settings.mod["Infinite Ammo"].enabled) then
-            if not (settings.mod["Infinite Ammo"].server_override) then
+    -- #Infinity Ammo
+    if (command == settings.mod["Infinity Ammo"].base_command) then
+        if (settings.mod["Infinity Ammo"].enabled) then
+            if not (settings.mod["Infinity Ammo"].server_override) then
                 if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
-                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinite Ammo", nil, nil) then
+                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinity Ammo", nil, nil) then
 
-                        local _min = settings.mod["Infinite Ammo"].multiplier_min
-                        local _max = settings.mod["Infinite Ammo"].multiplier_max
+                        local _min = settings.mod["Infinity Ammo"].multiplier_min
+                        local _max = settings.mod["Infinity Ammo"].multiplier_max
 
                         local function EnableInfAmmo(TargetID, specified, multiplier)
                             local function validate(TargetID)
@@ -2611,10 +2611,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local mult = tonumber(multiplier)
                                     modify_damage[TargetID] = true
                                     damage_multiplier[TargetID] = mult
-                                    rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                                    rprint(TargetID, "[cheat] Infinity Ammo enabled!")
                                     rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
                                 else
-                                    rprint(TargetID, "[cheat] Infinite Ammo enabled!")
+                                    rprint(TargetID, "[cheat] Infinity Ammo enabled!")
                                 end
                             else
                                 rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
@@ -2640,7 +2640,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
                                     end
                                 else
-                                    rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                                    rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
                                 end
                             elseif t[2]:match("%d+") then
                                 if t[3] == nil then
@@ -2673,10 +2673,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     end
                                 end
                             else
-                                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
                             end
                         else
-                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinite Ammo"].base_command .. " [id] {multiplier}")
+                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
                         end
                     else
                         rprint(PlayerIndex, "Insufficient Permission")
@@ -2690,7 +2690,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Failed to execute. Infinite Ammo is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Infinity Ammo is disabled.")
             return false
         end
     end
@@ -3314,8 +3314,8 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
         end
     end
-    -- #Infinite Ammo
-    if (settings.mod["Infinite Ammo"].enabled) then
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (modify_damage[CauserIndex] == true) then
                 return true, Damage * tonumber(damage_multiplier[CauserIndex])
@@ -3453,8 +3453,8 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if PlayerIndex then
-        -- #Infinite Ammo
-        if (settings.mod["Infinite Ammo"].enabled and infammo[PlayerIndex]) then
+        -- #Infinity Ammo
+        if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
             adjust_ammo(PlayerIndex)
         end
     end
@@ -3603,7 +3603,7 @@ function timeUntilRestore(PlayerIndex)
     end
 end
 
--- #Infinite Ammo
+-- #Infinity Ammo
 function getFrags(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object ~= 0 and player_present(PlayerIndex) then
