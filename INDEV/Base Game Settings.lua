@@ -2415,15 +2415,34 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if player_alive(PlayerIndex) then
                         local object_to_spawn
                         if (t[2] ~= nil) then
-                            local is_valid, is_error, no_match
+                            local distance, height
+                            if t[3] ~= nil then
+                                if t[3]:match("%d+") then
+                                    distance = tonumber(t[3])
+                                else
+                                    rprint(PlayerIndex, "Command failed. Invalid distance parameter")
+                                end
+                            else
+                                distance = 2
+                            end
+                            
+                           if t[4] ~= nil then
+                                if t[4]:match("%d+") then
+                                    height = tonumber(t[3])
+                                else
+                                    rprint(PlayerIndex, "Command failed. Invalid height parameter")
+                                end
+                            else
+                                height = 0.3
+                            end
+                            
+                            local x, y, z, is_valid, is_error, no_match
                             local objects_table = settings.mod["Item Spawner"].objects
+                            local player_object = get_dynamic_player(PlayerIndex)
                             for i = 1, #objects_table do
                                 if t[2]:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
                                     if TagInfo(objects_table[i][2], objects_table[i][3]) then
                                     
-                                        local x,y,z, offset
-                                        
-                                        local player_object = get_dynamic_player(PlayerIndex)
                                         if PlayerInVehicle(PlayerIndex) then
                                             local VehicleID = read_dword(player_object + 0x11C)
                                             if (VehicleID == 0xFFFFFFFF) then return false end
@@ -2434,13 +2453,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                             x, y, z = read_vector3d(player_object + 0x5c)
                                         end
                                         
-                                        offset = 0.3
-                                        
                                         local camera_x = read_float(player_object + 0x230)
                                         local camera_y = read_float(player_object + 0x234)
-                                        x = x + camera_x * 2
-                                        y = y + camera_y * 2
-                                        z = z + offset
+                                        x = x + camera_x * distance
+                                        y = y + camera_y * distance
+                                        z = z + height
                                     
                                         ev_NewVehicle[PlayerIndex] = spawn_object("vehi", objects_table[i][3], x, y, z)
                                         
@@ -2507,7 +2524,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == settings.mod["Enter Vehicle"].clean) then
         if (settings.mod["Enter Vehicle"].enabled) then
-            if ev_NewVehicle[PlayerIndex] ~= nil then
+            if vehicle_drone_table[PlayerIndex] ~= nil then
                 if not PlayerInVehicle(PlayerIndex) then
                     DelayCleanUpDrones(PlayerIndex)
                 else
@@ -3808,20 +3825,6 @@ function CheckForFlag(PlayerIndex)
     return false
 end
 
-function PlayerInVehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
-        else
-            return true
-        end
-    else
-        return false
-    end
-end
-
 function DestroyObject(object)
     if object then
         destroy_object(object)
@@ -3830,11 +3833,12 @@ end
 
 function DelayCleanUpDrones(PlayerIndex)
     if vehicle_drone_table[PlayerIndex] ~= nil then
-        for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
+        for k, v in pairs(vehicle_drone_table[PlayerIndex]) do            
             if vehicle_drone_table[PlayerIndex][k] > 0 then
                 if v then
                     destroy_object(v)
                     vehicle_drone_table[PlayerIndex][k] = nil
+                    vehicle_drone_table[PlayerIndex] = nil
                 end
             end
         end
