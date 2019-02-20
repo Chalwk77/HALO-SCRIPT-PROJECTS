@@ -202,13 +202,6 @@ local function GameSettings()
                     "/skip"
                 }
             },
-            ["Enter Vehicle"] = {
-                enabled = true,
-                base_command = "enter",
-                clean = "clean",
-                permission_level = 1,
-                multi_control = true
-            },
             ["Custom Weapons"] = {
                 enabled = false, -- Enabled = true, Disabled = false
                 assign_weapons = false,
@@ -235,6 +228,13 @@ local function GameSettings()
                     ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
                     ["dummy"] = { rocket_launcher, nil, nil, nil, 1, 1 }
                 },
+            },
+            ["Enter Vehicle"] = {
+                enabled = true,
+                base_command = "enter",
+                clean = "clean",
+                permission_level = 1,
+                multi_control = true
             },
             ["Item Spawner"] = {
                 enabled = true,
