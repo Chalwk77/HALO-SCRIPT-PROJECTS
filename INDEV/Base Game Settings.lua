@@ -3185,7 +3185,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     end
                                 end
                             end
-                            if found ~= true then
+                            if not (found) then
                                 rprint(PlayerIndex, "That teleport name is not valid!")
                             end
                         else
@@ -3266,11 +3266,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         check_file_status(PlayerIndex)
                         if not empty_file then
                             local lines = lines_from(file_name)
-                            local del_found = nil
+                            local found
                             for k, v in pairs(lines) do
                                 if k ~= nil then
                                     if t[2] == v:match(k) then
-                                        del_found = true
+                                        found = true
                                         if find(v, mapname) then
                                             delete_from_file(file_name, k, 1, PlayerIndex)
                                             rprint(PlayerIndex, "Successfully deleted teleport id #" .. k)
@@ -3285,8 +3285,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         end
                                     end
                                 end
-                                end
-                            if del_found ~= true then
+                            end
+                            if not (found) then
                                 rprint(PlayerIndex, "Teleport Index ID does not exist!")
                             end
                         else
