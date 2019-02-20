@@ -1604,7 +1604,7 @@ function OnPlayerLeave(PlayerIndex)
     -- #Enter Vehicle
     if (settings.mod["Enter Vehicle"].enabled) then
         if ev_NewVehicle[PlayerIndex] ~= nil then
-            DelayCleanUpDrones(PlayerIndex)
+            CleanUpDrones(PlayerIndex)
             ev[PlayerIndex] = false
             ev_Status[PlayerIndex] = false
             vehicle_drone_table[PlayerIndex] = nil
@@ -1731,7 +1731,7 @@ function OnPlayerKill(PlayerIndex)
     -- #Enter Vehicle
     if (settings.mod["Enter Vehicle"].enabled) then
         if ev_NewVehicle[PlayerIndex] ~= nil then
-            DelayCleanUpDrones(PlayerIndex)
+            CleanUpDrones(PlayerIndex)
         end
     end
     
@@ -2533,7 +2533,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (settings.mod["Enter Vehicle"].enabled) then
             if vehicle_drone_table[PlayerIndex] ~= nil then
                 if not PlayerInVehicle(PlayerIndex) then
-                    DelayCleanUpDrones(PlayerIndex)
+                    CleanUpDrones(PlayerIndex)
                 else
                     rprint(PlayerIndex, "Failed to execute. Please exit your current vehicle!")
                 end
@@ -3848,7 +3848,7 @@ function DestroyObject(object)
     end
 end
 
-function DelayCleanUpDrones(PlayerIndex)
+function CleanUpDrones(PlayerIndex)
     if vehicle_drone_table[PlayerIndex] ~= nil then
         for k, v in pairs(vehicle_drone_table[PlayerIndex]) do            
             if vehicle_drone_table[PlayerIndex][k] > 0 then
@@ -3858,6 +3858,7 @@ function DelayCleanUpDrones(PlayerIndex)
                 end
             end
         end
+        vehicle_drone_table[PlayerIndex] = nil
     end
 end
                                     
