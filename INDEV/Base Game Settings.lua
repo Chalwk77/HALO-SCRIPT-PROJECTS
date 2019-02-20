@@ -2761,7 +2761,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    rprint(PlayerIndex, "Invalid Syntax")
+                    rprint(PlayerIndex, "Invalid Syntax. Usage: /" .. settings.mod["Portal Gun"].base_command .. " on|off")
                 end
             else
                 rprint(PlayerIndex, "You do not have permission to execute that command!")
