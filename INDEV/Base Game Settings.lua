@@ -890,7 +890,7 @@ function OnNewGame()
 
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled) then
-        if (GetTeamPlay())
+        if (GetTeamPlay()) then
             can_use_colorres = false
         else
             can_use_colorres = true
@@ -928,6 +928,8 @@ end
 
 function OnGameEnd()
     -- Used Globally
+    -- Prevents displaying chat ids when the game is over.
+    -- Otherwise map voting breaks.
     game_over = true
 
     for i = 1, 16 do
@@ -1931,25 +1933,23 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 local function ChatHandler(PlayerIndex, Message)
                     local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
                         for i = 1, 16 do
-                            if player_present(i) then
-                                if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                                    local formattedString = ""
-                                    execute_command("msg_prefix \"\"")
-                                    if (Global == true) then
-                                        formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    elseif (Tmod == true) then
-                                        formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    elseif (Mod == true) then
-                                        formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    elseif (Admin == true) then
-                                        formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    elseif (sAdmin == true) then
-                                        formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                    end
-                                    say(i, formattedString)
-                                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                    response = false
+                            if player_present(i) and (get_var(i, "$team") == get_var(PlayerIndex, "$team")) then
+                                local formattedString = ""
+                                execute_command("msg_prefix \"\"")
+                                if (Global == true) then
+                                    formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Tmod == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Mod == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Admin == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (sAdmin == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 end
+                                say(i, formattedString)
+                                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                response = false
                             end
                         end
                     end
