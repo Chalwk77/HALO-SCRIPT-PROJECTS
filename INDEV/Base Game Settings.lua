@@ -2581,6 +2581,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 else
                     setLurker(PlayerIndex, false)
+                    if (settings.mod["Lurker"].announcer) then
+                        announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in lurker mode! [spectator]")
+                    end
                     rprint(PlayerIndex, "Lurker mode disabled!")
                 end
             else
@@ -2678,6 +2681,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if t[3] == nil or t[3] == "me" then
                                     DisableInfAmmo(PlayerIndex)
                                     rprint(PlayerIndex, "[cheat] Disabled infammo")
+                                    if (settings.mod["Infinity Ammo"].announcer) then
+                                        announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in Infinity Ammo Mode")
+                                    end
                                 elseif t[3]:match("%d+") then
                                     if player_present(tonumber(t[3])) then
                                         DisableInfAmmo(tonumber(t[3]))
@@ -2740,7 +2746,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             portalgun_mode[PlayerIndex] = true
                             rprint(PlayerIndex, "Portalgun Mode enabled.")
                             if (settings.mod["Portal Gun"].announcer) then
-                                announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in portalgun mode!")
+                                announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in Portal Gun mode!")
                             end
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
@@ -2749,6 +2755,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         else
                             portalgun_mode[PlayerIndex] = false
                             rprint(PlayerIndex, "Portalgun Mode disabled.")
+                            if (settings.mod["Portal Gun"].announcer) then
+                                announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in Portal Gun Mode")
+                            end
                         end
                     end
                 else
