@@ -11,7 +11,7 @@ Description: An all-in-one package that combines many of my scripts into one pla
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
     - Chat Logging          Command Spy         Custom Weapons
-    - Anti Impersonator     Console Logo        List Players
+    - Anti Impersonator     Console Logo        Player List
     - Alias System          Respawn Time        Teleport Manager
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
@@ -334,7 +334,7 @@ local function GameSettings()
                 enabled = true
             },
             -- # An alternative player list mod. Overrides SAPP's built in /pl command.
-            ["List Players"] = {
+            ["Player List"] = {
                 enabled = true,
                 permission_level = 1,
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
@@ -890,7 +890,7 @@ function OnNewGame()
 
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled) then
-        if (GetTeamPlay() == true) then
+        if (GetTeamPlay())
             can_use_colorres = false
         else
             can_use_colorres = true
@@ -1976,7 +1976,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     for b = 0, #message do
                         if message[b] then
                             if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
-                                if (GetTeamPlay() == true) then
+                                if (GetTeamPlay()) then
                                     if (type == 0 or type == 2) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
                                             if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
@@ -2715,15 +2715,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- #List Players
-    if (settings.mod["List Players"].enabled) then
-        local commands = settings.mod["List Players"].command_aliases
+    -- #Player List
+    if (settings.mod["Player List"].enabled) then
+        local commands = settings.mod["Player List"].command_aliases
         local count = #t
         for _, v in pairs(commands) do
             local cmds = tokenizestring(v, ",")
             for i = 1, #cmds do
                 if (t[1] == cmds[i]) then
-                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("List Players", nil, nil) then
+                    if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Player List", nil, nil) then
                         listPlayers(PlayerIndex, count)
                     else
                         rprint(PlayerIndex, "Insufficient Permission")
@@ -3436,17 +3436,22 @@ function getWarnings(PlayerIndex)
     return lurker_warnings[PlayerIndex]
 end
 
--- #List Players
+-- #Player List
 function listPlayers(PlayerIndex, count)
     if (count == 1) then
-        rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]")
+        local header, ffa
+        
+        if (GetTeamPlay()) then
+            header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
+        else
+            header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    IP. ]"
+        end
+        rprint(PlayerIndex, header)
+        
         for i = 1, 16 do
             if player_present(i) then
-                local name = get_var(i, "$name")
-                local id = get_var(i, "$n")
-                local team = get_var(i, "$team")
-                local ip = get_var(i, "$ip")
-                if get_var(0, "$ffa") == "0" then
+                local name, id, team, ip = get_var(i, "$name"), get_var(i, "$n"), get_var(i, "$team"), get_var(i, "$ip")
+                if (GetTeamPlay()) then
                     if team == "red" then
                         team = "Red"
                     elseif team == "blue" then
@@ -3455,9 +3460,14 @@ function listPlayers(PlayerIndex, count)
                         team = "Hidden"
                     end
                 else
+                    ffa = true
                     team = "FFA"
                 end
-                rprint(PlayerIndex, "|" .. settings.mod["List Players"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip)
+                if not (ffa) then
+                    rprint(PlayerIndex, "|" .. settings.mod["Player List"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip)
+                else
+                    rprint(PlayerIndex, "|" .. settings.mod["Player List"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. ip)
+                end
             end
         end
     else
