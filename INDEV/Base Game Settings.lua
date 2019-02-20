@@ -16,7 +16,7 @@ Combined Scripts:
     - Get Coords            Spawn From Sky      Admin Join Messages
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinite Ammo       Crouch Teleport (request by Shoo)
-    - Suggestions Box (request by Cyser@)
+    - Suggestions Box (request by Cyser@)       Enter Vehicle
 
     BGS Commands:
     /plugins
@@ -202,6 +202,13 @@ local function GameSettings()
                     "/skip"
                 }
             },
+            ["Enter Vehicle"] = {
+                enabled = true,
+                base_command = "enter",
+                clean = "clean",
+                permission_level = 1,
+                multi_control = true
+            },
             ["Custom Weapons"] = {
                 enabled = false, -- Enabled = true, Disabled = false
                 assign_weapons = false,
@@ -240,17 +247,23 @@ local function GameSettings()
                     -- To spawn an object, type /spawn [item name]
                     -- "Item Name", "tag type", "tag name"
                     [1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" },
+                    
+                    -- Equipment
                     [2] = { "camo", "eqip", "powerups\\active camouflage" },
                     [3] = { "health", "eqip", "powerups\\health pack" },
                     [4] = { "overshield", "eqip", "powerups\\over shield" },
                     [5] = { "frag", "eqip", "weapons\\frag grenade\\frag grenade" },
                     [6] = { "plasma", "eqip", "weapons\\plasma grenade\\plasma grenade" },
+                    
+                    -- Vehicles
                     [7] = { "banshee", "vehi", "vehicles\\banshee\\banshee_mp" },
                     [8] = { "turret", "vehi", "vehicles\\c gun turret\\c gun turret_mp" },
                     [9] = { "ghost", "vehi", "vehicles\\ghost\\ghost_mp" },
                     [10] = { "tank", "vehi", "vehicles\\scorpion\\scorpion_mp" },
                     [11] = { "rhog", "vehi", "vehicles\\rwarthog\\rwarthog" },
                     [12] = { "hog", "vehi", "vehicles\\warthog\\mp_warthog" },
+                    
+                    -- Weapons
                     [13] = { "rifle", "weap", "weapons\\assault rifle\\assault rifle" },
                     [14] = { "ball", "weap", "weapons\\ball\\ball" },
                     [15] = { "flag", "weap", "weapons\\flag\\flag" },
@@ -263,6 +276,8 @@ local function GameSettings()
                     [22] = { "rocket", "weap", "weapons\\rocket launcher\\rocket launcher" },
                     [23] = { "shotgun", "weap", "weapons\\shotgun\\shotgun" },
                     [24] = { "sniper", "weap", "weapons\\sniper rifle\\sniper rifle" },
+                    
+                    -- Projectiles
                     [25] = { "sheebolt", "proj", "vehicles\\banshee\\banshee bolt" },
                     [26] = { "sheerod", "proj", "vehicles\\banshee\\mp_banshee fuel rod" },
                     [27] = { "turretbolt", "proj", "vehicles\\c gun turret\\mp gun turret" },
@@ -281,9 +296,14 @@ local function GameSettings()
                     [40] = { "shottyshot", "proj", "weapons\\shotgun\\pellet" },
                     [41] = { "snipershot", "proj", "weapons\\sniper rifle\\sniper bullet" },
                     [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" },
+                    
                     -- Custom Vehicles [ Bitch Slap ]
                     [43] = { "slap1", "vehi", "deathstar\\1\\vehicle\\tag_2830" }, -- Chain Gun Hog
-                    [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" } -- Quad Bike
+                    [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" }, -- Quad Bike
+                    [45] = { "wraith", "vehi", "vehicles\\wraith\\wraith" },
+                    [46] = { "pelican", "vehi", "vehicles\\pelican\\pelican" },
+                    -- Custom Weapons ...
+                    
                 }
             },
             ["Anti Impersonator"] = {
@@ -621,6 +641,12 @@ local damage_multiplier = {}
 local weapon_status = {}
 local portalgun_mode = {}
 
+-- #Enter Vehicle
+local ev = { }
+local ev_Status = {}
+local ev_NewVehicle = { }
+local ev_OldVehicle = { }
+local vehicle_drone_table = { }
 
 local sub, gsub, find, lower, format, match = string.sub, string.gsub, string.find, string.lower, string.format, string.match
 local floor = math.floor
@@ -660,6 +686,11 @@ local function getPlayerInfo(PlayerIndex, id)
     end
 end
 
+local function enterVehicle(PlayerIndex, Vehicle)
+    enter_vehicle(Vehicle, PlayerIndex, 0)
+    ev[PlayerIndex] = true
+end
+
 function OnScriptLoad()
     loadWeaponTags()
     GameSettings()
@@ -687,8 +718,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 
     for i = 1, 16 do
@@ -1088,6 +1121,19 @@ function OnTick()
                     execute_command("nades " .. tonumber(i) .. " 7")
                 end
             end
+            
+            -- #Enter Vehicle
+            if (settings.mod["Enter Vehicle"].enabled) then
+                if ev_Status[i] == true then
+                    if not PlayerInVehicle(i) then
+                        enter_vehicle(ev_NewVehicle[i], i, 0)
+                        local old_vehicle = get_object_memory(ev_OldVehicle[i])
+                        write_vector3d(old_vehicle + 0x5C, 0, 0, 0)
+                        timer(500, "DestroyObject", ev_OldVehicle[i])
+                        ev_Status[i] = false
+                    end
+                end
+            end
 
             -- #Custom Weapons
             if (settings.mod["Custom Weapons"].enabled and settings.mod["Custom Weapons"].assign_weapons) then
@@ -1366,6 +1412,13 @@ function OnPlayerJoin(PlayerIndex)
         welcome_timer[PlayerIndex] = true
     end
 
+    -- #Enter Vehicle
+    if (settings.mod["Enter Vehicle"].enabled) then
+        ev[PlayerIndex] = false
+        ev_Status[PlayerIndex] = false
+        vehicle_drone_table[PlayerIndex] = nil
+    end
+    
     -- #Anti Impersonator
     if (settings.mod["Anti Impersonator"].enabled) then
 
@@ -1528,7 +1581,16 @@ function OnPlayerLeave(PlayerIndex)
         welcome_timer[PlayerIndex] = false
         players[p_table].message_board_timer = 0
     end
-
+    
+    -- #Enter Vehicle
+    if (settings.mod["Enter Vehicle"].enabled) then
+        if ev_NewVehicle[PlayerIndex] ~= nil then
+            DelayCleanUpDrones(PlayerIndex)
+            ev[PlayerIndex] = false
+            ev_Status[PlayerIndex] = false
+            vehicle_drone_table[PlayerIndex] = nil
+        end
+    end
 
     -- #Chat Logging
     if (settings.mod["Chat Logging"].enabled) then
@@ -1619,11 +1681,10 @@ function OnPlayerSpawn(PlayerIndex)
             if (colorres_bool[PlayerIndex]) then
                 colorres_bool[PlayerIndex] = false
                 local player_object = read_dword(get_player(PlayerIndex) + 0x34)
-                destroy_object(player_object)
+                DestroyObject(player_object)
             end
         end
     end
-
     
     -- #Crouch Teleport
     if (settings.mod["Crouch Teleport"].enabled) then
@@ -1646,6 +1707,14 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex)
+    
+    -- #Enter Vehicle
+    if (settings.mod["Enter Vehicle"].enabled) then
+        if ev_NewVehicle[PlayerIndex] ~= nil then
+            DelayCleanUpDrones(PlayerIndex)
+        end
+    end
+    
     -- #Respawn Time
     if (settings.mod["Respawn Time"].enabled) then
         local player = get_player(PlayerIndex)
@@ -2320,9 +2389,119 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             for _ in pairs(t) do _ = nil end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Suggestions Box is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Suggestions Box is disabled.")
             return false
         end
+    end
+    
+    -- #Enter Vehicle
+    if (command == settings.mod["Enter Vehicle"].base_command) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Enter Vehicle", nil, nil) then
+            if (settings.mod["Enter Vehicle"].enabled) then
+                if settings.mod["Item Spawner"].enabled then
+                    if player_alive(PlayerIndex) then
+                        local object_to_spawn
+                        if (t[2] ~= nil) then
+                            local is_valid, is_error, no_match
+                            local objects_table = settings.mod["Item Spawner"].objects
+                            for i = 1, #objects_table do
+                                if t[2]:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
+                                    if TagInfo(objects_table[i][2], objects_table[i][3]) then
+                                    
+                                        local x,y,z
+                                        
+                                        local player_object = get_dynamic_player(PlayerIndex)
+                                        if PlayerInVehicle(PlayerIndex) then
+                                            local VehicleID = read_dword(player_object + 0x11C)
+                                            if (VehicleID == 0xFFFFFFFF) then
+                                                return false
+                                            end
+                                            local vehicle = get_object_memory(VehicleID)
+                                            x, y, z = read_vector3d(vehicle + 0x5c)
+                                            ev_OldVehicle[PlayerIndex] = VehicleID
+                                        else
+                                            x, y, z = read_vector3d(player_object + 0x5c)
+                                            local camera_x = read_float(player_object + 0x230)
+                                            local camera_y = read_float(player_object + 0x234)
+                                            x = x + camera_x * 2
+                                            y = y + camera_y * 2
+                                            z = z + 2
+                                        end
+                                        
+                                        ev_NewVehicle[PlayerIndex] = spawn_object("vehi", objects_table[i][3], x, y, z + 0.5)
+                                        
+                                        local multi_control = settings.mod["Enter Vehicle"].multi_control
+                                        
+                                        -- Multi Control - NOT in vehicle
+                                        if multi_control and not PlayerInVehicle(PlayerIndex) then
+                                            enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
+                                            
+                                        -- Multi Control - IN vehicle
+                                        elseif multi_control and PlayerInVehicle(PlayerIndex) then
+                                            enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
+                                            
+                                        -- NO Multi Control - NOT in vehicle
+                                        elseif not multi_control and not PlayerInVehicle(PlayerIndex) then
+                                            enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
+                                            
+                                        -- NO Multi Control - IN vehicle
+                                        elseif not multi_control and PlayerInVehicle(PlayerIndex) then
+                                            exit_vehicle(PlayerIndex)
+                                            ev_Status[PlayerIndex] = true
+                                        end
+                                        
+                                        if ev_NewVehicle[PlayerIndex] ~= nil then
+                                            vehicle_drone_table[PlayerIndex] = vehicle_drone_table[PlayerIndex] or { }
+                                            table.insert(vehicle_drone_table[PlayerIndex], ev_NewVehicle[PlayerIndex])
+                                        end
+                                        
+                                        ev[PlayerIndex] = true
+                                        is_valid = true
+                                    else
+                                        is_error = true
+                                    end
+                                else
+                                    no_match = true
+                                end
+                            end
+
+                            
+                            if not (is_valid) and (no_match) and not (is_error) then
+                                rprint(PlayerIndex, "Failed to spawn object. [unknown object name]")
+                            elseif (is_valid == nil or is_valid == false) and (is_error) and (no_match) then
+                                rprint(PlayerIndex, "Failed to spawn object. [missing tag id]")
+                            end
+                        else
+                            rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Enter Vehicle"].base_command .. " {vehicle nickname}")
+                        end
+                    else
+                        rprint(PlayerIndex, "Command failed. You are dead. [wait until you respawn]")
+                    end
+                else
+                    rprint(PlayerIndex, "Error. Plugin: 'Item Spawner' needs to be enabled for this to work.")
+                end
+            else
+                rprint(PlayerIndex, "Failed to execute. Enter Vehicle is disabled.")
+            end
+        else
+            rprint(PlayerIndex, "Insufficient Permission")
+        end
+        return false
+    elseif (command == settings.mod["Enter Vehicle"].clean) then
+        if (settings.mod["Enter Vehicle"].enabled) then
+            if ev_NewVehicle[PlayerIndex] ~= nil then
+                if not PlayerInVehicle(PlayerIndex) then
+                    DelayCleanUpDrones(PlayerIndex)
+                else
+                    rprint(PlayerIndex, "Failed to execute. Please exit your current vehicle!")
+                end
+            else
+                rprint(PlayerIndex, "Nothing to clean!")
+            end
+        else
+            rprint(PlayerIndex, "Failed to execute. Enter Vehicle is disabled.")
+        end
+        return false
     end
     
     -- #Lurker
@@ -2356,7 +2535,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Lurker is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Lurker is disabled.")
             return false
         end
     end
@@ -2464,7 +2643,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Infinite Ammo is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Infinite Ammo is disabled.")
             return false
         end
     end
@@ -2516,7 +2695,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Crouch Teleport is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Crouch Teleport is disabled.")
             return false
         end
     end
@@ -2568,7 +2747,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. wctdydt is disabled.")
+            rprint(PlayerIndex, "Failed to execute. wctdydt is disabled.")
             return false
         end
     end
@@ -2580,8 +2759,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if t[2] ~= nil then
                     if player_alive(PlayerIndex) then
                         local objects_table = settings.mod["Item Spawner"].objects
-                        local is_valid
-                        local is_error
+                        local is_valid, is_error
                         local sin = math.sin
                         for i = 1, #objects_table do
                             if t[2]:match(objects_table[i][1]) then
@@ -2619,7 +2797,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             rprint(PlayerIndex, "'" .. t[2] .. "' is not a valid object or it is missing in the 'objects' table.")
                         end
                     else
-                        rprint(PlayerIndex, "[dead] - Unable to execute. Wait until you respawn.")
+                        rprint(PlayerIndex, "[dead] - Failed to execute. Wait until you respawn.")
                     end
                 else
                     rprint(PlayerIndex, "Insufficient Permission")
@@ -2629,7 +2807,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Item Spawner is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Item Spawner is disabled.")
             return false
         end
     elseif (command == settings.mod["Item Spawner"].list) then
@@ -2665,7 +2843,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            rprint(PlayerIndex, "Unable to execute. Item Spawner is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Item Spawner is disabled.")
             return false
         end
     end
@@ -2692,7 +2870,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         else
-            rprint(PlayerIndex, "Unable to execute. Get Coords is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Get Coords is disabled.")
             return false
         end
     end
@@ -2734,7 +2912,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 cprint("The Server cannot execute this command!", 4 + 8)
             end
         else
-            rprint(PlayerIndex, "Unable to execute. Admin Chat is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Admin Chat is disabled.")
             return false
         end
     end
@@ -2780,7 +2958,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 rprint(PlayerIndex, "Insufficient Permission")
             end
         else
-            rprint(PlayerIndex, "Unable to execute. Alias System is disabled.")
+            rprint(PlayerIndex, "Failed to execute. Alias System is disabled.")
             return false
         end
     end
@@ -3612,6 +3790,39 @@ function CheckForFlag(PlayerIndex)
     return false
 end
 
+function PlayerInVehicle(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local VehicleID = read_dword(player_object + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
+
+function DestroyObject(object)
+    if object then
+        destroy_object(object)
+    end
+end
+
+function DelayCleanUpDrones(PlayerIndex)
+    if vehicle_drone_table[PlayerIndex] ~= nil then
+        for k, v in pairs(vehicle_drone_table[PlayerIndex]) do
+            if vehicle_drone_table[PlayerIndex][k] > 0 then
+                if v then
+                    destroy_object(v)
+                    vehicle_drone_table[PlayerIndex][k] = nil
+                end
+            end
+        end
+    end
+end
+                                    
 function secondsToTime(seconds, places)
 
     local years = floor(seconds / (60 * 60 * 24 * 365))
