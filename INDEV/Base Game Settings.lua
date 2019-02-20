@@ -3371,6 +3371,11 @@ function setLurker(PlayerIndex, bool)
         if (settings.mod["Lurker"].camouflage == true) then
             execute_command("camo " .. tonumber(PlayerIndex))
         end
+        for i = 1,16 do
+            if (player_present(i) and i ~= PlayerIndex) then
+                say(i, get_var(i, "$name") .. " is now in lurker mode! [spectator]")
+            end
+        end
     else
         lurker[PlayerIndex] = false
         if (settings.mod["Lurker"].speed == true) then
