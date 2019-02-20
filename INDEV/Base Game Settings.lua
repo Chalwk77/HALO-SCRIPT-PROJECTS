@@ -2627,7 +2627,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 else
                                     rprint(TargetID, "[cheat] Infinity Ammo enabled!")
                                     if (settings.mod["Infinity Ammo"].announcer) then
-                                        announce(PlayerIndex, get_var(i, "$name") .. " is now in Infinity Ammo mode.")
+                                        announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in Infinity Ammo mode.")
                                     end
                                 end
                             else
@@ -2740,7 +2740,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             portalgun_mode[PlayerIndex] = true
                             rprint(PlayerIndex, "Portalgun Mode enabled.")
                             if (settings.mod["Portal Gun"].announcer) then
-                                announce(PlayerIndex, get_var(i, "$name") .. " is now in portalgun mode!")
+                                announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in portalgun mode!")
                             end
                         end
                     elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
@@ -3401,7 +3401,7 @@ function setLurker(PlayerIndex, bool)
             execute_command("camo " .. tonumber(PlayerIndex))
         end
         if (settings.mod["Lurker"].announcer) then
-            announce(PlayerIndex, get_var(i, "$name") .. " is now in lurker mode! [spectator]")
+            announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in lurker mode! [spectator]")
         end
     else
         lurker[PlayerIndex] = false
