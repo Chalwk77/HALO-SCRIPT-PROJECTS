@@ -36,7 +36,7 @@ Combined Scripts:
         * /clean [id] 1 (cleans up "Enter Vehicle" objects)
         * /clean [id] 2 (cleans up "Item Spawner" objects)
         * /clean [id] * (cleans up "everything")
-        Also, to clear up any confusion should their be any, /clean * * is valid - This will clean everything for everybody.
+        Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
 
     --
     
