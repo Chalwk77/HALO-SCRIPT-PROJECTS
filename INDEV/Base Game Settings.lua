@@ -326,7 +326,7 @@ local function GameSettings()
                     -- Make sure these names match exactly as they do in game.
                     "Chalwk",
                     "Ro@dhog",
-                    "�hoo",
+                    "§hoo",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
                 },
                 hashlist = {
