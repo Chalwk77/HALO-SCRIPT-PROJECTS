@@ -1564,9 +1564,10 @@ function OnPlayerLeave(PlayerIndex)
         cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
-        for i = 1,# player_info[PlayerIndex] do
+        for i = 1,#player_info[PlayerIndex] do
             table.remove(player_info[PlayerIndex], i)
         end
+        player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
     
