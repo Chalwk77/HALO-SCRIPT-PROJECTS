@@ -557,7 +557,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.5,
+            script_version = 1.6,
             check_for_updates = false,
             plugin_commands = {
                 enable = "enable",
