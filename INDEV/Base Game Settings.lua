@@ -566,7 +566,7 @@ local function GameSettings()
                 mute = "mute",
                 unmute = "unmute",
                 mutelist = "mutelist",
-                clearchat = "clear"
+                clearchat = "clear",
                 garbage_collection = "clean",
             },
             permission_level = {
@@ -1076,6 +1076,7 @@ function OnTick()
                     end
                 end
             end
+            
             -- #Portal Gun
             if (settings.mod["Portal Gun"].enabled) then
                 if (player_present(i) and player_alive(i)) then
@@ -1214,6 +1215,7 @@ function OnTick()
             end
 
             -- #Alias System
+            -- To Do: Organize aliases into 'pages' (n results per page)
             if (settings.mod["Alias System"].enabled) then
                 if (trigger[i] == true) then
                     players[p_table].alias_timer = players[p_table].alias_timer + 0.030
@@ -1293,7 +1295,8 @@ function OnPlayerPrejoin(PlayerIndex)
     -- #CONSOLE OUTPUT
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-    local name, hash, ip, id, level = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n"), tonumber(get_var(PlayerIndex, "$lvl"))
+    local name, hash = read_widestring(cns, 12), get_var(PlayerIndex, "$hash")
+    local ip, id, level = get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n"), tonumber(get_var(PlayerIndex, "$lvl"))
 
     -- Matching and replacing in case the OP decides to reorder the player_data table
     local a, b, c, d, e
@@ -1552,23 +1555,22 @@ function OnPlayerLeave(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-
+    
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
-    for k, _ in pairs(player_info) do
-        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
-            for key, value in ipairs(player_info[PlayerIndex]) do
-                cprint(getPlayerInfo(PlayerIndex, "name"), 4 + 8)
-                cprint(getPlayerInfo(PlayerIndex, "hash"), 4 + 8)
-                cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
-                cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
-                cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
-                table.remove(player_info[PlayerIndex], k)
-            end
+    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
+        cprint(getPlayerInfo(PlayerIndex, "name"), 4 + 8)
+        cprint(getPlayerInfo(PlayerIndex, "hash"), 4 + 8)
+        cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
+        cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
+        cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
+        for i = 1,# player_info[PlayerIndex] do
+            table.remove(player_info[PlayerIndex], i)
         end
     end
     cprint("________________________________________________________________________________", 4 + 8)
-
+    
+    
     -- Used Globally
     local p_table = name .. ", " .. hash
 
