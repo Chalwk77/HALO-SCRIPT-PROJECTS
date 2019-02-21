@@ -552,6 +552,7 @@ local function GameSettings()
             beepOnJoin = true,
             script_version = 1.5,
             check_for_updates = false,
+            cleanall = "cleanall",
             plugin_commands = {
                 enable = "enable",
                 disable = "disable",
@@ -626,7 +627,7 @@ local first_join = {}
 local colorres_bool = {}
 local can_use_colorres
 
--- #Item Spawner
+-- #Item `er
 local temp_objects_table = {}
 
 -- #Lurker
@@ -651,7 +652,7 @@ local ev = { }
 local ev_Status = {}
 local ev_NewVehicle = { }
 local ev_OldVehicle = { }
-local vehicle_drone_table = { }
+local drone_table = { }
 
 local sub, gsub, find, lower, format, match = string.sub, string.gsub, string.find, string.lower, string.format, string.match
 local floor = math.floor
@@ -1448,7 +1449,7 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Enter Vehicle"].enabled) then
         ev[PlayerIndex] = false
         ev_Status[PlayerIndex] = false
-        vehicle_drone_table[PlayerIndex] = nil
+        drone_table[PlayerIndex] = nil
     end
     
     -- #Anti Impersonator
@@ -1620,7 +1621,7 @@ function OnPlayerLeave(PlayerIndex)
             CleanUpDrones(PlayerIndex)
             ev[PlayerIndex] = false
             ev_Status[PlayerIndex] = false
-            vehicle_drone_table[PlayerIndex] = nil
+            drone_table[PlayerIndex] = nil
         end
     end
 
@@ -1740,13 +1741,14 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex)
-    
+   
     -- #Enter Vehicle
     if (settings.mod["Enter Vehicle"].enabled) then
         if ev_NewVehicle[PlayerIndex] ~= nil then
             CleanUpDrones(PlayerIndex)
         end
     end
+    
     
     -- #Respawn Time
     if (settings.mod["Respawn Time"].enabled) then
@@ -2500,8 +2502,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         end
                                         
                                         if ev_NewVehicle[PlayerIndex] ~= nil then
-                                            vehicle_drone_table[PlayerIndex] = vehicle_drone_table[PlayerIndex] or { }
-                                            table.insert(vehicle_drone_table[PlayerIndex], ev_NewVehicle[PlayerIndex])
+                                            drone_table[PlayerIndex] = drone_table[PlayerIndex] or { }
+                                            table.insert(drone_table[PlayerIndex], ev_NewVehicle[PlayerIndex])
                                         end
                                         
                                         ev[PlayerIndex] = true
@@ -2542,7 +2544,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == settings.mod["Enter Vehicle"].clean) then
         if (settings.mod["Enter Vehicle"].enabled) then
-            if vehicle_drone_table[PlayerIndex] ~= nil then
+            if drone_table[PlayerIndex] ~= nil then
                 if not PlayerInVehicle(PlayerIndex) then
                     CleanUpDrones(PlayerIndex)
                 else
@@ -2553,6 +2555,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         else
             rprint(PlayerIndex, "Failed to execute. Enter Vehicle is disabled.")
+        end
+        return false
+    elseif (command == settings.global.cleanall) then
+        if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
+            local valid
+            for i = 1,16 do
+                if drone_table[i] ~= nil then
+                    CleanUpDrones(i)
+                    rprint(PlayerIndex, "Cleaned up " .. get_var(i, "$name") .. "'s objects!")
+                    valid = true
+                end
+            end
+            if not (valid) then 
+                rprint(PlayerIndex, "Nothing to clean up!")
+            end
         end
         return false
     end
@@ -2851,9 +2868,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                             local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * sin(x_aim)
                                             local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * sin(y_aim)
                                             local obj_z = z + 0.3 * sin(z_aim) + 0.5
-                                            spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                            local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                             rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
                                             is_valid = true
+
+                                            drone_table[PlayerIndex] = drone_table[PlayerIndex] or { }
+                                            table.insert(drone_table[PlayerIndex], object)
                                         end
                                     end
                                     SpawnObject(PlayerIndex, tag_type, tag_name)
@@ -2873,10 +2893,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(PlayerIndex, "[dead] - Failed to execute. Wait until you respawn.")
                     end
                 else
-                    rprint(PlayerIndex, "Insufficient Permission")
+                    rprint(PlayerIndex, "Invalid Syntax")
                 end
             else
-                rprint(PlayerIndex, "Invalid Syntax")
+                rprint(PlayerIndex, "Insufficient Permission")
             end
             return false
         else
@@ -3407,10 +3427,10 @@ end
 function setLurker(PlayerIndex, bool)
     if bool then
         lurker[PlayerIndex] = true
-        if (settings.mod["Lurker"].god == true) then
+        if (settings.mod["Lurker"].god) then
             execute_command("god " .. tonumber(PlayerIndex))
         end
-        if (settings.mod["Lurker"].camouflage == true) then
+        if (settings.mod["Lurker"].camouflage) then
             execute_command("camo " .. tonumber(PlayerIndex))
         end
         if (settings.mod["Lurker"].announcer) then
@@ -3418,7 +3438,7 @@ function setLurker(PlayerIndex, bool)
         end
     else
         lurker[PlayerIndex] = false
-        if (settings.mod["Lurker"].speed == true) then
+        if (settings.mod["Lurker"].speed) then
             execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].default_running_speed))
         end
         if (settings.mod["Lurker"].god == true) then
@@ -3887,16 +3907,16 @@ function DestroyObject(object)
 end
 
 function CleanUpDrones(PlayerIndex)
-    if vehicle_drone_table[PlayerIndex] ~= nil then
-        for k, v in pairs(vehicle_drone_table[PlayerIndex]) do            
-            if vehicle_drone_table[PlayerIndex][k] > 0 then
+    if drone_table[PlayerIndex] ~= nil then
+        for k, v in pairs(drone_table[PlayerIndex]) do            
+            if drone_table[PlayerIndex][k] > 0 then
                 if v then
                     destroy_object(v)
-                    vehicle_drone_table[PlayerIndex][k] = nil
+                    drone_table[PlayerIndex][k] = nil
                 end
             end
         end
-        vehicle_drone_table[PlayerIndex] = nil
+        drone_table[PlayerIndex] = nil
     end
 end
                                     
