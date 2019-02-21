@@ -559,7 +559,6 @@ local function GameSettings()
             beepOnJoin = true,
             script_version = 1.5,
             check_for_updates = false,
-            garbage_collection_cmd = "clean",
             plugin_commands = {
                 enable = "enable",
                 disable = "disable",
@@ -568,6 +567,7 @@ local function GameSettings()
                 unmute = "unmute",
                 mutelist = "mutelist",
                 clearchat = "clear"
+                garbage_collection = "clean",
             },
             permission_level = {
                 trial_moderator = 1,
@@ -2579,7 +2579,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
-    if (command == settings.global.garbage_collection_cmd) then
+    if (command == settings.global.plugin_commands.garbage_collection) then
         if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
             local TargetID, TableID, continue, is_all
 
