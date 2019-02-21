@@ -1314,7 +1314,7 @@ function OnPlayerPrejoin(PlayerIndex)
             e = gsub(tab[i], "%%level%%", level)
         end
     end
-    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
+    table.insert(player_info[PlayerIndex], {["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
 
     cprint(getPlayerInfo(PlayerIndex, "name"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "hash"), 2 + 8)
@@ -1564,13 +1564,9 @@ function OnPlayerLeave(PlayerIndex)
         cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
-        for i = 1,#player_info[PlayerIndex] do
-            table.remove(player_info[PlayerIndex], i)
-        end
         player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
-    
     
     -- Used Globally
     local p_table = name .. ", " .. hash
