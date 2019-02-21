@@ -670,7 +670,7 @@ end
 
 local function adjust_ammo(PlayerIndex)
     for i = 1, 4 do
-        execute_command("ammo " .. tonumber(PlayerIndex) .. " 0 " .. i)
+        execute_command("ammo " .. tonumber(PlayerIndex) .. " 999 " .. i)
         execute_command("mag " .. tonumber(PlayerIndex) .. " 100 " .. i)
         execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
     end
@@ -3370,6 +3370,10 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                 end
             end
         end
+    end
+    -- #Infinity Ammo
+    if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
+        adjust_ammo(PlayerIndex)
     end
 end
 
