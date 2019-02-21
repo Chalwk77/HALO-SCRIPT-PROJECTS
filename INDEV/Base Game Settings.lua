@@ -28,7 +28,19 @@ Combined Scripts:
 
     "/plugins" shows you a list of all mods and tells you which ones are enabled/disabled.
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
+    
+    
+    /clean (command syntax info) for Enter Vehicle & Item Spawner:
+    
+        * Valid [id] inputs: [number range 1-16, me or *] 
+        * /clean [id] 1 (cleans up "Enter Vehicle" objects)
+        * /clean [id] 2 (cleans up "Item Spawner" objects)
+        * /clean [id] * (cleans up "everything")
+        Also, to clear up any confusion should their be any, /clean * * is valid - This will clean everything for everybody.
 
+    --
+    
+    
     To enable update checking, this script requires that the following plugin is installed:
     https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
     Credits to Kavawuvi (002) for HTTP client functionality.
@@ -1330,9 +1342,12 @@ function OnPlayerJoin(PlayerIndex)
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
 
     -- #CONSOLE OUTPUT
-    cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
-    cprint("Status: " .. name .. " connected successfully.", 5 + 8)
-    cprint("________________________________________________________________________________", 2 + 8)
+    if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
+        cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
+        cprint("Status: " .. name .. " connected successfully.", 5 + 8)
+        cprint("________________________________________________________________________________", 2 + 8)
+    end
+    
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
