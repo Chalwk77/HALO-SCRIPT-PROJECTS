@@ -251,6 +251,7 @@ local function GameSettings()
                 base_command = "enter",
                 permission_level = 1,
                 multi_control = true,
+                -- Destroy objects spawned:
                 garbage_collection = {
                     on_death = true,
                     on_disconnect = true,
@@ -260,6 +261,7 @@ local function GameSettings()
                 enabled = true,
                 base_command = "spawn",
                 permission_level = 1,
+                -- Destroy objects spawned:
                 garbage_collection = {
                     on_death = true,
                     on_disconnect = true,
