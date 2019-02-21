@@ -69,12 +69,12 @@ local function GameSettings()
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                
+
                 -- [ coming in a later update (vehicle output)
                 vehicle_output_global = { "[%sender_name%] [%index%]: %message%" },
                 vehicle_output_team = { "[%sender_name%] [%index%]: %message%" },
                 -- ]
-                
+
                 use_admin_prefixes = false, -- Set to TRUE to enable the below bonus feature.
                 -- Ability to have separate chat formats on a per-admin-level basis...
                 trial_moderator = {
@@ -99,7 +99,7 @@ local function GameSettings()
                 }
             },
             -- # Custom (separate) join messages for staff on a per-level basis
-            ["Admin Join Messages"] = { 
+            ["Admin Join Messages"] = {
                 enabled = true,
                 messages = {
                     -- [prefix] [message] (note: the joining player's name is automatically inserted between [prefix] and [message])
@@ -110,14 +110,14 @@ local function GameSettings()
                 }
             },
             -- # This is a spectator-like feature.
-            ["Lurker"] = { 
+            ["Lurker"] = {
                 -- To enable a feature, set 'false' to 'true'
                 enabled = true,
                 base_command = "lurker",
                 permission_level = 1,
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
                 speed = true,
-                god = true, 
+                god = true,
                 camouflage = true,
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
@@ -154,7 +154,8 @@ local function GameSettings()
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
             },
-            ["Message Board"] = { -- Welcome messages | OnPlayerJoin()
+            ["Message Board"] = {
+                -- Welcome messages | OnPlayerJoin()
                 enabled = false,
                 duration = 10, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
@@ -236,14 +237,21 @@ local function GameSettings()
             ["Enter Vehicle"] = {
                 enabled = true,
                 base_command = "enter",
-                clean = "clean",
                 permission_level = 1,
-                multi_control = true
+                multi_control = true,
+                garbage_collection = {
+                    on_death = true,
+                    on_disconnect = true,
+                },
             },
             ["Item Spawner"] = {
                 enabled = true,
                 base_command = "spawn",
                 permission_level = 1,
+                garbage_collection = {
+                    on_death = true,
+                    on_disconnect = true,
+                },
                 list = "itemlist",
                 distance_from_playerX = 2.5,
                 distance_from_playerY = 2.5,
@@ -251,14 +259,14 @@ local function GameSettings()
                     -- To spawn an object, type /spawn [item name]
                     -- "Item Name", "tag type", "tag name"
                     [1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" },
-                    
+
                     -- Equipment
                     [2] = { "camo", "eqip", "powerups\\active camouflage" },
                     [3] = { "health", "eqip", "powerups\\health pack" },
                     [4] = { "overshield", "eqip", "powerups\\over shield" },
                     [5] = { "frag", "eqip", "weapons\\frag grenade\\frag grenade" },
                     [6] = { "plasma", "eqip", "weapons\\plasma grenade\\plasma grenade" },
-                    
+
                     -- Vehicles
                     [7] = { "banshee", "vehi", "vehicles\\banshee\\banshee_mp" },
                     [8] = { "turret", "vehi", "vehicles\\c gun turret\\c gun turret_mp" },
@@ -266,7 +274,7 @@ local function GameSettings()
                     [10] = { "tank", "vehi", "vehicles\\scorpion\\scorpion_mp" },
                     [11] = { "rhog", "vehi", "vehicles\\rwarthog\\rwarthog" },
                     [12] = { "hog", "vehi", "vehicles\\warthog\\mp_warthog" },
-                    
+
                     -- Weapons
                     [13] = { "rifle", "weap", "weapons\\assault rifle\\assault rifle" },
                     [14] = { "ball", "weap", "weapons\\ball\\ball" },
@@ -280,7 +288,7 @@ local function GameSettings()
                     [22] = { "rocket", "weap", "weapons\\rocket launcher\\rocket launcher" },
                     [23] = { "shotgun", "weap", "weapons\\shotgun\\shotgun" },
                     [24] = { "sniper", "weap", "weapons\\sniper rifle\\sniper rifle" },
-                    
+
                     -- Projectiles
                     [25] = { "sheebolt", "proj", "vehicles\\banshee\\banshee bolt" },
                     [26] = { "sheerod", "proj", "vehicles\\banshee\\mp_banshee fuel rod" },
@@ -300,14 +308,13 @@ local function GameSettings()
                     [40] = { "shottyshot", "proj", "weapons\\shotgun\\pellet" },
                     [41] = { "snipershot", "proj", "weapons\\sniper rifle\\sniper bullet" },
                     [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" },
-                    
+
                     -- Custom Vehicles [ Bitch Slap ]
                     [43] = { "slap1", "vehi", "deathstar\\1\\vehicle\\tag_2830" }, -- Chain Gun Hog
                     [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" }, -- Quad Bike
                     [45] = { "wraith", "vehi", "vehicles\\wraith\\wraith" },
                     [46] = { "pelican", "vehi", "vehicles\\pelican\\pelican" },
                     -- Custom Weapons ...
-                    
                 }
             },
             ["Anti Impersonator"] = {
@@ -319,7 +326,7 @@ local function GameSettings()
                     -- Make sure these names match exactly as they do in game.
                     "Chalwk",
                     "Ro@dhog",
-                    "§hoo",
+                    "�hoo",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
                 },
                 hashlist = {
@@ -552,7 +559,7 @@ local function GameSettings()
             beepOnJoin = true,
             script_version = 1.5,
             check_for_updates = false,
-            cleanall = "cleanall",
+            garbage_collection_cmd = "clean",
             plugin_commands = {
                 enable = "enable",
                 disable = "disable",
@@ -627,7 +634,7 @@ local first_join = {}
 local colorres_bool = {}
 local can_use_colorres
 
--- #Item `er
+-- #Item Spawner
 local temp_objects_table = {}
 
 -- #Lurker
@@ -648,11 +655,15 @@ local weapon_status = {}
 local portalgun_mode = {}
 
 -- #Enter Vehicle
-local ev = { }
+local ev = {}
 local ev_Status = {}
-local ev_NewVehicle = { }
-local ev_OldVehicle = { }
-local drone_table = { }
+local ev_NewVehicle = {}
+local ev_OldVehicle = {}
+
+-- drones
+local EV_drone_table = {}
+local IS_drone_table = {}
+local item_objects = {}
 
 local sub, gsub, find, lower, format, match = string.sub, string.gsub, string.find, string.lower, string.format, string.match
 local floor = math.floor
@@ -684,8 +695,8 @@ end
 
 local function getPlayerInfo(PlayerIndex, id)
     if player_present(PlayerIndex) then
-        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
-            for key, value in ipairs(player_info[PlayerIndex]) do
+        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
+            for key, _ in ipairs(player_info[PlayerIndex]) do
                 return player_info[PlayerIndex][key][id]
             end
         end
@@ -698,7 +709,7 @@ local function enterVehicle(PlayerIndex, Vehicle)
 end
 
 local function announce(PlayerIndex, message)
-    for i = 1,16 do
+    for i = 1, 16 do
         if (player_present(i) and i ~= PlayerIndex) then
             say(i, message)
         end
@@ -712,7 +723,7 @@ function OnScriptLoad()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
-        cprint("[BGS] Current Version: " .. settings.global.script_version, 2+8)
+        cprint("[BGS] Current Version: " .. settings.global.script_version, 2 + 8)
     end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -732,10 +743,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    
+
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-    
+
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 
     for i = 1, 16 do
@@ -821,13 +832,14 @@ function OnScriptLoad()
             cprint("")
             cprint("================================================================================", 2 + 8)
         end
+
         timer(50, "consoleLogo")
     end
     local rcon = sig_scan("B8????????E8??000000A1????????55")
     if (rcon ~= 0) then
         console_address_patch = read_dword(rcon + 1)
         safe_write(true)
-        write_byte(console_address_patch,0)
+        write_byte(console_address_patch, 0)
         safe_write(false)
     end
 end
@@ -982,7 +994,7 @@ function OnGameEnd()
             -- SAPP | Mute Handler
             if (settings.global.handlemutes == true) then
                 if (muted[tonumber(i)] == true) then
-                    local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
+                    local name, hash = get_var(i, "$name"), get_var(i, "$hash")
                     local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local file_name = settings.global.mute_dir
                     checkFile(file_name)
@@ -992,7 +1004,7 @@ function OnGameEnd()
                     for k, v in pairs(lines) do
                         if k ~= nil then
                             if v:match(ip) and v:match(hash) then
-                                local updated_entry = ip .. ", " .. hash .. ", ;" .. time_diff[tonumber(i)]
+                                local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(i)]
                                 local f1 = io.open(file_name, "r")
                                 local content = f1:read("*all")
                                 f1:close()
@@ -1028,7 +1040,7 @@ function OnTick()
             if (settings.global.handlemutes == true) then
                 if init_mute_timer[tonumber(i)] == true then
 
-                    local name, hash, id = get_var(i, "$name"), get_var(i, "$hash"), get_var(i, "$n")
+                    local hash = get_var(i, "$hash")
                     local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local entry = ip .. ", " .. hash
 
@@ -1149,7 +1161,7 @@ function OnTick()
                     execute_command("nades " .. tonumber(i) .. " 7")
                 end
             end
-            
+
             -- #Enter Vehicle
             if (settings.mod["Enter Vehicle"].enabled) then
                 if ev_Status[i] == true then
@@ -1275,8 +1287,8 @@ function OnPlayerPrejoin(PlayerIndex)
     if (settings.global.beepOnJoin == true) then
         os.execute("echo \7")
     end
-    player_info[PlayerIndex] = { }
-    cprint("________________________________________________________________________________", 2+8)
+    player_info[PlayerIndex] = {}
+    cprint("________________________________________________________________________________", 2 + 8)
     cprint("Player attempting to connect to the server...", 5 + 8)
     -- #CONSOLE OUTPUT
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -1284,9 +1296,9 @@ function OnPlayerPrejoin(PlayerIndex)
     local name, hash, ip, id, level = read_widestring(cns, 12), get_var(PlayerIndex, "$hash"), get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n"), tonumber(get_var(PlayerIndex, "$lvl"))
 
     -- Matching and replacing in case the OP decides to reorder the player_data table
-    local a,b,c,d,e
+    local a, b, c, d, e
     local tab = settings.global.player_data
-    for i = 1,#tab do
+    for i = 1, #tab do
         if tab[i]:match("%%name%%") then
             a = gsub(tab[i], "%%name%%", name)
         elseif tab[i]:match("%%hash%%") then
@@ -1299,13 +1311,13 @@ function OnPlayerPrejoin(PlayerIndex)
             e = gsub(tab[i], "%%level%%", level)
         end
     end
-    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e} )
-    
-    cprint(getPlayerInfo(PlayerIndex, "name"), 2+8)
-    cprint(getPlayerInfo(PlayerIndex, "hash"), 2+8)
-    cprint(getPlayerInfo(PlayerIndex, "ip"), 2+8)
-    cprint(getPlayerInfo(PlayerIndex, "id"), 2+8)
-    cprint(getPlayerInfo(PlayerIndex, "level"), 2+8)
+    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
+
+    cprint(getPlayerInfo(PlayerIndex, "name"), 2 + 8)
+    cprint(getPlayerInfo(PlayerIndex, "hash"), 2 + 8)
+    cprint(getPlayerInfo(PlayerIndex, "ip"), 2 + 8)
+    cprint(getPlayerInfo(PlayerIndex, "id"), 2 + 8)
+    cprint(getPlayerInfo(PlayerIndex, "level"), 2 + 8)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -1317,7 +1329,7 @@ function OnPlayerJoin(PlayerIndex)
     -- #CONSOLE OUTPUT
     cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
     cprint("Status: " .. name .. " connected successfully.", 5 + 8)
-    cprint("________________________________________________________________________________", 2+8)
+    cprint("________________________________________________________________________________", 2 + 8)
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
@@ -1386,6 +1398,7 @@ function OnPlayerJoin(PlayerIndex)
                                             return num
                                         end
                                     end
+
                                     write_byte(player + 0x60, tonumber(selectRandomColor(k)))
                                     colorres_bool[PlayerIndex] = true
                                 end
@@ -1449,9 +1462,14 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Enter Vehicle"].enabled) then
         ev[PlayerIndex] = false
         ev_Status[PlayerIndex] = false
-        drone_table[PlayerIndex] = nil
+        EV_drone_table[PlayerIndex] = nil
     end
-    
+
+    -- #Item Spawner
+    if (settings.mod["Item Spawner"].enabled) then
+        IS_drone_table[PlayerIndex] = nil
+    end
+
     -- #Anti Impersonator
     if (settings.mod["Anti Impersonator"].enabled) then
 
@@ -1490,7 +1508,7 @@ function OnPlayerJoin(PlayerIndex)
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Admin Chat", nil, nil) then
             if (settings.mod["Admin Chat"].restore_previous_state == true) then
                 local t = tokenizestring(tostring(data[PlayerIndex]), ":")
-                if (t[2] ~= nil) then 
+                if (t[2] ~= nil) then
                     if (t[2] == "true") then
                         rprint(PlayerIndex, "[reminder] Your admin chat is on!")
                         players[p_table].adminchat = true
@@ -1522,6 +1540,7 @@ function OnPlayerJoin(PlayerIndex)
                     end
                 end
             end
+
             announceJoin(join_message)
         end
     end
@@ -1535,20 +1554,20 @@ function OnPlayerLeave(PlayerIndex)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
     -- #CONSOLE OUTPUT
-    cprint("________________________________________________________________________________", 4+8)
-    for k, v in pairs(player_info) do
-        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= { } then
+    cprint("________________________________________________________________________________", 4 + 8)
+    for k, _ in pairs(player_info) do
+        if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
             for key, value in ipairs(player_info[PlayerIndex]) do
-                cprint(getPlayerInfo(PlayerIndex, "name"), 4+8)
-                cprint(getPlayerInfo(PlayerIndex, "hash"), 4+8)
-                cprint(getPlayerInfo(PlayerIndex, "ip"), 4+8)
-                cprint(getPlayerInfo(PlayerIndex, "id"), 4+8)
-                cprint(getPlayerInfo(PlayerIndex, "level"), 4+8)
+                cprint(getPlayerInfo(PlayerIndex, "name"), 4 + 8)
+                cprint(getPlayerInfo(PlayerIndex, "hash"), 4 + 8)
+                cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
+                cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
+                cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
                 table.remove(player_info[PlayerIndex], k)
             end
         end
     end
-    cprint("________________________________________________________________________________", 4+8)
+    cprint("________________________________________________________________________________", 4 + 8)
 
     -- Used Globally
     local p_table = name .. ", " .. hash
@@ -1614,14 +1633,18 @@ function OnPlayerLeave(PlayerIndex)
         welcome_timer[PlayerIndex] = false
         players[p_table].message_board_timer = 0
     end
-    
-    -- #Enter Vehicle
-    if (settings.mod["Enter Vehicle"].enabled) then
-        if ev_NewVehicle[PlayerIndex] ~= nil then
-            CleanUpDrones(PlayerIndex)
-            ev[PlayerIndex] = false
-            ev_Status[PlayerIndex] = false
-            drone_table[PlayerIndex] = nil
+
+    -- #Enter Vehicle & Item Spawner
+    if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
+        if (settings.mod["Enter Vehicle"].garbage_collection.on_disconnect) then
+            if ev_NewVehicle[PlayerIndex] ~= nil then
+                ev[PlayerIndex] = false
+                ev_Status[PlayerIndex] = false
+            end
+            CleanUpDrones(PlayerIndex, 1)
+        end
+        if (settings.mod["Item Spawner"].garbage_collection.on_disconnect) then
+            CleanUpDrones(PlayerIndex, 2)
         end
     end
 
@@ -1674,9 +1697,9 @@ function OnPlayerPrespawn(PlayerIndex)
             local function Teleport(PlayerIndex, id)
                 local height = settings.mod["Spawn From Sky"].maps[mapname].height
                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
-                    settings.mod["Spawn From Sky"].maps[mapname][id][1],
-                    settings.mod["Spawn From Sky"].maps[mapname][id][2],
-                    settings.mod["Spawn From Sky"].maps[mapname][id][3] + floor(height))
+                        settings.mod["Spawn From Sky"].maps[mapname][id][1],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][2],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][3] + floor(height))
                 execute_command("god " .. tonumber(PlayerIndex))
             end
 
@@ -1718,12 +1741,12 @@ function OnPlayerSpawn(PlayerIndex)
             end
         end
     end
-    
+
     -- #Portal Gun
     if (settings.mod["Portal Gun"].enabled) then
         weapon_status[PlayerIndex] = 0
     end
-    
+
     -- #Lurker
     if (settings.mod["Lurker"].enabled) then
         if (lurker[PlayerIndex] == true) then
@@ -1741,15 +1764,17 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex)
-   
-    -- #Enter Vehicle
-    if (settings.mod["Enter Vehicle"].enabled) then
-        if ev_NewVehicle[PlayerIndex] ~= nil then
-            CleanUpDrones(PlayerIndex)
+
+    -- #Enter Vehicle & Item Spawner
+    if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
+        if (settings.mod["Enter Vehicle"].garbage_collection.on_death) then
+            CleanUpDrones(PlayerIndex, 1)
+        end
+        if (settings.mod["Item Spawner"].garbage_collection.on_death) then
+            CleanUpDrones(PlayerIndex, 2)
         end
     end
-    
-    
+
     -- #Respawn Time
     if (settings.mod["Respawn Time"].enabled) then
         local player = get_player(PlayerIndex)
@@ -2075,7 +2100,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 local AdminMessageFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
                                 local Format = (gsub(gsub(gsub(gsub(AdminMessageFormat,
-                                    "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                        "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 AdminChat(Format)
                                 response = false
                             end
@@ -2117,7 +2142,7 @@ function saveMuteEntry(PlayerIndex, offender_ip, offender_id, offender_hash, mut
         local content = file:read("*a")
         file:close()
         local offender_name = get_var(offender_id, "$name")
-        
+
         if not (match(content, offender_ip)
                 and match(content, offender_id)
                 and match(content, offender_hash)) then
@@ -2204,7 +2229,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             --rprint(PlayerIndex, "-----------------------------------------------------\n")
-            for _ in pairs(t) do t[_] = nil end
+            for _ in pairs(t) do
+                t[_] = nil
+            end
         else
             rprint(PlayerIndex, "Insufficient Permission")
         end
@@ -2259,7 +2286,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 end
-                for _ in pairs(t) do t[_] = nil end
+                for _ in pairs(t) do
+                    t[_] = nil
+                end
             else
                 rprint(PlayerIndex, "Insufficient Permission")
             end
@@ -2268,7 +2297,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-    
+
     -- SAPP | Mute command listener
     if (settings.global.handlemutes == true) then
         if (command == settings.global.plugin_commands.mute) then
@@ -2370,7 +2399,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if (t[2] == nil) then
                             rprint(PlayerIndex, gsub(v, "(;)", "(") .. "m)")
                         elseif t[2] == "-o" then
-                            for i = 1,16 do
+                            for i = 1, 16 do
                                 if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
                                     local name = get_var(i, "$name")
                                     local id = get_var(i, "$n")
@@ -2396,16 +2425,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (settings.mod["Suggestions Box"].enabled) then
             if (t[2] ~= nil) then
                 local name = get_var(PlayerIndex, "$name")
-                local t = { }
+                local t = {}
                 local dir = settings.mod["Suggestions Box"].dir
                 local txt_format = settings.mod["Suggestions Box"].file_format
                 local content = gsub(Command, settings.mod["Suggestions Box"].base_command, "")
-                
+
                 t[#t + 1] = content
                 if (t) then
                     local file = io.open(dir, "a+")
                     if (file) then
-                        for _,v in pairs(t) do text = v end
+                        for _, v in pairs(t) do
+                            text = v
+                        end
                         local tstamp = os.date("%d/%m/%Y - %H:%M:%S")
                         local str = gsub(gsub(gsub(txt_format, "%%time_stamp%%", tstamp), "%%player_name%%", name), "%%message%%", text .. "\n")
                         file:write(str)
@@ -2419,14 +2450,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             else
                 rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Suggestions Box"].base_command .. " {message}")
             end
-            for _ in pairs(t) do _ = nil end
+            for _ in pairs(t) do
+                _ = nil
+            end
             return false
         else
             rprint(PlayerIndex, "Failed to execute. Suggestions Box is disabled.")
             return false
         end
     end
-    
+
     -- #Enter Vehicle
     if (command == settings.mod["Enter Vehicle"].base_command) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Enter Vehicle", nil, nil) then
@@ -2445,8 +2478,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             else
                                 distance = 2
                             end
-                            
-                           if t[4] ~= nil then
+
+                            if t[4] ~= nil then
                                 if t[4]:match("%d+") then
                                     height = tonumber(t[3])
                                 else
@@ -2455,57 +2488,59 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             else
                                 height = 0.3
                             end
-                            
+
                             local x, y, z, is_valid, is_error, no_match
                             local objects_table = settings.mod["Item Spawner"].objects
                             local player_object = get_dynamic_player(PlayerIndex)
                             for i = 1, #objects_table do
                                 if t[2]:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
                                     if TagInfo(objects_table[i][2], objects_table[i][3]) then
-                                    
+
                                         if PlayerInVehicle(PlayerIndex) then
                                             local VehicleID = read_dword(player_object + 0x11C)
-                                            if (VehicleID == 0xFFFFFFFF) then return false end
+                                            if (VehicleID == 0xFFFFFFFF) then
+                                                return false
+                                            end
                                             local vehicle = get_object_memory(VehicleID)
                                             x, y, z = read_vector3d(vehicle + 0x5c)
                                             ev_OldVehicle[PlayerIndex] = VehicleID
                                         else
                                             x, y, z = read_vector3d(player_object + 0x5c)
                                         end
-                                        
+
                                         local camera_x = read_float(player_object + 0x230)
                                         local camera_y = read_float(player_object + 0x234)
                                         x = x + camera_x * distance
                                         y = y + camera_y * distance
                                         z = z + height
-                                    
+
                                         ev_NewVehicle[PlayerIndex] = spawn_object("vehi", objects_table[i][3], x, y, z)
-                                        
+
                                         local multi_control = settings.mod["Enter Vehicle"].multi_control
-                                        
+
                                         -- Multi Control - NOT in vehicle
                                         if multi_control and not PlayerInVehicle(PlayerIndex) then
                                             enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
-                                            
-                                        -- Multi Control - IN vehicle
+
+                                            -- Multi Control - IN vehicle
                                         elseif multi_control and PlayerInVehicle(PlayerIndex) then
                                             enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
-                                            
-                                        -- NO Multi Control - NOT in vehicle
+
+                                            -- NO Multi Control - NOT in vehicle
                                         elseif not multi_control and not PlayerInVehicle(PlayerIndex) then
                                             enterVehicle(PlayerIndex, ev_NewVehicle[PlayerIndex])
-                                            
-                                        -- NO Multi Control - IN vehicle
+
+                                            -- NO Multi Control - IN vehicle
                                         elseif not multi_control and PlayerInVehicle(PlayerIndex) then
                                             exit_vehicle(PlayerIndex)
                                             ev_Status[PlayerIndex] = true
                                         end
-                                        
+
                                         if ev_NewVehicle[PlayerIndex] ~= nil then
-                                            drone_table[PlayerIndex] = drone_table[PlayerIndex] or { }
-                                            table.insert(drone_table[PlayerIndex], ev_NewVehicle[PlayerIndex])
+                                            EV_drone_table[PlayerIndex] = EV_drone_table[PlayerIndex] or {}
+                                            table.insert(EV_drone_table[PlayerIndex], ev_NewVehicle[PlayerIndex])
                                         end
-                                        
+
                                         ev[PlayerIndex] = true
                                         is_valid = true
                                     else
@@ -2519,10 +2554,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             if (is_valid) then
                                 rprint(PlayerIndex, "Entering vehicle")
                             end
-                            
+
                             if not (is_valid) and (no_match) and not (is_error) then
                                 rprint(PlayerIndex, "Failed to spawn object. [unknown object name]")
-                                
+
                             elseif (is_valid == nil or is_valid == false) and (is_error) and (no_match) then
                                 rprint(PlayerIndex, "Failed to spawn object. [missing tag id]")
                             end
@@ -2542,38 +2577,91 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(PlayerIndex, "Insufficient Permission")
         end
         return false
-    elseif (command == settings.mod["Enter Vehicle"].clean) then
-        if (settings.mod["Enter Vehicle"].enabled) then
-            if drone_table[PlayerIndex] ~= nil then
-                if not PlayerInVehicle(PlayerIndex) then
-                    CleanUpDrones(PlayerIndex)
-                else
-                    rprint(PlayerIndex, "Failed to execute. Please exit your current vehicle!")
+    end
+
+    if (command == settings.global.garbage_collection_cmd) then
+        if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
+            local TargetID, TableID, continue, is_all
+
+            if (t[2] ~= nil) then
+                if (t[2] == "me") then
+                    TargetID = tonumber(PlayerIndex)
+                elseif (t[2]:match("%d+")) then
+                    TargetID = tonumber(t[2])
+                elseif (tostring(t[2]) == "*") then
+                    is_all = true
                 end
             else
-                rprint(PlayerIndex, "Nothing to clean!")
+                rprint(PlayerIndex, "Invalid Syntax")
             end
-        else
-            rprint(PlayerIndex, "Failed to execute. Enter Vehicle is disabled.")
-        end
-        return false
-    elseif (command == settings.global.cleanall) then
-        if (settings.mod["Enter Vehicle"].enabled) or (settings.mod["Item Spawner"].enabled) then
-            local valid
-            for i = 1,16 do
-                if drone_table[i] ~= nil then
-                    CleanUpDrones(i)
-                    rprint(PlayerIndex, "Cleaned up " .. get_var(i, "$name") .. "'s objects!")
-                    valid = true
+
+            local identifier
+            if (t[3] ~= nil) then
+                if t[3]:match("%d+") then
+                    if tonumber(t[3]) > 0 and tonumber(t[3]) < 3 then
+                        TableID = tonumber(t[3]);
+                        continue = true
+                        if TableID == 1 then
+                            identifier = "vehicle"
+                        else
+                            identifier = "item"
+                        end
+                        if not (is_all) then
+                            if (ev_NewVehicle[TargetID] ~= nil) or (item_objects[TargetID] ~= nil) then
+                                if TargetID == tonumber(PlayerIndex) then
+                                    rprint(PlayerIndex, "Cleaning up " .. identifier .. " objects")
+                                else
+                                    rprint(PlayerIndex, "Cleaning up " .. get_var(TargetID, "$name") .. "'s " .. identifier .. " objects")
+                                end
+                            else
+                                rprint(PlayerIndex, "Nothing to clean up!")
+                            end
+                        end
+                    else
+                        rprint(PlayerIndex, "Invalid table id!")
+                    end
+                elseif tostring(t[3]) == "*" then
+                    TableID = "all";
+                    continue = true
+                    if not (is_all) then
+                        if TargetID == tonumber(PlayerIndex) then
+                            if (ev_NewVehicle[TargetID] ~= nil) or (item_objects[TargetID] ~= nil) then
+                                rprint(PlayerIndex, "Cleaning up everything you spawned")
+                            else
+                                rprint(PlayerIndex, "Nothing to clean up!")
+                            end
+                        else
+                            rprint(PlayerIndex, "Cleaning up everything " .. get_var(TargetID, "$name") .. " has spawned")
+                        end
+                    end
                 end
             end
-            if not (valid) then 
-                rprint(PlayerIndex, "Nothing to clean up!")
+
+            if (continue) and not (is_all) then
+                if player_present(TargetID) then
+                    CleanUpDrones(TargetID, TableID)
+                else
+                    rprint(PlayerIndex, "Player not present!")
+                end
+            elseif (continue) and (is_all) then
+                for i = 1, 16 do
+                    if player_present(i) then
+                        if (ev_NewVehicle[i] ~= nil) or (item_objects[i] ~= nil) then
+                            CleanUpDrones(tonumber(i), TableID)
+                            if identifier == nil then
+                                identifier = ""
+                            end
+                            rprint(PlayerIndex, "Cleaning up " .. get_var(tonumber(i), "$name") .. "'s " .. identifier .. " spawned objects")
+                        else
+                            rprint(PlayerIndex, get_var(tonumber(i), "$name") .. " has nothing to clean up")
+                        end
+                    end
+                end
             end
         end
         return false
     end
-    
+
     -- #Lurker
     if (command == settings.mod["Lurker"].base_command) then
         if (settings.mod["Lurker"].enabled) then
@@ -2634,6 +2722,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                                 return false
                             end
+
                             if validate(TargetID) then
                                 infammo[TargetID] = true
                                 frag_check[TargetID] = true
@@ -2663,7 +2752,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                             return false
                         end
-                        
+
                         if t[2] ~= nil then
                             if t[2] == "me" then
                                 if t[3] == nil then
@@ -2750,7 +2839,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
+
     -- #Portal Gun
     if (command == settings.mod["Portal Gun"].base_command) then
         if (settings.mod["Portal Gun"].enabled) then
@@ -2804,7 +2893,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local toExecutorFormat = settings.mod["wctdydt"].messages[2]
 
                                 local TargetResponse = (gsub(gsub(toTargetFormat,
-                                    "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
+                                        "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
 
                                 if (settings.mod["wctdydt"].environment == "chat") then
                                     execute_command("msg_prefix \"\"")
@@ -2815,7 +2904,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
 
                                 local ExecutorResponse = (gsub(gsub(toExecutorFormat,
-                                    "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
+                                        "%%executors_name%%", get_var(PlayerIndex, "$name")), "%%target_name%%", get_var(target_id, "$name")))
 
                                 execute_command("msg_prefix \"\"")
                                 say(PlayerIndex, ExecutorResponse)
@@ -2868,14 +2957,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                             local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * sin(x_aim)
                                             local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * sin(y_aim)
                                             local obj_z = z + 0.3 * sin(z_aim) + 0.5
-                                            local object = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                            item_objects[PlayerIndex] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                             rprint(PlayerIndex, "Spawned " .. objects_table[i][1])
                                             is_valid = true
 
-                                            drone_table[PlayerIndex] = drone_table[PlayerIndex] or { }
-                                            table.insert(drone_table[PlayerIndex], object)
+                                            if (item_objects[PlayerIndex]) ~= nil then
+                                                IS_drone_table[PlayerIndex] = IS_drone_table[PlayerIndex] or {}
+                                                table.insert(IS_drone_table[PlayerIndex], item_objects[PlayerIndex])
+                                            end
                                         end
                                     end
+
                                     SpawnObject(PlayerIndex, tag_type, tag_name)
                                 else
                                     is_error = true
@@ -2915,9 +3007,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             row = concat(t, ",    ")
                         end
                     end
-                    if row ~= nil then rprint(PlayerIndex, row) end
-                    for _ in pairs(t) do t[_] = nil end
+                    if row ~= nil then
+                        rprint(PlayerIndex, row)
+                    end
+                    for _ in pairs(t) do
+                        t[_] = nil
+                    end
                 end
+
                 rprint(PlayerIndex, "------------------------ [ ITEMS ] ------------------------")
                 concatTableObjects(PlayerIndex, 1, 5)
                 concatTableObjects(PlayerIndex, 6, 10)
@@ -3464,14 +3561,14 @@ end
 function listPlayers(PlayerIndex, count)
     if (count == 1) then
         local header, ffa
-        
+
         if (GetTeamPlay()) then
             header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
         else
             header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    IP. ]"
         end
         rprint(PlayerIndex, header)
-        
+
         for i = 1, 16 do
             if player_present(i) then
                 local name, id, team, ip = get_var(i, "$name"), get_var(i, "$n"), get_var(i, "$team"), get_var(i, "$ip")
@@ -3571,17 +3668,17 @@ function getPermLevel(script, bool, args)
     if (script ~= nil and bool == nil and args == nil) then
         level = settings.mod[script].permission_level
 
-    -- getPermLevel(nil, nil, "admin_type")
+        -- getPermLevel(nil, nil, "admin_type")
     elseif (script == nil and bool == nil and args ~= nil) then
         permission_table = settings.global.permission_level
         trigger = true
-        
-    -- [ getPermLevel("Script Name", true, "admin_type")
+
+        -- [ getPermLevel("Script Name", true, "admin_type")
     elseif (script ~= nil and bool == true and args ~= nil) then
         trigger = true
         permission_table = settings.mod["Teleport Manager"].permission_level
     end
-    
+
     if (trigger) and (permission_table ~= nil) then
         for k, v in pairs(permission_table) do
             local words = tokenizestring(v, ",")
@@ -3808,8 +3905,12 @@ function concatAliases(i, start_index, end_index)
         t[#t + 1] = words[j]
         row = concat(t, ", ")
     end
-    if row ~= nil then rprint(i, row) end
-    for _ in pairs(t) do t[_] = nil end
+    if row ~= nil then
+        rprint(i, row)
+    end
+    for _ in pairs(t) do
+        t[_] = nil
+    end
 end
 
 -- #Teleport Manager
@@ -3906,20 +4007,49 @@ function DestroyObject(object)
     end
 end
 
-function CleanUpDrones(PlayerIndex)
-    if drone_table[PlayerIndex] ~= nil then
-        for k, v in pairs(drone_table[PlayerIndex]) do            
-            if drone_table[PlayerIndex][k] > 0 then
-                if v then
-                    destroy_object(v)
-                    drone_table[PlayerIndex][k] = nil
+function CleanUpDrones(TargetID, TableID)
+    -- Enter Vehicle
+    local function CleanVehicles(TargetID)
+        if EV_drone_table[TargetID] ~= nil then
+            for k, v in pairs(EV_drone_table[TargetID]) do
+                if EV_drone_table[TargetID][k] > 0 then
+                    if v then
+                        destroy_object(v)
+                        EV_drone_table[TargetID][k] = nil
+                    end
                 end
             end
+            EV_drone_table[TargetID] = nil
+            ev_NewVehicle[TargetID] = nil
         end
-        drone_table[PlayerIndex] = nil
+    end
+
+    -- Item Spawner
+    local function CleanItems(TargetID)
+        if IS_drone_table[TargetID] ~= nil then
+            for k, v in pairs(IS_drone_table[TargetID]) do
+                if IS_drone_table[TargetID][k] > 0 then
+                    if v then
+                        destroy_object(v)
+                        IS_drone_table[TargetID][k] = nil
+                    end
+                end
+            end
+            IS_drone_table[TargetID] = nil
+            item_objects[TargetID] = nil
+        end
+    end
+
+    if (TableID == 1) then
+        CleanVehicles(TargetID)
+    elseif (TableID == 2) then
+        CleanItems(TargetID)
+    elseif (TableID == "all") then
+        CleanVehicles(TargetID)
+        CleanItems(TargetID)
     end
 end
-                                    
+
 function secondsToTime(seconds, places)
 
     local years = floor(seconds / (60 * 60 * 24 * 365))
