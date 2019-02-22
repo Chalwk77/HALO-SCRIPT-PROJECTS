@@ -144,7 +144,7 @@ local function GameSettings()
             },
             ["Infinity Ammo"] = {
                 enabled = true,
-                server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
+                server_override = true, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
                 base_command = "infammo",
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
                 permission_level = 1,
@@ -2720,8 +2720,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
                     local function validate(PlayerIndex)
                         if (settings.mod["Infinity Ammo"].enabled) then
-                            if (infammo[PlayerIndex] ~= true) then
+                            if (settings.mod["Infinity Ammo"].server_override) then
                                 return true
+                            else
+                                if (infammo[PlayerIndex] ~= true) then
+                                    return true
+                                end
                             end
                         else
                             return true
