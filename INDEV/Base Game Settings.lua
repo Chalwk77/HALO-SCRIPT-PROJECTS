@@ -856,6 +856,10 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
+
+    if checkFile("sapp\\bgs_changelog.txt") then
+        RecordChanges()
+    end
 end
 
 function OnScriptUnload()
@@ -4146,4 +4150,28 @@ end
 function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
+end
+
+function RecordChanges()
+	local file = io.open("sapp\\bgs_changelog.txt", "w")
+	local cl = {}
+    
+	cl[#cl+1] = '[2/22/19]'
+    cl[#cl+1] = 'I have made some heavy tweaks the /clean command (which was previously exclusive to the "Enter Vehicle" mod)'
+    cl[#cl+1] = 'in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner.'
+    cl[#cl+1] = ''
+    cl[#cl+1] = 'The base command is the same, however, the command arguments have changed:'
+    cl[#cl+1] = ''
+    cl[#cl+1] = 'Valid [id] inputs: [number range 1-16, me or *]'
+    cl[#cl+1] = '/clean [id] 1 (cleans up "Enter Vehicle" objects)'
+    cl[#cl+1] = '/clean [id] 2 (cleans up "Item Spawner" objects)'
+    cl[#cl+1] = '/clean [id] * (cleans up "everything")'
+    cl[#cl+1] = ''
+    cl[#cl+1] = 'Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.'
+    cl[#cl+1] = 'Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.'
+    cl[#cl+1] = ''
+    
+	file:write(concat(cl, "\n"))
+	file:close()
+    cprint("[BGS] Writing changelog... ", 2+8)
 end
