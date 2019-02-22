@@ -220,7 +220,7 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = false, -- Enabled = true, Disabled = false
+                enabled = true, -- Enabled = true, Disabled = false
                 assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
@@ -243,7 +243,13 @@ local function GameSettings()
                     ["putput"] = { nil, rocket_launcher, assault_rifle, pistol, 4, 1 },
                     ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
                     ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
-                    ["dummy"] = { rocket_launcher, nil, nil, nil, 1, 1 }
+                    ["room_final"] = { rocket_launcher, nil, nil, nil, 1, 1 },
+                    ["dead_end"] = { pistol, assault_rifle, nil, nil, 1, 1 },
+                    ["gruntground"] = { needler, nil, nil, nil, 1, 1 },
+                    ["feelgoodinc"] = { rocket_launcher, nil, nil, nil, 1, 1 },
+                    ["lolcano"] = { rocket_launcher, nil, nil, nil, 1, 1 },
+                    ["camden_place"] = { pistol, nil, nil, nil, 1, 1 },
+                    ["alice_gulch"] = { pistol, nil, nil, nil, 1, 1 }
                 },
             },
             ["Enter Vehicle"] = {
@@ -376,7 +382,7 @@ local function GameSettings()
                 duration = 5 -- How long should the alias results be displayed for? (in seconds)
             },
             ["Respawn Time"] = {
-                enabled = false,
+                enabled = true,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -396,7 +402,32 @@ local function GameSettings()
                     ["putput"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["prisoner"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["wizard"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["longest"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["tactics"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gruntground"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["lolcano"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["homestead"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["camden_place"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["olympus_mons"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["chaosgulchv2"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["enigma"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["extinction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["coldsnap"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["mario64"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dead-end"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["destinycanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["immure"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sneak"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["windfall_island"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["feelgoodinc"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["battlegulch_v2_chaos"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ragnarok"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["celebration_island"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["doom_wa_view"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["garden_ce"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sciophobiav2"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["portent"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pitfall"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["quagmire"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
