@@ -4174,4 +4174,5 @@ function RecordChanges()
 	file:write(concat(cl, "\n"))
 	file:close()
     cprint("[BGS] Writing changelog... ", 2+8)
+    for _ in pairs(cl) do cl[_] = nil end
 end
