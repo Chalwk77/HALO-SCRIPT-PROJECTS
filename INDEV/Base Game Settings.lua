@@ -736,6 +736,8 @@ end
 local function DisableInfAmmo(TargetID)
     infammo[TargetID] = false
     frag_check[TargetID] = false
+    modify_damage[TargetID] = false
+    damage_multiplier[TargetID] = 0
 end
 
 local function getPlayerInfo(PlayerIndex, id)
@@ -952,7 +954,7 @@ function OnNewGame()
 
     -- #Color Reservation
     if (settings.mod["Color Reservation"].enabled) then
-        if (GetTeamPlay()) then
+        if (getTeamPlay()) then
             can_use_colorres = false
         else
             can_use_colorres = true
@@ -2054,7 +2056,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     for b = 0, #message do
                         if message[b] then
                             if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
-                                if (GetTeamPlay()) then
+                                if (getTeamPlay()) then
                                     if (type == 0 or type == 2) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
                                             if (privilege_level) == getPermLevel(nil, nil, "trial_moderator") then
@@ -2718,32 +2720,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (settings.mod["Lurker"].enabled) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Lurker", nil, nil) then
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
-                    local function validate(PlayerIndex)
-                        if (settings.mod["Infinity Ammo"].enabled) then
-                            if (settings.mod["Infinity Ammo"].server_override) then
-                                return true
-                            else
-                                if (infammo[PlayerIndex] ~= true) then
-                                    return true
-                                end
-                            end
-                        else
-                            return true
-                        end
-                        return false
-                    end
-
-                    if validate(PlayerIndex) then
+                    if not (modify_damage[PlayerIndex]) then
                         setLurker(PlayerIndex, true)
                         rprint(PlayerIndex, "Lurker mode enabled!")
                     else
-                        rprint(PlayerIndex, "Unable to activate Lurker while Infinity Ammo is enabled")
+                        rprint(PlayerIndex, "Unable to set Lurker Mode while you have damage multipliers applied")
                     end
                 else
                     setLurker(PlayerIndex, false)
-                    if (settings.mod["Lurker"].announcer) then
-                        announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in lurker mode! [spectator]")
-                    end
                     rprint(PlayerIndex, "Lurker mode disabled!")
                 end
             else
@@ -2767,35 +2751,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local _max = settings.mod["Infinity Ammo"].multiplier_max
 
                         local function EnableInfAmmo(TargetID, specified, multiplier)
-                            local function validate(TargetID)
-                                if (settings.mod["Lurker"].enabled) then
-                                    if (lurker[TargetID] ~= true) then
-                                        return true
-                                    end
-                                else
-                                    return true
-                                end
-                                return false
-                            end
-
-                            if validate(TargetID) then
-                                infammo[TargetID] = true
-                                frag_check[TargetID] = true
-                                adjust_ammo(TargetID)
-                                if specified then
+                            infammo[TargetID] = true
+                            frag_check[TargetID] = true
+                            adjust_ammo(TargetID)
+                            if specified then
+                                if not (lurker[TargetID]) then
                                     local mult = tonumber(multiplier)
                                     modify_damage[TargetID] = true
                                     damage_multiplier[TargetID] = mult
                                     rprint(TargetID, "[cheat] Infinity Ammo enabled!")
                                     rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
                                 else
-                                    rprint(TargetID, "[cheat] Infinity Ammo enabled!")
-                                    if (settings.mod["Infinity Ammo"].announcer) then
-                                        announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in Infinity Ammo mode.")
-                                    end
+                                    rprint(PlayerIndex, "Unable to set damage multipliers while in Lurker Mode")
                                 end
                             else
-                                rprint(PlayerIndex, "Unable to activate infammo. This player is in Lurker Mode!")
+                                rprint(TargetID, "[cheat] Infinity Ammo enabled!")
+                                if (settings.mod["Infinity Ammo"].announcer) then
+                                    announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in Infinity Ammo mode.")
+                                end
                             end
                         end
 
@@ -3599,6 +3572,9 @@ function setLurker(PlayerIndex, bool)
         killSilently(PlayerIndex)
         resetLurker(PlayerIndex)
         cls(PlayerIndex)
+        if (settings.mod["Lurker"].announcer) then
+            announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in lurker mode! [spectator]")
+        end
     end
 end
 
@@ -3617,7 +3593,7 @@ function listPlayers(PlayerIndex, count)
     if (count == 1) then
         local header, ffa
 
-        if (GetTeamPlay()) then
+        if (getTeamPlay()) then
             header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
         else
             header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    IP. ]"
@@ -3627,7 +3603,7 @@ function listPlayers(PlayerIndex, count)
         for i = 1, 16 do
             if player_present(i) then
                 local name, id, team, ip = get_var(i, "$name"), get_var(i, "$n"), get_var(i, "$team"), get_var(i, "$ip")
-                if (GetTeamPlay()) then
+                if (getTeamPlay()) then
                     if team == "red" then
                         team = "Red"
                     elseif team == "blue" then
@@ -3750,7 +3726,7 @@ function getPermLevel(script, bool, args)
 end
 
 -- Used Globally
-function GetTeamPlay()
+function getTeamPlay()
     if get_var(0, "$ffa") == "0" then
         return true
     else
