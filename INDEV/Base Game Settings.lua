@@ -39,12 +39,22 @@ Combined Scripts:
         Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
 
     --
-    
-    
+
     To enable update checking, this script requires that the following plugin is installed:
     https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
     Credits to Kavawuvi (002) for HTTP client functionality.
+    
 
+    
+    Features and bonuses coming in a future update:
+        * Truce feature (requested by Shoo)
+            - Call a truce between you and another player. (these players cannot inflict damage on one another)
+        * Custom vehicle chat formatting
+            - For example: [warthog][Chalwk] [1]: This is a test message
+        * Organize aliases into 'pages' 
+            - (n) results per page.
+        * Damage reduction
+        
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -4180,6 +4190,13 @@ function RecordChanges()
     cl[#cl+1] = ''
     cl[#cl+1] = 'Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.'
     cl[#cl+1] = 'Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.'
+    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
+    cl[#cl+1] = ''
+    cl[#cl+1] = ''
+	cl[#cl+1] = '[2/23/19]'
+    cl[#cl+1] = 'You can now use Lurker mode while Infinity Ammo is enabled,'
+    cl[#cl+1] = 'however, you cannot manipulate damage multiplies.'
+    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
     cl[#cl+1] = ''
     
 	file:write(concat(cl, "\n"))
