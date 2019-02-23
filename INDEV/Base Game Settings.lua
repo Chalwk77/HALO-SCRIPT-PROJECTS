@@ -4181,7 +4181,7 @@ function RecordChanges()
     cl[#cl+1] = 'I have made some heavy tweaks the /clean command (which was previously exclusive to the "Enter Vehicle" mod)'
     cl[#cl+1] = 'in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner.'
     cl[#cl+1] = ''
-    cl[#cl+1] = 'The base command is the same, however, the command arguments have changed:'
+    cl[#cl+1] = 'The base command is the same. However, the command arguments have changed:'
     cl[#cl+1] = ''
     cl[#cl+1] = 'Valid [id] inputs: [number range 1-16, me or *]'
     cl[#cl+1] = '/clean [id] 1 (cleans up "Enter Vehicle" objects)'
@@ -4195,7 +4195,7 @@ function RecordChanges()
     cl[#cl+1] = ''
 	cl[#cl+1] = '[2/23/19]'
     cl[#cl+1] = 'You can now use Lurker mode while Infinity Ammo is enabled,'
-    cl[#cl+1] = 'however, you cannot manipulate damage multiplies.'
+    cl[#cl+1] = 'but you cannot manipulate damage multipliers.'
     cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
     cl[#cl+1] = ''
     
