@@ -49,7 +49,7 @@ function OnServerCommand(PlayerIndex, Command)
                 local multiplier, _MIN, _MAX = tonumber(t[2]), tonumber(min_damage), tonumber(max_damage)
                 if (multiplier >= _MIN) and (multiplier <= _MAX) then
                 
-                    local function set_multiplier(param1, param2)
+                    local function set_multiplier()
                         damage_multiplier[PlayerIndex] = multiplier
                         modify_damage[PlayerIndex] = true
                         rprint(PlayerIndex, "Now dealing " .. multiplier .. "x damage")
