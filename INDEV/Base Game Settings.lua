@@ -47,10 +47,6 @@ Combined Scripts:
 
     
     Features and bonuses coming in a future update:
-        * Truce feature (requested by Shoo)
-            - Call a truce between you and another player. (these players cannot inflict damage on one another)
-        * Custom vehicle chat formatting
-            - For example: [warthog][Chalwk] [1]: This is a test message
         * Organize aliases into 'pages' 
             - (n) results per page.
         * Damage reduction
@@ -91,12 +87,6 @@ local function GameSettings()
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-
-                -- [ coming in a later update (vehicle output)
-                vehicle_output_global = { "[%sender_name%] [%index%]: %message%" },
-                vehicle_output_team = { "[%sender_name%] [%index%]: %message%" },
-                -- ]
-
                 use_admin_prefixes = false, -- Set to TRUE to enable the below bonus feature.
                 -- Ability to have separate chat formats on a per-admin-level basis...
                 trial_moderator = {
@@ -220,13 +210,15 @@ local function GameSettings()
                 enabled = true,
                 permission_level = 1,
                 prefix = "[SPY]",
-                hide_commands = false,
+                hide_commands = true,
                 commands_to_hide = {
-                    "/afk",
-                    "/lead",
-                    "/stfu",
-                    "/unstfu",
-                    "/skip"
+                    "/accept",
+                    "/deny",
+                    -- "/afk",
+                    -- "/lead",
+                    -- "/stfu",
+                    -- "/unstfu",
+                    -- "/skip"
                 }
             },
             ["Custom Weapons"] = {
@@ -437,7 +429,8 @@ local function GameSettings()
                     ["sciophobiav2"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["portent"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["pitfall"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["quagmire"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["quagmire"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["medical block"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
@@ -1840,7 +1833,6 @@ function OnPlayerKill(PlayerIndex)
 
     -- #Respawn Time
     if (settings.mod["Respawn Time"].enabled) then
-        local player = get_player(PlayerIndex)
         local function getSpawnTime()
             local spawntime
             if (get_var(1, "$gt") == "ctf") then
@@ -1872,8 +1864,10 @@ function OnPlayerKill(PlayerIndex)
             end
             return spawntime
         end
-
-        write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+        if settings.mod["Respawn Time"].maps[mapname] ~= nil then
+            local player = get_player(PlayerIndex)
+            write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+        end
     end
     -- #Lurker
     if (settings.mod["Lurker"].enabled == true) then
@@ -1939,16 +1933,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
         for k, _ in pairs(hidden_messages) do
             if (command == k) then
                 hidden = true
-                break
-            else
-                hidden = false
             end
+            break
         end
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
-            local hidden_status = settings.mod["Command Spy"].hide_commands
-            if (hidden_status == true and hidden == true) then
+            local hide_commands = settings.mod["Command Spy"].hide_commands
+            if (hide_commands and hidden) then
                 response = false
-            elseif (hidden_status == true and hidden == false) or (hidden_status == false) then
+            elseif (hide_commands and not hidden) or (hide_commands == false) then
                 CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. Message .. "\"")
                 response = true
             end
