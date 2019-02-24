@@ -4,7 +4,7 @@ Script Name: Damage Multiplier, for SAPP (PC & CE)
 Description: N/A
 
 Command Syntax: 
-    * /damage [1 - 10]
+    * /damage [0 - 10]
     ~ 1.00 is default damage
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
