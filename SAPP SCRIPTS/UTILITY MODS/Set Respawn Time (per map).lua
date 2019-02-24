@@ -39,6 +39,9 @@ map["wizard"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,    
 map["longest"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
 -- Configuration [ends] <<----------
 
+local _error
+local mapname
+local spawntime
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
@@ -50,44 +53,50 @@ end
 
 function OnNewGame()
     mapname = get_var(1, "$map")
-
+    if (map[mapname] == nil) then
+        _error = true
+        error('[RESPAWN SCRIPT] ' .. mapname .. ' is not listed in the map table.')
+    else
+        local function getSpawnTime()
+            local respawn_time
+            if (get_var(1, "$gt") == "ctf") then
+                respawn_time = map[mapname][1]
+            elseif (get_var(1, "$gt") == "slayer") then
+                if not getTeamPlay() then
+                    respawn_time = map[mapname][2]
+                else
+                    respawn_time = map[mapname][3]
+                end
+            elseif (get_var(1, "$gt") == "koth") then
+                if not getTeamPlay() then
+                    respawn_time = map[mapname][4]
+                else
+                    respawn_time = map[mapname][5]
+                end
+            elseif (get_var(1, "$gt") == "oddball") then
+                if not getTeamPlay() then
+                    respawn_time = map[mapname][6]
+                else
+                    respawn_time = map[mapname][7]
+                end
+            elseif (get_var(1, "$gt") == "race") then
+                if not getTeamPlay() then
+                    respawn_time = map[mapname][8]
+                else
+                    respawn_time = map[mapname][9]
+                end
+            end
+            return respawn_time
+        end
+        spawntime = tonumber(getSpawnTime)
+    end
 end
 
 function OnPlayerKill(PlayerIndex)
-    local player = get_player(PlayerIndex)
-    write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
-end
-
-function getGameType()
-    local spawntime
-    if (get_var(1, "$gt") == "ctf") then
-            spawntime = map[mapname][1]
-        elseif (get_var(1, "$gt") == "slayer") then
-            if not getTeamPlay() then
-                spawntime = map[mapname][2]
-            else
-                spawntime = map[mapname][3]
-            end
-        elseif (get_var(1, "$gt") == "koth") then
-            if not getTeamPlay() then
-                spawntime = map[mapname][4]
-            else
-                spawntime = map[mapname][5]
-            end
-        elseif (get_var(1, "$gt") == "oddball") then
-            if not getTeamPlay() then
-                spawntime = map[mapname][6]
-            else
-                spawntime = map[mapname][7]
-            end
-        elseif (get_var(1, "$gt") == "race") then
-            if not getTeamPlay() then
-                spawntime = map[mapname][8]
-            else
-                spawntime = map[mapname][9]
-            end
-        end
-    return spawntime
+    if not (_error) then
+        local player = get_player(PlayerIndex)
+        write_dword(player + 0x2C, spawntime * 33)
+    end
 end
 
 function getTeamPlay()
