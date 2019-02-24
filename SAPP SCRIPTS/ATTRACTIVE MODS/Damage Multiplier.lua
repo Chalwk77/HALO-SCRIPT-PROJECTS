@@ -17,12 +17,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 
 api_version = "1.12.0.0"
+
+-- config starts [
 local min_damage = 0
 local max_damage = 10
-local default_damage = 1
 local base_command = "damage"
+-- config ends ]
 
--- do not touch
+-- do not touch --
 local damage_multiplier = { }
 local modify_damage = { }
 
@@ -34,7 +36,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    --
 end
 
 function OnServerCommand(PlayerIndex, Command)
@@ -47,14 +49,14 @@ function OnServerCommand(PlayerIndex, Command)
         if (t[2] ~= nil) then
             if (t[2]:match("%d+")) then
                 local multiplier = tonumber(t[2])
-                if (damage_multiplier[PlayerIndex]) and (multiplier == damage_multiplier[PlayerIndex]) then
-                    rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
-                elseif (multiplier >= tonumber(min_damage + 1) and multiplier <= tonumber(max_damage)) then
+                if (multiplier >= tonumber(min_damage + 1) and multiplier <= tonumber(max_damage)) then
                     damage_multiplier[PlayerIndex] = multiplier
                     modify_damage[PlayerIndex] = true
                     rprint(PlayerIndex, "Now dealing " .. multiplier .. "x damage")
                 elseif (multiplier == tonumber(min_damage)) then
                     rprint(PlayerIndex, "You will no longer inflict damage!")
+                elseif (damage_multiplier[PlayerIndex]) and (multiplier == damage_multiplier[PlayerIndex]) then
+                    rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
                 else
                     rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
                 end
@@ -81,7 +83,7 @@ function OnPlayerJoin(PlayerIndex)
 end
 
 function OnPlayerLeave(PlayerIndex)
-    if modify_damage[PlayerIndex] ~= nil then
+    if modify_damage[PlayerIndex] then
         damage_multiplier[PlayerIndex] = nil
         modify_damage[PlayerIndex] = false
     end
