@@ -19,8 +19,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- config starts [
-local min_damage = 0
+local min_damage = 0 -- Warning: Do not touch.
 local max_damage = 10
+local default_damage = 1
 local base_command = "damage"
 -- config ends ]
 
@@ -48,23 +49,36 @@ function OnServerCommand(PlayerIndex, Command)
     if (command == base_command) then
         if (t[2] ~= nil) then
             if (t[2]:match("%d+")) then
-                local multiplier = tonumber(t[2])
-                if (multiplier >= tonumber(min_damage + 1) and multiplier <= tonumber(max_damage)) then
-                    damage_multiplier[PlayerIndex] = multiplier
-                    modify_damage[PlayerIndex] = true
-                    rprint(PlayerIndex, "Now dealing " .. multiplier .. "x damage")
-                elseif (multiplier == tonumber(min_damage)) then
-                    rprint(PlayerIndex, "You will no longer inflict damage!")
-                    
-                elseif (damage_multiplier[PlayerIndex]) and (multiplier == damage_multiplier[PlayerIndex]) then
-                    rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
-                elseif not modify_damage[PlayerIndex] and (multiplier == 1) then
-                    rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
-                    
-                elseif (multiplier == 1) then
-                    damage_multiplier[PlayerIndex] = nil
-                    modify_damage[PlayerIndex] = false
-                    rprint(PlayerIndex, "Damage Multiplier removed")
+                local multiplier, _MIN, _MAX = tonumber(t[2]), tonumber(min_damage), tonumber(max_damage)
+                
+                if (multiplier >= _MIN) and (multiplier <= _MAX) then
+                    local function set_multiplier()
+                        damage_multiplier[PlayerIndex] = multiplier
+                        modify_damage[PlayerIndex] = true
+                        rprint(PlayerIndex, "Now dealing " .. multiplier .. "x damage")
+                    end
+                    if not (modify_damage[PlayerIndex]) then
+                        if (multiplier == default_damage) then
+                            rprint(PlayerIndex, "No change. You are already dealing default damage.")
+                        elseif (multiplier == _min) then
+                            rprint(PlayerIndex, "You will no longer inflict damage!")
+                            set_multiplier()
+                        else
+                            set_multiplier()
+                        end
+                        
+                    elseif (modify_damage[PlayerIndex]) then
+                        if (multiplier == default_damage) then
+                            rprint(PlayerIndex, "You are now dealing default damage.")
+                        elseif (multiplier == _min) then
+                            rprint(PlayerIndex, "You will no longer inflict damage!")
+                            set_multiplier()
+                        elseif (multiplier == damage_multiplier[PlayerIndex]) then
+                            rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
+                        else
+                            set_multiplier()
+                        end
+                    end
                 else
                     rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
                 end
