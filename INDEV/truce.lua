@@ -178,7 +178,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     elseif (command == "untruce") then
-        if validate_syntax(false, false, false, true) then 
+        if validate_syntax(false, false, false, true) then
             local proceed
             local TargetID = tonumber(tID[PlayerIndex])
             for key, _ in ipairs(tracker) do
@@ -203,21 +203,25 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     elseif (command == "trucelist") then
-        local id = tonumber(get_var(PlayerIndex, "$n"))
-        for key, _ in ipairs(tracker) do
-            if (id == tonumber(tracker[key]["rID"])) then
-                local tName = tostring(tracker[key]["tName"])
-                local index = tonumber(tracker[key]["tID"])
-                rprint(PlayerIndex, "[" .. index .. "] -> " .. tName)
+        if next(tracker) ~= nil then
+            local id = tonumber(get_var(PlayerIndex, "$n"))
+            for key, _ in ipairs(tracker) do
+                if (id == tonumber(tracker[key]["rID"])) then
+                    local tName = tostring(tracker[key]["tName"])
+                    local index = tonumber(tracker[key]["tID"])
+                    rprint(PlayerIndex, "[" .. index .. "] -> " .. tName)
 
-            elseif (id == tonumber(tracker[key]["tID"])) then
-                local rName = tostring(tracker[key]["rName"])
-                local index = tonumber(tracker[key]["rID"])
-                rprint(PlayerIndex, "[" .. index .. "] -> " .. rName)
-            else
-                rprint(PlayerIndex, "You have not initiated a truce with anybody")
-                break
+                elseif (id == tonumber(tracker[key]["tID"])) then
+                    local rName = tostring(tracker[key]["rName"])
+                    local index = tonumber(tracker[key]["rID"])
+                    rprint(PlayerIndex, "[" .. index .. "] -> " .. rName)
+                else
+                    rprint(PlayerIndex, "You have not initiated a truce with anybody")
+                    break
+                end
             end
+        else
+            rprint(PlayerIndex, "You have not initiated a truce with anybody")
         end
         return false
     end
@@ -238,8 +242,10 @@ end
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
         if truce[CauserIndex] ~= nil then
-            if (truce[CauserIndex][1] == tonumber(PlayerIndex)) then
-                return false
+            for i = 1,#truce[CauserIndex] do
+                if (truce[CauserIndex][i] == tonumber(PlayerIndex)) then
+                    return false
+                end
             end
         end
     end
