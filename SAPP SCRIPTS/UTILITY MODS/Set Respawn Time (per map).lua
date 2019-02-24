@@ -3,9 +3,6 @@
 Script Name: Set Respawn Time (per map), for SAPP (PC & CE)
 Description: This script will allow you to set player respawn time (in seconds) on a per-map/per-gametype basis
 
-This script is also available on my github! Check my github for regular updates on my projects, including this script.
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS
-
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -37,6 +34,10 @@ map["putput"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,    
 map["prisoner"] =       {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
 map["wizard"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
 map["longest"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
+
+-- To add your own maps, simply repeat the structure above, like so:
+map["map_name_here"] = {0, 0, 0, 0, 0, 0, 0, 0, 0} -- respawn time in seconds
+
 -- Configuration [ends] <<----------
 
 -- Do not touch anything below unless you know what you're doing.
