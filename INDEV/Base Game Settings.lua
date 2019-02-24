@@ -348,7 +348,7 @@ local function GameSettings()
                     -- Make sure these names match exactly as they do in game.
                     "Chalwk",
                     "Ro@dhog",
-                    "§hoo",
+                    "�hoo",
                     "member5" -- Make sure the last entry in the table doesn't have a comma
                 },
                 hashlist = {
@@ -1130,7 +1130,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Portal Gun
             if (settings.mod["Portal Gun"].enabled) then
                 if (player_present(i) and player_alive(i)) then
@@ -1368,7 +1368,7 @@ function OnPlayerPrejoin(PlayerIndex)
             e = gsub(tab[i], "%%level%%", level)
         end
     end
-    table.insert(player_info[PlayerIndex], {["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
+    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
 
     cprint(getPlayerInfo(PlayerIndex, "name"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "hash"), 2 + 8)
@@ -1389,7 +1389,7 @@ function OnPlayerJoin(PlayerIndex)
         cprint("Status: " .. name .. " connected successfully.", 5 + 8)
         cprint("________________________________________________________________________________", 2 + 8)
     end
-    
+
     if (settings.global.check_for_updates) then
         if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
             if (getCurrentVersion(false) ~= settings.global.script_version) then
@@ -1612,7 +1612,7 @@ function OnPlayerLeave(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
+
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
     if player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {} then
@@ -1624,7 +1624,7 @@ function OnPlayerLeave(PlayerIndex)
         player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
-    
+
     -- Used Globally
     local p_table = name .. ", " .. hash
 
@@ -4166,38 +4166,40 @@ function OnError()
 end
 
 function RecordChanges()
-	local file = io.open("sapp\\bgs_changelog.txt", "w")
-	local cl = {}
-    
-	cl[#cl+1] = '[2/22/19]'
-    cl[#cl+1] = 'I have made some heavy tweaks the /clean command (which was previously exclusive to the "Enter Vehicle" mod)'
-    cl[#cl+1] = 'in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner.'
-    cl[#cl+1] = ''
-    cl[#cl+1] = 'The base command is the same. However, the command arguments have changed:'
-    cl[#cl+1] = ''
-    cl[#cl+1] = 'Valid [id] inputs: [number range 1-16, me or *]'
-    cl[#cl+1] = '/clean [id] 1 (cleans up "Enter Vehicle" objects)'
-    cl[#cl+1] = '/clean [id] 2 (cleans up "Item Spawner" objects)'
-    cl[#cl+1] = '/clean [id] * (cleans up "everything")'
-    cl[#cl+1] = ''
-    cl[#cl+1] = 'Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.'
-    cl[#cl+1] = 'Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.'
-    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
-    cl[#cl+1] = ''
-    cl[#cl+1] = ''
-	cl[#cl+1] = '[2/23/19]'
-    cl[#cl+1] = 'You can now use Lurker mode while Infinity Ammo is enabled,'
-    cl[#cl+1] = 'but you cannot manipulate damage multipliers.'
-    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
-    cl[#cl+1] = ''
-    cl[#cl+1] = ''
-	cl[#cl+1] = '[2/24/19]'
-    cl[#cl+1] = 'Fixed a map check error relating to Respawn Time'
-    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
-    cl[#cl+1] = ''
-    
-	file:write(concat(cl, "\n"))
-	file:close()
-    cprint("[BGS] Writing changelog... ", 2+8)
-    for _ in pairs(cl) do cl[_] = nil end
+    local file = io.open("sapp\\bgs_changelog.txt", "w")
+    local cl = {}
+
+    cl[#cl + 1] = "[2/22/19]"
+    cl[#cl + 1] = "I have made some heavy tweaks the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)"
+    cl[#cl + 1] = "in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner."
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "The base command is the same. However, the command arguments have changed:"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Valid [id] inputs: [number range 1-16, me or *]"
+    cl[#cl + 1] = "/clean [id] 1 (cleans up 'Enter Vehicle' objects)"
+    cl[#cl + 1] = "/clean [id] 2 (cleans up 'Item Spawner' objects)"
+    cl[#cl + 1] = "/clean [id] * (cleans up 'everything')"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody."
+    cl[#cl + 1] = "Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/23/19]"
+    cl[#cl + 1] = "You can now use Lurker mode while Infinity Ammo is enabled,"
+    cl[#cl + 1] = "but you cannot manipulate damage multipliers."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/24/19]"
+    cl[#cl + 1] = "Fixed a map check error relating to Respawn Time"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+
+    file:write(concat(cl, "\n"))
+    file:close()
+    cprint("[BGS] Writing changelog... ", 2 + 8)
+    for _ in pairs(cl) do
+        cl[_] = nil
+    end
 end
