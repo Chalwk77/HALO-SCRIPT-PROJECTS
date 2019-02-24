@@ -4190,6 +4190,11 @@ function RecordChanges()
     cl[#cl+1] = 'but you cannot manipulate damage multipliers.'
     cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
     cl[#cl+1] = ''
+    cl[#cl+1] = ''
+	cl[#cl+1] = '[2/24/19]'
+    cl[#cl+1] = 'Fixed a map check error relating to Respawn Time'
+    cl[#cl+1] = '-------------------------------------------------------------------------------------------------------------------------------'
+    cl[#cl+1] = ''
     
 	file:write(concat(cl, "\n"))
 	file:close()
