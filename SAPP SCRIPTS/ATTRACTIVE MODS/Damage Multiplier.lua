@@ -97,7 +97,7 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-        if (modify_damage[CauserIndex] == true) then
+        if (modify_damage[CauserIndex]) then
             return true, Damage * tonumber(damage_multiplier[CauserIndex])
         end
     end
