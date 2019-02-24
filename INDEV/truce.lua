@@ -3,7 +3,7 @@
 Script Name: Truce, for SAPP (PC & CE)
 Description: Initiate a truce with other players!
 
-    WARNING. This mod is a prototype and probably contains bugs.
+    WARNING. This mod is a prototype and contains bugs.
 
 Command Syntax: 
     * /truce [player id]
@@ -101,9 +101,9 @@ function OnServerCommand(PlayerIndex, Command)
     if (command == "truce") then
         local function notPreviousRequest()
             for key, _ in pairs(tracker) do
-                local eID = tonumber(get_var(PlayerIndex, "$n"))
+                local id = tonumber(get_var(PlayerIndex, "$n"))
                 local prev_eID = tonumber(tracker[key]["rID"])
-                if (eID == prev_eID) then
+                if (id == prev_eID) then
                     local prev_tID = tonumber(tracker[key]["tID"])
                     if (tID[PlayerIndex] == prev_tID) then
                         return false
@@ -206,14 +206,37 @@ function OnServerCommand(PlayerIndex, Command)
             local id = tonumber(get_var(PlayerIndex, "$n"))
             for key, _ in ipairs(tracker) do
                 if (id == tonumber(tracker[key]["rID"])) then
-                    local tName = tostring(tracker[key]["tName"])
+                    local name = get_var(PlayerIndex, "$name")
+                    local tName = tracker[key]["tName"]
                     local index = tonumber(tracker[key]["tID"])
-                    rprint(PlayerIndex, "[" .. index .. "] -> " .. tName)
-
+                    if (name == tracker[key]["rName"]) then
+                        if truce[PlayerIndex] == nil and truce[index] == nil then
+                            rprint(PlayerIndex, "[" .. index .. "] -> " .. tName .. " (pending request) ")
+                        end
+                    end
+                    if truce[PlayerIndex] ~= nil then
+                        for i = 1, #truce[PlayerIndex] do
+                            if (truce[PlayerIndex][i] == index) then
+                                rprint(PlayerIndex, "[" .. index .. "] -> " .. tName .. " (truced) ")
+                            end
+                        end
+                    end
                 elseif (id == tonumber(tracker[key]["tID"])) then
-                    local rName = tostring(tracker[key]["rName"])
+                    local name = get_var(PlayerIndex, "$name")
+                    local rName = tracker[key]["rName"]
                     local index = tonumber(tracker[key]["rID"])
-                    rprint(PlayerIndex, "[" .. index .. "] -> " .. rName)
+                    if (name == tracker[key]["tName"]) then
+                        if truce[PlayerIndex] == nil and truce[index] == nil then
+                            rprint(PlayerIndex, "[" .. index .. "] -> " .. rName .. " (pending request) ")
+                        end
+                    end
+                    if truce[PlayerIndex] ~= nil then
+                        for i = 1, #truce[PlayerIndex] do
+                            if (truce[PlayerIndex][i] == index) then
+                                rprint(PlayerIndex, "[" .. index .. "] -> " .. rName .. " (truced) ")
+                            end
+                        end
+                    end
                 else
                     rprint(PlayerIndex, "You have not initiated a truce with anybody")
                     break
@@ -258,15 +281,23 @@ end
 function OnPlayerLeave(PlayerIndex)
     if truce[PlayerIndex] ~= nil then
         if next(tracker) ~= nil then
+        
+            local name = get_var(PlayerIndex, "$name")
             local id = tonumber(get_var(PlayerIndex, "$n"))
+            
             for key, _ in ipairs(tracker) do
-                local rID = tonumber(tracker[key]["rID"])
+            
+                local tName = tracker[key]["tName"]
                 local tID = tonumber(tracker[key]["tID"])
-                if (id == rID) then
-                    rprint(tID, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
-                    tracker[key] = nil
-                elseif (id == tID) then
+                
+                local rName = tracker[key]["rName"]
+                local rID = tonumber(tracker[key]["rID"])
+
+                if (name == tName) and (id == tID) then
                     rprint(rID, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                    tracker[key] = nil
+                elseif (name == rName) and (id == rID) then
+                    rprint(tID, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
                     tracker[key] = nil
                 end
             end
