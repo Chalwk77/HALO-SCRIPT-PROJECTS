@@ -35,17 +35,17 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    
+
 end
 
 local function removeTruce(PlayerIndex, TargetID)
     if truce[PlayerIndex] ~= nil and truce[TargetID] ~= nil then
-        for key,_ in pairs(truce[PlayerIndex]) do
+        for key, _ in pairs(truce[PlayerIndex]) do
             if truce[PlayerIndex][key] == TargetID then
                 truce[PlayerIndex][key] = nil
             end
-        end             
-        for key,_ in pairs(truce[TargetID]) do
+        end
+        for key, _ in pairs(truce[TargetID]) do
             if truce[TargetID][key] == PlayerIndex then
                 truce[TargetID][key] = nil
             end
@@ -97,13 +97,13 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     end
-    
+
     if (command == "truce") then
         local function notPreviousRequest()
-            for key,_ in pairs(tracker) do
+            for key, _ in pairs(tracker) do
                 local eID = tonumber(get_var(PlayerIndex, "$n"))
                 local prev_eID = tonumber(tracker[key]["rID"])
-                if (eID == prev_eID) then 
+                if (eID == prev_eID) then
                     local prev_tID = tonumber(tracker[key]["tID"])
                     if (tID[PlayerIndex] == prev_tID) then
                         return false
@@ -112,7 +112,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
             return true
         end
-        if validate_syntax(true, false, false, false) then 
+        if validate_syntax(true, false, false, false) then
             if notPreviousRequest() then
                 local tID = tonumber(tID[PlayerIndex])
                 rprint(tID, get_var(PlayerIndex, "$name") .. " is requesting a truce with you.")
@@ -122,8 +122,8 @@ function OnServerCommand(PlayerIndex, Command)
                 local rName = get_var(PlayerIndex, "$name")
                 local tName = get_var(tID, "$name")
                 local rID = get_var(PlayerIndex, "$n")
-                table.insert(tracker, {["rName"] = rName, ["tName"] = tName, ["rID"] = rID, ["tID"] = tID})
-                
+                table.insert(tracker, { ["rName"] = rName, ["tName"] = tName, ["rID"] = rID, ["tID"] = tID })
+
                 rprint(PlayerIndex, "Request sent to " .. get_var(tID, "$name"))
                 wait_for_response[tID].requests = wait_for_response[tID].requests + 1
             else
@@ -139,14 +139,14 @@ function OnServerCommand(PlayerIndex, Command)
                     if (TargetID == tonumber(tracker[key]["rID"])) then
                         local rName = tostring(tracker[key]["rName"])
                         truce[TargetID] = truce[TargetID] or {}
-                        truce[TargetID][#truce[TargetID]+1] = PlayerIndex
-                        
+                        truce[TargetID][#truce[TargetID] + 1] = PlayerIndex
+
                         truce[PlayerIndex] = truce[PlayerIndex] or {}
-                        truce[PlayerIndex][#truce[PlayerIndex]+1] = TargetID
-                        
+                        truce[PlayerIndex][#truce[PlayerIndex] + 1] = TargetID
+
                         rprint(PlayerIndex, "You are now in a truce with " .. rName)
                         rprint(TargetID, "[request accepted] You are now in a truce with " .. get_var(PlayerIndex, "$name"))
-                        
+
                         proceed[PlayerIndex] = true
                         wait_for_response[PlayerIndex].requests = wait_for_response[PlayerIndex].requests - 1
                         break
@@ -179,7 +179,6 @@ function OnServerCommand(PlayerIndex, Command)
         return false
     elseif (command == "untruce") then
         if validate_syntax(false, false, false, true) then
-            local proceed
             local TargetID = tonumber(tID[PlayerIndex])
             for key, _ in ipairs(tracker) do
                 local tID = tonumber(tracker[key]["tID"])
@@ -225,7 +224,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     end
-    
+
     if (command == "accept" or command == "deny") then
         if not (proceed[PlayerIndex]) then
             for key, _ in ipairs(tracker) do
@@ -237,12 +236,12 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-end                                         
-   
+end
+
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
         if truce[CauserIndex] ~= nil then
-            for i = 1,#truce[CauserIndex] do
+            for i = 1, #truce[CauserIndex] do
                 if (truce[CauserIndex][i] == tonumber(PlayerIndex)) then
                     return false
                 end
