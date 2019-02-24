@@ -55,8 +55,16 @@ function OnServerCommand(PlayerIndex, Command)
                     rprint(PlayerIndex, "Now dealing " .. multiplier .. "x damage")
                 elseif (multiplier == tonumber(min_damage)) then
                     rprint(PlayerIndex, "You will no longer inflict damage!")
+                    
                 elseif (damage_multiplier[PlayerIndex]) and (multiplier == damage_multiplier[PlayerIndex]) then
                     rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
+                elseif not modify_damage[PlayerIndex] and (multiplier == 1) then
+                    rprint(PlayerIndex, "You're already dealing (" .. multiplier.. "x) damage")
+                    
+                elseif (multiplier == 1) then
+                    damage_multiplier[PlayerIndex] = nil
+                    modify_damage[PlayerIndex] = false
+                    rprint(PlayerIndex, "Damage Multiplier removed")
                 else
                     rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
                 end
