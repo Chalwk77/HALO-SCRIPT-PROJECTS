@@ -15,7 +15,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-map = { }
+local map = { }
 
 -- Configuration [starts]...
 --                       CTF | SLAYER | TEAM-S | KOTH |   TEAM-KOTH |   ODDBALL |   TEAM-ODDBALL |   RACE |   TEAM-RACE
@@ -39,9 +39,11 @@ map["wizard"] =         {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,    
 map["longest"] =        {2.5,  2.5,     2.5,     2.5,     2.5,          2.5,        2.5,             2.5,     2.5}
 -- Configuration [ends] <<----------
 
+-- Do not touch anything below unless you know what you're doing.
 local _error
 local mapname
 local spawntime
+
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
