@@ -45,129 +45,122 @@ function OnServerCommand(PlayerIndex, Command)
     local command = t[1]:gsub("\\", "/")
     if (command == base_command) then
         if (t[2] ~= nil) then
-            if (t[2]:match("%d+")) then
-                if t[3] ~= nil then
-                    local multiplier, _MIN, _MAX = tonumber(t[3]), tonumber(min_damage), tonumber(max_damage)
-                    if (multiplier >= _MIN) and (multiplier <= _MAX) then
+            if t[3] ~= nil then
+                local multiplier, _MIN, _MAX = tonumber(t[3]), tonumber(min_damage), tonumber(max_damage)
+                if (multiplier >= _MIN) and (multiplier <= _MAX) then
+                
+                    local executor = tonumber(PlayerIndex)
+                    local TargetID, execute_silenty, is_all
+                    if (t[2] == "me") then
+                        TargetID = tonumber(PlayerIndex)
+                    elseif (t[2]:match("%d+")) then
+                        TargetID = tonumber(t[2])
+                    -- not currently implemented
+                    elseif (tostring(t[2]) == "*") then
+                        is_all = true
+                    end
                     
-                        local executor = tonumber(PlayerIndex)
-                        local TargetID, execute_silenty, is_all
-                        if (t[2] == "me") then
-                            TargetID = tonumber(PlayerIndex)
-                        elseif (t[2]:match("%d+")) then
-                            TargetID = tonumber(t[2])
-                            
-                        -- not currently implemented
-                        elseif (tostring(t[2]) == "*") then
-                            is_all = true
+                    if not player_present(TargetID) then
+                        rprint(PlayerIndex, "Player not present!")
+                        return false
+                    end
+                    
+                    if t[4] ~= nil then
+                        if t[4] == "-s" then
+                            execute_silenty = true
+                        else
+                            rprint(executor, "Error! (t[4]) ->  Invalid command flag. Usage: -s")
                         end
-                        
-                        if not player_present(TargetID) then
-                            rprint(PlayerIndex, "Player not present!")
-                            return false
-                        end
-                        
-                        if t[4] ~= nil then
-                            if t[4] == "-s" then
-                                execute_silenty = true
+                    end
+                
+                    local function set_multiplier()
+                        damage_multiplier[TargetID] = multiplier
+                        modify_damage[TargetID] = true
+                        if not (execute_silenty) then
+                            if (TargetID ~= executor) then
+                                rprint(TargetID, "Now dealing " .. multiplier .. "x damage")
+                                rprint(executor, get_var(TargetID, "$name") .. " is dealing " .. multiplier .. "x damage")
                             else
-                                rprint(executor, "Error! (t[4]) ->  Invalid command flag. Usage: -s")
+                                rprint(TargetID, "Now dealing " .. multiplier .. "x damage")
                             end
+                        else
+                            rprint(executor, "Setting " .. multiplier .. "x damage" .. " for " .. get_var(TargetID, "$name"))
                         end
+                    end
                     
-                        local function set_multiplier()
+                    if not (modify_damage[TargetID]) then
+                        if (multiplier == default_damage) then
+                            if not (execute_silenty) then
+                                if (TargetID ~= executor) then
+                                    rprint(executor, get_var(TargetID, "$name") .. " is already dealing default damage.")
+                                else
+                                    rprint(executor, "No change. You are already dealing default damage.")
+                                end
+                            else
+                                rprint(executor, "No change. " .. get_var(TargetID, "$name") .. " is already dealing default damage.")
+                            end
+                        elseif (multiplier == _MIN) then
                             damage_multiplier[TargetID] = multiplier
                             modify_damage[TargetID] = true
                             if not (execute_silenty) then
                                 if (TargetID ~= executor) then
-                                    rprint(TargetID, "Now dealing " .. multiplier .. "x damage")
-                                    rprint(executor, get_var(TargetID, "$name") .. " is dealing " .. multiplier .. "x damage")
+                                    rprint(TargetID, "You will no longer inflict damage!")
+                                    rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
                                 else
-                                    rprint(TargetID, "Now dealing " .. multiplier .. "x damage")
+                                    rprint(executor, "You will no longer inflict damage!")
                                 end
                             else
-                                rprint(executor, "Setting " .. multiplier .. "x damage" .. " for " .. get_var(TargetID, "$name"))
+                                rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
                             end
+                        else
+                            set_multiplier()
                         end
                         
-                        if not (modify_damage[TargetID]) then
-                            if (multiplier == default_damage) then
-                                if not (execute_silenty) then
-                                    if (TargetID ~= executor) then
-                                        rprint(executor, get_var(TargetID, "$name") .. " is already dealing default damage.")
-                                    else
-                                        rprint(executor, "No change. You are already dealing default damage.")
-                                    end
+                    elseif (modify_damage[TargetID]) then
+                        if (multiplier == default_damage and (damage_multiplier[TargetID] ~= default_damage)) then
+                            if not (execute_silenty) then
+                                if (TargetID ~= executor) then
+                                    rprint(TargetID, "You are now dealing default damage.")
+                                    rprint(executor, get_var(TargetID, "$name") .. " now dealing default damage.")
                                 else
-                                    rprint(executor, "No change. " .. get_var(TargetID, "$name") .. " is already dealing default damage.")
-                                end
-                            elseif (multiplier == _MIN) then
-                                damage_multiplier[TargetID] = multiplier
-                                modify_damage[TargetID] = true
-                                if not (execute_silenty) then
-                                    if (TargetID ~= executor) then
-                                        rprint(TargetID, "You will no longer inflict damage!")
-                                        rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
-                                    else
-                                        rprint(executor, "You will no longer inflict damage!")
-                                    end
-                                else
-                                    rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
+                                    rprint(executor, "You are now dealing default damage.")
                                 end
                             else
-                                set_multiplier()
+                                rprint(executor, get_var(TargetID, "$name") .. " is now dealing default damage.")
                             end
-                            
-                        elseif (modify_damage[TargetID]) then
-                            if (multiplier == default_damage and (damage_multiplier[TargetID] ~= default_damage)) then
-                                if not (execute_silenty) then
-                                    if (TargetID ~= executor) then
-                                        rprint(TargetID, "You are now dealing default damage.")
-                                        rprint(executor, get_var(TargetID, "$name") .. " now dealing default damage.")
-                                    else
-                                        rprint(executor, "You are now dealing default damage.")
-                                    end
-                                else
-                                    rprint(executor, get_var(TargetID, "$name") .. " is now dealing default damage.")
-                                end
-                                damage_multiplier[TargetID] = nil
-                                modify_damage[TargetID] = false
-                            elseif (multiplier == _MIN) then
-                                damage_multiplier[TargetID] = multiplier
-                                modify_damage[TargetID] = true
-                                if not (execute_silenty) then
-                                    if (TargetID ~= executor) then
-                                        rprint(TargetID, "You will no longer inflict damage!")
-                                        rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
-                                    else
-                                        rprint(executor, "You will no longer inflict damage!")
-                                    end
-                                else
+                            damage_multiplier[TargetID] = nil
+                            modify_damage[TargetID] = false
+                        elseif (multiplier == _MIN) then
+                            damage_multiplier[TargetID] = multiplier
+                            modify_damage[TargetID] = true
+                            if not (execute_silenty) then
+                                if (TargetID ~= executor) then
+                                    rprint(TargetID, "You will no longer inflict damage!")
                                     rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
-                                end
-                            elseif (multiplier == damage_multiplier[TargetID]) then
-                                if not (execute_silenty) then
-                                    if (TargetID ~= executor) then
-                                        rprint(TargetID, "You're already dealing (" .. multiplier.. "x) damage")
-                                        rprint(executor, get_var(TargetID, "$name") .. " is already dealing (" .. multiplier.. "x) damage")
-                                    else
-                                        rprint(executor, "You're already dealing (" .. multiplier.. "x) damage")
-                                    end
                                 else
+                                    rprint(executor, "You will no longer inflict damage!")
+                                end
+                            else
+                                rprint(executor, get_var(TargetID, "$name") .. " will no longer inflict damage!")
+                            end
+                        elseif (multiplier == damage_multiplier[TargetID]) then
+                            if not (execute_silenty) then
+                                if (TargetID ~= executor) then
+                                    rprint(TargetID, "You're already dealing (" .. multiplier.. "x) damage")
                                     rprint(executor, get_var(TargetID, "$name") .. " is already dealing (" .. multiplier.. "x) damage")
+                                else
+                                    rprint(executor, "You're already dealing (" .. multiplier.. "x) damage")
                                 end
                             else
-                                set_multiplier()
+                                rprint(executor, get_var(TargetID, "$name") .. " is already dealing (" .. multiplier.. "x) damage")
                             end
+                        else
+                            set_multiplier()
                         end
-                    else
-                        rprint(PlayerIndex, "Invalid player ID")
                     end
                 else
                     rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
                 end
-            else
-                rprint(PlayerIndex, "Error! (t[2]) ->  That is not a number!")
             end
         else
             rprint(PlayerIndex, "Invalid syntax. Usage: /" .. base_command .. " [" .. min_damage .. "-" .. max_damage .. "]")
