@@ -163,7 +163,7 @@ function OnServerCommand(PlayerIndex, Command)
                 end
             end
         else
-            rprint(PlayerIndex, "Invalid syntax. Usage: /" .. base_command .. " [" .. min_damage .. "-" .. max_damage .. "]")
+            rprint(PlayerIndex, "Invalid syntax. Usage: /" .. base_command .. " [id] [" .. min_damage .. "-" .. max_damage .. "] (optional -s)")
         end
         return false
     end
