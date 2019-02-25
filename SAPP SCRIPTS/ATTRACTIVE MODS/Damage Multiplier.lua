@@ -51,11 +51,13 @@ function OnServerCommand(PlayerIndex, Command)
                     if (multiplier >= _MIN) and (multiplier <= _MAX) then
                     
                         local executor = tonumber(PlayerIndex)
-                        local TargetID, execute_silenty
+                        local TargetID, execute_silenty, is_all
                         if (t[2] == "me") then
                             TargetID = tonumber(PlayerIndex)
                         elseif (t[2]:match("%d+")) then
                             TargetID = tonumber(t[2])
+                            
+                        -- not currently implemented
                         elseif (tostring(t[2]) == "*") then
                             is_all = true
                         end
