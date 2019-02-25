@@ -19,37 +19,26 @@ Combined Scripts:
     - Suggestions Box (request by Cyser@)       Enter Vehicle
 
     BGS Commands:
-    /plugins
-    /enable [id]
-    /disable [id]
-    /mute [id] <time dif>
-    /unmute [id]
+    /plugins, /enable [id], /disable [id]
+    /mute [id] <time dif>, /unmute [id]
     /clear (clears chat)
+    /clean
 
-    "/plugins" shows you a list of all mods and tells you which ones are enabled/disabled.
+    "/plugins" shows you a list of all mods and tells you which ones are enabled or disabled.
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
-    
-    
+   
     /clean (command syntax info) for Enter Vehicle & Item Spawner:
     
-        * Valid [id] inputs: [number range 1-16, me or *] 
+        ~ Valid [id] inputs: [number range 1-16, me or *] 
         * /clean [id] 1 (cleans up "Enter Vehicle" objects)
         * /clean [id] 2 (cleans up "Item Spawner" objects)
         * /clean [id] * (cleans up "everything")
         Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
-
     --
 
     To enable update checking, this script requires that the following plugin is installed:
     https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
     Credits to Kavawuvi (002) for HTTP client functionality.
-    
-
-    
-    Features and bonuses coming in a future update:
-        * Organize aliases into 'pages' 
-            - (n) results per page.
-        * Damage reduction
         
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -143,8 +132,8 @@ local function GameSettings()
                 warnings = 4,
             },
             ["Infinity Ammo"] = {
-                enabled = true,
-                server_override = true, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
+                enabled = false,
+                server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
                 base_command = "infammo",
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
                 permission_level = 1,
@@ -176,6 +165,10 @@ local function GameSettings()
                 messages = {
                     "Welcome to %server_name%, %player_name%",
                     "line 2",
+                    "line 3",
+                    "line 4",
+                    "line 5"
+                    -- repeat the structure to add more entries
                 }
             },
             ["Color Reservation"] = {
@@ -344,20 +337,13 @@ local function GameSettings()
                 action = "kick", -- Valid actions, "kick", "ban"
                 reason = "impersonating",
                 bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
-                namelist = {
-                    -- Make sure these names match exactly as they do in game.
-                    "Chalwk",
-                    "Ro@dhog",
-                    "�hoo",
-                    "member5" -- Make sure the last entry in the table doesn't have a comma
+                users = {
+                    {["Chalwk"] = {"6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    {["Ro@dhog"] = {"0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    {["Shoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
+                    {["NAME"] = {"hash1", "hash2", "hash3", "etc..."}},
                 },
-                hashlist = {
-                    -- You can retrieve the players hash by looking it up in the sapp.log file or Server Chat.txt
-                    "6c8f0bc306e0108b4904812110185edd", -- Chalwk's hash
-                    "0ca756f62f9ecb677dc94238dcbc6c75", -- Ro@dhog's hash
-                    "abd5c96cd22517b4e2f358598147c606", -- Shoo's hash
-                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                }
             },
             ["Console Logo"] = {
                 enabled = true
@@ -605,7 +591,7 @@ local function GameSettings()
             can_mute_admins = false, -- True = yes, false = no
             beepOnLoad = false,
             beepOnJoin = true,
-            script_version = 1.6,
+            script_version = 1.7,
             check_for_updates = false,
             plugin_commands = {
                 enable = "enable",
@@ -1458,7 +1444,6 @@ function OnPlayerJoin(PlayerIndex)
                                             return num
                                         end
                                     end
-
                                     write_byte(player + 0x60, tonumber(selectRandomColor(k)))
                                     colorres_bool[PlayerIndex] = true
                                 end
@@ -1532,20 +1517,29 @@ function OnPlayerJoin(PlayerIndex)
 
     -- #Anti Impersonator
     if (settings.mod["Anti Impersonator"].enabled) then
-
-        local name_list = settings.mod["Anti Impersonator"].namelist
-        local hash_list = settings.mod["Anti Impersonator"].hashlist
-
-        if (table.match(name_list, name) and not table.match(hash_list, hash)) then
-            local action = settings.mod["Anti Impersonator"].action
-            local reason = settings.mod["Anti Impersonator"].reason
-            if (action == "kick") then
-                execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
-                cprint(name .. " was kicked for " .. reason, 4 + 8)
-            elseif (action == "ban") then
-                local bantime = settings.mod["Anti Impersonator"].bantime
-                execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
-                cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
+        local tab = settings.mod["Anti Impersonator"].users
+        local found
+        for key, _ in ipairs(tab) do
+            local userdata = tab[key][name]
+            if (userdata ~= nil) then
+                for i = 1,#userdata do
+                    if string.find(userdata[i], hash) then
+                        found = true
+                        break
+                    end
+                end
+                if not (found) then
+                    local action = settings.mod["Anti Impersonator"].action
+                    local reason = settings.mod["Anti Impersonator"].reason
+                    if (action == "kick") then
+                        execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
+                        cprint(name .. " was kicked for " .. reason, 4 + 8)
+                    elseif (action == "ban") then
+                        local bantime = settings.mod["Anti Impersonator"].bantime
+                        execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
+                        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
+                    end
+                end
             end
         end
     end
@@ -3615,7 +3609,6 @@ function listPlayers(PlayerIndex, count)
                     end
                 else
                     ffa = true
-                    team = "FFA"
                 end
                 if not (ffa) then
                     rprint(PlayerIndex, "|" .. settings.mod["Player List"].alignment .. "     " .. id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip)
