@@ -4189,6 +4189,12 @@ function RecordChanges()
     cl[#cl + 1] = "Fixed a map check error relating to Respawn Time"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/26/19]"
+    cl[#cl + 1] = "Fixed a bug relating to Anti Impersonator."
+    cl[#cl + 1] = "The user table in the Anti Impersonator configuration table now supports multiple hashes per user."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
 
     file:write(concat(cl, "\n"))
     file:close()
