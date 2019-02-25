@@ -1539,6 +1539,7 @@ function OnPlayerJoin(PlayerIndex)
                         execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
                         cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
                     end
+                    break
                 end
             end
         end
