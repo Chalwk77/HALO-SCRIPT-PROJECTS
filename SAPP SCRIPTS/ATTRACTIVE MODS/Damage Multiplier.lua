@@ -4,8 +4,8 @@ Script Name: Damage Multiplier, for SAPP (PC & CE)
 Description: N/A
 
 Command Syntax: 
-    * /damage [0 - 10]
-    ~ 1.00 is default damage
+    * /damage [player id] [number range 0-10] (optional -s)
+    "me" can be used in place of your own player id
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
