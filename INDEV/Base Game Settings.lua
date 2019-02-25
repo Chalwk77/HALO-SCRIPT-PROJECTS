@@ -340,7 +340,7 @@ local function GameSettings()
                 users = {
                     {["Chalwk"] = {"6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
                     {["Ro@dhog"] = {"0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-                    {["Shoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    {["§hoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
                     {["NAME"] = {"hash1", "hash2", "hash3", "etc..."}},
                 },
