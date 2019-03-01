@@ -2760,7 +2760,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if not (settings.mod["Infinity Ammo"].server_override) then
                 if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                     if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinity Ammo", nil, nil) then
-
+                    
                         local function EnableInfAmmo(TargetID, specified, multiplier)
                             infammo[TargetID] = true
                             frag_check[TargetID] = true
@@ -2785,7 +2785,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                         local _min = settings.mod["Infinity Ammo"].multiplier_min
                         local _max = settings.mod["Infinity Ammo"].multiplier_max
-                        local function validate(T3)
+                        local function validate_multiplier(T3)
                             if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
                                 return true
                             else
@@ -2795,52 +2795,46 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
 
                         if t[2] ~= nil then
+                            local TargetID, multiplier = tonumber(t[2]), tonumber(t[3])
                             if t[2] == "me" then
                                 if t[3] == nil then
                                     EnableInfAmmo(PlayerIndex, false, 0)
                                 elseif t[3]:match("%d+") then
-                                    if validate(tonumber(t[3])) then
-                                        EnableInfAmmo(PlayerIndex, true, tonumber(t[3]))
-                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                    if validate_multiplier(multiplier) then
+                                        EnableInfAmmo(PlayerIndex, true, multiplier)
+                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(PlayerIndex, "$name"))
                                     end
-                                else
-                                    rprint(PlayerIndex, "Invalid Syntax: Type /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
-                                end
-                            elseif t[2]:match("%d+") then
-                                if t[3] == nil then
-                                    if player_present(tonumber(t[2])) then
-                                        EnableInfAmmo(tonumber(t[2]), false, 0)
-                                        rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[2]), "$name"))
-                                    else
-                                        rprint(PlayerIndex, "Player not present")
-                                    end
-                                elseif t[3]:match("%d+") then
-                                    if player_present(tonumber(t[2])) then
-                                        if validate(tonumber(t[3])) then
-                                            EnableInfAmmo(tonumber(t[2]), true, tonumber(t[3]))
-                                            rprint(PlayerIndex, "[cheat] Enabled infammo for " .. get_var(tonumber(t[3]), "$name"))
-                                        end
-                                    else
-                                        rprint(PlayerIndex, "Player not present")
-                                    end
-                                end
-                            elseif t[2] == "off" then
-                                if t[3] == nil or t[3] == "me" then
+                                elseif t[3] == "off" then
                                     DisableInfAmmo(PlayerIndex)
-                                    rprint(PlayerIndex, "[cheat] Disabled infammo")
+                                    rprint(PlayerIndex, "[cheat] Disabled infammo for " .. get_var(PlayerIndex, "$name"))
                                     if (settings.mod["Infinity Ammo"].announcer) then
                                         announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is no longer in Infinity Ammo Mode")
                                     end
-                                elseif t[3]:match("%d+") then
-                                    if player_present(tonumber(t[3])) then
-                                        DisableInfAmmo(tonumber(t[3]))
-                                        rprint(PlayerIndex, "[cheat] Disabled infammo for " .. get_var(tonumber(t[3]), "$name"))
+                                end
+                            elseif t[2]:match("%d+") then
+                                if t[3] == nil then
+                                    if player_present(TargetID) then
+                                        EnableInfAmmo(TargetID, false, 0)
+                                        rprint(TargetID, "[cheat] Enabled infammo for " .. get_var(TargetID, "$name"))
                                     else
-                                        rprint(PlayerIndex, "Player not present")
+                                        rprint(TargetID, "Player not present")
+                                    end
+                                elseif t[3]:match("%d+") then
+                                    if player_present(TargetID) then
+                                        if validate_multiplier(multiplier) then
+                                            EnableInfAmmo(TargetID, true, multiplier)
+                                            rprint(TargetID, "[cheat] Enabled infammo for " .. get_var(TargetID, "$name"))
+                                        end
+                                    else
+                                        rprint(TargetID, "Player not present")
+                                    end
+                                elseif t[3] == "off" then
+                                    DisableInfAmmo(TargetID)
+                                    rprint(TargetID, "[cheat] Disabled infammo for " .. get_var(TargetID, "$name"))
+                                    if (settings.mod["Infinity Ammo"].announcer) then
+                                        announce(TargetID, get_var(TargetID, "$name") .. " is no longer in Infinity Ammo Mode")
                                     end
                                 end
-                            else
-                                rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
                             end
                         else
                             rprint(PlayerIndex, "Invalid Syntax: Usage: /" .. settings.mod["Infinity Ammo"].base_command .. " [id] {multiplier}")
