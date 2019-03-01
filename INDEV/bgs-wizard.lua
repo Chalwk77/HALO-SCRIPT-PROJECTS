@@ -391,11 +391,13 @@ local function GameSettings()
             }, 
             ["Respawn Time"] = {
                 enabled = true,
-                -- If 'global_respawn_time' is enabled, this will override ALL respawn settings in the maps table below.
+                -- [ This enables you to set the default re-spawn time for all maps and game types. 
+                -- When enabled, the custom respawn settings in the 'maps' table have no effect.
                 global_respawn_time = {
                     enabled = false,
                     time = 3
                 },
+                -- ]
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -4264,6 +4266,7 @@ function RecordChanges()
     cl[#cl + 1] = "Refactored Color Reservation"
     cl[#cl + 1] = "OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed."
     cl[#cl + 1] = "Bug fix for Alias System."
+    cl[#cl + 1] = "Other minor bug fixes"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
 
