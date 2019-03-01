@@ -1513,7 +1513,6 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Alias System"].enabled) then
         addAlias(name, hash)
         players[p_table].alias_timer = 0
-        welcome_timer[PlayerIndex] = true
     end
 
     -- #Enter Vehicle
@@ -3886,17 +3885,25 @@ function table.tostring(tbl)
     return "{" .. concat(result, ",") .. "}"
 end
 
+function containsExact(w,s)
+  return select(2,s:gsub('^' .. w .. '%W+','')) +
+         select(2,s:gsub('%W+' .. w .. '$','')) +
+         select(2,s:gsub('^' .. w .. '$','')) +
+         select(2,s:gsub('%W+' .. w .. '%W+','')) > 0
+end
+
 -- #Alias System
 function addAlias(name, hash)
     local file_name = settings.mod["Alias System"].dir
     checkFile(file_name)
     local found, proceed
     local lines = lines_from(file_name)
+    
     for _, v in pairs(lines) do
-        if v:match(hash) and v:match(name) then
+        if containsExact(hash, v) and containsExact(name, v) then
             proceed = true
         end
-        if v:match(hash) and not v:match(name) then
+        if containsExact(hash, v) and not containsExact(name, v) then
             found = true
             local alias = v .. ", " .. name
             local f1 = io.open(file_name, "r")
