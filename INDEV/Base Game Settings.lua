@@ -391,6 +391,11 @@ local function GameSettings()
             },
             ["Respawn Time"] = {
                 enabled = true,
+                -- If 'global_respawn_time' is enabled, this will override ALL respawn settings in the maps table below.
+                global_respawn_time = {
+                    enabled = true,
+                    time = 3
+                },
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -1898,10 +1903,15 @@ function OnPlayerKill(PlayerIndex)
                 end
             end
             return spawntime
-        end
-        if settings.mod["Respawn Time"].maps[mapname] ~= nil then
-            local player = get_player(PlayerIndex)
-            write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+        end        
+        local player = get_player(PlayerIndex)
+        if not settings.mod["Respawn Time"].global_respawn_time.enabled then
+            if settings.mod["Respawn Time"].maps[mapname] ~= nil then
+                write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+            end
+        else
+            local time = settings.mod["Respawn Time"].global_respawn_time.time
+            write_dword(player + 0x2C, time * 33)
         end
     end
     -- #Lurker
