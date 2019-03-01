@@ -132,7 +132,7 @@ local function GameSettings()
             },
             ["Infinity Ammo"] = {
                 enabled = true,
-                server_override = true, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
+                server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default (the /infammo command cannot be used)
                 base_command = "infammo",
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
                 permission_level = 1,
@@ -141,7 +141,7 @@ local function GameSettings()
             },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = false,
+                enabled = true,
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
@@ -173,7 +173,7 @@ local function GameSettings()
             ["Color Reservation"] = {
                 enabled = true, -- Enabled = true, Disabled = false
                 color_table = {
-                    [1] = { "available" }, -- white (Chalwk)
+                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
                     [2] = { "available" }, -- black
                     [3] = { "available" }, -- red
                     [4] = { "available" }, -- blue
@@ -186,7 +186,7 @@ local function GameSettings()
                     [11] = { "available" }, -- cobalt
                     [12] = { "available" }, -- orange
                     [13] = { "abd5c96cd22517b4e2f358598147c606" }, -- teal (Shoo)
-                    [14] = { "available" }, -- sage
+                    [14] = { "0ca756f62f9ecb677dc94238dcbc6c75" }, -- sage (Ro@dhod)
                     [15] = { "available" }, -- brown
                     [16] = { "available" }, -- tan
                     [17] = { "available" }, -- maroon
@@ -219,34 +219,51 @@ local function GameSettings()
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
-                    -- Weap slot 1, Weap slot 2, Weap slot 3, Weap slot 4, frags, plasmas. Set to 'nil' if not used (weapon slots only)
-                    ["beavercreek"] = { sniper, pistol, rocket_launcher, shotgun, 4, 2 },
-                    ["bloodgulch"] = { pistol, sniper, nil, nil, 2, 2 },
-                    ["boardingaction"] = { plasma_cannon, rocket_launcher, flamethrower, nil, 1, 3 },
-                    ["carousel"] = { nil, nil, pistol, needler, 3, 3 },
-                    ["dangercanyon"] = { nil, plasma_rifle, nil, pistol, 4, 4 },
-                    ["deathisland"] = { assault_rifle, nil, plasma_cannon, sniper, 1, 1 },
-                    ["gephyrophobia"] = { nil, nil, nil, shotgun, 3, 3 },
-                    ["icefields"] = { plasma_rifle, nil, plasma_rifle, nil, 2, 3 },
-                    ["infinity"] = { assault_rifle, nil, nil, nil, 2, 4 },
-                    ["sidewinder"] = { nil, rocket_launcher, nil, assault_rifle, 3, 2 },
-                    ["timberland"] = { nil, nil, nil, pistol, 2, 4 },
-                    ["hangemhigh"] = { flamethrower, nil, flamethrower, nil, 3, 3 },
-                    ["ratrace"] = { nil, nil, nil, nil, 3, 2 },
-                    ["damnation"] = { plasma_rifle, nil, nil, plasma_rifle, 1, 3 },
-                    ["putput"] = { nil, rocket_launcher, assault_rifle, pistol, 4, 1 },
-                    ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
-                    ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
+                
+                    -- [!] WARNING: 4th weapon slot is usually reserved for the objective (flag/oddball).
+                    -- If this slot is occupied, you cannot pick up the objective.
+                
+                    -- [slot1,slot2,slot3,slot4] [frags,plasmas] [map enabled/disabled (true or false)]
+                   
+                    -- If you don't want to utilize custom grenade assignments for a given map, 
+                    -- and would prefer to use the game-type settings for grenade assignments instead, set the respective grenade type count to "00" (double zero).
+       
+                    -- If you want to utilize a given map for grenade assignment but not weapon assignments, set all 4 weapon slots to 'nil'.
+                    -- You will spawn with default weapons set in the game-type settings.
+                    
+                    -- If you want to utilize weapon assignments but don't want to spawn with grenades (at all) on a given map, 
+                    -- set the respective grenade type count to '0' (single 0).
+                    
+                    -- To completely disable custom weapon and grenade assignment for a given map, set the last value to 'false'
+
+                    ["beavercreek"] = {     pistol, sniper, nil, nil, 00, 00, false},
+                    ["bloodgulch"] = {      sniper, pistol, needler, nil, 2, 2, false},
+                    ["boardingaction"] = {  shotgun, pistol, nil, nil, 1, 3, false},
+                    ["carousel"] = {        sniper, pistol, shotgun, nil, 2, 2, false},
+                    ["dangercanyon"] = {    pistol, rocket_launcher, assault_rifle, nil, 00, 00, false},
+                    ["deathisland"] = {     sniper, pistol, assault_rifle, nil, 1, 1, false},
+                    ["gephyrophobia"] = {   sniper, pistol, rocket_launcher, nil, 3, 3, false},
+                    ["icefields"] = {       pistol, assault_rifle, nil, nil, 2, 3, false},
+                    ["infinity"] = {        pistol, sniper, rocket_launcher, nil, 4, 4, false},
+                    ["sidewinder"] = {      pistol, rocket_launcher, plasma_cannon, nil, 3, 2, false},
+                    ["timberland"] = {      pistol, assault_rifle, needler, nil, 3, 3, false},
+                    ["hangemhigh"] = {      pistol, shotgun, nil, nil, 2, 2, false},
+                    ["ratrace"] = {         assault_rifle, pistol, nil, nil, 0, 0, false},
+                    ["damnation"] = {       assault_rifle, pistol, nil, nil, 1, 3, false},
+                    ["putput"] = {          plasma_pistol, plasma_rifle, nil, nil, 1, 1, false},
+                    ["prisoner"] = {        pistol, rocket_launcher, nil, nil, 1, 1, false},
+                    ["wizard"] = {          pistol, sniper, nil, nil, 0, 0, false},
                     -- [ custom maps ]...
                     -- place custom weapon tag IDs in the loadWeaponTags() function and assign a variable name to them.
-                    ["room_final"] = { rocket_launcher, nil, nil, nil, 1, 1 },
-                    ["dead_end"] = { pistol, assault_rifle, nil, nil, 1, 1 },
-                    ["gruntground"] = { needler, nil, nil, nil, 1, 1 },
-                    ["feelgoodinc"] = { rocket_launcher, nil, nil, nil, 1, 1 },
-                    ["lolcano"] = { rocket_launcher, nil, nil, nil, 1, 1 },
-                    ["camden_place"] = { pistol, nil, nil, nil, 1, 1 },
-                    ["alice_gulch"] = { pistol, nil, nil, nil, 1, 1 },
-                    ["snowdrop"] = { battle_rifle, pistol, nil, nil, 1, 1 },
+                    -- Repeat the structure to add more maps.
+                    ["room_final"] = {      rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["dead_end"] = {        pistol, assault_rifle, nil, nil, 00, 00, true},
+                    ["gruntground"] = {     needler, nil, nil, nil, 1, 1, true},
+                    ["feelgoodinc"] = {     rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["lolcano"] = {         rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["camden_place"] = {    pistol, nil, nil, nil, 00, 00, true},
+                    ["alice_gulch"] = {     pistol, nil, nil, nil, 00, 00, true},
+                    ["snowdrop"] = {        battle_rifle, pistol, nil, nil, 00, 00, true},
                 },
             },
             ["Enter Vehicle"] = {
@@ -374,6 +391,11 @@ local function GameSettings()
             },
             ["Respawn Time"] = {
                 enabled = true,
+                -- If 'global_respawn_time' is enabled, this will override ALL respawn settings in the maps table below.
+                global_respawn_time = {
+                    enabled = true,
+                    time = 3
+                },
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
                     ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -597,6 +619,7 @@ local function GameSettings()
             script_version = 1.7,
             check_for_updates = false,
             plugin_commands = {
+                bgs = "bgs",
                 enable = "enable",
                 disable = "disable",
                 list = "plugins",
@@ -1225,17 +1248,20 @@ function OnTick()
                 if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
                     if (player_alive(i)) then
                         if (weapon[i] == true) then
-                            execute_command("wdel " .. i)
                             local player = get_dynamic_player(i)
                             local x, y, z = read_vector3d(player + 0x5C)
                             local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
 
-                            if (primary) then
-                                assign_weapon(spawn_object("weap", primary, x, y, z), i)
+                            if (primary) or (secondary) or (tertiary) or (quaternary) then
+                                execute_command("wdel " .. i)
                             end
-
+                            
                             if (secondary) then
                                 assign_weapon(spawn_object("weap", secondary, x, y, z), i)
+                            end
+                            
+                            if (primary) then
+                                assign_weapon(spawn_object("weap", primary, x, y, z), i)
                             end
 
                             if (Slot == 3 or Slot == 4) then
@@ -1308,21 +1334,21 @@ function determineWeapon()
     for i = 1, 4 do
         local weapon = settings.mod["Custom Weapons"].weapons[mapname][i]
         if (weapon ~= nil) then
-            if (i == 1 and settings.mod["Custom Weapons"].weapons[mapname][1] ~= nil) then
-                primary = settings.mod["Custom Weapons"].weapons[mapname][1]
-                Slot = 1
+            if (i == 1 and settings.mod["Custom Weapons"].weapons[mapname][i] ~= nil) then
+                primary = settings.mod["Custom Weapons"].weapons[mapname][i]
+                Slot = i
             end
-            if (i == 2 and settings.mod["Custom Weapons"].weapons[mapname][2] ~= nil) then
-                secondary = settings.mod["Custom Weapons"].weapons[mapname][2]
-                Slot = 2
+            if (i == 2 and settings.mod["Custom Weapons"].weapons[mapname][i] ~= nil) then
+                secondary = settings.mod["Custom Weapons"].weapons[mapname][i]
+                Slot = i
             end
-            if (i == 3 and settings.mod["Custom Weapons"].weapons[mapname][3] ~= nil) then
-                tertiary = settings.mod["Custom Weapons"].weapons[mapname][3]
-                Slot = 3
+            if (i == 3 and settings.mod["Custom Weapons"].weapons[mapname][i] ~= nil) then
+                tertiary = settings.mod["Custom Weapons"].weapons[mapname][i]
+                Slot = i
             end
-            if (i == 4 and settings.mod["Custom Weapons"].weapons[mapname][4] ~= nil) then
-                quaternary = settings.mod["Custom Weapons"].weapons[mapname][4]
-                Slot = 4
+            if (i == 4 and settings.mod["Custom Weapons"].weapons[mapname][i] ~= nil) then
+                quaternary = settings.mod["Custom Weapons"].weapons[mapname][i]
+                Slot = i
             end
         end
     end
@@ -1779,17 +1805,23 @@ end
 function OnPlayerSpawn(PlayerIndex)
     -- #Custom Weapons
     if (settings.mod["Custom Weapons"].enabled) then
-        weapon[PlayerIndex] = true
         if player_alive(PlayerIndex) then
-            local player_object = get_dynamic_player(PlayerIndex)
-            if (player_object ~= 0) then
-                if (settings.mod["Custom Weapons"].assign_custom_frags == true) then
-                    local frags = settings.mod["Custom Weapons"].weapons[mapname][5]
-                    write_word(player_object + 0x31E, tonumber(frags))
-                end
-                if (settings.mod["Custom Weapons"].assign_custom_plasmas == true) then
-                    local plasmas = settings.mod["Custom Weapons"].weapons[mapname][6]
-                    write_word(player_object + 0x31F, tonumber(plasmas))
+            if (settings.mod["Custom Weapons"].weapons[mapname][7]) then
+                weapon[PlayerIndex] = true
+                local player_object = get_dynamic_player(PlayerIndex)
+                if (player_object ~= 0) then
+                    if (settings.mod["Custom Weapons"].assign_custom_frags == true) then
+                        local frags = settings.mod["Custom Weapons"].weapons[mapname][5]
+                        if (frags ~= 00) then
+                            write_word(player_object + 0x31E, tonumber(frags))
+                        end
+                    end
+                    if (settings.mod["Custom Weapons"].assign_custom_plasmas == true) then
+                        local plasmas = settings.mod["Custom Weapons"].weapons[mapname][6]
+                        if (plasmas ~= 00) then
+                            write_word(player_object + 0x31F, tonumber(plasmas))
+                        end
+                    end
                 end
             end
         end
@@ -1871,10 +1903,15 @@ function OnPlayerKill(PlayerIndex)
                 end
             end
             return spawntime
-        end
-        if settings.mod["Respawn Time"].maps[mapname] ~= nil then
-            local player = get_player(PlayerIndex)
-            write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+        end        
+        local player = get_player(PlayerIndex)
+        if not settings.mod["Respawn Time"].global_respawn_time.enabled then
+            if settings.mod["Respawn Time"].maps[mapname] ~= nil then
+                write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+            end
+        else
+            local time = settings.mod["Respawn Time"].global_respawn_time.time
+            write_dword(player + 0x2C, time * 33)
         end
     end
     -- #Lurker
@@ -2243,9 +2280,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local hash = get_var(PlayerIndex, "$hash")
     local p_table = name .. ", " .. hash
 
-    if (settings.global.check_for_updates) then
-        if (lower(Command) == "bgs") then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
+    -- #BGS Version command
+    if (command == settings.global.plugin_commands.bgs) then
+        if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel(nil, nil, "senior_admin") then
+            if (settings.global.check_for_updates) then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
                     rprint(PlayerIndex, "============================================================================")
                     rprint(PlayerIndex, "[BGS] Version " .. getCurrentVersion(false) .. " is available for download.")
@@ -2255,10 +2293,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(PlayerIndex, "BGS Version " .. settings.global.script_version)
                 end
             else
-                rprint(PlayerIndex, "Insufficient Permission")
+                rprint(PlayerIndex, "Update Checking disabled. Current version: " .. settings.global.script_version)
             end
-            return false
+        else
+            rprint(PlayerIndex, "Insufficient Permission")
         end
+        return false
     end
 
     -- #Clear Chat
@@ -3518,6 +3558,9 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     lurker_warnings[PlayerIndex] = lurker_warnings[PlayerIndex] - 1
                     lurker_warn[PlayerIndex] = true
                     has_objective[PlayerIndex] = true
+                    if (lurker_warnings[PlayerIndex] <= 0) then
+                        lurker_warnings[PlayerIndex] = 0
+                    end
                 end
             end
         end
@@ -3811,7 +3854,6 @@ end
 
 -- #Weapon Settings
 function loadWeaponTags()
-    -- weapon_name, tag_id
     
     -- [ stock weapons ]
     pistol = "weapons\\pistol\\pistol"
@@ -3826,6 +3868,7 @@ function loadWeaponTags()
     shotgun = "weapons\\shotgun\\shotgun"
     
     -- [ custom weapons ]
+    -- snowdrop
     battle_rifle = "halo3\\weapons\\battle rifle\\tactical battle rifle"
 end
 
@@ -3898,7 +3941,6 @@ function addAlias(name, hash)
     checkFile(file_name)
     local found, proceed
     local lines = lines_from(file_name)
-    
     for _, v in pairs(lines) do
         if containsExact(hash, v) and containsExact(name, v) then
             proceed = true
@@ -4215,6 +4257,13 @@ function RecordChanges()
     cl[#cl + 1] = "[2/26/19]"
     cl[#cl + 1] = "Fixed a bug relating to Anti Impersonator."
     cl[#cl + 1] = "The user table in the Anti Impersonator configuration table now supports multiple hashes per user."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/2/19]"
+    cl[#cl + 1] = "Refactored Color Reservation"
+    cl[#cl + 1] = "OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed."
+    cl[#cl + 1] = "Bug fix for Alias System."
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
 
