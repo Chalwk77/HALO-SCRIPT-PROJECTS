@@ -173,7 +173,7 @@ local function GameSettings()
             ["Color Reservation"] = {
                 enabled = true, -- Enabled = true, Disabled = false
                 color_table = {
-                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
+                    [1] = { "available" }, -- white (Chalwk)
                     [2] = { "available" }, -- black
                     [3] = { "available" }, -- red
                     [4] = { "available" }, -- blue
@@ -186,7 +186,7 @@ local function GameSettings()
                     [11] = { "available" }, -- cobalt
                     [12] = { "available" }, -- orange
                     [13] = { "abd5c96cd22517b4e2f358598147c606" }, -- teal (Shoo)
-                    [14] = { "0ca756f62f9ecb677dc94238dcbc6c75" }, -- sage (Ro@d)
+                    [14] = { "available" }, -- sage
                     [15] = { "available" }, -- brown
                     [16] = { "available" }, -- tan
                     [17] = { "available" }, -- maroon
@@ -1513,7 +1513,6 @@ function OnPlayerJoin(PlayerIndex)
     if (settings.mod["Alias System"].enabled) then
         addAlias(name, hash)
         players[p_table].alias_timer = 0
-        welcome_timer[PlayerIndex] = true
     end
 
     -- #Enter Vehicle
@@ -3886,17 +3885,25 @@ function table.tostring(tbl)
     return "{" .. concat(result, ",") .. "}"
 end
 
+function containsExact(w,s)
+  return select(2,s:gsub('^' .. w .. '%W+','')) +
+         select(2,s:gsub('%W+' .. w .. '$','')) +
+         select(2,s:gsub('^' .. w .. '$','')) +
+         select(2,s:gsub('%W+' .. w .. '%W+','')) > 0
+end
+
 -- #Alias System
 function addAlias(name, hash)
     local file_name = settings.mod["Alias System"].dir
     checkFile(file_name)
     local found, proceed
     local lines = lines_from(file_name)
+    
     for _, v in pairs(lines) do
-        if v:match(hash) and v:match(name) then
+        if containsExact(hash, v) and containsExact(name, v) then
             proceed = true
         end
-        if v:match(hash) and not v:match(name) then
+        if containsExact(hash, v) and not containsExact(name, v) then
             found = true
             local alias = v .. ", " .. name
             local f1 = io.open(file_name, "r")
