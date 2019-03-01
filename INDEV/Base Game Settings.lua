@@ -23,7 +23,7 @@ Combined Scripts:
     /mute [id] <time dif>, /unmute [id]
     /clear (clears chat)
     /clean
-
+    
     "/plugins" shows you a list of all mods and tells you which ones are enabled or disabled.
     You can enable or disable any mod in game at any time with /enable [id], /disable [id].
    
@@ -96,7 +96,6 @@ local function GameSettings()
                 },
                 ignore_list = {
                     "skip",
-                    "rtv"
                 }
             },
             -- # Custom (separate) join messages for staff on a per-level basis
@@ -132,7 +131,7 @@ local function GameSettings()
                 warnings = 4,
             },
             ["Infinity Ammo"] = {
-                enabled = false,
+                enabled = true,
                 server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default.
                 base_command = "infammo",
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
@@ -142,7 +141,7 @@ local function GameSettings()
             },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = true,
+                enabled = false,
                 base_command = "suggestion", -- Command Syntax: /suggestion {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
@@ -172,26 +171,26 @@ local function GameSettings()
                 }
             },
             ["Color Reservation"] = {
-                enabled = true, -- Enabled = true, Disabled = false
+                enabled = false, -- Enabled = true, Disabled = false
                 color_table = {
-                    [1] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- white
-                    [2] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- black
-                    [3] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- red
-                    [4] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- blue
-                    [5] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- gray
-                    [6] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- yellow
-                    [7] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- green
-                    [8] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- pink
-                    [9] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- purple
-                    [10] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cyan
-                    [11] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- cobalt
-                    [12] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- orange
+                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white
+                    [2] = { "available" }, -- black
+                    [3] = { "available" }, -- red
+                    [4] = { "available" }, -- blue
+                    [5] = { "available" }, -- gray
+                    [6] = { "available" }, -- yellow
+                    [7] = { "available" }, -- green
+                    [8] = { "available" }, -- pink
+                    [9] = { "available" }, -- purple
+                    [10] = { "available" }, -- cyan
+                    [11] = { "available" }, -- cobalt
+                    [12] = { "available" }, -- orange
                     [13] = { "abd5c96cd22517b4e2f358598147c606" }, -- teal (Shoo)
-                    [14] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- sage
-                    [15] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- brown
-                    [16] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- tan
-                    [17] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, -- maroon
-                    [18] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } -- salmon
+                    [14] = { "0ca756f62f9ecb677dc94238dcbc6c75" }, -- sage
+                    [15] = { "available" }, -- brown
+                    [16] = { "available" }, -- tan
+                    [17] = { "available" }, -- maroon
+                    [18] = { "available" } -- salmon
                 }
             },
             -- # Logs chat, commands and quit-join events.
@@ -215,7 +214,7 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true, -- Enabled = true, Disabled = false
+                enabled = false, -- Enabled = true, Disabled = false
                 assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
@@ -238,13 +237,16 @@ local function GameSettings()
                     ["putput"] = { nil, rocket_launcher, assault_rifle, pistol, 4, 1 },
                     ["prisoner"] = { nil, nil, pistol, plasma_rifle, 2, 1 },
                     ["wizard"] = { rocket_launcher, nil, shotgun, nil, 1, 2 },
+                    -- [ custom maps ]...
+                    -- place custom weapon tag IDs in the loadWeaponTags() function and assign a variable name to them.
                     ["room_final"] = { rocket_launcher, nil, nil, nil, 1, 1 },
                     ["dead_end"] = { pistol, assault_rifle, nil, nil, 1, 1 },
                     ["gruntground"] = { needler, nil, nil, nil, 1, 1 },
                     ["feelgoodinc"] = { rocket_launcher, nil, nil, nil, 1, 1 },
                     ["lolcano"] = { rocket_launcher, nil, nil, nil, 1, 1 },
                     ["camden_place"] = { pistol, nil, nil, nil, 1, 1 },
-                    ["alice_gulch"] = { pistol, nil, nil, nil, 1, 1 }
+                    ["alice_gulch"] = { pistol, nil, nil, nil, 1, 1 },
+                    ["snowdrop"] = { battle_rifle, pistol, nil, nil, 1, 1 },
                 },
             },
             ["Enter Vehicle"] = {
@@ -341,6 +343,7 @@ local function GameSettings()
                     {["Chalwk"] = {"6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
                     {["Ro@dhog"] = {"0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
                     {["§hoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
                     {["NAME"] = {"hash1", "hash2", "hash3", "etc..."}},
                 },
@@ -373,50 +376,50 @@ local function GameSettings()
                 enabled = true,
                 maps = {
                     -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
-                    ["beavercreek"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["bloodgulch"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["boardingaction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["carousel"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["dangercanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["deathisland"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["gephyrophobia"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["icefields"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["infinity"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["sidewinder"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["timberland"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["hangemhigh"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["ratrace"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["damnation"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["putput"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["prisoner"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["wizard"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["tactics"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["gruntground"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["lolcano"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["homestead"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["camden_place"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["olympus_mons"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["chaosgulchv2"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["enigma"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["extinction"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["coldsnap"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["mario64"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["dead-end"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["destinycanyon"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["immure"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["sneak"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["windfall_island"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["feelgoodinc"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["battlegulch_v2_chaos"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["ragnarok"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["celebration_island"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["doom_wa_view"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["garden_ce"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["sciophobiav2"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["portent"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["pitfall"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["quagmire"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["medical block"] = { 3, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["beavercreek"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["boardingaction"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["carousel"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dangercanyon"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deathisland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gephyrophobia"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["icefields"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["infinity"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sidewinder"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["timberland"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["hangemhigh"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ratrace"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["damnation"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["putput"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["prisoner"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["wizard"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["tactics"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gruntground"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["lolcano"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["homestead"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["camden_place"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["olympus_mons"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["chaosgulchv2"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["enigma"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["extinction"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["coldsnap"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["mario64"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dead-end"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["destinycanyon"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["immure"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sneak"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["windfall_island"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["feelgoodinc"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["battlegulch_v2_chaos"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ragnarok"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["celebration_island"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["doom_wa_view"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["garden_ce"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sciophobiav2"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["portent"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pitfall"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["quagmire"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["medical block"] = { 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
@@ -677,6 +680,7 @@ local lurker_warn = {}
 local object_picked_up = {}
 local has_objective = {}
 local lurker_warnings = {}
+local scores = { }
 
 -- #Infinity Ammo
 local infammo = {}
@@ -868,7 +872,6 @@ function OnScriptLoad()
             cprint("")
             cprint("================================================================================", 2 + 8)
         end
-
         timer(50, "consoleLogo")
     end
     local rcon = sig_scan("B8????????E8??000000A1????????55")
@@ -1150,6 +1153,7 @@ function OnTick()
             -- #Lurker
             if (settings.mod["Lurker"].enabled) then
                 if (lurker[i] == true) then
+                    execute_command("score " .. tonumber(i) .. " " .. scores[i])
                     if (settings.mod["Lurker"].speed == true) then
                         execute_command("s " .. tonumber(i) .. " " .. tonumber(settings.mod["Lurker"].running_speed))
                     end
@@ -1423,29 +1427,37 @@ function OnPlayerJoin(PlayerIndex)
         if (can_use_colorres == true) then
             local ColorTable = settings.mod["Color Reservation"].color_table
             local player = getPlayer(PlayerIndex)
-            local ran = math.random
+            local found
             for k, _ in ipairs(ColorTable) do
                 for i = 1, #ColorTable do
-                    if ColorTable[k][i] ~= nil then
-                        if find(ColorTable[k][i], hash) then
+                    
+                    local val = ColorTable[k][i]
+                
+                    if (val) then
+                        if find(val, hash) then
                             k = k - 1
                             write_byte(player + 0x60, tonumber(k))
                             colorres_bool[PlayerIndex] = true
-                        else
-                            -- Get all indices that contain valid hashes
-                            if (ColorTable[k][i] ~= "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") then
-                                if (read_byte(getPlayer(PlayerIndex) + 0x60) == k) then
+                            found = true
+                            break
+                        end
+                        
+                        if not (found) then
+                            if (val ~= "available") then
+                                if (read_byte(getPlayer(PlayerIndex) + 0x60) == k - 1) then
                                     local function selectRandomColor(exclude)
-                                        math.randomseed(os.time())
-                                        local num = ran(1, 18)
-                                        if num == tonumber(exclude) then
-                                            selectRandomColor(12)
+                                        local num = rand(1, 18)
+                                        if (num == exclude) then
+                                            selectRandomColor(tonumber(k))
                                         else
                                             return num
                                         end
                                     end
-                                    write_byte(player + 0x60, tonumber(selectRandomColor(k)))
-                                    colorres_bool[PlayerIndex] = true
+                                    local colorID = selectRandomColor(tonumber(k))
+                                    if colorID then
+                                        write_byte(player + 0x60, colorID)
+                                        colorres_bool[PlayerIndex] = true
+                                    end
                                 end
                             end
                         end
@@ -1472,6 +1484,7 @@ function OnPlayerJoin(PlayerIndex)
 
     -- #Lurker
     if (settings.mod["Lurker"].enabled) then
+        scores[PlayerIndex] = 0
         lurker[PlayerIndex] = false
         has_objective[PlayerIndex] = false
         resetLurker(PlayerIndex)
@@ -1662,6 +1675,7 @@ function OnPlayerLeave(PlayerIndex)
 
     -- #Lurker
     if (settings.mod["Lurker"].enabled) then
+        scores[PlayerIndex] = 0
         has_objective[PlayerIndex] = false
         lurker[PlayerIndex] = false
         resetLurker(PlayerIndex)
@@ -1868,6 +1882,7 @@ function OnPlayerKill(PlayerIndex)
     if (settings.mod["Lurker"].enabled == true) then
         has_objective[PlayerIndex] = false
         resetLurker(PlayerIndex)
+        scores[PlayerIndex] = 0
     end
     -- #Infinity Ammo
     if (settings.mod["Infinity Ammo"].enabled and infammo[PlayerIndex]) then
@@ -2719,6 +2734,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (lurker[PlayerIndex] == false or lurker[PlayerIndex] == nil) then
                     if not (modify_damage[PlayerIndex]) then
                         setLurker(PlayerIndex, true)
+                        local score = get_var(PlayerIndex, "$score")
+                        scores[PlayerIndex] = score
                         rprint(PlayerIndex, "Lurker mode enabled!")
                     else
                         rprint(PlayerIndex, "Unable to set Lurker Mode while you have damage multipliers applied")
@@ -2744,9 +2761,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
                     if tonumber(get_var(PlayerIndex, "$lvl")) >= getPermLevel("Infinity Ammo", nil, nil) then
 
-                        local _min = settings.mod["Infinity Ammo"].multiplier_min
-                        local _max = settings.mod["Infinity Ammo"].multiplier_max
-
                         local function EnableInfAmmo(TargetID, specified, multiplier)
                             infammo[TargetID] = true
                             frag_check[TargetID] = true
@@ -2764,11 +2778,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             else
                                 rprint(TargetID, "[cheat] Infinity Ammo enabled!")
                                 if (settings.mod["Infinity Ammo"].announcer) then
-                                    announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in Infinity Ammo mode.")
+                                    announce(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
                                 end
                             end
                         end
 
+                        local _min = settings.mod["Infinity Ammo"].multiplier_min
+                        local _max = settings.mod["Infinity Ammo"].multiplier_max
                         local function validate(T3)
                             if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
                                 return true
@@ -3559,6 +3575,7 @@ function setLurker(PlayerIndex, bool)
             announce(PlayerIndex, get_var(PlayerIndex, "$name") .. " is now in lurker mode! [spectator]")
         end
     else
+        scores[PlayerIndex] = 0
         lurker[PlayerIndex] = false
         if (settings.mod["Lurker"].speed) then
             execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(settings.mod["Lurker"].default_running_speed))
@@ -3589,7 +3606,6 @@ end
 function listPlayers(PlayerIndex, count)
     if (count == 1) then
         local header, ffa
-
         if (getTeamPlay()) then
             header = "|" .. settings.mod["Player List"].alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
         else
@@ -3599,7 +3615,7 @@ function listPlayers(PlayerIndex, count)
 
         for i = 1, 16 do
             if player_present(i) then
-                local name, id, team, ip = get_var(i, "$name"), get_var(i, "$n"), get_var(i, "$team"), get_var(i, "$ip")
+                local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), get_var(i, "$ip")
                 if (getTeamPlay()) then
                     if team == "red" then
                         team = "Red"
@@ -3802,6 +3818,9 @@ end
 
 -- #Weapon Settings
 function loadWeaponTags()
+    -- weapon_name, tag_id
+    
+    -- [ stock weapons ]
     pistol = "weapons\\pistol\\pistol"
     sniper = "weapons\\sniper rifle\\sniper rifle"
     plasma_cannon = "weapons\\plasma_cannon\\plasma_cannon"
@@ -3812,6 +3831,9 @@ function loadWeaponTags()
     flamethrower = "weapons\\flamethrower\\flamethrower"
     needler = "weapons\\needler\\mp_needler"
     shotgun = "weapons\\shotgun\\shotgun"
+    
+    -- [ custom weapons ]
+    battle_rifle = "halo3\\weapons\\battle rifle\\tactical battle rifle"
 end
 
 -- Returns the static memory address of the player table entry.
@@ -3874,26 +3896,25 @@ end
 function addAlias(name, hash)
     local file_name = settings.mod["Alias System"].dir
     checkFile(file_name)
-    local file = io.open(file_name, "r")
-    local data = file:read("*a")
-    file:close()
-    if match(data, hash) then
-        local lines = lines_from(file_name)
-        for _, v in pairs(lines) do
-            if match(v, hash) then
-                if not v:match(name) then
-                    local alias = v .. ", " .. name
-                    local f1 = io.open(file_name, "r")
-                    local content = f1:read("*all")
-                    f1:close()
-                    content = gsub(content, v, alias)
-                    local f2 = io.open(file_name, "w")
-                    f2:write(content)
-                    f2:close()
-                end
-            end
+    local found, proceed
+    local lines = lines_from(file_name)
+    for _, v in pairs(lines) do
+        if v:match(hash) and v:match(name) then
+            proceed = true
         end
-    else
+        if v:match(hash) and not v:match(name) then
+            found = true
+            local alias = v .. ", " .. name
+            local f1 = io.open(file_name, "r")
+            local content = f1:read("*all")
+            f1:close()
+            content = gsub(content, v, alias)
+            local f2 = io.open(file_name, "w")
+            f2:write(content)
+            f2:close()
+        end
+    end
+    if not (found) and not (proceed) then
         local file = assert(io.open(file_name, "a+"))
         file:write(hash .. ":" .. name .. "\n")
         file:close()
