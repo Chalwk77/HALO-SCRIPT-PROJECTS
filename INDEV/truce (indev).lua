@@ -176,15 +176,17 @@ local function checkAccess(PlayerIndex)
 end
 
 local function isOnline(t, e)
-    if (t > 0 and t < 17) then
-        if player_present(t) then
-            return true
+    if (t) then
+        if (t > 0 and t < 17) then
+            if player_present(t) then
+                return true
+            else
+                rprint(e, "Command failed. Player not online.")
+                return false
+            end
         else
-            rprint(e, "Command failed. Player not online.")
-            return false
+            rprint(e, "Invalid player id. Please enter a number between 1-16")
         end
-    else
-        rprint(e, "Invalid player id. Please enter a number between 1-16")
     end
 end
 
@@ -196,8 +198,12 @@ local function cmdself(t, e)
 end
 
 local function hasRequest(e, id)
-    if tonumber(requests[e]) > 0 then
-        return tonumber(requests[e])
+    if requests[e] ~= nil then
+        if tonumber(requests[e]) > 0 then
+            return tonumber(requests[e])
+        else
+            rprint(e, "You do not have any pending truce requests to " .. id)
+        end
     else
         rprint(e, "You do not have any pending truce requests to " .. id)
     end
@@ -258,15 +264,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local TargetID = tonumber(args[1])
 
     local players = {}
-    if (command == base_command) or (command == accept_command) or (command == deny_command) or (command == trucelist_command) then
+    local function set_info(param)
         players.en = get_var(executor, "$name")
         players.eid = tonumber(get_var(executor, "$n"))
-        players.tn = get_var(TargetID, "$name")
-        players.tid = tonumber(get_var(TargetID, "$n"))
+        if (param) then
+            if args[1]:match("%d+") and not args[1]:match('[A-Za-z]') then
+                players.tn = get_var(TargetID, "$name")
+                players.tid = tonumber(get_var(TargetID, "$n"))
+            else
+                rprint(executor, "Invalid command parameter.")
+                return false
+            end
+        end
     end
     
     if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
+            set_info(true)
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
                     if not sameTeam(TargetID, executor) then
@@ -284,6 +298,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
+            set_info(true)
             if hasRequest(executor, "accept") then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
@@ -297,6 +312,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(deny_command) and checkAccess(executor)) then
         if args[1] ~= nil then
+            set_info(true)
             if hasRequest(executor, "deny") then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
@@ -310,6 +326,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(untruce_command) and checkAccess(executor)) then
         if args[1] ~= nil then
+            set_info(true)
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
                     if truce:inTruce(TargetID, executor, true) then
@@ -323,13 +340,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(trucelist_command) and checkAccess(executor)) then
         if args[1] == nil then
+            set_info(false)
             truce:list(players)
         else
             rprint(executor, "Invalid syntax. Usage: /trucelist")
         end
         return false
     end
-
+    players = nil
 end
 
 function truce:sendrequest(params)
