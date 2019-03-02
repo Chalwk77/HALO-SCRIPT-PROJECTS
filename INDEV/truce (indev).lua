@@ -26,26 +26,28 @@ local base_command = "truce"
 -- # Message Configuration:
 local on_request = {
     -- Messages transmitted to the target player
-    {"%executor_name% is requesting a truce with you.",
-    "To accept, type /accept %executor_id%",
-    "To deny this request, type /deny %executor_id%"},
-    
+    msgToTarget = {
+        "%executor_name% is requesting a truce with you.",
+        "To accept, type /accept %executor_id%",
+        "To deny this request, type /deny %executor_id%"
+    },
+
     -- Message transmitted to the executor
-    {"Request sent to %target_id%"}
+    msgToExecutor = {"Request sent to %target_name%"}
 }
 
 local on_accept = {
-    -- Message transmitted to the target player
-    {"You are now in a truce with %executor_name%"},
+    -- Messages transmitted to the target player
+    msgToTarget = {"You are now in a truce with %executor_name%"},
     -- Message transmitted to the executor
-    {"[request accepted] You are now in a truce with %target_name%"}
+    msgToExecutor = {"[request accepted] You are now in a truce with %target_name%"}
 }
 
 local on_deny = {
-    -- Message transmitted to the target player
-    {"You denied %target_name%'s truce request"},
+    -- Messages transmitted to the target player
+    msgToTarget = {"You denied %target_name%'s truce request"},
     -- Message transmitted to the executor
-    {"%executor_name% denied your truce request"}
+    msgToExecutor = {"%executor_name% denied your truce request"}
 }
 
 
@@ -71,9 +73,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if player_present(TargetID) then
                 local players = {}
                 players.en = get_var(executor, "$name")
-                players.eid = tonumber(get_var(executor, "$id"))
+                players.eid = tonumber(get_var(executor, "$n"))
                 players.tn = get_var(TargetID, "$name")
-                players.tid = tonumber(get_var(TargetID, "$id"))
+                players.tid = tonumber(get_var(TargetID, "$n"))
                 truce:sendrequest(players)
             else
                 rprint(executor, "Player not online")
@@ -94,15 +96,15 @@ function truce:sendrequest(params)
     local target_name = params.tn or nil
     local target_id = params.tid or nil
     
-    local msgToSender, msgToReceiver
-    
-    for key, _ in ipairs(on_request) do
-        msgToSender = on_request[key][1]
-        msgToReceiver = on_request[key][2]
+    local msgToExecutor, msgToTarget = on_request.msgToExecutor, on_request.msgToTarget
+    for k, _ in pairs(msgToExecutor) do
+        local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
+        rprint(executor_id, StringFormat)
     end
-    
-    rprint(executor_id, gsub(msgToSender, "%target_name%", target_name))
-    rprint(target_id, gsub(msgToReceiver, "%executor_name%", executor_name))
+    for k, _ in pairs(msgToTarget) do
+        local StringFormat = (gsub(gsub(msgToTarget[k], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
+        rprint(target_id, StringFormat)
+    end
 end
 
 function truce:enable(params)
