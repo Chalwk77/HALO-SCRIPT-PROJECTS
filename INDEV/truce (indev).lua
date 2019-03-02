@@ -46,8 +46,8 @@ local on_accept = {
 }
 
 local on_deny = {
-    msgToTarget = { "You denied %target_name%'s truce request" },
-    msgToExecutor = { "%executor_name% denied your truce request" }
+    msgToTarget = { "%executor_name% denied your truce request" },
+    msgToExecutor = { "You denied %target_name%'s truce request" }
 }
 
 -- configuration [ends] <--
@@ -136,11 +136,11 @@ local function cmdself(t, e)
     end
 end
 
-local function hasRequest(PlayerIndex)
+local function hasRequest(PlayerIndex, id)
     if tonumber(requests[PlayerIndex]) > 0 then
         return tonumber(requests[PlayerIndex])
     else
-        rprint(PlayerIndex, "You don't have any pending truce requests")
+        rprint(PlayerIndex, "You do not have any pending truce requests to " .. id)
     end
 end
 
@@ -205,7 +205,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
-            if hasRequest(executor) then
+            if hasRequest(executor, "accept") then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
                         local players = {}
@@ -223,9 +223,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(deny_command) and checkAccess(executor)) then
         if args[1] ~= nil then
-            if isOnline(TargetID, executor) then
-                if not cmdself(TargetID, executor) then
-                    -- deny logic
+            if hasRequest(executor, "deny") then
+                if isOnline(TargetID, executor) then
+                    if not cmdself(TargetID, executor) then
+                        local players = {}
+                        players.en = get_var(executor, "$name")
+                        players.eid = tonumber(get_var(executor, "$n"))
+                        players.tn = get_var(TargetID, "$name")
+                        players.tid = tonumber(get_var(TargetID, "$n"))
+                        truce:deny(players)
+                    end
                 end
             end
         else
@@ -305,6 +312,39 @@ end
 
 function truce:disable(params)
     local params = params or {}
+end
+
+function truce:deny(params)
+    local params = params or {}
+
+    local executor_name = params.en or nil
+    local executor_id = params.eid or nil
+
+    local target_name = params.tn or nil
+    local target_id = params.tid or nil
+    
+    for key, _ in ipairs(pending) do
+        local en = pending[key]["tn"]
+        local eid = tonumber(pending[key]["tid"])
+        
+        local tn = pending[key]["en"]
+        local tid = tonumber(pending[key]["eid"])
+
+        if (target_name == tn) and (target_id == tid) then
+            if (executor_name == en) and (executor_id == eid) then
+                pending[key] = nil
+                local msgToExecutor, msgToTarget = on_deny.msgToExecutor, on_deny.msgToTarget
+                for k, _ in pairs(msgToExecutor) do
+                    local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
+                    rprint(executor_id, StringFormat)
+                end
+                for k, _ in pairs(msgToTarget) do
+                    local StringFormat = gsub(msgToTarget[k], "%%executor_name%%", executor_name)
+                    rprint(target_id, StringFormat)
+                end
+            end
+        end
+    end
 end
 
 function truce:list(params)
