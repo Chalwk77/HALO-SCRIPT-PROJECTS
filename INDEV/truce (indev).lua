@@ -56,6 +56,7 @@ local truce = { }
 local requests = { }
 local members = { }
 local tracker = { }
+local pending = { }
 local gsub = string.gsub
 
 function OnScriptLoad()
@@ -143,6 +144,29 @@ local function hasRequest(PlayerIndex)
     end
 end
 
+function truce:isPending(TargetID, executor)
+    
+    local name = get_var(executor, "$name")
+    local id = tonumber(get_var(executor, "$n"))
+    local TargetName = get_var(TargetID, "$name")
+    
+    for key, _ in ipairs(pending) do
+        local tn = pending[key]["tn"]
+        local tid = tonumber(pending[key]["tid"])
+        local en = pending[key]["en"]
+        local eid = tonumber(pending[key]["eid"])
+        if (name == en) and (id == eid) then
+            if tn == TargetName and tid == TargetID then
+                rprint(executor, "You have already sent this player a request!")
+                return true
+            end
+        else
+            return false
+        end
+    end
+end
+
+
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local command, args = cmdsplit(Command)
@@ -153,12 +177,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
-                    local players = {}
-                    players.en = get_var(executor, "$name")
-                    players.eid = tonumber(get_var(executor, "$n"))
-                    players.tn = get_var(TargetID, "$name")
-                    players.tid = tonumber(get_var(TargetID, "$n"))
-                    truce:sendrequest(players)
+                    if not truce:isPending(TargetID, executor) then
+                        local players = {}
+                        players.en = get_var(executor, "$name")
+                        players.eid = tonumber(get_var(executor, "$n"))
+                        players.tn = get_var(TargetID, "$name")
+                        players.tid = tonumber(get_var(TargetID, "$n"))
+                        truce:sendrequest(players)
+                    end
                 end
             end
         else
@@ -217,6 +243,7 @@ function truce:sendrequest(params)
         rprint(target_id, StringFormat)
     end
     
+    table.insert(pending, {["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id})
     requests[target_id] = requests[target_id] + 1
 end
 
@@ -237,7 +264,6 @@ function truce:enable(params)
     tracker[target_id][#tracker[target_id] + 1] = executor_id
     
     local msgToExecutor, msgToTarget = on_accept.msgToExecutor, on_accept.msgToTarget
-    
     for k, _ in pairs(msgToExecutor) do
         local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
         rprint(executor_id, StringFormat)
@@ -247,6 +273,19 @@ function truce:enable(params)
         rprint(target_id, StringFormat)
     end
     
+    for key, _ in ipairs(pending) do
+        local tn = pending[key]["tn"]
+        local tid = tonumber(pending[key]["tid"])
+        local en = pending[key]["en"]
+        local eid = tonumber(pending[key]["eid"])
+        if (target_name == tn) and (target_id == tid) then
+            if en == executor_name and eid == executor_id then
+                pending[key] = nil
+            end
+            return true
+        end
+    end
+   
     requests[executor_id] = requests[executor_id] - 1
 end
 
