@@ -141,6 +141,7 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
+    
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
 
