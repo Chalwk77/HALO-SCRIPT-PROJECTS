@@ -71,10 +71,15 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 local function checkAccess(PlayerIndex)
-    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= privilege_level then
-        return true
+    if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+        if (tonumber(get_var(PlayerIndex, "$lvl"))) >= privilege_level then
+            return true
+        else
+            rprint(PlayerIndex, "Command failed. Insufficient Permission.")
+            return false
+        end
     else
-        rprint(PlayerIndex, "Command failed. Insufficient Permission.")
+        cprint("You cannot execute this command from the console.", 4+8)
         return false
     end
 end
