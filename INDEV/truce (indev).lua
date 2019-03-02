@@ -37,21 +37,21 @@ local on_request = {
     },
 
     -- Message transmitted to the executor
-    msgToExecutor = {"Request sent to %target_name%"}
+    msgToExecutor = { "Request sent to %target_name%" }
 }
 
 local on_accept = {
     -- Messages transmitted to the target player
-    msgToTarget = {"You are now in a truce with %executor_name%"},
+    msgToTarget = { "You are now in a truce with %executor_name%" },
     -- Message transmitted to the executor
-    msgToExecutor = {"[request accepted] You are now in a truce with %target_name%"}
+    msgToExecutor = { "[request accepted] You are now in a truce with %target_name%" }
 }
 
 local on_deny = {
     -- Messages transmitted to the target player
-    msgToTarget = {"You denied %target_name%'s truce request"},
+    msgToTarget = { "You denied %target_name%'s truce request" },
     -- Message transmitted to the executor
-    msgToExecutor = {"%executor_name% denied your truce request"}
+    msgToExecutor = { "%executor_name% denied your truce request" }
 }
 
 
@@ -94,12 +94,12 @@ local function isOnline(TargetID, executor)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    
-	local command, args = cmdsplit(Command)
+
+    local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local TargetID = tonumber(args[1])
-    
-	if (command == string.lower(base_command) and checkAccess(executor)) then
+
+    if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
                 if (TargetID ~= executor) then
@@ -126,19 +126,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /accept [player id]")
         end
         return false
-	end
-    
+    end
+
 end
 
 function truce:sendrequest(params)
     local params = params or {}
-    
+
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
-    
+
     local target_name = params.tn or nil
     local target_id = params.tid or nil
-    
+
     local msgToExecutor, msgToTarget = on_request.msgToExecutor, on_request.msgToTarget
     for k, _ in pairs(msgToExecutor) do
         local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
@@ -148,7 +148,7 @@ function truce:sendrequest(params)
         local StringFormat = (gsub(gsub(msgToTarget[k], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
         rprint(target_id, StringFormat)
     end
-    
+
     requests[target_id].active = requests[target_id].active + 1
 end
 
@@ -165,58 +165,58 @@ function truce:list(params)
 end
 
 function cmdsplit(str)
-	local subs = {}
-	local sub = ""
-	local ignore_quote, inquote, endquote
-	for i = 1,string.len(str) do
-		local bool
-		local char = string.sub(str, i, i)
-		if char == " " then
-			if (inquote and endquote) or (not inquote and not endquote) then
-				bool = true
-			end
-		elseif char == "\\" then
-			ignore_quote = true
-		elseif char == "\"" then
-			if not ignore_quote then
-				if not inquote then
-					inquote = true
-				else
-					endquote = true
-				end
-			end
-		end
-		
-		if char ~= "\\" then
-			ignore_quote = false
-		end
-		
-		if bool then
-			if inquote and endquote then
-				sub = string.sub(sub, 2, string.len(sub) - 1)
-			end
-			
-			if sub ~= "" then
-				table.insert(subs, sub)
-			end
-			sub = ""
-			inquote = false
-			endquote = false
-		else
-			sub = sub .. char
-		end
-		
-		if i == string.len(str) then
-			if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
-				sub = string.sub(sub, 2, string.len(sub) - 1)
-			end
-			table.insert(subs, sub)
-		end
-	end
-	
-	local cmd = subs[1]
-	local args = subs
-	table.remove(args, 1)
-	
-	return cmd, args
+    local subs = {}
+    local sub = ""
+    local ignore_quote, inquote, endquote
+    for i = 1, string.len(str) do
+        local bool
+        local char = string.sub(str, i, i)
+        if char == " " then
+            if (inquote and endquote) or (not inquote and not endquote) then
+                bool = true
+            end
+        elseif char == "\\" then
+            ignore_quote = true
+        elseif char == "\"" then
+            if not ignore_quote then
+                if not inquote then
+                    inquote = true
+                else
+                    endquote = true
+                end
+            end
+        end
+
+        if char ~= "\\" then
+            ignore_quote = false
+        end
+
+        if bool then
+            if inquote and endquote then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+
+            if sub ~= "" then
+                table.insert(subs, sub)
+            end
+            sub = ""
+            inquote = false
+            endquote = false
+        else
+            sub = sub .. char
+        end
+
+        if i == string.len(str) then
+            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+            table.insert(subs, sub)
+        end
+    end
+
+    local cmd = subs[1]
+    local args = subs
+    table.remove(args, 1)
+
+    return cmd, args
 end
