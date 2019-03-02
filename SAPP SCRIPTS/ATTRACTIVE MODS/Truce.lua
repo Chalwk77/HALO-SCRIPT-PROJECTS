@@ -131,11 +131,11 @@ function OnPlayerDisconnect(PlayerIndex)
             local en = members[key]["en"]
             local eid = tonumber(members[key]["eid"])
             if (name == tn) and (id == tid) then
-                rprint(eid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                rprint(eid, "Your truce with " .. name .. " has ended.")
                 removeTracker(eid, tid)
                 members[key] = nil
             elseif (name == en) and (id == eid) then
-                rprint(tid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                rprint(tid, "Your truce with " .. name .. " has ended.")
                 removeTracker(tid, eid)
                 members[key] = nil
             end
@@ -153,21 +153,21 @@ function OnPlayerDisconnect(PlayerIndex)
 
             if (name == tn) and (id == tid) then
                 pending[key] = nil
-                rprint(eid, "Your truce request with " .. get_var(PlayerIndex, "$name") .. " expired")
+                rprint(eid, "Your truce request with " .. name .. " expired")
             elseif (name == en) and (id == eid) then
                 pending[key] = nil
-                rprint(tid, "Your truce request with " .. get_var(PlayerIndex, "$name") .. " expired")
+                rprint(tid, "Your truce request with " .. name .. " expired")
             end
         end
     end
 end
 
-local function checkAccess(PlayerIndex)
-    if (PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16) then
-        if (tonumber(get_var(PlayerIndex, "$lvl"))) >= privilege_level then
+local function checkAccess(e)
+    if (e ~= -1 and e >= 1 and e < 16) then
+        if (tonumber(get_var(e, "$lvl"))) >= privilege_level then
             return true
         else
-            rprint(PlayerIndex, "Command failed. Insufficient Permission.")
+            rprint(e, "Command failed. Insufficient Permission.")
             return false
         end
     else
