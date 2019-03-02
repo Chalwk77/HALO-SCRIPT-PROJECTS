@@ -26,34 +26,27 @@ local privilege_level = -1
 
 local base_command = "truce"
 local accept_command = "accept"
+local deny_command = "deny"
 
 -- # Message Configuration:
 local on_request = {
-    -- Messages transmitted to the target player
     msgToTarget = {
         "%executor_name% is requesting a truce with you.",
         "To accept, type /accept %executor_id%",
         "To deny this request, type /deny %executor_id%"
     },
-
-    -- Message transmitted to the executor
     msgToExecutor = { "Request sent to %target_name%" }
 }
 
 local on_accept = {
-    -- Messages transmitted to the target player
     msgToTarget = { "You are now in a truce with %executor_name%" },
-    -- Message transmitted to the executor
     msgToExecutor = { "[request accepted] You are now in a truce with %target_name%" }
 }
 
 local on_deny = {
-    -- Messages transmitted to the target player
     msgToTarget = { "You denied %target_name%'s truce request" },
-    -- Message transmitted to the executor
     msgToExecutor = { "%executor_name% denied your truce request" }
 }
-
 
 -- configuration [ends] <--
 
@@ -93,6 +86,14 @@ local function isOnline(TargetID, executor)
     end
 end
 
+local function self(t, e)
+    if tonumber(t) == tonumber(e) then
+        rprint(e, "You cannot execute this command on yourself.")
+        return false
+    end
+    return true
+end
+
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local command, args = cmdsplit(Command)
@@ -102,15 +103,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
-                if (TargetID ~= executor) then
+                if not self(TargetID, executor) then
                     local players = {}
                     players.en = get_var(executor, "$name")
                     players.eid = tonumber(get_var(executor, "$n"))
                     players.tn = get_var(TargetID, "$name")
                     players.tid = tonumber(get_var(TargetID, "$n"))
                     truce:sendrequest(players)
-                else
-                    rprint(executor, "Command failed. You cannot initiate a truce with yourself.")
                 end
             end
         else
@@ -120,10 +119,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == string.lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
-                -- accept logic
+                if not self(TargetID, executor) then
+                    -- accept logic
+                end
             end
         else
             rprint(executor, "Invalid syntax. Usage: /accept [player id]")
+        end
+        return false
+    elseif (command == string.lower(deny_command) and checkAccess(executor)) then
+        if args[1] ~= nil then
+            if isOnline(TargetID, executor) then
+                if not self(TargetID, executor) then
+                    -- deny logic
+                end
+            end
+        else
+            rprint(executor, "Invalid syntax. Usage: /deny [player id]")
         end
         return false
     end
