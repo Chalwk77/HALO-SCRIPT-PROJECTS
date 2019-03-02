@@ -66,8 +66,7 @@ function OnScriptUnload()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    requests[PlayerIndex] = { }
-    requests[PlayerIndex].active = 0
+    requests[PlayerIndex] = 0
 end
 
 local function checkAccess(PlayerIndex)
@@ -96,13 +95,16 @@ end
 local function cmdself(t, e)
     if tonumber(t) == tonumber(e) then
         rprint(e, "You cannot execute this command on yourself.")
-        return false
+        return true
     end
-    return true
 end
 
-local function reqCount(PlayerIndex)
-    return tonumber(requests[PlayerIndex].active)
+local function hasRequest(PlayerIndex)
+    if tonumber(requests[PlayerIndex]) > 0 then
+        return tonumber(requests[PlayerIndex])
+    else
+        rprint(PlayerIndex, "You don't have any pending truce requests")
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -129,11 +131,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
-            if isOnline(TargetID, executor) then
-                if not cmdself(TargetID, executor) then
-                    -- accept logic
-                    if (reqCount(executor) > 0) then
-                        
+            if hasRequest(executor) then
+                if isOnline(TargetID, executor) then
+                    if not cmdself(TargetID, executor) then
+                        requests[target_id] = requests[target_id] - 1
                     end
                 end
             end
@@ -175,7 +176,7 @@ function truce:sendrequest(params)
         rprint(target_id, StringFormat)
     end
 
-    requests[target_id].active = requests[target_id].active + 1
+    requests[target_id] = requests[target_id] + 1
 end
 
 function truce:enable(params)
