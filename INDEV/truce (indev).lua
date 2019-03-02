@@ -55,13 +55,14 @@ local on_deny = {
 local truce = { }
 local requests = { }
 local members = { }
-local tru = { }
+local tracker = { }
 local gsub = string.gsub
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 end
 
 function OnScriptUnload()
@@ -70,6 +71,34 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     requests[PlayerIndex] = 0
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    requests[PlayerIndex] = 0
+    if tracker[PlayerIndex] ~= nil then
+        if next(members) ~= nil then
+        
+            local name = get_var(PlayerIndex, "$name")
+            local id = tonumber(get_var(PlayerIndex, "$n"))
+            
+            for key, _ in ipairs(members) do
+            
+                local tn = members[key]["tn"]
+                local tid = tonumber(members[key]["tid"])
+                
+                local en = members[key]["en"]
+                local eid = tonumber(members[key]["eid"])
+
+                if (name == tn) and (id == tid) then
+                    rprint(eid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                    members[key] = nil
+                elseif (name == en) and (id == eid) then
+                    rprint(tid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                    members[key] = nil
+                end
+            end
+        end
+    end
 end
 
 local function checkAccess(PlayerIndex)
@@ -201,11 +230,11 @@ function truce:enable(params)
     local target_id = params.tid or nil
     
     table.insert(members, {["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id})
-    tru[executor_id] = tru[executor_id] or {}
-    tru[executor_id][#tru[executor_id] + 1] = target_id
+    tracker[executor_id] = tracker[executor_id] or {}
+    tracker[executor_id][#tracker[executor_id] + 1] = target_id
     
-    tru[target_id] = tru[target_id] or {}
-    tru[target_id][#tru[target_id] + 1] = executor_id
+    tracker[target_id] = tracker[target_id] or {}
+    tracker[target_id][#tracker[target_id] + 1] = executor_id
     
     local msgToExecutor, msgToTarget = on_accept.msgToExecutor, on_accept.msgToTarget
     
@@ -231,9 +260,9 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-        if tru[CauserIndex] ~= nil then
-            for i = 1, #tru[CauserIndex] do
-                if (tru[CauserIndex][i] == tonumber(PlayerIndex)) then
+        if tracker[CauserIndex] ~= nil then
+            for i = 1, #tracker[CauserIndex] do
+                if (tracker[CauserIndex][i] == tonumber(PlayerIndex)) then
                 
                     --local cid, cn = get_var(CauserIndex, "$n"), get_var(CauserIndex, "$name")
                     --local pid, pn = get_var(PlayerIndex, "$n"), get_var(PlayerIndex, "$name")
