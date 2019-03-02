@@ -72,7 +72,7 @@ end
 
 local function clearData()
     if not (save_on_newgame) then
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 if (tracker[i] ~= nil) then
                     for key, _ in pairs(tracker[i]) do
@@ -83,14 +83,14 @@ local function clearData()
         end
         if (next(members) ~= nil) then
             for key, _ in ipairs(members) do
-                for i = 1,#members do
+                for i = 1, #members do
                     members[i] = nil
                 end
             end
         end
         if (next(pending) ~= nil) then
             for key, _ in ipairs(pending) do
-                for i = 1,#pending do
+                for i = 1, #pending do
                     pending[i] = nil
                 end
             end
@@ -124,7 +124,7 @@ function OnPlayerDisconnect(PlayerIndex)
                 end
             end
         end
-        
+
         for key, _ in ipairs(members) do
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
@@ -277,7 +277,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
+
     if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             set_info(true)
@@ -370,8 +370,10 @@ function truce:sendrequest(params)
     end
 
     table.insert(pending, { ["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id })
-    
-    if requests[target_id] == nil then requests[target_id] = 0 end
+
+    if requests[target_id] == nil then
+        requests[target_id] = 0
+    end
     requests[target_id] = requests[target_id] + 1
 end
 
