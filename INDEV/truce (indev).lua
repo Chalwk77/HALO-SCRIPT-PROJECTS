@@ -9,6 +9,8 @@ Command Syntax:
     * /deny [player id]
     * /untruce [player id]
     * /trucelist
+    
+    [!] WARNING: This mod is in development and does not represent the finished product.
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
