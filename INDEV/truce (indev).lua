@@ -31,6 +31,9 @@ local deny_command = "deny"
 local untruce_command = "untruce"
 local trucelist_command = "trucelist"
 
+-- If enabled, truce data will not be cleared when the map cycles.
+local save_on_newgame = true
+
 -- # Message Configuration:
 local on_request = {
     msgToTarget = {
@@ -63,32 +66,33 @@ local gsub = string.gsub
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 local function clearData()
-    for i = 1,16 do
-        if player_present(i) then
-            if (tracker[i] ~= nil) then
-                for key, _ in pairs(tracker[i]) do
-                    tracker[i][key] = nil
+    if not (save_on_newgame) then
+        for i = 1,16 do
+            if player_present(i) then
+                if (tracker[i] ~= nil) then
+                    for key, _ in pairs(tracker[i]) do
+                        tracker[i][key] = nil
+                    end
                 end
             end
         end
-    end
-    if (next(members) ~= nil) then
-        for key, _ in ipairs(members) do
-            for i = 1,#members do
-                members[i] = nil
+        if (next(members) ~= nil) then
+            for key, _ in ipairs(members) do
+                for i = 1,#members do
+                    members[i] = nil
+                end
             end
         end
-    end
-    if (next(pending) ~= nil) then
-        for key, _ in ipairs(pending) do
-            for i = 1,#pending do
-                pending[i] = nil
+        if (next(pending) ~= nil) then
+            for key, _ in ipairs(pending) do
+                for i = 1,#pending do
+                    pending[i] = nil
+                end
             end
         end
     end
@@ -100,10 +104,6 @@ end
 
 function OnGameEnd()
     clearData()
-end
-
-function OnPlayerConnect(PlayerIndex)
-    requests[PlayerIndex] = 0
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -367,6 +367,8 @@ function truce:sendrequest(params)
     end
 
     table.insert(pending, { ["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id })
+    
+    if requests[target_id] == nil then requests[target_id] = 0 end
     requests[target_id] = requests[target_id] + 1
 end
 
