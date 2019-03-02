@@ -71,7 +71,7 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 local function checkAccess(PlayerIndex)
-    if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
+    if (PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16) then
         if (tonumber(get_var(PlayerIndex, "$lvl"))) >= privilege_level then
             return true
         else
