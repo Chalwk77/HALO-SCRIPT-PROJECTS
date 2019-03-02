@@ -78,8 +78,8 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     requests[PlayerIndex] = 0
     if (next(members) ~= nil) and (tracker[PlayerIndex] ~= nil) then
-    
-        local function removeTracker(a,b)
+
+        local function removeTracker(a, b)
             for key, _ in pairs(tracker[a]) do
                 if tracker[a][key] == b then
                     tracker[a][key] = nil
@@ -91,10 +91,10 @@ function OnPlayerDisconnect(PlayerIndex)
                 end
             end
         end
-    
+
         local name = get_var(PlayerIndex, "$name")
         local id = tonumber(get_var(PlayerIndex, "$n"))
-        
+
         for key, _ in ipairs(members) do
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
@@ -133,7 +133,7 @@ local function checkAccess(PlayerIndex)
             return false
         end
     else
-        cprint("You cannot execute this command from the console.", 4+8)
+        cprint("You cannot execute this command from the console.", 4 + 8)
         return false
     end
 end
@@ -179,7 +179,7 @@ function truce:isPending(TargetID, executor)
     local name = get_var(executor, "$name")
     local id = tonumber(get_var(executor, "$n"))
     local TargetName = get_var(TargetID, "$name")
-    
+
     for key, _ in ipairs(pending) do
         local tn = pending[key]["tn"]
         local tid = tonumber(pending[key]["tid"])
@@ -226,7 +226,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if not cmdself(TargetID, executor) then
                     if not sameTeam(TargetID, executor) then
                         if not truce:isPending(TargetID, executor) then
-                            if not truce:inTruce(TargetID, executor, false) then 
+                            if not truce:inTruce(TargetID, executor, false) then
                                 local players = {}
                                 players.en = get_var(executor, "$name")
                                 players.eid = tonumber(get_var(executor, "$n"))
@@ -282,7 +282,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
-                    if truce:inTruce(TargetID, executor, true) then 
+                    if truce:inTruce(TargetID, executor, true) then
                         local players = {}
                         players.en = get_var(executor, "$name")
                         players.eid = tonumber(get_var(executor, "$n"))
@@ -328,8 +328,8 @@ function truce:sendrequest(params)
         local StringFormat = (gsub(gsub(msgToTarget[k], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
         rprint(target_id, StringFormat)
     end
-    
-    table.insert(pending, {["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id})
+
+    table.insert(pending, { ["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id })
     requests[target_id] = requests[target_id] + 1
 end
 
@@ -341,14 +341,14 @@ function truce:enable(params)
 
     local target_name = params.tn or nil
     local target_id = params.tid or nil
-    
-    table.insert(members, {["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id})
+
+    table.insert(members, { ["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id })
     tracker[executor_id] = tracker[executor_id] or {}
     tracker[executor_id][#tracker[executor_id] + 1] = target_id
-    
+
     tracker[target_id] = tracker[target_id] or {}
     tracker[target_id][#tracker[target_id] + 1] = executor_id
-    
+
     local msgToExecutor, msgToTarget = on_accept.msgToExecutor, on_accept.msgToTarget
     for k, _ in pairs(msgToExecutor) do
         local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
@@ -358,11 +358,11 @@ function truce:enable(params)
         local StringFormat = gsub(msgToTarget[k], "%%executor_name%%", executor_name)
         rprint(target_id, StringFormat)
     end
-    
+
     for key, _ in ipairs(pending) do
         local en = pending[key]["tn"]
         local eid = tonumber(pending[key]["tid"])
-        
+
         local tn = pending[key]["en"]
         local tid = tonumber(pending[key]["eid"])
 
@@ -373,7 +373,7 @@ function truce:enable(params)
             return true
         end
     end
-   
+
     requests[executor_id] = requests[executor_id] - 1
 end
 
@@ -385,7 +385,7 @@ function truce:disable(params)
 
     local target_name = params.tn or nil
     local target_id = params.tid or nil
-    
+
     if (next(members) ~= nil) and (tracker[executor_id] ~= nil) then
         for key, _ in ipairs(members) do
             local tn = members[key]["tn"]
@@ -427,11 +427,11 @@ function truce:deny(params)
 
     local target_name = params.tn or nil
     local target_id = params.tid or nil
-    
+
     for key, _ in ipairs(pending) do
         local en = pending[key]["tn"]
         local eid = tonumber(pending[key]["tid"])
-        
+
         local tn = pending[key]["en"]
         local tid = tonumber(pending[key]["eid"])
 
@@ -454,19 +454,19 @@ end
 
 function truce:list(params)
     local params = params or {}
-    
+
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
-    
+
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
-            
+
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
-            
+
             local en = members[key]["en"]
             local eid = tonumber(members[key]["eid"])
-            
+
             if tracker[executor_id] ~= nil then
                 for i = 1, #tracker[executor_id] do
                     if (tracker[executor_id][i] == tonumber(tid)) then
@@ -482,16 +482,16 @@ function truce:list(params)
     else
         rprint(executor_id, "No active truces")
     end
-    
+
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
-            
+
             local tn = pending[key]["tn"]
             local tid = tonumber(pending[key]["tid"])
-            
+
             local en = pending[key]["en"]
             local eid = tonumber(pending[key]["eid"])
-            
+
             if (executor_name == tn) and (executor_id == tid) then
                 rprint(executor_id, "[" .. eid .. "] -> " .. en .. " (pending request)")
             elseif (executor_name == en) and (executor_id == eid) then
