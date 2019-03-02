@@ -88,12 +88,16 @@ local function isOnline(TargetID, executor)
     end
 end
 
-local function self(t, e)
+local function cmdself(t, e)
     if tonumber(t) == tonumber(e) then
         rprint(e, "You cannot execute this command on yourself.")
         return false
     end
     return true
+end
+
+local function reqCount(PlayerIndex)
+    return tonumber(requests[PlayerIndex].active)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -105,7 +109,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
-                if not self(TargetID, executor) then
+                if not cmdself(TargetID, executor) then
                     local players = {}
                     players.en = get_var(executor, "$name")
                     players.eid = tonumber(get_var(executor, "$n"))
@@ -121,8 +125,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == string.lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
-                if not self(TargetID, executor) then
+                if not cmdself(TargetID, executor) then
                     -- accept logic
+                    if (reqCount(executor) > 0) then
+                        
+                    end
                 end
             end
         else
@@ -132,7 +139,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == string.lower(deny_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
-                if not self(TargetID, executor) then
+                if not cmdself(TargetID, executor) then
                     -- deny logic
                 end
             end
