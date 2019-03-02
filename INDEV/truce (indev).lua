@@ -30,6 +30,7 @@ local base_command = "truce"
 local accept_command = "accept"
 local deny_command = "deny"
 local untruce_command = "untruce"
+local trucelist_command = "trucelist"
 
 -- # Message Configuration:
 local on_request = {
@@ -268,6 +269,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /untruce [player id]")
         end
         return false
+    elseif (command == string.lower(trucelist_command) and checkAccess(executor)) then
+        if args[1] ~= nil then
+            local players = {}
+            players.en = get_var(executor, "$name")
+            players.eid = tonumber(get_var(executor, "$n"))
+            truce:list(players)
+        else
+            rprint(executor, "Invalid syntax. Usage: /trucelist")
+        end
+        return false
     end
 
 end
@@ -416,6 +427,11 @@ end
 
 function truce:list(params)
     local params = params or {}
+    
+    local executor_name = params.en or nil
+    local executor_id = params.eid or nil
+    
+    
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
