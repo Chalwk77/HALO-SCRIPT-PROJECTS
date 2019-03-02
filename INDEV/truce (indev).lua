@@ -31,7 +31,7 @@ local deny_command = "deny"
 local untruce_command = "untruce"
 local trucelist_command = "trucelist"
 
--- If enabled, truce data will not be cleared when the map cycles.
+-- If enabled, truce data will be saved when the map cycles.
 local save_on_newgame = true
 
 -- # Message Configuration:
