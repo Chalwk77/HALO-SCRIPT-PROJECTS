@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Truce, for SAPP (PC & CE)
-Description: N/A
+Description: Initiate a truce with other players.
+             While in a truce with someone, neither player can harm one another.
 
 Command Syntax: 
     * /truce [player id]
@@ -9,8 +10,6 @@ Command Syntax:
     * /deny [player id]
     * /untruce [player id]
     * /trucelist
-    
-    [!] WARNING: This mod is in development and does not represent the finished product.
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -79,8 +78,23 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     requests[PlayerIndex] = 0
     if (next(members) ~= nil) and (tracker[PlayerIndex] ~= nil) then
+    
+        local function removeTracker(a,b)
+            for key, _ in pairs(tracker[a]) do
+                if tracker[a][key] == b then
+                    tracker[a][key] = nil
+                end
+            end
+            for key, _ in pairs(tracker[b]) do
+                if tracker[b][key] == a then
+                    tracker[b][key] = nil
+                end
+            end
+        end
+    
         local name = get_var(PlayerIndex, "$name")
         local id = tonumber(get_var(PlayerIndex, "$n"))
+        
         for key, _ in ipairs(members) do
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
@@ -88,9 +102,11 @@ function OnPlayerDisconnect(PlayerIndex)
             local eid = tonumber(members[key]["eid"])
             if (name == tn) and (id == tid) then
                 rprint(eid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                removeTracker(eid, tid)
                 members[key] = nil
             elseif (name == en) and (id == eid) then
                 rprint(tid, "Your truce with " .. get_var(PlayerIndex, "$name") .. " has ended.")
+                removeTracker(tid, eid)
                 members[key] = nil
             end
         end
@@ -122,16 +138,16 @@ local function checkAccess(PlayerIndex)
     end
 end
 
-local function isOnline(TargetID, executor)
-    if (TargetID > 0 and TargetID < 17) then
-        if player_present(TargetID) then
+local function isOnline(t, e)
+    if (t > 0 and t < 17) then
+        if player_present(t) then
             return true
         else
-            rprint(executor, "Command failed. Player not online.")
+            rprint(e, "Command failed. Player not online.")
             return false
         end
     else
-        rprint(executor, "Invalid player id. Please enter a number between 1-16")
+        rprint(e, "Invalid player id. Please enter a number between 1-16")
     end
 end
 
@@ -142,11 +158,20 @@ local function cmdself(t, e)
     end
 end
 
-local function hasRequest(PlayerIndex, id)
-    if tonumber(requests[PlayerIndex]) > 0 then
-        return tonumber(requests[PlayerIndex])
+local function hasRequest(e, id)
+    if tonumber(requests[e]) > 0 then
+        return tonumber(requests[e])
     else
-        rprint(PlayerIndex, "You do not have any pending truce requests to " .. id)
+        rprint(e, "You do not have any pending truce requests to " .. id)
+    end
+end
+
+local function sameTeam(t, e)
+    if not getTeamPlay() then
+        return false
+    elseif get_var(e, "$team") == get_var(t, "$team") then
+        rprint(e, "You cannot initiate a truce with someone on the same team!")
+        return true
     end
 end
 
@@ -199,14 +224,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
-                    if not truce:isPending(TargetID, executor) then
-                        if not truce:inTruce(TargetID, executor, false) then 
-                            local players = {}
-                            players.en = get_var(executor, "$name")
-                            players.eid = tonumber(get_var(executor, "$n"))
-                            players.tn = get_var(TargetID, "$name")
-                            players.tid = tonumber(get_var(TargetID, "$n"))
-                            truce:sendrequest(players)
+                    if not sameTeam(TargetID, executor) then
+                        if not truce:isPending(TargetID, executor) then
+                            if not truce:inTruce(TargetID, executor, false) then 
+                                local players = {}
+                                players.en = get_var(executor, "$name")
+                                players.eid = tonumber(get_var(executor, "$n"))
+                                players.tn = get_var(TargetID, "$name")
+                                players.tid = tonumber(get_var(TargetID, "$n"))
+                                truce:sendrequest(players)
+                            end
                         end
                     end
                 end
@@ -270,7 +297,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == string.lower(trucelist_command) and checkAccess(executor)) then
-        if args[1] ~= nil then
+        if args[1] == nil then
             local players = {}
             players.en = get_var(executor, "$name")
             players.eid = tonumber(get_var(executor, "$n"))
@@ -431,7 +458,49 @@ function truce:list(params)
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
     
+    if (next(members) ~= nil) then
+        for key, _ in ipairs(members) do
+            
+            local tn = members[key]["tn"]
+            local tid = tonumber(members[key]["tid"])
+            
+            local en = members[key]["en"]
+            local eid = tonumber(members[key]["eid"])
+            
+            if tracker[executor_id] ~= nil then
+                for i = 1, #tracker[executor_id] do
+                    if (tracker[executor_id][i] == tonumber(tid)) then
+                        rprint(executor_id, "[" .. tid .. "] -> " .. tn .. " (truced)")
+                    elseif (tracker[executor_id][i] == tonumber(eid)) then
+                        rprint(executor_id, "[" .. eid .. "] -> " .. en .. " (truced)")
+                    end
+                end
+            else
+                rprint(executor_id, "You are not truced with anybody")
+            end
+        end
+    else
+        rprint(executor_id, "No active truces")
+    end
     
+    if (next(pending) ~= nil) then
+        for key, _ in ipairs(pending) do
+            
+            local tn = pending[key]["tn"]
+            local tid = tonumber(pending[key]["tid"])
+            
+            local en = pending[key]["en"]
+            local eid = tonumber(pending[key]["eid"])
+            
+            if (executor_name == tn) and (executor_id == tid) then
+                rprint(executor_id, "[" .. eid .. "] -> " .. en .. " (pending request)")
+            elseif (executor_name == en) and (executor_id == eid) then
+                rprint(executor_id, "[" .. tid .. "] -> " .. tn .. " (pending request)")
+            end
+        end
+    else
+        rprint(executor_id, "No pending requests")
+    end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -443,6 +512,14 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
                 end
             end
         end
+    end
+end
+
+function getTeamPlay()
+    if get_var(0, "$ffa") == "0" then
+        return true
+    else
+        return false
     end
 end
 
