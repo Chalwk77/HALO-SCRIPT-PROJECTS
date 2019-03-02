@@ -68,7 +68,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
-function OnScriptUnload()
+local function clearData()
     for i = 1,16 do
         if player_present(i) then
             if (tracker[i] ~= nil) then
@@ -94,30 +94,12 @@ function OnScriptUnload()
     end
 end
 
+function OnScriptUnload()
+    clearData()
+end
+
 function OnGameEnd()
-    for i = 1,16 do
-        if player_present(i) then
-            if (tracker[i] ~= nil) then
-                for key, _ in pairs(tracker[i]) do
-                    tracker[i][key] = nil
-                end
-            end
-        end
-    end
-    if (next(members) ~= nil) then
-        for key, _ in ipairs(members) do
-            for i = 1,#members do
-                members[i] = nil
-            end
-        end
-    end
-    if (next(pending) ~= nil) then
-        for key, _ in ipairs(pending) do
-            for i = 1,#pending do
-                pending[i] = nil
-            end
-        end
-    end
+    clearData()
 end
 
 function OnPlayerConnect(PlayerIndex)
