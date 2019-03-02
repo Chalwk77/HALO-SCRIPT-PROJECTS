@@ -65,10 +65,59 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 function OnScriptUnload()
+    for i = 1,16 do
+        if player_present(i) then
+            if (tracker[i] ~= nil) then
+                for key, _ in pairs(tracker[i]) do
+                    tracker[i][key] = nil
+                end
+            end
+        end
+    end
+    if (next(members) ~= nil) then
+        for key, _ in ipairs(members) do
+            for i = 1,#members do
+                members[i] = nil
+            end
+        end
+    end
+    if (next(pending) ~= nil) then
+        for key, _ in ipairs(pending) do
+            for i = 1,#pending do
+                pending[i] = nil
+            end
+        end
+    end
+end
 
+function OnGameEnd()
+    for i = 1,16 do
+        if player_present(i) then
+            if (tracker[i] ~= nil) then
+                for key, _ in pairs(tracker[i]) do
+                    tracker[i][key] = nil
+                end
+            end
+        end
+    end
+    if (next(members) ~= nil) then
+        for key, _ in ipairs(members) do
+            for i = 1,#members do
+                members[i] = nil
+            end
+        end
+    end
+    if (next(pending) ~= nil) then
+        for key, _ in ipairs(pending) do
+            for i = 1,#pending do
+                pending[i] = nil
+            end
+        end
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -77,6 +126,8 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     requests[PlayerIndex] = 0
+    local name = get_var(PlayerIndex, "$name")
+    local id = tonumber(get_var(PlayerIndex, "$n"))
     if (next(members) ~= nil) and (tracker[PlayerIndex] ~= nil) then
 
         local function removeTracker(a, b)
@@ -91,10 +142,7 @@ function OnPlayerDisconnect(PlayerIndex)
                 end
             end
         end
-
-        local name = get_var(PlayerIndex, "$name")
-        local id = tonumber(get_var(PlayerIndex, "$n"))
-
+        
         for key, _ in ipairs(members) do
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
@@ -110,15 +158,22 @@ function OnPlayerDisconnect(PlayerIndex)
                 members[key] = nil
             end
         end
+    end
+    if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
+
             local tn = pending[key]["tn"]
             local tid = tonumber(pending[key]["tid"])
+
             local en = pending[key]["en"]
             local eid = tonumber(pending[key]["eid"])
+
             if (name == tn) and (id == tid) then
                 pending[key] = nil
+                rprint(eid, "Your truce request with " .. get_var(PlayerIndex, "$name") .. " expired")
             elseif (name == en) and (id == eid) then
                 pending[key] = nil
+                rprint(tid, "Your truce request with " .. get_var(PlayerIndex, "$name") .. " expired")
             end
         end
     end
