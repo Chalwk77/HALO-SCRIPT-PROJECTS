@@ -257,6 +257,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local executor = tonumber(PlayerIndex)
     local TargetID = tonumber(args[1])
 
+    local players = {}
+    if (command == base_command) or (command == accept_command) or (command == deny_command) or (command == trucelist_command) then
+        players.en = get_var(executor, "$name")
+        players.eid = tonumber(get_var(executor, "$n"))
+        players.tn = get_var(TargetID, "$name")
+        players.tid = tonumber(get_var(TargetID, "$n"))
+    end
+    
     if (command == string.lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             if isOnline(TargetID, executor) then
@@ -264,11 +272,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if not sameTeam(TargetID, executor) then
                         if not truce:isPending(TargetID, executor) then
                             if not truce:inTruce(TargetID, executor, false) then
-                                local players = {}
-                                players.en = get_var(executor, "$name")
-                                players.eid = tonumber(get_var(executor, "$n"))
-                                players.tn = get_var(TargetID, "$name")
-                                players.tid = tonumber(get_var(TargetID, "$n"))
                                 truce:sendrequest(players)
                             end
                         end
@@ -284,11 +287,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if hasRequest(executor, "accept") then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
-                        local players = {}
-                        players.en = get_var(executor, "$name")
-                        players.eid = tonumber(get_var(executor, "$n"))
-                        players.tn = get_var(TargetID, "$name")
-                        players.tid = tonumber(get_var(TargetID, "$n"))
                         truce:enable(players)
                     end
                 end
@@ -302,11 +300,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if hasRequest(executor, "deny") then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
-                        local players = {}
-                        players.en = get_var(executor, "$name")
-                        players.eid = tonumber(get_var(executor, "$n"))
-                        players.tn = get_var(TargetID, "$name")
-                        players.tid = tonumber(get_var(TargetID, "$n"))
                         truce:deny(players)
                     end
                 end
@@ -320,11 +313,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
                     if truce:inTruce(TargetID, executor, true) then
-                        local players = {}
-                        players.en = get_var(executor, "$name")
-                        players.eid = tonumber(get_var(executor, "$n"))
-                        players.tn = get_var(TargetID, "$name")
-                        players.tid = tonumber(get_var(TargetID, "$n"))
                         truce:disable(players)
                     end
                 end
@@ -335,9 +323,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == string.lower(trucelist_command) and checkAccess(executor)) then
         if args[1] == nil then
-            local players = {}
-            players.en = get_var(executor, "$name")
-            players.eid = tonumber(get_var(executor, "$n"))
             truce:list(players)
         else
             rprint(executor, "Invalid syntax. Usage: /trucelist")
