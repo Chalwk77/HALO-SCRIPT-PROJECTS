@@ -41,8 +41,8 @@ local on_request = {
 }
 
 local on_accept = {
-    msgToTarget = { "You are now in a truce with %executor_name%" },
-    msgToExecutor = { "[request accepted] You are now in a truce with %target_name%" }
+    msgToExecutor = { "You are now in a truce with %target_name%" },
+    msgToTarget = { "[request accepted] You are now in a truce with %executor_name%" }
 }
 
 local on_deny = {
@@ -54,6 +54,8 @@ local on_deny = {
 
 local truce = { }
 local requests = { }
+local members = { }
+local tru = { }
 local gsub = string.gsub
 
 function OnScriptLoad()
@@ -134,7 +136,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if hasRequest(executor) then
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
-                        requests[target_id] = requests[target_id] - 1
+                        local players = {}
+                        players.en = get_var(executor, "$name")
+                        players.eid = tonumber(get_var(executor, "$n"))
+                        players.tn = get_var(TargetID, "$name")
+                        players.tid = tonumber(get_var(TargetID, "$n"))
+                        truce:enable(players)
                     end
                 end
             end
@@ -175,12 +182,38 @@ function truce:sendrequest(params)
         local StringFormat = (gsub(gsub(msgToTarget[k], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
         rprint(target_id, StringFormat)
     end
-
+    
     requests[target_id] = requests[target_id] + 1
 end
 
 function truce:enable(params)
     local params = params or {}
+
+    local executor_name = params.en or nil
+    local executor_id = params.eid or nil
+
+    local target_name = params.tn or nil
+    local target_id = params.tid or nil
+    
+    table.insert(members, {["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id})
+    tru[executor_id] = tru[executor_id] or {}
+    tru[executor_id][#tru[executor_id] + 1] = target_id
+    
+    tru[target_id] = tru[target_id] or {}
+    tru[target_id][#tru[target_id] + 1] = executor_id
+    
+    local msgToExecutor, msgToTarget = on_accept.msgToExecutor, on_accept.msgToTarget
+    
+    for k, _ in pairs(msgToExecutor) do
+        local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
+        rprint(executor_id, StringFormat)
+    end
+    for k, _ in pairs(msgToTarget) do
+        local StringFormat = gsub(msgToTarget[k], "%%executor_name%%", executor_name)
+        rprint(target_id, StringFormat)
+    end
+    
+     requests[executor_id] = requests[executor_id] - 1
 end
 
 function truce:disable(params)
