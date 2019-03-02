@@ -145,7 +145,6 @@ local function hasRequest(PlayerIndex)
 end
 
 function truce:isPending(TargetID, executor)
-    
     local name = get_var(executor, "$name")
     local id = tonumber(get_var(executor, "$n"))
     local TargetName = get_var(TargetID, "$name")
@@ -166,6 +165,17 @@ function truce:isPending(TargetID, executor)
     end
 end
 
+function truce:inTruce(TargetID, executor)
+    if tracker[executor] ~= nil then
+        for i = 1, #tracker[executor] do
+            if (tracker[executor][i] == tonumber(TargetID)) then
+                rprint(executor, "You are already in a truce with this player.")
+                return true
+            end
+        end
+    end
+    return false
+end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
@@ -178,12 +188,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
                     if not truce:isPending(TargetID, executor) then
-                        local players = {}
-                        players.en = get_var(executor, "$name")
-                        players.eid = tonumber(get_var(executor, "$n"))
-                        players.tn = get_var(TargetID, "$name")
-                        players.tid = tonumber(get_var(TargetID, "$n"))
-                        truce:sendrequest(players)
+                        if not truce:inTruce(TargetID, executor) then 
+                            local players = {}
+                            players.en = get_var(executor, "$name")
+                            players.eid = tonumber(get_var(executor, "$n"))
+                            players.tn = get_var(TargetID, "$name")
+                            players.tid = tonumber(get_var(TargetID, "$n"))
+                            truce:sendrequest(players)
+                        end
                     end
                 end
             end
@@ -274,12 +286,14 @@ function truce:enable(params)
     end
     
     for key, _ in ipairs(pending) do
-        local tn = pending[key]["tn"]
-        local tid = tonumber(pending[key]["tid"])
-        local en = pending[key]["en"]
-        local eid = tonumber(pending[key]["eid"])
+        local en = pending[key]["tn"]
+        local eid = tonumber(pending[key]["tid"])
+        
+        local tn = pending[key]["en"]
+        local tid = tonumber(pending[key]["eid"])
+
         if (target_name == tn) and (target_id == tid) then
-            if en == executor_name and eid == executor_id then
+            if (executor_name == en) and (executor_id == eid) then
                 pending[key] = nil
             end
             return true
