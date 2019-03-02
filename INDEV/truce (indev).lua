@@ -191,9 +191,11 @@ local function isOnline(t, e)
 end
 
 local function cmdself(t, e)
-    if tonumber(t) == tonumber(e) then
-        rprint(e, "You cannot execute this command on yourself.")
-        return true
+    if (t) then
+        if tonumber(t) == tonumber(e) then
+            rprint(e, "You cannot execute this command on yourself.")
+            return true
+        end
     end
 end
 
