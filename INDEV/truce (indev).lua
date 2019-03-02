@@ -61,6 +61,7 @@ local gsub = string.gsub
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
 function OnScriptUnload()
@@ -86,11 +87,15 @@ local function checkAccess(PlayerIndex)
 end
 
 local function isOnline(TargetID, executor)
-    if player_present(TargetID) then
-        return true
+    if (TargetID > 0 and TargetID < 17) then
+        if player_present(TargetID) then
+            return true
+        else
+            rprint(executor, "Command failed. Player not online.")
+            return false
+        end
     else
-        rprint(executor, "Command failed. Player not online.")
-        return false
+        rprint(executor, "Invalid player id. Please enter a number between 1-16")
     end
 end
 
@@ -213,7 +218,7 @@ function truce:enable(params)
         rprint(target_id, StringFormat)
     end
     
-     requests[executor_id] = requests[executor_id] - 1
+    requests[executor_id] = requests[executor_id] - 1
 end
 
 function truce:disable(params)
@@ -222,6 +227,23 @@ end
 
 function truce:list(params)
     local params = params or {}
+end
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+        if tru[CauserIndex] ~= nil then
+            for i = 1, #tru[CauserIndex] do
+                if (tru[CauserIndex][i] == tonumber(PlayerIndex)) then
+                
+                    --local cid, cn = get_var(CauserIndex, "$n"), get_var(CauserIndex, "$name")
+                    --local pid, pn = get_var(PlayerIndex, "$n"), get_var(PlayerIndex, "$name")
+                
+                    --cprint("TRUCE BETWEEN: [".. cid .."] " .. cn .. " -> [".. pid .."] " .. pn)
+                    return false
+                end
+            end
+        end
+    end
 end
 
 function cmdsplit(str)
