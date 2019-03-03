@@ -36,22 +36,22 @@ local save_on_newgame = true
 
 -- # Message Configuration:
 local on_request = {
-    msgToTarget = {
+    {["msgToExecutor"] = {"Request sent to %target_name%"}},
+    {["msgToTarget"] = {
         "%executor_name% is requesting a truce with you.",
         "To accept, type /accept %executor_id%",
         "To deny this request, type /deny %executor_id%"
-    },
-    msgToExecutor = { "Request sent to %target_name%" }
+    }},
 }
 
 local on_accept = {
-    msgToExecutor = { "You are now in a truce with %target_name%" },
-    msgToTarget = { "[request accepted] You are now in a truce with %executor_name%" }
+    {["msgToExecutor"] = {"You are now in a truce with %target_name%"}},
+    {["msgToTarget"] = {"[request accepted] You are now in a truce with %executor_name%"}},
 }
 
 local on_deny = {
-    msgToTarget = { "%executor_name% denied your truce request" },
-    msgToExecutor = { "You denied %target_name%'s truce request" }
+    {["msgToExecutor"] = {"You denied %target_name%'s truce request"}},
+    {["msgToTarget"] = {"%executor_name% denied your truce request"}},
 }
 
 -- configuration [ends] <--
@@ -111,7 +111,7 @@ function OnPlayerDisconnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local id = tonumber(get_var(PlayerIndex, "$n"))
     if (next(members) ~= nil) and (tracker[PlayerIndex] ~= nil) then
-
+    
         local function removeTracker(a, b)
             for key, _ in pairs(tracker[a]) do
                 if tracker[a][key] == b then
@@ -362,14 +362,20 @@ function truce:sendrequest(params)
     local target_name = params.tn or nil
     local target_id = params.tid or nil
 
-    local msgToExecutor, msgToTarget = on_request.msgToExecutor, on_request.msgToTarget
-    for k, _ in pairs(msgToExecutor) do
-        local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
-        rprint(executor_id, StringFormat)
-    end
-    for k, _ in pairs(msgToTarget) do
-        local StringFormat = (gsub(gsub(msgToTarget[k], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
-        rprint(target_id, StringFormat)
+    for k, _ in ipairs(on_request) do
+        local msgToExecutor, msgToTarget = on_request[k]["msgToExecutor"], on_request[k]["msgToTarget"]
+        if (msgToExecutor ~= nil) then
+            for i = 1,#msgToExecutor do
+                local StringFormat = gsub(msgToExecutor[i], "%%target_name%%", target_name)
+                rprint(executor_id, StringFormat)
+            end
+        end
+        if (msgToTarget ~= nil) then
+            for i = 1,#msgToTarget do
+                local StringFormat = (gsub(gsub(msgToTarget[i], "%%executor_name%%", executor_name), "%%executor_id%%", executor_id))
+                rprint(target_id, StringFormat)
+            end
+        end
     end
 
     table.insert(pending, { ["en"] = executor_name, ["eid"] = executor_id, ["tn"] = target_name, ["tid"] = target_id })
@@ -395,15 +401,21 @@ function truce:enable(params)
 
     tracker[target_id] = tracker[target_id] or {}
     tracker[target_id][#tracker[target_id] + 1] = executor_id
-
-    local msgToExecutor, msgToTarget = on_accept.msgToExecutor, on_accept.msgToTarget
-    for k, _ in pairs(msgToExecutor) do
-        local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
-        rprint(executor_id, StringFormat)
-    end
-    for k, _ in pairs(msgToTarget) do
-        local StringFormat = gsub(msgToTarget[k], "%%executor_name%%", executor_name)
-        rprint(target_id, StringFormat)
+    
+    for k, _ in ipairs(on_accept) do
+        local msgToExecutor, msgToTarget = on_accept[k]["msgToExecutor"], on_accept[k]["msgToTarget"]
+        if (msgToExecutor ~= nil) then
+            for i = 1,#msgToExecutor do
+                local StringFormat = gsub(msgToExecutor[i], "%%target_name%%", target_name)
+                rprint(executor_id, StringFormat)
+            end
+        end
+        if (msgToTarget ~= nil) then
+            for i = 1,#msgToTarget do
+                local StringFormat = gsub(msgToTarget[i], "%%executor_name%%", executor_name)
+                rprint(target_id, StringFormat)
+            end
+        end
     end
 
     for key, _ in ipairs(pending) do
@@ -485,14 +497,20 @@ function truce:deny(params)
         if (target_name == tn) and (target_id == tid) then
             if (executor_name == en) and (executor_id == eid) then
                 pending[key] = nil
-                local msgToExecutor, msgToTarget = on_deny.msgToExecutor, on_deny.msgToTarget
-                for k, _ in pairs(msgToExecutor) do
-                    local StringFormat = gsub(msgToExecutor[k], "%%target_name%%", target_name)
-                    rprint(executor_id, StringFormat)
-                end
-                for k, _ in pairs(msgToTarget) do
-                    local StringFormat = gsub(msgToTarget[k], "%%executor_name%%", executor_name)
-                    rprint(target_id, StringFormat)
+                for k, _ in ipairs(on_deny) do
+                    local msgToExecutor, msgToTarget = on_deny[k]["msgToExecutor"], on_deny[k]["msgToTarget"]
+                    if (msgToExecutor ~= nil) then
+                        for i = 1,#msgToExecutor do
+                            local StringFormat = gsub(msgToExecutor[i], "%%target_name%%", target_name)
+                            rprint(executor_id, StringFormat)
+                        end
+                    end
+                    if (msgToTarget ~= nil) then
+                        for i = 1,#msgToTarget do
+                            local StringFormat = gsub(msgToTarget[i], "%%executor_name%%", executor_name)
+                            rprint(target_id, StringFormat)
+                        end
+                    end
                 end
             end
         end
