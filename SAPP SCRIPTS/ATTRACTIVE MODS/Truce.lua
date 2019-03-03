@@ -243,8 +243,9 @@ function truce:isPending(TargetID, executor)
 end
 
 function truce:inTruce(TargetID, executor, bool)
-    local found
+    local found, intruce
     if tracker[executor] ~= nil then
+        intruce = true
         for i = 1, #tracker[executor] do
             if (tracker[executor][i] == tonumber(TargetID)) then
                 if not (bool) then
@@ -255,7 +256,12 @@ function truce:inTruce(TargetID, executor, bool)
             end
         end
     end
-    if not (found) then
+    if not (found) then 
+        if (intruce) then
+            rprint(executor, "You are not in a truce with that player")
+        else 
+            rprint(executor, "You are not in a truce with anybody")
+        end
         return false
     end
 end
