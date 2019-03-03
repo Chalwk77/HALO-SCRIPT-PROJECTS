@@ -61,7 +61,7 @@ local requests = { }
 local members = { }
 local tracker = { }
 local pending = { }
-local gsub = string.gsub
+local lower, gsub = string.lower, string.gsub
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -287,7 +287,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if (command == string.lower(base_command) and checkAccess(executor)) then
+    if (command == lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             set_info(true)
             if isOnline(TargetID, executor) then
@@ -305,7 +305,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /truce [player id]")
         end
         return false
-    elseif (command == string.lower(accept_command) and checkAccess(executor)) then
+    elseif (command == lower(accept_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             set_info(true)
             if hasRequest(executor, "accept") then
@@ -319,7 +319,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /accept [player id]")
         end
         return false
-    elseif (command == string.lower(deny_command) and checkAccess(executor)) then
+    elseif (command == lower(deny_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             set_info(true)
             if hasRequest(executor, "deny") then
@@ -333,7 +333,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /deny [player id]")
         end
         return false
-    elseif (command == string.lower(untruce_command) and checkAccess(executor)) then
+    elseif (command == lower(untruce_command) and checkAccess(executor)) then
         if args[1] ~= nil then
             set_info(true)
             if isOnline(TargetID, executor) then
@@ -347,7 +347,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Invalid syntax. Usage: /untruce [player id]")
         end
         return false
-    elseif (command == string.lower(trucelist_command) and checkAccess(executor)) then
+    elseif (command == lower(trucelist_command) and checkAccess(executor)) then
         if args[1] == nil then
             set_info(false)
             truce:list(players)
