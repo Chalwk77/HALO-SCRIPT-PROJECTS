@@ -242,7 +242,7 @@ function truce:isPending(TargetID, executor)
     end
 end
 
-function truce:inTruce(TargetID, executor, bool)
+function truce:inTruce(TargetID, executor, bool, isrequest)
     local found, intruce
     if tracker[executor] ~= nil then
         intruce = true
@@ -256,7 +256,7 @@ function truce:inTruce(TargetID, executor, bool)
             end
         end
     end
-    if not (found) then 
+    if not (found) and not (isrequest) then 
         if (intruce) then
             rprint(executor, "You are not in a truce with that player")
         else 
@@ -294,7 +294,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if not cmdself(TargetID, executor) then
                     if not sameTeam(TargetID, executor) then
                         if not truce:isPending(TargetID, executor) then
-                            if not truce:inTruce(TargetID, executor, false) then
+                            if not truce:inTruce(TargetID, executor, false, true) then
                                 truce:sendrequest(players)
                             end
                         end
@@ -338,7 +338,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             set_info(true)
             if isOnline(TargetID, executor) then
                 if not cmdself(TargetID, executor) then
-                    if truce:inTruce(TargetID, executor, true) then
+                    if truce:inTruce(TargetID, executor, true, false) then
                         truce:disable(players)
                     end
                 end
