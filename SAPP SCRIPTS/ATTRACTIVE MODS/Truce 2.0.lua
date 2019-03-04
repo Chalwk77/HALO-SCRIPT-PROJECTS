@@ -164,8 +164,6 @@ function OnServerCommand(PlayerIndex, Command)
             else
                 rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [number range 0-10] (optional -s)")
             end
-        else
-            return false
         end
         return false
     end
