@@ -96,7 +96,7 @@ function OnServerCommand(PlayerIndex, Command)
             elseif arg:match("%d+") then
                 TargetID = tonumber(args[1])
                 table.insert(pl, arg)
-            elseif arg == "*" then
+            elseif arg == "*" or (arg == "all") then
                 for i = 1, 16 do
                     if player_present(i) then
                         all_players = true
