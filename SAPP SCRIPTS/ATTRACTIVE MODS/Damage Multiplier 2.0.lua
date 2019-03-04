@@ -28,7 +28,7 @@ local default_damage = 1
 -- Configuration [ends] <-
 
 local mod, damage, modify, silentcmd = { }, { }, { }, { }
-
+local proceed 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
@@ -105,6 +105,7 @@ function OnServerCommand(PlayerIndex, Command)
                 end
             else
                 rprint(executor, "Invalid command parameter")
+                proceed = false
                 return false
             end
             if pl[1] then
@@ -120,22 +121,30 @@ function OnServerCommand(PlayerIndex, Command)
                 if pl[i] == nil then
                     break
                 end
-                if (multiplier >= _min) and (multiplier <= _max) then
-                    players.en = get_var(executor, "$name")
-                    players.eid = tonumber(get_var(executor, "$n"))
+                if (multiplier) then
+                    if (multiplier >= _min) and (multiplier <= _max) then
+                        players.en = get_var(executor, "$name")
+                        players.eid = tonumber(get_var(executor, "$n"))
 
-                    players.tn = get_var(pl[i], "$name")
-                    players.tid = tonumber(get_var(pl[i], "$n"))
+                        players.tn = get_var(pl[i], "$name")
+                        players.tid = tonumber(get_var(pl[i], "$n"))
 
-                    players.mul = multiplier
-                    players.min = _min
-                    players.max = _max
-                    if (all_players) then
-                        mod:setdamage(players)
+                        players.mul = multiplier
+                        players.min = _min
+                        players.max = _max
+                        proceed = true
+                        if (all_players) then
+                            mod:setdamage(players)
+                        end
+                    else
+                        rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
+                        proceed = false
+                        return false, 'error'
                     end
                 else
-                    rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
-                    return false, 'error'
+                    rprint(executor, "Invalid command parameter")
+                    proceed = false
+                    return false
                 end
             end
         end
@@ -158,103 +167,104 @@ function OnServerCommand(PlayerIndex, Command)
 end
 
 function mod:setdamage(params)
-    
-    local params = params or {}
+    if (proceed) then
+        local params = params or {}
 
-    local executor_name = params.en or nil
-    local executor_id = params.eid or nil
+        local executor_name = params.en or nil
+        local executor_id = params.eid or nil
 
-    local target_name = params.tn or nil
-    local target_id = params.tid or nil
+        local target_name = params.tn or nil
+        local target_id = params.tid or nil
 
-    local multiplier = params.mul or nil
-    local _min = params.min or nil
-    local _max = params.max or nil
+        local multiplier = params.mul or nil
+        local _min = params.min or nil
+        local _max = params.max or nil
 
-    local function set_multiplier(a, b)
-        if (a) then
-            damage[target_id] = multiplier
-            modify[target_id] = true
-        else
-            modify[target_id] = false
-            damage[target_id] = nil
-        end
-        if (b) then
-            if not (silentcmd[executor_id]) then
-                if (target_id ~= executor_id) then
-                    rprint(target_id, executor_name .. " set your damage multiplier to " .. multiplier .. "x damage")
-                    rprint(executor_id, target_name .. " is dealing " .. multiplier .. "x damage")
-                else
-                    rprint(target_id, "You are now dealing " .. multiplier .. "x damage")
-                end
+        local function set_multiplier(a, b)
+            if (a) then
+                damage[target_id] = multiplier
+                modify[target_id] = true
             else
-                if (target_id ~= executor_id) then
-                    rprint(executor_id, "[silent] Setting " .. multiplier .. "x damage" .. " for " .. target_name)
+                modify[target_id] = false
+                damage[target_id] = nil
+            end
+            if (b) then
+                if not (silentcmd[executor_id]) then
+                    if (target_id ~= executor_id) then
+                        rprint(target_id, executor_name .. " set your damage multiplier to " .. multiplier .. "x damage")
+                        rprint(executor_id, target_name .. " is dealing " .. multiplier .. "x damage")
+                    else
+                        rprint(target_id, "You are now dealing " .. multiplier .. "x damage")
+                    end
                 else
-                    rprint(executor_id, "You are dealing " .. multiplier .. "x damage")
+                    if (target_id ~= executor_id) then
+                        rprint(executor_id, "[silent] Setting " .. multiplier .. "x damage" .. " for " .. target_name)
+                    else
+                        rprint(executor_id, "You are dealing " .. multiplier .. "x damage")
+                    end
                 end
             end
         end
-    end
 
-    if not (modify[target_id]) then
-        if (multiplier == default_damage) then
-            if (target_id ~= executor_id) then
-                rprint(executor_id, target_name .. " is already dealing default damage.")
+        if not (modify[target_id]) then
+            if (multiplier == default_damage) then
+                if (target_id ~= executor_id) then
+                    rprint(executor_id, target_name .. " is already dealing default damage.")
+                else
+                    rprint(executor_id, "No change. You are already dealing default damage.")
+                end
+                return false
+            end
+        elseif (multiplier == default_damage and (damage[target_id] ~= default_damage)) then
+            set_multiplier(false, false)
+            if not (silentcmd[executor_id]) then
+                if (target_id ~= executor_id) then
+                    rprint(target_id, "[" .. executor_name .. "] -> [you]: You will now deal default damage")
+                    rprint(executor_id, target_name .. " now dealing default damage.")
+                else
+                    rprint(executor_id, "You are now dealing default damage.")
+                end
             else
-                rprint(executor_id, "No change. You are already dealing default damage.")
+                rprint(executor_id, "[silent] " .. target_name .. " is now dealing default damage.")
             end
             return false
         end
-    elseif (multiplier == default_damage and (damage[target_id] ~= default_damage)) then
-        set_multiplier(false, false)
-        if not (silentcmd[executor_id]) then
-            if (target_id ~= executor_id) then
-                rprint(target_id, "[" .. executor_name .. "] -> [you]: You will now deal default damage")
-                rprint(executor_id, target_name .. " now dealing default damage.")
-            else
-                rprint(executor_id, "You are now dealing default damage.")
-            end
-        else
-            rprint(executor_id, "[silent] " .. target_name .. " is now dealing default damage.")
-        end
-        return false
-    end
 
-    if (multiplier == _min) then
-        set_multiplier(true, false)
-        if not (silentcmd[executor_id]) then
-            if (target_id ~= executor_id) then
-                rprint(target_id, "[" .. executor_name .. "] -> [you]: You will no longer inflict damage!")
-                rprint(executor_id, target_name .. " will no longer inflict damage!")
+        if (multiplier == _min) then
+            set_multiplier(true, false)
+            if not (silentcmd[executor_id]) then
+                if (target_id ~= executor_id) then
+                    rprint(target_id, "[" .. executor_name .. "] -> [you]: You will no longer inflict damage!")
+                    rprint(executor_id, target_name .. " will no longer inflict damage!")
+                else
+                    rprint(executor_id, "You will no longer inflict damage!")
+                end
             else
-                rprint(executor_id, "You will no longer inflict damage!")
+                rprint(executor_id, "[silent] " .. target_name .. " will no longer inflict damage!")
+            end
+        elseif (multiplier == _max) then
+            set_multiplier(true, false)
+            if not (silentcmd[executor_id]) then
+                if (target_id ~= executor_id) then
+                    rprint(target_id, "[" .. executor_name .. "] -> [you]: You will now inflict maximum damage!")
+                    rprint(executor_id, target_name .. " will now inflict maximum damage!")
+                else
+                    rprint(executor_id, "You will now inflict maximum damage!")
+                end
+            else
+                rprint(executor_id, "[silent] " .. target_name .. " will now inflict maximum damage!")
+            end
+        elseif (multiplier == damage[target_id]) then
+            if (target_id ~= executor_id) then
+                rprint(executor_id, target_name .. " is already dealing (" .. multiplier .. "x) damage")
+            else
+                rprint(executor_id, "You're already dealing (" .. multiplier .. "x) damage")
             end
         else
-            rprint(executor_id, "[silent] " .. target_name .. " will no longer inflict damage!")
+            set_multiplier(true, true)
         end
-    elseif (multiplier == _max) then
-        set_multiplier(true, false)
-        if not (silentcmd[executor_id]) then
-            if (target_id ~= executor_id) then
-                rprint(target_id, "[" .. executor_name .. "] -> [you]: You will now inflict maximum damage!")
-                rprint(executor_id, target_name .. " will now inflict maximum damage!")
-            else
-                rprint(executor_id, "You will now inflict maximum damage!")
-            end
-        else
-            rprint(executor_id, "[silent] " .. target_name .. " will now inflict maximum damage!")
-        end
-    elseif (multiplier == damage[target_id]) then
-        if (target_id ~= executor_id) then
-            rprint(executor_id, target_name .. " is already dealing (" .. multiplier .. "x) damage")
-        else
-            rprint(executor_id, "You're already dealing (" .. multiplier .. "x) damage")
-        end
-    else
-        set_multiplier(true, true)
+        silentcmd[executor_id] = nil
     end
-    silentcmd[executor_id] = nil
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
