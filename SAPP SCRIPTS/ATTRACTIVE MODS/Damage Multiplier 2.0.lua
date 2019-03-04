@@ -90,19 +90,19 @@ function OnServerCommand(PlayerIndex, Command)
 
         local function getplayers(arg, executor)
             local pl = { }
-            if arg == "*" then
+            if arg == "me" then
+                TargetID = executor
+                table.insert(pl, executor)
+            elseif arg:match("%d+") then
+                TargetID = tonumber(args[1])
+                table.insert(pl, arg)
+            elseif arg == "*" then
                 for i = 1, 16 do
                     if player_present(i) then
                         all_players = true
                         table.insert(pl, i)
                     end
                 end
-            elseif arg == "me" then
-                TargetID = executor
-                table.insert(pl, executor)
-            elseif arg:match("%d+") then
-                TargetID = tonumber(args[1])
-                table.insert(pl, arg)
             else
                 rprint(executor, "Invalid command parameter")
                 return false
