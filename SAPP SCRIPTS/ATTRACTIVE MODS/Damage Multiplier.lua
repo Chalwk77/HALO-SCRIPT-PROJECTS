@@ -134,7 +134,7 @@ function mod:setdamage(params)
     
     local multiplier = params.mul or nil
     local _min = params.min or nil
-    local _max = params.max or nil -- not used at the moment
+    local _max = params.max or nil
     
     
     local function set_multiplier(a, b)
