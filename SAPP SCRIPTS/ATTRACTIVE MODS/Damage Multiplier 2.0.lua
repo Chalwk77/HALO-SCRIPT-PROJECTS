@@ -86,6 +86,7 @@ function OnServerCommand(PlayerIndex, Command)
             else
                 rprint(executor, "Error! (args[3]) ->  Invalid command flag. Usage: -s")
                 is_error = true
+                return false
             end
         end
 
