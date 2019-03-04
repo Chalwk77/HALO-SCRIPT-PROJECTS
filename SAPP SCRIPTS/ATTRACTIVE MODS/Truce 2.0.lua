@@ -152,7 +152,7 @@ function OnServerCommand(PlayerIndex, Command)
     end
 
     if (command == lower(base_command)) then
-        if (checkAccess(executor))then
+        if (checkAccess(executor)) then
             if (args[1] ~= nil) and (args[2] ~= nil) then
                 is_error = false
                 validate_params()
