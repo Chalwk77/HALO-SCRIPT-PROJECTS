@@ -546,10 +546,10 @@ function truce:list(params)
 
             if tracker[executor_id] ~= nil then
                 for i = 1, #tracker[executor_id] do
-                    if (tracker[executor_id][i] == tonumber(tid)) then
-                        rprint(executor_id, "[" .. tid .. "] -> " .. tn .. " (truced)")
-                    elseif (tracker[executor_id][i] == tonumber(eid)) then
-                        rprint(executor_id, "[" .. eid .. "] -> " .. en .. " (truced)")
+                    if (executor_name == en) then
+                        rprint(executor_id, "Truced with -> [" .. tid .. "] " .. tn)
+                    elseif (executor_name == tn) then
+                        rprint(executor_id, "Truced with -> [" .. eid .. "] " .. en)
                     end
                 end
             else
