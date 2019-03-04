@@ -76,7 +76,8 @@ function OnServerCommand(PlayerIndex, Command)
     local executor = tonumber(PlayerIndex)
 
     local players, TargetID, target_all_players = { }, { }
-
+    is_error = false
+    
     local function validate_params()
         local multiplier, _min, _max = tonumber(args[2]), tonumber(min_damage), tonumber(max_damage)
 
