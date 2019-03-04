@@ -56,11 +56,7 @@ local on_deny = {
 
 -- configuration [ends] <--
 
-local truce = { }
-local requests = { }
-local members = { }
-local tracker = { }
-local pending = { }
+local truce, requests, members, tracker, pending = { }, { }, { }, { }, { }
 local lower, gsub = string.lower, string.gsub
 
 function OnScriptLoad()
@@ -285,6 +281,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
             end
         end
+    end
+    
+    if select(2, checkAccess(executor)) then
+        return false
     end
 
     if (command == lower(base_command) and checkAccess(executor)) then
