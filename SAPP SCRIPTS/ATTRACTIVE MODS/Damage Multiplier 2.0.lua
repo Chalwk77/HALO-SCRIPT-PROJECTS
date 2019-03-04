@@ -36,7 +36,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
-local lower, gsub = string.lower, string.gsub
+local lower = string.lower
 
 function OnScriptUnload()
     --
