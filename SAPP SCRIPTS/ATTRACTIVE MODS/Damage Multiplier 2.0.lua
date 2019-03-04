@@ -4,7 +4,7 @@ Script Name: Damage Multiplier 2.0, for SAPP (PC & CE)
 Description: N/A
 
 Command Syntax: 
-    * /damage [player id | me] [number range 0-10] (optional -s)
+    * /damage [player id | me | *] [number range 0-10] (optional -s)
     "me" can be used in place of your own player id
 
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -75,46 +75,79 @@ function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     
-    local players, TargetID = { }
-
+    local players, TargetID = { }, { }
+    
+    local all_players
+    
     local function validate_params()
         local multiplier, _min, _max = tonumber(args[2]), tonumber(min_damage), tonumber(max_damage)
-        
-        if (args[1] == "me") then
-            TargetID = executor
-        elseif (args[1]:match("%d+")) then
-            TargetID = tonumber(args[1])
-        else
-            rprint(executor, "Invalid command parameter")
-            return false
-        end
         
         if (args[3] ~= nil) then
             if (args[3] == "-s") then
                 silentcmd[executor] = true
-            else
+                else
                 rprint(executor, "Error! (args[3]) ->  Invalid command flag. Usage: -s")
             end
         end
+   
+        local function getplayers(arg, executor)
+            local pl = { }
+            if arg == "*" then
+                for i = 1, 16 do
+                    if player_present(i) then
+                        all_players = true
+                        table.insert(pl, i)
+                    end
+                end
+            elseif arg == "me" then
+                TargetID = executor
+                table.insert(pl, executor)
+            elseif arg:match("%d+") then
+                TargetID = tonumber(args[1])
+                table.insert(pl, arg)
+            else
+                rprint(executor, "Invalid command parameter")
+                return false
+            end
+            if pl[1] then
+                return pl
+            end
+            return false
+        end
         
-        if (multiplier >= _min) and (multiplier <= _max) then
-            players.en = get_var(executor, "$name")
-            players.eid = tonumber(get_var(executor, "$n"))
-            players.tn = get_var(TargetID, "$name")
-            players.tid = tonumber(get_var(TargetID, "$n"))
-            players.mul = multiplier
-            players.min = _min
-            players.max = _max
-        else
-            rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
+        local pl = getplayers(args[1], executor)
+        if pl then
+            for i = 1, #pl do
+                if pl[i] == nil then
+                    break
+                end
+                if (multiplier >= _min) and (multiplier <= _max) then
+                    players.en = get_var(executor, "$name")
+                    players.eid = tonumber(get_var(executor, "$n"))
+                    
+                    players.tn = get_var(pl[i], "$name")
+                    players.tid = tonumber(get_var(pl[i], "$n"))
+                    
+                    players.mul = multiplier
+                    players.min = _min
+                    players.max = _max
+                    if (all_players) then
+                        mod:setdamage(players)
+                    end
+                else
+                    rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
+                end
+            end
         end
     end
     
     if (command == lower(base_command) and checkAccess(executor)) then
-        if (args[1] ~= nil) then
+        if (args[1] ~= nil) and (args[2] ~= nil) then
             validate_params()
-            if isOnline(TargetID, executor) then
-                mod:setdamage(players)
+            if not (all_players) then
+                if isOnline(TargetID, executor) then
+                    mod:setdamage(players)
+                end
             end
         else
             rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [number range 0-10] (optional -s)")
