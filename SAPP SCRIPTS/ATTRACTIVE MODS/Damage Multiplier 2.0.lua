@@ -27,8 +27,8 @@ local default_damage = 1
 
 -- Configuration [ends] <-
 
-local mod, damage, modify, silentcmd = { }, { }, { }, { }
-local proceed 
+local mod, damage, modify, silentcmd, is_error = { }, { }, { }, { }
+
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
@@ -75,7 +75,7 @@ function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
 
-    local players, TargetID, all_players = { }, { }
+    local players, TargetID, target_all_players = { }, { }
 
     local function validate_params()
         local multiplier, _min, _max = tonumber(args[2]), tonumber(min_damage), tonumber(max_damage)
@@ -97,15 +97,16 @@ function OnServerCommand(PlayerIndex, Command)
                 TargetID = tonumber(args[1])
                 table.insert(pl, arg)
             elseif arg == "*" or (arg == "all") then
+                is_error = false
                 for i = 1, 16 do
                     if player_present(i) then
-                        all_players = true
+                        target_all_players = true
                         table.insert(pl, i)
                     end
                 end
             else
                 rprint(executor, "Invalid command parameter")
-                proceed = false
+                is_error = true
                 return false
             end
             if pl[1] then
@@ -123,6 +124,7 @@ function OnServerCommand(PlayerIndex, Command)
                 end
                 if (multiplier) then
                     if (multiplier >= _min) and (multiplier <= _max) then
+                        is_error = false
                         players.en = get_var(executor, "$name")
                         players.eid = tonumber(get_var(executor, "$n"))
 
@@ -132,18 +134,17 @@ function OnServerCommand(PlayerIndex, Command)
                         players.mul = multiplier
                         players.min = _min
                         players.max = _max
-                        proceed = true
-                        if (all_players) then
+                        if (target_all_players) then
                             mod:setdamage(players)
                         end
                     else
                         rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
-                        proceed = false
-                        return false, 'error'
+                        is_error = true
+                        return false
                     end
                 else
                     rprint(executor, "Invalid command parameter")
-                    proceed = false
+                    is_error = true
                     return false
                 end
             end
@@ -152,11 +153,10 @@ function OnServerCommand(PlayerIndex, Command)
 
     if (command == lower(base_command) and checkAccess(executor)) then
         if (args[1] ~= nil) and (args[2] ~= nil) then
-            if not select(2, validate_params()) then
-                if not (all_players) then
-                    if isOnline(TargetID, executor) then
-                        mod:setdamage(players)
-                    end
+            validate_params()
+            if not (target_all_players) then
+                if isOnline(TargetID, executor) then
+                    mod:setdamage(players)
                 end
             end
         else
@@ -167,7 +167,7 @@ function OnServerCommand(PlayerIndex, Command)
 end
 
 function mod:setdamage(params)
-    if (proceed) then
+    if not (is_error) then
         local params = params or {}
 
         local executor_name = params.en or nil
