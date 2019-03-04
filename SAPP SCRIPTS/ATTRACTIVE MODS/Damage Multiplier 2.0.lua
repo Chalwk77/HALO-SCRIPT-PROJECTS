@@ -97,7 +97,6 @@ function OnServerCommand(PlayerIndex, Command)
                 TargetID = tonumber(args[1])
                 table.insert(pl, arg)
             elseif arg == "*" or (arg == "all") then
-                is_error = false
                 for i = 1, 16 do
                     if player_present(i) then
                         target_all_players = true
@@ -124,7 +123,6 @@ function OnServerCommand(PlayerIndex, Command)
                 end
                 if (multiplier) then
                     if (multiplier >= _min) and (multiplier <= _max) then
-                        is_error = false
                         players.en = get_var(executor, "$name")
                         players.eid = tonumber(get_var(executor, "$n"))
 
