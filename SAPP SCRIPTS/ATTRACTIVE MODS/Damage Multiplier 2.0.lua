@@ -76,7 +76,6 @@ function OnServerCommand(PlayerIndex, Command)
     local executor = tonumber(PlayerIndex)
 
     local players, TargetID, target_all_players = { }, { }
-    is_error = false
     
     local function validate_params()
         local multiplier, _min, _max = tonumber(args[2]), tonumber(min_damage), tonumber(max_damage)
@@ -152,6 +151,7 @@ function OnServerCommand(PlayerIndex, Command)
 
     if (command == lower(base_command) and checkAccess(executor)) then
         if (args[1] ~= nil) and (args[2] ~= nil) then
+            is_error = false
             validate_params()
             if not (target_all_players) then
                 if isOnline(TargetID, executor) then
