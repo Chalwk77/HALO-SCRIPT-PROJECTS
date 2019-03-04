@@ -74,22 +74,20 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
-    
-    local players, TargetID = { }, { }
-    
-    local all_players
-    
+
+    local players, TargetID, all_players = { }, { }
+
     local function validate_params()
         local multiplier, _min, _max = tonumber(args[2]), tonumber(min_damage), tonumber(max_damage)
-        
+
         if (args[3] ~= nil) then
             if (args[3] == "-s") then
                 silentcmd[executor] = true
-                else
+            else
                 rprint(executor, "Error! (args[3]) ->  Invalid command flag. Usage: -s")
             end
         end
-   
+
         local function getplayers(arg, executor)
             local pl = { }
             if arg == "*" then
@@ -112,9 +110,10 @@ function OnServerCommand(PlayerIndex, Command)
             if pl[1] then
                 return pl
             end
+            pl = nil
             return false
         end
-        
+
         local pl = getplayers(args[1], executor)
         if pl then
             for i = 1, #pl do
@@ -124,10 +123,10 @@ function OnServerCommand(PlayerIndex, Command)
                 if (multiplier >= _min) and (multiplier <= _max) then
                     players.en = get_var(executor, "$name")
                     players.eid = tonumber(get_var(executor, "$n"))
-                    
+
                     players.tn = get_var(pl[i], "$name")
                     players.tid = tonumber(get_var(pl[i], "$n"))
-                    
+
                     players.mul = multiplier
                     players.min = _min
                     players.max = _max
@@ -140,7 +139,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-    
+
     if (command == lower(base_command) and checkAccess(executor)) then
         if (args[1] ~= nil) and (args[2] ~= nil) then
             validate_params()
@@ -158,18 +157,17 @@ end
 
 function mod:setdamage(params)
     local params = params or {}
-     
+
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
 
     local target_name = params.tn or nil
     local target_id = params.tid or nil
-    
+
     local multiplier = params.mul or nil
     local _min = params.min or nil
     local _max = params.max or nil
-    
-    
+
     local function set_multiplier(a, b)
         if (a) then
             damage[target_id] = multiplier
@@ -195,7 +193,7 @@ function mod:setdamage(params)
             end
         end
     end
-    
+
     if not (modify[target_id]) then
         if (multiplier == default_damage) then
             if (target_id ~= executor_id) then
@@ -219,7 +217,7 @@ function mod:setdamage(params)
         end
         return false
     end
-    
+
     if (multiplier == _min) then
         set_multiplier(true, false)
         if not (silentcmd[executor_id]) then
@@ -246,16 +244,15 @@ function mod:setdamage(params)
         end
     elseif (multiplier == damage[target_id]) then
         if (target_id ~= executor_id) then
-            rprint(executor_id, target_name .. " is already dealing (" .. multiplier.. "x) damage")
+            rprint(executor_id, target_name .. " is already dealing (" .. multiplier .. "x) damage")
         else
-            rprint(executor_id, "You're already dealing (" .. multiplier.. "x) damage")
+            rprint(executor_id, "You're already dealing (" .. multiplier .. "x) damage")
         end
     else
         set_multiplier(true, true)
     end
     silentcmd[executor_id] = nil
 end
-
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
