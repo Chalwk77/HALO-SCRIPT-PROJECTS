@@ -135,6 +135,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 else
                     rprint(PlayerIndex, "Please enter a number between [" .. min_damage .. "-" .. max_damage .. "]")
+                    return false, 'error'
                 end
             end
         end
@@ -142,10 +143,11 @@ function OnServerCommand(PlayerIndex, Command)
 
     if (command == lower(base_command) and checkAccess(executor)) then
         if (args[1] ~= nil) and (args[2] ~= nil) then
-            validate_params()
-            if not (all_players) then
-                if isOnline(TargetID, executor) then
-                    mod:setdamage(players)
+            if not select(2, validate_params()) then
+                if not (all_players) then
+                    if isOnline(TargetID, executor) then
+                        mod:setdamage(players)
+                    end
                 end
             end
         else
@@ -156,6 +158,7 @@ function OnServerCommand(PlayerIndex, Command)
 end
 
 function mod:setdamage(params)
+    
     local params = params or {}
 
     local executor_name = params.en or nil
