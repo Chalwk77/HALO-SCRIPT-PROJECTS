@@ -283,72 +283,82 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if (command == lower(base_command) and checkAccess(executor)) then
-        if args[1] ~= nil then
-            set_info(true)
-            if isOnline(TargetID, executor) then
-                if not cmdself(TargetID, executor) then
-                    if not sameTeam(TargetID, executor) then
-                        if not truce:isPending(TargetID, executor) then
-                            if not truce:inTruce(TargetID, executor, false, true) then
-                                truce:sendrequest(players)
+    if (command == lower(base_command)) then 
+        if (checkAccess(executor)) then
+            if args[1] ~= nil then
+                set_info(true)
+                if isOnline(TargetID, executor) then
+                    if not cmdself(TargetID, executor) then
+                        if not sameTeam(TargetID, executor) then
+                            if not truce:isPending(TargetID, executor) then
+                                if not truce:inTruce(TargetID, executor, false, true) then
+                                    truce:sendrequest(players)
+                                end
                             end
                         end
                     end
                 end
+            else
+                rprint(executor, "Invalid syntax. Usage: /truce [player id]")
             end
-        else
-            rprint(executor, "Invalid syntax. Usage: /truce [player id]")
         end
         return false
-    elseif (command == lower(accept_command) and checkAccess(executor)) then
-        if args[1] ~= nil then
-            set_info(true)
-            if hasRequest(executor, "accept") then
+    elseif (command == lower(accept_command)) then 
+        if (checkAccess(executor)) then
+            if args[1] ~= nil then
+                set_info(true)
+                if hasRequest(executor, "accept") then
+                    if isOnline(TargetID, executor) then
+                        if not cmdself(TargetID, executor) then
+                            truce:enable(players)
+                        end
+                    end
+                end
+            else
+                rprint(executor, "Invalid syntax. Usage: /accept [player id]")
+            end
+        end
+        return false
+    elseif (command == lower(deny_command)) then 
+        if (checkAccess(executor)) then
+            if args[1] ~= nil then
+                set_info(true)
+                if hasRequest(executor, "deny") then
+                    if isOnline(TargetID, executor) then
+                        if not cmdself(TargetID, executor) then
+                            truce:deny(players)
+                        end
+                    end
+                end
+            else
+                rprint(executor, "Invalid syntax. Usage: /deny [player id]")
+            end
+        end
+        return false
+    elseif (command == lower(untruce_command)) then 
+        if (checkAccess(executor)) then
+            if args[1] ~= nil then
+                set_info(true)
                 if isOnline(TargetID, executor) then
                     if not cmdself(TargetID, executor) then
-                        truce:enable(players)
+                        if truce:inTruce(TargetID, executor, true, false) then
+                            truce:disable(players)
+                        end
                     end
                 end
+            else
+                rprint(executor, "Invalid syntax. Usage: /untruce [player id]")
             end
-        else
-            rprint(executor, "Invalid syntax. Usage: /accept [player id]")
         end
         return false
-    elseif (command == lower(deny_command) and checkAccess(executor)) then
-        if args[1] ~= nil then
-            set_info(true)
-            if hasRequest(executor, "deny") then
-                if isOnline(TargetID, executor) then
-                    if not cmdself(TargetID, executor) then
-                        truce:deny(players)
-                    end
-                end
+    elseif (command == lower(trucelist_command)) then 
+        if (checkAccess(executor)) then
+            if args[1] == nil then
+                set_info(false)
+                truce:list(players)
+            else
+                rprint(executor, "Invalid syntax. Usage: /trucelist")
             end
-        else
-            rprint(executor, "Invalid syntax. Usage: /deny [player id]")
-        end
-        return false
-    elseif (command == lower(untruce_command) and checkAccess(executor)) then
-        if args[1] ~= nil then
-            set_info(true)
-            if isOnline(TargetID, executor) then
-                if not cmdself(TargetID, executor) then
-                    if truce:inTruce(TargetID, executor, true, false) then
-                        truce:disable(players)
-                    end
-                end
-            end
-        else
-            rprint(executor, "Invalid syntax. Usage: /untruce [player id]")
-        end
-        return false
-    elseif (command == lower(trucelist_command) and checkAccess(executor)) then
-        if args[1] == nil then
-            set_info(false)
-            truce:list(players)
-        else
-            rprint(executor, "Invalid syntax. Usage: /trucelist")
         end
         return false
     end
