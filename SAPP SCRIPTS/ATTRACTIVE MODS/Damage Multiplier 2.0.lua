@@ -154,7 +154,7 @@ function OnServerCommand(PlayerIndex, Command)
             is_error = false
             validate_params()
             if not (target_all_players) then
-                if isOnline(TargetID, executor) then
+                if not (is_error) and isOnline(TargetID, executor) then
                     mod:setdamage(players)
                 end
             end
