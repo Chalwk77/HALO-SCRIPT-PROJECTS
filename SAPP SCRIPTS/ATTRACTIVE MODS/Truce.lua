@@ -282,10 +282,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
-    if select(2, checkAccess(executor)) then
-        return false
-    end
 
     if (command == lower(base_command) and checkAccess(executor)) then
         if args[1] ~= nil then
