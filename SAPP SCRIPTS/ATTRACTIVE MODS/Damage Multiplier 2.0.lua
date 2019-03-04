@@ -34,12 +34,22 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 end
 
 local lower = string.lower
 
 function OnScriptUnload()
     --
+end
+
+function OnGameEnd()
+    for i = 1, 16 do
+        if player_present(i) then
+            modify[i] = false
+            damage[i] = nil
+        end
+    end
 end
 
 local function checkAccess(e)
@@ -151,17 +161,19 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
 
-    if (command == lower(base_command) and checkAccess(executor)) then
-        if (args[1] ~= nil) and (args[2] ~= nil) then
-            is_error = false
-            validate_params()
-            if not (target_all_players) then
-                if not (is_error) and isOnline(TargetID, executor) then
-                    mod:setdamage(players)
+    if (command == lower(base_command)) then
+        if (checkAccess(executor)) then
+            if (args[1] ~= nil) and (args[2] ~= nil) then
+                is_error = false
+                validate_params()
+                if not (target_all_players) then
+                    if not (is_error) and isOnline(TargetID, executor) then
+                        mod:setdamage(players)
+                    end
                 end
+            else
+                rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [number range 0-10] (optional -s)")
             end
-        else
-            rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [number range 0-10] (optional -s)")
         end
         return false
     end
