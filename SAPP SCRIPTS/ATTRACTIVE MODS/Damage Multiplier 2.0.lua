@@ -85,6 +85,7 @@ function OnServerCommand(PlayerIndex, Command)
                 silentcmd[executor] = true
             else
                 rprint(executor, "Error! (args[3]) ->  Invalid command flag. Usage: -s")
+                is_error = true
             end
         end
 
