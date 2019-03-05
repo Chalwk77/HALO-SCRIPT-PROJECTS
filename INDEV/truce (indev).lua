@@ -592,13 +592,11 @@ function truce:list(params)
             local tip = members[key]["tip"]
 
             if tracker[executor_ip] ~= nil then
-                if tracker[executor_ip] ~= nil then
-                    for j = 1, #tracker[executor_ip] do
-                        if (tracker[executor_ip][j] == eip) then
-                            rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
-                        elseif (tracker[executor_ip][j] == tip) then
-                            rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
-                        end
+                for j = 1, #tracker[executor_ip] do
+                    if (tracker[executor_ip][j] == eip) then
+                        rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
+                    elseif (tracker[executor_ip][j] == tip) then
+                        rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
                     end
                 end
            else
