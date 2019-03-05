@@ -578,8 +578,6 @@ function truce:list(params)
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
    
-    local t, found = { }
-   
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
         
