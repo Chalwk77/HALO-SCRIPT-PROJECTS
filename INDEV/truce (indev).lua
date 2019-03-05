@@ -81,17 +81,13 @@ local function clearData()
             end
         end
         if (next(members) ~= nil) then
-            for _, _ in ipairs(members) do
-                for i = 1, #members do
-                    members[i] = nil
-                end
+            for i = 1, #members do
+                members[i] = nil
             end
         end
         if (next(pending) ~= nil) then
-            for _, _ in ipairs(pending) do
-                for i = 1, #pending do
-                    pending[i] = nil
-                end
+            for i = 1, #pending do
+                pending[i] = nil
             end
         end
     end
