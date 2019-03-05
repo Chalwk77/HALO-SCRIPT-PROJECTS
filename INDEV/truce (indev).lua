@@ -608,17 +608,20 @@ function truce:list(params)
                     if player_present(i) then
                         if eip == get_var(i, "$ip") then
                             en_updated_name = get_var(i, "$name")
+                            en_index = tonumber(i)
                         elseif tip == get_var(i, "$ip") then
                             tn_updated_name = get_var(i, "$name")
+                            tn_index = tonumber(i)
                         end
                     end
                 end
                 if executor_ip == eip then
-                    if not tn_updated_name then tn_updated_name = tn end
-                    rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn_updated_name .. " (truced)")
+                    if not tn_updated_name then tn_updated_name = tn tn_index = tid end
+                    rprint(executor_id, "[you] -> [" .. tn_index .. "] " .. tn_updated_name .. " (truced)")
                 elseif executor_ip == tip then
                     if not en_updated_name then en_updated_name = en end
-                    rprint(executor_id, "[you] -> [" .. eid .. "] " .. en_updated_name .. " (truced)")
+                    if not en_updated_name then en_updated_name = en en_index = eid end
+                    rprint(executor_id, "[you] -> [" .. en_index .. "] " .. en_updated_name .. " (truced)")
                 end
             else
                 rprint(executor_id, "You are not truced with anybody")
@@ -638,11 +641,25 @@ function truce:list(params)
             local en = pending[key]["en"]
             local eid = tonumber(pending[key]["eid"])
             local eip = pending[key]["eip"]
-            
-            if (executor_ip == eip) then
-                rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (pending request)")
-            elseif (executor_ip == tip) then
-                rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (pending request)")
+
+            for i = 1,16 do
+                if player_present(i) then
+                    if eip == get_var(i, "$ip") then
+                        en_updated_name = get_var(i, "$name")
+                        en_index = tonumber(i)
+                    elseif tip == get_var(i, "$ip") then
+                        tn_updated_name = get_var(i, "$name")
+                        tn_index = tonumber(i)
+                    end
+                end
+            end
+            if executor_ip == eip then
+                if not tn_updated_name then tn_updated_name = tn tn_index = tid end
+                rprint(executor_id, "[you] -> [" .. tn_index .. "] " .. tn_updated_name .. " (pending request)")
+            elseif executor_ip == tip then
+                if not en_updated_name then en_updated_name = en end
+                if not en_updated_name then en_updated_name = en en_index = eid end
+                rprint(executor_id, "[you] -> [" .. en_index .. "] " .. en_updated_name .. " (pending request)")
             end
         end
     else
