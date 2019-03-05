@@ -677,8 +677,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
         if tracker[get_var(CauserIndex, "$ip")] ~= nil then
             for i = 1, #tracker[get_var(CauserIndex, "$ip")] do
-                local ip = getIP(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
-                if (tracker[get_var(CauserIndex, "$ip")][i] == ip) then
+                if (tracker[get_var(CauserIndex, "$ip")][i] == get_var(PlayerIndex, "$ip")) then
                     return false
                 end
             end
