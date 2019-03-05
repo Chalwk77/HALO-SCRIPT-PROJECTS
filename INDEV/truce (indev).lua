@@ -578,43 +578,40 @@ function truce:list(params)
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-    local is_online
+    local ip
    
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
         
             local en = members[key]["en"]
-            local eid = tonumber(members[key]["eid"]) -- player 2 (because 'en' was saved when they typed /accept)
+            local eid = tonumber(members[key]["eid"])
             local eip = members[key]["eip"]
 
             local tn = members[key]["tn"]
-            local tid = tonumber(members[key]["tid"]) -- player 1 (player who sent the /truce request)
+            local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
 
             if tracker[executor_ip] ~= nil then
-                for i = 1,16 do
+                for i = 1, 16 do
                     if player_present(i) then
-                        if executor_id ~= tonumber(i) then
-                            local ip = getIP(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
-                            
-                            if (ip == eip) then
-                                rprint(executor_id, "Truced with -> [" .. tonumber(i) ..  "] " .. get_var(i, "$name"))
-                            elseif (ip == tip) then
-                                rprint(executor_id, "Truced with -> [" .. tonumber(i) ..  "] " .. get_var(i, "$name"))
+                        local ip = get_var(i, "$ip")
+                        if tracker[ip] ~= nil then
+                            for j = 1, #tracker[ip] do
+                                if (tracker[executor_ip][j] == ip) then
+                                    if (tracker[executor_ip][j] == eip) then
+                                        rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
+                                    elseif (tracker[executor_ip][j] == tip) then
+                                        rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
+                                    end
+                                    return false
+                                end
                             end
                         end
                     end
                 end
-            else
+           else
                 rprint(executor_id, "You are not truced with anybody")
             end
-            -- if not (is_online) then
-                -- if (executor_ip == eip) then
-                    -- rprint(executor_id, "Truced with -> ".. tn)
-                -- elseif (executor_ip == tip) then
-                    -- rprint(executor_id, "Truced with -> ".. en)
-                -- end
-            -- end
         end
     else
         rprint(executor_id, "No active truces")
