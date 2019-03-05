@@ -578,6 +578,8 @@ function truce:list(params)
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
    
+    local en_updated_name, tn_updated_name
+   
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
         
@@ -588,12 +590,21 @@ function truce:list(params)
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
-            
+           
             if tracker[executor_ip] ~= nil then
+                for i = 1,16 do
+                    if player_present(i) then
+                        if eip == get_var(i, "$ip") then
+                            en_updated_name = get_var(i, "$name")
+                        elseif tip == get_var(i, "$ip") then
+                            tn_updated_name = get_var(i, "$name")
+                        end
+                    end
+                end
                 if executor_ip == eip then
-                    rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
+                    rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn_updated_name .. " (truced)")
                 elseif executor_ip == tip then
-                    rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
+                    rprint(executor_id, "[you] -> [" .. eid .. "] " .. en_updated_name .. " (truced)")
                 end
             else
                 rprint(executor_id, "You are not truced with anybody")
