@@ -574,11 +574,11 @@ end
 
 function truce:list(params)
     local params = params or {}
-
-    local executor_name = params.en or nil
+    
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-    local ip
+   
+    local t, found = { }
    
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
@@ -590,23 +590,21 @@ function truce:list(params)
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
-
+            
             if tracker[executor_ip] ~= nil then
-                for j = 1, #tracker[executor_ip] do
-                    if (tracker[executor_ip][j] == eip) then
-                        rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
-                    elseif (tracker[executor_ip][j] == tip) then
-                        rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
-                    end
+                if executor_ip == eip then
+                    rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
+                elseif executor_ip == tip then
+                    rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
                 end
-           else
+            else
                 rprint(executor_id, "You are not truced with anybody")
             end
         end
     else
         rprint(executor_id, "No active truces")
     end
-
+    
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
                 
@@ -626,6 +624,9 @@ function truce:list(params)
         end
     else
         rprint(executor_id, "No pending requests")
+    end
+    for _ in pairs(t) do
+        t[_] = nil
     end
 end
 
