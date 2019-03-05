@@ -592,28 +592,12 @@ function truce:list(params)
             local tip = members[key]["tip"]
 
             if tracker[executor_ip] ~= nil then
-                for i = 1, 16 do
-                    if player_present(i) then
-                        if tracker[get_var(i, "$ip")] ~= nil then
-                            for j = 1, #tracker[get_var(i, "$ip")] do
-                                if (tracker[executor_ip][j] == eip) then
-                                    if tonumber(i) ~= executor_id then
-                                        local ip = get_var(i, "$ip")
-                                        if (tracker[get_var(executor_id, "$ip")][j] == ip) then
-                                            rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
-                                            return false
-                                        end
-                                    end
-                                elseif (tracker[executor_ip][j] == tip) then
-                                    if tonumber(i) ~= executor_id then
-                                        local ip = get_var(i, "$ip")
-                                        if (tracker[get_var(executor_id, "$ip")][j] == ip) then
-                                            rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
-                                            return false
-                                        end
-                                    end
-                                end
-                            end
+                if tracker[executor_ip] ~= nil then
+                    for j = 1, #tracker[executor_ip] do
+                        if (tracker[executor_ip][j] == eip) then
+                            rprint(executor_id, "[you] -> [" .. eid .. "] " .. en .. " (truced)")
+                        elseif (tracker[executor_ip][j] == tip) then
+                            rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn .. " (truced)")
                         end
                     end
                 end
