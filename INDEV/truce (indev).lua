@@ -72,6 +72,7 @@ local function clearData()
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip")
+                requests[ip] = 0
                 if (tracker[ip] ~= nil) then
                     for key, _ in pairs(tracker[ip]) do
                         tracker[ip][key] = nil
