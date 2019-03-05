@@ -113,59 +113,68 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    -- requests[PlayerIndex] = 0
-    -- local name = get_var(PlayerIndex, "$name")
-    -- local id = tonumber(get_var(PlayerIndex, "$n"))
-    -- if (next(members) ~= nil) and (tracker[PlayerIndex] ~= nil) then
+    local name = get_var(PlayerIndex, "$name")
+    local ip = getIP(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
+    
+    requests[ip] = 0
+    
+    if (next(members) ~= nil) and (tracker[ip] ~= nil) then
 
-        -- local function removeTracker(a, b)
-            -- for key, _ in pairs(tracker[a]) do
-                -- if tracker[a][key] == b then
-                    -- tracker[a][key] = nil
-                -- end
-            -- end
-            -- for key, _ in pairs(tracker[b]) do
-                -- if tracker[b][key] == a then
-                    -- tracker[b][key] = nil
-                -- end
-            -- end
-        -- end
+        local function removeTracker(a, b)
+            for key, _ in pairs(tracker[a]) do
+                if tracker[a][key] == b then
+                    tracker[a][key] = nil
+                end
+            end
+            for key, _ in pairs(tracker[b]) do
+                if tracker[b][key] == a then
+                    tracker[b][key] = nil
+                end
+            end
+        end
 
-        -- for key, _ in ipairs(members) do
-            -- local tn = members[key]["tn"]
-            -- local tid = tonumber(members[key]["tid"])
-            -- local en = members[key]["en"]
-            -- local eid = tonumber(members[key]["eid"])
-            -- if (name == tn) and (id == tid) then
-                -- rprint(eid, "Your truce with " .. name .. " has ended.")
-                -- removeTracker(eid, tid)
-                -- members[key] = nil
-            -- elseif (name == en) and (id == eid) then
-                -- rprint(tid, "Your truce with " .. name .. " has ended.")
-                -- removeTracker(tid, eid)
-                -- members[key] = nil
-            -- end
-        -- end
-    -- end
+        for key, _ in ipairs(members) do
+            local en = members[key]["en"]
+            local eid = tonumber(members[key]["eid"])
+            local eip = members[key]["eip"]
+            
+            local tn = members[key]["tn"]
+            local tid = tonumber(members[key]["tid"])
+            local tip = members[key]["tip"]
 
-    -- if (next(pending) ~= nil) then
-        -- for key, _ in ipairs(pending) do
+            if (ip == tip) then
+                rprint(eid, "Your truce with " .. name .. " has ended.")
+                removeTracker(eip, tip)
+                members[key] = nil
+            elseif (ip == eip) then
+                rprint(tid, "Your truce with " .. name .. " has ended.")
+                removeTracker(tip, eip)
+                members[key] = nil
+            end
+        end
+    end
 
-            -- local tn = pending[key]["tn"]
-            -- local tid = tonumber(pending[key]["tid"])
+    if (next(pending) ~= nil) then
+        for key, _ in ipairs(pending) do
 
-            -- local en = pending[key]["en"]
-            -- local eid = tonumber(pending[key]["eid"])
-
-            -- if (name == tn) and (id == tid) then
-                -- pending[key] = nil
-                -- rprint(eid, "Your truce request with " .. name .. " expired")
-            -- elseif (name == en) and (id == eid) then
-                -- pending[key] = nil
-                -- rprint(tid, "Your truce request with " .. name .. " expired")
-            -- end
-        -- end
-    -- end
+            local en = pending[key]["en"]
+            local eid = tonumber(pending[key]["eid"])
+            local eip = pending[key]["eip"]
+            
+            local tn = pending[key]["tn"]
+            local tid = tonumber(pending[key]["tid"])
+            local tip = pending[key]["tip"]
+            
+            if (ip == tip) then
+                rprint(eid, "Your truce request with " .. name .. " expired")
+                pending[key] = nil
+            elseif (ip == eip) then
+                rprint(tid, "Your truce request with " .. name .. " expired")
+                pending[key] = nil
+            end
+            
+        end
+    end
 end
 
 local function checkAccess(e)
@@ -206,10 +215,12 @@ local function cmdself(t, e)
     end
 end
 
-local function hasRequest(e, id)
-    if requests[e] ~= nil then
-        if tonumber(requests[e]) > 0 then
-            return tonumber(requests[e])
+local function hasRequest(params, e, id)
+    local params = params or {}
+    local ip = params.eip or nil
+    if requests[ip] ~= nil then
+        if tonumber(requests[ip]) > 0 then
+            return tonumber(requests[ip])
         else
             rprint(e, "You do not have any pending truce requests to " .. id)
         end
@@ -242,7 +253,7 @@ function truce:isPending(params)
         local tip = pending[key]["tip"]
 
         if (executor_ip == eip) and (target_ip == tip) then
-            rprint(executor_id, "1 You have already sent " .. target_name .. " a request!")
+            rprint(executor_id, "You have already sent " .. target_name .. " a request!")
             return true
         elseif (executor_ip == tip) and (target_ip == eip) then 
             rprint(executor_id, target_name .. " has already sent you a request!")
@@ -336,7 +347,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (checkAccess(executor)) then
             if args[1] ~= nil then
                 set_info(true)
-                if hasRequest(executor, "accept") then
+                if hasRequest(players, executor, "accept") then
                     if isOnline(TargetID, executor) then
                         if not cmdself(TargetID, executor) then
                             truce:enable(players)
@@ -352,7 +363,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if (checkAccess(executor)) then
             if args[1] ~= nil then
                 set_info(true)
-                if hasRequest(executor, "deny") then
+                if hasRequest(players, executor, "deny") then
                     if isOnline(TargetID, executor) then
                         if not cmdself(TargetID, executor) then
                             truce:deny(players)
@@ -423,10 +434,10 @@ function truce:sendrequest(params)
         end
     end
     
-    if requests[target_id] == nil then
-        requests[target_id] = 0
+    if requests[target_ip] == nil then
+        requests[target_ip] = 0
     end
-    requests[target_id] = requests[target_id] + 1
+    requests[target_ip] = requests[target_ip] + 1
 end
 
 function truce:enable(params)
@@ -479,7 +490,7 @@ function truce:enable(params)
         end
     end
     
-    requests[executor_id] = requests[executor_id] - 1
+    requests[executor_ip] = requests[executor_ip] - 1
 end
 
 function truce:disable(params)
@@ -602,8 +613,10 @@ function truce:list(params)
                     end
                 end
                 if executor_ip == eip then
+                    if not tn_updated_name then tn_updated_name = tn end
                     rprint(executor_id, "[you] -> [" .. tid .. "] " .. tn_updated_name .. " (truced)")
                 elseif executor_ip == tip then
+                    if not en_updated_name then en_updated_name = en end
                     rprint(executor_id, "[you] -> [" .. eid .. "] " .. en_updated_name .. " (truced)")
                 end
             else
