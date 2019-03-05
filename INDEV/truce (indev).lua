@@ -597,13 +597,22 @@ function truce:list(params)
                         local ip = get_var(i, "$ip")
                         if tracker[ip] ~= nil then
                             for j = 1, #tracker[ip] do
-                                if (tracker[executor_ip][j] == ip) then
-                                    if (tracker[executor_ip][j] == eip) then
-                                        rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
-                                    elseif (tracker[executor_ip][j] == tip) then
-                                        rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
+                                if (tracker[executor_ip][j] == eip) then
+                                    if tonumber(i) ~= executor_id then
+                                        local IP = get_var(i, "$ip")
+                                        if (tracker[get_var(executor_id, "$ip")][i] == IP) then
+                                            rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
+                                            return false
+                                        end
                                     end
-                                    return false
+                                elseif (tracker[executor_ip][j] == tip) then
+                                    if tonumber(i) ~= executor_id then
+                                        local IP = get_var(i, "$ip")
+                                        if (tracker[get_var(executor_id, "$ip")][i] == IP) then
+                                            rprint(executor_id, "Truced with -> [" .. i ..  "] " .. get_var(i, "$name"))
+                                            return false
+                                        end
+                                    end
                                 end
                             end
                         end
