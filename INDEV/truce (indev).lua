@@ -623,9 +623,6 @@ function truce:list(params)
     else
         rprint(executor_id, "No pending requests")
     end
-    for _ in pairs(t) do
-        t[_] = nil
-    end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
