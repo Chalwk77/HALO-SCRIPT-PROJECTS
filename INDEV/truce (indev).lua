@@ -81,14 +81,14 @@ local function clearData()
             end
         end
         if (next(members) ~= nil) then
-            for key, _ in ipairs(members) do
+            for _, _ in ipairs(members) do
                 for i = 1, #members do
                     members[i] = nil
                 end
             end
         end
         if (next(pending) ~= nil) then
-            for key, _ in ipairs(pending) do
+            for _, _ in ipairs(pending) do
                 for i = 1, #pending do
                     pending[i] = nil
                 end
@@ -109,16 +109,16 @@ function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     if not ip_table[hash] then
         ip_table[hash] = {}
-        table.insert(ip_table[hash], {["ip"] = get_var(PlayerIndex, "$ip")})
+        table.insert(ip_table[hash], { ["ip"] = get_var(PlayerIndex, "$ip") })
     end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local ip = getIP(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
-    
+
     requests[ip] = 0
-    
+
     if (next(members) ~= nil) and (tracker[ip] ~= nil) then
 
         local function removeTracker(a, b)
@@ -135,11 +135,9 @@ function OnPlayerDisconnect(PlayerIndex)
         end
 
         for key, _ in ipairs(members) do
-            local en = members[key]["en"]
             local eid = tonumber(members[key]["eid"])
             local eip = members[key]["eip"]
-            
-            local tn = members[key]["tn"]
+
             local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
 
@@ -158,14 +156,12 @@ function OnPlayerDisconnect(PlayerIndex)
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
 
-            local en = pending[key]["en"]
             local eid = tonumber(pending[key]["eid"])
             local eip = pending[key]["eip"]
-            
-            local tn = pending[key]["tn"]
+
             local tid = tonumber(pending[key]["tid"])
             local tip = pending[key]["tip"]
-            
+
             if (ip == tip) then
                 rprint(eid, "Your truce request with " .. name .. " expired")
                 pending[key] = nil
@@ -173,7 +169,7 @@ function OnPlayerDisconnect(PlayerIndex)
                 rprint(tid, "Your truce request with " .. name .. " expired")
                 pending[key] = nil
             end
-            
+
         end
     end
 end
@@ -241,22 +237,22 @@ end
 
 function truce:isPending(params)
     local params = params or {}
-    
+
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-    
+
     local target_name = params.tn or nil
     local target_ip = params.tip or nil
 
     for key, _ in ipairs(pending) do
-    
+
         local eip = pending[key]["eip"]
         local tip = pending[key]["tip"]
 
         if (executor_ip == eip) and (target_ip == tip) then
             rprint(executor_id, "You have already sent " .. target_name .. " a request!")
             return true
-        elseif (executor_ip == tip) and (target_ip == eip) then 
+        elseif (executor_ip == tip) and (target_ip == eip) then
             rprint(executor_id, target_name .. " has already sent you a request!")
             return true
         else
@@ -268,13 +264,13 @@ end
 function truce:inTruce(params, bool, isrequest)
     local found, intruce
     local params = params or {}
-    
+
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-    
+
     local target_ip = params.tip or nil
     local target_name = params.tn or nil
-    
+
     if tracker[executor_ip] ~= nil then
         intruce = true
         for i = 1, #tracker[executor_ip] do
@@ -304,7 +300,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local TargetID = tonumber(args[1])
 
     local players = {}
-    
+
     local function set_info(param)
         players.en = get_var(executor, "$name")
         players.eid = tonumber(get_var(executor, "$n"))
@@ -324,7 +320,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if (command == lower(base_command)) then 
+    if (command == lower(base_command)) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil and args[3] == nil) then
                 set_info(true)
@@ -340,11 +336,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Invalid syntax. Usage: /" ..base_command.. " [player id]")
+                rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id]")
             end
         end
         return false
-    elseif (command == lower(accept_command)) then 
+    elseif (command == lower(accept_command)) then
         if (checkAccess(executor)) then
             if args[1] ~= nil then
                 set_info(true)
@@ -356,11 +352,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Invalid syntax. Usage: /" ..accept_command.. " [player id]")
+                rprint(executor, "Invalid syntax. Usage: /" .. accept_command .. " [player id]")
             end
         end
         return false
-    elseif (command == lower(deny_command)) then 
+    elseif (command == lower(deny_command)) then
         if (checkAccess(executor)) then
             if args[1] ~= nil then
                 set_info(true)
@@ -372,11 +368,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Invalid syntax. Usage: /" ..deny_command.. " [player id]")
+                rprint(executor, "Invalid syntax. Usage: /" .. deny_command .. " [player id]")
             end
         end
         return false
-    elseif (command == lower(untruce_command)) then 
+    elseif (command == lower(untruce_command)) then
         if (checkAccess(executor)) then
             if args[1] ~= nil then
                 set_info(true)
@@ -388,17 +384,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Invalid syntax. Usage: /" ..untruce_command.. " [player id]")
+                rprint(executor, "Invalid syntax. Usage: /" .. untruce_command .. " [player id]")
             end
         end
         return false
-    elseif (command == lower(trucelist_command)) then 
+    elseif (command == lower(trucelist_command)) then
         if (checkAccess(executor)) then
             if args[1] == nil then
                 set_info(false)
                 truce:list(players)
             else
-                rprint(executor, "Invalid syntax. Usage: /" ..trucelist_command)
+                rprint(executor, "Invalid syntax. Usage: /" .. trucelist_command)
             end
         end
         return false
@@ -416,9 +412,9 @@ function truce:sendrequest(params)
     local target_name = params.tn or nil
     local target_id = params.tid or nil
     local target_ip = params.tip or nil
-    
+
     table.insert(pending, { ["en"] = executor_name, ["eid"] = executor_id, ["eip"] = executor_ip, ["tn"] = target_name, ["tid"] = target_id, ["tip"] = target_ip })
-    
+
     for k, _ in ipairs(on_request) do
         local msgToExecutor, msgToTarget = on_request[k]["msgToExecutor"], on_request[k]["msgToTarget"]
         if (msgToExecutor ~= nil) then
@@ -434,7 +430,7 @@ function truce:sendrequest(params)
             end
         end
     end
-    
+
     if requests[target_ip] == nil then
         requests[target_ip] = 0
     end
@@ -474,23 +470,23 @@ function truce:enable(params)
             end
         end
     end
-    
+
     for key, _ in ipairs(pending) do
         local eip = pending[key]["eip"]
         local en = pending[key]["en"]
-        
+
         local tip = pending[key]["tip"]
         local tn = pending[key]["tn"]
 
         if (executor_ip == eip) and (target_name == tn) then
             pending[key] = nil
             break
-        elseif (executor_ip == tip) and (target_name == en) then 
+        elseif (executor_ip == tip) and (target_name == en) then
             pending[key] = nil
             break
         end
     end
-    
+
     requests[executor_ip] = requests[executor_ip] - 1
 end
 
@@ -500,18 +496,17 @@ function truce:disable(params)
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-    
-    local target_id = params.tid or nil
+
     local target_name = params.tn or nil
     local target_ip = params.tip or nil
-    
+
     if (next(members) ~= nil) and (tracker[executor_ip] ~= nil) then
         for key, _ in ipairs(members) do
 
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
-            
+
             local en = members[key]["en"]
             local eid = tonumber(members[key]["eid"])
             local eip = members[key]["eip"]
@@ -548,7 +543,6 @@ function truce:deny(params)
 
     local executor_name = params.en or nil
     local executor_id = params.eid or nil
-    local executor_ip = params.eip or nil
 
     local target_name = params.tn or nil
     local target_id = params.tid or nil
@@ -566,7 +560,7 @@ function truce:deny(params)
             break
         end
     end
-    
+
     for k, _ in ipairs(on_deny) do
         local msgToExecutor, msgToTarget = on_deny[k]["msgToExecutor"], on_deny[k]["msgToTarget"]
         if (msgToExecutor ~= nil) then
@@ -586,15 +580,15 @@ end
 
 function truce:list(params)
     local params = params or {}
-    
+
     local executor_id = params.eid or nil
     local executor_ip = params.eip or nil
-   
-    local en_updated_name, tn_updated_name
-   
+
+    local mem_en_name, mem_tn_name, mem_en_index, mem_tn_index
+
     if (next(members) ~= nil) then
         for key, _ in ipairs(members) do
-        
+
             local en = members[key]["en"]
             local eid = tonumber(members[key]["eid"])
             local eip = members[key]["eip"]
@@ -602,26 +596,31 @@ function truce:list(params)
             local tn = members[key]["tn"]
             local tid = tonumber(members[key]["tid"])
             local tip = members[key]["tip"]
-           
+
             if tracker[executor_ip] ~= nil then
-                for i = 1,16 do
+                for i = 1, 16 do
                     if player_present(i) then
                         if eip == get_var(i, "$ip") then
-                            en_updated_name = get_var(i, "$name")
-                            en_index = tonumber(i)
+                            mem_en_name = get_var(i, "$name")
+                            mem_en_index = tonumber(i)
                         elseif tip == get_var(i, "$ip") then
-                            tn_updated_name = get_var(i, "$name")
-                            tn_index = tonumber(i)
+                            mem_tn_name = get_var(i, "$name")
+                            mem_tn_index = tonumber(i)
                         end
                     end
                 end
                 if executor_ip == eip then
-                    if not tn_updated_name then tn_updated_name = tn tn_index = tid end
-                    rprint(executor_id, "[you] -> [" .. tn_index .. "] " .. tn_updated_name .. " (truced)")
+                    if not mem_tn_name then
+                        mem_tn_name = tn
+                        mem_tn_index = tid
+                    end
+                    rprint(executor_id, "[you] -> [" .. mem_tn_index .. "] " .. mem_tn_name .. " (truced)")
                 elseif executor_ip == tip then
-                    if not en_updated_name then en_updated_name = en end
-                    if not en_updated_name then en_updated_name = en en_index = eid end
-                    rprint(executor_id, "[you] -> [" .. en_index .. "] " .. en_updated_name .. " (truced)")
+                    if not mem_en_name then
+                        mem_en_name = en
+                        mem_en_index = eid
+                    end
+                    rprint(executor_id, "[you] -> [" .. mem_en_index .. "] " .. mem_en_name .. " (truced)")
                 end
             else
                 rprint(executor_id, "You are not truced with anybody")
@@ -630,10 +629,12 @@ function truce:list(params)
     else
         rprint(executor_id, "No active truces")
     end
+
+    local pen_en_name, pen_tn_name, pen_en_index, pen_tn_index
     
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
-                
+
             local tn = pending[key]["tn"]
             local tid = tonumber(pending[key]["tid"])
             local tip = pending[key]["tip"]
@@ -642,24 +643,29 @@ function truce:list(params)
             local eid = tonumber(pending[key]["eid"])
             local eip = pending[key]["eip"]
 
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     if eip == get_var(i, "$ip") then
-                        en_updated_name = get_var(i, "$name")
-                        en_index = tonumber(i)
+                        pen_en_name = get_var(i, "$name")
+                        pen_en_index = tonumber(i)
                     elseif tip == get_var(i, "$ip") then
-                        tn_updated_name = get_var(i, "$name")
-                        tn_index = tonumber(i)
+                        pen_tn_name = get_var(i, "$name")
+                        pen_tn_index = tonumber(i)
                     end
                 end
             end
             if executor_ip == eip then
-                if not tn_updated_name then tn_updated_name = tn tn_index = tid end
-                rprint(executor_id, "[you] -> [" .. tn_index .. "] " .. tn_updated_name .. " (pending request)")
+                if not pen_tn_name then
+                    pen_tn_name = tn
+                    pen_tn_index = tid
+                end
+                rprint(executor_id, "[you] -> [" .. pen_tn_index .. "] " .. pen_tn_name .. " (pending request)")
             elseif executor_ip == tip then
-                if not en_updated_name then en_updated_name = en end
-                if not en_updated_name then en_updated_name = en en_index = eid end
-                rprint(executor_id, "[you] -> [" .. en_index .. "] " .. en_updated_name .. " (pending request)")
+                if not pen_en_name then
+                    pen_en_name = en
+                    pen_en_index = eid
+                end
+                rprint(executor_id, "[you] -> [" .. pen_en_index .. "] " .. pen_en_name .. " (pending request)")
             end
         end
     else
