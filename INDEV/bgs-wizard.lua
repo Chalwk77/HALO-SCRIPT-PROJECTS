@@ -29,7 +29,7 @@ Combined Scripts:
    
     /clean (command syntax info) for Enter Vehicle & Item Spawner:
     
-        ~ Valid [id] inputs: [number range 1-16, me or *] 
+    ~ Valid [id] inputs: [number range 1-16, me or *] 
         * /clean [id] 1 (cleans up "Enter Vehicle" objects)
         * /clean [id] 2 (cleans up "Item Spawner" objects)
         * /clean [id] * (cleans up "everything")
@@ -114,7 +114,7 @@ local function GameSettings()
                 -- To enable a feature, set 'false' to 'true'
                 enabled = true,
                 base_command = "lurker",
-                permission_level = 1,
+                permission_level = -1,
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
                 speed = true,
                 god = true,
@@ -157,16 +157,12 @@ local function GameSettings()
             ["Message Board"] = {
                 -- Welcome messages | OnPlayerJoin()
                 enabled = false,
-                duration = 10, -- How long should the message be displayed on screen for? (in seconds)
+                duration = 15, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
-                    "Welcome to %server_name%, %player_name%",
-                    "line 2",
-                    "line 3",
-                    "line 4",
-                    "line 5"
+                    "Welcome to %server_name%",
                     -- repeat the structure to add more entries
                 }
             },
@@ -434,8 +430,8 @@ local function GameSettings()
                     ["sneak"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["windfall_island"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["feelgoodinc"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["battlegulch_v2_chaos"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["ragnarok"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["battlegulch_v2_chaos"] = { 0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ragnarok"] = { 0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["celebration_island"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["doom_wa_view"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["garden_ce"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -443,7 +439,16 @@ local function GameSettings()
                     ["portent"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["pitfall"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["quagmire"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["medical block"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["baz_canyon"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bigass"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pardis_perdu"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["insomnia_map"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["zanzibar_intense"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deltaruined_intense"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["knot"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0.5, 0.5 },
+                    ["juggernaught"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["room_final"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["yoyorast island v2"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Teleport Manager"] = {
@@ -1808,20 +1813,22 @@ function OnPlayerSpawn(PlayerIndex)
     -- #Custom Weapons
     if (settings.mod["Custom Weapons"].enabled) then
         if player_alive(PlayerIndex) then
-            if (settings.mod["Custom Weapons"].weapons[mapname][7]) then
-                weapon[PlayerIndex] = true
-                local player_object = get_dynamic_player(PlayerIndex)
-                if (player_object ~= 0) then
-                    if (settings.mod["Custom Weapons"].assign_custom_frags == true) then
-                        local frags = settings.mod["Custom Weapons"].weapons[mapname][5]
-                        if (frags ~= 00) then
-                            write_word(player_object + 0x31E, tonumber(frags))
+            if settings.mod["Custom Weapons"].weapons[mapname] ~= nil then
+                if (settings.mod["Custom Weapons"].weapons[mapname][7]) then
+                    weapon[PlayerIndex] = true
+                    local player_object = get_dynamic_player(PlayerIndex)
+                    if (player_object ~= 0) then
+                        if (settings.mod["Custom Weapons"].assign_custom_frags == true) then
+                            local frags = settings.mod["Custom Weapons"].weapons[mapname][5]
+                            if (frags ~= 00) then
+                                write_word(player_object + 0x31E, tonumber(frags))
+                            end
                         end
-                    end
-                    if (settings.mod["Custom Weapons"].assign_custom_plasmas == true) then
-                        local plasmas = settings.mod["Custom Weapons"].weapons[mapname][6]
-                        if (plasmas ~= 00) then
-                            write_word(player_object + 0x31F, tonumber(plasmas))
+                        if (settings.mod["Custom Weapons"].assign_custom_plasmas == true) then
+                            local plasmas = settings.mod["Custom Weapons"].weapons[mapname][6]
+                            if (plasmas ~= 00) then
+                                write_word(player_object + 0x31F, tonumber(plasmas))
+                            end
                         end
                     end
                 end
@@ -3995,8 +4002,10 @@ function concatAliases(i, start_index, end_index)
         end
     end
     for j = tonumber(start_index), tonumber(end_index) do
-        t[#t + 1] = words[j]
-        row = concat(t, ", ")
+        if words[j] then
+            t[#t + 1] = words[j]
+            row = concat(t, ", ")
+        end
     end
     if row ~= nil then
         rprint(i, row)
