@@ -23,7 +23,7 @@ api_version = "1.11.0.0"
 local base_command = "crash"
 local privilege_level = 4 -- Minimum admin level require to execute /base_command
 local users = {
-    -- Make sure the player's name matches exactly as it will in game.
+    -- Make sure the player's name matches exactly as it does in game.
     -- NAME             HASH
     {["username1"] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
     {["username2"] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
