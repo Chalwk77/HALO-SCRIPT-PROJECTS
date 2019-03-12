@@ -1,15 +1,15 @@
 --[[
 --=====================================================================================================--
 Script Name: Crash Player (utility), for SAPP (PC & CE)
-Description: Crash someone automatically when they join the server (based on Name/Hash comparisons)
-            - or Crash someone (anyone) on demand!
-            Command Syntax: /crash <player id>
+Description: Crash someone automatically when they join the server (based on Name-to-Hash comparisons)
             
+            * Ability to Crash someone (anyone) on demand with the /crash command.
+            - Command Syntax: /crash [player id]
             
-    Change Log: 
-    * Bug Fixes + Refactored 90% of the code
+    Change Log [12/03/2019]: 
+    * Refactored 90% of the code.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -20,9 +20,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- Configuration [start] -------------
-
 local base_command = "crash"
-local privilege_level = 4
+local privilege_level = 4 -- Minimum admin level require to execute /crash
 local users = {
     -- Make sure the player's name matches exactly as it will in game.
     -- NAME             HASH
@@ -33,7 +32,6 @@ local users = {
     -- repeat the structure to add more entries 
     {["name"] = {"hash"}},
 }
-
 -- Configuration [end] -------------
 
 local mod, trigger, lower, find = { }, { }, string.lower, string.find
