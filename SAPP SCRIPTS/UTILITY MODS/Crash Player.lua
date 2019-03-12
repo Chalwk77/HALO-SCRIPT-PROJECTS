@@ -21,7 +21,7 @@ api_version = "1.11.0.0"
 
 -- Configuration [start] -------------
 local base_command = "crash"
-local privilege_level = 4 -- Minimum admin level require to execute /crash
+local privilege_level = 4 -- Minimum admin level require to execute /base_command
 local users = {
     -- Make sure the player's name matches exactly as it will in game.
     -- NAME             HASH
