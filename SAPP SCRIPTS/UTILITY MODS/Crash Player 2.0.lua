@@ -41,7 +41,7 @@ end
 function OnGameStart()
     safe_read(true)
     available_vehicles = { }
-    if CheckMap() then
+    if map_has_vehicles() then
         register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
         register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
         register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -252,7 +252,7 @@ function cmdsplit(str)
     return cmd, args
 end
 
-function CheckMap()
+function map_has_vehicles()
     local bool
 
     for k,v in pairs(vehicles) do
