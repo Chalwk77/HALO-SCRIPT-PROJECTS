@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Crash Player 2.0 (utility), for SAPP (PC & CE)
-Description: Crash someone automatically when they join the server (based on Name-to-IP comparisons)
+Description: Crash someone automatically when they join the server (based on IP comparisons)
             
             * Ability to Crash someone (anyone) on demand with the /crash command.
             - Command Syntax: /crash [player id]
@@ -162,8 +162,8 @@ function Crash(target, name)
 end
 
 function OnPlayerPrejoin(PlayerIndex)
-    trigger[PlayerIndex] = nil
     if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
+        trigger[PlayerIndex] = nil
         
         local ip, found = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)"), nil
         for _, v in pairs(ip_table) do
