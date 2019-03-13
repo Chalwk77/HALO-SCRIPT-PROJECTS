@@ -23,7 +23,7 @@ local ip_table = {
     
     -- Note: Do not insert the player's PORT.
     
-    "000.000.000.000",
+    "127.0.0.1",
     "000.000.000.000",
     "000.000.000.000",
     -- repeat the structure to add more entries 
@@ -31,18 +31,33 @@ local ip_table = {
 }
 -- Configuration [end] -------------
 
-local mod, trigger, lower, find = { }, { }, string.lower, string.find
+local mod, trigger, lower, find, vehicles = { }, { }, string.lower, string.find, { }
+local available_vehicles
 
 function OnScriptLoad()
-    
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    register_callback(cb['EVENT_TICK'], "OnTick")
-    
-    if halo_type == "PC" then
-        ce = 0x0
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+end
+
+function OnGameStart()
+    safe_read(true)
+    available_vehicles = { }
+    if CheckMap() then
+        register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+        register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+        register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+        register_callback(cb['EVENT_TICK'], "OnTick")
     else
-        ce = 0x40
+        unregister_callback(cb['EVENT_PREJOIN'])
+        unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_TICK'])
+        error('Crash Player 2.0 cannot be used on this map.')
+    end
+    safe_read(false)
+end
+
+function OnGameEnd()
+    for k,_ in pairs(available_vehicles) do
+        available_vehicles[k] = nil
     end
 end
 
@@ -131,15 +146,11 @@ function mod:CommandCrash(params)
     local eid = params.eid or nil
     local tid = params.tid or nil
     local tn = params.tn or nil
-    
-    if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
-        local player_object = get_dynamic_player(tid)
-        if player_object ~= 0 then
-            trigger[tid] = true
-            rprint(eid, "You have crashed " .. tn .. "'s game client")
-        end
-    else
-        rprint(eid, "Error. Crash does not work on this map!")
+
+    local player_object = get_dynamic_player(tid)
+    if player_object ~= 0 then
+        trigger[tid] = true
+        rprint(eid, "You have crashed " .. tn .. "'s game client")
     end
 end
 
@@ -147,35 +158,39 @@ function Crash(target, name)
     local player_object = get_dynamic_player(target)
     if (player_object ~= 0) then
         local x, y, z = read_vector3d(player_object + 0x5C)
-        local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
-        local veh_obj = get_object_memory(vehicle_id)
-        if (veh_obj ~= 0) then
-            for j = 0, 20 do
-                enter_vehicle(vehicle_id, target, j)
-                exit_vehicle(target)
+        local num = rand(1, #available_vehicles)
+        for k,v in pairs(available_vehicles) do
+            if k == num then
+                local vehicle_id = spawn_object("vehi", v, x, y, z)
+                local veh_obj = get_object_memory(vehicle_id)
+                if (veh_obj ~= 0) then
+                    for j = 0, 20 do
+                        enter_vehicle(vehicle_id, target, j)
+                        exit_vehicle(target)
+                    end
+                    destroy_object(vehicle_id)
+                end
+                cprint("Crashed " .. name .. "'s game client", 4+8)
+                break
             end
-            destroy_object(vehicle_id)
         end
-        cprint("Crashed " .. name .. "'s game client", 4+8)
     end
     return false
 end
 
 function OnPlayerPrejoin(PlayerIndex)
-    if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
-        trigger[PlayerIndex] = nil
-        
-        local ip, found = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)"), nil
-        for _, v in pairs(ip_table) do
-            if (ip == v) then
-                found = true
-                break
-            end
+    trigger[PlayerIndex] = nil
+    
+    local ip, found = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)"), nil
+    for _, v in pairs(ip_table) do
+        if (ip == v) then
+            found = true
+            break
         end
-        
-        if (found) then
-            trigger[PlayerIndex] = true
-        end
+    end
+    
+    if (found) then
+        trigger[PlayerIndex] = true
     end
 end
 
@@ -235,3 +250,27 @@ function cmdsplit(str)
 
     return cmd, args
 end
+
+function CheckMap()
+    local bool
+
+    for k,v in pairs(vehicles) do
+        if (lookup_tag("vehi", vehicles[k]) ~= 0) then
+            table.insert(available_vehicles, v)
+            bool = true
+        end
+    end
+    return bool
+end
+
+-- Do not touch unless you know what you're doing.
+vehicles = {
+    "vehicles\\wraith\\wraith" ,
+    "vehicles\\pelican\\pelican" ,
+    "vehicles\\banshee\\banshee_mp" ,
+    "vehicles\\c gun turret\\c gun turret_mp" ,
+    "vehicles\\ghost\\ghost_mp" ,
+    "vehicles\\scorpion\\scorpion_mp" ,
+    "vehicles\\rwarthog\\rwarthog" ,
+    "vehicles\\warthog\\mp_warthog" ,
+}
