@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Crash Player 2.0 (utility), for SAPP (PC & CE)
-Description: Crash someone automatically when they join the server (based on IP comparisons)
+Description: Crash someone automatically when they join the server (based on Name-to-IP comparisons)
             
             * Ability to Crash someone (anyone) on demand with the /crash command.
             - Command Syntax: /crash [player id]
@@ -164,22 +164,8 @@ end
 function OnPlayerPrejoin(PlayerIndex)
     trigger[PlayerIndex] = nil
     if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
-        local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-        local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
         
-        local function read_widestring(address, length)
-            local count = 0
-            local byte_table = { }
-            for i = 1, length do
-                if read_byte(address + count) ~= 0 then
-                    byte_table[i] = string.char(read_byte(address + count))
-                end
-                count = count + 2
-            end
-            return table.concat(byte_table)
-        end
-        
-        local name, ip, found = read_widestring(cns, 12), get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
+        local ip, found = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)"), nil
         for _, v in pairs(ip_table) do
             if (ip == v) then
                 found = true
