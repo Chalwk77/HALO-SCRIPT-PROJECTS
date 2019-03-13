@@ -49,6 +49,7 @@ function OnGameStart()
     else
         unregister_callback(cb['EVENT_PREJOIN'])
         unregister_callback(cb['EVENT_COMMAND'])
+        unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_TICK'])
         error('Crash Player 2.0 cannot be used on this map.')
     end
