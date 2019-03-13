@@ -31,7 +31,7 @@ local ip_table = {
 }
 -- Configuration [end] -------------
 
-local mod, trigger, lower, find, vehicles = { }, { }, string.lower, string.find, { }
+local mod, trigger, vehicles, lower = { }, { }, { }, string.lower
 local available_vehicles
 
 function OnScriptLoad()
