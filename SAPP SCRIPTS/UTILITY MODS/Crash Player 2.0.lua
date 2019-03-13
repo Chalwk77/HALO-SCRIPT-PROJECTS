@@ -153,17 +153,23 @@ function mod:CommandCrash(params)
         trigger[tid] = true
         rprint(eid, "You have crashed " .. tn .. "'s game client")
     end
+    
 end
 
 function Crash(target, name)
     local player_object = get_dynamic_player(target)
+    
     if (player_object ~= 0) then
+    
         local x, y, z = read_vector3d(player_object + 0x5C)
         local num = rand(1, #available_vehicles)
+        
         for k,v in pairs(available_vehicles) do
             if k == num then
+            
                 local vehicle_id = spawn_object("vehi", v, x, y, z)
                 local veh_obj = get_object_memory(vehicle_id)
+                
                 if (veh_obj ~= 0) then
                     for j = 0, 20 do
                         enter_vehicle(vehicle_id, target, j)
@@ -254,7 +260,7 @@ end
 
 function map_has_vehicles()
     local bool
-
+    
     for k,v in pairs(vehicles) do
         if (lookup_tag("vehi", vehicles[k]) ~= 0) then
             table.insert(available_vehicles, v)
