@@ -32,7 +32,7 @@ local isadmin = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
+    --register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 end
 
 function OnScriptUnload()
@@ -51,16 +51,18 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
         say(PlayerIndex, 'You are now an IP Admin.')
-        say(PlayerIndex, 'Type /login ' .. password)
+        --say(PlayerIndex, 'Type /login ' .. password)
         cprint(get_var(PlayerIndex, "$name") .. " is now an IP Admin.", 5+8)
     end
 end
 
+--[[
 function OnPlayerDisconnect(PlayerIndex)
     if isadmin[PlayerIndex] then
         execute_command("admin_del " .. PlayerIndex)
     end
 end
+]]
 
 function OnPlayerPrejoin(PlayerIndex)
     local p = tonumber(PlayerIndex)
