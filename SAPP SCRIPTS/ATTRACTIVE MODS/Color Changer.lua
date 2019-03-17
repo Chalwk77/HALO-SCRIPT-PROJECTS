@@ -206,8 +206,8 @@ function color:change(params)
             ERROR = true
         end
         if not (ERROR) then
-            rprint(executor_id, target_name .. " had their color changed to " .. color)
             if (player_obj_id ~= nil) then
+                rprint(executor_id, target_name .. " had their color changed to " .. color)
                 destroy_object(player_obj_id)
                 if colorspawn == nil then colorspawn = { } end
                 if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
