@@ -25,7 +25,8 @@ local base_command = "setcolor"
 local privilege_level = 4
 -- configuration [ends]
 
-local color, lower = string.lower, { }
+local color = { }
+local lower = string.lower
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -162,52 +163,56 @@ function color:change(params)
     local player_obj_id = read_dword(get_player(target_id) + 0x34)
     local m_player = getplayer(target_id)
     if player_object then
+        local ERROR
         local x, y, z = read_vector3d(player_object + 0x5C)
-        if color == "white" or color == "0" or color == '"white"' or color == '"0"' then
+        if color == "white" or color == "0" then
             write_byte(m_player + 0x60, 0)
-        elseif color == "black" or color == '"black"' or color == '"1"' then
+        elseif color == "black" or color == "1" then
             write_byte(m_player + 0x60, 1)
-        elseif color == "red" or color == '"red"' or color == '"2"' then
+        elseif color == "red" or color == "2" then
             write_byte(m_player + 0x60, 2)
-        elseif color == "blue" or color == '"blue"' or color == '"3"' then
+        elseif color == "blue" or color == "3" then
             write_byte(m_player + 0x60, 3)
-        elseif color == "gray" or color == '"gray"' or color == '"4"' then
+        elseif color == "gray" or color == "4" then
             write_byte(m_player + 0x60, 4)
-        elseif color == "yellow" or color == '"yellow"' or color == '"5"' then
+        elseif color == "yellow" or color == "5" then
             write_byte(m_player + 0x60, 5)
-        elseif color == "green" or color == '"green"' or color == '"6"' then
+        elseif color == "green" or color == "6" then
             write_byte(m_player + 0x60, 6)
-        elseif color == "pink" or color == '"pink"' or color == '"7"' then
+        elseif color == "pink" or color == "7" then
             write_byte(m_player + 0x60, 7)
-        elseif color == "purple" or color == '"purple"' or color == '"8"' then
+        elseif color == "purple"or color == "8" then
             write_byte(m_player + 0x60, 8)
-        elseif color == "cyan" or color == '"cyan"' or color == '"9"' then
+        elseif color == "cyan" or color == "9" then
             write_byte(m_player + 0x60, 9)
-        elseif color == "cobalt" or color == '"cobalt"' or color == '"10"' then
+        elseif color == "cobalt" or color == "10" then
             write_byte(m_player + 0x60, 10)
-        elseif color == "orange" or color == '"orange"' or color == '"11"' then
+        elseif color == "orange" or color == "11" then
             write_byte(m_player + 0x60, 11)
-        elseif color == "teal" or color == '"teal"' or color == '"12"' then
+        elseif color == "teal" or color == "12" then
             write_byte(m_player + 0x60, 12)
-        elseif color == "sage" or color == '"sage"' or color == '"13"' then
+        elseif color == "sage" or color == "13" then
             write_byte(m_player + 0x60, 13)
-        elseif color == "brown" or color == '"brown"' or color == '"14"' then
+        elseif color == "brown" or color == "14" then
             write_byte(m_player + 0x60, 14)
-        elseif color == "tan" or color == '"tan"' or color == '"15"' then
+        elseif color == "tan" or color == "15" then
             write_byte(m_player + 0x60, 15)
-        elseif color == "maroon" or color == '"maroon"' or color == '"16"' then
+        elseif color == "maroon" or color == "16" then
             write_byte(m_player + 0x60, 16)
-        elseif color == "salmon" or color == '"salmon"' or color == '"17"' then
+        elseif color == "salmon" or color == "17" then
             write_byte(m_player + 0x60, 17)
         else
             rprint(executor_id, "Invalid Color")
+            ERROR = true
         end
-        rprint(executor_id, target_name .. " had their color changed to " .. color)
-        if (player_obj_id ~= nil) then
-            destroy_object(player_obj_id)
-            if colorspawn == nil then colorspawn = { } end
-            if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
-            colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x,y,z
+        if not (ERROR) then
+            rprint(executor_id, target_name .. " had their color changed to " .. color)
+            if (player_obj_id ~= nil) then
+                destroy_object(player_obj_id)
+                if colorspawn == nil then colorspawn = { } end
+                if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
+                colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x,y,z
+            end
         end
     end
 end
