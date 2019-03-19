@@ -109,7 +109,7 @@ function OnServerCommand(PlayerIndex, Command)
                 players.tid = tonumber(get_var(pl[i], "$n"))
                 players.tn = get_var(pl[i], "$name")
                 players.color = args[2]
-                if (target_all_players) and player_alive(tid) then
+                if (target_all_players) then
                     color:change(players)
                 end
             end
