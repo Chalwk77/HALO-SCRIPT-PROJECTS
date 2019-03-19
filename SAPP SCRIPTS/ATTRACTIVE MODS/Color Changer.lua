@@ -109,7 +109,7 @@ function OnServerCommand(PlayerIndex, Command)
                 players.tid = tonumber(get_var(pl[i], "$n"))
                 players.tn = get_var(pl[i], "$name")
                 players.color = args[2]
-                if (target_all_players) then
+                if (target_all_players) and player_alive(tid) then
                     color:change(players)
                 end
             end
@@ -158,62 +158,66 @@ function color:change(params)
         end
         return nil
     end
-    
-    local player_object = get_dynamic_player(target_id)
-    local player_obj_id = read_dword(get_player(target_id) + 0x34)
-    local m_player = getplayer(target_id)
-    if player_object then
-        local ERROR
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        if color == "white" or color == "0" then
-            write_byte(m_player + 0x60, 0)
-        elseif color == "black" or color == "1" then
-            write_byte(m_player + 0x60, 1)
-        elseif color == "red" or color == "2" then
-            write_byte(m_player + 0x60, 2)
-        elseif color == "blue" or color == "3" then
-            write_byte(m_player + 0x60, 3)
-        elseif color == "gray" or color == "4" then
-            write_byte(m_player + 0x60, 4)
-        elseif color == "yellow" or color == "5" then
-            write_byte(m_player + 0x60, 5)
-        elseif color == "green" or color == "6" then
-            write_byte(m_player + 0x60, 6)
-        elseif color == "pink" or color == "7" then
-            write_byte(m_player + 0x60, 7)
-        elseif color == "purple"or color == "8" then
-            write_byte(m_player + 0x60, 8)
-        elseif color == "cyan" or color == "9" then
-            write_byte(m_player + 0x60, 9)
-        elseif color == "cobalt" or color == "10" then
-            write_byte(m_player + 0x60, 10)
-        elseif color == "orange" or color == "11" then
-            write_byte(m_player + 0x60, 11)
-        elseif color == "teal" or color == "12" then
-            write_byte(m_player + 0x60, 12)
-        elseif color == "sage" or color == "13" then
-            write_byte(m_player + 0x60, 13)
-        elseif color == "brown" or color == "14" then
-            write_byte(m_player + 0x60, 14)
-        elseif color == "tan" or color == "15" then
-            write_byte(m_player + 0x60, 15)
-        elseif color == "maroon" or color == "16" then
-            write_byte(m_player + 0x60, 16)
-        elseif color == "salmon" or color == "17" then
-            write_byte(m_player + 0x60, 17)
-        else
-            rprint(executor_id, "Invalid Color")
-            ERROR = true
-        end
-        if not (ERROR) then
-            if (player_obj_id ~= nil) then
-                rprint(executor_id, target_name .. " had their color changed to " .. color)
-                destroy_object(player_obj_id)
-                if colorspawn == nil then colorspawn = { } end
-                if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
-                colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x,y,z
+	
+    if player_alive(target_id) then
+        local player_object = get_dynamic_player(target_id)
+        local player_obj_id = read_dword(get_player(target_id) + 0x34)
+        local m_player = getplayer(target_id)
+        if player_object then
+            local ERROR
+            local x, y, z = read_vector3d(player_object + 0x5C)
+            if color == "white" or color == "0" then
+                write_byte(m_player + 0x60, 0)
+            elseif color == "black" or color == "1" then
+                write_byte(m_player + 0x60, 1)
+            elseif color == "red" or color == "2" then
+                write_byte(m_player + 0x60, 2)
+            elseif color == "blue" or color == "3" then
+                write_byte(m_player + 0x60, 3)
+            elseif color == "gray" or color == "4" then
+                write_byte(m_player + 0x60, 4)
+            elseif color == "yellow" or color == "5" then
+                write_byte(m_player + 0x60, 5)
+            elseif color == "green" or color == "6" then
+                write_byte(m_player + 0x60, 6)
+            elseif color == "pink" or color == "7" then
+                write_byte(m_player + 0x60, 7)
+            elseif color == "purple"or color == "8" then
+                write_byte(m_player + 0x60, 8)
+            elseif color == "cyan" or color == "9" then
+                write_byte(m_player + 0x60, 9)
+            elseif color == "cobalt" or color == "10" then
+                write_byte(m_player + 0x60, 10)
+            elseif color == "orange" or color == "11" then
+                write_byte(m_player + 0x60, 11)
+            elseif color == "teal" or color == "12" then
+                write_byte(m_player + 0x60, 12)
+            elseif color == "sage" or color == "13" then
+                write_byte(m_player + 0x60, 13)
+            elseif color == "brown" or color == "14" then
+                write_byte(m_player + 0x60, 14)
+            elseif color == "tan" or color == "15" then
+                write_byte(m_player + 0x60, 15)
+            elseif color == "maroon" or color == "16" then
+                write_byte(m_player + 0x60, 16)
+            elseif color == "salmon" or color == "17" then
+                write_byte(m_player + 0x60, 17)
+            else
+                rprint(executor_id, "Invalid Color")
+                ERROR = true
+            end
+            if not (ERROR) then
+                if (player_obj_id ~= nil) then
+                    rprint(executor_id, target_name .. " had their color changed to " .. color)
+                    destroy_object(player_obj_id)
+                    if colorspawn == nil then colorspawn = { } end
+                    if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
+                    colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x,y,z
+                end
             end
         end
+    else
+        rprint(executor_id, get_var(target_id, "$name") .. " is not alive!")
     end
 end
 
