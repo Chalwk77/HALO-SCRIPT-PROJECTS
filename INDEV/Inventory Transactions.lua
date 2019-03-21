@@ -183,7 +183,7 @@ function money:Add(params)
             local content = fRead:read("*all")
             fRead:close()
             
-            content = gsub(content, v, player_ip .. ":" .. new_balance)
+            content = gsub(content, v, player_ip .. "|" .. new_balance)
             
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
@@ -193,7 +193,7 @@ function money:Add(params)
     
     if not (found) then
         local file = assert(io.open(dir, "a+"))
-        file:write(player_ip .. ":" .. new_balance .. "\n")
+        file:write(player_ip .. "|" .. new_balance .. "\n")
         file:close()
     end
 end
@@ -223,7 +223,7 @@ function money:Remove(params)
             local content = fRead:read("*all")
             fRead:close()
             
-            content = gsub(content, v, player_ip .. ":" .. new_balance)
+            content = gsub(content, v, player_ip .. "|" .. new_balance)
             
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
@@ -233,7 +233,7 @@ function money:Remove(params)
     
     if not (found) then
         local file = assert(io.open(dir, "a+"))
-        file:write(player_ip .. ":" .. new_balance .. "\n")
+        file:write(player_ip .. "|" .. new_balance .. "\n")
         file:close()
     end
 end
@@ -251,35 +251,35 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-    local data = {}
-    local str = ""
-    local n = 1
-    local file = io.open ( dir, "r" )
-    if file == nil then
-        return 0
+    local t = {}
+    local result, data, balance
+    
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(player_ip)) then
+            balance = v:match("|(.+)")
+            data = tokenizestring(balance, ",")
+        end
     end
-    local contents = file:read( "*a" )
-    file:close()
-    for i = 1, string.len( contents ) do
-        local char = string.char( string.byte( contents, i ) )
-        if char ~= ":" then
-            str = str..char
+    
+    for i = 1, 1 do
+        if data[i] then
+            t[#t + 1] = data[i]
+            result = tonumber(concat(t, ", "))
         else
-            data[n] = (str)
-            n = n + 1
-            str = ""
-        end
-       
-        if (data[1] ~= nil) and (data[1]:match(player_ip)) then
-            if (data[2] == 0) then
-                data[2] = 0
-            else
-                data[2] = data[2]
-            end
-            break
+            return 0
         end
     end
-    return data[2]
+
+    if (result ~= nil) then
+        if (result <= 0) then
+            return 0
+        else
+            return result
+        end
+    end
+    
+    for _ in pairs(t) do t[_] = nil end
 end
 
 function money:getUpgrades(params)
@@ -436,4 +436,17 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function tokenizestring(inputString, Separator)
+    if Separator == nil then
+        Separator = "%s"
+    end
+    local t = {};
+    local i = 1
+    for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
