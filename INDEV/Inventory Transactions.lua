@@ -28,7 +28,9 @@ local commands = {
     {["heal2"] = {'hp', "20", "2", "200% Health", -1}},
     {["heal3"] = {'hp', "30", "3", "300% Health", -1}},
     {["heal4"] = {'hp', "40", "4", "400% Health", -1}},
-    {["heal5"] = {'hp', "50", "5", "500% Health", -1}},
+    
+    -- repeat the structure to add new entries:
+    {["your_command"] = {'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number}},
 
     {["am1"] = {'ammo', "10", "200", "200 Ammo All Weapons", -1}},
     {["am2"] = {'ammo', "20", "350", "350 Ammo All Weapons", -1}},
