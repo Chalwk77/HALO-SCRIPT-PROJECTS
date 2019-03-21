@@ -21,10 +21,10 @@ local dir = "sapp\\alias.lua"
 local alignment = "l"
 local duration = 10
 local privilege_level = 1
-local max_columns = 6
-local ip_table = {}
+local max_columns, max_results = 6, 100
 -- configuration ends
 
+local ip_table = {}
 local mod, players, lower, concat, floor = { }, { }, string.lower, table.concat, math.floor
 
 local function callReset()
@@ -114,12 +114,11 @@ function mod:showAliases(executor, ip)
         
         if row ~= nil then rprint(executor, row) end
         for _ in pairs(t) do t[_] = nil end
+        
+        players[ip].startIndex = (players[ip].endIndex + 1)
+        players[ip].endIndex = (players[ip].endIndex + max_columns)
     end
-    
     formatAliases(executor)
-    
-    players[ip].startIndex = (players[ip].endIndex + 1)
-    players[ip].endIndex = (players[ip].endIndex + max_columns)
 end
 
 function OnPlayerJoin(PlayerIndex)
