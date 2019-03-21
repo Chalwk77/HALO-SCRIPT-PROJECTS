@@ -183,7 +183,7 @@ function money:update(params)
         new_balance = 0
     end
     
-    local found, proceed
+    local found
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if containsExact(ip, v) then
@@ -224,11 +224,22 @@ function money:getbalance(player_ip)
     local t = {}
     local result, data, balance
     
+    local function stringSplit(inputString, Separator)
+        if (Separator == nil) then Separator = "%s" end
+        local t = {};
+        local i = 1
+        for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
+            t[i] = str
+            i = i + 1
+        end
+        return t
+    end
+    
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(player_ip)) then
             balance = v:match("|(.+)")
-            data = tokenizestring(balance, ",")
+            data = stringSplit(balance, ",")
         end
     end
     
@@ -411,17 +422,4 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
-end
-
-function tokenizestring(inputString, Separator)
-    if Separator == nil then
-        Separator = "%s"
-    end
-    local t = {};
-    local i = 1
-    for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
