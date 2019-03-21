@@ -38,7 +38,7 @@ local max_columns, max_results = 6, 100
 -- configuration ends
 
 local ip_table = {}
-local mod, players, lower, concat, floor = { }, { }, string.lower, table.concat, math.floor
+local mod, players, lower, concat, floor, gsub = { }, { }, string.lower, table.concat, math.floor, string.gsub
 
 local function callReset()
     for i = 1,16 do
