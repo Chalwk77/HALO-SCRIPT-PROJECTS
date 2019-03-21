@@ -43,6 +43,10 @@ function transaction:getbalance(params)
 
 end
 
+function transaction:getUpgrades(params)
+
+end
+
 function transaction:transfer(params)
 
 end
