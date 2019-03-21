@@ -142,9 +142,11 @@ end
 
 function OnPlayerLeave(PlayerIndex)
     if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
-        for _,v in ipairs(ip_table[PlayerIndex]) do
-            mod:reset(v)
-            ip_table[PlayerIndex] = nil
+        if next(ip_table[PlayerIndex]) then
+            for _,v in ipairs(ip_table[PlayerIndex]) do
+                mod:reset(v)
+                ip_table[PlayerIndex] = nil
+            end
         end
     end
 end
