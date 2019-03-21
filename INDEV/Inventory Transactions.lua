@@ -18,7 +18,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 local commands = {
-    -- TRIGGER, COMMAND, COST, VALUE, LEVEL, MESAGE
+    -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
     {["heal1"] = {'hp', "10", "1", "100% Health", -1}},
     {["heal2"] = {'hp', "20", "2", "200% Health", -1}},
     {["heal3"] = {'hp', "30", "3", "300% Health", -1}},
