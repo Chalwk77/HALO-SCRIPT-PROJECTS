@@ -99,6 +99,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
 
+    local ip = get_var(executor, "$ip")
+    local balance = money:getbalance(ip)
+    
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
             if (tonumber(get_var(e, "$lvl"))) >= level then
@@ -108,7 +111,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
             end
         else
-            rprint(e, "Command failed. You can only execute this command from in game.")
+            cprint("You cannot execute this command from the console.", 4 + 8)
             return false
         end
     end
@@ -120,18 +123,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
-                    execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                    rprint(executor, cmd[4])
-                    response = false
+                    if (balance >= tonumber(cmd[2])) then
+                        execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                        rprint(executor, cmd[4])
+                    else
+                        rprint(executor, "Insufficient funds. Current balance: $" .. balance .. ". You need " .. cmd[2])
+                    end
+                    return false
                 end
             end
-        elseif (bal ~= nil) and (command == commands[key][1][1]) then
-            local balance = money:getbalance(getIP(executor))
+        elseif (bal ~= nil) and (command == bal[1]) then
             rprint(executor, gsub(bal[2], "%%money%%", balance))
-            response = false
+            return false
         end
     end
-    return response
 end
 
 function money:Purchase(params)
