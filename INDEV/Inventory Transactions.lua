@@ -84,6 +84,9 @@ local stats = {
 local money, ip_table = { }, { }
 local dir = "sapp\\stats.data"
 
+-- Not currently used
+-- local file_format = "%ip%|%money%"
+
 local gsub, match, concat = string.gsub, string.match, table.concat
 
 function OnScriptLoad()
@@ -158,32 +161,39 @@ function money:Purchase(params)
     -- to do
 end
 
-function money:Add(params)
+function money:update(params)
     local params = params or {}
 
-    local player_ip = params.pip or nil
-    local reward = params.money or nil
-    
-    local balance = money:getbalance(player_ip)
+    local ip = params.ip or nil
+    local points = params.money or nil
+    local subtract = params.subtract or nil
+    local balance = tonumber(money:getbalance(ip))
     
     local new_balance = balance
-    if (new_balance == nil) or (new_balance <= 0) then
-        new_balance = 0
+   
+    if not (subtract) then
+        new_balance = balance + points
     else
-        new_balance = balance + reward
+        new_balance = balance - points
+    end
+    
+    new_balance = new_balance
+    
+    if (new_balance <= 0) then
+        new_balance = 0
     end
     
     local found, proceed
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
-        if containsExact(player_ip, v) then
+        if containsExact(ip, v) then
             found = true
-            
+
             local fRead = io.open(dir, "r")
             local content = fRead:read("*all")
             fRead:close()
             
-            content = gsub(content, v, player_ip .. "|" .. new_balance)
+            content = gsub(content, v, ip .. "|" .. tostring(new_balance))
             
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
@@ -193,47 +203,7 @@ function money:Add(params)
     
     if not (found) then
         local file = assert(io.open(dir, "a+"))
-        file:write(player_ip .. "|" .. new_balance .. "\n")
-        file:close()
-    end
-end
-
-function money:Remove(params)
-    local params = params or {}
-
-    local player_ip = params.pip or nil
-    local penalty = params.money or nil
-    
-    local balance = money:getbalance(player_ip)
-    
-    local new_balance = balance
-    if (new_balance == nil) or (new_balance <= 0) then
-        new_balance = 0
-    else
-        new_balance = balance - penalty
-    end
-    
-    local found, proceed
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(player_ip, v) then
-            found = true
-            
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-            
-            content = gsub(content, v, player_ip .. "|" .. new_balance)
-            
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
-        end
-    end
-    
-    if not (found) then
-        local file = assert(io.open(dir, "a+"))
-        file:write(player_ip .. "|" .. new_balance .. "\n")
+        file:write(ip .. "|" .. tostring(new_balance) .. "\n")
         file:close()
     end
 end
@@ -301,27 +271,30 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     
-    local params = { }
-    
     if (victim ~= killer) then
         local kills = get_var(KillerIndex, "$kills")
         for key, _ in ipairs(stats) do
             local kill_table = stats[key][kills]
             local event_die = stats[key]["event_die"]
             if (kill_table ~= nil) and (event_die ~= nil) then
-                cprint("next phase", 2+8)
                 for k,_ in pairs(kill_table) do
                     if (tonumber(kills) == k) then
                         
+                        local params = { }
                         local penalty_points = stats[key]["event_die"]
-                        params.vip, params.kip = getIP(victim), getIP(killer)
-                        params.vmoney, params.kmoney = math.floor(kill_table[1]), math.floor(penalty_points[1])
-                        
-                        money:Add(params)
-                        money:Remove(params)
-                       
-                        rprint(executor, gsub(gsub(kill_table[2], "%%kills%%%", k), "%%upgrade_points%%", params.kmoney))
+                        params.ip = getIP(victim)
+                        params.money = penalty_points[1]
+                        params.subtract = true 
+                        money:update(params, victim)
                         rprint(victim, gsub(event_die[2], "%%penalty_points%%", event_die[1]))
+                        
+                        local params = { }
+                        params.ip = getIP(killer)
+                        params.money = kill_table[1]
+                        params.subtract = false 
+                        money:update(params, killer)
+                        rprint(killer, gsub(gsub(kill_table[2], "%%kills%%%", k), "%%upgrade_points%%", params.money))
+                        break
                     end
                 end
             end
@@ -330,9 +303,11 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         for key, _ in ipairs(stats) do
             local event_suicide = stats[key]["event_suicide"]
             if (event_suicide ~= nil) then
-                params.pip = getIP(victim)
-                params.money = math.floor(event_suicide[1])
-                money:Remove(params)
+                local params = { }
+                params.ip = getIP(victim)
+                params.money = event_suicide[1]:match("-(.+)")
+                params.subtract = true
+                money:update(params)
                 rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
             end
         end
