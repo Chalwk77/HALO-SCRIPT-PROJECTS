@@ -104,9 +104,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
 
-    local ip = get_var(executor, "$ip")
-    local balance = money:getbalance(ip)
-    
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
             if (tonumber(get_var(e, "$lvl"))) >= level then
@@ -120,6 +117,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
+    
+    local ip = get_var(executor, "$ip")
+    local balance = money:getbalance(ip)
     
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
