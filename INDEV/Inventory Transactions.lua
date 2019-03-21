@@ -4,7 +4,6 @@ Script Name: Inventory Transactions, for SAPP (PC & CE)
 Description: N/A
 
 IN DEVELOPMENT
-~Script Requested by "Vic Firth"
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -47,27 +46,37 @@ local commands = {
 
 local stats = {
     -- [ kills (killer)] --
-    {["10"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["20"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["30"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["40"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["50"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["60"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["70"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["80"] = {'10', "(%kills%) +10 Upgrade Points"}},
-    {["90"] = {'20', "(%kills%) +20 Upgrade Points"}},
-    {["100"] = {'30', "(%kills%) +30 Upgrade Points"}},
+    {["10"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["20"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["30"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["40"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["50"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["60"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["70"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["80"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["90"] = {'20', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["100"] = {'30', "(%kills%) +%upgrade_points% Upgrade Points"}},
     
     -- [ deaths (victim)] --
     {["event_die"] = {'-20', "DEATH (-%penalty_points% points)"}},
     
-    -- [ kill streaks ] --
+    -- [ kill streaks ]
+    {["streak"] = {5, "5", "Money: $%money%"}},
+    {["streak"] = {10, "10", "Money: $%money%"}},
+    {["streak"] = {15, "15", "Money: $%money%"}},
+    {["streak"] = {20, "20", "Money: $%money%"}},
+    {["streak"] = {25, "25", "Money: $%money%"}},
+    {["streak"] = {30, "30", "%assists% Assists +%upgrade_points% Upgrade Points"}},
     
-    -- [ suicide ] --
+    
+    -- [ suicide ]
     {["event_suicide"] = {'-30', "SUICIDE (-%penalty_points% points)"}},
     
-    -- [ team kill ] --
+    -- [ team kill ]
     {["event_tk"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
+    
+    -- [ assist ]
+    {["event_die"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
@@ -119,7 +128,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
     
-    local ip = get_var(executor, "$ip")
+    local ip = getIP(executor)
     local balance = money:getbalance(ip)
     
     for key, _ in ipairs(commands) do
@@ -242,7 +251,7 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-    local balance = {}
+    local data = {}
     local str = ""
     local n = 1
     local file = io.open ( dir, "r" )
@@ -256,17 +265,21 @@ function money:getbalance(player_ip)
         if char ~= ":" then
             str = str..char
         else
-            balance[n] = (str)
+            data[n] = (str)
             n = n + 1
             str = ""
         end
+       
+        if (data[1] ~= nil) and (data[1]:match(player_ip)) then
+            if (data[2] == 0) then
+                data[2] = 0
+            else
+                data[2] = data[2]
+            end
+            break
+        end
     end
-    
-    if (balance[1] == nil) or (balance[2] == nil) then 
-        balance[2] = 0
-    end
-    
-    return balance[2]
+    return data[2]
 end
 
 function money:getUpgrades(params)
@@ -288,25 +301,26 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     
+    local params = { }
+    
     if (victim ~= killer) then
-        local total_kills = get_var(KillerIndex, "$kills")
+        local kills = get_var(KillerIndex, "$kills")
         for key, _ in ipairs(stats) do
-            local kill_table = stats[key][total_kills]
-            if (kill_table ~= nil) then
+            local kill_table = stats[key][kills]
+            local event_die = stats[key]["event_die"]
+            if (kill_table ~= nil) and (event_die ~= nil) then
+                cprint("next phase", 2+8)
                 for k,_ in pairs(kill_table) do
-                    if (tonumber(total_kills) == k) then
-                        local params = { }
+                    if (tonumber(kills) == k) then
                         
                         local penalty_points = stats[key]["event_die"]
                         params.vip, params.kip = getIP(victim), getIP(killer)
-                        params.vmoney, params.kmoney = kill_table[1], penalty_points[1]
+                        params.vmoney, params.kmoney = math.floor(kill_table[1]), math.floor(penalty_points[1])
                         
                         money:Add(params)
                         money:Remove(params)
-                        
-                        rprint(KillerIndex, gsub(kill_table[2], "%%kills%%", k))
-                        
-                        local event_die = stats[key]["event_die"]
+                       
+                        rprint(executor, gsub(gsub(kill_table[2], "%%kills%%%", k), "%%upgrade_points%%", params.kmoney))
                         rprint(victim, gsub(event_die[2], "%%penalty_points%%", event_die[1]))
                     end
                 end
@@ -316,9 +330,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         for key, _ in ipairs(stats) do
             local event_suicide = stats[key]["event_suicide"]
             if (event_suicide ~= nil) then
-                local params = { }
                 params.pip = getIP(victim)
-                params.money = event_suicide[1]
+                params.money = math.floor(event_suicide[1])
                 money:Remove(params)
                 rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
             end
