@@ -17,13 +17,23 @@ api_version = "1.11.0.0"
 
 -- configuration starts
 local base_command = "alias"
+ -- File is saved to root/sapp/dir.lua
 local dir = "sapp\\alias.lua"
 
+-- You can optionally display results for a specified amount of time. 
+-- Set 'use_timer' to true to enable this feature.
 local use_timer = false
-local alignment = "l"
+
+-- How long should the alias results be displayed for? (in seconds) --
 local duration = 10
 
+-- Message Alignment:
+-- Left = l,    Right = r,    Center = c,    Tab: t
+local alignment = "l"
+
+-- Minimum admin level required to use /base_command
 local privilege_level = 1
+
 local max_columns, max_results = 6, 100
 -- configuration ends
 
