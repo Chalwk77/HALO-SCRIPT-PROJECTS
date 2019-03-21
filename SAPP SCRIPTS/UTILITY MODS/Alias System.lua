@@ -3,7 +3,7 @@
 Script Name: Alias System, for SAPP (PC & CE)
 Description: Query a player's hash to check what aliases have been used with it.
 
-Command syntax: /alias [id]
+Command syntax: /alias [me | id | * | all]
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,8 +18,11 @@ api_version = "1.11.0.0"
 -- configuration starts
 local base_command = "alias"
 local dir = "sapp\\alias.lua"
+
+local use_timer = false
 local alignment = "l"
 local duration = 10
+
 local privilege_level = 1
 local max_columns, max_results = 6, 100
 -- configuration ends
@@ -38,7 +41,9 @@ local function callReset()
 end
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], "OnTick")
+    if (use_timer) then
+        register_callback(cb['EVENT_TICK'], "OnTick")
+    end
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 
@@ -53,11 +58,13 @@ end
 
 function mod:reset(ip)
     players[ip] = players[ip] or { }
-    players[ip].timer = 0 
     players[ip].e = nil
     players[ip].t = nil
-    players[ip].trigger = false
-    players[ip].bool = false
+    if (use_timer) then
+        players[ip].timer = 0 
+        players[ip].trigger = false
+        players[ip].bool = false
+    end
 end
 
 function OnNewGame()
@@ -88,7 +95,7 @@ end
 function mod:showAliases(executor, ip)
     local target = players[ip].t
     
-    if (players[ip].bool == true) then
+    if (use_timer) and (players[ip].bool == true) then
         players[ip].bool = false
         rprint(executor, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target .. '"')
     end
@@ -117,6 +124,9 @@ function mod:showAliases(executor, ip)
         
         players[ip].startIndex = (players[ip].endIndex + 1)
         players[ip].endIndex = (players[ip].endIndex + max_columns)
+        if (players[ip].endIndex >= max_results) then
+            mod:reset(ip)
+        end
     end
     formatAliases(executor)
 end
@@ -214,8 +224,12 @@ function OnServerCommand(PlayerIndex, Command)
                 if (target_all_players) then
                     players[ip].startIndex = 1
                     players[ip].endIndex = tonumber(max_columns)
-                    players[ip].bool = true
-                    players[ip].trigger = true
+                    if (use_timer) then
+                        players[ip].bool = true
+                        players[ip].trigger = true
+                    else
+                        mod:showAliases(executor, ip)
+                    end
                 end
             end
         end
@@ -230,8 +244,12 @@ function OnServerCommand(PlayerIndex, Command)
                     if not (is_error) and isOnline(TargetID, executor) then
                         players[ip].startIndex = 1
                         players[ip].endIndex = tonumber(max_columns)
-                        players[ip].bool = true
-                        players[ip].trigger = true
+                        if (use_timer) then
+                            players[ip].bool = true
+                            players[ip].trigger = true
+                        else
+                            mod:showAliases(executor, ip)
+                        end
                     end
                 end
             else
