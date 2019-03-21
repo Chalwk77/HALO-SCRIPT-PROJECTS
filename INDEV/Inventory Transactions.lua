@@ -34,6 +34,9 @@ local commands = {
     {["cam1"] = {'camo', "30", "60", "1 Minute of Camo", -1}},
     {["cam2"] = {'camo', "40", "120", "2 Minutes of Camo", -1}},
     {["cam3"] = {'camo', "50", "180", "3 Minutes of Camo", -1}},
+    
+    -- Balance Command: Syntax: 'command, message'
+    {[1] = {"bal", "Money: $%money%", -1}},
 }
 
 local stats = {
@@ -71,6 +74,10 @@ local gsub, match, concat = string.gsub, string.match, table.concat
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
+    
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
+    
     checkFile()
 end
 
@@ -107,13 +114,25 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
         if (cmd ~= nil) then
-            if checkAccess(executor, cmd[5]) then
-                execute_command(cmd[1] .. ' ' .. PlayerIndex .. ' ' .. cmd[3])
-                rprint(PlayerIndex, cmd[4])
+            local lvl = cmd[#cmd]
+            if checkAccess(executor, lvl) then
+                if (#cmd > 2) then
+                    execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                    rprint(executor, cmd[4])
+                    response = false
+                end
             end
-            return false
         end
+        local bal = commands[key][1]
+        if (bal ~= nil) then
+            if (command == commands[key][1][1]) then
+                local balance = money:getbalance(getIP(executor))
+                rprint(executor, gsub(bal[2], "%%money%%", balance))
+            end
+        end
+        response = false
     end
+    return response
 end
 
 function money:Purchase(params)
@@ -123,20 +142,17 @@ end
 function money:Add(params)
     local params = params or {}
 
-    local player_id = params.pid or nil
     local player_ip = params.pip or nil
-    local penalty = params.money or nil
+    local reward = params.money or nil
     
-    local ip, balance = money:getbalance(player_ip)
+    local balance = money:getbalance(player_ip)
     
     local new_balance = balance
     if (new_balance == nil) or (new_balance <= 0) then
         new_balance = 0
     else
-        new_balance = balance - penalty
+        new_balance = balance + reward
     end
-    
-    print(new_balance)
     
     local found, proceed
     local lines = lines_from(dir)
@@ -148,7 +164,7 @@ function money:Add(params)
             local content = fRead:read("*all")
             fRead:close()
             
-            content = gsub(content, v, ip .. ":" .. new_balance)
+            content = gsub(content, v, player_ip .. ":" .. new_balance)
             
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
@@ -158,7 +174,7 @@ function money:Add(params)
     
     if not (found) then
         local file = assert(io.open(dir, "a+"))
-        file:write(ip .. ":" .. new_balance .. "\n")
+        file:write(player_ip .. ":" .. new_balance .. "\n")
         file:close()
     end
 end
@@ -248,13 +264,14 @@ function money:getUpgrades(params)
 end
 
 function OnPlayerConnect(PlayerIndex)
+    local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
-    ip_table[PlayerIndex] = { }
-    table.insert(ip_table[PlayerIndex], ip)
+    if not ip_table[hash] then ip_table[hash] = {} end
+    table.insert(ip_table[hash], {["ip"] = ip})
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    ip_table[PlayerIndex] = nil
+    --
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
@@ -300,10 +317,10 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 end
 
 function getIP(PlayerIndex)
-    if ip_table[PlayerIndex] then
-        for _,v in pairs(ip_table[PlayerIndex]) do
-            print(v)
-            return v
+    local hash = get_var(PlayerIndex, "$hash")
+    if ip_table[hash] ~= nil or ip_table[hash] ~= {} then
+        for key, _ in ipairs(ip_table[hash]) do
+            return ip_table[hash][key]["ip"]
         end
     end
 end
