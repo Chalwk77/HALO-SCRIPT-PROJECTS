@@ -122,20 +122,19 @@ function mod:showAliases(executor, ip)
             end
         end
         
-        for i = tonumber(players[ip].startIndex), tonumber(players[ip].endIndex) do
-            if words[i] then
-                t[#t + 1] = words[i]
-                row = concat(t, ", ")
+        if (players[ip].endIndex <= max_results) then
+            for i = tonumber(players[ip].startIndex), tonumber(players[ip].endIndex) do
+                if words[i] then
+                    t[#t + 1] = words[i]
+                    row = concat(t, ", ")
+                end
             end
-        end
-        
-        if row ~= nil then rprint(executor, row) end
-        for _ in pairs(t) do t[_] = nil end
-        
-        players[ip].startIndex = (players[ip].endIndex + 1)
-        players[ip].endIndex = (players[ip].endIndex + max_columns)
-        if (players[ip].endIndex >= max_results) then
-            mod:reset(ip)
+            
+            if row ~= nil then rprint(executor, row) end
+            for _ in pairs(t) do t[_] = nil end
+            
+            players[ip].startIndex = (players[ip].endIndex + 1)
+            players[ip].endIndex = (players[ip].endIndex + max_columns)
         end
     end
     formatAliases(executor)
