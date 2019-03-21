@@ -17,6 +17,11 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
+-- Custom Variables that can be used in 'Insufficient Funds' message: 
+-- "%balance%" (current balance)
+-- "%price%" (money required to execute TRIGGER)
+local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
+
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
     {["heal1"] = {'hp', "10", "1", "100% Health", -1}},
@@ -127,12 +132,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
                         rprint(executor, cmd[4])
                     else
-                        rprint(executor, "Insufficient funds. Current balance: $" .. balance .. ". You need " .. cmd[2])
+                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                     end
                     return false
                 end
             end
-        elseif (bal ~= nil) and (command == bal[1]) then
+        elseif (bal ~= nil and command == bal[1]) then
             rprint(executor, gsub(bal[2], "%%money%%", balance))
             return false
         end
