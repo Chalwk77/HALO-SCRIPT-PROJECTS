@@ -78,19 +78,21 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     
+    register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
+    
     checkFile()
 end
 
 function OnScriptUnload()
-    --
+    -- to do
 end
 
 function OnGameStart()
-    
+    -- to do
 end
 
 function OnGameEnd()
-    
+    -- to do
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -113,6 +115,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
+        local bal = commands[key][1]
         if (cmd ~= nil) then
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
@@ -122,21 +125,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     response = false
                 end
             end
+        elseif (bal ~= nil) and (command == commands[key][1][1]) then
+            local balance = money:getbalance(getIP(executor))
+            rprint(executor, gsub(bal[2], "%%money%%", balance))
+            response = false
         end
-        local bal = commands[key][1]
-        if (bal ~= nil) then
-            if (command == commands[key][1][1]) then
-                local balance = money:getbalance(getIP(executor))
-                rprint(executor, gsub(bal[2], "%%money%%", balance))
-            end
-        end
-        response = false
     end
     return response
 end
 
 function money:Purchase(params)
-
+    -- to do
 end
 
 function money:Add(params)
@@ -220,15 +219,15 @@ function money:Remove(params)
 end
 
 function money:Accept(params)
-
+    -- to do
 end
 
 function money:Decline(params)
-
+    -- to do
 end
 
 function money:Transfer(params)
-
+    -- to do
 end
 
 function money:getbalance(player_ip)
@@ -260,7 +259,7 @@ function money:getbalance(player_ip)
 end
 
 function money:getUpgrades(params)
-
+    -- to do
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -271,7 +270,7 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    --
+    -- to do
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
@@ -314,6 +313,10 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             end
         end
     end
+end
+
+function OnPlayerAssist()
+    -- to do
 end
 
 function getIP(PlayerIndex)
