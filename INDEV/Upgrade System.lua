@@ -215,6 +215,8 @@ function OnScriptUnload()
         if player_present(i) then
             players[i] = nil
             run_combo_timer[i] = nil
+            local hash = get_var(i, "$hash")
+            ip_table[hash] = nil
         end
     end
 end
@@ -228,6 +230,8 @@ function OnGameEnd()
         if player_present(i) then
             players[i] = nil
             run_combo_timer[i] = nil
+            local hash = get_var(i, "$hash")
+            ip_table[hash] = nil
         end
     end
 end
