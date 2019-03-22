@@ -10,7 +10,7 @@ Description:
 
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
-            [!] STILL IN DEVELOPMENT (approx 96% complete)
+            [!] STILL IN DEVELOPMENT (approx 97% complete)
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
