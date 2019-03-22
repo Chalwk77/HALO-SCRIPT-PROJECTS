@@ -67,7 +67,7 @@ local stats = {
     },
 
     consecutive = {
-        [1] = { "5", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
+        [1] = { "2", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [4] = { "20", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
@@ -121,7 +121,6 @@ local money, mod, ip_table, weapon = { }, { }, { }, { }
 local dir = "sapp\\stats.data"
 
 local players = { }
---local isCombo = { }
 local run_combo_timer = { }
 
 -- Not currently used
@@ -368,9 +367,6 @@ function OnPlayerConnect(PlayerIndex)
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
 
-    -- isCombo[PlayerIndex] = isCombo[PlayerIndex] or { }
-    -- isCombo[PlayerIndex] = false
-
     players[PlayerIndex] = players[PlayerIndex] or { }
     players[PlayerIndex].kills = 0
     players[PlayerIndex].kills = 0
@@ -417,7 +413,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         function comboCheckDelay()
             if (players[killer].combo_timer > 0) then
                 local p = { }
-                p.kills, p.id = players[killer].kills, killer
+                p.kills, p.id, p.ip = players[killer].kills, killer, kip
                 mod:checkForCombo(p)
             end
         end
@@ -435,29 +431,27 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 
             local p = { }
             players[killer].streaks = players[killer].streaks + 1
-            p.streaks, p.id = players[killer].streaks, killer
+            p.streaks, p.id, p.ip = players[killer].streaks, killer, kip
             mod:checkForStreak(p)
 
-            --if not (isCombo[killer]) then
-                local event_kill, event_die
-                local kills = tostring(get_var(KillerIndex, "$kills"))
-                for key, _ in ipairs(stats) do
-                    event_kill = stats[key][kills]
-                    event_die = stats[key]["event_die"]
-                    if (event_kill ~= nil) then
-                        for k, v in pairs(event_kill) do
-                            if (kills == v) then
-                                local params = { }
-                                params.ip = getIP(killer)
-                                params.money = event_kill[1]
-                                params.subtract = false
-                                money:update(params)
-                                rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
-                            end
+            local event_kill, event_die
+            local kills = tostring(get_var(KillerIndex, "$kills"))
+            for key, _ in ipairs(stats) do
+                event_kill = stats[key][kills]
+                event_die = stats[key]["event_die"]
+                if (event_kill ~= nil) then
+                    for k, v in pairs(event_kill) do
+                        if (kills == v) then
+                            local params = { }
+                            params.ip = getIP(killer)
+                            params.money = event_kill[1]
+                            params.subtract = false
+                            money:update(params)
+                            rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
                         end
                     end
                 end
-            --end
+            end
 
             -- Victim Penalty
             if (event_die ~= nil) then
@@ -503,6 +497,7 @@ end
 function mod:checkForCombo(params)
     local params = params or {}
     local PlayerIndex = params.id or nil
+    local ip = params.ip or nil
     local kills = params.kills or nil
 
     local tab = stats.combo
@@ -510,11 +505,12 @@ function mod:checkForCombo(params)
         local required_kills = tonumber(tab[i][1])
         if (required_kills ~= nil) then
             if (kills == required_kills) then
-                local message = tab[i][3]
-                params.money = tab[i][2]
-                params.subtract = false
+                local p = { }
+                p.money = tab[i][2]
+                p.subtract = false
+                p.ip = ip
                 money:update(params)
-                --isCombo[PlayerIndex] = true
+                local message = tab[i][3]
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
             end
         end
@@ -524,17 +520,20 @@ end
 function mod:checkForStreak(params)
     local params = params or {}
     local PlayerIndex = params.id or nil
-    local streaks = params.streak or nil
-
+    local ip = params.ip or nil
+    local streaks = params.streaks or nil
+    
     local tab = stats.consecutive
     for i = 1, #tab do
         local required_streaks = tonumber(tab[i][1])
         if (required_streaks ~= nil) then
             if (streaks == required_streaks) then
-                local message = tab[i][3]
-                params.money = tab[i][2]
-                params.subtract = false
+                local p = { }
+                p.money = tab[i][2]
+                p.subtract = false
+                p.ip = ip
                 money:update(params)
+                local message = tab[i][3]
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_streaks), "%%upgrade_points%%", params.money))
             end
         end
@@ -544,17 +543,20 @@ end
 function mod:checkForAssist(params)
     local params = params or {}
     local PlayerIndex = params.id or nil
+    local ip = params.ip or nil
     local assists = params.assists or nil
-
+    
     local tab = stats.assists
     for i = 1, #tab do
         local required_assists = tonumber(tab[i][1])
         if (required_assists ~= nil) then
             if (assists == required_assists) then
-                local message = tab[i][3]
-                params.money = tab[i][2]
-                params.subtract = false
+                local p = { }
+                p.money = tab[i][2]
+                p.subtract = false
+                p.ip = ip
                 money:update(params)
+                local message = tab[i][3]
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_assists), "%%upgrade_points%%", params.money))
             end
         end
@@ -578,8 +580,9 @@ end
 
 function OnPlayerAssist(PlayerIndex)
     players[PlayerIndex].assists = players[PlayerIndex].assists + 1
-    local p = { }
-    p.assists, p.id = players[PlayerIndex].assists, PlayerIndex
+    
+    local p, ip = { }, getIP(PlayerIndex)
+    p.assists, p.id, p.ip = players[PlayerIndex].assists, PlayerIndex
     mod:checkForAssist(p)
 end
 
