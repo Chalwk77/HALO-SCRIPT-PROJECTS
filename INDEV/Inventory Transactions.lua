@@ -67,7 +67,7 @@ local stats = {
     },
 
     consecutive = {
-        [1] = { "2", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
+        [1] = { "5", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
         [4] = { "20", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points" },
@@ -141,7 +141,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
 
     --register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-    --register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     checkFile()
 end
@@ -442,37 +442,39 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 if (event_kill ~= nil) then
                     for k, v in pairs(event_kill) do
                         if (kills == v) then
-                            local params = { }
-                            params.ip = getIP(killer)
-                            params.money = event_kill[1]
-                            params.subtract = false
-                            money:update(params)
-                            rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
+                            local p = { }
+                            p.ip = getIP(killer)
+                            p.money = event_kill[1]
+                            p.subtract = false
+                            money:update(p)
+                            rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", p.money))
+                            break
                         end
                     end
                 end
+                -- Victim Penalty
+                if (event_die ~= nil) then
+                    local p = { }
+                    p.ip = getIP(victim)
+                    p.money = event_die[1]
+                    p.subtract = true
+                    money:update(p)
+                    rprint(victim, gsub(event_die[2], "%%penalty_points%%", p.money))
+                end
             end
 
-            -- Victim Penalty
-            if (event_die ~= nil) then
-                local params = { }
-                params.ip = getIP(victim)
-                params.money = event_die[1]
-                params.subtract = true
-                money:update(params)
-                rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
-            end
-            -- Suicide
+            
+        -- Suicide
         elseif (victim == killer) then
             for key, _ in ipairs(stats) do
                 local event_suicide = stats[key]["event_suicide"]
                 if (event_suicide ~= nil) then
-                    local params = { }
-                    params.ip = getIP(victim)
-                    params.money = event_suicide[1]
-                    params.subtract = true
-                    money:update(params)
-                    rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
+                    local p = { }
+                    p.ip = getIP(victim)
+                    p.money = event_suicide[1]
+                    p.subtract = true
+                    money:update(p)
+                    rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", p.money))
                 end
             end
         end
@@ -481,12 +483,12 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             for key, _ in ipairs(stats) do
                 local event_tk = stats[key]["event_tk"]
                 if (event_tk ~= nil) then
-                    local params = { }
-                    params.ip = getIP(killer)
-                    params.money = event_tk[1]
-                    params.subtract = true
-                    money:update(params)
-                    rprint(killer, gsub(event_tk[2], "%%penalty_points%%", params.money))
+                    local p = { }
+                    p.ip = getIP(killer)
+                    p.money = event_tk[1]
+                    p.subtract = true
+                    money:update(p)
+                    rprint(killer, gsub(event_tk[2], "%%penalty_points%%", p.money))
                     break
                 end
             end
@@ -509,9 +511,10 @@ function mod:checkForCombo(params)
                 p.money = tab[i][2]
                 p.subtract = false
                 p.ip = ip
-                money:update(params)
+                money:update(p)
                 local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", p.money))
+                break
             end
         end
     end
@@ -532,9 +535,10 @@ function mod:checkForStreak(params)
                 p.money = tab[i][2]
                 p.subtract = false
                 p.ip = ip
-                money:update(params)
+                money:update(p)
                 local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_streaks), "%%upgrade_points%%", params.money))
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_streaks), "%%upgrade_points%%", p.money))
+                break
             end
         end
     end
@@ -557,7 +561,8 @@ function mod:checkForAssist(params)
                 p.ip = ip
                 money:update(params)
                 local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_assists), "%%upgrade_points%%", params.money))
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_assists), "%%upgrade_points%%", p.money))
+                break
             end
         end
     end
