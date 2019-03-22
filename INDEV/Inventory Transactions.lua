@@ -28,6 +28,8 @@ local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
 
+local available_upgrades_command = ""
+
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
     { ["heal1"] = { 'hp', "10", "1", "100% Health", -1 } },
@@ -234,7 +236,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
-
     local ip = getIP(executor)
     local balance = money:getbalance(ip)
 
@@ -385,10 +386,6 @@ function money:getbalance(player_ip)
     for _ in pairs(t) do
         t[_] = nil
     end
-end
-
-function money:getUpgrades(params)
-    -- to do
 end
 
 function OnPlayerConnect(PlayerIndex)
