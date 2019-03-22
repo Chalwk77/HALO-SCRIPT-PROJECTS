@@ -323,25 +323,33 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
             -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
-                -- TO DO: perm check needed here
-                
-                local balance = money:getbalance(getIP(executor))   
-                rprint(executor, gsub(bal[2], "%%money%%", balance))
+				if (args[1] == nil) then
+					-- TO DO: perm check needed here
+					
+					local balance = money:getbalance(getIP(executor))   
+					rprint(executor, gsub(bal[2], "%%money%%", balance))
+				else
+					rprint(executor, "Invalid Syntax. Usage: /" .. command)
+				end
                 return false
             end
 
             -- Golden Gun
             if (gold ~= nil) and (command == gold[1]) then
-                -- TO DO: perm check needed here
-                
-                local params = { }
-                params.ip = getIP(executor)
-                params.money = gold[2]
-                params.subtract = true
-                money:update(params)
-                local new_balance = money:getbalance(ip)
-                rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
-                execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+				if (args[1] == nil) then
+					-- TO DO: perm check needed here
+					
+					local params = { }
+					params.ip = getIP(executor)
+					params.money = gold[2]
+					params.subtract = true
+					money:update(params)
+					local new_balance = money:getbalance(ip)
+					rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
+					execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+				else
+					rprint(executor, "Invalid Syntax. Usage: /" .. command)
+				end
                 return false
             end
         end
