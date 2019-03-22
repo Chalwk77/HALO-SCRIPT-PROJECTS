@@ -13,12 +13,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 -- configuration starts --
-message = "Kill Counter: $kills"
--- Left = l,    Right = r,    Centre = c,    Tab: t
-message_alignment = "l"
+local message = "Kill Counter: %kills%"
+local alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
 -- configuration ends --
 
-players = { }
+local players = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
@@ -26,8 +25,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerLeave')
     for i = 1, 16 do
         if player_present(i) then
-            players[get_var(i, "$n")] = { }
-            players[get_var(i, "$n")].kills = 0
+            players[i] = { }
+            players[i].kills = 0
         end
     end
 end
@@ -35,24 +34,22 @@ end
 function OnScriptUnload()
     for i = 1, 16 do
         if player_present(i) then
-            players[get_var(i, "$n")] = { }
+            players[i] = { }
         end
     end
 end
 
 function OnPlayerJoin(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")] = { }
-    players[get_var(PlayerIndex, "$n")].kills = 0
+    players[PlayerIndex] = { }
+    players[PlayerIndex].kills = 0
 end
 
 function OnPlayerLeave(PlayerIndex)
-    players[get_var(PlayerIndex, "$n")] = { }
+    players[PlayerIndex] = nil
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    players[get_var(KillerIndex, "$n")].kills = players[get_var(KillerIndex, "$n")].kills + 1
-    for i = 1, 20 do
-        rprint(KillerIndex, " ")
-    end
-    rprint(KillerIndex, string.gsub(message, "$kills", players[get_var(KillerIndex, "$n")].kills))
+    players[KillerIndex].kills = players[KillerIndex].kills + 1
+    for i = 1, 20 do rprint(KillerIndex, " ") end
+    rprint(KillerIndex, "|" .. alignment .. " " .. string.gsub(message, "%%kills%%", players[KillerIndex].kills))
 end
