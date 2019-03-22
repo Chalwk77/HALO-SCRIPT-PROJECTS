@@ -226,9 +226,7 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-    local t = {}
-    local result, data, balance
-
+    
     local function stringSplit(inputString, Separator)
         if (Separator == nil) then
             Separator = "%s"
@@ -242,6 +240,7 @@ function money:getbalance(player_ip)
         return t
     end
 
+    local data, balance
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(player_ip)) then
@@ -250,6 +249,7 @@ function money:getbalance(player_ip)
         end
     end
 
+    local t, result = { }
     for i = 1, 1 do
         if data[i] then
             t[#t + 1] = data[i]
