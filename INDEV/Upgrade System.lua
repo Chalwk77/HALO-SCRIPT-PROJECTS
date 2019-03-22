@@ -533,11 +533,15 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         local vip = getIP(victim)
 
         -- [Combo Scoring]
-        if run_combo_timer[victim] then
+        if (run_combo_timer[victim]) then
             run_combo_timer[victim] = false
             players[victim].combos = 0
             players[victim].combo_timer = 0
         end
+
+		if (players[victim].streaks > 0) then
+			players[victim].streaks = 0
+		end
 
         players[killer].combos = players[killer].combos + 1
         if not (run_combo_timer[killer]) then
@@ -560,10 +564,6 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         if (killer ~= victim and kTeam ~= vTeam) then
 
             -- [ STREAKS ]
-            if (players[victim].streaks > 0) then
-                players[victim].streaks = 0
-            end
-
             local p1 = {}
             players[killer].streaks = players[killer].streaks + 1
             p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract = "streaks", players[killer].streaks, killer, kip, stats.streaks, false
