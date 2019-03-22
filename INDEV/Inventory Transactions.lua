@@ -121,7 +121,7 @@ local money, mod, ip_table, weapon = { }, { }, { }, { }
 local dir = "sapp\\stats.data"
 
 local players = { }
-local isCombo = { }
+--local isCombo = { }
 local start_combo_timer = { }
 
 -- Not currently used
@@ -368,10 +368,11 @@ function OnPlayerConnect(PlayerIndex)
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
 
-    isCombo[PlayerIndex] = isCombo[PlayerIndex] or { }
-    isCombo[PlayerIndex] = false
+    -- isCombo[PlayerIndex] = isCombo[PlayerIndex] or { }
+    -- isCombo[PlayerIndex] = false
 
     players[PlayerIndex] = players[PlayerIndex] or { }
+    players[PlayerIndex].kills = 0
     players[PlayerIndex].kills = 0
     players[PlayerIndex].combo_timer = 0
     players[PlayerIndex].streaks = 0
@@ -437,7 +438,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             p.streaks, p.id = players[killer].streaks, killer
             mod:checkForStreak(p)
 
-            if not (isCombo[killer]) then
+            --if not (isCombo[killer]) then
                 local event_kill, event_die
                 local kills = tostring(get_var(KillerIndex, "$kills"))
                 for key, _ in ipairs(stats) do
@@ -456,7 +457,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                         end
                     end
                 end
-            end
+            --end
 
             -- Victim Penalty
             if (event_die ~= nil) then
@@ -513,7 +514,7 @@ function mod:checkForCombo(params)
                 params.money = tab[i][2]
                 params.subtract = false
                 money:update(params)
-                isCombo[PlayerIndex] = true
+                --isCombo[PlayerIndex] = true
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
             end
         end
@@ -534,7 +535,6 @@ function mod:checkForStreak(params)
                 params.money = tab[i][2]
                 params.subtract = false
                 money:update(params)
-                isCombo[PlayerIndex] = true
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_streaks), "%%upgrade_points%%", params.money))
             end
         end
@@ -555,7 +555,6 @@ function mod:checkForAssist(params)
                 params.money = tab[i][2]
                 params.subtract = false
                 money:update(params)
-                isCombo[PlayerIndex] = true
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_assists), "%%upgrade_points%%", params.money))
             end
         end
