@@ -122,7 +122,7 @@ local dir = "sapp\\stats.data"
 
 local players = { }
 --local isCombo = { }
-local start_combo_timer = { }
+local run_combo_timer = { }
 
 -- Not currently used
 -- local file_format = "%ip%|%money%"
@@ -403,15 +403,15 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     if (killer > 0) then
 
         -- [Combo Scoring]
-        if start_combo_timer[victim] then
-            start_combo_timer[victim] = false
+        if run_combo_timer[victim] then
+            run_combo_timer[victim] = false
             players[victim].kills = 0
             players[victim].combo_timer = 0
         end
 
         players[killer].kills = players[killer].kills + 1
-        if not (start_combo_timer[killer]) then
-            start_combo_timer[killer] = true
+        if not (run_combo_timer[killer]) then
+            run_combo_timer[killer] = true
         end
 
         function comboCheckDelay()
@@ -421,7 +421,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 mod:checkForCombo(p)
             end
         end
-        if (start_combo_timer[killer]) then
+        if (run_combo_timer[killer]) then
             timer(50, "comboCheckDelay")
         end
 
@@ -564,10 +564,10 @@ end
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
-            if (start_combo_timer[i]) then
+            if (run_combo_timer[i]) then
                 players[i].combo_timer = players[i].combo_timer + 0.030
                 if (players[i].combo_timer >= floor(stats.combo.duration)) then
-                    start_combo_timer[i] = false
+                    run_combo_timer[i] = false
                     players[i].combo_timer = 0
                     players[i].kills = 0
                 end
