@@ -25,6 +25,30 @@ api_version = "1.12.0.0"
 -- "%price%" (money required to execute TRIGGER)
 local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
 
+local upgrade_info_command = "upgrades"
+local upgrade_perm_lvl = -1
+local upgrade_info = {
+    "|cBIGASS AURORA UPGRADE SYTSTEM",
+    " ",
+    "|cPURCHASE UPGRADES",
+    " ",
+    "|cCommand | Upgrade | Cost",
+    " ",
+    "|c/heal1 | Health 100% | 10          /am1 | 200 Ammo All Weapons | 10",
+    "|c/heal2 | Health 200% | 20          /am2 | 350 Ammo All Weapons | 20",
+    "|c/heal3 | Health 300% | 30          /am3 | 500 Ammo All Weapons | 30",
+    "|c/heal4 | Health 400% | 40          /am4 | 700 Ammo All Weapons | 40",
+    "|c/heal5 | Health 500% | 50          /am5 | 900 Ammo All Weapons | 50",
+    " ",
+    "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
+    "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
+    "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
+    " ",  
+    " ",
+    "|c*Type /up to view how many Upgrade Points you currently have*",
+    " ",
+}
+
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
     { ["heal1"] = { 'hp', "10", "1", "100% Health", -1 } },
@@ -66,7 +90,7 @@ local stats = {
         duration = 7 -- in seconds (default 5)
     },
 
-    consecutive = {
+    streaks = {
         [1] = { "5", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
@@ -127,7 +151,7 @@ local run_combo_timer = { }
 -- Not currently used
 -- local file_format = "%ip%|%money%"
 
-local gsub, match, concat, floor = string.gsub, string.match, table.concat, math.floor
+local gsub, match, concat, floor, lower = string.gsub, string.match, table.concat, math.floor, string.lower
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -195,6 +219,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
+    
+    if (command == lower(upgrade_info_command)) then
+        if (checkAccess(executor, upgrade_perm_lvl)) then
+            if (args[1] == nil) then
+                for k, _ in pairs(upgrade_info) do
+                    if (k) then
+                        rprint(executor, upgrade_info[k])
+                    end
+                end
+            end
+        end
+        return false
+    end
+
 
     local ip = getIP(executor)
     local balance = money:getbalance(ip)
@@ -432,7 +470,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             
             local p1 = { }
             players[killer].streaks = players[killer].streaks + 1
-            p1.type, p1.total, p1.id, p1.ip, p1.table = "streaks", players[killer].streaks, killer, kip, stats.consecutive
+            p1.type, p1.total, p1.id, p1.ip, p1.table = "streaks", players[killer].streaks, killer, kip, stats.streaks
             mod:check(p1)
             
             local p2 = { }
