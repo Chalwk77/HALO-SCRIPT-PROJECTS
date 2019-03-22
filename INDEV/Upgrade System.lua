@@ -539,9 +539,9 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             players[victim].combo_timer = 0
         end
 
-		if (players[victim].streaks > 0) then
-			players[victim].streaks = 0
-		end
+        if (players[victim].streaks > 0) then
+            players[victim].streaks = 0
+        end
 
         players[killer].combos = players[killer].combos + 1
         if not (run_combo_timer[killer]) then
