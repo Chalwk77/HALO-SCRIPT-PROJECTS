@@ -24,8 +24,6 @@ api_version = "1.12.0.0"
 -- "%balance%" (current balance)
 -- "%price%" (money required to execute TRIGGER)
 local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
-local combo_kill_duration = 5
-
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
@@ -65,6 +63,7 @@ local stats = {
         [1] = { "3", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
         [2] = { "4", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
         [3] = { "5", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
+        duration = 5 -- in seconds
     },
     
     -- [ kills (killer)] --
@@ -395,6 +394,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         if not (start_combo_timer[killer]) then
             start_combo_timer[killer] = true
         end
+        
         if (killer ~= victim and kTeam ~= vTeam) then
             if not (isCombo[killer]) then
                 local event_kill, event_die
@@ -478,7 +478,7 @@ function mod:checkForCombo(params)
                 params.subtract = false
                 money:update(params)
                 isCombo[PlayerIndex] = true
-                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", "kills"), "%%upgrade_points%%", required_kills))
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
             end
         end
     end
@@ -489,12 +489,14 @@ function OnTick()
         if player_present(i) then
             if (start_combo_timer[i]) then
                 local ip, params = getIP(i), { }
-                 players[ip].combo_timer = players[ip].combo_timer + 0.030
+                players[ip].combo_timer = players[ip].combo_timer + 0.030
                 params.ip, params.id = ip, tonumber(i)
                 params.kills = players[ip].kills
                 mod:checkForCombo(params)
-                if (players[ip].combo_timer >= floor(combo_kill_duration)) then
+                if (players[ip].combo_timer >= floor(stats.combo.duration)) then
                     start_combo_timer[i] = false
+                    players[ip].combo_timer = 0
+                    players[ip].kills = 0
                 end
             end
         end
