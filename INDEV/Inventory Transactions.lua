@@ -452,7 +452,6 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     rprint(victim, gsub(event_die[2], "%%penalty_points%%", p.money))
                 end
             end
-
             
         -- Suicide
         elseif (victim == killer) then
