@@ -6,7 +6,7 @@ Description: Earn 'money' for kills, scoring, assists, combo-kills and more.
 Use that money to buy equipment and upgrades.
 More details will come at a later date.
 
-IN DEVELOPMENT (80% complete)
+IN DEVELOPMENT (90% complete)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -334,14 +334,6 @@ function money:update(params)
         file:write(ip .. "|" .. tostring(new_balance) .. "\n")
         file:close()
     end
-end
-
-function money:Accept(params)
-    -- to do
-end
-
-function money:Decline(params)
-    -- to do
 end
 
 function money:Transfer(params)
