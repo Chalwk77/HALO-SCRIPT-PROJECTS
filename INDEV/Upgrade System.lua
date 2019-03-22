@@ -1,783 +1,762 @@
+
 --[[
 --=====================================================================================================--
-Script Name: Server Fun Plus, for SAPP (PC & CE)
-
-Features:
-*   rocket:             turn a player into a rocket (player's in vehicles only)
-*   force chat:         force a player to say something
-*   fake join:          pretend player joins the game
-*   fake quit:          pretend player left the game
-    random tp:          teleport player to a random location on the map
-*   slap:               slap target player
-*   spam:               spam a message to the designated player
-    zap:                zap target player (deals X damage)
-*   god:                broadcast a message as god
-*   nuke:               nuke the target player
-    colour changer:     change a player's colour
-*   crash:              crash player's game client
-
-    IN DEVELOPMENT
-
-
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Script Name: Upgrade System, for SAPP (PC & CE)
+Description:
+            Earn 'money' for:
+            -> Kills & Assists
+            -> Kill-Combos & Kill-Streaks
+            -> CTF Scoring
+            Use your money to buy weapons and upgrades with custom commands.
+            [!] More details will come at a later date.
+            [!] STILL IN DEVELOPMENT (approx 97% complete)
+			
+			TO DO:
+			* Bug fixes
+			* Write money transfer command
+			* Possibly refactor some code. 
+			* Final tests before publishing as a finished resource
+       
+Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]--
+]] --
 
 api_version = "1.12.0.0"
 
--- ROCKET --
--- /rocket
--- /rocket me
--- /rocket x,y,z
--- /rocket me x,y,z
--- /rocket me x,y,z,yaw,pitch,roll
--- /rocket x,y,z,yaw,pitch,roll
--- /rocket index
--- /rocket index x,y,z
--- /rocket index x,y,z,yaw,pitch,roll
-rocket_command = "rocket"
-rocket_permission_level = 1
-values_specified = {}
-x = {}
-y = {}
-z = {}
-yaw = {}
-pitch = {}
-roll = {}
-ypr = {}
+-- Configuration [starts]
 
--- FORCE CHAT --
--- /fchat [index id] (message)
-force_chat_command = "fchat"
-fc_permission_level = 1
+-- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
+local save_money = true
+-- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
+local dir = "sapp\\money.data"
 
--- SLAP --
--- /slap [index id]
-slap_command = "slap"
-slap_permission_level = 1
+-- Custom Variables that can be used in 'Insufficient Funds' message: 
+-- "%balance%" (current balance)
+-- "%price%" (money required to execute TRIGGER)
+local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
 
--- FAKE JOIN | FAKE QUIT --
--- /fakejoin [name]
--- /fakequit [name]
-fake_join_command = "fakejoin"
-fake_quit_command = "fakequit"
-fake_permission_level = 1
+-- The balance each player will start with when they join the server for the first time.
+-- Note: If 'save_money' is false, the player's balance on join will always be the value of "starting_balace"
+local starting_balace = 0
 
--- BROADCAST AS GOD --
-god_command = "bgod"
-god_prefix = "[god]"
-god_permission_level = 1
+local upgrade_info_command = "upgrades"
+local upgrade_perm_lvl = -1
 
--- EXPLODE --
-nuke_command = "nuke"
-nuke_permission_level = 1
+local commands = {
+    -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
+    { ["heal1"] = { 'hp', "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal2"] = { 'hp', "20", "2", "Purchased 200% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal3"] = { 'hp', "30", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
 
--- SPAM --
-spam_command = "spam"
-spam_permission_level = 1
-spam_duration = 10
-spam_victim = {}
-spam = {}
+    -- repeat the structure to add new entries:
+    { ["your_command"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
--- TAKE WEAPONS --
-take_command = "take"
-take_permission_level = 1
+    { ["am1"] = { 'ammo', "10", "200", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am2"] = { 'ammo', "10", "350", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am3"] = { 'ammo', "10", "500", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am4"] = { 'ammo', "10", "700", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am5"] = { 'ammo', "10", "900", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
 
--- CRASH --
-crash_command = "crash"
-crash_permission_level = 1
+    { ["cam1"] = { 'camo', "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1 } },
+    { ["cam2"] = { 'camo', "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
+    { ["cam3"] = { 'camo', "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
+
+    -- Note: balance command syntax here may change during development.
+    { [1] = { "bal", "Money: $%money%", -1 } },
+
+    -- Weapon Purchases:
+    -- command | price | weapon | message
+    --{ [2] = { "gold", "150", "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+
+    -- keyword | sapp_command | price | count | message
+    { ["mine"] = { 'nades', "15", "2", "%count% Mines", -1 } },
+    { ["gren"] = { 'ammo', "10", "2", "%count% Grenades", -1 } },
+}
+
+local upgrade_info = {
+    "|cBIGASS AURORA UPGRADE SYTSTEM",
+    " ",
+    "|cPURCHASE UPGRADES",
+    " ",
+    "|cCommand | Upgrade | Cost",
+    " ",
+    "|c/heal1 | Health 100% | 10          /am1 | 200 Ammo All Weapons | 10",
+    "|c/heal2 | Health 200% | 20          /am2 | 350 Ammo All Weapons | 20",
+    "|c/heal3 | Health 300% | 30          /am3 | 500 Ammo All Weapons | 30",
+    "|c/heal4 | Health 400% | 40          /am4 | 700 Ammo All Weapons | 40",
+    "|c/heal5 | Health 500% | 50          /am5 | 900 Ammo All Weapons | 50",
+    " ",
+    "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
+    "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
+    "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
+    " ",  
+    " ",
+    "|c*Type /bal to view how many Upgrade Points you currently have*",
+    " ",
+}
+
+local stats = {
+
+    combo = {
+        -- required kills [number] | reward [number] | message [string]
+        -- Custom variables that can be used in COMBO messages: %combos% (current combo) | %upgrade_points% (reward points)
+        [1] = { "3", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
+        [2] = { "4", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
+        [3] = { "5", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
+        -- Time you have to get X amount of kill-combos
+        duration = 7 -- in seconds (default 7)
+    },
+
+    streaks = {
+        -- Custom variables that can be used in STREAK messages: %streaks% (current streak) | %upgrade_points% (reward points)
+        -- required streaks [number] | reward [number] | message [string]
+        [1] = { "5", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [2] = { "10", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [3] = { "15", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [4] = { "20", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [5] = { "25", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [6] = { "30", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [7] = { "35", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [8] = { "40", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
+    },
+
+    assists = {
+        -- Custom variables that can be used in ASSIST messages: %streaks% (current assists) | %upgrade_points% (reward points)
+        -- required assists [number] | reward [number] | message [string]
+        [1] = { "5", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        [2] = { "10", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        [3] = { "15", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        [4] = { "20", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        [5] = { "25", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        [6] = { "30", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
+    },
+    
+    kills = {
+        -- Custom variables that can be used in (consecutive) KILL messages: %kills% (current kills) | %upgrade_points% (reward points)
+        -- required kills [number] | reward [number] | message [string]
+        [1] = { "5", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [2] = { "10", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [3] = { "20", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [4] = { "30", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [5] = { "40", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [6] = { "50", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [7] = { "60", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [8] = { "70", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [9] = { "80", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [10] = { "90", "20", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        [11] = { "100", "30", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
+    },
+
+    penalty = {
+        -- [ victim death ] (points deducted | message)
+        [1] = { "20", "DEATH (-%penalty_points% points)" },
+        -- [ victim suicide ] (points deducted | message)
+        [2] = { "30", "SUICIDE (-%penalty_points% points)" },
+        -- [ killer betray ] (points deducted | message)
+        [3] = { "50", "TEAM KILL (-%penalty_points% points)" },
+    },
+
+    score = {
+        -- [ score ] (reward points | message)
+        [1] = { "10", "SCORE (+%upgrade_points% Upgrade Points)" },
+    },
+}
+
+-- Configuration [ends] -----------------------------------------------------------------
+
+-- Do not touch.
+local money, mod, ip_table, weapon = { }, { }, { }, { }
+
+local players = { }
+local run_combo_timer = { }
+local money_table = { }
+
+-- Not currently used
+-- local file_format = "%ip%|%money%"
+
+local gsub, match, concat, floor, lower = string.gsub, string.match, table.concat, math.floor, string.lower
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
+
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
+
+    register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
+    register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
+
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+
+    checkFile()
+    for i = 1, 16 do
+        if player_present(i) then
+            local hash = get_var(i, "$hash")
+            local ip = get_var(i, "$ip")
+            if not ip_table[hash] then
+                ip_table[hash] = {}
+            end
+            table.insert(ip_table[hash], { ["ip"] = ip })
+
+            players[i] = players[i] or { }
+            players[i].combos = 0
+            players[i].combo_timer = 0
+            players[i].kills = 0
+            players[i].streaks = 0
+            players[i].assists = 0
+            run_combo_timer[i] = false
+        end
+    end
+    if not (save_money) then
+        money_table = {["money"] = {}}
+    end
 end
 
 function OnScriptUnload()
+    for i = 1, 16 do
+        if player_present(i) then
+            players[i] = nil
+            run_combo_timer[i] = nil
+            local hash = get_var(i, "$hash")
+            ip_table[hash] = nil
+        end
+    end
 end
 
-function OnPlayerJoin(PlayerIndex)
-    spam_victim[get_var(PlayerIndex, "$n")] = { }
-    spam_victim[get_var(PlayerIndex, "$n")].spam_timer = 0
-    spam[PlayerIndex] = false
+function OnGameStart()
+    -- not currently used
 end
 
-function OnPlayerLeave(PlayerIndex)
-    spam_victim[get_var(PlayerIndex, "$n")].spam_timer = 0
-    spam[PlayerIndex] = false
+function OnGameEnd()
+    for i = 1, 16 do
+        if player_present(i) then
+            players[i] = nil
+            run_combo_timer[i] = nil
+            local hash = get_var(i, "$hash")
+            ip_table[hash] = nil
+        end
+    end
+end
+
+function OnPlayerScore(PlayerIndex)
+    local p, ip = { }, getIP(PlayerIndex)
+    p.ip, p.money, p.subtract = ip, stats.score[1][1], false
+    money:update(p)
+    rprint(PlayerIndex, gsub(stats.score[1][2], "%%upgrade_points%%", p.money))
+end
+
+function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    local command, args = cmdsplit(Command)
+    local executor = tonumber(PlayerIndex)
+
+    local function checkAccess(e, level)
+        if (e ~= -1 and e >= 1 and e < 16) then
+            if (tonumber(get_var(e, "$lvl"))) >= level then
+                return true
+            else
+                rprint(e, "Command failed. Insufficient Permission.")
+                return false
+            end
+        else
+            cprint("You cannot execute this command from the console.", 4 + 8)
+            return false
+        end
+    end
+    
+    if (command == lower(upgrade_info_command)) then
+        if (checkAccess(executor, upgrade_perm_lvl)) then
+            if (args[1] == nil) then
+                for k, _ in pairs(upgrade_info) do
+                    if (k) then
+                        rprint(executor, upgrade_info[k])
+                    end
+                end
+            end
+        end
+        return false
+    end
+
+    local TYPE_ONE
+
+    for key, _ in ipairs(commands) do
+        local cmd = commands[key][command]
+
+        if (cmd ~= nil) then
+            TYPE_ONE = true
+            local lvl = cmd[#cmd]
+            if checkAccess(executor, lvl) then
+                if (#cmd > 2) then
+                    local ip = getIP(executor)
+                    local balance = money:getbalance(ip)
+                    local cost = cmd[2]
+                    if (balance >= tonumber(cost)) then
+                        execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                        local p = { }
+                        p.ip = ip
+                        p.money = cost
+                        p.subtract = true
+                        money:update(p)
+                        local new_balance = money:getbalance(ip)
+                        local strFormat = gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance)
+                        rprint(executor, strFormat)
+                    else
+                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+                    end
+                    return false
+                end
+            end
+        end
+        if not (TYPE_ONE) then
+            local bal = commands[key][1]
+            local gold = commands[key][2]
+            
+            -- Balance Command
+            if (bal ~= nil) and (command == bal[1]) then
+                if checkAccess(executor, bal[3]) then
+                    local balance = money:getbalance(getIP(executor))   
+                    rprint(executor, gsub(bal[2], "%%money%%", balance))
+                end
+                return false
+            end
+
+            -- Golden Gun
+            if (gold ~= nil) and (command == gold[1]) then
+                if checkAccess(executor, gold[5]) then
+                    if TagInfo("weap", gold[3]) then
+                        local p, ip = { }, getIP(executor)
+                        p.ip = ip
+                        p.money = gold[2]
+                        p.subtract = true
+                        money:update(p)
+                        local new_balance = money:getbalance(ip)
+                        rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
+                        execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+                    else
+                        rprint(executor, "That doesn't command work on this map.")
+                    end
+                end
+                return false
+            end
+        end
+    end
+end
+
+function money:update(params)
+    local params = params or {}
+
+    local ip = params.ip or nil
+    local points = params.money or nil
+    
+    local subtract = params.subtract or nil
+    local balance = tonumber(money:getbalance(ip))
+    
+    local new_balance = balance
+
+    if not (subtract) then
+        new_balance = balance + tonumber(points)
+    else
+        new_balance = balance - tonumber(points)
+    end
+
+    new_balance = new_balance
+
+    if (new_balance <= 0) then
+        new_balance = 0
+    end
+    
+    if (save_money) then
+        local found
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if containsExact(ip, v) then
+                found = true
+
+                local fRead = io.open(dir, "r")
+                local content = fRead:read("*all")
+                fRead:close()
+
+                content = gsub(content, v, ip .. "|" .. tostring(new_balance))
+
+                local fWrite = io.open(dir, "w")
+                fWrite:write(content)
+                fWrite:close()
+            end
+        end
+
+        if not (found) then
+            local file = assert(io.open(dir, "a+"))
+            file:write(ip .. "|" .. tostring(new_balance) .. "\n")
+            file:close()
+        end
+    else
+        for key, _ in pairs(money_table["money"]) do
+            if (ip == key) then
+                money_table["money"][key].balance = new_balance
+            end
+        end
+    end
+end
+
+function money:Transfer(params)
+    -- to do
+end
+
+function money:getbalance(player_ip)
+    
+    if (save_money) then
+        local function stringSplit(inputString, Separator)
+            if (Separator == nil) then
+                Separator = "%s"
+            end
+            local t = {};
+            local i = 1
+            for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
+                t[i] = str
+                i = i + 1
+            end
+            return t
+        end
+
+        local data, balance
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if (v:match(player_ip)) then
+                balance = v:match("|(.+)")
+                data = stringSplit(balance, ",")
+            end
+        end
+        
+        local t, result = { }
+        for i = 1, 1 do
+            if data[i] then
+                t[#t + 1] = data[i]
+                result = tonumber(concat(t, ", "))
+            else
+                return 0
+            end
+        end
+
+        if (result ~= nil) then
+            if (result <= 0) then
+                return 0
+            else
+                return result
+            end
+        end
+
+        for _ in pairs(t) do
+            t[_] = nil
+        end
+    else
+        for key, _ in pairs(money_table["money"]) do
+            if (player_ip == key) then
+                if (money_table["money"][key].balance <= 0) then
+                    return 0
+                else
+                    return money_table["money"][key].balance
+                end
+            end
+        end
+    end
+end
+
+function OnPlayerConnect(PlayerIndex)
+    local hash = get_var(PlayerIndex, "$hash")
+    local ip = get_var(PlayerIndex, "$ip")
+    
+    if not ip_table[hash] then
+        ip_table[hash] = {}
+    end
+    table.insert(ip_table[hash], { ["ip"] = ip })
+
+    players[PlayerIndex] = players[PlayerIndex] or { }
+    players[PlayerIndex].combos = 0
+    players[PlayerIndex].combo_timer = 0
+    players[PlayerIndex].kills = 0
+    players[PlayerIndex].streaks = 0
+    players[PlayerIndex].assists = 0
+    
+    if (save_money) then
+        local found
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if containsExact(ip, v) then
+                found = true
+            end
+        end
+
+        if not (found) then
+            local file = assert(io.open(dir, "a+"))
+            file:write(ip .. "|" .. tostring(starting_balace) .. "\n")
+            file:close()
+        end
+    else
+        money_table["money"][ip] = { ["balance"] = starting_balace }
+    end
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    players[PlayerIndex] = nil
+    local ip = getIP(PlayerIndex)
+    if not (save_money) then
+        money_table["money"][ip] = { ["balance"] = starting_balace }
+    end
+end
+
+function OnPlayerKill(PlayerIndex, KillerIndex)
+    local killer = tonumber(KillerIndex)
+    local victim = tonumber(PlayerIndex)
+
+    local function isTeamPlay()
+        if get_var(0, "$ffa") == "0" then
+            return true
+        else
+            return false
+        end
+    end
+
+    if (killer > 0) then
+    
+        local kTeam = get_var(victim, "$team")
+        local vTeam = get_var(killer, "$team")
+    
+        local kip = getIP(killer)
+        local vip = getIP(victim)
+
+        -- [Combo Scoring]
+        if run_combo_timer[victim] then
+            run_combo_timer[victim] = false
+            players[victim].combos = 0
+            players[victim].combo_timer = 0
+        end
+
+        players[killer].combos = players[killer].combos + 1
+        if not (run_combo_timer[killer]) then
+            run_combo_timer[killer] = true
+        end
+
+        function comboCheckDelay()
+            if (players[killer].combo_timer > 0) then
+                local p = { }
+                p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combos, killer, kip, stats.combo
+                mod:check(p)
+            end
+        end
+        if (run_combo_timer[killer]) then
+            timer(50, "comboCheckDelay")
+        end
+
+        -- Killer Reward
+        if (killer ~= victim and kTeam ~= vTeam) then
+
+            -- [ STREAKS ]
+            if (players[victim].streaks > 0) then
+                players[victim].streaks = 0
+            end
+            
+            local p1 = { }
+            players[killer].streaks = players[killer].streaks + 1
+            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract= "streaks", players[killer].streaks, killer, kip, stats.streaks, false
+            mod:check(p1)
+            
+            local p2 = { }
+            players[killer].kills = players[killer].kills + 1
+            p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
+            mod:check(p2)
+            
+            -- Victim Death Penalty
+            local p3 = { }
+            p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
+            money:update(p3)
+            rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
+            
+        -- Victim Suicide
+        elseif (victim == killer) then
+            local p = { }
+            p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
+            money:update(p)
+            rprint(victim, gsub(stats.penalty[2][2], "%%penalty_points%%", p.money))
+        end
+        -- Betray
+        if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
+            local p = { }
+            p.ip, p.money, p.subtract = vip, stats.penalty[3][1], true
+            money:update(p)
+            rprint(victim, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
+        end
+    end
+end
+
+function mod:check(params)
+    local params = params or {}
+    local ip = params.ip or nil
+    local PlayerIndex = params.id or nil
+    local identifier = params.type or nil
+    local total = params.total or nil
+    local t = params.table or nil
+    local subtract = params.subtract
+    local p = { }
+    for i = 1, #t do
+        local required = tonumber(t[i][1])
+        if (required ~= nil) then
+            if (total == required) then
+                p.money = t[i][2]
+                p.subtract = subtract
+                p.ip = ip
+                money:update(p)
+                local message = t[i][3]
+                rprint(PlayerIndex, gsub(gsub(message, "%%" .. tostring(identifier) .. "%%", required), "%%upgrade_points%%", p.money))
+                break
+            end
+        end
+    end
+end
+
+function OnPlayerAssist(PlayerIndex)
+    players[PlayerIndex].assists = players[PlayerIndex].assists + 1
+    local p, ip = { }, getIP(PlayerIndex)
+    p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
+    mod:check(p)
 end
 
 function OnTick()
     for i = 1, 16 do
-        if player_present(i) then
-            if (spam[i] == true) then
-                for s = 1, 1 do
-                    rprint(i, " ")
-                end
-                spam_victim[get_var(i, "$n")].spam_timer = spam_victim[get_var(i, "$n")].spam_timer + 0.030
-                Spam(i, spam_broadcast)
-                if spam_victim[get_var(i, "$n")].spam_timer >= math.floor(spam_duration) then
-                    spam_victim[get_var(i, "$n")].spam_timer = 0
-                    spam[i] = false
-                    for t = 1, 30 do
-                        rprint(i, " ")
-                    end
-                    rprint(i, "|c" .. "Y O U   W E R E   S P A M M E D!")
-                    for u = 1, 10 do
-                        rprint(i, "|c" .. " ")
-                    end
+        if player_present(i) and player_alive(i) then
+            if (run_combo_timer[i]) then
+                players[i].combo_timer = players[i].combo_timer + 0.030
+                if (players[i].combo_timer >= floor(stats.combo.duration)) then
+                    run_combo_timer[i] = false
+                    players[i].combo_timer = 0
+                    players[i].combos = 0
                 end
             end
         end
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
-    local t = tokenizestring(Message)
-    local executor = get_var(PlayerIndex, "$n")
-    if t[1] ~= nil then
-        if t[1] == ("/" .. string.lower(force_chat_command)) or t[1] == ("\\" .. string.lower(force_chat_command)) then
-            if tonumber(get_var(executor, "$lvl")) >= fc_permission_level then
-                if t[2] ~= nil then
-                    local index = tonumber(t[2])
-                    if string.match(t[2], "%d+") then
-                        if t[3] ~= nil then
-                            if index ~= tonumber(executor) then
-                                if player_present(index) then
-                                    local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. force_chat_command .. " %d+", "")
-                                    execute_command("msg_prefix \"\"")
-                                    say_all(get_var(index, "$name") .. " [" .. get_var(index, "$n") .. "]: " .. broadcast)
-                                    execute_command("msg_prefix \" *  * SERVER *  * \"")
-                                    return false
-                                else
-                                    rprint(executor, "Invalid Player Index")
-                                    return false
-                                end
-                            else
-                                rprint(executor, "You cannot broadcast as yourself!")
-                                return false
-                            end
-                        else
-                            rprint(executor, "You didn't type a message!")
-                            return false
-                        end
-                    else
-                        rprint(executor, "Invalid Syntax!")
-                        return false
-                    end
-                else
-                    rprint(executor, "Invalid Syntax. Type /" .. force_chat_command .. " [index id]")
-                    return false
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-                return false
+function getIP(PlayerIndex)
+    local hash = get_var(PlayerIndex, "$hash")
+    if next(ip_table) then
+        if ip_table[hash] ~= nil or ip_table[hash] ~= {} then
+            for key, _ in ipairs(ip_table[hash]) do
+                return ip_table[hash][key]["ip"]
             end
-        elseif t[1] == ("/" .. string.lower(god_command)) or t[1] == ("\\" .. string.lower(god_command)) then
-            if tonumber(get_var(executor, "$lvl")) >= god_permission_level then
-                if t[2] ~= nil then
-                    execute_command("msg_prefix \"\"")
-                    local broadcast = string.gsub(Message, string.sub(t[1], 1, 1) .. god_command, "")
-                    say_all("God:" .. broadcast)
-                    execute_command("msg_prefix \" *  * SERVER *  * \"")
-                    return false
-                else
-                    rprint(executor, "Invalid Syntax. Type /" .. god_command .. " (message)")
-                    return false
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-                return false
-            end
-        elseif t[1] == ("/" .. string.lower(spam_command)) or t[1] == ("\\" .. string.lower(spam_command)) then
-            if tonumber(get_var(executor, "$lvl")) >= spam_permission_level then
-                if t[2] ~= nil then
-                    local index = tonumber(t[2])
-                    if string.match(t[2], "%d+") then
-                        if spam[index] == false then
-                            if t[3] ~= nil then
-                                if index ~= tonumber(executor) then
-                                    if index ~= nil and index > 0 and index < 17 then
-                                        if player_present(index) then
-                                            execute_command("msg_prefix \"\"")
-                                            spam_broadcast = string.gsub(Message, "/" .. spam_command .. " %d+", "")
-                                            spam[index] = true
-                                            say(PlayerIndex, get_var(index, "$name") .. " is being spammed!")
-                                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                                            return false
-                                        else
-                                            rprint(executor, "Invalid Player Index")
-                                            return false
-                                        end
-                                    end
-                                else
-                                    rprint(executor, "You cannot spam yourself!")
-                                    return false
-                                end
-                            else
-                                rprint(executor, "You didn't type a message!")
-                                return false
-                            end
-                        else
-                            rprint(executor, get_var(index, "$name") .. " is already being spammed!")
-                            return false
-                        end
-                    else
-                        rprint(executor, "Invalid Syntax!")
-                        return false
-                    end
-                else
-                    rprint(executor, "Invalid Syntax. Type /" .. spam_command .. " [index id] (message)")
-                    return false
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-                return false
-            end
-        end
-    end
-    return true
-end
-
-function OnServerCommand(PlayerIndex, Command)
-    local UnknownCMD
-    local t = tokenizestring(Command)
-    local executor = get_var(PlayerIndex, "$n")
-    if t[1] ~= nil then
-        if t[1] == string.lower(rocket_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= rocket_permission_level then
-                local index = tonumber(t[2])
-                -- /rocket
-                if t[2] == nil then
-                    Rocket(PlayerIndex, executor)
-                    values_specified[PlayerIndex] = false
-                    ypr[PlayerIndex] = false
-                    
-                    -- /rocket me
-                elseif t[2] == "me" and t[3] == nil then
-                    Rocket(PlayerIndex, executor)
-                    values_specified[PlayerIndex] = false
-                    ypr[PlayerIndex] = false
-                    
-                    -- /rocket x,y,z
-                elseif t[2] ~= "me" and t[5] == nil then
-                    Rocket(PlayerIndex, executor, t[2], t[3], t[4])
-                    values_specified[PlayerIndex] = true
-                    ypr[PlayerIndex] = false
-                    
-                    -- /rocket me x,y,z
-                elseif t[2] == "me" and t[6] == nil then
-                    Rocket(PlayerIndex, executor, t[3], t[4], t[5])
-                    values_specified[PlayerIndex] = true
-                    ypr[PlayerIndex] = false
-                    
-                    -- /rocket me x,y,z,yaw,pitch,roll
-                elseif t[2] == "me" and t[9] == nil then
-                    Rocket(PlayerIndex, executor, t[3], t[4], t[5], t[6], t[7], t[8])
-                    values_specified[PlayerIndex] = true
-                    ypr[PlayerIndex] = true
-                    
-                    -- /rocket x,y,z,yaw,pitch,roll
-                elseif t[2] ~= "me" and t[8] == nil then
-                    Rocket(PlayerIndex, executor, t[2], t[3], t[4], t[5], t[6], t[7])
-                    values_specified[PlayerIndex] = true
-                    ypr[PlayerIndex] = true
-                    
-                    -- /rocket index
-                elseif t[2] ~= "me" and t[3] == nil then
-                    if string.match(t[2], "%d+") then
-                        if player_present(index) then
-                            if index > 0 and index < 17 then
-                                Rocket(index, executor)
-                                values_specified[index] = false
-                                ypr[index] = false
-                            end
-                        else
-                            rprint(executor, "Invalid Player ID")
-                        end
-                    else
-                        rprint(executor, "Invalid Syntax!")
-                    end
-                    -- /rocket index x,y,z
-                elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] == nil then
-                    if string.match(t[2], "%d+") then
-                        if player_present(index) then
-                            if index > 0 and index < 17 then
-                                Rocket(index, executor, t[3], t[4], t[5])
-                                values_specified[index] = true
-                                ypr[index] = false
-                            end
-                        else
-                            rprint(executor, "Invalid Player ID")
-                        end
-                    else
-                        rprint(executor, "Invalid Syntax!")
-                    end
-                    -- /rocket index x,y,z,yaw,pitch,roll
-                elseif t[2] ~= nil and t[2] ~= "me" and t[3] ~= nil and t[4] ~= nil and t[5] ~= nil and t[6] ~= nil and t[7] ~= nil and t[8] ~= nil and t[9] == nil then
-                    if string.match(t[2], "%d+") then
-                        if player_present(index) then
-                            if index > 0 and index < 17 then
-                                Rocket(index, executor, t[3], t[4], t[5], t[6], t[7], t[8])
-                                values_specified[index] = true
-                                ypr[index] = true
-                            end
-                        else
-                            rprint(executor, "Invalid Player ID")
-                        end
-                    else
-                        rprint(executor, "Invalid Syntax!")
-                    end
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        end
-    end
-    if t[1] ~= nil then
-        if t[1] == string.lower(slap_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= slap_permission_level then
-                if t[2] ~= nil then
-                    local index = tonumber(t[2])
-                    if index ~= tonumber(executor) then
-                        if string.match(t[2], "%d+") then
-                            if index ~= nil and index > 0 and index < 17 then
-                                if player_present(index) then
-                                    if player_alive(index) then
-                                        if not PlayerInVehicle(index) then
-                                            local pX, pY, pX = read_vector3d(get_dynamic_player(index) + 0x5C)
-                                            write_vector3d(get_dynamic_player(index) + 0x5C, pX + 0.50, pY + 0.50, pX + 4)
-                                            rprint(executor, "You slapped " .. get_var(index, "$name"))
-                                            rprint(index, "You were slapped by " .. get_var(executor, "$name"))
-                                        else
-                                            rprint(executor, get_var(index, "$name") .. " is in a vehicle!")
-                                        end
-                                    else
-                                        rprint(executor, "Unable to execute. Player is dead! Wait until they respawn.")
-                                    end
-                                else
-                                    rprint(executor, "Invalid Player ID!")
-                                end
-                            end
-                        else
-                            rprint(executor, "Invalid Syntax!")
-                        end
-                    else
-                        rprint(executor, "You cannot slap yourself!")
-                    end
-                else
-                    rprint(executor, "Invalid Syntax. Type /" .. slap_command .. " [index id]")
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        end
-    end
-    if t[1] ~= nil then
-        if t[1] == string.lower(fake_join_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
-                if t[2] ~= nil then
-                    if t[3] == nil then
-                        local fake_name = tostring(t[2])
-                        local char_len = string.len(fake_name)
-                        if char_len > 11 then
-                            rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
-                        else
-                            execute_command("msg_prefix \"\"")
-                            say_all("Welcome " .. fake_name)
-                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                        end
-                    else
-                        rprint(PlayerIndex, "The name can only be one word!")
-                    end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_join_command .. " [name]")
-                end
-            else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        elseif t[1] == string.lower(fake_quit_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= fake_permission_level then
-                if t[2] ~= nil then
-                    if t[3] == nil then
-                        local fake_name = tostring(t[2])
-                        local char_len = string.len(fake_name)
-                        if char_len > 11 then
-                            rprint(PlayerIndex, "Name can only be 11 characters! You typed " .. char_len .. " characters!")
-                        else
-                            execute_command("msg_prefix \"\"")
-                            say_all(fake_name .. " quit")
-                            execute_command("msg_prefix \" *  * SERVER *  * \"")
-                        end
-                    else
-                        rprint(PlayerIndex, "The name can only be one word!")
-                    end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. fake_quit_command .. " [name]")
-                end
-            else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        elseif t[1] == string.lower(nuke_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= nuke_permission_level then
-                if t[2] ~= nil then
-                    local index = tonumber(t[2])
-                    if index ~= tonumber(executor) then
-                        if string.match(t[2], "%d+") then
-                            if index ~= nil and index > 0 and index < 17 then
-                                if player_present(index) then
-                                    if (player_alive(index)) then
-                                    
-                                        local function TagInfo(obj_type, obj_name)
-                                            local tag = lookup_tag(obj_type, obj_name)
-                                            return tag ~= 0 and read_dword(tag + 0xC) or nil
-                                        end
-                                    
-                                        local x1, y1, z1 = read_vector3d(get_dynamic_player(index) + 0x5C)
-                                        local frag_grenade = get_tag_info("proj", "weapons\\frag grenade\\frag grenade")
-                                        
-                                        for i = 1, math.random(1, 15) do
-                                            -- frag grenade
-                                            spawn_projectile(frag_grenade, index, x1 + math.random(0.1, 5.5), y1 + math.random(0.1, 5.5), z1 + math.random(0.1, 1))
-                                            
-                                            
-                                            if TagInfo("proj", "weapons\\rocket launcher\\rocket") then
-                                                -- rocket launcher projectile
-                                                local rocket = spawn_object("proj", "weapons\\rocket launcher\\rocket", x1, y1, z1 + math.random(1, 20))
-                                                local rocket_projectile = get_object_memory(rocket)
-                                                write_float(rocket_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "weapons\\plasma_cannon\\plasma_cannon") then
-                                                -- plasma cannon projectile
-                                                local plasma_cannon = spawn_object("proj", "weapons\\plasma_cannon\\plasma_cannon", x1, y1, z1 + math.random(1, 20))
-                                                local plasma_cannon_projectile = get_object_memory(plasma_cannon)
-                                                write_float(plasma_cannon_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "weapons\\needler\\mp_needle") then
-                                                -- needle projectile
-                                                local needle = spawn_object("proj", "weapons\\needler\\mp_needle", x1, y1, z1 + math.random(1, 5))
-                                                local needle_projectile = get_object_memory(needle)
-                                                write_float(needle_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "vehicles\\banshee\\banshee bolt") then
-                                                -- banshee plasma bolt
-                                                local banshee_bolt = spawn_object("proj", "vehicles\\banshee\\banshee bolt", x1, y1, z1 + math.random(1, 20))
-                                                local banshee_bolt_projectile = get_object_memory(banshee_bolt)
-                                                write_float(banshee_bolt_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "vehicles\\banshee\\mp_banshee fuel rod") then
-                                                -- banshee fuel rod
-                                                local banshee_fuel_rod = spawn_object("proj", "vehicles\\banshee\\mp_banshee fuel rod", x1, y1, z1 + math.random(1, 20))
-                                                local banshee_fuel_rod_projectile = get_object_memory(banshee_fuel_rod)
-                                                write_float(banshee_fuel_rod_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "vehicles\\scorpion\\tank shell") then
-                                                -- tank shell
-                                                local tank_shell = spawn_object("proj", "vehicles\\scorpion\\tank shell", x1, y1, z1 + math.random(1, 20))
-                                                local tank_shell_projectile = get_object_memory(tank_shell)
-                                                write_float(tank_shell_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "weapons\\flamethrower\\flame") then
-                                                -- flames
-                                                local flames = spawn_object("proj", "weapons\\flamethrower\\flame", x1, y1, z1 + 0.2)
-                                                local flame_projectile = get_object_memory(flames)
-                                                write_float(flame_projectile + 0x70, -math.random(0.2, 0.5))
-                                            end
-                                            
-                                            if TagInfo("proj", "weapons\\sniper rifle\\sniper bullet") then
-                                                -- sniper bullet projectile
-                                                local sniper = spawn_object("proj", "weapons\\sniper rifle\\sniper bullet", x1, y1, z1 + math.random(1, 20))
-                                                local sniper_projectile = get_object_memory(sniper)
-                                                write_float(sniper_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "weapons\\plasma rifle\\charged bolt") then
-                                                -- plasma rile charged bolt projectile
-                                                local plasma_rile_bolt = spawn_object("proj", "weapons\\plasma rifle\\charged bolt", x1, y1, z1 + math.random(1, 20))
-                                                local plasma_rile_bolt_projectile = get_object_memory(plasma_rile_bolt)
-                                                write_float(plasma_rile_bolt_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                            
-                                            if TagInfo("proj", "vehicles\\ghost\\ghost bolt") then
-                                                -- ghost bolt projectile
-                                                local ghost_bolt = spawn_object("proj", "vehicles\\ghost\\ghost bolt", x1, y1, z1 + math.random(1, 20))
-                                                local ghost_bolt_projectile = get_object_memory(ghost_bolt)
-                                                write_float(ghost_bolt_projectile + 0x70, -math.random(1, 3))
-                                            end
-                                        end
-                                    else
-                                        rprint(executor, get_var(index, "$name") .. " is dead!")
-                                    end
-                                else
-                                    rprint(executor, "Invalid Player ID!")
-                                end
-                            end
-                        else
-                            rprint(executor, "Invalid Syntax.")
-                        end
-                    else
-                        rprint(executor, "You cannot nuke yourself!")
-                    end
-                else
-                    rprint(executor, "Invalid Syntax. Type /" .. nuke_command .. " [index id]")
-                end
-            else
-                rprint(executor, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        elseif t[1] == string.lower(take_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
-                if t[2] ~= nil then
-                    if string.match(t[2], "%d+") then
-                        local target = tonumber(t[2])
-                        if player_present(target) then
-                            if (tonumber(target) ~= tonumber(executor)) then
-                                local player_object = get_dynamic_player(target)
-                                if player_object ~= 0 then
-                                    local weapon_id = read_dword(player_object + 0x118)
-                                    if weapon_id ~= 0 then
-                                        for j = 0, 3 do
-                                            local weapons = read_dword(player_object + 0x2F8 + j * 4)
-                                            destroy_object(weapons)
-                                        end
-                                        rprint(executor, "You have removed " .. get_var(target, "$name") .. "'s weapons!")
-                                    end
-                                end
-                            else
-                                rprint(executor, "You cannot take your own weapons!")
-                            end
-                        else
-                            rprint(executor, "Player not present!")
-                        end
-                    else
-                        rprint(executor, "Invalid Player Index")
-                    end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. take_command .. " [index id]")
-                end
-            else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        elseif t[1] == string.lower(crash_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= take_permission_level then
-                if t[2] ~= nil then
-                    if string.match(t[2], "%d+") then
-                        local target = tonumber(t[2])
-                        if player_present(target) then
-                            if (tonumber(target) ~= tonumber(executor)) then
-                                local function TagInfo(obj_type, obj_name)
-                                    local tag = lookup_tag(obj_type, obj_name)
-                                    return tag ~= 0 and read_dword(tag + 0xC) or nil
-                                end
-                                if TagInfo("vehi", "vehicles\\rwarthog\\rwarthog") then
-                                    local player_object = get_dynamic_player(target)
-                                    if player_object ~= 0 then
-                                        timer(0, "CrashPlayer", target)
-                                        rprint(executor, "You have crashed " .. get_var(target, "$name") .. "'s game client")
-                                    end
-                                else
-                                    rprint(PlayerIndex, "Error. Crash does not work on this map!")
-                                end
-                            else
-                                rprint(executor, "You cannot crash your own game client!")
-                            end
-                        else
-                            rprint(executor, "Player not present!")
-                        end
-                    else
-                        rprint(executor, "Invalid Player Index")
-                    end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax. Type /" .. crash_command .. " [index id]")
-                end
-            else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-            end
-            UnknownCMD = false
-        end
-    end
-    return UnknownCMD
-end
-
-function Rocket(player, executor, X, Y, Z, Yaw, Pitch, Roll)
-    local player_object = get_dynamic_player(player)
-    if player_object then
-        if PlayerInVehicle(player) then
-            local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-            if VehicleObj ~= nil then
-                write_bit(VehicleObj + 0x10, 2, 0)
-                if values_specified[player] then
-                    x[player] = X
-                    y[player] = Y
-                    z[player] = Z
-                    yaw[player] = Yaw
-                    pitch[player] = Pitch
-                    roll[player] = Roll
-                else
-                    x[player] = 0
-                    y[player] = 0
-                    z[player] = 0.75
-                    yaw[player] = 1
-                    pitch[player] = 1
-                    roll[player] = 15
-                    ypr[player] = true
-                end
-                write_float(VehicleObj + 0x68, x[player])
-                write_float(VehicleObj + 0x6C, y[player])
-                write_float(VehicleObj + 0x70, z[player])
-                if ypr[player] then
-                    write_float(VehicleObj + 0x90, yaw[player])
-                    write_float(VehicleObj + 0x8C, pitch[player])
-                    write_float(VehicleObj + 0x94, roll[player])
-                end
-            end
-        else
-            if get_var(player, "$n") == get_var(executor, "$n") then
-                rprint(executor, "You're not in a vehicle!")
-            else
-                rprint(executor, get_var(player, "$name") .. " is not in a vehicle!")
-            end
-        end
-        if get_var(player, "$n") == get_var(executor, "$n") and PlayerInVehicle(player) then
-            rprint(executor, "You have been rocketed!")
-        elseif get_var(player, "$n") ~= get_var(executor, "$n") and PlayerInVehicle(player) then
-            rprint(executor, "You launched " .. get_var(player, "$name"))
         end
     end
 end
 
-function Spam(player, broadcast)
-    for i = 1, math.random(1, 10) do
-        if i == 1 then
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
-        elseif i == 2 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-        elseif i == 3 then
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
-        elseif i == 4 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-        elseif i == 5 then
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|t" .. " " .. broadcast)
-        elseif i == 6 then
-            rprint(player, "|t" .. " " .. broadcast)
-            rprint(player, "|c" .. " " .. broadcast)
-            rprint(player, "|l" .. " " .. broadcast)
-            rprint(player, "|r" .. " " .. broadcast)
-        elseif i == 7 then
-            rprint(player, "|t" .. "@r^ (]= ()n d*# =(e dzd #v/ fiv *$= c-( g** ges -/& 'w] qh/" .. broadcast)
-            rprint(player, "|c" .. "='g *!- ymr a#$ &=t atu @*i =(d .^. -'/ )[' (*k @$# a)! -iv" .. broadcast)
-            rprint(player, "|l" .. "$w z.m qch j*= sp) )f* =&y m#v $-- axl" .. broadcast)
-            rprint(player, "|c" .. "^h= %&b d-m sp/ gmu ;lk d%; @/, #j* ,yx tkz i$# ^j# co) x.*" .. broadcast)
-            rprint(player, "|r" .. "p*v ace -po -zx by] zu[ .$; -to &vh i-$ jdz [*- k-] ]yj in^" .. broadcast)
-        elseif i == 8 then
-            rprint(player, "|r" .. "zh@ )-i f[f kp% ]et j-= !yr %** !kdo k%y ;$. #-@ (n- ^jh dc" .. broadcast)
-            rprint(player, "|r" .. "n$y =bd f@h jzi xgm b') !sh /ec @yj $^e k*r @-/ qs/ t*; /ql" .. broadcast)
-            rprint(player, "|r" .. "!ma f-- cax 'm/ k@- lih oq, nsv .cq t.@" .. broadcast)
-            rprint(player, "|r" .. "<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>" .. broadcast)
-            rprint(player, "|r" .. "=*t /)^ -gu d;] w]= j-k oi. rgv [r& ,/o 'gn z*$ wra )t; /o(" .. broadcast)
-        elseif i == 9 then
-            rprint(player, "|t" .. "mt& dgm v$a n/= b!n *$q ,j@ k/d z&k qi$ b&' /.b *zu [/t /=%" .. broadcast)
-            rprint(player, "|t" .. "r]/ -#! cp* -ek xsf nan %=@ sy= qrf b=j t,a -[- -v@ z[q -^w" .. broadcast)
-            rprint(player, "|t" .. "/q! uv] ,[- d*u ;(/ -i% km- rfb $p@ r#o" .. broadcast)
-            rprint(player, "|t" .. "kkm ^mi -^/ j^e t$x '** '** [/^ /r/ 's- .if xe^ bpg k$& -s[" .. broadcast)
-            rprint(player, "|t" .. "^!y m&y #h! ,-- azi ht% nrk ]'$ a#b 'vo 'du *)* %/x w// dr*" .. broadcast)
-        elseif i == 10 then
-            rprint(player, "|l" .. "v,b b'w r*[ ox* ..$ z-/ %)( (w[ d[. wl] v-( k*o qts [gi pyb" .. broadcast)
-            rprint(player, "|l" .. "cm[ &(& /h) )!* f[f t#! u]] h^n m!/ '-. /tt $[h /er ]e^ eze" .. broadcast)
-            rprint(player, "|l" .. "$q) z*w xr[ oz$ p.d *ux -&% *&; #g/ /yu ,!i ;za ezx .*p *l," .. broadcast)
-            rprint(player, "|l" .. "d$) /.r ^;e [^# tzn e.- l!- ww- v-e s,/ %og %!- *yt nx- ]j^" .. broadcast)
-            rprint(player, "|l" .. "$c* oeq /oy *cy y)m *g/ nse &h^ *va u&@ x-- *(& ;mx &n; m*j" .. broadcast)
-        end
-    end
+function containsExact(w, s)
+    return select(2, s:gsub('^' .. w .. '%W+', '')) +
+            select(2, s:gsub('%W+' .. w .. '$', '')) +
+            select(2, s:gsub('^' .. w .. '$', '')) +
+            select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
 end
 
-function CrashPlayer(target)
-    local player_object = get_dynamic_player(target)
-    if (player_object ~= 0) then
-        local x, y, z = read_vector3d(player_object + 0x5C)
-        local vehicle_id = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", x, y, z)
-        local veh_obj = get_object_memory(vehicle_id)
-        if (veh_obj ~= 0) then
-            for j = 0, 20 do
-                enter_vehicle(vehicle_id, target, j)
-                exit_vehicle(target)
-            end
-            destroy_object(vehicle_id)
-        end
+function lines_from(file_name)
+    local lines = {}
+    for line in io.lines(file_name) do
+        lines[#lines + 1] = line
     end
-    return false
+    return lines
 end
 
-function PlayerInVehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
-        else
+function checkFile()
+    local file = io.open(dir, "rb")
+    if file then
+        file:close()
+        return true
+    else
+        local file = io.open(dir, "a+")
+        if file then
+            file:close()
             return true
         end
-    else
-        return false
     end
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { };
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
--- credits to 002 for this function.
-function get_tag_info(tagclass, tagname)
-    local tagarray = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) - 1 do
-        local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == tagclass) then
-            if (read_string(read_dword(tag + 0x10)) == tagname) then
-                return read_dword(tag + 0xC)
+function cmdsplit(str)
+    local subs = {}
+    local sub = ""
+    local ignore_quote, inquote, endquote
+    for i = 1, string.len(str) do
+        local bool
+        local char = string.sub(str, i, i)
+        if char == " " then
+            if (inquote and endquote) or (not inquote and not endquote) then
+                bool = true
+            end
+        elseif char == "\\" then
+            ignore_quote = true
+        elseif char == "\"" then
+            if not ignore_quote then
+                if not inquote then
+                    inquote = true
+                else
+                    endquote = true
+                end
             end
         end
+
+        if char ~= "\\" then
+            ignore_quote = false
+        end
+
+        if bool then
+            if inquote and endquote then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+
+            if sub ~= "" then
+                table.insert(subs, sub)
+            end
+            sub = ""
+            inquote = false
+            endquote = false
+        else
+            sub = sub .. char
+        end
+
+        if i == string.len(str) then
+            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+            table.insert(subs, sub)
+        end
     end
-    return nil
+
+    local cmd = subs[1]
+    local args = subs
+    table.remove(args, 1)
+
+    return cmd, args
+end
+
+function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function report()
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
 end
