@@ -11,12 +11,6 @@ Description:
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
             [!] STILL IN DEVELOPMENT (approx 97% complete)
-			
-			TO DO:
-			* Bug fixes
-			* Write money transfer command
-			* Possibly refactor some code. 
-			* Final tests before publishing as a finished resource
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -24,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]] --
+]]--
 
 api_version = "1.12.0.0"
 
@@ -49,10 +43,11 @@ local upgrade_perm_lvl = -1
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
-    { ["heal1"] = { 'hp', "10", "1", "100% Health", -1 } },
-    { ["heal2"] = { 'hp', "20", "2", "200% Health", -1 } },
-    { ["heal3"] = { 'hp', "30", "3", "300% Health", -1 } },
-    { ["heal4"] = { 'hp', "40", "4", "400% Health", -1 } },
+    { ["heal1"] = { 'hp', "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal2"] = { 'hp', "20", "2", "Purchased 200% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal3"] = { 'hp', "30", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
+    { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
 
     -- repeat the structure to add new entries:
     { ["your_command"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
@@ -80,7 +75,7 @@ local commands = {
 }
 
 local upgrade_info = {
-    "|cBIGASS AURORA UPGRADE SYSTEM",
+    "|cBIGASS AURORA UPGRADE SYTSTEM",
     " ",
     "|cPURCHASE UPGRADES",
     " ",
@@ -95,13 +90,14 @@ local upgrade_info = {
     "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
     "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
     "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
-    " ",
+    " ",  
     " ",
     "|c*Type /bal to view how many Upgrade Points you currently have*",
     " ",
 }
 
 local stats = {
+
     combo = {
         -- required kills [number] | reward [number] | message [string]
         -- Custom variables that can be used in COMBO messages: %combos% (current combo) | %upgrade_points% (reward points)
@@ -112,6 +108,7 @@ local stats = {
         -- Time you have to get X amount of kill-combos
         duration = 7 -- in seconds (default 7)
     },
+
     streaks = {
         -- Custom variables that can be used in STREAK messages: %streaks% (current streak) | %upgrade_points% (reward points)
         -- required streaks [number] | reward [number] | message [string]
@@ -125,6 +122,7 @@ local stats = {
         [8] = { "40", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         -- Repeat the structure to add more entries.
     },
+
     assists = {
         -- Custom variables that can be used in ASSIST messages: %streaks% (current assists) | %upgrade_points% (reward points)
         -- required assists [number] | reward [number] | message [string]
@@ -136,6 +134,7 @@ local stats = {
         [6] = { "30", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         -- Repeat the structure to add more entries.
     },
+    
     kills = {
         -- Custom variables that can be used in (consecutive) KILL messages: %kills% (current kills) | %upgrade_points% (reward points)
         -- required kills [number] | reward [number] | message [string]
@@ -152,6 +151,7 @@ local stats = {
         [11] = { "100", "30", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
         -- Repeat the structure to add more entries.
     },
+
     penalty = {
         -- [ victim death ] (points deducted | message)
         [1] = { "20", "DEATH (-%penalty_points% points)" },
@@ -160,6 +160,7 @@ local stats = {
         -- [ killer betray ] (points deducted | message)
         [3] = { "50", "TEAM KILL (-%penalty_points% points)" },
     },
+
     score = {
         -- [ score ] (reward points | message)
         [1] = { "10", "SCORE (+%upgrade_points% Upgrade Points)" },
@@ -169,11 +170,11 @@ local stats = {
 -- Configuration [ends] -----------------------------------------------------------------
 
 -- Do not touch.
-local money, mod, ip_table, weapon = {}, {}, {}, {}
+local money, mod, ip_table, weapon = { }, { }, { }, { }
 
-local players = {}
-local run_combo_timer = {}
-local money_table = {}
+local players = { }
+local run_combo_timer = { }
+local money_table = { }
 
 -- Not currently used
 -- local file_format = "%ip%|%money%"
@@ -205,7 +206,7 @@ function OnScriptLoad()
             end
             table.insert(ip_table[hash], { ["ip"] = ip })
 
-            players[i] = players[i] or {}
+            players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
             players[i].kills = 0
@@ -215,7 +216,7 @@ function OnScriptLoad()
         end
     end
     if not (save_money) then
-        money_table = { ["money"] = {} }
+        money_table = {["money"] = {}}
     end
 end
 
@@ -246,7 +247,7 @@ function OnGameEnd()
 end
 
 function OnPlayerScore(PlayerIndex)
-    local p, ip = {}, getIP(PlayerIndex)
+    local p, ip = { }, getIP(PlayerIndex)
     p.ip, p.money, p.subtract = ip, stats.score[1][1], false
     money:update(p)
     rprint(PlayerIndex, gsub(stats.score[1][2], "%%upgrade_points%%", p.money))
@@ -269,7 +270,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-
+    
     if (command == lower(upgrade_info_command)) then
         if (checkAccess(executor, upgrade_perm_lvl)) then
             if (args[1] == nil) then
@@ -278,8 +279,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(executor, upgrade_info[k])
                     end
                 end
-            else
-                rprint(executor, "Invalid Syntax. Usage: /" .. upgrade_info_command)
             end
         end
         return false
@@ -295,17 +294,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
-                    if (args[1] == nil) then
-                        local balance = money:getbalance(getIP(executor))
-                        if (balance >= tonumber(cmd[2])) then
-                            execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                            local strFormat = gsub(cmd[4], "%%count%%", cmd[3])
-                            rprint(executor, strFormat)
-                        else
-                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
-                        end
+                    local ip = getIP(executor)
+                    local balance = money:getbalance(ip)
+                    local cost = cmd[2]
+                    if (balance >= tonumber(cost)) then
+                        execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                        local params = { }
+                        params.ip = ip
+                        params.money = cost
+                        params.subtract = true
+                        money:update(params)
+                        local new_balance = money:getbalance(ip)
+                        local strFormat = gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance)
+                        rprint(executor, strFormat)
                     else
-                        rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                     end
                     return false
                 end
@@ -314,26 +317,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not (TYPE_ONE) then
             local bal = commands[key][1]
             local gold = commands[key][2]
-
+            
             -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
-                if (args[1] == nil) then
-                    -- TO DO: perm check needed here
-
-                    local balance = money:getbalance(getIP(executor))
+                if checkAccess(executor, commands[key][3]) then
+                    local balance = money:getbalance(getIP(executor))   
                     rprint(executor, gsub(bal[2], "%%money%%", balance))
-                else
-                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
                 return false
             end
 
             -- Golden Gun
             if (gold ~= nil) and (command == gold[1]) then
-                if (args[1] == nil) then
-                    -- TO DO: perm check needed here
-
-                    local params = {}
+                if checkAccess(executor, commands[key][5]) then
+                    local params = { }
                     params.ip = getIP(executor)
                     params.money = gold[2]
                     params.subtract = true
@@ -341,8 +338,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local new_balance = money:getbalance(ip)
                     rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
                     execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
-                else
-                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
                 return false
             end
@@ -355,10 +350,10 @@ function money:update(params)
 
     local ip = params.ip or nil
     local points = params.money or nil
-
+    
     local subtract = params.subtract or nil
     local balance = tonumber(money:getbalance(ip))
-
+    
     local new_balance = balance
 
     if not (subtract) then
@@ -372,7 +367,7 @@ function money:update(params)
     if (new_balance <= 0) then
         new_balance = 0
     end
-
+    
     if (save_money) then
         local found
         local lines = lines_from(dir)
@@ -411,7 +406,7 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-
+    
     if (save_money) then
         local function stringSplit(inputString, Separator)
             if (Separator == nil) then
@@ -434,8 +429,8 @@ function money:getbalance(player_ip)
                 data = stringSplit(balance, ",")
             end
         end
-
-        local t, result = {}
+        
+        local t, result = { }
         for i = 1, 1 do
             if data[i] then
                 t[#t + 1] = data[i]
@@ -472,19 +467,19 @@ end
 function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
-
+    
     if not ip_table[hash] then
         ip_table[hash] = {}
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
 
-    players[PlayerIndex] = players[PlayerIndex] or {}
+    players[PlayerIndex] = players[PlayerIndex] or { }
     players[PlayerIndex].combos = 0
     players[PlayerIndex].combo_timer = 0
     players[PlayerIndex].kills = 0
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
-
+    
     if (save_money) then
         local found
         local lines = lines_from(dir)
@@ -525,22 +520,18 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     end
 
     if (killer > 0) then
-
+    
         local kTeam = get_var(victim, "$team")
         local vTeam = get_var(killer, "$team")
-
+    
         local kip = getIP(killer)
         local vip = getIP(victim)
 
         -- [Combo Scoring]
-        if (run_combo_timer[victim]) then
+        if run_combo_timer[victim] then
             run_combo_timer[victim] = false
             players[victim].combos = 0
             players[victim].combo_timer = 0
-        end
-
-        if (players[victim].streaks > 0) then
-            players[victim].streaks = 0
         end
 
         players[killer].combos = players[killer].combos + 1
@@ -550,12 +541,11 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 
         function comboCheckDelay()
             if (players[killer].combo_timer > 0) then
-                local p = {}
+                local p = { }
                 p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combos, killer, kip, stats.combo
                 mod:check(p)
             end
         end
-
         if (run_combo_timer[killer]) then
             timer(50, "comboCheckDelay")
         end
@@ -564,32 +554,36 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         if (killer ~= victim and kTeam ~= vTeam) then
 
             -- [ STREAKS ]
-            local p1 = {}
+            if (players[victim].streaks > 0) then
+                players[victim].streaks = 0
+            end
+            
+            local p1 = { }
             players[killer].streaks = players[killer].streaks + 1
-            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract = "streaks", players[killer].streaks, killer, kip, stats.streaks, false
+            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract= "streaks", players[killer].streaks, killer, kip, stats.streaks, false
             mod:check(p1)
-
-            local p2 = {}
+            
+            local p2 = { }
             players[killer].kills = players[killer].kills + 1
             p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
             mod:check(p2)
-
+            
             -- Victim Death Penalty
-            local p3 = {}
+            local p3 = { }
             p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
             money:update(p3)
             rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
-
-            -- Victim Suicide
+            
+        -- Victim Suicide
         elseif (victim == killer) then
-            local p = {}
+            local p = { }
             p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
             money:update(p)
             rprint(victim, gsub(stats.penalty[2][2], "%%penalty_points%%", p.money))
         end
         -- Betray
         if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
-            local p = {}
+            local p = { }
             p.ip, p.money, p.subtract = vip, stats.penalty[3][1], true
             money:update(p)
             rprint(victim, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
@@ -605,7 +599,7 @@ function mod:check(params)
     local total = params.total or nil
     local t = params.table or nil
     local subtract = params.subtract
-    local p = {}
+    local p = { }
     for i = 1, #t do
         local required = tonumber(t[i][1])
         if (required ~= nil) then
@@ -624,7 +618,7 @@ end
 
 function OnPlayerAssist(PlayerIndex)
     players[PlayerIndex].assists = players[PlayerIndex].assists + 1
-    local p, ip = {}, getIP(PlayerIndex)
+    local p, ip = { }, getIP(PlayerIndex)
     p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
     mod:check(p)
 end
