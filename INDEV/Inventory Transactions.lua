@@ -67,7 +67,7 @@ local stats = {
     },
 
     consecutive = {
-        [1] = { "5", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [1] = { "1", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [4] = { "20", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
@@ -414,8 +414,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         function comboCheckDelay()
             if (players[killer].combo_timer > 0) then
                 local p = { }
-                p.combo, p.id, p.ip = players[killer].combo, killer, kip
-                mod:checkForCombo(p)
+                p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combo, killer, kip, stats.combo
+                mod:check(p)
             end
         end
         if (run_combo_timer[killer]) then
@@ -429,16 +429,16 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             if (players[victim].streaks > 0) then
                 players[victim].streaks = 0
             end
-
-            local p = { }
-            players[killer].streaks = players[killer].streaks + 1
-            p.streaks, p.id, p.ip = players[killer].streaks, killer, kip
-            mod:checkForStreak(p)
             
-            local p = { }
+            local p1 = { }
+            players[killer].streaks = players[killer].streaks + 1
+            p1.type, p1.total, p1.id, p1.ip, p1.table = "streaks", players[killer].streaks, killer, kip, stats.consecutive
+            mod:check(p1)
+            
+            local p2 = { }
             players[killer].kills = players[killer].kills + 1
-            p.kills, p.id, p.ip = players[killer].kills, killer, kip
-            mod:checkForKill(p)
+            p2.type, p2.total, p2.id, p2.ip, p2.table = "kills", players[killer].kills, killer, kip, stats.kills
+            mod:check(p2)
 
             -- Victim Penalty
             for key, _ in ipairs(stats) do
@@ -486,96 +486,24 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     end
 end
 
-function mod:checkForCombo(params)
+function mod:check(params)
     local params = params or {}
-    local PlayerIndex = params.id or nil
     local ip = params.ip or nil
-    local kills = params.combo or nil
-
-    local tab = stats.combo
-    for i = 1, #tab do
-        local required_kills = tonumber(tab[i][1])
-        if (required_kills ~= nil) then
-            if (kills == required_kills) then
-                local p = { }
-                p.money = tab[i][2]
+    local PlayerIndex = params.id or nil
+    local identifier = params.type or nil
+    local total = params.total or nil
+    local t = params.table or nil
+    local p = { }
+    for i = 1, #t do
+        local required = tonumber(t[i][1])
+        if (required ~= nil) then
+            if (total == required) then
+                p.money = t[i][2]
                 p.subtract = false
                 p.ip = ip
                 money:update(p)
-                local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%combos%%", required_kills), "%%upgrade_points%%", p.money))
-                break
-            end
-        end
-    end
-end
-
-function mod:checkForStreak(params)
-    local params = params or {}
-    local PlayerIndex = params.id or nil
-    local ip = params.ip or nil
-    local streaks = params.streaks or nil
-    
-    local tab = stats.consecutive
-    for i = 1, #tab do
-        local required_streaks = tonumber(tab[i][1])
-        if (required_streaks ~= nil) then
-            if (streaks == required_streaks) then
-                local p = { }
-                p.money = tab[i][2]
-                p.subtract = false
-                p.ip = ip
-                money:update(p)
-                local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%streaks%%", required_streaks), "%%upgrade_points%%", p.money))
-                break
-            end
-        end
-    end
-end
-
-function mod:checkForAssist(params)
-    local params = params or {}
-    local PlayerIndex = params.id or nil
-    local ip = params.ip or nil
-    local assists = params.assists or nil
-    
-    local tab = stats.assists
-    for i = 1, #tab do
-        local required_assists = tonumber(tab[i][1])
-        if (required_assists ~= nil) then
-            if (assists == required_assists) then
-                local p = { }
-                p.money = tab[i][2]
-                p.subtract = false
-                p.ip = ip
-                money:update(params)
-                local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%assists%%", required_assists), "%%upgrade_points%%", p.money))
-                break
-            end
-        end
-    end
-end
-
-function mod:checkForKill(params)
-    local params = params or {}
-    local PlayerIndex = params.id or nil
-    local ip = params.ip or nil
-    local kills = params.kills or nil
-
-    local tab = stats.kills
-    for i = 1, #tab do
-        local required_kills = tonumber(tab[i][1])
-        if (required_kills ~= nil) then
-            if (kills == required_kills) then
-                local p = { }
-                p.money = tab[i][2]
-                p.subtract = false
-                p.ip = ip
-                money:update(p)
-                local message = tab[i][3]
-                rprint(PlayerIndex, gsub(gsub(message, "%%kills%%", required_kills), "%%upgrade_points%%", p.money))
+                local message = t[i][3]
+                rprint(PlayerIndex, gsub(gsub(message, "%%" .. tostring(identifier) .. "%%", required), "%%upgrade_points%%", p.money))
                 break
             end
         end
@@ -584,10 +512,9 @@ end
 
 function OnPlayerAssist(PlayerIndex)
     players[PlayerIndex].assists = players[PlayerIndex].assists + 1
-    
     local p, ip = { }, getIP(PlayerIndex)
-    p.assists, p.id, p.ip = players[PlayerIndex].assists, PlayerIndex
-    mod:checkForAssist(p)
+    p.type, p.total, p.id, p.ip, p.table = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists
+    mod:check(p)
 end
 
 function OnTick()
