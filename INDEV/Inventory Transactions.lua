@@ -87,6 +87,9 @@ local stats = {
 
     -- [ assist ]
     { ["event_assist"] = { '-50', "ASSIST (-%upgrade_points% points)" } },
+    
+    -- [ score ]
+    { ["event_score"] = { '10', "+%upgrade_points% Upgrade Points" } },
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
@@ -109,6 +112,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
+    register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
 
     --register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     --register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -126,6 +130,21 @@ end
 
 function OnGameEnd()
     -- to do
+end
+
+function OnPlayerScore(PlayerIndex)
+    for key,_ in ipairs(stats) do
+        local event_score = stats[key]["event_score"]
+        if (event_score ~= nil) then
+            local params = { }
+            params.ip = getIP(PlayerIndex)
+            params.money = event_score[1]
+            params.subtract = false
+            money:update(params)
+            rprint(PlayerIndex, gsub(event_score[1], "%%upgrade_points%%"))
+            break
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -317,6 +336,7 @@ function OnPlayerConnect(PlayerIndex)
         ip_table[hash] = {}
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
+    
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -326,8 +346,19 @@ end
 function OnPlayerKill(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
+    
+    local kTeam = get_var(victim, "$team")
+    local vTeam = get_var(killer, "$team")
+    
+    local function isTeamPlay()
+        if get_var(0, "$ffa") == "0" then
+            return true
+        else
+            return false
+        end
+    end
 
-    if (killer ~= victim) then
+    if (killer ~= victim and kTeam ~= vTeam) then
         local event_kill, event_die
         local kills = tostring(get_var(KillerIndex, "$kills"))
 
@@ -370,6 +401,21 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 params.subtract = true
                 money:update(params)
                 rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
+            end
+        end
+    end
+   
+    if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
+        for key,_ in ipairs(stats) do
+            local event_tk = stats[key]["event_tk"]
+            if (event_tk ~= nil) then
+                local params = { }
+                params.ip = getIP(killer)
+                params.money = event_tk[1]
+                params.subtract = true
+                money:update(params)
+                rprint(killer, gsub(event_tk[2], "%%penalty_points%%", params.money))
+                break
             end
         end
     end
