@@ -107,6 +107,7 @@ local money, mod, ip_table, weapon = { }, { }, { }, { }
 local dir = "sapp\\stats.data"
 
 local players = { }
+local isCombo = { }
 local start_combo_timer = { }
 
 -- Not currently used
@@ -353,7 +354,10 @@ function OnPlayerConnect(PlayerIndex)
         ip_table[hash] = {}
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
-
+    
+    isCombo[PlayerIndex] = isCombo[PlayerIndex] or { }
+    isCombo[PlayerIndex] = false
+    
     players[ip] = players[ip] or { }
     players[ip].kills = 0
     players[ip].combo_timer = 0
@@ -388,38 +392,39 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         if not (start_combo_timer[killer]) then
             start_combo_timer[killer] = true
         end
-        
         if (killer ~= victim and kTeam ~= vTeam) then
-            local event_kill, event_die
-            local kills = tostring(get_var(KillerIndex, "$kills"))
+            if not (isCombo[killer]) then
+                local event_kill, event_die
+                local kills = tostring(get_var(KillerIndex, "$kills"))
 
-            for key, _ in ipairs(stats) do
-                event_kill = stats[key][kills]
-                event_die = stats[key]["event_die"]
+                for key, _ in ipairs(stats) do
+                    event_kill = stats[key][kills]
+                    event_die = stats[key]["event_die"]
 
-                -- Killer Reward
-                if (event_kill ~= nil) then
-                    for k, v in pairs(event_kill) do
-                        if (kills == v) then
-                            local params = { }
-                            params.ip = getIP(killer)
-                            params.money = event_kill[1]
-                            params.subtract = false
-                            money:update(params)
-                            rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
+                    -- Killer Reward
+                    if (event_kill ~= nil) then
+                        for k, v in pairs(event_kill) do
+                            if (kills == v) then
+                                local params = { }
+                                params.ip = getIP(killer)
+                                params.money = event_kill[1]
+                                params.subtract = false
+                                money:update(params)
+                                rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
+                            end
                         end
                     end
                 end
+            end
 
-                -- Victim Penalty
-                if (event_die ~= nil) then
-                    local params = { }
-                    params.ip = getIP(victim)
-                    params.money = event_die[1]
-                    params.subtract = true
-                    money:update(params)
-                    rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
-                end
+            -- Victim Penalty
+            if (event_die ~= nil) then
+                local params = { }
+                params.ip = getIP(victim)
+                params.money = event_die[1]
+                params.subtract = true
+                money:update(params)
+                rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
             end
 
         elseif (victim == killer) then
@@ -459,14 +464,17 @@ function mod:checkForCombo(params)
     local ip = params.ip or nil
     local PlayerIndex = params.id or nil
     local kills = params.kills or nil
-    print(kills)
     
     local tab = stats.combo
     for i = 1,#tab do
         local required_kills = tonumber(tab[i][1])
-        if (required_kills ~= nil) then
+        if (required_kills ~= nil) then     
             if (kills == required_kills) then
                 local message = tab[i][3]
+                params.money = tab[i][2]
+                params.subtract = false
+                money:update(params)
+                isCombo[PlayerIndex] = true
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", "kills"), "%%upgrade_points%%", required_kills))
             end
         end
