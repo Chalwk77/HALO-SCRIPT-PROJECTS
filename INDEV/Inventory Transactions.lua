@@ -146,7 +146,7 @@ local stats = {
 -- Configuration [ends] -----------------------------------------------------------------
 
 local money, mod, ip_table, weapon = { }, { }, { }, { }
-local dir = "sapp\\stats.data"
+local dir = "sapp\\money.data"
 
 local players = { }
 local run_combo_timer = { }
