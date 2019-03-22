@@ -67,7 +67,7 @@ local stats = {
     },
 
     consecutive = {
-        [1] = { "1", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        [1] = { "5", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [4] = { "20", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
