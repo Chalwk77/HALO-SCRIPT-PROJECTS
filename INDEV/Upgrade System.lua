@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Inventory Transactions, for SAPP (PC & CE)
+Script Name: Upgrade System, for SAPP (PC & CE)
 Description: Earn 'money' for kills, scoring, assists, combo-kills and more.
 
 Use that money to buy equipment and upgrades.
