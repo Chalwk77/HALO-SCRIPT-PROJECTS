@@ -100,7 +100,7 @@ local dir = "sapp\\stats.data"
 local gsub, match, concat = string.gsub, string.match, table.concat
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], "OnTick")
+    -- register_callback(cb['EVENT_TICK'], "OnTick")
     
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
@@ -125,11 +125,7 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    for i = 1, 16 do
-        if player_present(i) then
-            weapon[i] = false
-        end
-    end
+    -- to do
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -193,7 +189,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 money:update(params)
                 local new_balance = money:getbalance(ip)
                 rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
-                weapon[executor] = true
+                execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
                 return false
             end
         end
@@ -380,16 +376,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 end
 
 function OnTick()
-    for i = 1,16 do
-        if (player_present(i) and player_alive(i)) then
-            if (weapon[i] == true) then
-                weapon[i] = false
-                execute_command('wdel ' .. i .. ' 0')
-                execute_command_sequence('spawn weap "weapons\\pistol\\pistol" ' .. i .. ';wadd')
-                print('done')
-            end
-        end
-    end
+    -- not currently used
 end
 
 function OnPlayerAssist()
