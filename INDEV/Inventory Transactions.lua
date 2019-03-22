@@ -388,6 +388,10 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     if (killer > 0) then
     
         -- [Combo Scoring]
+        if start_combo_timer[victim] then
+            players[victim] = nil
+        end
+    
         players[killer].kills = players[killer].kills + 1
         if not (start_combo_timer[killer]) then
             start_combo_timer[killer] = true
