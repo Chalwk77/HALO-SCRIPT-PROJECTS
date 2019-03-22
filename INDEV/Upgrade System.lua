@@ -174,20 +174,44 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     checkFile()
+    for i = 1, 16 do
+        if player_present(i) then
+            local hash = get_var(i, "$hash")
+            local ip = get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
+            if not ip_table[hash] then
+                ip_table[hash] = {}
+            end
+            table.insert(ip_table[hash], { ["ip"] = ip })
+
+            players[i] = players[i] or { }
+            players[i].combo = 0
+            players[i].combo_timer = 0
+            players[i].kills = 0
+            players[i].streaks = 0
+            players[i].assists = 0
+            run_combo_timer[i] = false
+        end
+    end
 end
 
 function OnScriptUnload()
-    -- to do
+    for i = 1, 16 do
+        if player_present(i) then
+            players[i] = nil
+            run_combo_timer[i] = nil
+        end
+    end
 end
 
 function OnGameStart()
-    -- to do
+    -- not currently used
 end
 
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             players[i] = nil
+            run_combo_timer[i] = nil
         end
     end
 end
