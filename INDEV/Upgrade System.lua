@@ -71,7 +71,8 @@ local commands = {
 
     -- Weapon Purchases:
     -- command | price | weapon | message
-    { [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { [2] = { "gold", "150", "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    --{ [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
 
     -- keyword | sapp_command | price | count | message
     { ["mine"] = { 'nades', "15", "2", "%count% Mines", -1 } },
@@ -303,11 +304,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local cost = cmd[2]
                     if (balance >= tonumber(cost)) then
                         execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                        local params = { }
-                        params.ip = ip
-                        params.money = cost
-                        params.subtract = true
-                        money:update(params)
+                        local p = { }
+                        p.ip = ip
+                        p.money = cost
+                        p.subtract = true
+                        money:update(p)
                         local new_balance = money:getbalance(ip)
                         local strFormat = gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance)
                         rprint(executor, strFormat)
@@ -335,11 +336,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (gold ~= nil) and (command == gold[1]) then
                 if checkAccess(executor, gold[5]) then
                     if TagInfo("weap", gold[3]) then
-                        local params = { }
-                        params.ip = getIP(executor)
-                        params.money = gold[2]
-                        params.subtract = true
-                        money:update(params)
+                        local p, ip = { }, getIP(executor)
+                        p.ip = ip
+                        p.money = gold[2]
+                        p.subtract = true
+                        money:update(p)
                         local new_balance = money:getbalance(ip)
                         rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
                         execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
