@@ -24,6 +24,8 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
+-- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
+local save_money = true
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
 
@@ -31,6 +33,10 @@ local dir = "sapp\\money.data"
 -- "%balance%" (current balance)
 -- "%price%" (money required to execute TRIGGER)
 local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
+
+-- The balance each player will start with when they join the server for the first time.
+-- Note: If 'save_money' is false, the player's balance on join will always be the value of "starting_balace"
+local starting_balace = 0
 
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
@@ -145,20 +151,19 @@ local stats = {
         -- Repeat the structure to add more entries.
     },
 
-    -- [ deaths (victim)] (penalty points | message)
-    { ["event_die"] = { '-20', "DEATH (-%penalty_points% points)" } },
+    penalty = {
+        -- [ victim death ] (points deducted | message)
+        [1] = { "20", "DEATH (-%penalty_points% points)" },
+        -- [ victim suicide ] (points deducted | message)
+        [2] = { "30", "SUICIDE (-%penalty_points% points)" },
+        -- [ killer betray ] (points deducted | message)
+        [3] = { "50", "TEAM KILL (-%penalty_points% points)" },
+    },
 
-    -- [ suicide ] (penalty points | message)
-    { ["event_suicide"] = { '-30', "SUICIDE (-%penalty_points% points)" } },
-
-    -- [ team kill ] (penalty points | message)
-    { ["event_tk"] = { '-50', "TEAM KILL (-%penalty_points% points)" } },
-
-    -- [ assist ] (reward points | message)
-    { ["event_assist"] = { '50', "ASSIST (-%upgrade_points% points)" } },
-
-    -- [ score ] (reward points | message)
-    { ["event_score"] = { '10', "+%upgrade_points% Upgrade Points" } },
+    score = {
+        -- [ score ] (reward points | message)
+        [1] = { "10", "SCORE (+%upgrade_points% Upgrade Points)" },
+    },
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
@@ -168,6 +173,7 @@ local money, mod, ip_table, weapon = { }, { }, { }, { }
 
 local players = { }
 local run_combo_timer = { }
+local money_table = { }
 
 -- Not currently used
 -- local file_format = "%ip%|%money%"
@@ -186,7 +192,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
     register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
 
-    --register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     checkFile()
@@ -207,6 +213,9 @@ function OnScriptLoad()
             players[i].assists = 0
             run_combo_timer[i] = false
         end
+    end
+    if not (save_money) then
+        money_table = {["money"] = {}}
     end
 end
 
@@ -237,18 +246,10 @@ function OnGameEnd()
 end
 
 function OnPlayerScore(PlayerIndex)
-    for key, _ in ipairs(stats) do
-        local event_score = stats[key]["event_score"]
-        if (event_score ~= nil) then
-            local params = { }
-            params.ip = getIP(PlayerIndex)
-            params.money = event_score[1]
-            params.subtract = false
-            money:update(params)
-            rprint(PlayerIndex, gsub(event_score[2], "%%upgrade_points%%", params.money))
-            break
-        end
-    end
+    local p, ip = { }, getIP(PlayerIndex)
+    p.ip, p.money, p.subtract = ip, stats.score[1][1], false
+    money:update(p)
+    rprint(PlayerIndex, gsub(stats.score[1][2], "%%upgrade_points%%", p.money))
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -340,9 +341,10 @@ function money:update(params)
 
     local ip = params.ip or nil
     local points = params.money or nil
+    
     local subtract = params.subtract or nil
     local balance = tonumber(money:getbalance(ip))
-
+    
     local new_balance = balance
 
     if not (subtract) then
@@ -356,29 +358,37 @@ function money:update(params)
     if (new_balance <= 0) then
         new_balance = 0
     end
+    
+    if (save_money) then
+        local found
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if containsExact(ip, v) then
+                found = true
 
-    local found
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(ip, v) then
-            found = true
+                local fRead = io.open(dir, "r")
+                local content = fRead:read("*all")
+                fRead:close()
 
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
+                content = gsub(content, v, ip .. "|" .. tostring(new_balance))
 
-            content = gsub(content, v, ip .. "|" .. tostring(new_balance))
-
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
+                local fWrite = io.open(dir, "w")
+                fWrite:write(content)
+                fWrite:close()
+            end
         end
-    end
 
-    if not (found) then
-        local file = assert(io.open(dir, "a+"))
-        file:write(ip .. "|" .. tostring(new_balance) .. "\n")
-        file:close()
+        if not (found) then
+            local file = assert(io.open(dir, "a+"))
+            file:write(ip .. "|" .. tostring(new_balance) .. "\n")
+            file:close()
+        end
+    else
+        for key, _ in pairs(money_table["money"]) do
+            if (ip == key) then
+                money_table["money"][key].balance = new_balance
+            end
+        end
     end
 end
 
@@ -387,55 +397,68 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-
-    local function stringSplit(inputString, Separator)
-        if (Separator == nil) then
-            Separator = "%s"
-        end
-        local t = {};
-        local i = 1
-        for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
-            t[i] = str
-            i = i + 1
-        end
-        return t
-    end
-
-    local data, balance
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if (v:match(player_ip)) then
-            balance = v:match("|(.+)")
-            data = stringSplit(balance, ",")
-        end
-    end
     
-    local t, result = { }
-    for i = 1, 1 do
-        if data[i] then
-            t[#t + 1] = data[i]
-            result = tonumber(concat(t, ", "))
-        else
-            return 0
+    if (save_money) then
+        local function stringSplit(inputString, Separator)
+            if (Separator == nil) then
+                Separator = "%s"
+            end
+            local t = {};
+            local i = 1
+            for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
+                t[i] = str
+                i = i + 1
+            end
+            return t
         end
-    end
 
-    if (result ~= nil) then
-        if (result <= 0) then
-            return 0
-        else
-            return result
+        local data, balance
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if (v:match(player_ip)) then
+                balance = v:match("|(.+)")
+                data = stringSplit(balance, ",")
+            end
         end
-    end
+        
+        local t, result = { }
+        for i = 1, 1 do
+            if data[i] then
+                t[#t + 1] = data[i]
+                result = tonumber(concat(t, ", "))
+            else
+                return 0
+            end
+        end
 
-    for _ in pairs(t) do
-        t[_] = nil
+        if (result ~= nil) then
+            if (result <= 0) then
+                return 0
+            else
+                return result
+            end
+        end
+
+        for _ in pairs(t) do
+            t[_] = nil
+        end
+    else
+        for key, _ in pairs(money_table["money"]) do
+            if (player_ip == key) then
+                if (money_table["money"][key].balance <= 0) then
+                    return 0
+                else
+                    return money_table["money"][key].balance
+                end
+            end
+        end
     end
 end
 
 function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
-    local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    local ip = get_var(PlayerIndex, "$ip")
+    
     if not ip_table[hash] then
         ip_table[hash] = {}
     end
@@ -448,33 +471,36 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
     
-    local found
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(ip, v) then
-            found = true
+    if (save_money) then
+        local found
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if containsExact(ip, v) then
+                found = true
+            end
         end
-    end
 
-    if not (found) then
-        local file = assert(io.open(dir, "a+"))
-        file:write(ip .. "|" .. 0 .. "\n")
-        file:close()
+        if not (found) then
+            local file = assert(io.open(dir, "a+"))
+            file:write(ip .. "|" .. tostring(starting_balace) .. "\n")
+            file:close()
+        end
+    else
+        money_table["money"][ip] = { ["balance"] = starting_balace }
     end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     players[PlayerIndex] = nil
+    local ip = getIP(PlayerIndex)
+    if not (save_money) then
+        money_table["money"][ip] = { ["balance"] = starting_balace }
+    end
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-
-    local kTeam = get_var(victim, "$team")
-    local vTeam = get_var(killer, "$team")
-
-    local kip = getIP(killer)
 
     local function isTeamPlay()
         if get_var(0, "$ffa") == "0" then
@@ -485,6 +511,12 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     end
 
     if (killer > 0) then
+    
+        local kTeam = get_var(victim, "$team")
+        local vTeam = get_var(killer, "$team")
+    
+        local kip = getIP(killer)
+        local vip = getIP(victim)
 
         -- [Combo Scoring]
         if run_combo_timer[victim] then
@@ -519,55 +551,33 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             
             local p1 = { }
             players[killer].streaks = players[killer].streaks + 1
-            p1.type, p1.total, p1.id, p1.ip, p1.table = "streaks", players[killer].streaks, killer, kip, stats.streaks
+            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract= "streaks", players[killer].streaks, killer, kip, stats.streaks, false
             mod:check(p1)
             
             local p2 = { }
             players[killer].kills = players[killer].kills + 1
-            p2.type, p2.total, p2.id, p2.ip, p2.table = "kills", players[killer].kills, killer, kip, stats.kills
+            p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
             mod:check(p2)
-
-            -- Victim Penalty
-            for key, _ in ipairs(stats) do
-                local event_die = stats[key]["event_die"]
-                if (event_die ~= nil) then
-                    local p = { }
-                    p.ip = getIP(victim)
-                    p.money = event_die[1]
-                    p.subtract = true
-                    money:update(p)
-                    rprint(victim, gsub(event_die[2], "%%penalty_points%%", p.money))
-                end
-            end
             
-        -- Suicide
+            -- Victim Death Penalty
+            local p3 = { }
+            p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
+            money:update(p3)
+            rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
+            
+        -- Victim Suicide
         elseif (victim == killer) then
-            for key, _ in ipairs(stats) do
-                local event_suicide = stats[key]["event_suicide"]
-                if (event_suicide ~= nil) then
-                    local p = { }
-                    p.ip = getIP(victim)
-                    p.money = event_suicide[1]
-                    p.subtract = true
-                    money:update(p)
-                    rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", p.money))
-                end
-            end
+            local p = { }
+            p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
+            money:update(p)
+            rprint(victim, gsub(stats.penalty[2][2], "%%penalty_points%%", p.money))
         end
         -- Betray
         if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
-            for key, _ in ipairs(stats) do
-                local event_tk = stats[key]["event_tk"]
-                if (event_tk ~= nil) then
-                    local p = { }
-                    p.ip = getIP(killer)
-                    p.money = event_tk[1]
-                    p.subtract = true
-                    money:update(p)
-                    rprint(killer, gsub(event_tk[2], "%%penalty_points%%", p.money))
-                    break
-                end
-            end
+            local p = { }
+            p.ip, p.money, p.subtract = vip, stats.penalty[3][1], true
+            money:update(p)
+            rprint(victim, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
         end
     end
 end
@@ -579,13 +589,14 @@ function mod:check(params)
     local identifier = params.type or nil
     local total = params.total or nil
     local t = params.table or nil
+    local subtract = params.subtract
     local p = { }
     for i = 1, #t do
         local required = tonumber(t[i][1])
         if (required ~= nil) then
             if (total == required) then
                 p.money = t[i][2]
-                p.subtract = false
+                p.subtract = subtract
                 p.ip = ip
                 money:update(p)
                 local message = t[i][3]
@@ -599,7 +610,7 @@ end
 function OnPlayerAssist(PlayerIndex)
     players[PlayerIndex].assists = players[PlayerIndex].assists + 1
     local p, ip = { }, getIP(PlayerIndex)
-    p.type, p.total, p.id, p.ip, p.table = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists
+    p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
     mod:check(p)
 end
 
