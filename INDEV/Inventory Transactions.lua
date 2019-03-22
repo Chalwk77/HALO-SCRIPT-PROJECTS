@@ -48,7 +48,7 @@ local commands = {
 
 local stats = {
     -- [ kills (killer)] --
-    {["1"] = {'1', "(%kills%) +%upgrade_points% Upgrade Points"}},
+    {["10"] = {'1', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["10"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["20"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["30"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
@@ -79,7 +79,7 @@ local stats = {
     {["event_tk"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
     
     -- [ assist ]
-    {["event_die"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
+    {["event_assist"] = {'-50', "ASSIST (-%penalty_points% points)"}},
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
