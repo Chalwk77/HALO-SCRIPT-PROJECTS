@@ -24,6 +24,9 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
+-- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
+local dir = "sapp\\money.data"
+
 -- Custom Variables that can be used in 'Insufficient Funds' message: 
 -- "%balance%" (current balance)
 -- "%price%" (money required to execute TRIGGER)
@@ -89,13 +92,19 @@ local upgrade_info = {
 local stats = {
 
     combo = {
+        -- required kills [number] | reward [number] | message [string]
+        -- Custom variables that can be used in COMBO messages: %combos% (current combo) | %upgrade_points% (reward points)
         [1] = { "3", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
         [2] = { "4", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
         [3] = { "5", "20", "(x%combos%) Kill Combo +%upgrade_points% Upgrade Points" },
-        duration = 7 -- in seconds (default 5)
+        -- Repeat the structure to add more entries.
+        -- Time you have to get X amount of kill-combos
+        duration = 7 -- in seconds (default 7)
     },
 
     streaks = {
+        -- Custom variables that can be used in STREAK messages: %streaks% (current streak) | %upgrade_points% (reward points)
+        -- required streaks [number] | reward [number] | message [string]
         [1] = { "5", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
@@ -104,18 +113,24 @@ local stats = {
         [6] = { "30", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [7] = { "35", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
         [8] = { "40", "15", "(x%streaks%) Kill Streak +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
     },
 
     assists = {
+        -- Custom variables that can be used in ASSIST messages: %streaks% (current assists) | %upgrade_points% (reward points)
+        -- required assists [number] | reward [number] | message [string]
         [1] = { "5", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         [2] = { "10", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         [3] = { "15", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         [4] = { "20", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         [5] = { "25", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         [6] = { "30", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
     },
     
     kills = {
+        -- Custom variables that can be used in (consecutive) KILL messages: %kills% (current kills) | %upgrade_points% (reward points)
+        -- required kills [number] | reward [number] | message [string]
         [1] = { "5", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
         [2] = { "10", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
         [3] = { "20", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
@@ -127,6 +142,7 @@ local stats = {
         [9] = { "80", "10", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
         [10] = { "90", "20", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
         [11] = { "100", "30", "Kills: (%kills%) +%upgrade_points% Upgrade Points" },
+        -- Repeat the structure to add more entries.
     },
 
     -- [ deaths (victim)] --
@@ -147,8 +163,8 @@ local stats = {
 
 -- Configuration [ends] -----------------------------------------------------------------
 
+-- Do not touch.
 local money, mod, ip_table, weapon = { }, { }, { }, { }
-local dir = "sapp\\money.data"
 
 local players = { }
 local run_combo_timer = { }
