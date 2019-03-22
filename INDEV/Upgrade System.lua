@@ -1,24 +1,28 @@
+
 --[[
 --=====================================================================================================--
 Script Name: Upgrade System, for SAPP (PC & CE)
 Description:
             Earn 'money' for:
-
             -> Kills & Assists
             -> Kill-Combos & Kill-Streaks
             -> CTF Scoring
-
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
             [!] STILL IN DEVELOPMENT (approx 97% complete)
+			
+			TO DO:
+			* Bug fixes
+			* Write money transfer command
+			* Possibly refactor some code. 
+			* Final tests before publishing as a finished resource
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
-]]--
+]] --
 
 api_version = "1.12.0.0"
 
