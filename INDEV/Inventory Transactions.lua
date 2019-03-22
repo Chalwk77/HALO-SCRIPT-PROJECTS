@@ -6,7 +6,7 @@ Description: Earn 'money' for kills, scoring, assists, combo-kills and more.
 Use that money to buy equipment and upgrades.
 More details will come at a later date.
 
-IN DEVELOPMENT (83% complete)
+IN DEVELOPMENT (75% complete)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -63,7 +63,7 @@ local stats = {
         [1] = { "3", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
         [2] = { "4", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
         [3] = { "5", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
-        duration = 5 -- in seconds
+        duration = 7 -- in seconds (default 5)
     },
     
     -- [ kills (killer)] --
@@ -146,8 +146,7 @@ end
 function OnGameEnd()
     for i = 1,16 do
         if player_present(i) then
-            local ip = getIP(i)
-            players[ip] = nil
+            players[i] = nil
         end
     end
 end
@@ -360,14 +359,13 @@ function OnPlayerConnect(PlayerIndex)
     isCombo[PlayerIndex] = isCombo[PlayerIndex] or { }
     isCombo[PlayerIndex] = false
     
-    players[ip] = players[ip] or { }
-    players[ip].kills = 0
-    players[ip].combo_timer = 0
+    players[PlayerIndex] = players[PlayerIndex] or { }
+    players[PlayerIndex].kills = 0
+    players[PlayerIndex].combo_timer = 0
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    local ip = getIP(PlayerIndex)
-    players[ip] = nil
+    players[PlayerIndex] = nil
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
@@ -387,24 +385,34 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         end
     end
 
-    -- [Combo Scoring]
     if (killer > 0) then
     
-        players[kip].kills = players[kip].kills + 1
+        -- [Combo Scoring]
+        players[killer].kills = players[killer].kills + 1
         if not (start_combo_timer[killer]) then
             start_combo_timer[killer] = true
         end
         
+        function checkDelay()
+            if (players[killer].combo_timer > 0) then
+                local p = { }
+                p.ip, p.id = kip, killer
+                p.kills = players[killer].kills
+                mod:checkForCombo(p)
+            end
+        end
+        if (start_combo_timer[killer]) then
+            timer(50, "checkDelay")
+        end
+        
+        -- Killer Reward
         if (killer ~= victim and kTeam ~= vTeam) then
             if not (isCombo[killer]) then
                 local event_kill, event_die
                 local kills = tostring(get_var(KillerIndex, "$kills"))
-
                 for key, _ in ipairs(stats) do
                     event_kill = stats[key][kills]
                     event_die = stats[key]["event_die"]
-
-                    -- Killer Reward
                     if (event_kill ~= nil) then
                         for k, v in pairs(event_kill) do
                             if (kills == v) then
@@ -429,7 +437,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 money:update(params)
                 rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
             end
-
+        -- Suicide
         elseif (victim == killer) then
             for key, _ in ipairs(stats) do
                 local event_suicide = stats[key]["event_suicide"]
@@ -443,7 +451,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 end
             end
         end
-       
+        -- Betray
         if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
             for key,_ in ipairs(stats) do
                 local event_tk = stats[key]["event_tk"]
@@ -489,15 +497,11 @@ function OnTick()
     for i = 1,16 do
         if player_present(i) then
             if (start_combo_timer[i]) then
-                local ip, params = getIP(i), { }
-                players[ip].combo_timer = players[ip].combo_timer + 0.030
-                params.ip, params.id = ip, tonumber(i)
-                params.kills = players[ip].kills
-                mod:checkForCombo(params)
-                if (players[ip].combo_timer >= floor(stats.combo.duration)) then
+                players[i].combo_timer = players[i].combo_timer + 0.030
+                if (players[i].combo_timer >= floor(stats.combo.duration)) then
                     start_combo_timer[i] = false
-                    players[ip].combo_timer = 0
-                    players[ip].kills = 0
+                    players[i].combo_timer = 0
+                    players[i].kills = 0
                 end
             end
         end
