@@ -60,9 +60,6 @@ local stats = {
     {["90"] = {'20', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["100"] = {'30', "(%kills%) +%upgrade_points% Upgrade Points"}},
     
-    -- [ deaths (victim)] --
-    {["event_die"] = {'-20', "DEATH (-%penalty_points% points)"}},
-    
     -- [ kill streaks ]
     {["streak"] = {5, "5", "Money: $%money%"}},
     {["streak"] = {10, "10", "Money: $%money%"}},
@@ -71,6 +68,8 @@ local stats = {
     {["streak"] = {25, "25", "Money: $%money%"}},
     {["streak"] = {30, "30", "%assists% Assists +%upgrade_points% Upgrade Points"}},
     
+    -- [ deaths (victim)] --
+    {["event_die"] = {'-20', "DEATH (-%penalty_points% points)"}},
     
     -- [ suicide ]
     {["event_suicide"] = {'-30', "SUICIDE (-%penalty_points% points)"}},
@@ -79,7 +78,7 @@ local stats = {
     {["event_tk"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
     
     -- [ assist ]
-    {["event_assist"] = {'-50', "ASSIST (-%penalty_points% points)"}},
+    {["event_assist"] = {'-50', "ASSIST (-%upgrade_points% points)"}},
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
