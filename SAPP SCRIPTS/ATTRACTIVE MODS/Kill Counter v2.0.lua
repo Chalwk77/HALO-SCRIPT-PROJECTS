@@ -350,9 +350,14 @@ function money:update(params)
 
     local ip = params.ip or nil
     local points = params.money or nil
+    
+    print(ip .. "|" .. points)
+    
     local subtract = params.subtract or nil
     local balance = tonumber(money:getbalance(ip))
 
+    print(balance)
+    
     local new_balance = balance
 
     if not (subtract) then
@@ -465,7 +470,8 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
-    local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    local ip = get_var(PlayerIndex, "$ip")
+    
     if not ip_table[hash] then
         ip_table[hash] = {}
     end
@@ -499,8 +505,7 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     players[PlayerIndex] = nil
-    local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
-    
+    local ip = getIP(PlayerIndex)
     if not (save_money) then
         money_table["money"][ip] = { ["balance"] = starting_balace }
     end
@@ -558,15 +563,15 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             
             local p1 = { }
             players[killer].streaks = players[killer].streaks + 1
-            p1.type, p1.total, p1.id, p1.ip, p1.table = "streaks", players[killer].streaks, killer, kip, stats.streaks
+            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract= "streaks", players[killer].streaks, killer, kip, stats.streaks, false
             mod:check(p1)
             
             local p2 = { }
             players[killer].kills = players[killer].kills + 1
-            p2.type, p2.total, p2.id, p2.ip, p2.table = "kills", players[killer].kills, killer, kip, stats.kills
+            p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
             mod:check(p2)
 
-            -- Victim Penalty
+            -- Victim Death Penalty
             for key, _ in ipairs(stats) do
                 local event_die = stats[key]["event_die"]
                 if (event_die ~= nil) then
@@ -576,6 +581,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     p.subtract = true
                     money:update(p)
                     rprint(victim, gsub(event_die[2], "%%penalty_points%%", p.money))
+                    break
                 end
             end
             
@@ -590,6 +596,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     p.subtract = true
                     money:update(p)
                     rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", p.money))
+                    break
                 end
             end
         end
@@ -618,13 +625,14 @@ function mod:check(params)
     local identifier = params.type or nil
     local total = params.total or nil
     local t = params.table or nil
+    local subtract = params.subtract
     local p = { }
     for i = 1, #t do
         local required = tonumber(t[i][1])
         if (required ~= nil) then
             if (total == required) then
                 p.money = t[i][2]
-                p.subtract = false
+                p.subtract = subtract
                 p.ip = ip
                 money:update(p)
                 local message = t[i][3]
@@ -638,7 +646,7 @@ end
 function OnPlayerAssist(PlayerIndex)
     players[PlayerIndex].assists = players[PlayerIndex].assists + 1
     local p, ip = { }, getIP(PlayerIndex)
-    p.type, p.total, p.id, p.ip, p.table = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists
+    p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
     mod:check(p)
 end
 
