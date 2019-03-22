@@ -324,7 +324,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             
             -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
-                if checkAccess(executor, commands[key][3]) then
+                if checkAccess(executor, bal[3]) then
                     local balance = money:getbalance(getIP(executor))   
                     rprint(executor, gsub(bal[2], "%%money%%", balance))
                 end
@@ -333,15 +333,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
             -- Golden Gun
             if (gold ~= nil) and (command == gold[1]) then
-                if checkAccess(executor, commands[key][5]) then
-                    local params = { }
-                    params.ip = getIP(executor)
-                    params.money = gold[2]
-                    params.subtract = true
-                    money:update(params)
-                    local new_balance = money:getbalance(ip)
-                    rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
-                    execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+                if checkAccess(executor, gold[5]) then
+                    if TagInfo("weap", gold[3]) then
+                        local params = { }
+                        params.ip = getIP(executor)
+                        params.money = gold[2]
+                        params.subtract = true
+                        money:update(params)
+                        local new_balance = money:getbalance(ip)
+                        rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
+                        execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+                    else
+                        rprint(executor, "That doesn't command work on this map.")
+                    end
                 end
                 return false
             end
@@ -737,6 +741,11 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function report()
