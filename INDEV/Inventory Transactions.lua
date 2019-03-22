@@ -42,8 +42,16 @@ local commands = {
     { ["cam2"] = { 'camo', "40", "120", "2 Minutes of Camo", -1 } },
     { ["cam3"] = { 'camo', "50", "180", "3 Minutes of Camo", -1 } },
 
-    -- Balance Command: Syntax: 'command, message'
+    -- Note: balance command syntax here may change during development.
     { [1] = { "bal", "Money: $%money%", -1 } },
+    
+    -- Weapon Purchases:
+    -- command | price | weapon | message
+    { [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    
+    -- keyword | sapp_command | price | count | message
+    { ["mine"] = { 'nades', "15", "2", "%count% Mines", -1 } },
+    { ["gren"] = { 'ammo', "10", "2", "%count% Grenades", -1 } },
 }
 
 local stats = {
@@ -83,7 +91,7 @@ local stats = {
 
 -- Configuration [ends] -----------------------------------------------------------------
 
-local money, ip_table = { }, { }
+local money, ip_table, weapon = { }, { }, { }
 local dir = "sapp\\stats.data"
 
 -- Not currently used
@@ -92,6 +100,8 @@ local dir = "sapp\\stats.data"
 local gsub, match, concat = string.gsub, string.match, table.concat
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], "OnTick")
+    
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
 
@@ -115,7 +125,11 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    -- to do
+    for i = 1, 16 do
+        if player_present(i) then
+            weapon[i] = false
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -139,25 +153,49 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local ip = getIP(executor)
     local balance = money:getbalance(ip)
 
+    local TYPE_ONE
+    
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
-        local bal = commands[key][1]
+        
         if (cmd ~= nil) then
+            TYPE_ONE = true
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
                     if (balance >= tonumber(cmd[2])) then
                         execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                        rprint(executor, cmd[4])
+                        local strFormat = gsub(cmd[4], "%%count%%", cmd[3])
+                        rprint(executor, strFormat)
                     else
                         rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                     end
                     return false
                 end
+            end    
+        end
+        if not (TYPE_ONE) then
+            local bal = commands[key][1]
+            local gold = commands[key][2]
+            
+            -- Balance Command
+            if (bal ~= nil) and (command == bal[1]) then
+                rprint(executor, gsub(bal[2], "%%money%%", balance))
+                return false
             end
-        elseif (bal ~= nil and command == bal[1]) then
-            rprint(executor, gsub(bal[2], "%%money%%", balance))
-            return false
+            
+             -- Golden Gun
+           if (gold ~= nil) and (command == gold[1]) then
+                local params = { }
+                params.ip = getIP(executor)
+                params.money = gold[2]
+                params.subtract = true
+                money:update(params)
+                local new_balance = money:getbalance(ip)
+                rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
+                weapon[executor] = true
+                return false
+            end
         end
     end
 end
@@ -336,6 +374,19 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 params.subtract = true
                 money:update(params)
                 rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
+            end
+        end
+    end
+end
+
+function OnTick()
+    for i = 1,16 do
+        if (player_present(i) and player_alive(i)) then
+            if (weapon[i] == true) then
+                weapon[i] = false
+                execute_command('wdel ' .. i .. ' 0')
+                execute_command_sequence('spawn weap "weapons\\pistol\\pistol" ' .. i .. ';wadd')
+                print('done')
             end
         end
     end
