@@ -6,7 +6,7 @@ Description: Earn 'money' for kills, scoring, assists, combo-kills and more.
 Use that money to buy equipment and upgrades.
 More details will come at a later date.
 
-IN DEVELOPMENT (84% complete)
+IN DEVELOPMENT (88% complete)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -60,10 +60,30 @@ local commands = {
 local stats = {
     
     combo = {
-        [1] = { "3", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
-        [2] = { "4", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
-        [3] = { "5", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
+        [1] = { "3", "20", "%count% Player Kill Combo +%upgrade_points% Upgrade Points"},
+        [2] = { "4", "20", "%count% Player Kill Combo +%upgrade_points% Upgrade Points"},
+        [3] = { "5", "20", "%count% Player Kill Combo +%upgrade_points% Upgrade Points"},
         duration = 7 -- in seconds (default 5)
+    },
+    
+    consecutive = {
+        [1] = { "5", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [2] = { "10", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [3] = { "15", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [4] = { "20", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [5] = { "25", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [6] = { "30", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [7] = { "35", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [8] = { "40", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+    },
+    
+    assists = {
+        [1] = { "5", "15", "%count% Assists Streak +%upgrade_points% Upgrade Points"},
+        [2] = { "10", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [3] = { "15", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [4] = { "20", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [5] = { "25", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
+        [6] = { "30", "15", "%count% Kill Streak +%upgrade_points% Upgrade Points"},
     },
     
     -- [ kills (killer)] --
@@ -362,6 +382,8 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex] = players[PlayerIndex] or { }
     players[PlayerIndex].kills = 0
     players[PlayerIndex].combo_timer = 0
+    players[PlayerIndex].streaks = 0
+    players[PlayerIndex].assists = 0
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -399,20 +421,30 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             start_combo_timer[killer] = true
         end
         
-        function checkDelay()
+        function comboCheckDelay()
             if (players[killer].combo_timer > 0) then
                 local p = { }
-                p.ip, p.id = kip, killer
-                p.kills = players[killer].kills
+                p.kills, p.id = players[killer].kills, killer
                 mod:checkForCombo(p)
             end
         end
         if (start_combo_timer[killer]) then
-            timer(50, "checkDelay")
+            timer(50, "comboCheckDelay")
         end
         
         -- Killer Reward
         if (killer ~= victim and kTeam ~= vTeam) then
+            
+            -- [ STREAKS ]
+            if (players[victim].streaks > 0) then
+                players[victim].streaks = 0
+            end
+            
+            local p = { }
+            players[killer].streaks = players[killer].streaks + 1
+            p.streaks, p.id = players[killer].streaks, killer
+            mod:checkForStreak(p)
+        
             if not (isCombo[killer]) then
                 local event_kill, event_die
                 local kills = tostring(get_var(KillerIndex, "$kills"))
@@ -477,8 +509,6 @@ end
 
 function mod:checkForCombo(params)
     local params = params or {}
-
-    local ip = params.ip or nil
     local PlayerIndex = params.id or nil
     local kills = params.kills or nil
     
@@ -492,8 +522,49 @@ function mod:checkForCombo(params)
                 params.subtract = false
                 money:update(params)
                 isCombo[PlayerIndex] = true
-                -- To do: prevent duplicate messages
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
+            end
+        end
+    end
+end
+
+function mod:checkForStreak(params)
+    local params = params or {}
+    local PlayerIndex = params.id or nil
+    local streaks = params.streak or nil
+    
+    local tab = stats.consecutive
+    for i = 1,#tab do
+        local required_streaks = tonumber(tab[i][1])
+        if (required_streaks ~= nil) then     
+            if (streaks == required_streaks) then
+                local message = tab[i][3]
+                params.money = tab[i][2]
+                params.subtract = false
+                money:update(params)
+                isCombo[PlayerIndex] = true
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_streaks), "%%upgrade_points%%", params.money))
+            end
+        end
+    end
+end
+
+function mod:checkForAssist(params)
+    local params = params or {}
+    local PlayerIndex = params.id or nil
+    local assists = params.assists or nil
+    
+    local tab = stats.assists
+    for i = 1,#tab do
+        local required_assists = tonumber(tab[i][1])
+        if (required_assists ~= nil) then     
+            if (assists == required_assists) then
+                local message = tab[i][3]
+                params.money = tab[i][2]
+                params.subtract = false
+                money:update(params)
+                isCombo[PlayerIndex] = true
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_assists), "%%upgrade_points%%", params.money))
             end
         end
     end
@@ -501,7 +572,7 @@ end
 
 function OnTick()
     for i = 1,16 do
-        if player_present(i) then
+        if player_present(i) and player_alive(i) then
             if (start_combo_timer[i]) then
                 players[i].combo_timer = players[i].combo_timer + 0.030
                 if (players[i].combo_timer >= floor(stats.combo.duration)) then
@@ -514,8 +585,11 @@ function OnTick()
     end
 end
 
-function OnPlayerAssist()
-    -- to do
+function OnPlayerAssist(PlayerIndex)
+    players[PlayerIndex].assists = players[PlayerIndex].assists + 1
+    local p = { }
+    p.assists, p.id = players[PlayerIndex].assists, PlayerIndex
+    mod:checkForAssist(p)
 end
 
 function getIP(PlayerIndex)
