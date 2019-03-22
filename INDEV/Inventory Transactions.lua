@@ -21,6 +21,8 @@ api_version = "1.12.0.0"
 -- "%balance%" (current balance)
 -- "%price%" (money required to execute TRIGGER)
 local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
+local combo_kill_duration = 5
+
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
@@ -55,6 +57,13 @@ local commands = {
 }
 
 local stats = {
+    
+    combo = {
+        [1] = { "3", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
+        [2] = { "4", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
+        [3] = { "5", "20", "%count% Player Kill Combo %upgrade_points% Upgrade Points"},
+    },
+    
     -- [ kills (killer)] --
     { ["1"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
     { ["10"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
@@ -67,7 +76,7 @@ local stats = {
     { ["80"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
     { ["90"] = { '20', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
     { ["100"] = { '30', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
-
+    
     -- [ kill streaks ]
     { ["streak"] = { 5, "5", "Money: $%money%" } },
     { ["streak"] = { 10, "10", "Money: $%money%" } },
@@ -94,16 +103,19 @@ local stats = {
 
 -- Configuration [ends] -----------------------------------------------------------------
 
-local money, ip_table, weapon = { }, { }, { }
+local money, mod, ip_table, weapon = { }, { }, { }, { }
 local dir = "sapp\\stats.data"
+
+local players = { }
+local start_combo_timer = { }
 
 -- Not currently used
 -- local file_format = "%ip%|%money%"
 
-local gsub, match, concat = string.gsub, string.match, table.concat
+local gsub, match, concat, floor = string.gsub, string.match, table.concat, math.floor
 
 function OnScriptLoad()
-    -- register_callback(cb['EVENT_TICK'], "OnTick")
+    register_callback(cb['EVENT_TICK'], "OnTick")
     
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
@@ -129,7 +141,12 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    -- to do
+    for i = 1,16 do
+        if player_present(i) then
+            local ip = getIP(i)
+            players[ip] = nil
+        end
+    end
 end
 
 function OnPlayerScore(PlayerIndex)
@@ -336,11 +353,15 @@ function OnPlayerConnect(PlayerIndex)
         ip_table[hash] = {}
     end
     table.insert(ip_table[hash], { ["ip"] = ip })
-    
+
+    players[ip] = players[ip] or { }
+    players[ip].kills = 0
+    players[ip].combo_timer = 0
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    -- to do
+    local ip = getIP(PlayerIndex)
+    players[ip] = nil
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
@@ -350,6 +371,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     local kTeam = get_var(victim, "$team")
     local vTeam = get_var(killer, "$team")
     
+    local kip = getIP(killer)
+    
     local function isTeamPlay()
         if get_var(0, "$ffa") == "0" then
             return true
@@ -358,71 +381,113 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         end
     end
 
-    if (killer ~= victim and kTeam ~= vTeam) then
-        local event_kill, event_die
-        local kills = tostring(get_var(KillerIndex, "$kills"))
+    -- [Combo Scoring]
+    if (killer > 0) then
+    
+        players[kip].kills = players[kip].kills + 1
+        if not (start_combo_timer[killer]) then
+            start_combo_timer[killer] = true
+        end
+        
+        if (killer ~= victim and kTeam ~= vTeam) then
+            local event_kill, event_die
+            local kills = tostring(get_var(KillerIndex, "$kills"))
 
-        for key, _ in ipairs(stats) do
-            event_kill = stats[key][kills]
-            event_die = stats[key]["event_die"]
+            for key, _ in ipairs(stats) do
+                event_kill = stats[key][kills]
+                event_die = stats[key]["event_die"]
 
-            -- Killer Reward
-            if (event_kill ~= nil) then
-                for k, v in pairs(event_kill) do
-                    if (kills == v) then
-                        local params = { }
-                        params.ip = getIP(killer)
-                        params.money = event_kill[1]
-                        params.subtract = false
-                        money:update(params)
-                        rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
+                -- Killer Reward
+                if (event_kill ~= nil) then
+                    for k, v in pairs(event_kill) do
+                        if (kills == v) then
+                            local params = { }
+                            params.ip = getIP(killer)
+                            params.money = event_kill[1]
+                            params.subtract = false
+                            money:update(params)
+                            rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
+                        end
                     end
+                end
+
+                -- Victim Penalty
+                if (event_die ~= nil) then
+                    local params = { }
+                    params.ip = getIP(victim)
+                    params.money = event_die[1]
+                    params.subtract = true
+                    money:update(params)
+                    rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
                 end
             end
 
-            -- Victim Penalty
-            if (event_die ~= nil) then
-                local params = { }
-                params.ip = getIP(victim)
-                params.money = event_die[1]
-                params.subtract = true
-                money:update(params)
-                rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
+        elseif (victim == killer) then
+            for key, _ in ipairs(stats) do
+                local event_suicide = stats[key]["event_suicide"]
+                if (event_suicide ~= nil) then
+                    local params = { }
+                    params.ip = getIP(victim)
+                    params.money = event_suicide[1]
+                    params.subtract = true
+                    money:update(params)
+                    rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
+                end
             end
         end
-
-    elseif (victim == killer) then
-        for key, _ in ipairs(stats) do
-            local event_suicide = stats[key]["event_suicide"]
-            if (event_suicide ~= nil) then
-                local params = { }
-                params.ip = getIP(victim)
-                params.money = event_suicide[1]
-                params.subtract = true
-                money:update(params)
-                rprint(victim, gsub(event_suicide[2], "%%penalty_points%%", params.money))
+       
+        if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
+            for key,_ in ipairs(stats) do
+                local event_tk = stats[key]["event_tk"]
+                if (event_tk ~= nil) then
+                    local params = { }
+                    params.ip = getIP(killer)
+                    params.money = event_tk[1]
+                    params.subtract = true
+                    money:update(params)
+                    rprint(killer, gsub(event_tk[2], "%%penalty_points%%", params.money))
+                    break
+                end
             end
         end
     end
-   
-    if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
-        for key,_ in ipairs(stats) do
-            local event_tk = stats[key]["event_tk"]
-            if (event_tk ~= nil) then
-                local params = { }
-                params.ip = getIP(killer)
-                params.money = event_tk[1]
-                params.subtract = true
-                money:update(params)
-                rprint(killer, gsub(event_tk[2], "%%penalty_points%%", params.money))
-                break
+end
+
+function mod:checkForCombo(params)
+    local params = params or {}
+
+    local ip = params.ip or nil
+    local PlayerIndex = params.id or nil
+    local kills = params.kills or nil
+    print(kills)
+    
+    local tab = stats.combo
+    for i = 1,#tab do
+        local required_kills = tonumber(tab[i][1])
+        if (required_kills ~= nil) then
+            if (kills == required_kills) then
+                local message = tab[i][3]
+                rprint(PlayerIndex, gsub(gsub(message, "%%count%%", "kills"), "%%upgrade_points%%", required_kills))
             end
         end
     end
 end
 
 function OnTick()
-    -- not currently used
+    for i = 1,16 do
+        if player_present(i) then
+            if (start_combo_timer[i]) then
+                local ip, params = getIP(i), { }
+                 players[ip].combo_timer = players[ip].combo_timer + 0.030
+                params.ip, params.id = ip, tonumber(i)
+                params.kills = players[ip].kills
+                mod:checkForCombo(params)
+                if (players[ip].combo_timer >= floor(combo_kill_duration)) then
+                    start_combo_timer[i] = false
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerAssist()
