@@ -478,6 +478,7 @@ function mod:checkForCombo(params)
                 params.subtract = false
                 money:update(params)
                 isCombo[PlayerIndex] = true
+                -- To do: prevent duplicate messages
                 rprint(PlayerIndex, gsub(gsub(message, "%%count%%", required_kills), "%%upgrade_points%%", params.money))
             end
         end
