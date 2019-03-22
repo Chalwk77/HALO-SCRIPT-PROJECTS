@@ -27,27 +27,6 @@ local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You
 
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
-local upgrade_info = {
-    "|cBIGASS AURORA UPGRADE SYTSTEM",
-    " ",
-    "|cPURCHASE UPGRADES",
-    " ",
-    "|cCommand | Upgrade | Cost",
-    " ",
-    "|c/heal1 | Health 100% | 10          /am1 | 200 Ammo All Weapons | 10",
-    "|c/heal2 | Health 200% | 20          /am2 | 350 Ammo All Weapons | 20",
-    "|c/heal3 | Health 300% | 30          /am3 | 500 Ammo All Weapons | 30",
-    "|c/heal4 | Health 400% | 40          /am4 | 700 Ammo All Weapons | 40",
-    "|c/heal5 | Health 500% | 50          /am5 | 900 Ammo All Weapons | 50",
-    " ",
-    "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
-    "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
-    "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
-    " ",  
-    " ",
-    "|c*Type /up to view how many Upgrade Points you currently have*",
-    " ",
-}
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
@@ -79,6 +58,28 @@ local commands = {
     -- keyword | sapp_command | price | count | message
     { ["mine"] = { 'nades', "15", "2", "%count% Mines", -1 } },
     { ["gren"] = { 'ammo', "10", "2", "%count% Grenades", -1 } },
+}
+
+local upgrade_info = {
+    "|cBIGASS AURORA UPGRADE SYTSTEM",
+    " ",
+    "|cPURCHASE UPGRADES",
+    " ",
+    "|cCommand | Upgrade | Cost",
+    " ",
+    "|c/heal1 | Health 100% | 10          /am1 | 200 Ammo All Weapons | 10",
+    "|c/heal2 | Health 200% | 20          /am2 | 350 Ammo All Weapons | 20",
+    "|c/heal3 | Health 300% | 30          /am3 | 500 Ammo All Weapons | 30",
+    "|c/heal4 | Health 400% | 40          /am4 | 700 Ammo All Weapons | 40",
+    "|c/heal5 | Health 500% | 50          /am5 | 900 Ammo All Weapons | 50",
+    " ",
+    "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
+    "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
+    "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
+    " ",  
+    " ",
+    "|c*Type /bal to view how many Upgrade Points you currently have*",
+    " ",
 }
 
 local stats = {
