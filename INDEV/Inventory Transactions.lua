@@ -6,7 +6,7 @@ Description: Earn 'money' for kills, scoring, assists, combo-kills and more.
 Use that money to buy equipment and upgrades.
 More details will come at a later date.
 
-IN DEVELOPMENT (75% complete)
+IN DEVELOPMENT (84% complete)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
