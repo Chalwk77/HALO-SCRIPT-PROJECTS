@@ -24,61 +24,61 @@ local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
-    {["heal1"] = {'hp', "10", "1", "100% Health", -1}},
-    {["heal2"] = {'hp', "20", "2", "200% Health", -1}},
-    {["heal3"] = {'hp', "30", "3", "300% Health", -1}},
-    {["heal4"] = {'hp', "40", "4", "400% Health", -1}},
-    
+    { ["heal1"] = { 'hp', "10", "1", "100% Health", -1 } },
+    { ["heal2"] = { 'hp', "20", "2", "200% Health", -1 } },
+    { ["heal3"] = { 'hp', "30", "3", "300% Health", -1 } },
+    { ["heal4"] = { 'hp', "40", "4", "400% Health", -1 } },
+
     -- repeat the structure to add new entries:
-    {["your_command"] = {'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number}},
+    { ["your_command"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
-    {["am1"] = {'ammo', "10", "200", "200 Ammo All Weapons", -1}},
-    {["am2"] = {'ammo', "20", "350", "350 Ammo All Weapons", -1}},
-    {["am3"] = {'ammo', "30", "500", "500 Ammo All Weapons", -1}},
-    {["am4"] = {'ammo', "40", "700", "700 Ammo All Weapons", -1}},
-    {["am5"] = {'ammo', "50", "900", "900 Ammo All Weapons", -1}},
+    { ["am1"] = { 'ammo', "10", "200", "200 Ammo All Weapons", -1 } },
+    { ["am2"] = { 'ammo', "20", "350", "350 Ammo All Weapons", -1 } },
+    { ["am3"] = { 'ammo', "30", "500", "500 Ammo All Weapons", -1 } },
+    { ["am4"] = { 'ammo', "40", "700", "700 Ammo All Weapons", -1 } },
+    { ["am5"] = { 'ammo', "50", "900", "900 Ammo All Weapons", -1 } },
 
-    {["cam1"] = {'camo', "30", "60", "1 Minute of Camo", -1}},
-    {["cam2"] = {'camo', "40", "120", "2 Minutes of Camo", -1}},
-    {["cam3"] = {'camo', "50", "180", "3 Minutes of Camo", -1}},
-    
+    { ["cam1"] = { 'camo', "30", "60", "1 Minute of Camo", -1 } },
+    { ["cam2"] = { 'camo', "40", "120", "2 Minutes of Camo", -1 } },
+    { ["cam3"] = { 'camo', "50", "180", "3 Minutes of Camo", -1 } },
+
     -- Balance Command: Syntax: 'command, message'
-    {[1] = {"bal", "Money: $%money%", -1}},
+    { [1] = { "bal", "Money: $%money%", -1 } },
 }
 
 local stats = {
     -- [ kills (killer)] --
-    {["1"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["10"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["20"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["30"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["40"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["50"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["60"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["70"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["80"] = {'10', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["90"] = {'20', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    {["100"] = {'30', "Kills: (%kills%) +%upgrade_points% Upgrade Points"}},
-    
+    { ["1"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["10"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["20"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["30"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["40"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["50"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["60"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["70"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["80"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["90"] = { '20', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+    { ["100"] = { '30', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
+
     -- [ kill streaks ]
-    {["streak"] = {5, "5", "Money: $%money%"}},
-    {["streak"] = {10, "10", "Money: $%money%"}},
-    {["streak"] = {15, "15", "Money: $%money%"}},
-    {["streak"] = {20, "20", "Money: $%money%"}},
-    {["streak"] = {25, "25", "Money: $%money%"}},
-    {["streak"] = {30, "30", "%assists% Assists +%upgrade_points% Upgrade Points"}},
-    
+    { ["streak"] = { 5, "5", "Money: $%money%" } },
+    { ["streak"] = { 10, "10", "Money: $%money%" } },
+    { ["streak"] = { 15, "15", "Money: $%money%" } },
+    { ["streak"] = { 20, "20", "Money: $%money%" } },
+    { ["streak"] = { 25, "25", "Money: $%money%" } },
+    { ["streak"] = { 30, "30", "%assists% Assists +%upgrade_points% Upgrade Points" } },
+
     -- [ deaths (victim)] --
-    {["event_die"] = {'-20', "DEATH (-%penalty_points% points)"}},
-    
+    { ["event_die"] = { '-20', "DEATH (-%penalty_points% points)" } },
+
     -- [ suicide ]
-    {["event_suicide"] = {'-30', "SUICIDE (-%penalty_points% points)"}},
-    
+    { ["event_suicide"] = { '-30', "SUICIDE (-%penalty_points% points)" } },
+
     -- [ team kill ]
-    {["event_tk"] = {'-50', "TEAM KILL (-%penalty_points% points)"}},
-    
+    { ["event_tk"] = { '-50', "TEAM KILL (-%penalty_points% points)" } },
+
     -- [ assist ]
-    {["event_assist"] = {'-50', "ASSIST (-%upgrade_points% points)"}},
+    { ["event_assist"] = { '-50', "ASSIST (-%upgrade_points% points)" } },
 }
 
 -- Configuration [ends] -----------------------------------------------------------------
@@ -94,15 +94,15 @@ local gsub, match, concat = string.gsub, string.match, table.concat
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
-    
+
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
-    
+
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
-    
+
     --register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     --register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     checkFile()
 end
 
@@ -135,10 +135,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    
+
     local ip = getIP(executor)
     local balance = money:getbalance(ip)
-    
+
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
         local bal = commands[key][1]
@@ -173,21 +173,21 @@ function money:update(params)
     local points = params.money or nil
     local subtract = params.subtract or nil
     local balance = tonumber(money:getbalance(ip))
-    
+
     local new_balance = balance
-   
+
     if not (subtract) then
         new_balance = balance + tonumber(points)
     else
         new_balance = balance - tonumber(points)
     end
-    
+
     new_balance = new_balance
-    
+
     if (new_balance <= 0) then
         new_balance = 0
     end
-    
+
     local found
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
@@ -197,15 +197,15 @@ function money:update(params)
             local fRead = io.open(dir, "r")
             local content = fRead:read("*all")
             fRead:close()
-            
+
             content = gsub(content, v, ip .. "|" .. tostring(new_balance))
-            
+
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
             fWrite:close()
         end
     end
-    
+
     if not (found) then
         local file = assert(io.open(dir, "a+"))
         file:write(ip .. "|" .. tostring(new_balance) .. "\n")
@@ -228,9 +228,11 @@ end
 function money:getbalance(player_ip)
     local t = {}
     local result, data, balance
-    
+
     local function stringSplit(inputString, Separator)
-        if (Separator == nil) then Separator = "%s" end
+        if (Separator == nil) then
+            Separator = "%s"
+        end
         local t = {};
         local i = 1
         for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
@@ -239,7 +241,7 @@ function money:getbalance(player_ip)
         end
         return t
     end
-    
+
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(player_ip)) then
@@ -247,7 +249,7 @@ function money:getbalance(player_ip)
             data = stringSplit(balance, ",")
         end
     end
-    
+
     for i = 1, 1 do
         if data[i] then
             t[#t + 1] = data[i]
@@ -264,8 +266,10 @@ function money:getbalance(player_ip)
             return result
         end
     end
-    
-    for _ in pairs(t) do t[_] = nil end
+
+    for _ in pairs(t) do
+        t[_] = nil
+    end
 end
 
 function money:getUpgrades(params)
@@ -275,8 +279,10 @@ end
 function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
-    if not ip_table[hash] then ip_table[hash] = {} end
-    table.insert(ip_table[hash], {["ip"] = ip})
+    if not ip_table[hash] then
+        ip_table[hash] = {}
+    end
+    table.insert(ip_table[hash], { ["ip"] = ip })
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -286,40 +292,40 @@ end
 function OnPlayerKill(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-    
+
     if (killer ~= victim) then
         local event_kill, event_die
         local kills = tostring(get_var(KillerIndex, "$kills"))
-        
+
         for key, _ in ipairs(stats) do
             event_kill = stats[key][kills]
             event_die = stats[key]["event_die"]
-            
+
             -- Killer Reward
             if (event_kill ~= nil) then
-                for k,v in pairs(event_kill) do
+                for k, v in pairs(event_kill) do
                     if (kills == v) then
                         local params = { }
                         params.ip = getIP(killer)
                         params.money = event_kill[1]
-                        params.subtract = false 
+                        params.subtract = false
                         money:update(params)
                         rprint(killer, gsub(gsub(event_kill[2], "%%kills%%", k), "%%upgrade_points%%", params.money))
                     end
                 end
             end
-            
+
             -- Victim Penalty
             if (event_die ~= nil) then
                 local params = { }
                 params.ip = getIP(victim)
                 params.money = event_die[1]
-                params.subtract = true 
+                params.subtract = true
                 money:update(params)
                 rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
             end
         end
-        
+
     elseif (victim == killer) then
         for key, _ in ipairs(stats) do
             local event_suicide = stats[key]["event_suicide"]
@@ -348,11 +354,11 @@ function getIP(PlayerIndex)
     end
 end
 
-function containsExact(w,s)
-    return select(2,s:gsub('^' .. w .. '%W+','')) +
-         select(2,s:gsub('%W+' .. w .. '$','')) +
-         select(2,s:gsub('^' .. w .. '$','')) +
-         select(2,s:gsub('%W+' .. w .. '%W+','')) > 0
+function containsExact(w, s)
+    return select(2, s:gsub('^' .. w .. '%W+', '')) +
+            select(2, s:gsub('%W+' .. w .. '$', '')) +
+            select(2, s:gsub('^' .. w .. '$', '')) +
+            select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
 end
 
 function lines_from(file_name)
