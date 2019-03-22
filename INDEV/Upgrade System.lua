@@ -282,9 +282,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     end
 
-    local ip = getIP(executor)
-    local balance = money:getbalance(ip)
-
     local TYPE_ONE
 
     for key, _ in ipairs(commands) do
@@ -295,6 +292,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
+                    local balance = money:getbalance(getIP(executor))
                     if (balance >= tonumber(cmd[2])) then
                         execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
                         local strFormat = gsub(cmd[4], "%%count%%", cmd[3])
@@ -312,12 +310,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
             -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
+                -- TO DO: perm check needed here
+                
+                local balance = money:getbalance(getIP(executor))   
                 rprint(executor, gsub(bal[2], "%%money%%", balance))
                 return false
             end
 
             -- Golden Gun
             if (gold ~= nil) and (command == gold[1]) then
+                -- TO DO: perm check needed here
+                
                 local params = { }
                 params.ip = getIP(executor)
                 params.money = gold[2]
@@ -406,7 +409,7 @@ function money:getbalance(player_ip)
             data = stringSplit(balance, ",")
         end
     end
-
+    
     local t, result = { }
     for i = 1, 1 do
         if data[i] then
@@ -444,6 +447,20 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex].kills = 0
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
+    
+    local found
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if containsExact(ip, v) then
+            found = true
+        end
+    end
+
+    if not (found) then
+        local file = assert(io.open(dir, "a+"))
+        file:write(ip .. "|" .. 0 .. "\n")
+        file:close()
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -603,9 +620,11 @@ end
 
 function getIP(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
-    if ip_table[hash] ~= nil or ip_table[hash] ~= {} then
-        for key, _ in ipairs(ip_table[hash]) do
-            return ip_table[hash][key]["ip"]
+    if next(ip_table) then
+        if ip_table[hash] ~= nil or ip_table[hash] ~= {} then
+            for key, _ in ipairs(ip_table[hash]) do
+                return ip_table[hash][key]["ip"]
+            end
         end
     end
 end
