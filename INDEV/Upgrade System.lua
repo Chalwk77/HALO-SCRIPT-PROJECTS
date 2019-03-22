@@ -184,7 +184,7 @@ function OnScriptLoad()
             table.insert(ip_table[hash], { ["ip"] = ip })
 
             players[i] = players[i] or { }
-            players[i].combo = 0
+            players[i].combos = 0
             players[i].combo_timer = 0
             players[i].kills = 0
             players[i].streaks = 0
@@ -423,7 +423,7 @@ function OnPlayerConnect(PlayerIndex)
     table.insert(ip_table[hash], { ["ip"] = ip })
 
     players[PlayerIndex] = players[PlayerIndex] or { }
-    players[PlayerIndex].combo = 0
+    players[PlayerIndex].combos = 0
     players[PlayerIndex].combo_timer = 0
     players[PlayerIndex].kills = 0
     players[PlayerIndex].streaks = 0
@@ -456,11 +456,11 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         -- [Combo Scoring]
         if run_combo_timer[victim] then
             run_combo_timer[victim] = false
-            players[victim].combo = 0
+            players[victim].combos = 0
             players[victim].combo_timer = 0
         end
 
-        players[killer].combo = players[killer].combo + 1
+        players[killer].combos = players[killer].combo + 1
         if not (run_combo_timer[killer]) then
             run_combo_timer[killer] = true
         end
@@ -578,7 +578,7 @@ function OnTick()
                 if (players[i].combo_timer >= floor(stats.combo.duration)) then
                     run_combo_timer[i] = false
                     players[i].combo_timer = 0
-                    players[i].combo = 0
+                    players[i].combos = 0
                 end
             end
         end
