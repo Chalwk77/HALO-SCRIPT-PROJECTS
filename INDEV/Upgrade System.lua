@@ -199,7 +199,7 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             local hash = get_var(i, "$hash")
-            local ip = get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
+            local ip = get_var(i, "$ip")
             if not ip_table[hash] then
                 ip_table[hash] = {}
             end
