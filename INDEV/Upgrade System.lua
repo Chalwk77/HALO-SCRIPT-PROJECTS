@@ -460,7 +460,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             players[victim].combo_timer = 0
         end
 
-        players[killer].combos = players[killer].combo + 1
+        players[killer].combos = players[killer].combos + 1
         if not (run_combo_timer[killer]) then
             run_combo_timer[killer] = true
         end
@@ -468,7 +468,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         function comboCheckDelay()
             if (players[killer].combo_timer > 0) then
                 local p = { }
-                p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combo, killer, kip, stats.combo
+                p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combos, killer, kip, stats.combo
                 mod:check(p)
             end
         end
