@@ -98,14 +98,6 @@ local stats = {
     { ["80"] = { '10', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
     { ["90"] = { '20', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
     { ["100"] = { '30', "Kills: (%kills%) +%upgrade_points% Upgrade Points" } },
-    
-    -- [ kill streaks ]
-    { ["streak"] = { 5, "5", "Money: $%money%" } },
-    { ["streak"] = { 10, "10", "Money: $%money%" } },
-    { ["streak"] = { 15, "15", "Money: $%money%" } },
-    { ["streak"] = { 20, "20", "Money: $%money%" } },
-    { ["streak"] = { 25, "25", "Money: $%money%" } },
-    { ["streak"] = { 30, "30", "%assists% Assists +%upgrade_points% Upgrade Points" } },
 
     -- [ deaths (victim)] --
     { ["event_die"] = { '-20', "DEATH (-%penalty_points% points)" } },
