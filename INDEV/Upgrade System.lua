@@ -11,6 +11,12 @@ Description:
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
             [!] STILL IN DEVELOPMENT (approx 97% complete)
+			
+			TO DO:
+			* Bug fixes
+			* Write money transfer command
+			* Possibly refactor some code. 
+			* Final tests before publishing as a finished resource
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -278,6 +284,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(executor, upgrade_info[k])
                     end
                 end
+			else
+				rprint(executor, "Invalid Syntax. Usage: /" .. upgrade_info_command)
             end
         end
         return false
@@ -293,14 +301,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
-                    local balance = money:getbalance(getIP(executor))
-                    if (balance >= tonumber(cmd[2])) then
-                        execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                        local strFormat = gsub(cmd[4], "%%count%%", cmd[3])
-                        rprint(executor, strFormat)
-                    else
-                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
-                    end
+					if (args[1] == nil) then
+						local balance = money:getbalance(getIP(executor))
+						if (balance >= tonumber(cmd[2])) then
+							execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+							local strFormat = gsub(cmd[4], "%%count%%", cmd[3])
+							rprint(executor, strFormat)
+						else
+							rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+						end
+					else
+						rprint(executor, "Invalid Syntax. Usage: /" .. command)
+					end
                     return false
                 end
             end
