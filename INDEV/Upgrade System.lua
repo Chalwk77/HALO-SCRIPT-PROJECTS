@@ -145,19 +145,19 @@ local stats = {
         -- Repeat the structure to add more entries.
     },
 
-    -- [ deaths (victim)] --
+    -- [ deaths (victim)] (penalty points | message)
     { ["event_die"] = { '-20', "DEATH (-%penalty_points% points)" } },
 
-    -- [ suicide ]
+    -- [ suicide ] (penalty points | message)
     { ["event_suicide"] = { '-30', "SUICIDE (-%penalty_points% points)" } },
 
-    -- [ team kill ]
+    -- [ team kill ] (penalty points | message)
     { ["event_tk"] = { '-50', "TEAM KILL (-%penalty_points% points)" } },
 
-    -- [ assist ]
-    { ["event_assist"] = { '-50', "ASSIST (-%upgrade_points% points)" } },
+    -- [ assist ] (reward points | message)
+    { ["event_assist"] = { '50', "ASSIST (-%upgrade_points% points)" } },
 
-    -- [ score ]
+    -- [ score ] (reward points | message)
     { ["event_score"] = { '10', "+%upgrade_points% Upgrade Points" } },
 }
 
