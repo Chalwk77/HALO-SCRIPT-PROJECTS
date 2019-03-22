@@ -26,7 +26,6 @@ api_version = "1.12.0.0"
 
 -- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
 local save_money = true
-
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
 
@@ -36,6 +35,7 @@ local dir = "sapp\\money.data"
 local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
 
 -- The balance each player will start with when they join the server for the first time.
+-- Note: If 'save_money' is false, the player's balance on join will always be the value of "starting_balace"
 local starting_balace = 0
 
 local upgrade_info_command = "upgrades"
