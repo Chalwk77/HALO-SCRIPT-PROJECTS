@@ -141,7 +141,7 @@ function OnPlayerScore(PlayerIndex)
             params.money = event_score[1]
             params.subtract = false
             money:update(params)
-            rprint(PlayerIndex, gsub(event_score[1], "%%upgrade_points%%"))
+            rprint(PlayerIndex, gsub(event_score[2], "%%upgrade_points%%", params.money))
             break
         end
     end
