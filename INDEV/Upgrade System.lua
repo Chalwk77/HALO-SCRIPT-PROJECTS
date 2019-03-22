@@ -71,12 +71,12 @@ local commands = {
 
     -- Weapon Purchases:
     -- command | price | weapon | message
-    --{ [2] = { "gold", "150", "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
-    { [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { [2] = { "gold", "150", "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    --{ [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
 
     -- keyword | sapp_command | price | count | message
-    { ["mine"] = { 'nades', "15", "2", "%count% Mines", -1 } },
-    { ["gren"] = { 'ammo', "10", "2", "%count% Grenades", -1 } },
+    { ["mine"] = { 'nades', "15", "2", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
+    { ["gren"] = { 'nades', "10", "2", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
 }
 
 local upgrade_info = {
@@ -290,7 +290,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     local TYPE_ONE
-
+    
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
 
@@ -310,7 +310,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         p.subtract = true
                         money:update(p)
                         local new_balance = money:getbalance(ip)
-                        local strFormat = gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance)
+                        local count = cmd[3]
+                        local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
                         rprint(executor, strFormat)
                     else
                         rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
@@ -336,14 +337,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (gold ~= nil) and (command == gold[1]) then
                 if checkAccess(executor, gold[5]) then
                     if TagInfo("weap", gold[3]) then
-                        local p, ip = { }, getIP(executor)
-                        p.ip = ip
-                        p.money = gold[2]
-                        p.subtract = true
-                        money:update(p)
-                        local new_balance = money:getbalance(ip)
-                        rprint(executor, gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance))
-                        execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+                        local ip = getIP(executor)
+                        local balance = money:getbalance(ip)
+                        local cost = gold[2]
+                        if (balance >= tonumber(cost)) then
+                            local p = { }
+                            p.ip = ip
+                            p.money = cost
+                            p.subtract = true
+                            money:update(p)
+                            local new_balance = money:getbalance(ip)
+                            local count = gold[3]
+                            local strFormat = gsub(gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance), "%%count%%", count)
+                            rprint(executor, strFormat)
+                            execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
+                        else
+                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", gold[2]))
+                        end
                     else
                         rprint(executor, "That doesn't command work on this map.")
                     end
