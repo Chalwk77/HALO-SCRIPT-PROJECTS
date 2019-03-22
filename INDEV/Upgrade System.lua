@@ -45,6 +45,13 @@ local starting_balace = 0
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
 
+-- Give yourself money!
+local add_command = "add"
+local add_perm_level = 4
+
+local remove_command = "remove"
+local remove_perm_level = 4
+
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
     { ["heal1"] = { 'hp', "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1 } },
@@ -69,14 +76,20 @@ local commands = {
     -- Note: balance command syntax here may change during development.
     { [1] = { "bal", "Money: $%money%", -1 } },
 
-    -- Weapon Purchases:
-    -- command | price | weapon | message
-    { [2] = { "gold", "150", "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
-    --{ [2] = { "gold", "150", "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
-
     -- keyword | sapp_command | price | count | message
     { ["mine"] = { 'nades', "15", "2", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
     { ["gren"] = { 'nades', "10", "2", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
+    
+    -- Weapon Purchases:
+    -- command | price | weapon | message
+    weapons = {
+    --{ ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { ["gold"] = { '200', "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    
+    { ["mine"] = { '15', "tag_id", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
+    { ["gren"] = { '10', "tag_id", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
+    
+    },
 }
 
 local upgrade_info = {
@@ -205,10 +218,10 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             local hash = get_var(i, "$hash")
-            local ip = get_var(i, "$ip")
             if not ip_table[hash] then
                 ip_table[hash] = {}
             end
+            local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
 
             players[i] = players[i] or { }
@@ -243,10 +256,7 @@ end
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
-            players[i] = nil
             run_combo_timer[i] = nil
-            local hash = get_var(i, "$hash")
-            ip_table[hash] = nil
         end
     end
 end
@@ -284,79 +294,122 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(executor, upgrade_info[k])
                     end
                 end
+            else
+                rprint(executor, "Invalid Syntax. Usage: /" .. command)
             end
         end
         return false
+    elseif (command == lower(add_command)) then
+        if (checkAccess(executor, add_perm_level)) then
+            if (args[1] ~= nil) and args[1]:match("%d+") then
+                local ip = getIP(executor)
+                local p = { }
+                p.ip = ip
+                p.money = args[1]
+                p.subtract = false
+                money:update(p)
+                local balance = money:getbalance(ip)
+                rprint(executor, "Success! $" .. p.money .. " has been added to your account. ")
+                rprint(executor, "New Balance: " .. balance)
+            else
+                rprint(executor, "Invalid Syntax. Usage: /" .. command)
+            end
+            return false
+        end
+    elseif (command == lower(remove_command)) then
+        if (checkAccess(executor, remove_perm_level)) then
+            if (args[1] ~= nil) and args[1]:match("%d+") then
+                local ip = getIP(executor)
+                local p = { }
+                p.ip = ip
+                p.money = args[1]
+                p.subtract = true
+                money:update(p)
+                local balance = money:getbalance(ip)
+                rprint(executor, "Success! $" .. p.money .. " has been taken from your account. ")
+                rprint(executor, "New Balance: " .. balance)
+            else
+                rprint(executor, "Invalid Syntax. Usage: /" .. command)
+            end
+            return false
+        end
     end
 
     local TYPE_ONE
     
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
-
         if (cmd ~= nil) then
             TYPE_ONE = true
             local lvl = cmd[#cmd]
             if checkAccess(executor, lvl) then
                 if (#cmd > 2) then
-                    local ip = getIP(executor)
-                    local balance = money:getbalance(ip)
-                    local cost = cmd[2]
-                    if (balance >= tonumber(cost)) then
-                        execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                        local p = { }
-                        p.ip = ip
-                        p.money = cost
-                        p.subtract = true
-                        money:update(p)
-                        local new_balance = money:getbalance(ip)
-                        local count = cmd[3]
-                        local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
-                        rprint(executor, strFormat)
-                    else
-                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
-                    end
-                    return false
-                end
-            end
-        end
-        if not (TYPE_ONE) then
-            local bal = commands[key][1]
-            local gold = commands[key][2]
-            
-            -- Balance Command
-            if (bal ~= nil) and (command == bal[1]) then
-                if checkAccess(executor, bal[3]) then
-                    local balance = money:getbalance(getIP(executor))   
-                    rprint(executor, gsub(bal[2], "%%money%%", balance))
-                end
-                return false
-            end
-
-            -- Golden Gun
-            if (gold ~= nil) and (command == gold[1]) then
-                if checkAccess(executor, gold[5]) then
-                    if TagInfo("weap", gold[3]) then
+                    if (args[1] == nil) then
                         local ip = getIP(executor)
                         local balance = money:getbalance(ip)
-                        local cost = gold[2]
+                        local cost = cmd[2]
                         if (balance >= tonumber(cost)) then
+                            execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
                             local p = { }
                             p.ip = ip
                             p.money = cost
                             p.subtract = true
                             money:update(p)
                             local new_balance = money:getbalance(ip)
-                            local count = gold[3]
-                            local strFormat = gsub(gsub(gsub(gold[4], "%%price%%", gold[2]), "%%balance%%", new_balance), "%%count%%", count)
+                            local count = cmd[3]
+                            local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
                             rprint(executor, strFormat)
-                            execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. gold[3] .. ' ' .. executor .. ';wadd ' .. executor)
                         else
-                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", gold[2]))
+                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                         end
                     else
-                        rprint(executor, "That doesn't command work on this map.")
+                        rprint(executor, "Invalid Syntax. Usage: /" .. command)
                     end
+                    return false
+                end
+            end
+        end
+        
+        
+        if not (TYPE_ONE) then
+            local tab = commands.weapons
+            for key, _ in ipairs(tab) do
+                local entry = tab[key][command]
+                if (entry ~= nil) then
+                    local cost = entry[1]
+                    local tag_id = entry[2]
+                    local message = entry[3]
+                    local lvl = entry[4]
+                    if checkAccess(executor, lvl) then
+                        if TagInfo("weap", tag_id) then
+                            if checkAvailableSlots(executor) then
+                                local ip = getIP(executor)
+                                local balance = money:getbalance(ip)
+                                if (balance >= tonumber(cost)) then
+                                    local p = { }
+                                    p.ip, p.money, p.subtract = ip, cost, true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                    execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
+                            end
+                        else
+                            rprint(executor, "That doesn't command work on this map.")
+                        end
+                    end
+                    return false
+                end
+            end
+            local bal = commands[key][1]
+            -- Balance Command
+            if (bal ~= nil) and (command == bal[1]) then
+                if checkAccess(executor, bal[3]) then
+                    local balance = money:getbalance(getIP(executor))   
+                    rprint(executor, gsub(bal[2], "%%money%%", balance))
                 end
                 return false
             end
