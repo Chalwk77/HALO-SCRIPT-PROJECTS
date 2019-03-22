@@ -48,6 +48,7 @@ local commands = {
 
 local stats = {
     -- [ kills (killer)] --
+    {["1"] = {'1', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["10"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["20"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
     {["30"] = {'10', "(%kills%) +%upgrade_points% Upgrade Points"}},
@@ -99,7 +100,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
-    
     checkFile()
 end
 
@@ -281,37 +281,42 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
-    local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    local victim = tonumber(PlayerIndex)
     
-    if (victim ~= killer) then
+    if (killer ~= victim) then
         local kills = get_var(KillerIndex, "$kills")
+        local event_kill, event_die
+        
         for key, _ in ipairs(stats) do
-            local kill_table = stats[key][kills]
-            local event_die = stats[key]["event_die"]
-            if (kill_table ~= nil) and (event_die ~= nil) then
-                for k,_ in pairs(kill_table) do
-                    if (tonumber(kills) == k) then
-                        
-                        local params = { }
-                        local penalty_points = stats[key]["event_die"]
-                        params.ip = getIP(victim)
-                        params.money = penalty_points[1]
-                        params.subtract = true 
-                        money:update(params, victim)
-                        rprint(victim, gsub(event_die[2], "%%penalty_points%%", event_die[1]))
-                        
-                        local params = { }
-                        params.ip = getIP(killer)
-                        params.money = kill_table[1]
-                        params.subtract = false 
-                        money:update(params, killer)
-                        rprint(killer, gsub(gsub(kill_table[2], "%%kills%%%", k), "%%upgrade_points%%", params.money))
-                        break
-                    end
+            event_kill = stats[key][kills]
+            event_die = stats[key]["event_die"]
+        end
+            
+        -- Killer Reward
+        if (event_kill ~= nil) then
+            for k,_ in pairs(event_kill) do
+                if (tonumber(kills) == k) then
+                    local params = { }
+                    params.ip = getIP(killer)
+                    params.money = event_kill[1]
+                    params.subtract = false 
+                    money:update(params)
+                    rprint(killer, gsub(gsub(event_kill[2], "%%kills%%%", k), "%%upgrade_points%%", params.money))
+                    break
                 end
             end
         end
+
+        if (event_die ~= nil) then
+            local params = { }
+            params.ip = getIP(victim)
+            params.money = event_die[1]
+            params.subtract = true 
+            money:update(params)
+            rprint(victim, gsub(event_die[2], "%%penalty_points%%", params.money))
+        end
+        
     elseif (victim == killer) then
         for key, _ in ipairs(stats) do
             local event_suicide = stats[key]["event_suicide"]
@@ -424,4 +429,16 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function report()
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
 end
