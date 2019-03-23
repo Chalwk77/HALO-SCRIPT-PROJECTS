@@ -75,19 +75,17 @@ local commands = {
 
     -- Note: balance command syntax here may change during development.
     { [1] = { "bal", "Money: $%money%", -1 } },
-
-    -- keyword | sapp_command | price | count | message
-    { ["mine"] = { 'nades', "15", "2", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
-    { ["gren"] = { 'nades', "10", "2", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
     
     -- Weapon Purchases:
     -- command | price | tag id | message | permission level
     weapons = {
     { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
-    --{ ["gold"] = { '200', "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    },
     
-    { ["mine"] = { '15', "tag_id", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
-    { ["gren"] = { '10', "tag_id", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
+    -- command | price | amount | type | tag id | message | permission level
+    grenades = {
+    { ["mine"] = { '15', "1", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
+    { ["gren"] =  { '10', "1", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
     
     },
 }
@@ -341,7 +339,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    local TYPE_ONE
+    local TYPE_ONE, TYPE_TWO, TYPE_THREE
     
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
@@ -364,6 +362,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             local count = cmd[3]
                             local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
                             rprint(executor, strFormat)
+                            break
                         else
                             rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                         end
@@ -374,48 +373,91 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         end
+    end
     
-        if not (TYPE_ONE) then
-            local tab = commands.weapons
-            for key, _ in ipairs(tab) do
-                local entry = tab[key][command]
-                if (entry ~= nil) then
-                    local cost = entry[1]
-                    local tag_id = entry[2]
-                    local message = entry[3]
-                    local lvl = entry[4]
-                    if checkAccess(executor, lvl) then
-                        if TagInfo("weap", tag_id) then                        
-                            check_available_slots[executor] = true
-                            function delay_add()
-                                if (give_weapon[executor]) then
-                                    local balance = money:getbalance(ip)
-                                    if (balance >= tonumber(cost)) then
-                                        local p = { }
-                                        p.ip, p.money, p.subtract = ip, cost, true
-                                        money:update(p)
-                                        local new_balance = money:getbalance(ip)
-                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                        rprint(executor, strFormat)
-                                        execute_command_sequence('spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
-                                        give_weapon[executor] = false
-                                    else
-                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-                                    end
+    if not (TYPE_ONE) then
+        local tab = commands.weapons
+        for key, _ in ipairs(tab) do
+            local entry = tab[key][command]
+            if (entry ~= nil) then
+                TYPE_TWO = true
+                local cost = entry[1]
+                local tag_id = entry[2]
+                local message = entry[3]
+                local lvl = entry[4]
+                if checkAccess(executor, lvl) then
+                    if TagInfo("weap", tag_id) then                        
+                        check_available_slots[executor] = true
+                        function delay_add()
+                            if (give_weapon[executor]) then
+                                local balance = money:getbalance(ip)
+                                if (balance >= tonumber(cost)) then
+                                    local p = { }
+                                    p.ip, p.money, p.subtract = ip, cost, true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                    execute_command_sequence('spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
+                                    give_weapon[executor] = false
                                 else
-                                    rprint(executor, "You don't have enough room in your inventory.")
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                 end
+                            else
+                                rprint(executor, "You don't have enough room in your inventory.")
                             end
-                            timer(50, "delay_add")
-                        else
-                            rprint(executor, "That doesn't command work on this map.")
                         end
+                        timer(50, "delay_add")
+                    else
+                        rprint(executor, "That doesn't command work on this map.")
                     end
-                    return false
+                end
+                return false
+            end
+        end
+    end
+    
+    if not (TYPE_ONE and not TYPE_TWO) then
+        local tab = commands.grenades
+        for key, _ in ipairs(tab) do
+            local entry = tab[key][command]
+            if (entry ~= nil) then
+                TYPE_THREE = true
+                local cost = entry[1]
+                local count = entry[2]
+                local type = entry[3]
+                local tag_id = entry[4]
+                local message = entry[5]
+                local lvl = entry[6]
+                if checkAccess(executor, lvl) then
+                    if TagInfo("weap", tag_id) then  
+                        local balance = money:getbalance(ip)
+                        if (balance >= tonumber(cost)) then
+                            execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                            local p = { }
+                            p.ip = ip
+                            p.money = cost
+                            p.subtract = true
+                            money:update(p)
+                            local new_balance = money:getbalance(ip)
+                            local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
+                            rprint(executor, strFormat)
+                            break
+                        else
+                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                        end
+                    else
+                        rprint(executor, "That doesn't command work on this map.")
+                    end
                 end
             end
+        end
+    end
+    
+    -- Balance Command
+    if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE) then
+        for key, _ in ipairs(commands) do
             local bal = commands[key][1]
-            -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
                 if checkAccess(executor, bal[3]) then
                     local balance = money:getbalance(ip)   
