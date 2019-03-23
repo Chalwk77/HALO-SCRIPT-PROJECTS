@@ -872,15 +872,14 @@ function OnPlayerConnect(PlayerIndex)
     -- God Mode (custom command)
     players[PlayerIndex].god = 0
     players[PlayerIndex].god_duration = 0
-
     godmode[PlayerIndex] = false
     trigger[PlayerIndex] = false
 
+	-- /transfer split bool
     divide[PlayerIndex] = false
 
     check_available_slots[PlayerIndex] = false
     give_weapon[PlayerIndex] = false
-    divide[PlayerIndex] = false
 
     if (save_money) then
         local found
@@ -1050,6 +1049,7 @@ function OnTick()
                 end
             end
             if (check_available_slots[i]) then
+				-- Need to find a better more efficient way of doing this... RIP. lmao.
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0) then
                     local weapon
