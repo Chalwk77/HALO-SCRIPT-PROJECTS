@@ -56,7 +56,7 @@ local commands = {
     { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
 
-	-- Ammo can actually take an optional 3rd parameter: [weapon index(=0, 0-5)]. Set to 5 for all weapons. 
+	-- Ammo can actually take an optional 3rd parameter: [weapon index(=0, 0-5)]. Set to 5 for all weapons. (value<space>[weapon index])
     { ["am1"] = { 'ammo', "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am2"] = { 'ammo', "10", "350 5", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am3"] = { 'ammo', "10", "500 5", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
