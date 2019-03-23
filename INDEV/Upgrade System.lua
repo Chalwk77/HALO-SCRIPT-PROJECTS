@@ -83,8 +83,8 @@ local commands = {
     -- Weapon Purchases:
     -- command | price | weapon | message
     weapons = {
-    --{ ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
-    { ["gold"] = { '200', "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    --{ ["gold"] = { '200', "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
     
     { ["mine"] = { '15', "tag_id", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
     { ["gren"] = { '10', "tag_id", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
@@ -193,7 +193,7 @@ local money, mod, ip_table, weapon = { }, { }, { }, { }
 local players = { }
 local run_combo_timer = { }
 local money_table = { }
-
+local check_for_room, give_weapon = { }, { }
 -- Not currently used
 -- local file_format = "%ip%|%money%"
 
@@ -231,6 +231,8 @@ function OnScriptLoad()
             players[i].streaks = 0
             players[i].assists = 0
             run_combo_timer[i] = false
+            check_for_room[i] = false
+            give_weapon[i] = false
         end
     end
     if not (save_money) then
@@ -245,6 +247,8 @@ function OnScriptUnload()
             run_combo_timer[i] = nil
             local hash = get_var(i, "$hash")
             ip_table[hash] = nil
+            check_for_room[i] = false
+            give_weapon[i] = false
         end
     end
 end
@@ -257,6 +261,8 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             run_combo_timer[i] = nil
+            check_for_room[i] = false
+            give_weapon[i] = false
         end
     end
 end
@@ -286,6 +292,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
     
+    local function AddRemove(bool)
+        local ip = getIP(executor)
+        local p = { }
+        p.ip = ip
+        p.money = args[1]
+        p.subtract = bool
+        money:update(p)
+    end
+    
     if (command == lower(upgrade_info_command)) then
         if (checkAccess(executor, upgrade_perm_lvl)) then
             if (args[1] == nil) then
@@ -302,14 +317,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == lower(add_command)) then
         if (checkAccess(executor, add_perm_level)) then
             if (args[1] ~= nil) and args[1]:match("%d+") then
+                AddRemove(false)
                 local ip = getIP(executor)
-                local p = { }
-                p.ip = ip
-                p.money = args[1]
-                p.subtract = false
-                money:update(p)
                 local balance = money:getbalance(ip)
-                rprint(executor, "Success! $" .. p.money .. " has been added to your account. ")
+                rprint(executor, "Success! $" .. args[1] .. " has been added to your account. ")
                 rprint(executor, "New Balance: " .. balance)
             else
                 rprint(executor, "Invalid Syntax. Usage: /" .. command)
@@ -319,14 +330,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == lower(remove_command)) then
         if (checkAccess(executor, remove_perm_level)) then
             if (args[1] ~= nil) and args[1]:match("%d+") then
+                AddRemove(true)
                 local ip = getIP(executor)
-                local p = { }
-                p.ip = ip
-                p.money = args[1]
-                p.subtract = true
-                money:update(p)
                 local balance = money:getbalance(ip)
-                rprint(executor, "Success! $" .. p.money .. " has been taken from your account. ")
+                rprint(executor, "Success! $" .. args[1] .. " has been taken from your account. ")
                 rprint(executor, "New Balance: " .. balance)
             else
                 rprint(executor, "Invalid Syntax. Usage: /" .. command)
@@ -370,7 +377,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         
-        
+        function getweaponobjectid(player, slot)
+            local player_object = get_dynamic_player(executor)
+            if player_object then
+                return read_dword(get_object_memory(player_object) + 0x2F8 + slot * 4)
+            end
+        end
+    
         if not (TYPE_ONE) then
             local tab = commands.weapons
             for key, _ in ipairs(tab) do
@@ -381,22 +394,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local message = entry[3]
                     local lvl = entry[4]
                     if checkAccess(executor, lvl) then
-                        if TagInfo("weap", tag_id) then
-                            if checkAvailableSlots(executor) then
-                                local ip = getIP(executor)
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    local p = { }
-                                    p.ip, p.money, p.subtract = ip, cost, true
-                                    money:update(p)
-                                    local new_balance = money:getbalance(ip)
-                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                    rprint(executor, strFormat)
-                                    execute_command_sequence('wdel ' .. executor .. ' 0;spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
+                        if TagInfo("weap", tag_id) then                        
+                            check_for_room[executor] = true
+                            function delay_add()
+                                if (give_weapon[executor]) then
+                                    local ip = getIP(executor)
+                                    local balance = money:getbalance(ip)
+                                    if (balance >= tonumber(cost)) then
+                                        local p = { }
+                                        p.ip, p.money, p.subtract = ip, cost, true
+                                        money:update(p)
+                                        local new_balance = money:getbalance(ip)
+                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                        rprint(executor, strFormat)
+                                        execute_command_sequence('spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
+                                        --give_weapon[executor] = false
+                                    else
+                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    end
                                 else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    rprint(executor, "You don't have enough room in your inventory.")
                                 end
                             end
+                            timer(50, "delay_add")
                         else
                             rprint(executor, "That doesn't command work on this map.")
                         end
@@ -537,6 +557,7 @@ function money:getbalance(player_ip)
 end
 
 function OnPlayerConnect(PlayerIndex)
+
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
     
@@ -551,6 +572,9 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex].kills = 0
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
+    
+    check_for_room[PlayerIndex] = false
+    give_weapon[PlayerIndex] = false
     
     if (save_money) then
         local found
@@ -573,6 +597,8 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     players[PlayerIndex] = nil
+    check_for_room[PlayerIndex] = false
+    give_weapon[PlayerIndex] = false
     local ip = getIP(PlayerIndex)
     if not (save_money) then
         money_table["money"][ip] = { ["balance"] = starting_balace }
@@ -695,9 +721,46 @@ function OnPlayerAssist(PlayerIndex)
     mod:check(p)
 end
 
+local function hasEnoughRoom(executor)
+    local player_object = get_dynamic_player(executor)
+    if player_object ~= 0 then
+        local weapon
+        for i = 0,3 do
+            weapon = get_object_memory(read_dword(player_object + 0x2F8 + i * 4))
+            if (weapon ~= 0) then 
+                print(weapon)
+                if (weapon ~= 1074148100) then
+                    return true
+                else
+                    check_for_room[executor] = false
+                    return false
+                end
+            end
+        end
+    end
+end
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
+            if (check_for_room[i]) then
+                local player_object = get_dynamic_player(i)
+                if (player_object ~= 0)then
+                    local weapon
+                    for j = 0,3 do
+                        weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                        if (weapon ~= 0) then 
+                            if (weapon ~= 1074148100) then
+                                give_weapon[i] = true
+                                check_for_room[i] = false
+                            else
+                                give_weapon[i] = false
+                                check_for_room[i] = false
+                            end
+                        end
+                    end
+                end
+            end
             if (run_combo_timer[i]) then
                 players[i].combo_timer = players[i].combo_timer + 0.030
                 if (players[i].combo_timer >= floor(stats.combo.duration)) then
