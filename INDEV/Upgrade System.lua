@@ -360,12 +360,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     
                     if (balance < required_amount) and not (divide[executor]) then
-                        if (player_count > 1) then
-                            rprint(executor, "You do not have enough money to send $" .. amount .. " to all (" .. player_count .. ") players.")
-                            rprint(executor, 'You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
+                        if (balance >= amount) then
+                            if (player_count > 1) then
+                                rprint(executor, "You do not have enough money to send $" .. amount .. " to all (" .. player_count .. ") players.")
+                                rprint(executor, 'You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
+                            else
+                                can_deposit, is_error = false, true
+                                rprint(executor, "You do not have enough money to send $" .. amount .. " to " .. get_var(TargetID, "$name"))
+                            end
                         else
-                            is_error = true
-                            rprint(executor, "You do not have enough money to send $" .. amount .. " to " .. get_var(TargetID, "$name"))
+                            can_deposit, is_error = false, true
+                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", args[2]))
                         end
                     else
                         can_deposit = true
