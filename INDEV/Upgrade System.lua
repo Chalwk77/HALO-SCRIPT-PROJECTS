@@ -380,37 +380,43 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for key, _ in ipairs(tab) do
             local entry = tab[key][command]
             if (entry ~= nil) then
-                TYPE_TWO = true
-                local cost = entry[1]
-                local tag_id = entry[2]
-                local message = entry[3]
-                local lvl = entry[4]
-                if checkAccess(executor, lvl) then
-                    if TagInfo("weap", tag_id) then                        
-                        check_available_slots[executor] = true
-                        function delay_add()
-                            if (give_weapon[executor]) then
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    local p = { }
-                                    p.ip, p.money, p.subtract = ip, cost, true
-                                    money:update(p)
-                                    local new_balance = money:getbalance(ip)
-                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                    rprint(executor, strFormat)
-                                    execute_command_sequence('spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
-                                    give_weapon[executor] = false
+                if player_alive(executor) then
+                    TYPE_TWO = true
+                    local cost = entry[1]
+                    local tag_id = entry[2]
+                    local message = entry[3]
+                    local lvl = entry[4]
+                    if checkAccess(executor, lvl) then
+                        if TagInfo("weap", tag_id) then                        
+                            check_available_slots[executor] = true
+                            function delay_add()
+                                if (give_weapon[executor]) then
+                                    local balance = money:getbalance(ip)
+                                    if (balance >= tonumber(cost)) then
+                                        local p = { }
+                                        p.ip, p.money, p.subtract = ip, cost, true
+                                        money:update(p)
+                                        local new_balance = money:getbalance(ip)
+                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                        rprint(executor, strFormat)
+                                        give_weapon[executor] = false
+                                        local player_object = get_dynamic_player(executor)
+                                        local x, y, z = read_vector3d(player_object + 0x5C)
+                                        assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                                    else
+                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    end
                                 else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    rprint(executor, "You don't have enough room in your inventory.")
                                 end
-                            else
-                                rprint(executor, "You don't have enough room in your inventory.")
                             end
+                            timer(50, "delay_add")
+                        else
+                            rprint(executor, "That doesn't command work on this map.")
                         end
-                        timer(50, "delay_add")
-                    else
-                        rprint(executor, "That doesn't command work on this map.")
                     end
+                else
+                    rprint(executor, "Command failed. Please wait until you respawn.")
                 end
                 return false
             end
@@ -422,33 +428,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for key, _ in ipairs(tab) do
             local entry = tab[key][command]
             if (entry ~= nil) then
-                TYPE_THREE = true
-                local cost = entry[1]
-                local count = entry[2]
-                local type = entry[3]
-                local tag_id = entry[4]
-                local message = entry[5]
-                local lvl = entry[6]
-                if checkAccess(executor, lvl) then
-                    if TagInfo("weap", tag_id) then  
-                        local balance = money:getbalance(ip)
-                        if (balance >= tonumber(cost)) then
-                            execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
-                            local p = { }
-                            p.ip = ip
-                            p.money = cost
-                            p.subtract = true
-                            money:update(p)
-                            local new_balance = money:getbalance(ip)
-                            local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
-                            rprint(executor, strFormat)
-                            break
+                if player_alive(executor) then
+                    TYPE_THREE = true
+                    local cost = entry[1]
+                    local count = entry[2]
+                    local type = entry[3]
+                    local tag_id = entry[4]
+                    local message = entry[5]
+                    local lvl = entry[6]
+                    if checkAccess(executor, lvl) then
+                        if TagInfo("weap", tag_id) then  
+                            local balance = money:getbalance(ip)
+                            if (balance >= tonumber(cost)) then
+                                execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                                local p = { }
+                                p.ip = ip
+                                p.money = cost
+                                p.subtract = true
+                                money:update(p)
+                                local new_balance = money:getbalance(ip)
+                                local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
+                                rprint(executor, strFormat)
+                                break
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            end
                         else
-                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            rprint(executor, "That doesn't command work on this map.")
                         end
-                    else
-                        rprint(executor, "That doesn't command work on this map.")
                     end
+                else
+                    rprint(executor, "That doesn't command work on this map.")
                 end
             end
         end
