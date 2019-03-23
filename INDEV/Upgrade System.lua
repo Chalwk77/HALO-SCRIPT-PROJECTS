@@ -75,7 +75,7 @@ local commands = {
     { [1] = { "bal", "Money: $%money%", -1 } },
     
         
-    -- MISC:
+    -- MISC: (NOT YET IMPLEMENTED - NOT YET IMPLEMENTED - NOT YET IMPLEMENTED)
     misc = { -- These commands are sapp commands that take ONE parameter (i.e, kill <player expression>)
         { [1] = { "sapp_command", "price", "message", permission_level_number} },
     },
