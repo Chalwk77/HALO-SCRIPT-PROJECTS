@@ -321,7 +321,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local ip = getIP(executor)
                 local balance = money:getbalance(ip)
                 rprint(executor, "Success! $" .. args[1] .. " has been added to your account. ")
-                rprint(executor, "New Balance: " .. balance)
+                rprint(executor, "New Balance: $" .. balance)
             else
                 rprint(executor, "Invalid Syntax. Usage: /" .. command)
             end
@@ -334,7 +334,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local ip = getIP(executor)
                 local balance = money:getbalance(ip)
                 rprint(executor, "Success! $" .. args[1] .. " has been taken from your account. ")
-                rprint(executor, "New Balance: " .. balance)
+                rprint(executor, "New Balance: $" .. balance)
             else
                 rprint(executor, "Invalid Syntax. Usage: /" .. command)
             end
@@ -719,25 +719,6 @@ function OnPlayerAssist(PlayerIndex)
     local p, ip = { }, getIP(PlayerIndex)
     p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
     mod:check(p)
-end
-
-local function hasEnoughRoom(executor)
-    local player_object = get_dynamic_player(executor)
-    if player_object ~= 0 then
-        local weapon
-        for i = 0,3 do
-            weapon = get_object_memory(read_dword(player_object + 0x2F8 + i * 4))
-            if (weapon ~= 0) then 
-                print(weapon)
-                if (weapon ~= 1074148100) then
-                    return true
-                else
-                    check_for_room[executor] = false
-                    return false
-                end
-            end
-        end
-    end
 end
 
 function OnTick()
