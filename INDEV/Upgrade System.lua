@@ -80,7 +80,7 @@ local commands = {
     { ["gren"] = { 'nades', "10", "2", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
     
     -- Weapon Purchases:
-    -- command | price | weapon | message
+    -- command | price | tag id | message | permission level
     weapons = {
     { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
     --{ ["gold"] = { '200', "weapons\\pistol\\pistol", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
