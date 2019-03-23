@@ -364,7 +364,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local split = (amount / player_count)
                     
                     if (divide[executor] == true) then
-                        args[2] = split
+                        args[2] = math.floor(split)
                     end
                     
                     if (balance < required_amount) and not (divide[executor]) then
@@ -687,15 +687,22 @@ function money:transfer(params)
     local amount = params.amount or nil
     local player_count = params.player_count or nil
 
-    --local eBal = money:getbalance(eip)
-    --local tBal = money:getbalance(tip)
-    if (player_count > 1) then
-        rprint(tid, en .. " sent you $" .. amount)
-        rprint(eid, "Sending $" .. amount .. " to " .. tn)
-    else
-        rprint(tid, en .. " sent you $" .. amount)
-        rprint(eid, "Sending $" .. amount .. " to " .. tn)
-    end
+    local p1 = { }
+    p1.ip = tip
+    p1.money = amount
+    p1.subtract = false
+    money:update(p1)
+    
+    local p2 = { }
+    p2.ip = eip
+    p2.money = amount
+    p2.subtract = true
+    money:update(p2)
+    
+    local eBal = money:getbalance(eip)
+    local tBal = money:getbalance(tip)
+    rprint(tid, en .. " sent you $" .. amount .. ". New balance: $" .. tBal)
+    rprint(eid, "Sending $" .. amount .. " to " .. tn .. ". New balance: $" .. eBal)
 end
 
 function money:getbalance(player_ip)
