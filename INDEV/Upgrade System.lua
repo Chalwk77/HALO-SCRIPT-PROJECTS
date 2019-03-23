@@ -71,7 +71,7 @@ local commands = {
     { ["cam2"] = { 'camo', "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
     { ["cam3"] = { 'camo', "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
 
-    -- Note: balance command syntax here may change during development.
+    -- Balance command
     { [1] = { "bal", "Money: $%money%", -1 } },
     
     -- Weapon Purchases:
@@ -84,7 +84,6 @@ local commands = {
     grenades = {
     { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
     { ["gren"] =  { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
-    
     },
 }
 
