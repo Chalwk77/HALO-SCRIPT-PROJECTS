@@ -92,7 +92,7 @@ local commands = {
 }
 
 local upgrade_info = {
-    "|cBIGASS AURORA UPGRADE SYTSTEM",
+    "|cBIGASS AURORA UPGRADE SYSTEM",
     " ",
     "|cPURCHASE UPGRADES",
     " ",
