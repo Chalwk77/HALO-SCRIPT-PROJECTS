@@ -8,11 +8,6 @@ Description:
             -> Kill-Combos & Kill-Streaks
             -> CTF Scoring
             Use your money to buy weapons and upgrades with custom commands.
-            [!] More details will come at a later date.
-            [!] STILL IN DEVELOPMENT (approx 95% complete)
-			
-			TO DO:
-			* Write /transfer command logic
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -315,16 +310,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local pl = { }
             if (arg:match("%d+"))then
                 TargetID = tonumber(args[1])
-                if (TargetID ~= executor) then
+                if (TargetID ~= executor) and (player_present(TargetID)) then
                     table.insert(pl, arg)
                 end
             elseif (arg == "*") or (arg == "all") then
                 for i = 1, 16 do
-                    if player_present(i) then
+                    if (tonumber(i) ~= executor) and (player_present(i)) then
                         target_all_players = true
-                        if (tonumber(i) ~= executor) then
-                            table.insert(pl, i)
-                        end
+                        table.insert(pl, i)
                     end
                 end
             else
@@ -380,18 +373,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     divide[executor] = false
                 end
                 if (can_deposit) then
-                    players.eip = ip
-                    players.eid = tonumber(get_var(executor, "$n"))
-                    players.en = get_var(executor, "$name")
-                    
-                    players.tip = get_var(pl[i], "$ip")
-                    players.tid = tonumber(get_var(pl[i], "$n"))
-                    players.tn = get_var(pl[i], "$name")
-                    
-                    players.amount = args[2]
-                    players.player_count = tonumber(i)
-                    if (target_all_players) then
-                        money:transfer(players)
+                    if (balance >= args[2]) then
+                        players.eip = ip
+                        players.eid = tonumber(get_var(executor, "$n"))
+                        players.en = get_var(executor, "$name")
+                        
+                        players.tip = get_var(pl[i], "$ip")
+                        players.tid = tonumber(get_var(pl[i], "$n"))
+                        players.tn = get_var(pl[i], "$name")
+                        
+                        players.amount = args[2]
+                        players.player_count = tonumber(i)
+                        if (target_all_players) then
+                            money:transfer(players)
+                        end
+                    else
+                        can_deposit = false
+                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", args[2]))
+                        break
                     end
                 end
             end
@@ -624,7 +623,7 @@ function money:update(params)
     local points = params.money or nil
     
     local subtract = params.subtract or nil
-    local balance = tonumber(money:getbalance(ip))
+    local balance = money:getbalance(ip)
     
     local new_balance = balance
 
@@ -686,7 +685,7 @@ function money:transfer(params)
 
     local amount = params.amount or nil
     local player_count = params.player_count or nil
-
+    
     local p1 = { }
     p1.ip = tip
     p1.money = amount
