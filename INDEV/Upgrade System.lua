@@ -219,7 +219,6 @@ function OnScriptLoad()
             end
             local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
-
             players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
@@ -259,6 +258,10 @@ function OnGameEnd()
             run_combo_timer[i] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
+            local ip = getIP(i)
+            if not (save_money) then
+                money_table["money"][ip] = { ["balance"] = starting_balance }
+            end
         end
     end
 end
@@ -467,8 +470,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local bal = commands[key][1]
             if (bal ~= nil) and (command == bal[1]) then
                 if checkAccess(executor, bal[3]) then
-                    local balance = money:getbalance(ip)   
-                    rprint(executor, gsub(bal[2], "%%money%%", balance))
+                    local balance = money:getbalance(ip)
+                    if (balance ~= nil) then
+                        rprint(executor, gsub(bal[2], "%%money%%", balance))
+                    end
                 end
                 return false
             end
