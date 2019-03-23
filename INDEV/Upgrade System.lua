@@ -310,36 +310,51 @@ function OnPlayerScore(PlayerIndex)
     rprint(PlayerIndex, gsub(stats.score[1][2], "%%upgrade_points%%", p.money))
 end
 
+local function isOnline(t, e)
+    if (t) then
+        if (t > 0 and t < 17) then
+            if player_present(t) then
+                return true
+            else
+                rprint(e, "Command failed. Player not online.")
+                return false
+            end
+        else
+            rprint(e, "Invalid player id. Please enter a number between 1-16")
+        end
+    end
+end
+
+local function checkAccess(e, level)
+    if (e ~= -1 and e >= 1 and e < 16) then
+        if (tonumber(get_var(e, "$lvl"))) >= level then
+            ip = getIP(executor)
+            return true
+        else
+            rprint(e, "Command failed. Insufficient Permission.")
+            return false
+        end
+    else
+        cprint("You cannot execute this command from the console.", 4 + 8)
+        return false
+    end
+end
+
+local function cmdself(t, e)
+    if (t) then
+        if tonumber(t) == tonumber(e) then
+            rprint(e, "You cannot execute this command on yourself.")
+            return true
+        end
+    end
+end
+
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     
     local players, TargetID, target_all_players = { }, { }
-    
     local ip
-    local function checkAccess(e, level)
-        if (e ~= -1 and e >= 1 and e < 16) then
-            if (tonumber(get_var(e, "$lvl"))) >= level then
-                ip = getIP(executor)
-                return true
-            else
-                rprint(e, "Command failed. Insufficient Permission.")
-                return false
-            end
-        else
-            cprint("You cannot execute this command from the console.", 4 + 8)
-            return false
-        end
-    end
-    
-    local function cmdself(t, e)
-        if (t) then
-            if tonumber(t) == tonumber(e) then
-                rprint(e, "You cannot execute this command on yourself.")
-                return true
-            end
-        end
-    end
     
     local function validate_params()
         local function getplayers(arg, executor)
@@ -438,22 +453,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    
-    local function isOnline(t, e)
-        if (t) then
-            if (t > 0 and t < 17) then
-                if player_present(t) then
-                    return true
-                else
-                    rprint(e, "Command failed. Player not online.")
-                    return false
-                end
-            else
-                rprint(e, "Invalid player id. Please enter a number between 1-16")
-            end
-        end
-    end
-    
+   
     local function AddRemove(bool)
         local p = { }
         p.ip = ip
