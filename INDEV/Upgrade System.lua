@@ -364,16 +364,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local split = (amount / player_count)
                     
                     if (divide[executor] == true) then
-                        arg[2] = split
+                        args[2] = split
                     end
                     
                     if (balance < required_amount) and not (divide[executor]) then
                         if (player_count > 1) then
-                            rprint(executor, "You do not have enough money to send $" .. amount .. " to all players.")
+                            rprint(executor, "You do not have enough money to send $" .. amount .. " to all (" .. player_count .. ") players.")
                             rprint(executor, 'You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
-                            
-                            cprint("You do not have enough money to send $" .. amount .. " to all players.")
-                            cprint('You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
                         else
                             rprint(executor, "You do not have enough money to send $" .. amount .. " to " .. get_var(TargetID, "$name"))
                         end
