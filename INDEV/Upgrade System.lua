@@ -203,9 +203,10 @@ local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
+
+-- CUSTOM GOD MODE
+local god, god_duration = { }, { }
 local godmode, trigger = { }, { }
--- Not currently used
--- local file_format = "%ip%|%money%"
 
 local gsub, match, concat, floor, lower = string.gsub, string.match, table.concat, math.floor, string.lower
 
@@ -325,21 +326,6 @@ local function isOnline(t, e)
     end
 end
 
-local function checkAccess(e, level)
-    if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl"))) >= level then
-            ip = getIP(executor)
-            return true
-        else
-            rprint(e, "Command failed. Insufficient Permission.")
-            return false
-        end
-    else
-        cprint("You cannot execute this command from the console.", 4 + 8)
-        return false
-    end
-end
-
 local function cmdself(t, e)
     if (t) then
         if tonumber(t) == tonumber(e) then
@@ -355,6 +341,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     
     local players, TargetID, target_all_players = { }, { }
     local ip
+    
+    local function checkAccess(e, level)
+        if (e ~= -1 and e >= 1 and e < 16) then
+            if (tonumber(get_var(e, "$lvl"))) >= level then
+                ip = getIP(executor)
+                return true
+            else
+                rprint(e, "Command failed. Insufficient Permission.")
+                return false
+            end
+        else
+            cprint("You cannot execute this command from the console.", 4 + 8)
+            return false
+        end
+    end
     
     local function validate_params()
         local function getplayers(arg, executor)
@@ -666,7 +667,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         local tab = commands.custom_god
         for key, _ in ipairs(tab) do
             local cmd = tab[key][1]
-            if (cmd ~= nil) then
+            if (cmd ~= nil) and (command == cmd[1]) then
                 TYPE_FIVE = true
                 local is_enabled = cmd[6]
                 if (is_enabled) then
@@ -677,7 +678,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local cost = cmd[2]
                                 local duration = cmd[3]
                                 local message = cmd[4]
-                                print(duration)
                                 
                                 local p = { }
                                 p.ip = ip
