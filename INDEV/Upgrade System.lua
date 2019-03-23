@@ -14,7 +14,6 @@ Description:
 			TO DO:
 			* Bug fixes
 			* Write money transfer command
-			* Possibly refactor some code. 
 			* Final tests before publishing as a finished resource
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
