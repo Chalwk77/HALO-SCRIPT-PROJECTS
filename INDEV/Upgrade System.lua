@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Upgrade System, for SAPP (PC & CE)
-Description:
+Description: This is an economy mod.
             Earn 'money' for:
             -> Kills & Assists
             -> Kill-Combos & Kill-Streaks
