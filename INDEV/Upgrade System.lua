@@ -333,7 +333,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         local pl, proceed, player_count, can_deposit = getplayers(args[1], executor)
         if pl then
-        
             if (args[3] ~= nil) then
                 if (args[3] == "-s") then
                     divide[executor] = true
@@ -345,6 +344,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             
             proceed, player_count = true, #pl
+            local balance = money:getbalance(ip)
             for i = 1, #pl do
                 if pl[i] == nil then
                     break
@@ -353,7 +353,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     proceed = false
                     local amount = tonumber(args[2])
                     local required_amount = (amount * player_count)
-                    local balance = money:getbalance(ip)
                     local split = (amount / player_count)
                     
                     if (divide[executor] == true) then
@@ -365,6 +364,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             rprint(executor, "You do not have enough money to send $" .. amount .. " to all (" .. player_count .. ") players.")
                             rprint(executor, 'You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
                         else
+                            is_error = true
                             rprint(executor, "You do not have enough money to send $" .. amount .. " to " .. get_var(TargetID, "$name"))
                         end
                     else
@@ -372,8 +372,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     divide[executor] = false
                 end
+                
                 if (can_deposit) then
-                    if (balance >= args[2]) then
+                    if (balance >= tonumber(args[2])) then
                         players.eip = ip
                         players.eid = tonumber(get_var(executor, "$n"))
                         players.en = get_var(executor, "$name")
