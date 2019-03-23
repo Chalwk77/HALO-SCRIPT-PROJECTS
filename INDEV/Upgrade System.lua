@@ -44,11 +44,14 @@ local upgrade_perm_lvl = -1
 
 -- Add money to your account
 local add_command = "add"
-local add_perm_level = 4
+local add_perm_lvl = 4
 
 -- Deduct money from your account
 local remove_command = "remove"
-local remove_perm_level = 4
+local remove_perm_lvl = 4
+
+local transfer_command = "transfer"
+local transfer_perm_lvl = -1
 
 local commands = {
     -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
@@ -276,6 +279,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     
+    local players, TargetID, target_all_players = { }, { }
+    
     local ip
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -289,6 +294,79 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         else
             cprint("You cannot execute this command from the console.", 4 + 8)
             return false
+        end
+    end
+    
+    local function cmdself(t, e)
+        if (t) then
+            if tonumber(t) == tonumber(e) then
+                rprint(e, "You cannot execute this command on yourself.")
+                return true
+            end
+        end
+    end
+    
+    local function validate_params()
+
+        local function getplayers(arg, executor)
+            local pl = { }
+            if arg:match("%d+") then
+                TargetID = tonumber(args[1])
+                if (TargetID ~= executor) then
+                    table.insert(pl, arg)
+                end
+            elseif arg == "*" or (arg == "all") then
+                for i = 1, 16 do
+                    if player_present(i) then
+                        target_all_players = true
+                        if (tonumber(i) ~= executor) then
+                            table.insert(pl, i)
+                        end
+                    end
+                end
+            else
+                rprint(executor, "Invalid command parameter")
+                is_error = true
+                return false
+            end
+            if pl[1] then
+                return pl
+            end
+            pl = nil
+            return false
+        end
+
+        local pl = getplayers(args[1], executor)
+        if pl then
+            for i = 1, #pl do
+                if pl[i] == nil then
+                    break
+                end
+                players.eip = ip
+                players.eid = tonumber(get_var(executor, "$n"))
+                players.tip = get_var(pl[i], "$ip")
+                players.tid = tonumber(get_var(pl[i], "$n"))
+                players.amount = args[2]
+                players.player_count = tonumber(i)
+                if (target_all_players) then
+                    money:transfer(players)
+                end
+            end
+        end
+    end
+    
+    local function isOnline(t, e)
+        if (t) then
+            if (t > 0 and t < 17) then
+                if player_present(t) then
+                    return true
+                else
+                    rprint(e, "Command failed. Player not online.")
+                    return false
+                end
+            else
+                rprint(e, "Invalid player id. Please enter a number between 1-16")
+            end
         end
     end
     
@@ -314,7 +392,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     elseif (command == lower(add_command)) then
-        if (checkAccess(executor, add_perm_level)) then
+        if (checkAccess(executor, add_perm_lvl)) then
             if (args[1] ~= nil) and args[1]:match("%d+") then
                 AddRemove(false)
                 local balance = money:getbalance(ip)
@@ -326,7 +404,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     elseif (command == lower(remove_command)) then
-        if (checkAccess(executor, remove_perm_level)) then
+        if (checkAccess(executor, remove_perm_lvl)) then
             if (args[1] ~= nil) and args[1]:match("%d+") then
                 AddRemove(true)
                 local balance = money:getbalance(ip)
@@ -337,7 +415,23 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         end
+    elseif (command == lower(transfer_command)) then
+        if (checkAccess(executor, transfer_perm_lvl)) then
+            if (args[1] ~= nil) and (args[2] ~= nil) then
+                is_error = false
+                validate_params()
+                if not (target_all_players) then
+                    if not (is_error) and isOnline(TargetID, executor) then
+                        money:transfer(players)
+                    end
+                 end
+            else
+                rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount]")
+            end
+        end
+        return false
     end
+    
 
     local TYPE_ONE, TYPE_TWO, TYPE_THREE
     
@@ -536,8 +630,39 @@ function money:update(params)
     end
 end
 
-function money:Transfer(params)
-    -- to do
+function money:transfer(params)
+    local params = params or {}
+    
+    local eip = params.eip or nil
+    local eid = params.eid or nil
+
+    local tip = params.tip or nil
+    local tid = params.tid or nil
+    
+    local tip = params.tip or nil
+    local amount = params.amount or nil
+    local player_count = params.player_count or nil
+
+    local eBal = money:getbalance(eip)
+    local tBal = money:getbalance(tip)
+    
+    local required_amount = (amount * player_count)
+    
+    if (eBal >= required_amount) then
+        if (player_count > 1) then
+            cprint("Sending $" .. amount .. " to all players.", 2+8)
+        else
+            cprint("Sending $" .. amount .. " to " .. get_var(tid, "$name"), 2+8)
+        end
+    elseif (eBal < required_amount) then
+        if (player_count > 1) then
+            local split = (amount / player_count)
+            cprint("You do not have enough money to send $" .. amount .. " to all players.")
+            cprint('You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
+        else
+            cprint("You do not have enough money to send $" .. amount .. " to " .. get_var(tid, "$name"))
+        end
+    end
 end
 
 function money:getbalance(player_ip)
