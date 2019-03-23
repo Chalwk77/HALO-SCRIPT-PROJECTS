@@ -408,7 +408,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
                                         rprint(executor, strFormat)
                                         execute_command_sequence('spawn weap ' .. tag_id .. ' ' .. executor .. ';wadd ' .. executor)
-                                        --give_weapon[executor] = false
+                                        give_weapon[executor] = false
                                     else
                                         rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                     end
