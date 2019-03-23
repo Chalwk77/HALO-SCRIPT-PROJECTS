@@ -192,6 +192,7 @@ local players = { }
 local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
+local divide = { }
 -- Not currently used
 -- local file_format = "%ip%|%money%"
 
@@ -221,6 +222,7 @@ function OnScriptLoad()
             end
             local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
+            divide[i] = false
             players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
@@ -246,6 +248,7 @@ function OnScriptUnload()
             ip_table[hash] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
+            divide[i] = false
         end
     end
 end
@@ -260,6 +263,7 @@ function OnGameEnd()
             run_combo_timer[i] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
+            divide[i] = false
             local ip = getIP(i)
             if not (save_money) then
                 money_table["money"][ip] = { ["balance"] = starting_balance }
@@ -307,15 +311,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     
     local function validate_params()
-
         local function getplayers(arg, executor)
             local pl = { }
-            if arg:match("%d+") then
+            if (arg:match("%d+"))then
                 TargetID = tonumber(args[1])
                 if (TargetID ~= executor) then
                     table.insert(pl, arg)
                 end
-            elseif arg == "*" or (arg == "all") then
+            elseif (arg == "*") or (arg == "all") then
                 for i = 1, 16 do
                     if player_present(i) then
                         target_all_players = true
@@ -335,21 +338,64 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             pl = nil
             return false
         end
-
-        local pl = getplayers(args[1], executor)
+        local pl, proceed, player_count, can_deposit = getplayers(args[1], executor)
         if pl then
+        
+            if (args[3] ~= nil) then
+                if (args[3] == "-s") then
+                    divide[executor] = true
+                else
+                    rprint(executor, "Error! (args[3]) ->  Invalid command flag. Usage: -s")
+                    is_error = true
+                    return false
+                end
+            end
+            
+            proceed, player_count = #pl, true
             for i = 1, #pl do
                 if pl[i] == nil then
                     break
                 end
-                players.eip = ip
-                players.eid = tonumber(get_var(executor, "$n"))
-                players.tip = get_var(pl[i], "$ip")
-                players.tid = tonumber(get_var(pl[i], "$n"))
-                players.amount = args[2]
-                players.player_count = tonumber(i)
-                if (target_all_players) then
-                    money:transfer(players)
+                if (proceed) then
+                    proceed = false
+                    local amount = tonumber(args[2])
+                    local required_amount = (amount * player_count)
+                    local balance = money:getbalance(ip)
+                    local split = (amount / player_count)
+                    
+                    if (divide[executor] == true) then
+                        arg[2] = split
+                    end
+                    
+                    if (balance < required_amount) and not (divide[executor]) then
+                        if (player_count > 1) then
+                            rprint(executor, "You do not have enough money to send $" .. amount .. " to all players.")
+                            rprint(executor, 'You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
+                            
+                            cprint("You do not have enough money to send $" .. amount .. " to all players.")
+                            cprint('You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
+                        else
+                            rprint(executor, "You do not have enough money to send $" .. amount .. " to " .. get_var(TargetID, "$name"))
+                        end
+                    else
+                        can_deposit = true
+                    end
+                    divide[executor] = false
+                end
+                if (can_deposit) then
+                    players.eip = ip
+                    players.eid = tonumber(get_var(executor, "$n"))
+                    players.en = get_var(executor, "$name")
+                    
+                    players.tip = get_var(pl[i], "$ip")
+                    players.tid = tonumber(get_var(pl[i], "$n"))
+                    players.tn = get_var(pl[i], "$name")
+                    
+                    players.amount = args[2]
+                    players.player_count = tonumber(i)
+                    if (target_all_players) then
+                        money:transfer(players)
+                    end
                 end
             end
         end
@@ -635,33 +681,23 @@ function money:transfer(params)
     
     local eip = params.eip or nil
     local eid = params.eid or nil
+    local en = params.en or nil
 
     local tip = params.tip or nil
     local tid = params.tid or nil
-    
-    local tip = params.tip or nil
+    local tn = params.tn or nil
+
     local amount = params.amount or nil
     local player_count = params.player_count or nil
 
-    local eBal = money:getbalance(eip)
-    local tBal = money:getbalance(tip)
-    
-    local required_amount = (amount * player_count)
-    
-    if (eBal >= required_amount) then
-        if (player_count > 1) then
-            cprint("Sending $" .. amount .. " to all players.", 2+8)
-        else
-            cprint("Sending $" .. amount .. " to " .. get_var(tid, "$name"), 2+8)
-        end
-    elseif (eBal < required_amount) then
-        if (player_count > 1) then
-            local split = (amount / player_count)
-            cprint("You do not have enough money to send $" .. amount .. " to all players.")
-            cprint('You need $' .. required_amount .. '. Type "/transfer * ' .. amount .. ' -s"  to split $' .. math.floor(split) .. ' between ' .. player_count .. ' players.')
-        else
-            cprint("You do not have enough money to send $" .. amount .. " to " .. get_var(tid, "$name"))
-        end
+    --local eBal = money:getbalance(eip)
+    --local tBal = money:getbalance(tip)
+    if (player_count > 1) then
+        rprint(tid, en .. " sent you $" .. amount)
+        rprint(eid, "Sending $" .. amount .. " to " .. tn)
+    else
+        rprint(tid, en .. " sent you $" .. amount)
+        rprint(eid, "Sending $" .. amount .. " to " .. tn)
     end
 end
 
@@ -743,6 +779,7 @@ function OnPlayerConnect(PlayerIndex)
     
     check_available_slots[PlayerIndex] = false
     give_weapon[PlayerIndex] = false
+    divide[PlayerIndex] = false
     
     if (save_money) then
         local found
