@@ -76,6 +76,7 @@ local commands = {
     -- command | price | tag id | message | permission level
     weapons = {
     { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
+    { ["pistol"] = { '50', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1 } },
     },
     
     -- command | price | amount | type | tag id | message | permission level
@@ -474,7 +475,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                  end
             else
-                rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount]")
+                rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount] (optional -s)")
             end
         end
         return false
