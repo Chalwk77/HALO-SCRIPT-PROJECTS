@@ -61,7 +61,7 @@ local commands = {
     -- repeat the structure to add new entries:
     { ["your_command"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
-    { ["am1"] = { 'ammo', "10", "200", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am1"] = { 'ammo', "10", "200", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am2"] = { 'ammo', "10", "350", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am3"] = { 'ammo', "10", "500", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am4"] = { 'ammo', "10", "700", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
