@@ -9,12 +9,10 @@ Description:
             -> CTF Scoring
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
-            [!] STILL IN DEVELOPMENT (approx 90% complete)
+            [!] STILL IN DEVELOPMENT (approx 95% complete)
 			
 			TO DO:
-			* Bug fixes
-			* Write money transfer command
-			* Final tests before publishing as a finished resource
+			* Write /transfer command logic
        
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
