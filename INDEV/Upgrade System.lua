@@ -82,8 +82,8 @@ local commands = {
     
     -- command | price | amount | type | tag id | message | permission level
     grenades = {
-    { ["mine"] = { '15', "1", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
-    { ["gren"] =  { '10', "1", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
+    { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
+    { ["gren"] =  { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
     
     },
 }
@@ -360,7 +360,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             local count = cmd[3]
                             local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
                             rprint(executor, strFormat)
-                            break
                         else
                             rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
                         end
@@ -447,7 +446,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local new_balance = money:getbalance(ip)
                                 local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
                                 rprint(executor, strFormat)
-                                break
                             else
                                 rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                             end
@@ -458,6 +456,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 else
                     rprint(executor, "That doesn't command work on this map.")
                 end
+                return false
             end
         end
     end
