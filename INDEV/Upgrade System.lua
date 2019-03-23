@@ -351,7 +351,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
             
-            proceed, player_count = #pl, true
+            proceed, player_count = true, #pl
             for i = 1, #pl do
                 if pl[i] == nil then
                     break
