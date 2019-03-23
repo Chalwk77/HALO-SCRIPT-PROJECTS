@@ -205,7 +205,6 @@ local check_available_slots, give_weapon = { }, { }
 local divide = { }
 
 -- CUSTOM GOD MODE
-local god, god_duration = { }, { }
 local godmode, trigger = { }, { }
 
 local gsub, match, concat, floor, lower = string.gsub, string.match, table.concat, math.floor, string.lower
@@ -336,10 +335,12 @@ local function cmdself(t, e)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    
+    
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     
-    local players, TargetID, target_all_players = { }, { }
+    local target_players, TargetID, target_all_players = { }, { }
     local ip
     
     local function checkAccess(e, level)
@@ -432,18 +433,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 
                 if (can_deposit) then
                     if (balance >= tonumber(args[2])) then
-                        players.eip = ip
-                        players.eid = tonumber(get_var(executor, "$n"))
-                        players.en = get_var(executor, "$name")
+                        target_players.eip = ip
+                        target_players.eid = tonumber(get_var(executor, "$n"))
+                        target_players.en = get_var(executor, "$name")
                         
-                        players.tip = get_var(pl[i], "$ip")
-                        players.tid = tonumber(get_var(pl[i], "$n"))
-                        players.tn = get_var(pl[i], "$name")
+                        target_players.tip = get_var(pl[i], "$ip")
+                        target_players.tid = tonumber(get_var(pl[i], "$n"))
+                        target_players.tn = get_var(pl[i], "$name")
                         
-                        players.amount = args[2]
-                        players.player_count = tonumber(i)
+                        target_players.amount = args[2]
+                        target_players.player_count = tonumber(i)
                         if (target_all_players) then
-                            money:transfer(players)
+                            money:transfer(target_players)
                         end
                     else
                         can_deposit = false
@@ -507,7 +508,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 validate_params()
                 if not (target_all_players) then
                     if not (is_error) and isOnline(TargetID, executor) then
-                        money:transfer(players)
+                        money:transfer(target_players)
                     end
                  end
             else
@@ -673,26 +674,32 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (is_enabled) then
                     if player_alive(executor) then
                         if checkAccess(executor, cmd[5]) then
-                            local balance = money:getbalance(ip)
-                            if (balance ~= nil) then
+                            if not (godmode[executor]) then
+                                local balance = money:getbalance(ip)
                                 local cost = cmd[2]
-                                local duration = cmd[3]
-                                local message = cmd[4]
+                                if (balance >= tonumber(cost)) then
+                                    local duration = cmd[3]
+                                    local message = cmd[4]
+                                    
+                                    local p = { }
+                                    p.ip = ip
+                                    p.money = cost
+                                    p.subtract = true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    
+                                    players[executor].god = 0
+                                    players[executor].god_duration = tonumber(duration)
+                                    godmode[executor] = true
+                                    trigger[executor] = true
                                 
-                                local p = { }
-                                p.ip = ip
-                                p.money = cost
-                                p.subtract = true
-                                money:update(p)
-                                local new_balance = money:getbalance(ip)
-                                
-                                players[executor].god = 0
-                                players[executor].god_duration = tonumber(duration)
-                                godmode[executor] = true
-                                trigger[executor] = true
-                            
-                                local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                rprint(executor, strFormat)
+                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
+                            else
+                                rprint(executor, "You already have god mode!")
                             end
                         end
                     else
@@ -874,6 +881,7 @@ function OnPlayerConnect(PlayerIndex)
     -- God Mode (custom command)
     players[PlayerIndex].god = 0
     players[PlayerIndex].god_duration = 0
+    
     godmode[PlayerIndex] = false
     trigger[PlayerIndex] = false
     
@@ -1044,6 +1052,10 @@ function OnTick()
                     execute_command('god ' .. i)
                 elseif (players[i].god >= players[i].god_duration) then
                     execute_command('ungod ' .. i)
+                    godmode[i] = false
+                    players[i].god = 0
+                    players[i].god_duration = 0
+                    rprint(i, "You are no longer in god mode.")
                 end
             end
             if (check_available_slots[i]) then
