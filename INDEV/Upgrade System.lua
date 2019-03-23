@@ -9,7 +9,7 @@ Description:
             -> CTF Scoring
             Use your money to buy weapons and upgrades with custom commands.
             [!] More details will come at a later date.
-            [!] STILL IN DEVELOPMENT (approx 97% complete)
+            [!] STILL IN DEVELOPMENT (approx 90% complete)
 			
 			TO DO:
 			* Bug fixes
