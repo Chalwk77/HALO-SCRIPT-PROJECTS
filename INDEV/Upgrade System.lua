@@ -49,38 +49,52 @@ local transfer_command = "transfer"
 local transfer_perm_lvl = -1
 
 local commands = {
-    -- TRIGGER, COMMAND, COST, VALUE, MESAGE, REQUIRED LEVEL: (minimum level required to execute the TRIGGER)
+    -- These are sapp commands that take TWO parameters (i.e, hp <player expression> [health])
+    -- command | price | value | message | permission level
     { ["heal1"] = { 'hp', "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal2"] = { 'hp', "20", "2", "Purchased 200% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal3"] = { 'hp', "30", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
 
-    -- repeat the structure to add new entries:
-    { ["your_command"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
-
-    { ["am1"] = { 'ammo', "10", "200", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
-    { ["am2"] = { 'ammo', "10", "350", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
-    { ["am3"] = { 'ammo', "10", "500", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
-    { ["am4"] = { 'ammo', "10", "700", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
-    { ["am5"] = { 'ammo', "10", "900", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am1"] = { 'ammo', "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am2"] = { 'ammo', "10", "350 5", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am3"] = { 'ammo', "10", "500 5", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am4"] = { 'ammo', "10", "700 5", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
+    { ["am5"] = { 'ammo', "10", "900 5", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
 
     { ["cam1"] = { 'camo', "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1 } },
     { ["cam2"] = { 'camo', "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
     { ["cam3"] = { 'camo', "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
+    
+    -- repeat the structure to add new entries:
+    { ["keyword"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
+   
 
-    -- Balance command
+    -- Balance command (do not remove)
     { [1] = { "bal", "Money: $%money%", -1 } },
     
+        
+    -- MISC:
+    misc = { -- These commands are sapp commands that take ONE parameter (i.e, kill <player expression>)
+        { [1] = { "sapp_command", "price", "message", permission_level_number} },
+    },
+    
+    
+    -- CUSTOM GOD.
+    custom_god = { -- command | price | duration | message | permission level | enabled/disabled (set to true to enable)
+        { [1] = { "god2", "100", "30", "Purchased (30 Seconds of God) for $%price%. New balance: $%balance%", -1, true} },
+    },
+    
+    
     -- Weapon Purchases:
-    -- command | price | tag id | message | permission level
-    weapons = {
+    weapons = { -- command | price | tag id | message | permission level
     { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1 } },
     { ["pistol"] = { '50', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1 } },
     },
     
-    -- command | price | amount | type | tag id | message | permission level
-    grenades = {
+    
+    grenades = { -- command | price | amount | type | tag id | message | permission level
     { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
     { ["gren"] =  { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1} },
     },
@@ -189,6 +203,7 @@ local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
+local godmode, trigger = { }, { }
 -- Not currently used
 -- local file_format = "%ip%|%money%"
 
@@ -218,13 +233,20 @@ function OnScriptLoad()
             end
             local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
-            divide[i] = false
             players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
             players[i].kills = 0
             players[i].streaks = 0
             players[i].assists = 0
+            
+            -- God Mode (custom command)
+            players[i].god = 0
+            players[i].god_duration = 0
+            godmode[i] = false
+            trigger[i] = false
+            
+            divide[i] = false
             run_combo_timer[i] = false
             check_available_slots[i] = false
             give_weapon[i] = false
@@ -245,6 +267,12 @@ function OnScriptUnload()
             check_available_slots[i] = false
             give_weapon[i] = false
             divide[i] = false
+            
+            -- God Mode (custom command)
+            players[i].god = 0
+            players[i].god_duration = 0
+            godmode[i] = false
+            trigger[i] = false
         end
     end
 end
@@ -260,6 +288,13 @@ function OnGameEnd()
             check_available_slots[i] = false
             give_weapon[i] = false
             divide[i] = false
+            
+            -- God Mode (custom command)
+            players[i].god = 0
+            players[i].god_duration = 0
+            godmode[i] = false
+            trigger[i] = false
+            
             local ip = getIP(i)
             if not (save_money) then
                 money_table["money"][ip] = { ["balance"] = starting_balance }
@@ -480,40 +515,43 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
     end
-    
 
-    local TYPE_ONE, TYPE_TWO, TYPE_THREE
+    local TYPE_ONE, TYPE_TWO, TYPE_THREE, TYPE_FOUR, TYPE_FIVE
     
     for key, _ in ipairs(commands) do
         local cmd = commands[key][command]
         if (cmd ~= nil) then
             TYPE_ONE = true
             local lvl = cmd[#cmd]
-            if checkAccess(executor, lvl) then
-                if (#cmd > 2) then
-                    if (args[1] == nil) then
-                        local balance = money:getbalance(ip)
-                        local cost = cmd[2]
-                        if (balance >= tonumber(cost)) then
-                            execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                            local p = { }
-                            p.ip = ip
-                            p.money = cost
-                            p.subtract = true
-                            money:update(p)
-                            local new_balance = money:getbalance(ip)
-                            local count = cmd[3]
-                            local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
-                            rprint(executor, strFormat)
+            if player_alive(executor) then
+                if checkAccess(executor, lvl) then
+                    if (#cmd > 2) then
+                        if (args[1] == nil) then
+                            local balance = money:getbalance(ip)
+                            local cost = cmd[2]
+                            if (balance >= tonumber(cost)) then
+                                execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                                local p = { }
+                                p.ip = ip
+                                p.money = cost
+                                p.subtract = true
+                                money:update(p)
+                                local new_balance = money:getbalance(ip)
+                                local count = cmd[3]
+                                local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
+                                rprint(executor, strFormat)
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+                            end
                         else
-                            rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+                            rprint(executor, "Invalid Syntax. Usage: /" .. command)
                         end
-                    else
-                        rprint(executor, "Invalid Syntax. Usage: /" .. command)
                     end
-                    return false
                 end
+            else
+                rprint(executor, "Command failed. Please wait until you respawn.")
             end
+            return false
         end
     end
     
@@ -522,8 +560,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for key, _ in ipairs(tab) do
             local entry = tab[key][command]
             if (entry ~= nil) then
+                TYPE_TWO = true
                 if player_alive(executor) then
-                    TYPE_TWO = true
                     local cost = entry[1]
                     local tag_id = entry[2]
                     local message = entry[3]
@@ -570,8 +608,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for key, _ in ipairs(tab) do
             local entry = tab[key][command]
             if (entry ~= nil) then
+                TYPE_THREE = true
                 if player_alive(executor) then
-                    TYPE_THREE = true
                     local cost = entry[1]
                     local count = entry[2]
                     local type = entry[3]
@@ -599,7 +637,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    rprint(executor, "That doesn't command work on this map.")
+                    rprint(executor, "Command failed. Please wait until you respawn.")
                 end
                 return false
             end
@@ -611,11 +649,57 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for key, _ in ipairs(commands) do
             local bal = commands[key][1]
             if (bal ~= nil) and (command == bal[1]) then
+                TYPE_FOUR = true
                 if checkAccess(executor, bal[3]) then
                     local balance = money:getbalance(ip)
                     if (balance ~= nil) then
                         rprint(executor, gsub(bal[2], "%%money%%", balance))
                     end
+                end
+                return false
+            end
+        end
+    end
+    
+    -- CUSTOM GOD COMMAND
+    if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR) then
+        local tab = commands.custom_god
+        for key, _ in ipairs(tab) do
+            local cmd = tab[key][1]
+            if (cmd ~= nil) then
+                TYPE_FIVE = true
+                local is_enabled = cmd[6]
+                if (is_enabled) then
+                    if player_alive(executor) then
+                        if checkAccess(executor, cmd[5]) then
+                            local balance = money:getbalance(ip)
+                            if (balance ~= nil) then
+                                local cost = cmd[2]
+                                local duration = cmd[3]
+                                local message = cmd[4]
+                                print(duration)
+                                
+                                local p = { }
+                                p.ip = ip
+                                p.money = cost
+                                p.subtract = true
+                                money:update(p)
+                                local new_balance = money:getbalance(ip)
+                                
+                                players[executor].god = 0
+                                players[executor].god_duration = tonumber(duration)
+                                godmode[executor] = true
+                                trigger[executor] = true
+                            
+                                local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                rprint(executor, strFormat)
+                            end
+                        end
+                    else
+                        rprint(executor, "Command failed. Please wait until you respawn.")
+                    end
+                else
+                    rprint(executor, "Unable to execute. Command failed.")
                 end
                 return false
             end
@@ -787,6 +871,14 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
     
+    -- God Mode (custom command)
+    players[PlayerIndex].god = 0
+    players[PlayerIndex].god_duration = 0
+    godmode[PlayerIndex] = false
+    trigger[PlayerIndex] = false
+    
+    divide[PlayerIndex] = false
+    
     check_available_slots[PlayerIndex] = false
     give_weapon[PlayerIndex] = false
     divide[PlayerIndex] = false
@@ -839,7 +931,13 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
     
         local kip = getIP(killer)
         local vip = getIP(victim)
-
+        
+        -- God Mode (custom command)
+        players[victim].god = 0
+        players[victim].god_duration = 0
+        godmode[victim] = false
+        trigger[victim] = false
+        
         -- [Combo Scoring]
         if run_combo_timer[victim] then
             run_combo_timer[victim] = false
@@ -939,6 +1037,15 @@ end
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
+            if (godmode[i] == true) then
+                players[i].god = players[i].god + 0.030
+                if (trigger[i]) then
+                    trigger[i] = false
+                    execute_command('god ' .. i)
+                elseif (players[i].god >= players[i].god_duration) then
+                    execute_command('ungod ' .. i)
+                end
+            end
             if (check_available_slots[i]) then
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0)then
