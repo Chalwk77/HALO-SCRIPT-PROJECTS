@@ -75,7 +75,7 @@ local commands = {
 
 
     -- Balance command (do not remove)
-    { [1] = { "bal", "Money: $%money%", -1 } },
+    { [1] = { "bal", "Upgrade Points: $%money%", -1 } },
 
 
     -- MISC: (NOT YET IMPLEMENTED - NOT YET IMPLEMENTED - NOT YET IMPLEMENTED)
@@ -564,29 +564,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local lvl = entry[4]
                     if checkAccess(executor, lvl) then
                         if TagInfo("weap", tag_id) then
-                            check_available_slots[executor] = true
+                            local balance = money:getbalance(ip)
                             function delay_add()
                                 if (give_weapon[executor]) then
-                                    local balance = money:getbalance(ip)
-                                    if (balance >= tonumber(cost)) then
-                                        local p = { }
-                                        p.ip, p.money, p.subtract = ip, cost, true
-                                        money:update(p)
-                                        local new_balance = money:getbalance(ip)
-                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                        rprint(executor, strFormat)
-                                        give_weapon[executor] = false
-                                        local player_object = get_dynamic_player(executor)
-                                        local x, y, z = read_vector3d(player_object + 0x5C)
-                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
-                                    else
-                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-                                    end
-                                else
-                                    rprint(executor, "You don't have enough room in your inventory.")
+                                    execute_command('wdel ' .. executor .. ' 0')
+                                    give_weapon[executor] = false
+                                    local p = { }
+                                    p.ip, p.money, p.subtract = ip, cost, true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                    local player_object = get_dynamic_player(executor)
+                                    local x, y, z = read_vector3d(player_object + 0x5C)
+                                    local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
                                 end
                             end
-                            timer(100, "delay_add")
+                            if (balance >= tonumber(cost)) then
+                                check_available_slots[executor] = true
+                                timer(100, "delay_add")
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            end
                         else
                             rprint(executor, "That doesn't command work on this map.")
                         end
@@ -1062,7 +1061,6 @@ function OnTick()
                                 give_weapon[i] = true
                                 check_available_slots[i] = false
 							else
-								execute_command('wdel ' .. i .. ' 0')
                                 give_weapon[i] = true
                                 check_available_slots[i] = false
                             end
