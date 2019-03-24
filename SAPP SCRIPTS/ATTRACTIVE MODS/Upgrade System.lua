@@ -276,8 +276,8 @@ function OnScriptLoad()
             give_weapon[i] = false
 
             divide[i] = false
-            rprint(i, "UPGRADE SYSTEM RELOADED -> MONEY RESET.")
             if not (save_money) then
+                rprint(i, "UPGRADE SYSTEM RELOADED -> MONEY RESET.")
                 money_table = { ["money"] = {} }
                 money_table["money"][ip] = { ["balance"] = starting_balance }
             end
