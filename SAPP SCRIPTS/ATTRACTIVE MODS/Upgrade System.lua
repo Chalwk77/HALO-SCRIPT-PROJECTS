@@ -252,13 +252,15 @@ function OnScriptLoad()
             -- God Mode (custom command)
             players[i].god = 0
             players[i].god_duration = 0
-            godmode[i] = false
-            trigger[i] = false
+            godmode[i] = nil
+            trigger[i] = nil
 
-            divide[i] = false
             run_combo_timer[i] = false
+            
             check_available_slots[i] = false
             give_weapon[i] = false
+            
+            divide[i] = false
         end
     end
     if not (save_money) then
@@ -270,18 +272,18 @@ function OnScriptUnload()
     for i = 1, 16 do
         if player_present(i) then
             players[i] = nil
-            run_combo_timer[i] = nil
+            
             local hash = get_var(i, "$hash")
             ip_table[hash] = nil
+            
+            run_combo_timer[i] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
+            
             divide[i] = false
-
-            -- God Mode (custom command)
-            players[i].god = 0
-            players[i].god_duration = 0
-            godmode[i] = false
-            trigger[i] = false
+            
+            godmode[i] = nil
+            trigger[i] = nil
         end
     end
 end
@@ -296,14 +298,10 @@ function OnGameEnd()
             run_combo_timer[i] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
-            divide[i] = false
-
-            -- God Mode (custom command)
-            players[i].god = 0
-            players[i].god_duration = 0
-            godmode[i] = false
-            trigger[i] = false
-
+            divide[i] = nil
+            players[i] = nil
+            godmode[i] = nil
+            trigger[i] = nil
             local ip = getIP(i)
             if not (save_money) then
                 money_table["money"][ip] = { ["balance"] = starting_balance }
@@ -335,8 +333,6 @@ local function isOnline(t, e)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
-
-
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
 
