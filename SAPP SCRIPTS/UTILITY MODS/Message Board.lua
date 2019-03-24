@@ -21,35 +21,41 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
---[[ 
+-- Do not touch...
+local messages, players, gsub = { }, { }, string.gsub
+local servername, message_board
+--
+
+-- How long should the message be displayed on screen for? (in seconds) --
+local duration = 10 
+
+-- Message Alignment:
+local alignment = "l" -- Left = l,    Right = r,    Center = c,    Tab: t
+
+local function set(PlayerIndex)
     
-------------- Configuration Starts -------------
-Message Board: 
-Use %server_name% variable to output the server name.
-Use %player_name% variable to output the joining player's name.
-
-]]
-
--- messages --
-local message_board = { }
-for i = 1, 16 do 
-    message_board[i] = {
+    -- ==== [ MESSAGE CONFIG ] ==== --
+    
+    -- Message Board: 
+    -- Use %server_name% variable to output the server name.
+    -- Use %player_name% variable to output the joining player's name.
+    
+    -- messages --
+    message_board = { } 
+    message_board[PlayerIndex] = {
         "Welcome to %server_name%, %player_name%", 
         "Message Board created by Chalwk (Jericho Crosby)",
         "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
     }
+    -- ================ [ CONFIG ENDS ] ================ --
+    
+    -- Do not touch.
+    for _, v in pairs(message_board[PlayerIndex]) do
+        for j = 1, #message_board[PlayerIndex] do
+            message_board[PlayerIndex][j] = gsub(message_board[PlayerIndex][j], "%%server_name%%", servername)
+        end
+    end
 end
-
--- How long should the message be displayed on screen for? (in seconds) --
-local duration = 10
-
--- Message Alignment:
--- Left = l,    Right = r,    Center = c,    Tab: t
-local alignment = "l"
--- Configuration Ends --
---=====================================================================================================--
-
-local messages, players, gsub = { }, { }, string.gsub
 
 local function cls(p)
     for _ = 1, 25 do
@@ -58,6 +64,7 @@ local function cls(p)
 end
 
 function messages:show(p)
+    set(p)
     players[p] = players[p] or { }
     players[p].timer = 0
     players[p].name = true
@@ -100,20 +107,14 @@ function OnNewGame()
         return table.concat(byte_table)
     end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local servername = read_widestring(network_struct + 0x8, 0x42)
-    for i = 1,16 do
-        for _, v in pairs(message_board[i]) do
-            for j = 1, #message_board[i] do
-                message_board[i][j] = gsub(message_board[i][j], "%%server_name%%", servername)
-            end
-        end
-    end
+    servername = read_widestring(network_struct + 0x8, 0x42)
 end
 
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) and (players[i] ~= nil) then
             messages:hide(i)
+            message_board[i] = nil
         end
     end
 end
@@ -126,10 +127,8 @@ function OnTick()
             for _, v in pairs(message_board[i]) do
                 if (players[i].name) then
                     players[i].name = false
-                    for _, v in pairs(message_board[i]) do
-                        for j = 1, #message_board[i] do
-                            message_board[i][j] = gsub(message_board[i][j], "%%player_name%%", get_var(i, "$name"))
-                        end
+                    for j = 1, #message_board[i] do
+                        message_board[i][j] = gsub(message_board[i][j], "%%player_name%%", get_var(i, "$name"))
                     end
                 end
                 rprint(i, "|" .. alignment .. " " .. v)
