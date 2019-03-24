@@ -30,7 +30,8 @@ Contributors to projects and code
         - http://pastebin.com/1dtn0DiM
         
 * **[002](https://github.com/Halogen002)**
-
+  * Chimera
+        - https://opencarnage.net/index.php?/topic/6916-chimera-build-49/
   * http client
         - https://github.com/Halogen002/SAPP-HTTP-Client
   * GetTagInfo
