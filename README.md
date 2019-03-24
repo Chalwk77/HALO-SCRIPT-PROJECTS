@@ -4,6 +4,7 @@
 
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
+* [CHIMERA SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/CHIMERA/GLOBAL)
 
 > ## [REQUEST AN ADDON](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=feature_request.md)
 
