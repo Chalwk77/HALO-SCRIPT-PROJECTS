@@ -575,7 +575,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                         give_weapon[executor] = false
                                         local player_object = get_dynamic_player(executor)
                                         local x, y, z = read_vector3d(player_object + 0x5C)
-                                        assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
                                     else
                                         rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                     end
@@ -583,7 +583,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     rprint(executor, "You don't have enough room in your inventory.")
                                 end
                             end
-                            timer(50, "delay_add")
+                            timer(100, "delay_add")
                         else
                             rprint(executor, "That doesn't command work on this map.")
                         end
@@ -1049,18 +1049,18 @@ function OnTick()
                 end
             end
             if (check_available_slots[i]) then
-				-- Need to find a better more efficient way of doing this... RIP. lmao.
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0) then
                     local weapon
                     for j = 0, 3 do
                         weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
                         if (weapon ~= 0) then
-                            if (weapon ~= 1074148100) then
+							if (j < 2) then
                                 give_weapon[i] = true
                                 check_available_slots[i] = false
-                            else
-                                give_weapon[i] = false
+							else
+								execute_command('wdel ' .. i .. ' 0')
+                                give_weapon[i] = true
                                 check_available_slots[i] = false
                             end
                         end
