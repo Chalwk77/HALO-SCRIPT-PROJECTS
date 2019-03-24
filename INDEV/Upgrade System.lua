@@ -74,13 +74,15 @@ local commands = {
     { ["keyword"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
 
+    
     -- Balance command (do not remove)
     { [1] = { "bal", "Upgrade Points: $%money%", -1 } },
 
 
-    -- MISC: (NOT YET IMPLEMENTED - NOT YET IMPLEMENTED - NOT YET IMPLEMENTED)
+    
+    -- MISC: -- command | price | value | message | permission level | enabled/disabled (set to true to enable)
     misc = { -- These commands are sapp commands that take ONE parameter (i.e, kill <player expression>)
-        { [1] = { "sapp_command", "price", "message", permission_level_number } },
+        { [1] = { "sapp_command", "price", "value", "Purchased (something) for $%price%. New balance: $%balance%", permission_level_number, false}},
     },
 
 
@@ -564,7 +566,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local lvl = entry[4]
                     if checkAccess(executor, lvl) then
                         if TagInfo("weap", tag_id) then
-                            local balance = money:getbalance(ip)
                             function delay_add()
                                 if (give_weapon[executor]) then
                                     execute_command('wdel ' .. executor .. ' 0')
@@ -580,6 +581,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
                                 end
                             end
+                            local balance = money:getbalance(ip)
                             if (balance >= tonumber(cost)) then
                                 check_available_slots[executor] = true
                                 timer(100, "delay_add")
@@ -699,7 +701,43 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 else
-                    rprint(executor, "Unable to execute. Command failed.")
+                    rprint(executor, "Unable to execute. Command disabled.")
+                end
+                return false
+            end
+        end
+    end
+    if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR) then
+        local tab = commands.misc
+        for key, _ in ipairs(tab) do
+            local cmd = tab[key][1]
+            if (cmd ~= nil) and (command == cmd[1]) then
+                TYPE_SIX = true
+                local is_enabled = cmd[6]
+                if (is_enabled) then
+                    if player_alive(executor) then
+                        if checkAccess(executor, cmd[5]) then
+                            local balance = money:getbalance(ip)
+                            local cost = cmd[2]
+                            if (balance >= tonumber(cost)) then
+                                execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                                local p = { }
+                                p.ip = ip
+                                p.money = cost
+                                p.subtract = true
+                                money:update(p)
+                                local new_balance = money:getbalance(ip)
+                                local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                rprint(executor, strFormat)
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            end
+                        end
+                    else
+                        rprint(executor, "Command failed. Please wait until you respawn.")
+                    end
+                else
+                    rprint(executor, "Unable to execute. Command disabled.")
                 end
                 return false
             end
