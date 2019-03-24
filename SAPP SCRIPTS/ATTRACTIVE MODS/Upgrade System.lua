@@ -584,7 +584,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_TWO = true
-				if isEnabled(cmd[6]) then
+				if isEnabled(entry[6]) then
 					if player_alive(executor) then
 						local cost = entry[1]
 						local tag_id = entry[2]
@@ -633,7 +633,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_THREE = true
-				if isEnabled(cmd[7]) then
+				if isEnabled(entry[7]) then
 					if player_alive(executor) then
 						local cost = entry[1]
 						local count = entry[2]
