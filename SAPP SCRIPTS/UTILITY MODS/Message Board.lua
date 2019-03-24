@@ -31,11 +31,14 @@ Use %player_name% variable to output the joining player's name.
 ]]
 
 -- messages --
-local message_board = {
-    "Welcome to %server_name%",
-    "Message Board created by Chalwk (Jericho Crosby)",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
-}
+local message_board = { }
+for i = 1, 16 do 
+    message_board[i] = {
+        "Welcome to %server_name%, %player_name%", 
+        "Message Board created by Chalwk (Jericho Crosby)",
+        "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+    }
+end
 
 -- How long should the message be displayed on screen for? (in seconds) --
 local duration = 10
@@ -57,6 +60,7 @@ end
 function messages:show(p)
     players[p] = players[p] or { }
     players[p].timer = 0
+    players[p].name = true
     players[p].show = true
 end
 
@@ -96,7 +100,14 @@ function OnNewGame()
         return table.concat(byte_table)
     end
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    servername = read_widestring(network_struct + 0x8, 0x42)
+    local servername = read_widestring(network_struct + 0x8, 0x42)
+    for i = 1,16 do
+        for _, v in pairs(message_board[i]) do
+            for j = 1, #message_board[i] do
+                message_board[i][j] = gsub(message_board[i][j], "%%server_name%%", servername)
+            end
+        end
+    end
 end
 
 function OnGameEnd()
@@ -112,9 +123,14 @@ function OnTick()
         if player_present(i) and (players[i] ~= nil) and (players[i].show) then
             players[i].timer = players[i].timer + 0.030
             cls(i)
-            for _, v in pairs(message_board) do
-                for j = 1, #message_board do
-                    message_board[j] = gsub(gsub(message_board[j], "%%server_name%%", servername), "%%player_name%%", get_var(i, "$name"))
+            for _, v in pairs(message_board[i]) do
+                if (players[i].name) then
+                    players[i].name = false
+                    for _, v in pairs(message_board[i]) do
+                        for j = 1, #message_board[i] do
+                            message_board[i][j] = gsub(message_board[i][j], "%%player_name%%", get_var(i, "$name"))
+                        end
+                    end
                 end
                 rprint(i, "|" .. alignment .. " " .. v)
             end
