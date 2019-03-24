@@ -55,8 +55,8 @@ local commands = {
     { ["heal3"] = { 'hp', "30", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
-	
-	-- Ammo can actually take an optional 3rd parameter: [weapon index(=0, 0-5)]. Set to 5 for all weapons. (value<space>[weapon index])
+
+    -- Ammo can actually take an optional 3rd parameter: [weapon index(=0, 0-5)]. Set to 5 for all weapons. (value<space>[weapon index])
     -- keyword | command | price | value | message | permission level
     { ["am1"] = { 'ammo', "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am2"] = { 'ammo', "10", "350 5", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
@@ -70,23 +70,21 @@ local commands = {
     { ["cam3"] = { 'camo', "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
 
     -- repeat the structure to add new entries:
-	-- keyword | command | price | value | message | permission level
+    -- keyword | command | price | value | message | permission level
     { ["keyword"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
 
-    
     -- Balance command (do not remove)
     { [1] = { "bal", "Upgrade Points: $%money%", -1 } },
 
 
-    
     -- MISC: -- command | price | message | permission level | enabled/disabled (set to true to enable)
     misc = { -- These commands are sapp commands that take ONE parameter (i.e, kill <player expression>)
-        { [1] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false}},
-        { [2] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false}},
-        { [3] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false}},
-        { [4] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false}},
-        { [5] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false}},
+        { [1] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false } },
+        { [2] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false } },
+        { [3] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false } },
+        { [4] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false } },
+        { [5] = { "sapp_command", "10", "Purchased (something) for $%price%. New balance: $%balance%", -1, false } },
     },
 
 
@@ -99,30 +97,30 @@ local commands = {
     -- Weapon Purchases:
     weapons = { -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
         -- bigass_aurora_1
-		{ ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true} },
-		-- snow drop
-        { ["brifle"] = { '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. New balance: $%balance%", -1, true} },
+        { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true } },
+        -- snow drop
+        { ["brifle"] = { '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. New balance: $%balance%", -1, true } },
 
-		-- [stock weapons]
-		{ ["pistol"] = { '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["sniper"] = { '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pcannon"] = { '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["rlauncher"] = { '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["ppistol"] = { '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["prifle"] = { '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["arifle"] = { '7', "weapons\\assault rifle\\assault rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["fthrower"] = { '7', "weapons\\flamethrower\\flamethrower", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["needler"] = { '5', "weapons\\needler\\mp_needler", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["shotgun"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },		
+        -- [stock weapons]
+        { ["pistol"] = { '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["sniper"] = { '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["pcannon"] = { '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["rlauncher"] = { '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["ppistol"] = { '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["prifle"] = { '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["arifle"] = { '7', "weapons\\assault rifle\\assault rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["fthrower"] = { '7', "weapons\\flamethrower\\flamethrower", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["needler"] = { '5', "weapons\\needler\\mp_needler", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
+        { ["shotgun"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
     },
 
 
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
-        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false} },
-        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, false} },
-		
-        { ["gren2"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, false} },
-        { ["gren3"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, false} },
+        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false } },
+        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, false } },
+
+        { ["gren2"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, false } },
+        { ["gren3"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, false } },
     },
 }
 
@@ -273,10 +271,10 @@ function OnScriptLoad()
             trigger[i] = nil
 
             run_combo_timer[i] = false
-            
+
             check_available_slots[i] = false
             give_weapon[i] = false
-            
+
             divide[i] = false
         end
     end
@@ -289,16 +287,16 @@ function OnScriptUnload()
     for i = 1, 16 do
         if player_present(i) then
             players[i] = nil
-            
+
             local hash = get_var(i, "$hash")
             ip_table[hash] = nil
-            
+
             run_combo_timer[i] = nil
             check_available_slots[i] = false
             give_weapon[i] = false
-            
+
             divide[i] = false
-            
+
             godmode[i] = nil
             trigger[i] = nil
         end
@@ -476,14 +474,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         p.subtract = bool
         money:update(p)
     end
-	
-	local function isEnabled(index)
-		if (index) then 
-			return true
-		else
-			rprint(executor, "Unable to execute. Command disabled.")
-		end
-	end
+
+    local function isEnabled(index)
+        if (index) then
+            return true
+        else
+            rprint(executor, "Unable to execute. Command disabled.")
+        end
+    end
 
     if (command == lower(upgrade_info_command)) then
         if (checkAccess(executor, upgrade_perm_lvl)) then
@@ -584,43 +582,43 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_TWO = true
-				if isEnabled(entry[5]) then
-					if player_alive(executor) then
-						local cost = entry[1]
-						local tag_id = entry[2]
-						local message = entry[3]
-						local lvl = entry[4]
-						if checkAccess(executor, lvl) then
-							if TagInfo("weap", tag_id) then
-								function delay_add()
-									if (give_weapon[executor]) then
-										give_weapon[executor] = false
-										local p = { }
-										p.ip, p.money, p.subtract = ip, cost, true
-										money:update(p)
-										local new_balance = money:getbalance(ip)
-										local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-										rprint(executor, strFormat)
-										local player_object = get_dynamic_player(executor)
-										local x, y, z = read_vector3d(player_object + 0x5C)
-										local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
-									end
-								end
-								local balance = money:getbalance(ip)
-								if (balance >= tonumber(cost)) then
-									check_available_slots[executor] = true
-									timer(100, "delay_add")
-								else
-									rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-								end
-							else
-								rprint(executor, "That doesn't command work on this map.")
-							end
-						end
-					else
-						rprint(executor, "Command failed. Please wait until you respawn.")
-					end
-				end
+                if isEnabled(entry[5]) then
+                    if player_alive(executor) then
+                        local cost = entry[1]
+                        local tag_id = entry[2]
+                        local message = entry[3]
+                        local lvl = entry[4]
+                        if checkAccess(executor, lvl) then
+                            if TagInfo("weap", tag_id) then
+                                function delay_add()
+                                    if (give_weapon[executor]) then
+                                        give_weapon[executor] = false
+                                        local p = { }
+                                        p.ip, p.money, p.subtract = ip, cost, true
+                                        money:update(p)
+                                        local new_balance = money:getbalance(ip)
+                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                        rprint(executor, strFormat)
+                                        local player_object = get_dynamic_player(executor)
+                                        local x, y, z = read_vector3d(player_object + 0x5C)
+                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                                    end
+                                end
+                                local balance = money:getbalance(ip)
+                                if (balance >= tonumber(cost)) then
+                                    check_available_slots[executor] = true
+                                    timer(100, "delay_add")
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
+                            else
+                                rprint(executor, "That doesn't command work on this map.")
+                            end
+                        end
+                    else
+                        rprint(executor, "Command failed. Please wait until you respawn.")
+                    end
+                end
                 return false
             end
         end
@@ -632,37 +630,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_THREE = true
-				if isEnabled(entry[7]) then
-					if player_alive(executor) then
-						local cost = entry[1]
-						local count = entry[2]
-						local type = entry[3]
-						local tag_id = entry[4]
-						local message = entry[5]
-						local lvl = entry[6]
-						if checkAccess(executor, lvl) then
-							if TagInfo("weap", tag_id) then
-								local balance = money:getbalance(ip)
-								if (balance >= tonumber(cost)) then
-									execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
-									local p = { }
-									p.ip = ip
-									p.money = cost
-									p.subtract = true
-									money:update(p)
-									local new_balance = money:getbalance(ip)
-									local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
-									rprint(executor, strFormat)
-								else
-									rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-								end
-							else
-								rprint(executor, "That doesn't command work on this map.")
-							end
-						end
-					else
-						rprint(executor, "Command failed. Please wait until you respawn.")
-					end
+                if isEnabled(entry[7]) then
+                    if player_alive(executor) then
+                        local cost = entry[1]
+                        local count = entry[2]
+                        local type = entry[3]
+                        local tag_id = entry[4]
+                        local message = entry[5]
+                        local lvl = entry[6]
+                        if checkAccess(executor, lvl) then
+                            if TagInfo("weap", tag_id) then
+                                local balance = money:getbalance(ip)
+                                if (balance >= tonumber(cost)) then
+                                    execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                                    local p = { }
+                                    p.ip = ip
+                                    p.money = cost
+                                    p.subtract = true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
+                                    rprint(executor, strFormat)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
+                            else
+                                rprint(executor, "That doesn't command work on this map.")
+                            end
+                        end
+                    else
+                        rprint(executor, "Command failed. Please wait until you respawn.")
+                    end
                 end
                 return false
             end
@@ -732,7 +730,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-   
+
     if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR and not TYPE_FIVE) then
         local tab = commands.misc
         for key, _ in ipairs(tab) do
@@ -939,7 +937,7 @@ function OnPlayerConnect(PlayerIndex)
     godmode[PlayerIndex] = false
     trigger[PlayerIndex] = false
 
-	-- /transfer split bool
+    -- /transfer split bool
     divide[PlayerIndex] = false
 
     check_available_slots[PlayerIndex] = false
@@ -1120,9 +1118,9 @@ function OnTick()
                     for j = 0, 3 do
                         weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
                         if (weapon ~= 0) then
-							if (j < 2) then
+                            if (j < 2) then
                                 give_weapon[i] = true
-							else
+                            else
                                 execute_command('wdel ' .. i .. ' 0')
                                 give_weapon[i] = true
                             end
