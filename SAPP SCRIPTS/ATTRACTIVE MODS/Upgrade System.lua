@@ -221,6 +221,7 @@ local stats = {
 
 -- Do not touch.
 local money, mod, ip_table = { }, { }, { }
+local game_over
 
 local players = { }
 local run_combo_timer = { }
@@ -230,7 +231,6 @@ local divide = { }
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
-
 local gsub, concat, floor, lower = string.gsub, table.concat, math.floor, string.lower
 
 function OnScriptLoad()
@@ -306,12 +306,14 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
+    game_over = false
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
 end
 
 function OnGameEnd()
+    game_over = true
     for i = 1, 16 do
         if player_present(i) then
             run_combo_timer[i] = nil
@@ -344,6 +346,16 @@ local function isOnline(t, e)
         else
             rprint(e, "Invalid player id. Please enter a number between 1-16")
         end
+    end
+end
+
+local function gameover(p)
+    if (game_over) then
+        return true
+    else
+        rprint(p, "Command Failed -> Game has Ended.")
+        rprint(p, "Please wait until the next game has started.")
+        return false
     end
 end
 
@@ -475,7 +487,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         money:update(p)
     end
 
-    local function isEnabled(index)
+    local function cmdEnabled(index)
         if (index) then
             return true
         else
@@ -484,54 +496,62 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if (command == lower(upgrade_info_command)) then
-        if (checkAccess(executor, upgrade_perm_lvl)) then
-            if (args[1] == nil) then
-                for k, _ in pairs(upgrade_info) do
-                    if (k) then
-                        rprint(executor, upgrade_info[k])
+        if not gameover(executor) then
+            if (checkAccess(executor, upgrade_perm_lvl)) then
+                if (args[1] == nil) then
+                    for k, _ in pairs(upgrade_info) do
+                        if (k) then
+                            rprint(executor, upgrade_info[k])
+                        end
                     end
+                else
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
-            else
-                rprint(executor, "Invalid Syntax. Usage: /" .. command)
             end
         end
         return false
     elseif (command == lower(add_command)) then
-        if (checkAccess(executor, add_perm_lvl)) then
-            if (args[1] ~= nil) and args[1]:match("%d+") then
-                AddRemove(false)
-                local balance = money:getbalance(ip)
-                rprint(executor, "Success! $" .. args[1] .. " has been added to your account. ")
-                rprint(executor, "New Balance: $" .. balance)
-            else
-                rprint(executor, "Invalid Syntax. Usage: /" .. command)
-            end
-            return false
-        end
-    elseif (command == lower(remove_command)) then
-        if (checkAccess(executor, remove_perm_lvl)) then
-            if (args[1] ~= nil) and args[1]:match("%d+") then
-                AddRemove(true)
-                local balance = money:getbalance(ip)
-                rprint(executor, "Success! $" .. args[1] .. " has been taken from your account. ")
-                rprint(executor, "New Balance: $" .. balance)
-            else
-                rprint(executor, "Invalid Syntax. Usage: /" .. command)
-            end
-            return false
-        end
-    elseif (command == lower(transfer_command)) then
-        if (checkAccess(executor, transfer_perm_lvl)) then
-            if (args[1] ~= nil) and (args[2] ~= nil) then
-                is_error = false
-                validate_params()
-                if not (target_all_players) then
-                    if not (is_error) and isOnline(TargetID, executor) then
-                        money:transfer(target_players)
-                    end
+        if not gameover(executor) then
+            if (checkAccess(executor, add_perm_lvl)) then
+                if (args[1] ~= nil) and args[1]:match("%d+") then
+                    AddRemove(false)
+                    local balance = money:getbalance(ip)
+                    rprint(executor, "Success! $" .. args[1] .. " has been added to your account. ")
+                    rprint(executor, "New Balance: $" .. balance)
+                else
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
-            else
-                rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount] (optional -s)")
+            end
+        end
+        return false
+    elseif (command == lower(remove_command)) then
+        if not gameover(executor) then
+            if (checkAccess(executor, remove_perm_lvl)) then
+                if (args[1] ~= nil) and args[1]:match("%d+") then
+                    AddRemove(true)
+                    local balance = money:getbalance(ip)
+                    rprint(executor, "Success! $" .. args[1] .. " has been taken from your account. ")
+                    rprint(executor, "New Balance: $" .. balance)
+                else
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                end
+            end
+        end
+        return false
+    elseif (command == lower(transfer_command)) then
+        if not gameover(executor) then
+            if (checkAccess(executor, transfer_perm_lvl)) then
+                if (args[1] ~= nil) and (args[2] ~= nil) then
+                    is_error = false
+                    validate_params()
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            money:transfer(target_players)
+                        end
+                    end
+                else
+                    rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount] (optional -s)")
+                end
             end
         end
         return false
@@ -543,34 +563,36 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         local cmd = commands[key][command]
         if (cmd ~= nil) then
             TYPE_ONE = true
-            local lvl = cmd[#cmd]
-            if player_alive(executor) then
-                if checkAccess(executor, lvl) then
-                    if (#cmd > 2) then
-                        if (args[1] == nil) then
-                            local balance = money:getbalance(ip)
-                            local cost = cmd[2]
-                            if (balance >= tonumber(cost)) then
-                                execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
-                                local p = { }
-                                p.ip = ip
-                                p.money = cost
-                                p.subtract = true
-                                money:update(p)
-                                local new_balance = money:getbalance(ip)
-                                local count = cmd[3]
-                                local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
-                                rprint(executor, strFormat)
+            if not gameover(executor) then
+                local lvl = cmd[#cmd]
+                if player_alive(executor) then
+                    if checkAccess(executor, lvl) then
+                        if (#cmd > 2) then
+                            if (args[1] == nil) then
+                                local balance = money:getbalance(ip)
+                                local cost = cmd[2]
+                                if (balance >= tonumber(cost)) then
+                                    execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                                    local p = { }
+                                    p.ip = ip
+                                    p.money = cost
+                                    p.subtract = true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local count = cmd[3]
+                                    local strFormat = gsub(gsub(gsub(cmd[4], "%%price%%", cmd[2]), "%%balance%%", new_balance), "%%count%%", count)
+                                    rprint(executor, strFormat)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+                                end
                             else
-                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cmd[2]))
+                                rprint(executor, "Invalid Syntax. Usage: /" .. command)
                             end
-                        else
-                            rprint(executor, "Invalid Syntax. Usage: /" .. command)
                         end
                     end
+                else
+                    rprint(executor, "Command failed. Please wait until you respawn.")
                 end
-            else
-                rprint(executor, "Command failed. Please wait until you respawn.")
             end
             return false
         end
@@ -582,41 +604,43 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_TWO = true
-                if isEnabled(entry[5]) then
-                    if player_alive(executor) then
-                        local cost = entry[1]
-                        local tag_id = entry[2]
-                        local message = entry[3]
-                        local lvl = entry[4]
-                        if checkAccess(executor, lvl) then
-                            if TagInfo("weap", tag_id) then
-                                function delay_add()
-                                    if (give_weapon[executor]) then
-                                        give_weapon[executor] = false
-                                        local p = { }
-                                        p.ip, p.money, p.subtract = ip, cost, true
-                                        money:update(p)
-                                        local new_balance = money:getbalance(ip)
-                                        local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                        rprint(executor, strFormat)
-                                        local player_object = get_dynamic_player(executor)
-                                        local x, y, z = read_vector3d(player_object + 0x5C)
-                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                if not gameover(executor) then
+                    if cmdEnabled(entry[5]) then
+                        if player_alive(executor) then
+                            local cost = entry[1]
+                            local tag_id = entry[2]
+                            local message = entry[3]
+                            local lvl = entry[4]
+                            if checkAccess(executor, lvl) then
+                                if TagInfo("weap", tag_id) then
+                                    function delay_add()
+                                        if (give_weapon[executor]) then
+                                            give_weapon[executor] = false
+                                            local p = { }
+                                            p.ip, p.money, p.subtract = ip, cost, true
+                                            money:update(p)
+                                            local new_balance = money:getbalance(ip)
+                                            local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                            rprint(executor, strFormat)
+                                            local player_object = get_dynamic_player(executor)
+                                            local x, y, z = read_vector3d(player_object + 0x5C)
+                                            local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                                        end
                                     end
-                                end
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    check_available_slots[executor] = true
-                                    timer(100, "delay_add")
+                                    local balance = money:getbalance(ip)
+                                    if (balance >= tonumber(cost)) then
+                                        check_available_slots[executor] = true
+                                        timer(100, "delay_add")
+                                    else
+                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    end
                                 else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    rprint(executor, "That doesn't command work on this map.")
                                 end
-                            else
-                                rprint(executor, "That doesn't command work on this map.")
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
@@ -630,36 +654,38 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_THREE = true
-                if isEnabled(entry[7]) then
-                    if player_alive(executor) then
-                        local cost = entry[1]
-                        local count = entry[2]
-                        local type = entry[3]
-                        local tag_id = entry[4]
-                        local message = entry[5]
-                        local lvl = entry[6]
-                        if checkAccess(executor, lvl) then
-                            if TagInfo("weap", tag_id) then
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
-                                    local p = { }
-                                    p.ip = ip
-                                    p.money = cost
-                                    p.subtract = true
-                                    money:update(p)
-                                    local new_balance = money:getbalance(ip)
-                                    local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
-                                    rprint(executor, strFormat)
+                if not gameover(executor) then
+                    if cmdEnabled(entry[7]) then
+                        if player_alive(executor) then
+                            local cost = entry[1]
+                            local count = entry[2]
+                            local type = entry[3]
+                            local tag_id = entry[4]
+                            local message = entry[5]
+                            local lvl = entry[6]
+                            if checkAccess(executor, lvl) then
+                                if TagInfo("weap", tag_id) then
+                                    local balance = money:getbalance(ip)
+                                    if (balance >= tonumber(cost)) then
+                                        execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                                        local p = { }
+                                        p.ip = ip
+                                        p.money = cost
+                                        p.subtract = true
+                                        money:update(p)
+                                        local new_balance = money:getbalance(ip)
+                                        local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
+                                        rprint(executor, strFormat)
+                                    else
+                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    end
                                 else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    rprint(executor, "That doesn't command work on this map.")
                                 end
-                            else
-                                rprint(executor, "That doesn't command work on this map.")
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
@@ -691,39 +717,41 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][1]
             if (entry ~= nil) and (command == entry[1]) then
                 TYPE_FIVE = true
-                if isEnabled(entry[6]) then
-                    if player_alive(executor) then
-                        if checkAccess(executor, entry[5]) then
-                            if not (godmode[executor]) then
-                                local balance = money:getbalance(ip)
-                                local cost = entry[2]
-                                if (balance >= tonumber(cost)) then
-                                    local duration = entry[3]
-                                    local message = entry[4]
+                if not gameover(executor) then
+                    if cmdEnabled(entry[6]) then
+                        if player_alive(executor) then
+                            if checkAccess(executor, entry[5]) then
+                                if not (godmode[executor]) then
+                                    local balance = money:getbalance(ip)
+                                    local cost = entry[2]
+                                    if (balance >= tonumber(cost)) then
+                                        local duration = entry[3]
+                                        local message = entry[4]
 
-                                    local p = { }
-                                    p.ip = ip
-                                    p.money = cost
-                                    p.subtract = true
-                                    money:update(p)
-                                    local new_balance = money:getbalance(ip)
+                                        local p = { }
+                                        p.ip = ip
+                                        p.money = cost
+                                        p.subtract = true
+                                        money:update(p)
+                                        local new_balance = money:getbalance(ip)
 
-                                    players[executor].god = 0
-                                    players[executor].god_duration = tonumber(duration)
-                                    godmode[executor] = true
-                                    trigger[executor] = true
+                                        players[executor].god = 0
+                                        players[executor].god_duration = tonumber(duration)
+                                        godmode[executor] = true
+                                        trigger[executor] = true
 
-                                    local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%seconds%%", duration)
-                                    rprint(executor, strFormat)
+                                        local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%seconds%%", duration)
+                                        rprint(executor, strFormat)
+                                    else
+                                        rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    end
                                 else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    rprint(executor, "You already have god mode!")
                                 end
-                            else
-                                rprint(executor, "You already have god mode!")
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
@@ -731,34 +759,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    -- sapp commands with ONE parameter 
     if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR and not TYPE_FIVE) then
         local tab = commands.misc
         for key, _ in ipairs(tab) do
             local entry = tab[key][1]
-            if (entry ~= nil) and (command == entry[1]) then
+            if (entry ~= nil) and (command == entry[1]) then 
                 TYPE_SIX = true
-                if isEnabled(entry[5]) then
-                    if player_alive(executor) then
-                        if checkAccess(executor, entry[4]) then
-                            local balance = money:getbalance(ip)
-                            local cost = entry[2]
-                            local message = entry[3]
-                            if (balance >= tonumber(cost)) then
-                                execute_command(entry[1] .. ' ' .. executor)
-                                local p = { }
-                                p.ip = ip
-                                p.money = cost
-                                p.subtract = true
-                                money:update(p)
-                                local new_balance = money:getbalance(ip)
-                                local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
-                                rprint(executor, strFormat)
-                            else
-                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                if not gameover(executor) then
+                    if cmdEnabled(entry[5]) then
+                        if player_alive(executor) then
+                            if checkAccess(executor, entry[4]) then
+                                local balance = money:getbalance(ip)
+                                local cost = entry[2]
+                                local message = entry[3]
+                                if (balance >= tonumber(cost)) then
+                                    execute_command(entry[1] .. ' ' .. executor)
+                                    local p = { }
+                                    p.ip = ip
+                                    p.money = cost
+                                    p.subtract = true
+                                    money:update(p)
+                                    local new_balance = money:getbalance(ip)
+                                    local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
