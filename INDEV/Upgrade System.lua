@@ -99,7 +99,7 @@ local commands = {
 
     grenades = { -- command | price | amount | type | tag id | message | permission level
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
-        { ["gren"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1 } },
+        { ["gren"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1 } },
     },
 }
 
