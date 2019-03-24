@@ -80,9 +80,9 @@ local commands = {
 
 
     
-    -- MISC: -- command | price | value | message | permission level | enabled/disabled (set to true to enable)
+    -- MISC: -- command | price | message | permission level | enabled/disabled (set to true to enable)
     misc = { -- These commands are sapp commands that take ONE parameter (i.e, kill <player expression>)
-        { [1] = { "sapp_command", "price", "value", "Purchased (something) for $%price%. New balance: $%balance%", permission_level_number, false}},
+        { [1] = { "sapp_command", "price", "Purchased (something) for $%price%. New balance: $%balance%", permission_level_number, false}},
     },
 
 
@@ -707,20 +707,22 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-    if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR) then
+   
+    if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR and not TYPE_FIVE) then
         local tab = commands.misc
         for key, _ in ipairs(tab) do
             local cmd = tab[key][1]
             if (cmd ~= nil) and (command == cmd[1]) then
                 TYPE_SIX = true
-                local is_enabled = cmd[6]
+                local is_enabled = cmd[5]
                 if (is_enabled) then
                     if player_alive(executor) then
                         if checkAccess(executor, cmd[5]) then
                             local balance = money:getbalance(ip)
                             local cost = cmd[2]
+                            local message = cmd[3]
                             if (balance >= tonumber(cost)) then
-                                execute_command(cmd[1] .. ' ' .. executor .. ' ' .. cmd[3])
+                                execute_command(cmd[1] .. ' ' .. executor)
                                 local p = { }
                                 p.ip = ip
                                 p.money = cost
