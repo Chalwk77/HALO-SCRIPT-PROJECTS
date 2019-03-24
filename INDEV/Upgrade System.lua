@@ -49,25 +49,28 @@ local transfer_perm_lvl = -1
 
 local commands = {
     -- These are sapp commands that take TWO parameters (i.e, hp <player expression> [health])
-    -- command | price | value | message | permission level
+    -- keyword | command | price | value | message | permission level
     { ["heal1"] = { 'hp', "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal2"] = { 'hp', "20", "2", "Purchased 200% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal3"] = { 'hp', "30", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal4"] = { 'hp', "40", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1 } },
     { ["heal5"] = { 'hp', "50", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1 } },
-
+	
 	-- Ammo can actually take an optional 3rd parameter: [weapon index(=0, 0-5)]. Set to 5 for all weapons. (value<space>[weapon index])
+    -- keyword | command | price | value | message | permission level
     { ["am1"] = { 'ammo', "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am2"] = { 'ammo', "10", "350 5", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am3"] = { 'ammo', "10", "500 5", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am4"] = { 'ammo', "10", "700 5", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
     { ["am5"] = { 'ammo', "10", "900 5", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1 } },
 
+    -- keyword | command | price | value | message | permission level
     { ["cam1"] = { 'camo', "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1 } },
     { ["cam2"] = { 'camo', "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
     { ["cam3"] = { 'camo', "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1 } },
 
     -- repeat the structure to add new entries:
+	-- keyword | command | price | value | message | permission level
     { ["keyword"] = { 'sapp_command', "price_to_execute", "value", "custom_message", permission_level_number } },
 
 
