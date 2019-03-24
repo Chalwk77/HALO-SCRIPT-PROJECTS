@@ -105,15 +105,15 @@ local commands = {
 
 		-- [stock weapons]
 		{ ["pistol"] = { '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '7', "weapons\\assault rifle\\assault rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '7', "weapons\\flamethrower\\flamethrower", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '5', "weapons\\needler\\mp_needler", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
-		{ ["pistol"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },		
+		{ ["sniper"] = { '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["pcannon"] = { '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["rlauncher"] = { '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["ppistol"] = { '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["prifle"] = { '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["arifle"] = { '7', "weapons\\assault rifle\\assault rifle", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["fthrower"] = { '7', "weapons\\flamethrower\\flamethrower", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["needler"] = { '5', "weapons\\needler\\mp_needler", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },
+		{ ["shotgun"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true} },		
     },
 
 
