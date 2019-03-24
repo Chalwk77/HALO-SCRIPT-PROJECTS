@@ -72,18 +72,16 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     for i = 1, 16 do
-        if player_present(i) then
-            messages:hide(p)
+        if player_present(i) and (players[i] ~= nil) then
+            messages:hide(i)
         end
     end
 end
 
 function OnNewGame()
     for i = 1, 16 do
-        if player_present(i) then
-            if player_present(i) then
-                messages:hide(p)
-            end
+        if player_present(i) and (players[i] ~= nil) then
+            messages:hide(i)
         end
     end
     local function read_widestring(address, length)
@@ -103,10 +101,8 @@ end
 
 function OnGameEnd()
     for i = 1, 16 do
-        if player_present(i) then
-            if player_present(i) then
-                messages:hide(p)
-            end
+        if player_present(i) and (players[i] ~= nil) then
+            messages:hide(i)
         end
     end
 end
