@@ -97,7 +97,7 @@ local commands = {
 
 
     -- Weapon Purchases:
-    weapons = { -- command | price | tag id | message | permission level
+    weapons = { -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
         -- bigass_aurora_1
 		{ ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true} },
 		-- snow drop
@@ -117,7 +117,7 @@ local commands = {
     },
 
 
-    grenades = { -- command | price | amount | type | tag id | message | permission level
+    grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false} },
         { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, false} },
 		
@@ -584,7 +584,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local entry = tab[key][command]
             if (entry ~= nil) then
                 TYPE_TWO = true
-				if isEnabled(entry[6]) then
+				if isEnabled(entry[5]) then
 					if player_alive(executor) then
 						local cost = entry[1]
 						local tag_id = entry[2]
@@ -594,7 +594,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 							if TagInfo("weap", tag_id) then
 								function delay_add()
 									if (give_weapon[executor]) then
-										execute_command('wdel ' .. executor .. ' 0')
 										give_weapon[executor] = false
 										local p = { }
 										p.ip, p.money, p.subtract = ip, cost, true
@@ -691,18 +690,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR) then
         local tab = commands.custom_god
         for key, _ in ipairs(tab) do
-            local cmd = tab[key][1]
-            if (cmd ~= nil) and (command == cmd[1]) then
+            local entry = tab[key][1]
+            if (entry ~= nil) and (command == entry[1]) then
                 TYPE_FIVE = true
-                if isEnabled(cmd[6]) then
+                if isEnabled(entry[6]) then
                     if player_alive(executor) then
-                        if checkAccess(executor, cmd[5]) then
+                        if checkAccess(executor, entry[5]) then
                             if not (godmode[executor]) then
                                 local balance = money:getbalance(ip)
-                                local cost = cmd[2]
+                                local cost = entry[2]
                                 if (balance >= tonumber(cost)) then
-                                    local duration = cmd[3]
-                                    local message = cmd[4]
+                                    local duration = entry[3]
+                                    local message = entry[4]
 
                                     local p = { }
                                     p.ip = ip
@@ -737,17 +736,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if not (TYPE_ONE and not TYPE_TWO and not TYPE_THREE and not TYPE_FOUR and not TYPE_FIVE) then
         local tab = commands.misc
         for key, _ in ipairs(tab) do
-            local cmd = tab[key][1]
-            if (cmd ~= nil) and (command == cmd[1]) then
+            local entry = tab[key][1]
+            if (entry ~= nil) and (command == entry[1]) then
                 TYPE_SIX = true
-                if isEnabled(cmd[5]) then
+                if isEnabled(entry[5]) then
                     if player_alive(executor) then
-                        if checkAccess(executor, cmd[4]) then
+                        if checkAccess(executor, entry[4]) then
                             local balance = money:getbalance(ip)
-                            local cost = cmd[2]
-                            local message = cmd[3]
+                            local cost = entry[2]
+                            local message = entry[3]
                             if (balance >= tonumber(cost)) then
-                                execute_command(cmd[1] .. ' ' .. executor)
+                                execute_command(entry[1] .. ' ' .. executor)
                                 local p = { }
                                 p.ip = ip
                                 p.money = cost
@@ -1114,6 +1113,7 @@ function OnTick()
                 end
             end
             if (check_available_slots[i]) then
+                check_available_slots[i] = false
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0) then
                     local weapon
@@ -1122,10 +1122,9 @@ function OnTick()
                         if (weapon ~= 0) then
 							if (j < 2) then
                                 give_weapon[i] = true
-                                check_available_slots[i] = false
 							else
+                                execute_command('wdel ' .. i .. ' 0')
                                 give_weapon[i] = true
-                                check_available_slots[i] = false
                             end
                         end
                     end
