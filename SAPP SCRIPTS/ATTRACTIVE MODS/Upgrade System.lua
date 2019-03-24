@@ -119,8 +119,8 @@ local commands = {
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false } },
         { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, false } },
 
-        { ["gren2"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, false } },
-        { ["gren3"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, false } },
+        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, false } },
+        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, false } },
     },
 }
 
@@ -251,22 +251,22 @@ function OnScriptLoad()
     checkFile()
     for i = 1, 16 do
         if player_present(i) then
+        
             local hash = get_var(i, "$hash")
-            if not ip_table[hash] then
-                ip_table[hash] = {}
-            end
+            ip_table[hash] = ip_table[hash] or { }
+            
             local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
+            
             players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
             players[i].kills = 0
             players[i].streaks = 0
             players[i].assists = 0
-
-            -- God Mode (custom command)
             players[i].god = 0
             players[i].god_duration = 0
+            
             godmode[i] = nil
             trigger[i] = nil
 
@@ -276,10 +276,12 @@ function OnScriptLoad()
             give_weapon[i] = false
 
             divide[i] = false
+            rprint(i, "UPGRADE SYSTEM RELOADED -> MONEY RESET.")
+            if not (save_money) then
+                money_table = { ["money"] = {} }
+                money_table["money"][ip] = { ["balance"] = starting_balance }
+            end
         end
-    end
-    if not (save_money) then
-        money_table = { ["money"] = {} }
     end
 end
 
@@ -304,7 +306,9 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    -- not currently used
+    if not (save_money) then
+        money_table = { ["money"] = {} }
+    end
 end
 
 function OnGameEnd()
@@ -902,14 +906,18 @@ function money:getbalance(player_ip)
             t[_] = nil
         end
     else
-        for key, _ in pairs(money_table["money"]) do
-            if (player_ip == key) then
-                if (money_table["money"][key].balance <= 0) then
-                    return 0
-                else
-                    return money_table["money"][key].balance
+        if next(money_table["money"]) then
+            for key, _ in pairs(money_table["money"]) do
+                if (player_ip == key) then
+                    if (money_table["money"][key].balance <= 0) then
+                        return 0
+                    else
+                        return money_table["money"][key].balance
+                    end
                 end
             end
+        else
+            return 0
         end
     end
 end
@@ -918,11 +926,8 @@ function OnPlayerConnect(PlayerIndex)
 
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
-
-    if not ip_table[hash] then
-        ip_table[hash] = {}
-    end
-    table.insert(ip_table[hash], { ["ip"] = ip })
+    ip_table[hash] = ip_table[hash] or {}
+    table.insert(ip_table[hash], {["ip"] = ip })
 
     players[PlayerIndex] = players[PlayerIndex] or { }
     players[PlayerIndex].combos = 0
