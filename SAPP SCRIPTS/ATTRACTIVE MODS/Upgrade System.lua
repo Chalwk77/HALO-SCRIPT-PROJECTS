@@ -321,10 +321,6 @@ function OnGameEnd()
             players[i] = nil
             godmode[i] = nil
             trigger[i] = nil
-            local ip = getIP(i)
-            if not (save_money) then
-                money_table["money"][ip] = { ["balance"] = starting_balance }
-            end
         end
     end
 end
