@@ -31,6 +31,7 @@ local duration = 10
 
 -- Message Alignment:
 local alignment = "l" -- Left = l,    Right = r,    Center = c,    Tab: t
+local message_board = { }
 
 local function set(PlayerIndex)
     
@@ -41,7 +42,7 @@ local function set(PlayerIndex)
     -- Use %player_name% variable to output the joining player's name.
     
     -- messages --
-    message_board = { } 
+    message_board[PlayerIndex] = { }
     message_board[PlayerIndex] = {
         "Welcome to %server_name%, %player_name%", 
         "Message Board created by Chalwk (Jericho Crosby)",
