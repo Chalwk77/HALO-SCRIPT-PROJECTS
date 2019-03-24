@@ -74,6 +74,7 @@ end
 
 function messages:hide(p)
     players[p] = nil
+    message_board[p] = nil
     cls(p)
 end
 
@@ -115,7 +116,6 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) and (players[i] ~= nil) then
             messages:hide(i)
-            message_board[i] = nil
         end
     end
 end
