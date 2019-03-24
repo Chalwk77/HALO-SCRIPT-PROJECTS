@@ -350,12 +350,10 @@ local function isOnline(t, e)
 end
 
 local function gameover(p)
-    if (game_over) then
-        return true
-    else
+    if (game_over) then     
         rprint(p, "Command Failed -> Game has Ended.")
         rprint(p, "Please wait until the next game has started.")
-        return false
+        return true
     end
 end
 
