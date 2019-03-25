@@ -54,8 +54,7 @@ local transfer_perm_lvl = -1
 local commands = {
     sapp = {
         {
-            -- Command Syntax: /heal [id]. (example, /heal 5, will give you 500% Health.)
-            ["heal"] = {
+            ["heal"] = { -- Command Syntax: /heal [id]. (example, /heal 5, will give you 500% Health.)
                 id = "hp", --<<---- do not touch
                 -- PRICE | HEALTH AMOUNT | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
                 [1] = { "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1, true },
@@ -65,8 +64,7 @@ local commands = {
                 [5] = { "30", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1, true },
             },
 
-            -- Command Syntax: /ammo [id]. (example, /am 5, will give you 900 Ammo All Weapons.)
-            ["am"] = {
+            ["am"] = { -- Command Syntax: /ammo [id]. (example, /am 5, will give you 900 Ammo All Weapons.)
                 id = "ammo", --<<---- do not touch
                 -- PRICE | AMMO AMOUNT + INDEX | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
                 [1] = { "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
@@ -76,13 +74,28 @@ local commands = {
                 [5] = { "30", "900 5", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
             },
 
-            -- Command Syntax: /cam [id]. (example, /cam 3, will give you 3 Minutes of Camo.)
-            ["cam"] = {
+            ["cam"] = { -- Command Syntax: /cam [id]. (example, /cam 3, will give you 3 Minutes of Camo.)
                 id = "camo", --<<---- do not touch
-                -- PRICE | HEALTH AMOUNT | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
+                -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
                 [1] = { "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1, true },
                 [2] = { "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1, true },
                 [3] = { "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1, true },
+            },
+        },
+    },
+    
+    -- CUSTOM GOD COMMAND
+    custom_god = {
+        {
+            ["mygod"] = {
+                id = "god", --<<---- do not touch
+                -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
+                [1] = { "100", "10", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [2] = { "150", "20", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [3] = { "250", "30", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [4] = { "300", "40", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [5] = { "350", "50", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [6] = { "350", "60", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
             },
         },
     },
@@ -107,21 +120,6 @@ local commands = {
         { ["shotgun"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
     },
 
-    -- CUSTOM GOD COMMAND
-    custom_god = {
-        {
-            ["mygod"] = {
-                id = "god", --<<---- do not touch
-                -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "100", "10", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "150", "20", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "250", "30", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "300", "40", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "350", "50", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [6] = { "350", "60", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-            },
-        },
-    },
 
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false } },
