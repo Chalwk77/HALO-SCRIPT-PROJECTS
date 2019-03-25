@@ -711,7 +711,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     -- SAPP COMMANDS
     local c = commands.custom_god
     for key, _ in ipairs(c) do
-        print("running")
         local cmd = c[key][command]
         if (cmd ~= nil) then
             if not gameover(executor) then
