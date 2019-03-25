@@ -41,15 +41,20 @@ local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
 
 -- Add money to your account
-local add_command = "add"
+local add_cmd = "add"
 local add_perm_lvl = 4
+local add_cmd_message = "$%money% has been added to your account. New Balance: $%balance%"
 
 -- Deduct money from your account
-local remove_command = "remove"
+local remove_cmd = "remove"
 local remove_perm_lvl = 4
+local remove_cmd_message = "$%money% has been remove from account. New Balance: $%balance%"
 
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
+
+local transfer_toSenderMsg = "You sent %receiver_name% $%amount%. New Balance: $%sender_balance%"
+local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $%receiver_balance%" 
 
 local commands = {
     sapp = {
@@ -526,28 +531,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    elseif (command == lower(add_command)) then
+    elseif (command == lower(add_cmd)) then
         if not gameover(executor) then
             if (checkAccess(executor, add_perm_lvl)) then
                 if (args[1] ~= nil) and args[1]:match("%d+") then
                     AddRemove(false)
                     local balance = money:getbalance(ip)
-                    rprint(executor, "Success! $" .. args[1] .. " has been added to your account. ")
-                    rprint(executor, "New Balance: $" .. balance)
+                    local strFormat = gsub(gsub(add_cmd_message, "%%money%%", args[1]), "%%balance%%", balance)
+                    rprint(executor, strFormat)
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
             end
         end
         return false
-    elseif (command == lower(remove_command)) then
+    elseif (command == lower(remove_cmd)) then
         if not gameover(executor) then
             if (checkAccess(executor, remove_perm_lvl)) then
                 if (args[1] ~= nil) and args[1]:match("%d+") then
                     AddRemove(true)
                     local balance = money:getbalance(ip)
-                    rprint(executor, "Success! $" .. args[1] .. " has been taken from your account")
-                    rprint(executor, "New Balance: $" .. balance)
+                    local strFormat = gsub(gsub(remove_cmd_message, "%%money%%", args[1]), "%%balance%%", balance)
+                    rprint(executor, strFormat)
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
@@ -838,8 +843,12 @@ function money:transfer(params)
 
     local eBal = money:getbalance(eip)
     local tBal = money:getbalance(tip)
-    rprint(tid, en .. " sent you $" .. amount .. ". New balance: $" .. tBal)
-    rprint(eid, "Sending $" .. amount .. " to " .. tn .. ". New balance: $" .. eBal)
+
+    local strFormat = gsub(gsub(gsub(message, "%%sender_name%%", en), "%%amount%%", amount), "%%receiver_balance%%", tBal)
+    rprint(tid, strFormat)
+    
+    local strFormat = gsub(gsub(gsub(message, "%%receiver_name%%", tn), "%%amount%%", amount), "%%sender_balance%%", eBal)
+    rprint(eid, strFormat)
 end
 
 function money:getbalance(player_ip)
