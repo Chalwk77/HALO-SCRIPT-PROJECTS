@@ -40,19 +40,21 @@ local balance_msg_format = "Upgrade Points: %money%"
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
 
--- Add money to your account
+-- Add money to your account (perm level to execute is 4 by default)
 local add_cmd = "add"
 local add_perm_lvl = 4
 local add_cmd_message = "$%money% has been added to your account. New Balance: $%balance%"
 
--- Deduct money from your account
+-- Deduct money from your account (perm level to execute is 4 by default)
 local remove_cmd = "remove"
 local remove_perm_lvl = 4
 local remove_cmd_message = "$%money% has been remove from account. New Balance: $%balance%"
 
+-- Transfer your funds to other players!
+-- Command syntax: /transfer [player id | */all] [amount] (optional -s)
+-- You can split the amount specified between the players specified by declaring the "-s" flag.
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
-
 local transfer_toSenderMsg = "You sent %receiver_name% $%amount%. New Balance: $%sender_balance%"
 local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $%receiver_balance%" 
 
