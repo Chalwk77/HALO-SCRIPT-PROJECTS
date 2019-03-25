@@ -61,9 +61,11 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 local weapon_list = "weapons"
 local weapon_list_perm = -1
 
-local max_columns, max_results = 5, 20
+local max_columns, max_results = 3, 10
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns
+local spaces = 2 -- Spaces between results
+local output_format = "/%command% | $%price%"
 
 local commands = {
     sapp = {
@@ -114,24 +116,24 @@ local commands = {
         },
     },
     
-    -- Weapon Purchases:
-    weapons = { -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
-        -- bigass_aurora_1
-        { ["gold"] = { '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true } },
-        -- snow drop
-        { ["brifle"] = { '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. New balance: $%balance%", -1, true } },
-
-        -- [stock weapons]
-        { ["pistol"] = { '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true } },
-        { ["sniper"] = { '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. New balance: $%balance%", -1, true } },
-        { ["pcannon"] = { '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for $%price%. New balance: $%balance%", -1, true } },
-        { ["rlauncher"] = { '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for $%price%. New balance: $%balance%", -1, true } },
-        { ["ppistol"] = { '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for $%price%. New balance: $%balance%", -1, true } },
-        { ["prifle"] = { '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for $%price%. New balance: $%balance%", -1, true } },
-        { ["arifle"] = { '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for $%price%. New balance: $%balance%", -1, true } },
-        { ["fthrower"] = { '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for $%price%. New balance: $%balance%", -1, true } },
-        { ["needler"] = { '5', "weapons\\needler\\mp_needler", "Purchased Needler for $%price%. New balance: $%balance%", -1, true } },
-        { ["shotgun"] = { '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for $%price%. New balance: $%balance%", -1, true } },
+    weapons = {
+        {
+            ["weapon_table"] = { 
+                -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
+                [1] = { "pistol", '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true },
+                [2] = { "sniper", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. New balance: $%balance%", -1, true },
+                [3] = { "pcannon", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for $%price%. New balance: $%balance%", -1, true },
+                [4] = { "rlauncher", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for $%price%. New balance: $%balance%", -1, true },
+                [5] = { "ppistol", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for $%price%. New balance: $%balance%", -1, true },
+                [6] = { "prifle", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for $%price%. New balance: $%balance%", -1, true },
+                [7] = { "arifle", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for $%price%. New balance: $%balance%", -1, true },
+                [8] = { "fthrower", '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for $%price%. New balance: $%balance%", -1, true },
+                [9] = { "needler", '5', "weapons\\needler\\mp_needler", "Purchased Needler for $%price%. New balance: $%balance%", -1, true },
+                [10] = { "shotgun", '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for $%price%. New balance: $%balance%", -1, true },
+                [11] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true },
+                [12] = { "brifle", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. New balance: $%balance%", -1, true },
+            },
+        }
     },
 
 
@@ -347,17 +349,53 @@ function OnGameStart()
     local original_StartIndex = startIndex
     
     local tab = commands.weapons
-    for key, _ in ipairs(tab) do
-        for k, _ in pairs(tab[key]) do
-            local cmd = tab[key][k][1]
-            local cost = tab[key][k][1]
-            local tag_id = tab[key][k][2]
-            local enabled = tab[key][k][5]
-            if (enabled) then 
-                if TagInfo("weap", tag_id) then
-                    results[#results + 1] = cmd .. " | $" .. cost
+    for key, _ in pairs(tab) do
+        local table_data = tab[key]["weapon_table"]
+        if (table_data) then
+            for k, _ in pairs(table_data) do
+                local cmd = table_data[k][1]
+                local cost = table_data[k][2]
+                local tag_id = table_data[k][3]
+                local enabled = table_data[k][6]
+                if (enabled) then 
+                    local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
+                    if TagInfo("weap", tag_id) then
+                        results[#results + 1] = response
+                    end
                 end
             end
+        end
+    end
+    
+    local spacing = ""
+    for i = 1, spaces do
+        spacing = spacing .. " "
+    end
+    
+    local function formatResults()
+        local t, row, content = {}
+        for _, v in pairs(results) do
+            content = stringSplit(v, ",")
+            for i = tonumber(startIndex), tonumber(endIndex) do
+                if (content[i]) then
+                    t[#t + 1] = content[i]
+                    row = concat(t, spacing)
+                end
+            end
+        end
+        
+        if row ~= nil then cprint(row) end
+        for _ in pairs(t) do t[_] = nil end
+        
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + max_columns)
+    end
+    while (endIndex < max_results) do
+        formatResults()
+        if (endIndex >= max_results) then
+            startIndex = original_StartIndex 
+            endIndex = original_endIndex 
+            break
         end
     end
 end
@@ -620,31 +658,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
-                    local function formatResults()
-                        local t, row, content = {}
-                        for _, v in pairs(results) do
-                            content = stringSplit(v, ",")
-                            for i = tonumber(startIndex), tonumber(endIndex) do
-                                if (content[i]) then
-                                    t[#t + 1] = content[i]
-                                    row = concat(t, ", ")
-                                end
-                            end
-                            
-                            if row ~= nil then rprint(executor, row) end
-                            for _ in pairs(t) do t[_] = nil end
-                        end
-                        startIndex = (endIndex + 1)
-                        endIndex = (endIndex + max_columns)
-                    end
-                    while (endIndex < max_results) do
-                        formatResults()
-                        if (endIndex >= max_results) then
-                            startIndex = original_StartIndex 
-                            endIndex = original_endIndex 
-                            break
-                        end
-                    end
+                    --===================================================================================--
+                    -- testing phase | OnGameStart()
+                    --===================================================================================--
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
@@ -696,30 +712,35 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     -- WEAPON COMMANDS
-    local t = commands.weapons
-    for key, _ in ipairs(t) do
-        local entry = t[key][command]
-        if (entry ~= nil) then
-            if not gameover(executor) then
-                if cmdEnabled(entry[5]) then
-                    if player_alive(executor) then
-                        local cost = entry[1]
-                        local tag_id = entry[2]
-                        local message = entry[3]
-                        local lvl = entry[4]
-                        if checkAccess(executor, lvl) then
-                            if TagInfo("weap", tag_id) then
+    local tab = commands.weapons
+    for key, _ in pairs(tab) do
+        local table_data = tab[key]["weapon_table"]
+        if (table_data) then
+            for k, _ in pairs(table_data) do
+                local cmd = table_data[k][1]
+                if (command == cmd) then
+                    local enabled = table_data[k][6]
+                    if cmdEnabled(table_data[k][6]) then
+                        if player_alive(executor) then
+                            local lvl = table_data[k][5]
+                            if checkAccess(executor, lvl) then
+                                local cost = table_data[k][2]
                                 function delay_add()
                                     if (give_weapon[executor]) then
                                         give_weapon[executor] = false
+                                        
                                         local p = { }
                                         p.ip, p.money, p.subtract = ip, cost, true
                                         money:update(p)
+                                        
                                         local new_balance = money:getbalance(ip)
+                                        local message = table_data[k][4]
                                         local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
                                         rprint(executor, strFormat)
+                                        
                                         local player_object = get_dynamic_player(executor)
                                         local x, y, z = read_vector3d(player_object + 0x5C)
+                                        local tag_id = table_data[k][3]
                                         local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
                                     end
                                 end
@@ -730,16 +751,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 else
                                     rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                 end
-                            else
-                                rprint(executor, "That doesn't command work on this map.")
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
             end
-            return false
         end
     end
 
