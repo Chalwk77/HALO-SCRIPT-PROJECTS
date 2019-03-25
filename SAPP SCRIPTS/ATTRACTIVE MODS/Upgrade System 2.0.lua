@@ -844,10 +844,10 @@ function money:transfer(params)
     local eBal = money:getbalance(eip)
     local tBal = money:getbalance(tip)
 
-    local strFormat = gsub(gsub(gsub(message, "%%sender_name%%", en), "%%amount%%", amount), "%%receiver_balance%%", tBal)
+    local strFormat = gsub(gsub(gsub(transfer_toReceiverMsg, "%%sender_name%%", en), "%%amount%%", amount), "%%receiver_balance%%", tBal)
     rprint(tid, strFormat)
     
-    local strFormat = gsub(gsub(gsub(message, "%%receiver_name%%", tn), "%%amount%%", amount), "%%sender_balance%%", eBal)
+    local strFormat = gsub(gsub(gsub(transfer_toSenderMsg, "%%receiver_name%%", tn), "%%amount%%", amount), "%%sender_balance%%", eBal)
     rprint(eid, strFormat)
 end
 
