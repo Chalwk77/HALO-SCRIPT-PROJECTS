@@ -54,6 +54,7 @@ local transfer_perm_lvl = -1
 local commands = {
     sapp = {
         {
+            -- Command Syntax: /heal [id]. (example, /heal 5, will give you 500% Health.)
             ["heal"] = {
                 id = "hp", --<<---- do not touch
                 -- PRICE | HEALTH AMOUNT | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
@@ -64,7 +65,8 @@ local commands = {
                 [5] = { "30", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1, true },
             },
 
-            ["ammo"] = {
+            -- Command Syntax: /ammo [id]. (example, /am 5, will give you 900 Ammo All Weapons.)
+            ["am"] = {
                 id = "ammo", --<<---- do not touch
                 -- PRICE | AMMO AMOUNT + INDEX | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
                 [1] = { "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
@@ -74,7 +76,8 @@ local commands = {
                 [5] = { "30", "900 5", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
             },
 
-            ["camo"] = {
+            -- Command Syntax: /cam [id]. (example, /cam 3, will give you 3 Minutes of Camo.)
+            ["cam"] = {
                 id = "camo", --<<---- do not touch
                 -- PRICE | HEALTH AMOUNT | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
                 [1] = { "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1, true },
