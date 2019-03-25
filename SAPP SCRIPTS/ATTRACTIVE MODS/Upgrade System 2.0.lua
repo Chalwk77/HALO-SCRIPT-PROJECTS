@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System 2.0, for SAPP (PC & CE)
+Script Name: Upgrade System, for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills & Assists
@@ -56,7 +56,14 @@ local remove_cmd_message = "$%money% has been remove from account. New Balance: 
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
 local transfer_toSenderMsg = "You sent %receiver_name% $%amount%. New Balance: $%sender_balance%"
-local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $%receiver_balance%" 
+local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $%receiver_balance%"
+
+local weapon_list = "weapons"
+local weapon_list_perm = -1
+
+local max_columns, max_results = 5, 20
+local startIndex = 1 -- <<--- do not touch
+local endIndex = max_columns
 
 local commands = {
     sapp = {
@@ -129,11 +136,11 @@ local commands = {
 
 
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
-        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, false } },
-        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, false } },
+        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, true } },
+        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, true } },
 
-        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, false } },
-        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, false } },
+        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, true } },
+        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, true } },
     },
 }
 
@@ -144,15 +151,15 @@ local upgrade_info = {
     " ",
     "|cCommand | Upgrade | Cost",
     " ",
-    "|c/heal1 | Health 100% | 10          /am1 | 200 Ammo All Weapons | 10",
-    "|c/heal2 | Health 200% | 20          /am2 | 350 Ammo All Weapons | 20",
-    "|c/heal3 | Health 300% | 30          /am3 | 500 Ammo All Weapons | 30",
-    "|c/heal4 | Health 400% | 40          /am4 | 700 Ammo All Weapons | 40",
-    "|c/heal5 | Health 500% | 50          /am5 | 900 Ammo All Weapons | 50",
+    "|c/heal 1 | Health 100% | 10        /am 1 | 200 Ammo All Weapons | 10",
+    "|c/heal 2 | Health 200% | 20        /am 2 | 350 Ammo All Weapons | 20",
+    "|c/heal 3 | Health 300% | 30        /am 3 | 500 Ammo All Weapons | 30",
+    "|c/heal 4 | Health 400% | 40        /am 4 | 700 Ammo All Weapons | 40",
+    "|c/heal 5 | Health 500% | 50        /am 5 | 900 Ammo All Weapons | 50",
     " ",
-    "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
-    "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
-    "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
+    "|c/cam 1 | 1 Min Camo | 30          /mine | 2 Mines | 15",
+    "|c/cam 2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
+    "|c/cam 3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
     " ",
     " ",
     "|c*Type /bal to view how many Upgrade Points you currently have*",
@@ -241,6 +248,7 @@ local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
+local results = { }
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
@@ -318,10 +326,39 @@ function OnScriptUnload()
     end
 end
 
+local function stringSplit(inp, sep)
+    if (sep == nil) then 
+        sep = "%s" 
+    end
+    local t, i = {}, 1
+    for str in string.gmatch(inp, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
+end
+
 function OnGameStart()
     game_over = false
     if not (save_money) then
         money_table = { ["money"] = {} }
+    end
+    local original_endIndex = endIndex
+    local original_StartIndex = startIndex
+    
+    local tab = commands.weapons
+    for key, _ in ipairs(tab) do
+        for k, _ in pairs(tab[key]) do
+            local cmd = tab[key][k][1]
+            local cost = tab[key][k][1]
+            local tag_id = tab[key][k][2]
+            local enabled = tab[key][k][5]
+            if (enabled) then 
+                if TagInfo("weap", tag_id) then
+                    results[#results + 1] = cmd .. " | $" .. cost
+                end
+            end
+        end
     end
 end
 
@@ -574,6 +611,42 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 else
                     rprint(executor, "Invalid syntax. Usage: /" .. transfer_command .. " [player id] [amount] (optional -s)")
+                end
+            end
+        end
+        return false
+    elseif (command == lower(weapon_list)) then
+        if not gameover(executor) then
+            if (checkAccess(executor, weapon_list_perm)) then
+                if (args[1] == nil) then
+                    rprint(executor, "AVAILABLE COMMANDS:")
+                    local function formatResults()
+                        local t, row, content = {}
+                        for _, v in pairs(results) do
+                            content = stringSplit(v, ",")
+                            for i = tonumber(startIndex), tonumber(endIndex) do
+                                if (content[i]) then
+                                    t[#t + 1] = content[i]
+                                    row = concat(t, ", ")
+                                end
+                            end
+                            
+                            if row ~= nil then rprint(executor, row) end
+                            for _ in pairs(t) do t[_] = nil end
+                        end
+                        startIndex = (endIndex + 1)
+                        endIndex = (endIndex + max_columns)
+                    end
+                    while (endIndex < max_results) do
+                        formatResults()
+                        if (endIndex >= max_results) then
+                            startIndex = original_StartIndex 
+                            endIndex = original_endIndex 
+                            break
+                        end
+                    end
+                else
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
             end
         end
@@ -852,19 +925,6 @@ end
 function money:getbalance(player_ip)
 
     if (save_money) then
-        local function stringSplit(inputString, Separator)
-            if (Separator == nil) then
-                Separator = "%s"
-            end
-            local t = {};
-            local i = 1
-            for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
-                t[i] = str
-                i = i + 1
-            end
-            return t
-        end
-
         local data, balance
         local lines = lines_from(dir)
         for _, v in pairs(lines) do
