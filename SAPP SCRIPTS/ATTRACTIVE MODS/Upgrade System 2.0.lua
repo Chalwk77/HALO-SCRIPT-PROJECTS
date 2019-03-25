@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System, for SAPP (PC & CE)
+Script Name: Upgrade System 2.0, for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills & Assists
@@ -97,12 +97,12 @@ local commands = {
             ["god2"] = { -- Command Syntax: /god2 [id]. (example, /god2 6, will give you 1 minute of god).
                 id = "god", --<<---- do not touch
                 -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "100", "10", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "150", "20", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "250", "30", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "300", "40", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "350", "50", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [6] = { "350", "60", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [1] = { "5", "10", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [2] = { "10", "20", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [3] = { "15", "30", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [4] = { "20", "40", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [5] = { "25", "50", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [6] = { "30", "60", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
             },
         },
     },
@@ -542,7 +542,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local strFormat = gsub(gsub(add_cmd_message, "%%money%%", args[1]), "%%balance%%", balance)
                     rprint(executor, strFormat)
                 else
-                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command .. " [amount]")
                 end
             end
         end
@@ -556,7 +556,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local strFormat = gsub(gsub(remove_cmd_message, "%%money%%", args[1]), "%%balance%%", balance)
                     rprint(executor, strFormat)
                 else
-                    rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                    rprint(executor, "Invalid Syntax. Usage: /" .. command .. " [amount]")
                 end
             end
         end
@@ -690,9 +690,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if (balance >= tonumber(cost)) then
                                     execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
                                     local p = { }
-                                    p.ip = ip
-                                    p.money = cost
-                                    p.subtract = true
+                                    p.ip, p.money, p.subtract = ip, cost, true
                                     money:update(p)
                                     local new_balance = money:getbalance(ip)
                                     local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
@@ -730,9 +728,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local sapp_command = cmd.id
                         if (enabled) then
                             local p = { }
-                            p.ip = ip
-                            p.money = cost
-                            p.subtract = true
+                            p.ip, p.money, p.subtract = ip, cost, true
                             money:update(p)
                             local new_balance = money:getbalance(ip)
                             players[executor].god = 0
