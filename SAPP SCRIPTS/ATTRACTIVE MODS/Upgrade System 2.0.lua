@@ -647,7 +647,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     -- to do: 
                                     -- [bug fix needed here]
                                     
-                                    -- table (t) is storing everything in table (results) instead of 
+                                    -- table (t) is storing everything from table (results) instead of 
                                     -- index specified data
                                 
                                     t[#t + 1] = content[i]
