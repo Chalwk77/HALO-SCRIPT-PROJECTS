@@ -305,6 +305,11 @@ function OnScriptLoad()
             end
         end
     end
+    if next(results) then
+        for _ in pairs(results) do
+            results[_] = nil
+        end
+    end
 end
 
 function OnScriptUnload()
@@ -389,6 +394,9 @@ function OnGameEnd()
             godmode[i] = nil
             trigger[i] = nil
         end
+    end
+    for _ in pairs(results) do
+        results[_] = nil
     end
 end
 
