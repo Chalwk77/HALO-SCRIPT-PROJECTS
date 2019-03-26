@@ -60,11 +60,12 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-
-local max_columns, max_results = 3, 10
+local max_columns, max_results = 5, 15
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns
 local spaces = 2 -- Spaces between results
+
+
 local output_format = "/%command% | $%price%"
 
 local commands = {
@@ -340,6 +341,14 @@ local function stringSplit(inp, sep)
     return t
 end
 
+local function spacing(n)
+    local spacing = ""
+    for i = 1, spaces do
+        spacing = spacing .. " "
+    end
+    return spacing
+end
+
 function OnGameStart()
     game_over = false
     if not (save_money) then
@@ -361,17 +370,14 @@ function OnGameStart()
                     local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
                     if TagInfo("weap", tag_id) then
                         results[#results + 1] = response
+                    else
+                        cprint("Map Doesn't support: " .. tag_id, 4+8)
                     end
                 end
             end
         end
     end
-    
-    local spacing = ""
-    for i = 1, spaces do
-        spacing = spacing .. " "
-    end
-    
+
     local function formatResults()
         local t, row, content = {}
         for _, v in pairs(results) do
@@ -379,24 +385,18 @@ function OnGameStart()
             for i = tonumber(startIndex), tonumber(endIndex) do
                 if (content[i]) then
                     t[#t + 1] = content[i]
-                    row = concat(t, spacing)
+                    row = concat(t, spacing(spaces))
                 end
             end
         end
         
         if row ~= nil then cprint(row) end
         for _ in pairs(t) do t[_] = nil end
-        
         startIndex = (endIndex + 1)
-        endIndex = (endIndex + max_columns)
+        endIndex = (endIndex + (max_columns))
     end
     while (endIndex < max_results) do
         formatResults()
-        if (endIndex >= max_results) then
-            startIndex = original_StartIndex 
-            endIndex = original_endIndex 
-            break
-        end
     end
 end
 
