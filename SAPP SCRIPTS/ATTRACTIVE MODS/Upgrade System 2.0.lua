@@ -370,33 +370,10 @@ function OnGameStart()
                     local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
                     if TagInfo("weap", tag_id) then
                         results[#results + 1] = response
-                    else
-                        cprint("Map Doesn't support: " .. tag_id, 4+8)
                     end
                 end
             end
         end
-    end
-
-    local function formatResults()
-        local t, row, content = {}
-        for _, v in pairs(results) do
-            content = stringSplit(v, ",")
-            for i = tonumber(startIndex), tonumber(endIndex) do
-                if (content[i]) then
-                    t[#t + 1] = content[i]
-                    row = concat(t, spacing(spaces))
-                end
-            end
-        end
-        
-        if row ~= nil then cprint(row) end
-        for _ in pairs(t) do t[_] = nil end
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
-    end
-    while (endIndex < max_results) do
-        formatResults()
     end
 end
 
@@ -658,9 +635,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
-                    --===================================================================================--
-                    -- testing phase | OnGameStart()
-                    --===================================================================================--
+                    local function formatResults()
+                        local content = { }
+                        local t, row = { }
+                        for _, v in pairs(results) do
+                            content = stringSplit(v, ",")
+                            for i = tonumber(startIndex), tonumber(endIndex) do
+                                if (content[i]) then
+                                    t[#t + 1] = content[i]
+                                    row = concat(t, spacing(spaces))
+                                end
+                            end
+                        end
+                        
+                        if (row ~= nil) then rprint(executor, row) end
+                        for _ in pairs(t) do t[_] = nil end
+                        
+                        startIndex = (endIndex + 1)
+                        endIndex = (endIndex + (max_columns))
+                    end
+                    while (endIndex < max_results) do
+                        formatResults()
+                    end
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
