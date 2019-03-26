@@ -20,7 +20,7 @@ api_version = "1.12.0.0"
 -- Configuration [starts]
 
 -- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
-local save_money = true
+local save_money = false
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
 
