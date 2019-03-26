@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]] --
 
 api_version = "1.12.0.0"
-
+local script_version = "1.25"
 -- Configuration [starts]
 
 -- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
@@ -1378,6 +1378,7 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
