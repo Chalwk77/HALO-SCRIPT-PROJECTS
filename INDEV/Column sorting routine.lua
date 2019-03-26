@@ -3,24 +3,18 @@
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-
-
-local input = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"}
-local max_columns, max_results = 5, #input
+local input = {"1", "2", "3", "4", "5", "6"} -- example input data
+local max_columns, max_results = 4, #input
 local startIndex = 1
 local endIndex = max_columns
 local spaces = 3
-
 -- Configuration [ends].
 
 local data, concat, gmatch  = { }, table.concat, string.gmatch
+local weapons_table = { }
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-end
-
-function OnGameStart()
-    data:align(input)
 end
 
 local function stringSplit(inp, sep)
@@ -35,6 +29,14 @@ local function stringSplit(inp, sep)
     return t
 end
 
+function OnGameStart()
+    for k, v in pairs(input) do
+        content = stringSplit(v, ",")
+        weapons_table[#weapons_table + 1] = content
+    end
+    data:align(input)
+end
+
 local function spacing(n)
     local spacing = ""
     for i = 1, n do
@@ -43,22 +45,15 @@ local function spacing(n)
     return spacing
 end
 
-function data:align(tab)
+function data:align(table)
     local initialStartIndex = tonumber(startIndex)
     local proceed, finished = true
     local function formatResults()
-        local t, row, content, done = {}
-        
-        for k, v in pairs(tab) do
-            content = stringSplit(v, ",")
-            t[#t + 1] = content
-        end
-        
-        local placeholder = { }
+        local placeholder, row = { }
         
         for i = tonumber(startIndex), tonumber(endIndex) do
-            if t[i] then
-                placeholder[#placeholder + 1] = t[i][1]
+            if table[i] then
+                placeholder[#placeholder + 1] = table[i]
                 row = concat(placeholder, spacing(spaces))
             end
         end
@@ -67,25 +62,21 @@ function data:align(tab)
             cprint(row)
         end
 
-        for a in pairs(t) do t[a] = nil end
-        for b in pairs(placeholder) do placeholder[b] = nil end
-        
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
-
         if (startIndex == max_results + 1) then
             proceed, finished = false, true
         end
+
+        for b in pairs(placeholder) do placeholder[b] = nil end
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + (max_columns))
     end
     
     if (proceed) and not (finished) then
-        for i = tonumber(startIndex), tonumber(endIndex) do
+        while (endIndex < max_results + max_columns) do
             formatResults()
         end
-        -- while (endIndex <= max_results) do
-            -- formatResults()
-        -- end
     end
+    
     if (finished) and not (proceed) then
         startIndex = initialStartIndex
         endIndex = max_columns
