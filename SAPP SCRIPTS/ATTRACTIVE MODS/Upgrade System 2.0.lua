@@ -63,7 +63,7 @@ local weapon_list_perm = -1
 local max_columns, max_results = 5, 25
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
-local spaces = 2 -- Spaces between results
+local spaces = 3 -- Spaces between results
 local output_format = "/%command% | $%price%"
 
 local commands = {
@@ -249,6 +249,7 @@ local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
 local results = { }
+local original_StartIndex
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
@@ -309,6 +310,7 @@ function OnScriptLoad()
             results[_] = nil
         end
     end
+    resetResults()
 end
 
 function OnScriptUnload()
@@ -356,9 +358,12 @@ function OnGameStart()
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
+    resetResults()
+end
 
+function resetResults()
     -- Do not touch
-    local original_StartIndex = tonumber(startIndex)
+    original_StartIndex = tonumber(startIndex)
     local tab = commands.weapons
     for key, _ in pairs(tab) do
         local table_data = tab[key]["weapon_table"]
@@ -643,7 +648,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     --================================================================--
                     --================================================================--
                     if (endIndex >= max_results) then
-                        startIndex = 1
+                        startIndex = original_StartIndex
                         endIndex = max_columns
                     end
                     local function formatResults()
