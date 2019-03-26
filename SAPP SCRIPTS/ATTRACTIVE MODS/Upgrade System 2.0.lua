@@ -404,8 +404,13 @@ function data:align(player, tab)
             proceed, finished = false, true
         end
     end
+    -- if (proceed) and not (finished) then
+        -- while (endIndex <= max_results) do
+            -- formatResults()
+        -- end
+    -- end
     if (proceed) and not (finished) then
-        while (endIndex <= max_results) do
+        for i = tonumber(startIndex), tonumber(endIndex) do
             formatResults()
         end
     end
