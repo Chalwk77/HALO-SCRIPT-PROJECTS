@@ -60,10 +60,10 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 5, 15
+local max_columns, max_results = 2, 15
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
-local spaces = 2 -- Spaces between results
+local spaces = 0 -- Spaces between results
 
 
 local output_format = "/%command% | $%price%"
@@ -354,9 +354,10 @@ function OnGameStart()
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
+    
+    -- Do not touch
     local original_endIndex = endIndex
     local original_StartIndex = startIndex
-    
     local tab = commands.weapons
     for key, _ in pairs(tab) do
         local table_data = tab[key]["weapon_table"]
@@ -375,6 +376,7 @@ function OnGameStart()
             end
         end
     end
+    --
 end
 
 function OnGameEnd()
@@ -636,9 +638,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
                     local function formatResults()
-                        local t = {}
-                        local row, content, data
-
+                        local t, row, content = {}
+                        
                         for _, v in pairs(results) do
                             content = stringSplit(v, ",")
                             for i = tonumber(startIndex), tonumber(endIndex) do
@@ -650,10 +651,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                         
                         if (row ~= nil) then rprint(executor, row) end
-                        for _ in pairs(t) do t[_] = nil end
+                        for k in pairs(t) do t[k] = nil end
                         
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
+                        
                     end
                     while (endIndex < max_results) do
                         formatResults()
