@@ -98,7 +98,7 @@ local commands = {
             },
         },
     },
-    
+
     -- CUSTOM GOD COMMAND
     custom_god = {
         {
@@ -114,10 +114,10 @@ local commands = {
             },
         },
     },
-    
+
     weapons = {
         {
-            ["weapon_table"] = { 
+            ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 [1] = { "pistol", '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true },
                 [2] = { "sniper", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. New balance: $%balance%", -1, true },
@@ -333,8 +333,8 @@ function OnScriptUnload()
 end
 
 local function stringSplit(inp, sep)
-    if (sep == nil) then 
-        sep = "%s" 
+    if (sep == nil) then
+        sep = "%s"
     end
     local t, i = {}, 1
     for str in string.gmatch(inp, "([^" .. sep .. "]+)") do
@@ -357,7 +357,7 @@ function OnGameStart()
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
-    
+
     -- Do not touch
     local original_endIndex = endIndex
     local original_StartIndex = startIndex
@@ -370,7 +370,7 @@ function OnGameStart()
                 local cost = table_data[k][2]
                 local tag_id = table_data[k][3]
                 local enabled = table_data[k][6]
-                if (enabled) then 
+                if (enabled) then
                     local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
                     if TagInfo("weap", tag_id) then
                         results[#results + 1] = response
@@ -643,10 +643,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
                     --================================================================--
+                    --================================================================--
                     local function formatResults()
                         local temp = { }
                         local t, row, content, done = {}
-                        
+
                         for k, v in pairs(results) do
                             content = stringSplit(v, ",")
                             t[#t + 1] = content
@@ -659,11 +660,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
 
-                        if (row ~= nil) then 
-                            rprint(executor, row, 5+8)
+                        if (row ~= nil) then
+                            rprint(executor, row, 5 + 8)
                         end
 
-                        for _ in pairs(t) do t[_] = nil end
+                        for _ in pairs(t) do
+                            t[_] = nil
+                        end
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
                     end
@@ -671,6 +674,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     while (endIndex < max_results) do
                         formatResults()
                     end
+                    --================================================================--
                     --================================================================--
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
@@ -739,16 +743,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 function delay_add()
                                     if (give_weapon[executor]) then
                                         give_weapon[executor] = false
-                                        
+
                                         local p = { }
                                         p.ip, p.money, p.subtract = ip, cost, true
                                         money:update(p)
-                                        
+
                                         local new_balance = money:getbalance(ip)
                                         local message = table_data[k][4]
                                         local strFormat = gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance)
                                         rprint(executor, strFormat)
-                                        
+
                                         local player_object = get_dynamic_player(executor)
                                         local x, y, z = read_vector3d(player_object + 0x5C)
                                         local tag_id = table_data[k][3]
@@ -946,7 +950,7 @@ function money:transfer(params)
 
     local strFormat = gsub(gsub(gsub(transfer_toReceiverMsg, "%%sender_name%%", en), "%%amount%%", amount), "%%receiver_balance%%", tBal)
     rprint(tid, strFormat)
-    
+
     local strFormat = gsub(gsub(gsub(transfer_toSenderMsg, "%%receiver_name%%", tn), "%%amount%%", amount), "%%sender_balance%%", eBal)
     rprint(eid, strFormat)
 end
