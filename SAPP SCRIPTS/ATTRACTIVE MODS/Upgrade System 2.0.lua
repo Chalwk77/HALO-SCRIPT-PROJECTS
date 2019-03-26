@@ -359,8 +359,7 @@ function OnGameStart()
     end
 
     -- Do not touch
-    local original_endIndex = endIndex
-    local original_StartIndex = startIndex
+    local original_StartIndex = tonumber(startIndex)
     local tab = commands.weapons
     for key, _ in pairs(tab) do
         local table_data = tab[key]["weapon_table"]
@@ -644,7 +643,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(executor, "AVAILABLE COMMANDS:")
                     --================================================================--
                     --================================================================--
+                    if (endIndex >= max_results) then
+                        startIndex = 1
+                        endIndex = max_columns
+                    end
                     local function formatResults()
+                    
                         local temp = { }
                         local t, row, content, done = {}
 
