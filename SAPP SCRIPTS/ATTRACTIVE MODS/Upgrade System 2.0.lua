@@ -60,12 +60,10 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 2, 15
+local max_columns, max_results = 5, 15
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
 local spaces = 0 -- Spaces between results
-
-
 local output_format = "/%command% | $%price%"
 
 local commands = {
@@ -639,23 +637,37 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(executor, "AVAILABLE COMMANDS:")
                     local function formatResults()
                         local t, row, content = {}
+                        local done
                         
                         for _, v in pairs(results) do
                             content = stringSplit(v, ",")
                             for i = tonumber(startIndex), tonumber(endIndex) do
                                 if (content[i]) then
+                                
+                                    -- to do: 
+                                    -- [bug fix needed here]
+                                    
+                                    -- table (t) is storing everything in table (results) instead of 
+                                    -- index specified data
+                                
                                     t[#t + 1] = content[i]
                                     row = concat(t, spacing(spaces))
+                                    done = true
                                 end
                             end
                         end
                         
-                        if (row ~= nil) then rprint(executor, row) end
-                        for k in pairs(t) do t[k] = nil end
+                        if (row ~= nil) then 
+                            rprint(executor, row) 
+                        end
+                        t = nil
                         
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
-                        
+                        if (endIndex == max_results) then
+                            startIndex = original_StartIndex
+                            endIndex = max_columns
+                        end
                     end
                     while (endIndex < max_results) do
                         formatResults()
