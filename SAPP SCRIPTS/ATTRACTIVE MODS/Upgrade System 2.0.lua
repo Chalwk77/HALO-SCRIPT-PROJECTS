@@ -60,7 +60,7 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 5, 15
+local max_columns, max_results = 5, 25
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
 local spaces = 2 -- Spaces between results
