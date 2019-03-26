@@ -135,7 +135,6 @@ local commands = {
         }
     },
 
-
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, true } },
         { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, true } },
@@ -775,6 +774,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             rprint(executor, "Command failed. Please wait until you respawn.")
                         end
                     end
+                    return false
                 end
             end
         end
