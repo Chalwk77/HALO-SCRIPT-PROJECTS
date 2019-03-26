@@ -668,9 +668,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             rprint(executor, row, 5 + 8)
                         end
 
-                        for _ in pairs(t) do
-                            t[_] = nil
-                        end
+                        for _ in pairs(t) do t[_] = nil end
+                        for _ in pairs(temp) do temp[_] = nil end
                         
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
