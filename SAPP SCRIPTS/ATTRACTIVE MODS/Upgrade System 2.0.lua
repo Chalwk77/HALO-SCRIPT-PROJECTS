@@ -364,7 +364,7 @@ end
 
 local function spacing(n)
     local spacing = ""
-    for i = 1, spaces do
+    for i = 1, n do
         spacing = spacing .. " "
     end
     return spacing
@@ -376,6 +376,11 @@ function OnGameStart()
         money_table = { ["money"] = {} }
     end
     resetResults()
+	
+	local t = {}
+	for word in line:gmatch("%S+") do
+	  table.insert(t, word)
+	end
 end
 
 function resetResults()
