@@ -63,7 +63,7 @@ local weapon_list_perm = -1
 local max_columns, max_results = 5, 15
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
-local spaces = 0 -- Spaces between results
+local spaces = 2 -- Spaces between results
 local output_format = "/%command% | $%price%"
 
 local commands = {
@@ -379,7 +379,6 @@ function OnGameStart()
             end
         end
     end
-    --
 end
 
 function OnGameEnd()
@@ -643,43 +642,36 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
+                    --================================================================--
                     local function formatResults()
-                        local t, row, content = {}
-                        local done
+                        local temp = { }
+                        local t, row, content, done = {}
                         
-                        for _, v in pairs(results) do
+                        for k, v in pairs(results) do
                             content = stringSplit(v, ",")
-                            for i = tonumber(startIndex), tonumber(endIndex) do
-                                if (content[i]) then
-                                
-                                    -- to do: 
-                                    -- [bug fix needed here]
-                                    
-                                    -- table (t) is storing everything from table (results) instead of 
-                                    -- index specified data
-                                
-                                    t[#t + 1] = content[i]
-                                    row = concat(t, spacing(spaces))
-                                    done = true
-                                end
+                            t[#t + 1] = content
+                        end
+
+                        for i = tonumber(startIndex), tonumber(endIndex) do
+                            if t[i] then
+                                temp[#temp + 1] = t[i][1]
+                                row = concat(temp, spacing(spaces))
                             end
                         end
-                        
+
                         if (row ~= nil) then 
-                            rprint(executor, row) 
+                            rprint(executor, row, 5+8)
                         end
-                        t = nil
-                        
+
+                        for _ in pairs(t) do t[_] = nil end
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
-                        if (endIndex == max_results) then
-                            startIndex = original_StartIndex
-                            endIndex = max_columns
-                        end
                     end
+
                     while (endIndex < max_results) do
                         formatResults()
                     end
+                    --================================================================--
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
