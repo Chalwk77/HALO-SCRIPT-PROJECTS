@@ -213,7 +213,7 @@ local stats = {
         -- Repeat the structure to add more entries.
     },
 
-    kills = { -- KILL THRESHOLD TABLE. Points awarded when you reach the required Kill Threshold.
+    kills = { -- (non consecutive - threshold based) - Points awarded when you reach the required Kill Threshold.
         -- Custom variables that can be used in KILL messages: %kills% (current kills) | %upgrade_points% (reward points)
         -- required kills [number] | reward [number] | message [string]
         enabled = true,
@@ -269,7 +269,8 @@ local original_StartIndex
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
-local gsub, concat, floor, lower = string.gsub, table.concat, math.floor, string.lower
+local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
+local data = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -355,7 +356,7 @@ local function stringSplit(inp, sep)
         sep = "%s"
     end
     local t, i = {}, 1
-    for str in string.gmatch(inp, "([^" .. sep .. "]+)") do
+    for str in gmatch(inp, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1
     end
@@ -370,6 +371,50 @@ local function spacing(n)
     return spacing
 end
 
+function data:align(player, tab)
+    local initialStartIndex = tonumber(startIndex)
+    local proceed, finished = true
+    local function formatResults()
+        local t, row, content, done = {}
+
+        for k, v in pairs(tab) do
+            content = stringSplit(v, ",")
+            t[#t + 1] = content
+        end
+        
+        local placeholder = { }
+        for i = tonumber(startIndex), tonumber(endIndex) do
+            if t[i] then
+                placeholder[#placeholder + 1] = t[i][1]
+                row = concat(placeholder, spacing(spaces))
+            end
+        end
+
+        if (row ~= nil) then
+            rprint(player, row)
+        end
+
+        for a in pairs(t) do t[a] = nil end
+        for b in pairs(placeholder) do placeholder[b] = nil end
+        
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + (max_columns))
+
+        if (startIndex == max_results + 1) then
+            proceed, finished = false, true
+        end
+    end
+    if (proceed) and not (finished) then
+        while (endIndex <= max_results) do
+            formatResults()
+        end
+    end
+    if (finished) and not (proceed) then
+        startIndex = initialStartIndex
+        endIndex = max_columns
+    end
+end
+
 function OnGameStart()
     game_over = false
     if not (save_money) then
@@ -380,7 +425,6 @@ end
 
 function resetResults()
     -- Do not touch
-    original_StartIndex = tonumber(startIndex)
     local tab = commands.weapons
     for key, _ in pairs(tab) do
         local table_data = tab[key]["weapon_table"]
@@ -662,45 +706,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
                     rprint(executor, "PURCHASE WEAPONS WITH THESE COMMANDS:")
-                    --================================================================--
-                    --================================================================--
-                    if (endIndex >= max_results) then
-                        startIndex = original_StartIndex
-                        endIndex = max_columns
-                    end
-                    local function formatResults()
-                    
-                        local temp = { }
-                        local t, row, content, done = {}
-
-                        for k, v in pairs(results) do
-                            content = stringSplit(v, ",")
-                            t[#t + 1] = content
-                        end
-
-                        for i = tonumber(startIndex), tonumber(endIndex) do
-                            if t[i] then
-                                temp[#temp + 1] = t[i][1]
-                                row = concat(temp, spacing(spaces))
-                            end
-                        end
-
-                        if (row ~= nil) then
-                            rprint(executor, row, 5 + 8)
-                        end
-
-                        for _ in pairs(t) do t[_] = nil end
-                        for _ in pairs(temp) do temp[_] = nil end
-                        
-                        startIndex = (endIndex + 1)
-                        endIndex = (endIndex + (max_columns))
-                    end
-
-                    while (endIndex < max_results) do
-                        formatResults()
-                    end
-                    --================================================================--
-                    --================================================================--
+                    data:align(executor, results)
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
