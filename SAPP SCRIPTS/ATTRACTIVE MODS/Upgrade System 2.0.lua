@@ -376,11 +376,6 @@ function OnGameStart()
         money_table = { ["money"] = {} }
     end
     resetResults()
-	
-	local t = {}
-	for word in line:gmatch("%S+") do
-	  table.insert(t, word)
-	end
 end
 
 function resetResults()
