@@ -636,8 +636,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (args[1] == nil) then
                     rprint(executor, "AVAILABLE COMMANDS:")
                     local function formatResults()
-                        local content = { }
-                        local t, row = { }
+                        local t = {}
+                        local row, content, data
+
                         for _, v in pairs(results) do
                             content = stringSplit(v, ",")
                             for i = tonumber(startIndex), tonumber(endIndex) do
