@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]] --
 
 api_version = "1.12.0.0"
-local script_version = "1.25"
+local script_version = "1.26"
 -- Configuration [starts]
 
 -- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
@@ -264,7 +264,7 @@ local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
-local results = { }
+local weapons_table = { }
 local original_StartIndex
 
 -- CUSTOM GOD MODE
@@ -323,9 +323,9 @@ function OnScriptLoad()
             end
         end
     end
-    if next(results) then
-        for _ in pairs(results) do
-            results[_] = nil
+    if next(weapons_table) then
+        for _ in pairs(weapons_table) do
+            weapons_table[_] = nil
         end
     end
     resetResults()
@@ -371,49 +371,38 @@ local function spacing(n)
     return spacing
 end
 
-function data:align(player, tab)
+function data:align(executor, table)
     local initialStartIndex = tonumber(startIndex)
     local proceed, finished = true
     local function formatResults()
-        local t, row, content, done = {}
-
-        for k, v in pairs(tab) do
-            content = stringSplit(v, ",")
-            t[#t + 1] = content
-        end
+        local placeholder, row = { }
         
-        local placeholder = { }
         for i = tonumber(startIndex), tonumber(endIndex) do
-            if t[i] then
-                placeholder[#placeholder + 1] = t[i][1]
+            if (table[i]) then
+                placeholder[#placeholder + 1] = table[i]
                 row = concat(placeholder, spacing(spaces))
             end
         end
 
         if (row ~= nil) then
-            rprint(player, row)
+            rprint(executor, row)
         end
-
-        for a in pairs(t) do t[a] = nil end
-        for b in pairs(placeholder) do placeholder[b] = nil end
-        
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
 
         if (startIndex == max_results + 1) then
             proceed, finished = false, true
         end
+
+        for b in pairs(placeholder) do placeholder[b] = nil end
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + (max_columns))
     end
-    -- if (proceed) and not (finished) then
-        -- while (endIndex <= max_results) do
-            -- formatResults()
-        -- end
-    -- end
+    
     if (proceed) and not (finished) then
-        for i = tonumber(startIndex), tonumber(endIndex) do
+        while (endIndex < max_results + max_columns) do
             formatResults()
         end
     end
+    
     if (finished) and not (proceed) then
         startIndex = initialStartIndex
         endIndex = max_columns
@@ -442,7 +431,7 @@ function resetResults()
                 if (enabled) then
                     local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
                     if TagInfo("weap", tag_id) then
-                        results[#results + 1] = response
+                        weapons_table[#weapons_table + 1] = response
                     end
                 end
             end
@@ -463,8 +452,8 @@ function OnGameEnd()
             trigger[i] = nil
         end
     end
-    for _ in pairs(results) do
-        results[_] = nil
+    for _ in pairs(weapons_table) do
+        weapons_table[_] = nil
     end
 end
 
@@ -711,7 +700,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
                     rprint(executor, "PURCHASE WEAPONS WITH THESE COMMANDS:")
-                    data:align(executor, results)
+                    data:align(executor, weapons_table)
                 else
                     rprint(executor, "Invalid Syntax. Usage: /" .. command)
                 end
