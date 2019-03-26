@@ -640,7 +640,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not gameover(executor) then
             if (checkAccess(executor, weapon_list_perm)) then
                 if (args[1] == nil) then
-                    rprint(executor, "AVAILABLE COMMANDS:")
+                    rprint(executor, "PURCHASE WEAPONS WITH THESE COMMANDS:")
                     --================================================================--
                     --================================================================--
                     if (endIndex >= max_results) then
@@ -671,6 +671,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         for _ in pairs(t) do
                             t[_] = nil
                         end
+                        
                         startIndex = (endIndex + 1)
                         endIndex = (endIndex + (max_columns))
                     end
