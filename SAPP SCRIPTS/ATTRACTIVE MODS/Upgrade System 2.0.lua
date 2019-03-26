@@ -17,11 +17,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]] --
 
 api_version = "1.12.0.0"
-local script_version = "1.26"
 -- Configuration [starts]
 
 -- If this is true, player money will be permanently saved when they exit the server and restored when they rejoin.
-local save_money = false
+local save_money = true
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
 
@@ -271,6 +270,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
+local script_version = 1.25
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -817,7 +817,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local message = entry[5]
                         local lvl = entry[6]
                         if checkAccess(executor, lvl) then
-                            if TagInfo("weap", tag_id) then
+                            if TagInfo("eqip", tag_id) then
                                 local balance = money:getbalance(ip)
                                 if (balance >= tonumber(cost)) then
                                     execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
@@ -890,13 +890,16 @@ function money:update(params)
     local ip = params.ip or nil
 
     if (ip == nil) then
-        return error('Something Went Wrong')
+        return error("money:update()" .. ' -> Unable to get "ip".')
     end
 
     local points = params.money or nil
 
     local subtract = params.subtract or nil
     local balance = money:getbalance(ip)
+    if (balance == nil) then
+        return error("money:update()" .. ' -> Unable to get "balance".')
+    end
 
     local new_balance = balance
 
@@ -1175,7 +1178,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 end
             end
             
-            -- Victim Suicide
+        -- Victim Suicide
         elseif (victim == killer) then
             local p = { }
             p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
@@ -1185,9 +1188,9 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         -- Betray
         if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
             local p = { }
-            p.ip, p.money, p.subtract = vip, stats.penalty[3][1], true
+            p.ip, p.money, p.subtract = kip, stats.penalty[3][1], true
             money:update(p)
-            rprint(victim, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
+            rprint(killer, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
         end
     end
 end
@@ -1279,6 +1282,8 @@ function getIP(PlayerIndex)
             for key, _ in ipairs(ip_table[hash]) do
                 return ip_table[hash][key]["ip"]
             end
+        else
+            return error('getIP() - Something went wrong!')
         end
     end
 end
