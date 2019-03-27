@@ -16,13 +16,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-local base_command = "alias"
+local base_command = "a"
  -- File is saved to root/sapp/dir.lua
 local dir = "sapp\\alias.lua"
 
 -- You can optionally display results for a specified amount of time. 
 -- Set 'use_timer' to true to enable this feature.
-local use_timer = true
+local use_timer = false
 
 -- How long should the alias results be displayed for? (in seconds) --
 local duration = 10
@@ -37,7 +37,7 @@ local privilege_level = 1
 local max_columns, max_results = 5, 100
 local startIndex = 1
 local endIndex = max_columns
-local spaces = 3
+local seperator, spaces = ",", 3
 -- Configuration [ends].
 
 local ip_table, alias_results = { }, { }
@@ -116,10 +116,11 @@ function data:align(player, table, target, total)
     cls(player)
     local function formatResults()
         local placeholder, row = { }
+		
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[1][i]) then
                 placeholder[#placeholder + 1] = table[1][i]
-                row = concat(placeholder, spacing(spaces))
+                row = concat(placeholder, seperator .. spacing(spaces))
             end
         end
 
