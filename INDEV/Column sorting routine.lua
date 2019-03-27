@@ -12,7 +12,7 @@ local spaces = 3
 
 local data, concat, gmatch  = { }, table.concat, string.gmatch
 local weapons_table = { }
-
+local initialStartIndex
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 end
@@ -30,6 +30,7 @@ local function stringSplit(inp, sep)
 end
 
 function OnGameStart()
+    initialStartIndex = tonumber(startIndex)
     for k, v in pairs(input) do
         content = stringSplit(v, ",")
         weapons_table[#weapons_table + 1] = content
@@ -46,7 +47,6 @@ local function spacing(n)
 end
 
 function data:align(table)
-    local initialStartIndex = tonumber(startIndex)
     local proceed, finished = true
     local function formatResults()
         local placeholder, row = { }
