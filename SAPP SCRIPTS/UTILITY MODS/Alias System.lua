@@ -22,7 +22,7 @@ local dir = "sapp\\alias.lua"
 
 -- You can optionally display results for a specified amount of time. 
 -- Set 'use_timer' to true to enable this feature.
-local use_timer = false
+local use_timer = true
 
 -- How long should the alias results be displayed for? (in seconds) --
 local duration = 10
@@ -34,13 +34,19 @@ local alignment = "l"
 -- Minimum admin level required to use /base_command
 local privilege_level = 1
 
-local max_columns, max_results = 6, 100
--- configuration ends
+-- Configuration [starts]
+local max_columns, max_results = 5, 100
+local startIndex = 1
+local endIndex = max_columns
+local spaces = 3
+-- Configuration [ends].
 
-local ip_table = {}
-local mod, players, lower, concat, floor = { }, { }, string.lower, table.concat, math.floor
+local ip_table, alias_results = { }, { }
+local mod, players, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
+local data = { }
+local initialStartIndex
 
-local function callReset()
+local function resetParams()
     for i = 1,16 do
         if player_present(i) then
             if (tonumber(get_var(i, "$lvl")) >= privilege_level) then
@@ -51,6 +57,7 @@ local function callReset()
 end
 
 function OnScriptLoad()
+    
     if (use_timer) then
         register_callback(cb['EVENT_TICK'], "OnTick")
     end
@@ -63,7 +70,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     checkFile()
-    callReset()
+    resetParams()
 end
 
 function mod:reset(ip)
@@ -78,11 +85,68 @@ function mod:reset(ip)
 end
 
 function OnNewGame()
-    callReset()
+    initialStartIndex = tonumber(startIndex)
+    resetParams()
 end
 
 function OnGameEnd()
-    callReset()
+    resetParams()
+end
+
+local function stringSplit(inp, sep)
+    if (sep == nil) then
+        sep = "%s"
+    end
+    local t, i = {}, 1
+    for str in gmatch(inp, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
+end
+
+local function spacing(n)
+    local spacing = ""
+    for i = 1, n do
+        spacing = spacing .. " "
+    end
+    return spacing
+end
+
+function data:align(player, table, target)
+    cls(player)
+    local function formatResults()
+        local placeholder, row = { }
+        for i = tonumber(startIndex), tonumber(endIndex) do
+            if (table[1][i]) then
+                placeholder[#placeholder + 1] = table[1][i]
+                row = concat(placeholder, spacing(spaces))
+            end
+        end
+
+        if (row ~= nil) then
+            rprint(player, row)
+        end
+
+        for a in pairs(placeholder) do placeholder[a] = nil end
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + (max_columns))
+    end
+    
+    while (endIndex < max_results + max_columns) do
+        formatResults()
+    end
+    
+    if (startIndex >= max_results) then
+        startIndex = initialStartIndex
+        endIndex = max_columns
+    end
+    rprint(player, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target .. '"')
+end
+
+function mod:showAliases(executor, ip)
+    local target = players[ip].t
+    data:align(executor, alias_results, target)
 end
 
 function OnTick()
@@ -94,50 +158,10 @@ function OnTick()
                 mod:showAliases(i, ip)
                 if players[ip].timer >= floor(duration) then
                     mod:reset(get_var(i, "$ip"))
-                    players[ip].startIndex = 1
-                    players[ip].endIndex = max_columns
                 end
             end
         end
     end
-end
-
-function mod:showAliases(executor, ip)
-    local target = players[ip].t
-    
-    if (use_timer) and (players[ip].bool == true) then
-        players[ip].bool = false
-        rprint(executor, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target .. '"')
-    end
-    
-    local function formatAliases(executor)
-        local t = {}
-        local row, words, aliases
-        
-        local lines = lines_from(dir)
-        for _, v in pairs(lines) do
-            if v:match(target) then
-                aliases = v:match(":(.+)")
-                words = tokenizestring(aliases, ",")
-            end
-        end
-        
-        if (players[ip].endIndex <= max_results) then
-            for i = tonumber(players[ip].startIndex), tonumber(players[ip].endIndex) do
-                if words[i] then
-                    t[#t + 1] = words[i]
-                    row = concat(t, ", ")
-                end
-            end
-            
-            if row ~= nil then rprint(executor, row) end
-            for _ in pairs(t) do t[_] = nil end
-            
-            players[ip].startIndex = (players[ip].endIndex + 1)
-            players[ip].endIndex = (players[ip].endIndex + max_columns)
-        end
-    end
-    formatAliases(executor)
 end
 
 function OnPlayerJoin(PlayerIndex)
@@ -197,8 +221,7 @@ function OnServerCommand(PlayerIndex, Command)
     
     local function validate_params()
         cls(executor)
-        mod:reset(get_var(executor, "$ip"))
-        
+        mod:reset(ip)
         local function getplayers(arg, executor)
             local pl = { }
             if arg == "me" then
@@ -225,16 +248,24 @@ function OnServerCommand(PlayerIndex, Command)
         end
 
         local pl = getplayers(args[1], executor)
+        local aliases
         if pl then
+            local content
             for i = 1, #pl do
                 if pl[i] == nil then break end
                 players[ip].t = get_var(pl[i], "$hash")
+                local lines = lines_from(dir)
+                for _, v in pairs(lines) do
+                    if (v:match(players[ip].t)) then
+                        aliases = v:match(":(.+)")
+                        content = stringSplit(aliases, ",")
+                        alias_results[#alias_results + 1] = content
+                    end
+                end
             end
             if (pl ~= nil) then
                 players[ip].e = tonumber(get_var(executor, "$n"))
                 if (target_all_players) then
-                    players[ip].startIndex = 1
-                    players[ip].endIndex = tonumber(max_columns)
                     if (use_timer) then
                         players[ip].bool = true
                         players[ip].trigger = true
@@ -253,8 +284,6 @@ function OnServerCommand(PlayerIndex, Command)
                 validate_params()
                 if not (target_all_players) then
                     if not (is_error) and isOnline(TargetID, executor) then
-                        players[ip].startIndex = 1
-                        players[ip].endIndex = tonumber(max_columns)
                         if (use_timer) then
                             players[ip].bool = true
                             players[ip].trigger = true
@@ -271,9 +300,9 @@ function OnServerCommand(PlayerIndex, Command)
     end
 end
 
-function lines_from(file_name)
+function lines_from(file)
     local lines = {}
-    for line in io.lines(file_name) do
+    for line in io.lines(file) do
         lines[#lines + 1] = line
     end
     return lines
@@ -386,17 +415,6 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
-end
-
-function tokenizestring(inputString, Separator)
-    if Separator == nil then Separator = "%s" end
-    local t = {};
-    local i = 1
-    for str in string.gmatch(inputString, "([^" .. Separator .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
 
 function cls(PlayerIndex)
