@@ -13,9 +13,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
+api_version = "1.12.0.0"
 
--- configuration starts
+-- Configuration [starts]
 local base_command = "alias"
  -- File is saved to root/sapp/dir.lua
 local dir = "sapp\\alias.lua"
@@ -34,7 +34,6 @@ local alignment = "l"
 -- Minimum admin level required to use /base_command
 local privilege_level = 1
 
--- Configuration [starts]
 local max_columns, max_results = 5, 100
 local startIndex = 1
 local endIndex = max_columns
@@ -57,13 +56,12 @@ local function resetParams()
 end
 
 function OnScriptLoad()
-    
     if (use_timer) then
         register_callback(cb['EVENT_TICK'], "OnTick")
     end
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-
+    
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 
@@ -77,6 +75,7 @@ function mod:reset(ip)
     players[ip] = players[ip] or { }
     players[ip].e = nil
     players[ip].t = nil
+    players[ip].total = 0 
     if (use_timer) then
         players[ip].timer = 0 
         players[ip].trigger = false
@@ -113,7 +112,7 @@ local function spacing(n)
     return spacing
 end
 
-function data:align(player, table, target)
+function data:align(player, table, target, total)
     cls(player)
     local function formatResults()
         local placeholder, row = { }
@@ -141,12 +140,12 @@ function data:align(player, table, target)
         startIndex = initialStartIndex
         endIndex = max_columns
     end
-    rprint(player, "|" .. alignment .. " " .. 'Showing aliases for: "' .. target .. '"')
+    rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
 end
 
-function mod:showAliases(executor, ip)
+function mod:showAliases(executor, ip, total)
     local target = players[ip].t
-    data:align(executor, alias_results, target)
+    data:align(executor, alias_results, target, total)
 end
 
 function OnTick()
@@ -155,7 +154,7 @@ function OnTick()
             local ip = get_var(i, "$ip")
             if (players[ip] and players[ip].trigger == true) then
                 players[ip].timer = players[ip].timer + 0.030
-                mod:showAliases(i, ip)
+                mod:showAliases(i, ip, players[ip].total)
                 if players[ip].timer >= floor(duration) then
                     mod:reset(get_var(i, "$ip"))
                 end
@@ -218,6 +217,7 @@ function OnServerCommand(PlayerIndex, Command)
 
     local TargetID, target_all_players, is_error
     local ip = get_var(executor, "$ip")
+    local total = 0
     
     local function validate_params()
         cls(executor)
@@ -265,18 +265,23 @@ function OnServerCommand(PlayerIndex, Command)
             end
             if (pl ~= nil) then
                 players[ip].e = tonumber(get_var(executor, "$n"))
-                if (target_all_players) then
+                for i = 1, max_results do
+                    if (alias_results[1][i]) then
+                        players[ip].total = players[ip].total + 1
+                    end
+                end
+                total = players[ip].total
+                if (target_all_players) then -- prototype
                     if (use_timer) then
                         players[ip].bool = true
                         players[ip].trigger = true
                     else
-                        mod:showAliases(executor, ip)
+                        mod:showAliases(executor, ip, total)
                     end
                 end
             end
         end
     end
-
     if (command == lower(base_command)) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil) then
@@ -288,7 +293,7 @@ function OnServerCommand(PlayerIndex, Command)
                             players[ip].bool = true
                             players[ip].trigger = true
                         else
-                            mod:showAliases(executor, ip)
+                            mod:showAliases(executor, ip, total)
                         end
                     end
                 end
