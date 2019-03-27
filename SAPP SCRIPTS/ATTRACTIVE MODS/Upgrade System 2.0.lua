@@ -372,7 +372,6 @@ local function spacing(n)
 end
 
 function data:align(executor, table)
-    local initialStartIndex = tonumber(startIndex)
     local proceed, finished = true
     local function formatResults()
         local placeholder, row = { }
@@ -410,6 +409,7 @@ function data:align(executor, table)
 end
 
 function OnGameStart()
+    initialStartIndex = tonumber(startIndex)
     game_over = false
     if not (save_money) then
         money_table = { ["money"] = {} }
