@@ -17,16 +17,16 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- Configuration [starts]
 local base_command = "resupply"
 local privilege_level = -1
 local ammo, mag = 200, 500
 local grenades = 4
 local battery = 100 -- Full battery
-local message = "[RESUPPLY] +%ammo% ammo, +%mag% mag, +%grenades% grenades, %battery%% battery, "
+local message = "[RESUPPLY] +%ammo% ammo, +%mag% mag, +%grenades% grenades, %battery%% battery"
 -- Configuration [ends].
 
 local lower, gsub = string.lower, string.gsub
-
 function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 end
