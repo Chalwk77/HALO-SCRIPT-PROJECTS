@@ -124,7 +124,7 @@ function data:align(player, table, target, total)
         end
 
         if (row ~= nil) then
-            rprint(player, row)
+            rprint(player, "|" .. alignment .. " " .. row)
         end
 
         for a in pairs(placeholder) do placeholder[a] = nil end
