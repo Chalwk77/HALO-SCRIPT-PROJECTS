@@ -251,6 +251,7 @@ function OnServerCommand(PlayerIndex, Command)
         local aliases
         if pl then
             local content
+            alias_results = { }
             for i = 1, #pl do
                 if pl[i] == nil then break end
                 players[ip].t = get_var(pl[i], "$hash")
