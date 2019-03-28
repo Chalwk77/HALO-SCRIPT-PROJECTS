@@ -897,16 +897,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local enabled = cmd[param][5]
                         local sapp_command = cmd.id
                         if (enabled) then
-                            local p = { }
-                            p.ip, p.money, p.subtract = ip, cost, true
-                            money:update(p)
-                            local new_balance = money:getbalance(ip)
-                            players[executor].god = 0
-                            players[executor].god_duration = tonumber(duration)
-                            godmode[executor] = true
-                            trigger[executor] = true
-                            local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%seconds%%", duration)
-                            rprint(executor, strFormat)
+                            local balance = money:getbalance(ip)
+                            if (balance >= tonumber(cost)) then
+                                local p = { }
+                                p.ip, p.money, p.subtract = ip, cost, true
+                                money:update(p)
+                                local new_balance = money:getbalance(ip)
+                                players[executor].god = 0
+                                players[executor].god_duration = tonumber(duration)
+                                godmode[executor] = true
+                                trigger[executor] = true
+                                local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%seconds%%", duration)
+                                rprint(executor, strFormat)
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            end
                         else
                             rprint(executor, 'Sorry, that command is disabled.')
                         end
