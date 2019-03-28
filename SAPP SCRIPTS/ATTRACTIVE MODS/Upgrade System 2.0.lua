@@ -162,22 +162,21 @@ local commands = {
 local upgrade_info = {
     "|cBIGASS AURORA UPGRADE SYSTEM",
     " ",
-    "|cPURCHASE UPGRADES",
+    "|c/bal | View Upgrade Points        /weapons | Purchase Weapons",
     " ",
-    "|cCommand | Upgrade | Cost",
+    "|c/heal 1 | Health 100% | 10        /am 1 | 50 Ammo All Weapons | 10",
+    "|c/heal 2 | Health 200% | 20        /am 2 | 100 Ammo All Weapons | 15",
+    "|c/heal 3 | Health 300% | 30        /am 3 | 150 Ammo All Weapons | 20",
+    "|c/heal 4 | Health 400% | 40        /am 4 | 200 Ammo All Weapons | 25",
+    "|c/heal 5 | Health 500% | 50        /am 5 | 250 Ammo All Weapons | 30",
     " ",
-    "|c/heal 1 | Health 100% | 10        /am 1 | 200 Ammo All Weapons | 10",
-    "|c/heal 2 | Health 200% | 20        /am 2 | 350 Ammo All Weapons | 20",
-    "|c/heal 3 | Health 300% | 30        /am 3 | 500 Ammo All Weapons | 30",
-    "|c/heal 4 | Health 400% | 40        /am 4 | 700 Ammo All Weapons | 40",
-    "|c/heal 5 | Health 500% | 50        /am 5 | 900 Ammo All Weapons | 50",
+    "|c/cam 1 | 1 Min Camo | 30          /inv 1 | 10 Sec Invincibility | 30",
+    "|c/cam 2 | 2 Min Camo | 40          /inv 2 | 30 Sec Invincibility | 40",
+    "|c/cam 3 | 3 Min Camo | 50          /inv 3 | 60 Sec Invincibility | 50",
     " ",
-    "|c/cam 1 | 1 Min Camo | 30          /mine | 2 Mines | 15",
-    "|c/cam 2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
-    "|c/cam 3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
+    "|c/gren | 2 Grenades | 10           /mine | 2 Mines | 15",
     " ",
-    " ",
-    "|c*Type /bal to view how many Upgrade Points you currently have*",
+    "|c--Earn Points for Kills - Assists - Kill Streaks - Flags--",
     " ",
 }
 
@@ -248,22 +247,22 @@ local stats = {
     -- Every kill will reward X amount of points.
     on_kill = {
         -- POINTS | MESSAGE
-        enabled = true, -- Set to 'false' to disable
+        enabled = false, -- Set to 'false' to disable
         {"10", "Kill (+%upgrade_points% Upgrade Points)"}
     },
 
     penalty = {
         -- [ victim death ] (points deducted | message)
-        [1] = { "10", "DEATH (-%penalty_points% points)" },
+        [1] = { "2", "DEATH (-%penalty_points% points)" },
         -- [ victim suicide ] (points deducted | message)
-        [2] = { "30", "SUICIDE (-%penalty_points% points)" },
+        [2] = { "10", "SUICIDE (-%penalty_points% points)" },
         -- [ killer betray ] (points deducted | message)
         [3] = { "50", "TEAM KILL (-%penalty_points% points)" },
     },
 
     score = {
         -- [ score ] (reward points | message)
-        [1] = { "10", "SCORE (+%upgrade_points% Upgrade Points)" },
+        [1] = { "15", "SCORE (+%upgrade_points% Upgrade Points)" },
     },
 }
 
