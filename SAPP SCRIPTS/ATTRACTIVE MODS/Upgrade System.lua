@@ -284,7 +284,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.26
+local script_version = 1.35
 local initialStartIndex
 
 function OnScriptLoad()
