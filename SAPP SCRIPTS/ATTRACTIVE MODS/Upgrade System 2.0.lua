@@ -120,10 +120,10 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Purchased Pistol for (%price%) points. Total Points: %balance%", -1, true },
-                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for (%price%) points. Total Points: %balance%", -1, true },
-                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for (%price%) points. Total Points: %balance%", -1, true },
-                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for (%price%) points. Total Points: %balance%", -1, true },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Purchased Pistol for (%price%) points. Total Points: %balance%", -1, false },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for (%price%) points. Total Points: %balance%", -1, false },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for (%price%) points. Total Points: %balance%", -1, false },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for (%price%) points. Total Points: %balance%", -1, false },
                 [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for (%price%) points. Total Points: %balance%", -1, false },
                 [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for (%price%) points. Total Points: %balance%", -1, false },
                 [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for (%price%) points. Total Points: %balance%", -1, false },
