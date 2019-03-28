@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-local base_command = "alias"
+local base_command = "a"
  -- File is saved to root/sapp/dir.lua
 local dir = "sapp\\alias.lua"
 
@@ -37,14 +37,25 @@ local privilege_level = 1
 local max_columns, max_results = 5, 100
 local startIndex = 1
 local endIndex = max_columns
-local seperator, spaces = ",", 3
+local spaces = 2
 -- Configuration [ends].
 
 local ip_table, alias_results = { }, { }
 local mod, players, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
 local data = { }
 local initialStartIndex
-
+local known_pirated_hashes = {
+    "81f9c914b3402c2702a12dc1405247ee",
+    "c939c09426f69c4843ff75ae704bf426",
+    "13dbf72b3c21c5235c47e405dd6e092d",
+    "29a29f3659a221351ed3d6f8355b2200",
+    "d72b3f33bfb7266a8d0f13b37c62fddb",
+    "76b9b8db9ae6b6cacdd59770a18fc1d5",
+    "55d368354b5021e7dd5d3d1525a4ab82",
+    "d41d8cd98f00b204e9800998ecf8427e",
+    "c702226e783ea7e091c0bb44c2d0ec64",
+}
+ 
 local function resetParams()
     for i = 1,16 do
         if player_present(i) then
@@ -104,15 +115,44 @@ local function stringSplit(inp, sep)
     return t
 end
 
-local function spacing(n)
-    local spacing = ""
-    for i = 1, n do
-        spacing = spacing .. " "
-    end
-    return spacing
+local function spacing(n, sep)
+	sep = sep or ""
+	local String, Seperator = "", ","
+	for i = 1, n do
+		if i == math.floor(n / 2) then
+			String = String .. sep
+		end
+		String = String .. " "
+	end
+	return Seperator .. String
 end
 
-function data:align(player, table, target, total)
+local function FormatTable(table, rowlen, space, delimiter)
+	local longest = 0
+	for _,v in ipairs(table) do
+		local len = string.len(v)
+		if len > longest then
+			longest = len
+		end
+	end
+	local rows = {}
+	local row = 1
+	local count = 1
+	for k,v in ipairs(table) do
+		if count % rowlen == 0 or k == #table then
+			rows[row] = (rows[row] or "") .. v
+		else
+			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+		end
+		if count % rowlen == 0 then
+			row = row + 1
+		end
+		count = count + 1
+	end
+	return concat(rows)
+end
+
+function data:align(player, table, target, total, shared)
     cls(player)
     local function formatResults()
         local placeholder, row = { }
@@ -120,7 +160,7 @@ function data:align(player, table, target, total)
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[1][i]) then
                 placeholder[#placeholder + 1] = table[1][i]
-                row = concat(placeholder, seperator .. spacing(spaces))
+                row = FormatTable(placeholder, max_columns, spaces)
             end
         end
 
@@ -141,12 +181,23 @@ function data:align(player, table, target, total)
         startIndex = initialStartIndex
         endIndex = max_columns
     end
-    rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
+    rprint(player, " ")
+    if (shared) then
+        rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
+        rprint(player, "|" .. alignment .. " " .. 'Player is using a pirated copy of Halo.')
+    else
+        rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
+    end
 end
 
 function mod:showAliases(executor, ip, total)
-    local target = players[ip].t
-    data:align(executor, alias_results, target, total)
+    local target, shared = players[ip].t
+    for i = 1,#known_pirated_hashes do
+        if (target == known_pirated_hashes[i]) then
+            shared = true
+        end
+    end
+    data:align(executor, alias_results, target, total, shared)
 end
 
 function OnTick()
