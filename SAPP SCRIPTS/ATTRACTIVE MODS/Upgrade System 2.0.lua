@@ -60,11 +60,11 @@ local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 5, 25
+local max_columns, max_results = 4, 30 --<<--- I do not recommend changing these values.
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
-local spaces = 3 -- Spaces between results
-local output_format = "/%command% | $%price%"
+local spaces = 4 -- Spaces between results
+local output_format = "/%command% ($%price%)"
 
 local commands = {
     sapp = {
@@ -364,23 +364,29 @@ local function stringSplit(inp, sep)
     return t
 end
 
-local function spacing(n)
-    local spacing = ""
-    for i = 1, n do
-        spacing = spacing .. " "
-    end
-    return spacing
+local function spacing(n, sep)
+	sep = sep or ""
+	local String, Seperator = "", ","
+	for i = 1, n do
+		if i == math.floor(n / 2) then
+			String = String .. sep
+		end
+		String = String .. " "
+	end
+	return Seperator .. String
 end
 
 function data:align(executor, table)
-    local proceed, finished = true
+    cls(executor)
+    rprint(executor, 'Showing (' .. #weapons_table .. ' weapons)')
+    rprint(executor, " ")
     local function formatResults()
         local placeholder, row = { }
         
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[i]) then
                 placeholder[#placeholder + 1] = table[i]
-                row = concat(placeholder, spacing(spaces))
+                row = formatlist(placeholder, max_columns, spaces)
             end
         end
 
@@ -388,25 +394,56 @@ function data:align(executor, table)
             rprint(executor, row)
         end
 
-        if (startIndex == max_results + 1) then
-            proceed, finished = false, true
-        end
-
-        for b in pairs(placeholder) do placeholder[b] = nil end
+        for a in pairs(placeholder) do placeholder[a] = nil end
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
     
-    if (proceed) and not (finished) then
-        while (endIndex < max_results + max_columns) do
-            formatResults()
-        end
+    while (endIndex < max_results + max_columns) do
+        formatResults()
     end
     
-    if (finished) and not (proceed) then
+    if (startIndex >= max_results) then
         startIndex = initialStartIndex
         endIndex = max_columns
     end
+end
+
+function formatlist(list, rowlen, space, delimiter)
+	local longest = 0
+	for _,v in ipairs(list) do
+		local len = string.len(v)
+		if len > longest then
+			longest = len
+		end
+	end
+	local rows = {}
+	local row = 1
+	local count = 1
+	for k,v in ipairs(list) do
+		if count % rowlen == 0 or k == #list then
+			rows[row] = (rows[row] or "") .. v
+		else
+			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+		end
+		if count % rowlen == 0 then
+			row = row + 1
+		end
+		count = count + 1
+	end
+	return table.concat(rows)
+end
+
+function spacing(n, delimiter)
+	delimiter = delimiter or ""
+	local str = ""
+	for i = 1, n do
+		if i == math.floor(n / 2) then
+			str = str .. delimiter
+		end
+		str = str .. " "
+	end
+	return str
 end
 
 function OnGameStart()
@@ -1378,6 +1415,12 @@ end
 function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function cls(PlayerIndex)
+    for _ = 1, 25 do
+        rprint(PlayerIndex, " ")
+    end
 end
 
 function report()
