@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System, for SAPP (PC & CE)
+Script Name: Upgrade System (v1.36), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -23,7 +23,6 @@ api_version = "1.12.0.0"
 local save_money = false
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
-
 
 -- Custom Variables that can be used in 'Insufficient Funds' message: 
 -- "%balance%" (current balance)
@@ -248,7 +247,7 @@ local stats = {
     -- Every kill will reward X amount of points.
     on_kill = {
         -- POINTS | MESSAGE
-        enabled = false, -- Set to 'false' to disable
+        enabled = true, -- Set to 'false' to disable
         {"10", "Kill (+%upgrade_points%) upgrade points"}
     },
 
@@ -339,12 +338,14 @@ function OnScriptLoad()
             end
         end
     end
+    
     if next(weapons_table) then
         for _ in pairs(weapons_table) do
             weapons_table[_] = nil
         end
     end
-    resetResults()
+
+    populateTables()
 end
 
 function OnScriptUnload()
@@ -454,14 +455,14 @@ function data:align(executor, table)
 end
 
 function OnGameStart()
-    game_over = false
+    reloaded, game_over = false, false
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
-    resetResults()
+    populateTables()
 end
 
-function resetResults()
+function populateTables()
     -- Do not touch
     initialStartIndex = tonumber(startIndex)
     weapons_table = weapons_table or { }
@@ -498,9 +499,6 @@ function OnGameEnd()
             godmode[i] = nil
             trigger[i] = nil
         end
-    end
-    for _ in pairs(weapons_table) do
-        weapons_table[_] = nil
     end
 end
 
@@ -669,7 +667,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Unable to execute. Command disabled.")
         end
     end
-
+    
     if (command == lower(balance_command)) then
         if (checkAccess(executor, balance_perm_lvl)) then
             if (args[1] == nil) then
