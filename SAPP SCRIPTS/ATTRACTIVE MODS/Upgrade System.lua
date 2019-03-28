@@ -122,7 +122,7 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, true },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, false },
                 [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, false },
                 [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, false },
                 [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, false },
