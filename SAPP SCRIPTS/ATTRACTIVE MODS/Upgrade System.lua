@@ -24,6 +24,12 @@ local save_money = false
 -- Player money data will be saved to the following file. (Located in the servers root "sapp" dir)
 local dir = "sapp\\money.data"
 
+
+-- Custom Variables that can be used in 'Insufficient Funds' message: 
+-- "%balance%" (current balance)
+-- "%price%" (money required to execute TRIGGER)
+local insufficient_funds = "Insufficient Points. Total Points: %balance%. You need %price%"
+
 -- The balance each player will start with when they join the server for the first time.
 -- Note: If 'save_money' is false, the player's balance on join will always be the value of "starting_balance"
 local starting_balance = 0
@@ -39,25 +45,20 @@ local upgrade_perm_lvl = -1
 -- Add money to your account (perm level to execute is 4 by default)
 local add_cmd = "add"
 local add_perm_lvl = 4
-local add_cmd_message = "(%money%) points have been added to your account. Balance: %balance%"
+local add_cmd_message = "(%money%) points have been added to your account. Balance: $%balance%"
 
 -- Deduct money from your account (perm level to execute is 4 by default)
 local remove_cmd = "remove"
 local remove_perm_lvl = 4
-local remove_cmd_message = "(%money%) points have been taken to your account. Balance: %balance%"
+local remove_cmd_message = "(%money%) points have been taken to your account. Balance: $%balance%"
 
 -- Transfer your funds to other players!
 -- Command syntax: /transfer [player id | */all] [amount] (optional -s)
 -- You can split the amount specified between the players specified by declaring the "-s" flag.
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
-local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) points. Points Remaining: %sender_balance%"
-local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) points. Total Points: %receiver_balance%"
-
--- Custom Variables that can be used in 'Insufficient Funds' message: 
--- "%balance%" (current balance)
--- "%price%" (money required to execute TRIGGER)
-local insufficient_funds = "Insufficient Points. Total Points: %balance%. You need %price%"
+local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) points. Points Remaining: $%sender_balance%"
+local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) points. Total Points: $%receiver_balance%"
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
@@ -404,7 +405,7 @@ function data:align(executor, table)
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[i]) then
                 placeholder[#placeholder + 1] = table[i]
-                row = formatlist(placeholder, max_columns, spaces)
+                row = FormatTable(placeholder, max_columns, spaces)
             end
         end
 
@@ -427,7 +428,19 @@ function data:align(executor, table)
     end
 end
 
-function formatlist(list, rowlen, space, delimiter)
+local function spacing(n, delimiter)
+	delimiter = delimiter or ""
+	local str = ""
+	for i = 1, n do
+		if i == math.floor(n / 2) then
+			str = str .. delimiter
+		end
+		str = str .. " "
+	end
+	return str
+end
+
+function FormatTable(table, rowlen, space, delimiter)
 	local longest = 0
 	for _,v in ipairs(list) do
 		local len = string.len(v)
@@ -438,8 +451,8 @@ function formatlist(list, rowlen, space, delimiter)
 	local rows = {}
 	local row = 1
 	local count = 1
-	for k,v in ipairs(list) do
-		if count % rowlen == 0 or k == #list then
+	for k,v in ipairs(table) do
+		if count % rowlen == 0 or k == #table then
 			rows[row] = (rows[row] or "") .. v
 		else
 			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
@@ -450,18 +463,6 @@ function formatlist(list, rowlen, space, delimiter)
 		count = count + 1
 	end
 	return table.concat(rows)
-end
-
-function spacing(n, delimiter)
-	delimiter = delimiter or ""
-	local str = ""
-	for i = 1, n do
-		if i == math.floor(n / 2) then
-			str = str .. delimiter
-		end
-		str = str .. " "
-	end
-	return str
 end
 
 function OnGameStart()
