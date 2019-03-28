@@ -27,7 +27,7 @@ local dir = "sapp\\money.data"
 -- Custom Variables that can be used in 'Insufficient Funds' message: 
 -- "%balance%" (current balance)
 -- "%price%" (money required to execute TRIGGER)
-local insufficient_funds = "Insufficient funds. Current balance: $%balance%. You need $%price%"
+local insufficient_funds = "Insufficient Points. Total Points: %balance%. You need %price%"
 
 -- The balance each player will start with when they join the server for the first time.
 -- Note: If 'save_money' is false, the player's balance on join will always be the value of "starting_balance"
@@ -43,28 +43,28 @@ local upgrade_perm_lvl = -1
 -- Add money to your account (perm level to execute is 4 by default)
 local add_cmd = "add"
 local add_perm_lvl = 4
-local add_cmd_message = "$%money% has been added to your account. New Balance: $%balance%"
+local add_cmd_message = "(%money%) Upgrade Points have been added to your account. Total Points: $%balance%"
 
 -- Deduct money from your account (perm level to execute is 4 by default)
 local remove_cmd = "remove"
 local remove_perm_lvl = 4
-local remove_cmd_message = "$%money% has been remove from account. New Balance: $%balance%"
+local remove_cmd_message = "(%money%) Upgrade Points have been taken to your account. Total Points: $%balance%"
 
 -- Transfer your funds to other players!
 -- Command syntax: /transfer [player id | */all] [amount] (optional -s)
 -- You can split the amount specified between the players specified by declaring the "-s" flag.
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
-local transfer_toSenderMsg = "You sent %receiver_name% $%amount%. New Balance: $%sender_balance%"
-local transfer_toReceiverMsg = "%sender_name% sent you $%amount%. New balance: $%receiver_balance%"
+local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) Upgrade Points. Total Points: $%sender_balance%"
+local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) Upgrade Points. Total Points: $%receiver_balance%"
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 4, 30 --<<--- I do not recommend changing these values.
+local max_columns, max_results = 4, 50 --<<--- I do not recommend changing these values.
 local startIndex = 1 -- <<--- do not touch
 local endIndex = max_columns -- <<--- do not touch
 local spaces = 4 -- Spaces between results
-local output_format = "/%command% ($%price%)"
+local output_format = "/%command% (%price%)"
 
 local commands = {
     sapp = {
@@ -72,29 +72,29 @@ local commands = {
             ["heal"] = { -- Command Syntax: /heal [id]. (example, /heal 5, will give you 500% Health).
                 id = "hp", --<<---- do not touch
                 -- PRICE | HEALTH AMOUNT | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "10", "1", "Purchased 100% Health for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "15", "2", "Purchased 200% Health for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "20", "3", "Purchased 300% Health for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "25", "4", "Purchased 400% Health for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "30", "5", "Purchased 500% Health for $%price%. New balance: $%balance%", -1, true },
+                [1] = { "10", "1", "Purchased 100% Health for (%price%) points. Total Points: %balance%", -1, true },
+                [2] = { "20", "2", "Purchased 200% Health for (%price%) points. Total Points: %balance%", -1, true },
+                [3] = { "30", "3", "Purchased 300% Health for (%price%) points. Total Points: %balance%", -1, true },
+                [4] = { "40", "4", "Purchased 400% Health for (%price%) points. Total Points: %balance%", -1, true },
+                [5] = { "50", "5", "Purchased 500% Health for (%price%) points. Total Points: %balance%", -1, true },
             },
 
             ["am"] = { -- Command Syntax: /am [id]. (example, /am 5, will give you 900 Ammo All Weapons).
                 id = "ammo", --<<---- do not touch
                 -- PRICE | AMMO AMOUNT + INDEX | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "10", "200 5", "Purchased (200 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "15", "350 5", "Purchased (350 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "20", "500 5", "Purchased (500 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "25", "700 5", "Purchased (700 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "30", "900 5", "Purchased (900 Ammo All Weapons) for $%price%. New balance: $%balance%", -1, true },
+                [1] = { "10", "50 5", "Purchased (50 Ammo All Weapons) for (%price%) points. Total Points: %balance%", -1, true },
+                [2] = { "15", "100 5", "Purchased (100 Ammo All Weapons) for (%price%) points. Total Points: %balance%", -1, true },
+                [3] = { "20", "150 5", "Purchased (150 Ammo All Weapons) for (%price%) points. Total Points: %balance%", -1, true },
+                [4] = { "25", "200 5", "Purchased (200 Ammo All Weapons) for (%price%) points. Total Points: %balance%", -1, true },
+                [5] = { "30", "250 5", "Purchased (250 Ammo All Weapons) for (%price%) points. Total Points: %balance%", -1, true },
             },
 
             ["cam"] = { -- Command Syntax: /cam [id]. (example, /cam 3, will give you 3 Minutes of Camo).
                 id = "camo", --<<---- do not touch
                 -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "30", "60", "Purchased (1 Minute of Camo) for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "40", "120", "Purchased (2 Minutes of Camo) for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "50", "180", "Purchased (3 Minutes of Camo) for $%price%. New balance: $%balance%", -1, true },
+                [1] = { "30", "60", "Purchased (1 Minute of Camo) for (%price%) points. Total Points: %balance%", -1, true },
+                [2] = { "40", "120", "Purchased (2 Minutes of Camo) for (%price%) points. Total Points: %balance%", -1, true },
+                [3] = { "50", "180", "Purchased (3 Minutes of Camo) for (%price%) points. Total Points: %balance%", -1, true },
             },
         },
     },
@@ -102,15 +102,15 @@ local commands = {
     -- CUSTOM GOD COMMAND
     custom_god = {
         {
-            ["god2"] = { -- Command Syntax: /god2 [id]. (example, /god2 6, will give you 1 minute of god).
+            ["inv"] = { -- Command Syntax: /god2 [id]. (example, /god2 6, will give you 1 minute of god).
                 id = "god", --<<---- do not touch
                 -- PRICE | DURATION | MESSAGE | PERMISSION LEVEL | ENABLED/DISABLED
-                [1] = { "5", "10", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "10", "20", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "15", "30", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "20", "40", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "25", "50", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
-                [6] = { "30", "60", "Purchased (%seconds% Seconds of God) for $%price%. New balance: $%balance%", -1, true },
+                [1] = { "30", "10", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, true },
+                [2] = { "40", "30", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, true },
+                [3] = { "50", "60", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, true },
+                [4] = { "90", "40", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, false },
+                [5] = { "90", "50", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, false },
+                [6] = { "90", "70", "Purchased (%seconds% Seconds of Invincibility) for (%price%) points. Total Points: %balance%", -1, false },
             },
         },
     },
@@ -119,28 +119,43 @@ local commands = {
         {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
-                [1] = { "pistol", '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. New balance: $%balance%", -1, true },
-                [2] = { "sniper", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. New balance: $%balance%", -1, true },
-                [3] = { "pcannon", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for $%price%. New balance: $%balance%", -1, true },
-                [4] = { "rlauncher", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for $%price%. New balance: $%balance%", -1, true },
-                [5] = { "ppistol", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for $%price%. New balance: $%balance%", -1, true },
-                [6] = { "prifle", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for $%price%. New balance: $%balance%", -1, true },
-                [7] = { "arifle", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for $%price%. New balance: $%balance%", -1, true },
-                [8] = { "fthrower", '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for $%price%. New balance: $%balance%", -1, true },
-                [9] = { "needler", '5', "weapons\\needler\\mp_needler", "Purchased Needler for $%price%. New balance: $%balance%", -1, true },
-                [10] = { "shotgun", '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for $%price%. New balance: $%balance%", -1, true },
-                [11] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. New balance: $%balance%", -1, true },
-                [12] = { "brifle", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. New balance: $%balance%", -1, true },
+                -- Stock Weapons
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. Total Points: $%balance%", -1, false },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. Total Points: $%balance%", -1, false },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for $%price%. Total Points: $%balance%", -1, false },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for $%price%. Total Points: $%balance%", -1, false },
+                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for $%price%. Total Points: $%balance%", -1, false },
+                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for $%price%. Total Points: $%balance%", -1, false },
+                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for $%price%. Total Points: $%balance%", -1, false },
+                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for $%price%. Total Points: $%balance%", -1, false },
+                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Purchased Needler for $%price%. Total Points: $%balance%", -1, false },
+                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for $%price%. Total Points: $%balance%", -1, false },
+                
+                -- Custom Weapons
+                [11] = { "w11", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. Total Points: $%balance%", -1, false },
+                [12] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. Total Points: $%balance%", -1, false },                
+                [13] = { "pistol", '10', "reach\\objects\\weapons\\pistol\\magnum\\magnum", "Purchased Pistol for (%price%) points. Total Points: %balance%", -1, true },
+                [14] = { "odpistol", '10', "halo3\\weapons\\odst pistol\\odst pistol", "Purchased ODST Pistol for (%price%) points. Total Points: %balance%", -1, true },
+                [15] = { "arifle", '15', "bourrin\\weapons\\assault rifle", "Purchased Assault Rifle for (%price%) points. Total Points: %balance%", -1, true },
+                [16] = { "mask", '7', "altis\\weapons\\br\\br", "Purchased MA5k for (%price%) points. Total Points: %balance%", -1, true },
+                [17] = { "shotgun", '10', "cmt\\weapons\\human\\shotgun\\shotgun", "Purchased Shotgun for (%price%) points. Total Points: %balance%", -1, true },
+                [18] = { "dmr", '20', "bourrin\\weapons\\dmr\\dmr", "Purchased DMR for (%price%) points. Total Points: %balance%", -1, true },
+                [19] = { "brifle", '20', "altis\\weapons\\br_spec_ops\\br_spec_ops", "Purchased Battle Rifle for (%price%) points. Total Points: %balance%", -1, true },
+                [20] = { "sniper", '15', "cmt\\weapons\\evolved\\human\\sniper_rifle\\sniper_rifle", "Purchased Sniper for (%price%) points. Total Points: %balance%", -1, true },
+                [21] = { "laser", '30', "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser", "Purchased Spartan Laser for (%price%) points. Total Points: %balance%", -1, true },
+                [22] = { "rlauncher", '35', "bourrin\\weapons\\badass rocket launcher\\bourrinrl", "Purchased Rocket Launcher for (%price%) points. Total Points: %balance%", -1, true },
+                [23] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. Total Points: $%balance%", -1, true },
+                
             },
         }
     },
 
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
-        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. New balance: $%balance%", -1, true } },
-        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. New balance: $%balance%", -1, true } },
+        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. Total Points: $%balance%", -1, true } },
+        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. Total Points: $%balance%", -1, true } },
 
-        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. New balance: $%balance%", -1, true } },
-        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. New balance: $%balance%", -1, true } },
+        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. Total Points: $%balance%", -1, true } },
+        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. Total Points: $%balance%", -1, true } },
     },
 }
 
@@ -378,8 +393,12 @@ end
 
 function data:align(executor, table)
     cls(executor)
-    rprint(executor, 'Showing (' .. #weapons_table .. ' weapons)')
-    rprint(executor, " ")
+    if (#weapons_table <= 0) then
+        rprint(executor, 'There are no weapon commands available to you on this map.')
+    else
+        rprint(executor, 'Showing (' .. #weapons_table .. ' weapons)')
+        rprint(executor, " ")
+    end
     local function formatResults()
         local placeholder, row = { }
         
