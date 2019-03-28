@@ -37,7 +37,7 @@ local starting_balance = 0
 local balance_command = "bal"
 local balance_perm_lvl = -1
 local balance_msg_format = "Upgrade Points: %balance%"
-local on_purchase = "Purchased (%item%) for (%price%) points. Total Points: %balance%"
+local on_purchase = "Purchased (%item%) for (%price%) points. Balance: %balance%"
 
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
@@ -45,20 +45,20 @@ local upgrade_perm_lvl = -1
 -- Add money to your account (perm level to execute is 4 by default)
 local add_cmd = "add"
 local add_perm_lvl = 4
-local add_cmd_message = "(%money%) upgrade points have been added to your account. Total Points: $%balance%"
+local add_cmd_message = "(%money%) points have been added to your account. Balance: $%balance%"
 
 -- Deduct money from your account (perm level to execute is 4 by default)
 local remove_cmd = "remove"
 local remove_perm_lvl = 4
-local remove_cmd_message = "(%money%) upgrade points have been taken to your account. Total Points: $%balance%"
+local remove_cmd_message = "(%money%) points have been taken to your account. Balance: $%balance%"
 
 -- Transfer your funds to other players!
 -- Command syntax: /transfer [player id | */all] [amount] (optional -s)
 -- You can split the amount specified between the players specified by declaring the "-s" flag.
 local transfer_command = "transfer"
 local transfer_perm_lvl = -1
-local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) upgrade points. Points Remaining: $%sender_balance%"
-local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) upgrade points. Total Points: $%receiver_balance%"
+local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) points. Points Remaining: $%sender_balance%"
+local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) points. Total Points: $%receiver_balance%"
 
 local weapon_list = "weapons"
 local weapon_list_perm = -1
@@ -122,7 +122,7 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, false },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, true },
                 [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, false },
                 [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, false },
                 [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, false },
