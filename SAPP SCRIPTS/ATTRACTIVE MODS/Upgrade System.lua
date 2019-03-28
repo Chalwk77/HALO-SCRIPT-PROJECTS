@@ -122,16 +122,16 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, false },
-                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, false },
-                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, false },
-                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, false },
-                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, false },
-                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifl", -1, false },
-                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, false },
-                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame  Thrower", -1, false },
-                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, false },
-                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, false },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, true },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, true },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, true },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, true },
+                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, true },
+                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifl", -1, true },
+                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, true },
+                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame  Thrower", -1, true },
+                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, true },
+                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, true },
                 
                 -- Custom Weapons
                 [11] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Battle Rifle", -1, false },                
@@ -391,12 +391,37 @@ local function spacing(n, sep)
 	return Seperator .. String
 end
 
+local function FormatTable(table, rowlen, space, delimiter)
+	local longest = 0
+	for _,v in ipairs(table) do
+		local len = string.len(v)
+		if len > longest then
+			longest = len
+		end
+	end
+	local rows = {}
+	local row = 1
+	local count = 1
+	for k,v in ipairs(table) do
+		if count % rowlen == 0 or k == #table then
+			rows[row] = (rows[row] or "") .. v
+		else
+			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+		end
+		if count % rowlen == 0 then
+			row = row + 1
+		end
+		count = count + 1
+	end
+	return concat(rows)
+end
+
 function data:align(executor, table)
     cls(executor)
-    if (#weapons_table <= 0) then
+    if (#table <= 0) then
         rprint(executor, 'There are no weapon commands available to you on this map.')
     else
-        rprint(executor, 'Showing (' .. #weapons_table .. ' weapons)')
+        rprint(executor, 'Showing (' .. #table .. ' weapons)')
         rprint(executor, " ")
     end
     local function formatResults()
@@ -426,43 +451,6 @@ function data:align(executor, table)
         startIndex = initialStartIndex
         endIndex = max_columns
     end
-end
-
-local function spacing(n, delimiter)
-	delimiter = delimiter or ""
-	local str = ""
-	for i = 1, n do
-		if i == math.floor(n / 2) then
-			str = str .. delimiter
-		end
-		str = str .. " "
-	end
-	return str
-end
-
-function FormatTable(table, rowlen, space, delimiter)
-	local longest = 0
-	for _,v in ipairs(list) do
-		local len = string.len(v)
-		if len > longest then
-			longest = len
-		end
-	end
-	local rows = {}
-	local row = 1
-	local count = 1
-	for k,v in ipairs(table) do
-		if count % rowlen == 0 or k == #table then
-			rows[row] = (rows[row] or "") .. v
-		else
-			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
-		end
-		if count % rowlen == 0 then
-			row = row + 1
-		end
-		count = count + 1
-	end
-	return table.concat(rows)
 end
 
 function OnGameStart()
