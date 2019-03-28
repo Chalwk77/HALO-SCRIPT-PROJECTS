@@ -120,20 +120,20 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Purchased Pistol for $%price%. Total Points: $%balance%", -1, false },
-                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for $%price%. Total Points: $%balance%", -1, false },
-                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for $%price%. Total Points: $%balance%", -1, false },
-                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for $%price%. Total Points: $%balance%", -1, false },
-                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for $%price%. Total Points: $%balance%", -1, false },
-                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for $%price%. Total Points: $%balance%", -1, false },
-                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for $%price%. Total Points: $%balance%", -1, false },
-                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for $%price%. Total Points: $%balance%", -1, false },
-                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Purchased Needler for $%price%. Total Points: $%balance%", -1, false },
-                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for $%price%. Total Points: $%balance%", -1, false },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Purchased Pistol for (%price%) points. Total Points: %balance%", -1, false },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Purchased Sniper for (%price%) points. Total Points: %balance%", -1, false },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Purchased Plasma Cannon for (%price%) points. Total Points: %balance%", -1, false },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Purchased Rocket Launcher for (%price%) points. Total Points: %balance%", -1, false },
+                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Purchased Plasms Pistol for (%price%) points. Total Points: %balance%", -1, false },
+                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Purchased Plasma Rifle for (%price%) points. Total Points: %balance%", -1, false },
+                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Purchased Assault Rifle for (%price%) points. Total Points: %balance%", -1, false },
+                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Purchased Flame  Thrower for (%price%) points. Total Points: %balance%", -1, false },
+                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Purchased Needler for (%price%) points. Total Points: %balance%", -1, false },
+                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Purchased Shotgun for (%price%) points. Total Points: %balance%", -1, false },
                 
                 -- Custom Weapons
-                [11] = { "w11", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. Total Points: $%balance%", -1, false },
-                [12] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for $%price%. Total Points: $%balance%", -1, false },                
+                [11] = { "w11", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for (%price%) points. Total Points: %balance%", -1, false },
+                [12] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Purchased Battle Rifle for (%price%) points. Total Points: %balance%", -1, false },                
                 [13] = { "pistol", '10', "reach\\objects\\weapons\\pistol\\magnum\\magnum", "Purchased Pistol for (%price%) points. Total Points: %balance%", -1, true },
                 [14] = { "odpistol", '10', "halo3\\weapons\\odst pistol\\odst pistol", "Purchased ODST Pistol for (%price%) points. Total Points: %balance%", -1, true },
                 [15] = { "arifle", '15', "bourrin\\weapons\\assault rifle", "Purchased Assault Rifle for (%price%) points. Total Points: %balance%", -1, true },
@@ -144,18 +144,18 @@ local commands = {
                 [20] = { "sniper", '15', "cmt\\weapons\\evolved\\human\\sniper_rifle\\sniper_rifle", "Purchased Sniper for (%price%) points. Total Points: %balance%", -1, true },
                 [21] = { "laser", '30', "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser", "Purchased Spartan Laser for (%price%) points. Total Points: %balance%", -1, true },
                 [22] = { "rlauncher", '35', "bourrin\\weapons\\badass rocket launcher\\bourrinrl", "Purchased Rocket Launcher for (%price%) points. Total Points: %balance%", -1, true },
-                [23] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for $%price%. Total Points: $%balance%", -1, true },
+                [23] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Purchased Golden Gun for (%price%) points. Total Points: %balance%", -1, true },
                 
             },
         }
     },
 
     grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
-        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for $%price%. Total Points: $%balance%", -1, true } },
-        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for $%price%. Total Points: $%balance%", -1, true } },
+        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for (%price%) points. Total Points: %balance%", -1, true } },
+        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
 
-        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for $%price%. Total Points: $%balance%", -1, true } },
-        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for $%price%. Total Points: $%balance%", -1, true } },
+        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
+        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
     },
 }
 
