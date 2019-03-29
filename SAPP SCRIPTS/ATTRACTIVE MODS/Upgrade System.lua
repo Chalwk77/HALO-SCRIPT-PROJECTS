@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.37), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.38), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -36,7 +36,8 @@ local starting_balance = 0
 local balance_command = "bal"
 local balance_perm_lvl = -1
 local balance_msg_format = "Upgrade Points: %balance%"
-local on_purchase = "Purchased (%item%) for (%price%) points. Balance: %balance%"
+local on_purchase_weapon = "Purchased (%item%) for (%price%) points. Balance: %balance%"
+local on_purchase_grenade = "Purchased (%count% %item%) for (%price%) points. Balance: %balance%"
 
 local upgrade_info_command = "upgrades"
 local upgrade_perm_lvl = -1
@@ -59,13 +60,16 @@ local transfer_perm_lvl = -1
 local transfer_toSenderMsg = "You sent %receiver_name% (%amount%) points. Points Remaining: $%sender_balance%"
 local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) points. Total Points: $%receiver_balance%"
 
+-- Command to view a list of weapons & grenades
 local weapon_list = "weapons"
 local weapon_list_perm = -1
-local max_columns, max_results = 4, 50 --<<--- I do not recommend changing these values.
-local startIndex = 1 -- <<--- do not touch
-local endIndex = max_columns -- <<--- do not touch
-local spaces = 4 -- Spaces between results
-local output_format = "/%command% (%price%)"
+
+-- I do not recommend changing these values!
+local max_columns, max_results = 2, 50
+local startIndex = 1
+local endIndex = max_columns
+local spaces = 3
+local output_format = "/%command% (%type%) (%price%)"
 
 local commands = {
     sapp = {
@@ -121,16 +125,16 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, false },
-                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, false },
-                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, false },
-                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, false },
-                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, false },
-                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifl", -1, false },
-                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, false },
-                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame  Thrower", -1, false },
-                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, false },
-                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, false },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, true },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, true },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, true },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, true },
+                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, true },
+                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle", -1, true },
+                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, true },
+                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame Thrower", -1, true },
+                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, true },
+                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, true },
                 
                 -- Custom Weapons
                 [11] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Battle Rifle", -1, false },                
@@ -145,12 +149,22 @@ local commands = {
                 [20] = { "laser", '30', "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser", "Spartan Laser", -1, true },
                 [21] = { "rlauncher", '35', "bourrin\\weapons\\badass rocket launcher\\bourrinrl", "Rocket Launcher", -1, true },
                 [22] = { "gold", '200', "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", "Golden Gun", -1, true },
+                -- Repeat the structure to add more weapons
+            },
+            ["grenade_table"] = {
+                -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
+                [1] = { "mine", '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Mines", -1, true },
+                [2] = { "gren1", '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Grenades", -1, true },
                 
+                [3] = { "frag", '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Frag Grenades", -1, true },
+                [4] = { "plasma", '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Plasma Grenades", -1, true },
+                -- Repeat the structure to add more weapons
             },
         }
     },
-
-    grenades = { -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
+    
+    grenades = { 
+        -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
         { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for (%price%) points. Total Points: %balance%", -1, true } },
         { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
 
@@ -277,14 +291,14 @@ local run_combo_timer = { }
 local money_table = { }
 local check_available_slots, give_weapon = { }, { }
 local divide = { }
-local weapons_table = { }
+local weapons_table, grenade_table = { }, { }
 local original_StartIndex
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.37
+local script_version = 1.38
 local initialStartIndex
 
 function OnScriptLoad()
@@ -344,6 +358,12 @@ function OnScriptLoad()
             weapons_table[_] = nil
         end
     end
+    
+    if next(grenade_table) then
+        for _ in pairs(grenade_table) do
+            grenade_table[_] = nil
+        end
+    end
 
     populateTables()
 end
@@ -382,7 +402,7 @@ end
 
 local function spacing(n, sep)
 	sep = sep or ""
-	local String, Seperator = "", ","
+	local String, Seperator = "", ""
 	for i = 1, n do
 		if i == math.floor(n / 2) then
 			String = String .. sep
@@ -421,9 +441,6 @@ function data:align(executor, table)
     cls(executor)
     if (#table <= 0) then
         rprint(executor, 'There are no weapon commands available to you on this map.')
-    else
-        rprint(executor, 'Showing (' .. #table .. ' weapons)')
-        rprint(executor, " ")
     end
     local function formatResults()
         local placeholder, row = { }
@@ -462,26 +479,84 @@ function OnGameStart()
     populateTables()
 end
 
+local function getItemCount(tab, type, eIndex, tIndex)
+    local e = tonumber(eIndex)
+    local t = tonumber(tIndex)
+    local count = 0
+    for key, _ in pairs(tab) do
+        local enabled = tab[key][e]
+        local tag_id = tab[key][t]
+        if (enabled) and TagInfo(type, tag_id) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 function populateTables()
     -- Do not touch
     initialStartIndex = tonumber(startIndex)
+    
     weapons_table = weapons_table or { }
     weapons_table = { }
+    
+    grenade_table = grenade_table or { }
+    grenade_table = { }
+    
     local tab = commands.weapons
+    local weapontable
+    local grenadetable
+    
     for key, _ in pairs(tab) do
-        local table_data = tab[key]["weapon_table"]
-        if (table_data) then
-            for k, _ in pairs(table_data) do
-                local cmd = table_data[k][1]
-                local cost = table_data[k][2]
-                local tag_id = table_data[k][3]
-                local enabled = table_data[k][6]
-                if (enabled) then
-                    local response = gsub(gsub(output_format, "%%command%%", cmd), "%%price%%", cost)
-                    if TagInfo("weap", tag_id) then
-                        weapons_table[#weapons_table + 1] = response
-                    end
-                end
+        weapontable = tab[key]["weapon_table"]
+        grenadetable = tab[key]["grenade_table"]
+    end
+    
+    local bool1, bool2 = true, true
+    if (weapontable) or (grenadetable) then
+    
+        local WeaponCount = getItemCount(weapontable, "weap", 6, 3)
+        local GrenadeCount = getItemCount(grenadetable, "eqip", 8, 5)
+    
+        if (bool1) then
+            bool1 = false
+            weapons_table[#weapons_table + 1] = "---[ " .. WeaponCount .. " WEAPONS ] ---"
+            for i = 1,max_columns - 1 do
+                weapons_table[#weapons_table + 1] = ""
+            end
+        end
+    
+        for k, _ in pairs(weapontable) do
+            local cmd = weapontable[k][1]
+            local cost = weapontable[k][2]
+            local tag_id = weapontable[k][3]
+            local type = weapontable[k][4]
+            local enabled = weapontable[k][6]
+            local response = gsub(gsub(gsub(output_format, "%%command%%", cmd), "%%type%%", type), "%%price%%", cost)
+            if (enabled) and TagInfo("weap", tag_id) then
+                weapons_table[#weapons_table + 1] = response
+            end
+        end
+        
+        if (bool2) then
+            bool2 = false
+            weapons_table[#weapons_table + 1] = ""
+            weapons_table[#weapons_table + 1] = ""
+            weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADES ] ---"
+            for i = 1,max_columns - 1 do
+                weapons_table[#weapons_table + 1] = ""
+            end
+        end
+        
+        for k, _ in pairs(grenadetable) do
+            local cmd = grenadetable[k][1]
+            local cost = grenadetable[k][2]
+            local type = grenadetable[k][6]
+            local enabled = grenadetable[k][8]
+            local tag_id = grenadetable[k][5]
+            local response = gsub(gsub(gsub(output_format, "%%command%%", cmd), "%%type%%", type), "%%price%%", cost)
+            if (enabled) and TagInfo("eqip", tag_id) then
+                weapons_table[#weapons_table + 1] = response
             end
         end
     end
@@ -778,7 +853,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 money:update(p)
                                 
                                 local new_balance = money:getbalance(ip)
-                                local strFormat = gsub(gsub(gsub(on_purchase, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
+                                local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
                                 rprint(executor, strFormat)
                                 
                             else
@@ -798,95 +873,94 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- WEAPON COMMANDS
     local tab = commands.weapons
+    local weapontable
+    local table_data
+    
     for key, _ in pairs(tab) do
-        local table_data = tab[key]["weapon_table"]
-        if (table_data) then
-            for k, _ in pairs(table_data) do
-                local cmd = table_data[k][1]
-                if (command == cmd) then
-                    local enabled = table_data[k][6]
-                    if cmdEnabled(table_data[k][6]) then
-                        if player_alive(executor) then
-                            local lvl = table_data[k][5]
-                            if checkAccess(executor, lvl) then
-                                local cost = table_data[k][2]
-                                function delay_add()
-                                    if (give_weapon[executor]) then
-                                        give_weapon[executor] = false
-
-                                        local p = { }
-                                        p.ip, p.money, p.subtract = ip, cost, true
-                                        money:update(p)
-
-                                        local new_balance = money:getbalance(ip)
-                                        local item = table_data[k][4]
-                                        local strFormat = gsub(gsub(gsub(on_purchase, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
-                                        rprint(executor, strFormat)
-                                        
-                                        local player_object = get_dynamic_player(executor)
-                                        local x, y, z = read_vector3d(player_object + 0x5C)
-                                        local tag_id = table_data[k][3]
-                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
-                                    end
-                                end
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    check_available_slots[executor] = true
-                                    timer(100, "delay_add")
-                                else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-                                end
-                            end
-                        else
-                            rprint(executor, "Command failed. Please wait until you respawn.")
-                        end
-                    end
-                    return false
-                end
-            end
-        end
+        weapontable = tab[key]["weapon_table"]
+        grenadetable = tab[key]["grenade_table"]
     end
-
-    local tab = commands.grenades
-    for key, _ in ipairs(tab) do
-        local entry = tab[key][command]
-        if (entry ~= nil) then
-            TYPE_THREE = true
-            if not gameover(executor) then
-                if cmdEnabled(entry[7]) then
+    
+    if (weapontable) then
+        for k, _ in pairs(weapontable) do
+            local cmd = weapontable[k][1]
+            if (command == cmd) then
+                if cmdEnabled(weapontable[k][6]) then
                     if player_alive(executor) then
-                        local cost = entry[1]
-                        local count = entry[2]
-                        local type = entry[3]
-                        local tag_id = entry[4]
-                        local message = entry[5]
-                        local lvl = entry[6]
+                        local lvl = weapontable[k][5]
                         if checkAccess(executor, lvl) then
-                            if TagInfo("eqip", tag_id) then
-                                local balance = money:getbalance(ip)
-                                if (balance >= tonumber(cost)) then
-                                    execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                            local cost = weapontable[k][2]
+                            function delay_add()
+                                if (give_weapon[executor]) then
+                                    give_weapon[executor] = false
+                                    local player_object = get_dynamic_player(executor)
+                                    local x, y, z = read_vector3d(player_object + 0x5C)
+                                    local tag_id = weapontable[k][3]
+                                    local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+
                                     local p = { }
                                     p.ip, p.money, p.subtract = ip, cost, true
                                     money:update(p)
+
                                     local new_balance = money:getbalance(ip)
-                                    local strFormat = gsub(gsub(gsub(message, "%%price%%", cost), "%%balance%%", new_balance), "%%count%%", count)
+                                    local item = weapontable[k][4]
+                                    local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
                                     rprint(executor, strFormat)
-                                else
-                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                 end
+                            end
+                            local balance = money:getbalance(ip)
+                            if (balance >= tonumber(cost)) then
+                                check_available_slots[executor] = true
+                                timer(100, "delay_add")
                             else
-                                rprint(executor, "That doesn't command work on this map.")
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                             end
                         end
                     else
                         rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
+                return false
             end
-            return false
+        end
+    end
+        
+    if (grenadetable) then
+        for k, _ in pairs(grenadetable) do
+            local cmd = grenadetable[k][1]
+            if (command == cmd) then
+                local cmd = grenadetable[k][1]
+                local tag_id = grenadetable[k][5]
+                if cmdEnabled(grenadetable[k][8]) then
+                    if player_alive(executor) then
+                        local lvl = grenadetable[k][7]
+                        if checkAccess(executor, lvl) then
+                            local balance = money:getbalance(ip)
+                            local cost = grenadetable[k][2]
+                            if (balance >= tonumber(cost)) then
+                                local count = grenadetable[k][3]
+                                local type = grenadetable[k][4]
+                                execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                                
+                                local p = { }
+                                p.ip, p.money, p.subtract = ip, cost, true
+                                money:update(p)
+                                
+                                local new_balance = money:getbalance(ip)
+                                local item = grenadetable[k][6]
+                                local strFormat = gsub(gsub(gsub(gsub(on_purchase_grenade, "%%item%%", item), "%%count%%", count), "%%price%%", cost), "%%balance%%", new_balance)
+                                rprint(executor, strFormat)
+                            else
+                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                            end
+                        end
+                    else
+                        rprint(executor, "Command failed. Please wait until you respawn.")
+                    end
+                end
+                return false
+            end
         end
     end
 
@@ -918,7 +992,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 trigger[executor] = true
                                 local new_balance = money:getbalance(ip)
                                 local SPECIAL = gsub(item, "%%seconds%%", duration)
-                                local strFormat = gsub(gsub(gsub(on_purchase, "%%item%%", SPECIAL), "%%price%%", cost), "%%balance%%", new_balance)
+                                local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", SPECIAL), "%%price%%", cost), "%%balance%%", new_balance)
                                 rprint(executor, strFormat)
                             else
                                 rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
