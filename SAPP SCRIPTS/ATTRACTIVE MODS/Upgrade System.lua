@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.38), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.39), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -298,7 +298,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.38
+local script_version = 1.39
 local initialStartIndex
 
 function OnScriptLoad()
@@ -479,7 +479,7 @@ function OnGameStart()
     populateTables()
 end
 
-local function getItemCount(tab, type, eIndex, tIndex)
+local function getTableCount(tab, type, eIndex, tIndex)
     local e = tonumber(eIndex)
     local t = tonumber(tIndex)
     local count = 0
@@ -515,12 +515,12 @@ function populateTables()
     local bool1, bool2 = true, true
     if (weapontable) or (grenadetable) then
     
-        local WeaponCount = getItemCount(weapontable, "weap", 6, 3)
-        local GrenadeCount = getItemCount(grenadetable, "eqip", 8, 5)
+        local WeaponCount = getTableCount(weapontable, "weap", 6, 3)
+        local GrenadeCount = getTableCount(grenadetable, "eqip", 8, 5)
     
         if (bool1) then
             bool1 = false
-            weapons_table[#weapons_table + 1] = "---[ " .. WeaponCount .. " WEAPONS ] ---"
+            weapons_table[#weapons_table + 1] = "---[ " .. WeaponCount .. " WEAPON COMMANDS ] ---"
             for i = 1,max_columns - 1 do
                 weapons_table[#weapons_table + 1] = ""
             end
@@ -542,7 +542,7 @@ function populateTables()
             bool2 = false
             weapons_table[#weapons_table + 1] = ""
             weapons_table[#weapons_table + 1] = ""
-            weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADES ] ---"
+            weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADE COMMANDS ] ---"
             for i = 1,max_columns - 1 do
                 weapons_table[#weapons_table + 1] = ""
             end
