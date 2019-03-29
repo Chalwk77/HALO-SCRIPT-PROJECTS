@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.44), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.45), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -290,7 +290,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat
 local data = { }
-local script_version = 1.44
+local script_version = 1.45
 local initialStartIndex
 
 function OnScriptLoad()
@@ -526,7 +526,6 @@ function populateTables()
 
         if (bool2) then
             bool2 = false
-            weapons_table[#weapons_table + 1] = ""
             weapons_table[#weapons_table + 1] = ""
             weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADE COMMANDS ] ---"
             for i = 1, max_columns - 1 do
@@ -1348,7 +1347,7 @@ function OnTick()
                     godmode[i] = false
                     players[i].god = 0
                     players[i].god_duration = 0
-                    rprint(i, "You are no longer in god mode.")
+                    rprint(i, "You are no longer invincible.")
                 end
             end
             if (check_available_slots[i]) then
