@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.45), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.46), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -290,7 +290,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat
 local data = { }
-local script_version = 1.45
+local script_version = 1.46
 local initialStartIndex
 
 function OnScriptLoad()
@@ -526,7 +526,9 @@ function populateTables()
 
         if (bool2) then
             bool2 = false
-            weapons_table[#weapons_table + 1] = ""
+            for i = 1, max_columns + 1 do
+                weapons_table[#weapons_table + 1] = ""
+            end
             weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADE COMMANDS ] ---"
             for i = 1, max_columns - 1 do
                 weapons_table[#weapons_table + 1] = ""
