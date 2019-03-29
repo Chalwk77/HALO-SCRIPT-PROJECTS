@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.41), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.42), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -290,7 +290,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.41
+local script_version = 1.42
 local initialStartIndex
 
 function OnScriptLoad()
@@ -309,15 +309,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     checkFile()
+    
+    if not (save_money) then
+        money_table = { ["money"] = {} }
+    end
+    
     for i = 1, 16 do
         if player_present(i) then
-
-            local hash = get_var(i, "$hash")
-            ip_table[hash] = ip_table[hash] or { }
-
-            local ip = get_var(i, "$ip")
-            table.insert(ip_table[hash], { ["ip"] = ip })
-
             players[i] = players[i] or { }
             players[i].combos = 0
             players[i].combo_timer = 0
@@ -337,26 +335,20 @@ function OnScriptLoad()
             give_weapon[i] = false
 
             divide[i] = false
+            
+            local hash = get_var(i, "$hash")
+            ip_table[hash] = ip_table[hash] or { }
+
+            local ip = get_var(i, "$ip")
+            table.insert(ip_table[hash], { ["ip"] = ip })
+           
             if not (save_money) then
-                money_table = { ["money"] = {} }
+                money_table["money"][ip] = nil
                 money_table["money"][ip] = { ["balance"] = starting_balance }
                 rprint(i, "UPGRADE SYSTEM RELOADED -> MONEY RESET.")
             end
         end
     end
-    
-    if next(weapons_table) then
-        for _ in pairs(weapons_table) do
-            weapons_table[_] = nil
-        end
-    end
-    
-    if next(grenade_table) then
-        for _ in pairs(grenade_table) do
-            grenade_table[_] = nil
-        end
-    end
-
     populateTables()
 end
 
@@ -843,7 +835,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local p = { }
                                 p.ip, p.money, p.subtract = ip, cost, true
                                 money:update(p)
-                                
                                 local new_balance = money:getbalance(ip)
                                 local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
                                 rprint(executor, strFormat)
@@ -1007,15 +998,15 @@ end
 function money:update(params)
     local params = params or {}
 
-    local ip = params.ip or nil
-
+    local ip = params.ip
+    
     if (ip == nil) then
         return error("money:update()" .. ' -> Unable to get "ip".')
     end
 
-    local points = params.money or nil
-
-    local subtract = params.subtract or nil
+    local points = params.money
+    local subtract = params.subtract
+    
     local balance = money:getbalance(ip)
     if (balance == nil) then
         return error("money:update()" .. ' -> Unable to get "balance".')
@@ -1105,7 +1096,6 @@ function money:transfer(params)
 end
 
 function money:getbalance(player_ip)
-
     if (save_money) then
         local data, balance
         local lines = lines_from(dir)
@@ -1138,18 +1128,16 @@ function money:getbalance(player_ip)
             t[_] = nil
         end
     else
-        if next(money_table["money"]) then
-            for key, _ in pairs(money_table["money"]) do
-                if (player_ip == key) then
-                    if (money_table["money"][key].balance <= 0) then
-                        return 0
-                    else
-                        return money_table["money"][key].balance
-                    end
+        for key, _ in pairs(money_table["money"]) do
+            if (player_ip == key) then
+                if (money_table["money"][key].balance <= 0) then
+                    return 0
+                else
+                    return money_table["money"][key].balance
                 end
+            else
+                error('money:getbalance() -> Something went wrong.')
             end
-        else
-            return 0
         end
     end
 end
