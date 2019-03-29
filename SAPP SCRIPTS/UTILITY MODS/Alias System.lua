@@ -17,7 +17,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 local base_command = "alias"
- -- File is saved to root/sapp/dir.lua
+-- File is saved to root/sapp/dir.lua
 local dir = "sapp\\alias.lua"
 
 -- You can optionally display results for a specified amount of time. 
@@ -55,9 +55,9 @@ local known_pirated_hashes = {
     "d41d8cd98f00b204e9800998ecf8427e",
     "c702226e783ea7e091c0bb44c2d0ec64",
 }
- 
+
 local function resetParams()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if (tonumber(get_var(i, "$lvl")) >= privilege_level) then
                 mod:reset(get_var(i, "$ip"))
@@ -72,7 +72,7 @@ function OnScriptLoad()
     end
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    
+
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
 
@@ -86,9 +86,9 @@ function mod:reset(ip)
     players[ip] = players[ip] or { }
     players[ip].e = nil
     players[ip].t = nil
-    players[ip].total = 0 
+    players[ip].total = 0
     if (use_timer) then
-        players[ip].timer = 0 
+        players[ip].timer = 0
         players[ip].trigger = false
         players[ip].bool = false
     end
@@ -116,47 +116,47 @@ local function stringSplit(inp, sep)
 end
 
 local function spacing(n, sep)
-	sep = sep or ""
-	local String, Seperator = "", ","
-	for i = 1, n do
-		if i == math.floor(n / 2) then
-			String = String .. sep
-		end
-		String = String .. " "
-	end
-	return Seperator .. String
+    sep = sep or ""
+    local String, Seperator = "", ","
+    for i = 1, n do
+        if i == math.floor(n / 2) then
+            String = String .. sep
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
 end
 
 local function FormatTable(table, rowlen, space, delimiter)
-	local longest = 0
-	for _,v in ipairs(table) do
-		local len = string.len(v)
-		if len > longest then
-			longest = len
-		end
-	end
-	local rows = {}
-	local row = 1
-	local count = 1
-	for k,v in ipairs(table) do
-		if count % rowlen == 0 or k == #table then
-			rows[row] = (rows[row] or "") .. v
-		else
-			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
-		end
-		if count % rowlen == 0 then
-			row = row + 1
-		end
-		count = count + 1
-	end
-	return concat(rows)
+    local longest = 0
+    for _, v in ipairs(table) do
+        local len = string.len(v)
+        if len > longest then
+            longest = len
+        end
+    end
+    local rows = {}
+    local row = 1
+    local count = 1
+    for k, v in ipairs(table) do
+        if count % rowlen == 0 or k == #table then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+        end
+        if count % rowlen == 0 then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
 end
 
 function data:align(player, table, target, total, shared)
     cls(player)
     local function formatResults()
         local placeholder, row = { }
-		
+
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[1][i]) then
                 placeholder[#placeholder + 1] = table[1][i]
@@ -168,15 +168,17 @@ function data:align(player, table, target, total, shared)
             rprint(player, "|" .. alignment .. " " .. row)
         end
 
-        for a in pairs(placeholder) do placeholder[a] = nil end
+        for a in pairs(placeholder) do
+            placeholder[a] = nil
+        end
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
-    
+
     while (endIndex < max_results + max_columns) do
         formatResults()
     end
-    
+
     if (startIndex >= max_results) then
         startIndex = initialStartIndex
         endIndex = max_columns
@@ -192,7 +194,7 @@ end
 
 function mod:showAliases(executor, ip, total)
     local target, shared = players[ip].t
-    for i = 1,#known_pirated_hashes do
+    for i = 1, #known_pirated_hashes do
         if (target == known_pirated_hashes[i]) then
             shared = true
         end
@@ -227,7 +229,7 @@ end
 function OnPlayerLeave(PlayerIndex)
     if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
         if next(ip_table[PlayerIndex]) then
-            for _,v in ipairs(ip_table[PlayerIndex]) do
+            for _, v in ipairs(ip_table[PlayerIndex]) do
                 mod:reset(v)
                 ip_table[PlayerIndex] = nil
             end
@@ -270,7 +272,7 @@ function OnServerCommand(PlayerIndex, Command)
     local TargetID, target_all_players, is_error
     local ip = get_var(executor, "$ip")
     local total = 0
-    
+
     local function validate_params()
         cls(executor)
         mod:reset(ip)
@@ -294,7 +296,9 @@ function OnServerCommand(PlayerIndex, Command)
                 is_error = true
                 return false
             end
-            if pl[1] then return pl end
+            if pl[1] then
+                return pl
+            end
             pl = nil
             return false
         end
@@ -305,7 +309,9 @@ function OnServerCommand(PlayerIndex, Command)
             local content
             alias_results = { }
             for i = 1, #pl do
-                if pl[i] == nil then break end
+                if pl[i] == nil then
+                    break
+                end
                 players[ip].t = get_var(pl[i], "$hash")
                 local lines = lines_from(dir)
                 for _, v in pairs(lines) do
@@ -324,7 +330,8 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
                 total = players[ip].total
-                if (target_all_players) then -- prototype
+                if (target_all_players) then
+                    -- prototype
                     if (use_timer) then
                         players[ip].bool = true
                         players[ip].trigger = true
@@ -381,10 +388,10 @@ function checkFile()
 end
 
 local function containsExact(w, s)
-    return select(2,s:gsub('^' .. w .. '%W+','')) +
-         select(2,s:gsub('%W+' .. w .. '$','')) +
-         select(2,s:gsub('^' .. w .. '$','')) +
-         select(2,s:gsub('%W+' .. w .. '%W+','')) > 0
+    return select(2, s:gsub('^' .. w .. '%W+', '')) +
+            select(2, s:gsub('%W+' .. w .. '$', '')) +
+            select(2, s:gsub('^' .. w .. '$', '')) +
+            select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
 end
 
 function mod:addAlias(name, hash)
@@ -397,15 +404,15 @@ function mod:addAlias(name, hash)
         end
         if containsExact(hash, v) and not containsExact(name, v) then
             found = true
-            
+
             local alias = v .. ", " .. name
-            
+
             local fRead = io.open(dir, "r")
             local content = fRead:read("*all")
             fRead:close()
-            
+
             content = gsub(content, v, alias)
-            
+
             local fWrite = io.open(dir, "w")
             fWrite:write(content)
             fWrite:close()
