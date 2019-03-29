@@ -45,6 +45,7 @@ local mod, players, lower, concat, floor, gsub, gmatch = { }, { }, string.lower,
 local data = { }
 local initialStartIndex
 local check_pirated_hash
+local shared = { }
 local known_pirated_hashes = {
     "81f9c914b3402c2702a12dc1405247ee",
     "c939c09426f69c4843ff75ae704bf426",
@@ -58,6 +59,7 @@ local known_pirated_hashes = {
     "f443106bd82fd6f3c22ba2df7c5e4094",
     "10440b462f6cbc3160c6280c2734f184",
     "2f02b641060da979e2b89abcfa1af3d6",
+    "6c8f0bc306e0108b4904812110185edd",
 }
 
 local function resetParams()
@@ -101,6 +103,11 @@ end
 function OnNewGame()
     initialStartIndex = tonumber(startIndex)
     resetParams()
+    for i = 1,16 do 
+        if (shared[i] == true) then
+            shared[i] = false
+        end
+    end
 end
 
 function OnGameEnd()
@@ -197,16 +204,16 @@ function data:align(player, table, target, total, shared)
 end
 
 function mod:showAliases(executor, ip, total)
-    local target, shared = players[ip].t
+    local target = players[ip].t
     if (check_pirated_hash) then
         check_pirated_hash = false
         for i = 1, #known_pirated_hashes do
             if (target == known_pirated_hashes[i]) then
-                shared = true
+                shared[executor] = true
             end
         end
     end
-    data:align(executor, alias_results, target, total, shared)
+    data:align(executor, alias_results, target, total, shared[executor])
 end
 
 function OnTick()
@@ -230,11 +237,13 @@ function OnPlayerJoin(PlayerIndex)
     if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
         ip_table[PlayerIndex] = {}
         ip_table[PlayerIndex][#ip_table[PlayerIndex] + 1] = get_var(PlayerIndex, "$ip")
+        shared[PlayerIndex] = { }
     end
 end
 
 function OnPlayerLeave(PlayerIndex)
     if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
+        shared[PlayerIndex] = false
         if next(ip_table[PlayerIndex]) then
             for _, v in ipairs(ip_table[PlayerIndex]) do
                 mod:reset(v)
@@ -331,6 +340,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
             if (pl ~= nil) then
                 players[ip].e = tonumber(get_var(executor, "$n"))
+                shared[executor] = false
                 check_pirated_hash = true
                 for i = 1, max_results do
                     if (alias_results[1][i]) then
