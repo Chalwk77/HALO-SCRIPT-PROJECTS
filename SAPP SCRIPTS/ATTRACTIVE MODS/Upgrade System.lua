@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.39), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.40), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -63,13 +63,14 @@ local transfer_toReceiverMsg = "%sender_name% sent you (%amount%) points. Total 
 -- Command to view a list of weapons & grenades
 local weapon_list = "weapons"
 local weapon_list_perm = -1
+local output_format = "/%command% (%type%) (%price%)"
 
--- I do not recommend changing these values!
+-- I DO NOT RECOMMEND CHANGING THESE VALUES...
 local max_columns, max_results = 2, 50
 local startIndex = 1
 local endIndex = max_columns
 local spaces = 3
-local output_format = "/%command% (%type%) (%price%)"
+--
 
 local commands = {
     sapp = {
@@ -125,16 +126,16 @@ local commands = {
             ["weapon_table"] = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 -- Stock Weapons
-                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, true },
-                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, true },
-                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, true },
-                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, true },
-                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, true },
-                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle", -1, true },
-                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, true },
-                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame Thrower", -1, true },
-                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, true },
-                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, true },
+                [1] = { "w1", '10', "weapons\\pistol\\pistol", "Pistol", -1, false },
+                [2] = { "w2", '15', "weapons\\sniper rifle\\sniper rifle", "Sniper", -1, false },
+                [3] = { "w3", '35', "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", -1, false },
+                [4] = { "w4", '35', "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", -1, false },
+                [5] = { "w5", '5', "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", -1, false },
+                [6] = { "w6", '5', "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle", -1, false },
+                [7] = { "w7", '7', "weapons\\assault rifle\\assault rifle", "Assault Rifle", -1, false },
+                [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame Thrower", -1, false },
+                [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, false },
+                [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, false },
                 
                 -- Custom Weapons
                 [11] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Battle Rifle", -1, false },                
@@ -298,7 +299,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.39
+local script_version = 1.40
 local initialStartIndex
 
 function OnScriptLoad()
