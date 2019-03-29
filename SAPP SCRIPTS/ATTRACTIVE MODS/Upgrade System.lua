@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.40), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.41), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -163,15 +163,6 @@ local commands = {
             },
         }
     },
-    
-    grenades = { 
-        -- command | price | amount | type | tag id | message | permission level | enabled/disabled (set to true to enable)
-        { ["mine"] = { '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Mines) for (%price%) points. Total Points: %balance%", -1, true } },
-        { ["gren1"] = { '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Purchased (%count% Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
-
-        { ["frag"] = { '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Purchased (%count% Frag Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
-        { ["plasma"] = { '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Purchased (%count% Plasma Grenades) for (%price%) points. Total Points: %balance%", -1, true } },
-    },
 }
 
 local upgrade_info = {
@@ -299,7 +290,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
 local data = { }
-local script_version = 1.40
+local script_version = 1.41
 local initialStartIndex
 
 function OnScriptLoad()
