@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.43), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.44), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -290,7 +290,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat
 local data = { }
-local script_version = 1.43
+local script_version = 1.44
 local initialStartIndex
 
 function OnScriptLoad()
@@ -1137,8 +1137,6 @@ function money:getbalance(player_ip)
                 else
                     return money_table["money"][key].balance
                 end
-            else
-                error('money:getbalance() -> Something went wrong.')
             end
         end
     end
@@ -1179,7 +1177,6 @@ function OnPlayerConnect(PlayerIndex)
                 found = true
             end
         end
-
         if not (found) then
             local file = assert(io.open(dir, "a+"))
             file:write(ip .. "|" .. tostring(starting_balance) .. "\n")
