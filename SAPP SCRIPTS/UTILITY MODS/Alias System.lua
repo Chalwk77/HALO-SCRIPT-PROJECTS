@@ -44,6 +44,7 @@ local ip_table, alias_results = { }, { }
 local mod, players, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
 local data = { }
 local initialStartIndex
+local check_pirated_hash
 local known_pirated_hashes = {
     "81f9c914b3402c2702a12dc1405247ee",
     "c939c09426f69c4843ff75ae704bf426",
@@ -197,9 +198,12 @@ end
 
 function mod:showAliases(executor, ip, total)
     local target, shared = players[ip].t
-    for i = 1, #known_pirated_hashes do
-        if (target == known_pirated_hashes[i]) then
-            shared = true
+    if (check_pirated_hash) then
+        check_pirated_hash = false
+        for i = 1, #known_pirated_hashes do
+            if (target == known_pirated_hashes[i]) then
+                shared = true
+            end
         end
     end
     data:align(executor, alias_results, target, total, shared)
@@ -327,6 +331,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
             if (pl ~= nil) then
                 players[ip].e = tonumber(get_var(executor, "$n"))
+                check_pirated_hash = true
                 for i = 1, max_results do
                     if (alias_results[1][i]) then
                         players[ip].total = players[ip].total + 1
