@@ -46,20 +46,24 @@ local data = { }
 local initialStartIndex
 local check_pirated_hash
 local shared = { }
-local known_pirated_hashes = {
-    "81f9c914b3402c2702a12dc1405247ee",
-    "c939c09426f69c4843ff75ae704bf426",
-    "13dbf72b3c21c5235c47e405dd6e092d",
-    "29a29f3659a221351ed3d6f8355b2200",
-    "d72b3f33bfb7266a8d0f13b37c62fddb",
-    "76b9b8db9ae6b6cacdd59770a18fc1d5",
-    "55d368354b5021e7dd5d3d1525a4ab82",
-    "d41d8cd98f00b204e9800998ecf8427e",
-    "c702226e783ea7e091c0bb44c2d0ec64",
-    "f443106bd82fd6f3c22ba2df7c5e4094",
-    "10440b462f6cbc3160c6280c2734f184",
-    "2f02b641060da979e2b89abcfa1af3d6",
-}
+local known_pirated_hashes
+local function PreLoad()
+    initialStartIndex = tonumber(startIndex)
+    known_pirated_hashes = {
+        "388e89e69b4cc08b3441f25959f74103",
+        "81f9c914b3402c2702a12dc1405247ee",
+        "c939c09426f69c4843ff75ae704bf426",
+        "13dbf72b3c21c5235c47e405dd6e092d",
+        "29a29f3659a221351ed3d6f8355b2200",
+        "d72b3f33bfb7266a8d0f13b37c62fddb",
+        "76b9b8db9ae6b6cacdd59770a18fc1d5",
+        "55d368354b5021e7dd5d3d1525a4ab82",
+        "d41d8cd98f00b204e9800998ecf8427e",
+        "c702226e783ea7e091c0bb44c2d0ec64",
+        "f443106bd82fd6f3c22ba2df7c5e4094",
+        "10440b462f6cbc3160c6280c2734f184",
+    }
+end
 
 local function resetParams()
     for i = 1, 16 do
@@ -85,6 +89,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     checkFile()
     resetParams()
+    PreLoad()
+end
+
+function OnScriptUnload()
+
 end
 
 function mod:reset(ip)
@@ -100,7 +109,7 @@ function mod:reset(ip)
 end
 
 function OnNewGame()
-    initialStartIndex = tonumber(startIndex)
+    PreLoad()
     resetParams()
     for i = 1,16 do 
         if (shared[i] == true) then
@@ -162,7 +171,7 @@ local function FormatTable(table, rowlen, space, delimiter)
     return concat(rows)
 end
 
-function data:align(player, table, target, total, shared)
+function data:align(player, table, target, total, shared, name)
     cls(player)
     local function formatResults()
         local placeholder, row = { }
@@ -196,7 +205,7 @@ function data:align(player, table, target, total, shared)
     rprint(player, " ")
     if (shared) then
         rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
-        rprint(player, "|" .. alignment .. " " .. 'Player is using a pirated copy of Halo.')
+        rprint(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.')
     else
         rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
     end
@@ -204,6 +213,7 @@ end
 
 function mod:showAliases(executor, ip, total)
     local target = players[ip].t
+    local name = players[ip].name
     if (check_pirated_hash) then
         check_pirated_hash = false
         for i = 1, #known_pirated_hashes do
@@ -212,7 +222,7 @@ function mod:showAliases(executor, ip, total)
             end
         end
     end
-    data:align(executor, alias_results, target, total, shared[executor])
+    data:align(executor, alias_results, target, total, shared[executor], name)
 end
 
 function OnTick()
@@ -328,6 +338,7 @@ function OnServerCommand(PlayerIndex, Command)
                     break
                 end
                 players[ip].t = get_var(pl[i], "$hash")
+                players[ip].name = get_var(pl[i], "$name")
                 local lines = lines_from(dir)
                 for _, v in pairs(lines) do
                     if (v:match(players[ip].t)) then
