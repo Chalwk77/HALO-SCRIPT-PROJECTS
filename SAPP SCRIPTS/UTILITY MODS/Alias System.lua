@@ -54,6 +54,9 @@ local known_pirated_hashes = {
     "55d368354b5021e7dd5d3d1525a4ab82",
     "d41d8cd98f00b204e9800998ecf8427e",
     "c702226e783ea7e091c0bb44c2d0ec64",
+    "f443106bd82fd6f3c22ba2df7c5e4094",
+    "10440b462f6cbc3160c6280c2734f184",
+    "2f02b641060da979e2b89abcfa1af3d6",
 }
 
 local function resetParams()
