@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.42), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.43), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -136,9 +136,9 @@ local commands = {
                 [8] = { "w8", '7', "weapons\\flamethrower\\flamethrower", "Flame Thrower", -1, false },
                 [9] = { "w9", '5', "weapons\\needler\\mp_needler", "Needler", -1, false },
                 [10] = { "w10", '10', "weapons\\shotgun\\shotgun", "Shotgun", -1, false },
-                
+
                 -- Custom Weapons
-                [11] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Battle Rifle", -1, false },                
+                [11] = { "w12", '50', "halo3\\weapons\\battle rifle\\tactical battle rifle", "Battle Rifle", -1, false },
                 [12] = { "pistol", '10', "reach\\objects\\weapons\\pistol\\magnum\\magnum", "Pistol", -1, true },
                 [13] = { "odpistol", '10', "halo3\\weapons\\odst pistol\\odst pistol", "ODST Pistol", -1, true },
                 [14] = { "arifle", '15', "bourrin\\weapons\\assault rifle", "Assault Rifle", -1, true },
@@ -156,7 +156,7 @@ local commands = {
                 -- command | price | tag id | message | permission level | enabled/disabled (set to true to enable)
                 [1] = { "mine", '15', "2", "1", "my_weapons\\trip-mine\\trip-mine", "Mines", -1, true },
                 [2] = { "gren1", '10', "2", "2", "my_weapons\\trip-mine\\trip-mine", "Grenades", -1, true },
-                
+
                 [3] = { "frag", '10', "2", "1", "weapons\\frag grenade\\frag grenade", "Frag Grenades", -1, true },
                 [4] = { "plasma", '10', "2", "2", "weapons\\plasma grenade\\plasma grenade", "Plasma Grenades", -1, true },
                 -- Repeat the structure to add more weapons
@@ -249,12 +249,12 @@ local stats = {
         [11] = { "100", "30", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
         -- Repeat the structure to add more entries.
     },
-    
+
     -- Every kill will reward X amount of points.
     on_kill = {
         -- POINTS | MESSAGE
         enabled = true, -- Set to 'false' to disable
-        {"10", "Kill (+%upgrade_points%) upgrade points"}
+        { "10", "Kill (+%upgrade_points%) upgrade points" }
     },
 
     penalty = {
@@ -288,9 +288,9 @@ local original_StartIndex
 
 -- CUSTOM GOD MODE
 local godmode, trigger = { }, { }
-local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat 
+local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat
 local data = { }
-local script_version = 1.42
+local script_version = 1.43
 local initialStartIndex
 
 function OnScriptLoad()
@@ -309,11 +309,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     checkFile()
-    
+
     if not (save_money) then
         money_table = { ["money"] = {} }
     end
-    
+
     for i = 1, 16 do
         if player_present(i) then
             players[i] = players[i] or { }
@@ -335,13 +335,13 @@ function OnScriptLoad()
             give_weapon[i] = false
 
             divide[i] = false
-            
+
             local hash = get_var(i, "$hash")
             ip_table[hash] = ip_table[hash] or { }
 
             local ip = get_var(i, "$ip")
             table.insert(ip_table[hash], { ["ip"] = ip })
-           
+
             if not (save_money) then
                 money_table["money"][ip] = nil
                 money_table["money"][ip] = { ["balance"] = starting_balance }
@@ -385,40 +385,40 @@ local function stringSplit(inp, sep)
 end
 
 local function spacing(n, sep)
-	sep = sep or ""
-	local String, Seperator = "", ""
-	for i = 1, n do
-		if i == math.floor(n / 2) then
-			String = String .. sep
-		end
-		String = String .. " "
-	end
-	return Seperator .. String
+    sep = sep or ""
+    local String, Seperator = "", ""
+    for i = 1, n do
+        if i == math.floor(n / 2) then
+            String = String .. sep
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
 end
 
 local function FormatTable(table, rowlen, space, delimiter)
-	local longest = 0
-	for _,v in ipairs(table) do
-		local len = string.len(v)
-		if len > longest then
-			longest = len
-		end
-	end
-	local rows = {}
-	local row = 1
-	local count = 1
-	for k,v in ipairs(table) do
-		if count % rowlen == 0 or k == #table then
-			rows[row] = (rows[row] or "") .. v
-		else
-			rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
-		end
-		if count % rowlen == 0 then
-			row = row + 1
-		end
-		count = count + 1
-	end
-	return concat(rows)
+    local longest = 0
+    for _, v in ipairs(table) do
+        local len = string.len(v)
+        if len > longest then
+            longest = len
+        end
+    end
+    local rows = {}
+    local row = 1
+    local count = 1
+    for k, v in ipairs(table) do
+        if count % rowlen == 0 or k == #table then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+        end
+        if count % rowlen == 0 then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
 end
 
 function data:align(executor, table)
@@ -428,7 +428,7 @@ function data:align(executor, table)
     end
     local function formatResults()
         local placeholder, row = { }
-        
+
         for i = tonumber(startIndex), tonumber(endIndex) do
             if (table[i]) then
                 placeholder[#placeholder + 1] = table[i]
@@ -440,15 +440,17 @@ function data:align(executor, table)
             rprint(executor, row)
         end
 
-        for a in pairs(placeholder) do placeholder[a] = nil end
+        for a in pairs(placeholder) do
+            placeholder[a] = nil
+        end
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
-    
+
     while (endIndex < max_results + max_columns) do
         formatResults()
     end
-    
+
     if (startIndex >= max_results) then
         startIndex = initialStartIndex
         endIndex = max_columns
@@ -480,36 +482,36 @@ end
 function populateTables()
     -- Do not touch
     initialStartIndex = tonumber(startIndex)
-    
+
     weapons_table = weapons_table or { }
     weapons_table = { }
-    
+
     grenade_table = grenade_table or { }
     grenade_table = { }
-    
+
     local tab = commands.weapons
     local weapontable
     local grenadetable
-    
+
     for key, _ in pairs(tab) do
         weapontable = tab[key]["weapon_table"]
         grenadetable = tab[key]["grenade_table"]
     end
-    
+
     local bool1, bool2 = true, true
     if (weapontable) or (grenadetable) then
-    
+
         local WeaponCount = getTableCount(weapontable, "weap", 6, 3)
         local GrenadeCount = getTableCount(grenadetable, "eqip", 8, 5)
-    
+
         if (bool1) then
             bool1 = false
             weapons_table[#weapons_table + 1] = "---[ " .. WeaponCount .. " WEAPON COMMANDS ] ---"
-            for i = 1,max_columns - 1 do
+            for i = 1, max_columns - 1 do
                 weapons_table[#weapons_table + 1] = ""
             end
         end
-    
+
         for k, _ in pairs(weapontable) do
             local cmd = weapontable[k][1]
             local cost = weapontable[k][2]
@@ -521,17 +523,17 @@ function populateTables()
                 weapons_table[#weapons_table + 1] = response
             end
         end
-        
+
         if (bool2) then
             bool2 = false
             weapons_table[#weapons_table + 1] = ""
             weapons_table[#weapons_table + 1] = ""
             weapons_table[#weapons_table + 1] = "---[ " .. GrenadeCount .. " GRENADE COMMANDS ] ---"
-            for i = 1,max_columns - 1 do
+            for i = 1, max_columns - 1 do
                 weapons_table[#weapons_table + 1] = ""
             end
         end
-        
+
         for k, _ in pairs(grenadetable) do
             local cmd = grenadetable[k][1]
             local cost = grenadetable[k][2]
@@ -726,7 +728,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             rprint(executor, "Unable to execute. Command disabled.")
         end
     end
-    
+
     if (command == lower(balance_command)) then
         if (checkAccess(executor, balance_perm_lvl)) then
             if (args[1] == nil) then
@@ -838,7 +840,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local new_balance = money:getbalance(ip)
                                 local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
                                 rprint(executor, strFormat)
-                                
+
                             else
                                 rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                             end
@@ -859,12 +861,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local tab = commands.weapons
     local weapontable
     local table_data
-    
+
     for key, _ in pairs(tab) do
         weapontable = tab[key]["weapon_table"]
         grenadetable = tab[key]["grenade_table"]
     end
-    
+
     if (weapontable) then
         for k, _ in pairs(weapontable) do
             local cmd = weapontable[k][1]
@@ -908,7 +910,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
     end
-        
+
     if (grenadetable) then
         for k, _ in pairs(grenadetable) do
             local cmd = grenadetable[k][1]
@@ -925,11 +927,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 local count = grenadetable[k][3]
                                 local type = grenadetable[k][4]
                                 execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
-                                
+
                                 local p = { }
                                 p.ip, p.money, p.subtract = ip, cost, true
                                 money:update(p)
-                                
+
                                 local new_balance = money:getbalance(ip)
                                 local item = grenadetable[k][6]
                                 local strFormat = gsub(gsub(gsub(gsub(on_purchase_grenade, "%%item%%", item), "%%count%%", count), "%%price%%", cost), "%%balance%%", new_balance)
@@ -999,14 +1001,14 @@ function money:update(params)
     local params = params or {}
 
     local ip = params.ip
-    
+
     if (ip == nil) then
         return error("money:update()" .. ' -> Unable to get "ip".')
     end
 
     local points = params.money
     local subtract = params.subtract
-    
+
     local balance = money:getbalance(ip)
     if (balance == nil) then
         return error("money:update()" .. ' -> Unable to get "balance".')
@@ -1224,7 +1226,6 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         godmode[victim] = false
         trigger[victim] = false
 
-
         if (killer ~= victim and kTeam ~= vTeam) then
             -- [Combo Scoring]
             if (stats.combo.enabled) then
@@ -1248,7 +1249,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     timer(50, "comboCheckDelay")
                 end
             end
-       
+
             if (stats.streaks.enabled) then
                 -- [ STREAKS ]
                 if (players[victim].streaks > 0) then
@@ -1272,11 +1273,11 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
             money:update(p3)
             rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
-            
+
             if (stats.on_kill.enabled) then
                 local tab = stats.on_kill
                 players[killer].kill_single = players[killer].kill_single + 1
-                for key,v in ipairs(tab) do
+                for key, v in ipairs(tab) do
                     local reward = tab[key][1]
                     local message = tab[key][2]
                     local p = { }
@@ -1285,8 +1286,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     rprint(killer, gsub(message, "%%upgrade_points%%", p.money))
                 end
             end
-            
-        -- Victim Suicide
+
+            -- Victim Suicide
         elseif (victim == killer) then
             local p = { }
             p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
