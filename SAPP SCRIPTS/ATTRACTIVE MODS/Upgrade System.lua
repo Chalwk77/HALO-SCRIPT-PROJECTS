@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Upgrade System (v1.46), for SAPP (PC & CE)
+Script Name: Upgrade System (v1.47), for SAPP (PC & CE)
 Description: This is an economy mod.
             Earn 'money' for:
             -> Kills (non consecutive)
@@ -192,12 +192,19 @@ local stats = {
         enabled = true,
         -- required kills [number] | reward [number] | message [string]
         -- Custom variables that can be used in COMBO messages: %combos% (current combo) | %upgrade_points% (reward points)
-        [1] = { "3", "20", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
-        [2] = { "4", "21", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
-        [3] = { "5", "22", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
-        [3] = { "6", "23", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
-        [5] = { "7", "24", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
-        [6] = { "8", "25", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [1] = { "3", "15", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [2] = { "4", "15", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [3] = { "5", "10", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [4] = { "6", "10", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [5] = { "7", "15", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [6] = { "8", "15", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [7] = { "9", "20", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [8] = { "10", "25", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [9] = { "11", "25", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [10] = { "12", "25", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [11] = { "13", "30", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [12] = { "14", "30", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
+        [13] = { "15", "150", "(x%combos% Kill Combo) +%upgrade_points% upgrade points" },
         -- Repeat the structure to add more entries.
         -- Duration = time you have to get X amount of kill-combos
         duration = 7 -- in seconds (default 7)
@@ -213,9 +220,21 @@ local stats = {
         [3] = { "15", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
         [4] = { "20", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
         [5] = { "25", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
-        [6] = { "30", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [6] = { "30", "30", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
         [7] = { "35", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
         [8] = { "40", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [9] = { "45", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [10] = { "50", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [11] = { "55", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [12] = { "60", "60", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [13] = { "65", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [14] = { "70", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [15] = { "75", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [16] = { "80", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [17] = { "85", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [18] = { "90", "90", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [19] = { "95", "15", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
+        [20] = { "100", "120", "(x%streaks% Kill Streak) +%upgrade_points% upgrade points" },
         -- Repeat the structure to add more entries.
     },
 
@@ -224,11 +243,15 @@ local stats = {
         -- Custom variables that can be used in ASSIST messages: %streaks% (current assists) | %upgrade_points% (reward points)
         -- required assists [number] | reward [number] | message [string]
         [1] = { "5", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
-        [2] = { "10", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [2] = { "10", "20", "(x%assists% Assists) +%upgrade_points% upgrade points" },
         [3] = { "15", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
-        [4] = { "20", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [4] = { "20", "25", "(x%assists% Assists) +%upgrade_points% upgrade points" },
         [5] = { "25", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
-        [6] = { "30", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [6] = { "30", "30", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [7] = { "35", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [8] = { "40", "35", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [9] = { "45", "15", "(x%assists% Assists) +%upgrade_points% upgrade points" },
+        [10] = { "50", "40", "(x%assists% Assists) +%upgrade_points% upgrade points" },
         -- Repeat the structure to add more entries.
     },
 
@@ -239,14 +262,14 @@ local stats = {
         [1] = { "5", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
         [2] = { "10", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
         [3] = { "20", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [4] = { "30", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [5] = { "40", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [6] = { "50", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [7] = { "60", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [8] = { "70", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [9] = { "80", "10", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [4] = { "30", "15", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [5] = { "40", "15", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [6] = { "50", "15", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [7] = { "60", "20", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [8] = { "70", "20", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [9] = { "80", "20", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
         [10] = { "90", "20", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
-        [11] = { "100", "30", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
+        [11] = { "100", "50", "Total Kills: (%kills%) +%upgrade_points% upgrade points" },
         -- Repeat the structure to add more entries.
     },
 
@@ -254,7 +277,7 @@ local stats = {
     on_kill = {
         -- POINTS | MESSAGE
         enabled = true, -- Set to 'false' to disable
-        { "10", "Kill (+%upgrade_points%) upgrade points" }
+        { "10", "(x%kills%) Kills (+%upgrade_points%) points" }
     },
 
     penalty = {
@@ -290,7 +313,7 @@ local original_StartIndex
 local godmode, trigger = { }, { }
 local gsub, lower, gmatch, floor, concat = string.gsub, string.lower, string.gmatch, math.floor, table.concat
 local data = { }
-local script_version = 1.46
+local script_version = 1.47
 local initialStartIndex
 
 function OnScriptLoad()
@@ -565,7 +588,7 @@ function OnGameEnd()
 end
 
 function OnPlayerScore(PlayerIndex)
-    local p, ip = { }, getIP(PlayerIndex)
+    local p, ip = { }, get_var(PlayerIndex, "$ip")
     p.ip, p.money, p.subtract = ip, stats.score[1][1], false
     money:update(p)
     rprint(PlayerIndex, gsub(stats.score[1][2], "%%upgrade_points%%", p.money))
@@ -604,7 +627,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
             if (tonumber(get_var(e, "$lvl"))) >= level then
-                ip = getIP(executor)
+                ip = get_var(executor, "$ip")
                 return true
             else
                 rprint(e, "Command failed. Insufficient Permission.")
@@ -872,39 +895,41 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for k, _ in pairs(weapontable) do
             local cmd = weapontable[k][1]
             if (command == cmd) then
-                if cmdEnabled(weapontable[k][6]) then
-                    if player_alive(executor) then
-                        local lvl = weapontable[k][5]
-                        if checkAccess(executor, lvl) then
-                            local cost = weapontable[k][2]
-                            function delay_add()
-                                if (give_weapon[executor]) then
-                                    give_weapon[executor] = false
-                                    local player_object = get_dynamic_player(executor)
-                                    local x, y, z = read_vector3d(player_object + 0x5C)
-                                    local tag_id = weapontable[k][3]
-                                    local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
+                if not gameover(executor) then
+                    if cmdEnabled(weapontable[k][6]) then
+                        if player_alive(executor) then
+                            local lvl = weapontable[k][5]
+                            if checkAccess(executor, lvl) then
+                                local cost = weapontable[k][2]
+                                function delay_add()
+                                    if (give_weapon[executor]) then
+                                        give_weapon[executor] = false
+                                        local player_object = get_dynamic_player(executor)
+                                        local x, y, z = read_vector3d(player_object + 0x5C)
+                                        local tag_id = weapontable[k][3]
+                                        local weap = assign_weapon(spawn_object("weap", tag_id, x, y, z), executor)
 
-                                    local p = { }
-                                    p.ip, p.money, p.subtract = ip, cost, true
-                                    money:update(p)
+                                        local p = { }
+                                        p.ip, p.money, p.subtract = ip, cost, true
+                                        money:update(p)
 
-                                    local new_balance = money:getbalance(ip)
-                                    local item = weapontable[k][4]
-                                    local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
-                                    rprint(executor, strFormat)
+                                        local new_balance = money:getbalance(ip)
+                                        local item = weapontable[k][4]
+                                        local strFormat = gsub(gsub(gsub(on_purchase_weapon, "%%item%%", item), "%%price%%", cost), "%%balance%%", new_balance)
+                                        rprint(executor, strFormat)
+                                    end
+                                end
+                                local balance = money:getbalance(ip)
+                                if (balance >= tonumber(cost)) then
+                                    check_available_slots[executor] = true
+                                    timer(100, "delay_add")
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
                                 end
                             end
-                            local balance = money:getbalance(ip)
-                            if (balance >= tonumber(cost)) then
-                                check_available_slots[executor] = true
-                                timer(100, "delay_add")
-                            else
-                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
-                            end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
@@ -916,33 +941,35 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for k, _ in pairs(grenadetable) do
             local cmd = grenadetable[k][1]
             if (command == cmd) then
-                local cmd = grenadetable[k][1]
-                local tag_id = grenadetable[k][5]
-                if cmdEnabled(grenadetable[k][8]) then
-                    if player_alive(executor) then
-                        local lvl = grenadetable[k][7]
-                        if checkAccess(executor, lvl) then
-                            local balance = money:getbalance(ip)
-                            local cost = grenadetable[k][2]
-                            if (balance >= tonumber(cost)) then
-                                local count = grenadetable[k][3]
-                                local type = grenadetable[k][4]
-                                execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
+                if not gameover(executor) then
+                    local cmd = grenadetable[k][1]
+                    local tag_id = grenadetable[k][5]
+                    if cmdEnabled(grenadetable[k][8]) then
+                        if player_alive(executor) then
+                            local lvl = grenadetable[k][7]
+                            if checkAccess(executor, lvl) then
+                                local balance = money:getbalance(ip)
+                                local cost = grenadetable[k][2]
+                                if (balance >= tonumber(cost)) then
+                                    local count = grenadetable[k][3]
+                                    local type = grenadetable[k][4]
+                                    execute_command('nades ' .. ' ' .. executor .. ' ' .. count .. ' ' .. type)
 
-                                local p = { }
-                                p.ip, p.money, p.subtract = ip, cost, true
-                                money:update(p)
+                                    local p = { }
+                                    p.ip, p.money, p.subtract = ip, cost, true
+                                    money:update(p)
 
-                                local new_balance = money:getbalance(ip)
-                                local item = grenadetable[k][6]
-                                local strFormat = gsub(gsub(gsub(gsub(on_purchase_grenade, "%%item%%", item), "%%count%%", count), "%%price%%", cost), "%%balance%%", new_balance)
-                                rprint(executor, strFormat)
-                            else
-                                rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                    local new_balance = money:getbalance(ip)
+                                    local item = grenadetable[k][6]
+                                    local strFormat = gsub(gsub(gsub(gsub(on_purchase_grenade, "%%item%%", item), "%%count%%", count), "%%price%%", cost), "%%balance%%", new_balance)
+                                    rprint(executor, strFormat)
+                                else
+                                    rprint(executor, gsub(gsub(insufficient_funds, "%%balance%%", balance), "%%price%%", cost))
+                                end
                             end
+                        else
+                            rprint(executor, "Command failed. Please wait until you respawn.")
                         end
-                    else
-                        rprint(executor, "Command failed. Please wait until you respawn.")
                     end
                 end
                 return false
@@ -1131,14 +1158,20 @@ function money:getbalance(player_ip)
             t[_] = nil
         end
     else
+        local valid
         for key, _ in pairs(money_table["money"]) do
             if (player_ip == key) then
                 if (money_table["money"][key].balance <= 0) then
+                    valid = true
                     return 0
                 else
+                    valid = true
                     return money_table["money"][key].balance
                 end
             end
+        end
+        if not (valid) then
+            return error('money:getbalance() -> Something went wrong!')
         end
     end
 end
@@ -1199,105 +1232,107 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex, KillerIndex)
-    local killer = tonumber(KillerIndex)
-    local victim = tonumber(PlayerIndex)
+    if not (game_over) then
+        local killer = tonumber(KillerIndex)
+        local victim = tonumber(PlayerIndex)
 
-    local function isTeamPlay()
-        if get_var(0, "$ffa") == "0" then
-            return true
-        else
-            return false
+        local function isTeamPlay()
+            if get_var(0, "$ffa") == "0" then
+                return true
+            else
+                return false
+            end
         end
-    end
 
-    if (killer > 0) then
+        if (killer > 0) then
 
-        local kTeam = get_var(victim, "$team")
-        local vTeam = get_var(killer, "$team")
+            local kTeam = get_var(victim, "$team")
+            local vTeam = get_var(killer, "$team")
 
-        local kip = getIP(killer)
-        local vip = getIP(victim)
+            local kip = get_var(killer, "$ip")
+            local vip = get_var(victim, "$ip")
 
-        -- God Mode (custom command)
-        players[victim].god = 0
-        players[victim].god_duration = 0
-        godmode[victim] = false
-        trigger[victim] = false
+            -- God Mode (custom command)
+            players[victim].god = 0
+            players[victim].god_duration = 0
+            godmode[victim] = false
+            trigger[victim] = false
 
-        if (killer ~= victim and kTeam ~= vTeam) then
-            -- [Combo Scoring]
-            if (stats.combo.enabled) then
-                if run_combo_timer[victim] then
-                    run_combo_timer[victim] = false
-                    players[victim].combos = 0
-                    players[victim].combo_timer = 0
-                end
-                players[killer].combos = players[killer].combos + 1
-                if not (run_combo_timer[killer]) then
-                    run_combo_timer[killer] = true
-                end
-                function comboCheckDelay()
-                    if (players[killer].combo_timer > 0) then
-                        local p = { }
-                        p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combos, killer, kip, stats.combo
-                        mod:check(p)
+            if (killer ~= victim and kTeam ~= vTeam) then
+                -- [Combo Scoring]
+                if (stats.combo.enabled) then
+                    if run_combo_timer[victim] then
+                        run_combo_timer[victim] = false
+                        players[victim].combos = 0
+                        players[victim].combo_timer = 0
+                    end
+                    players[killer].combos = players[killer].combos + 1
+                    if not (run_combo_timer[killer]) then
+                        run_combo_timer[killer] = true
+                    end
+                    function comboCheckDelay()
+                        if (players[killer].combo_timer > 0) then
+                            local p = { }
+                            p.type, p.total, p.id, p.ip, p.table = "combos", players[killer].combos, killer, kip, stats.combo
+                            mod:check(p)
+                        end
+                    end
+                    if (run_combo_timer[killer]) then
+                        timer(50, "comboCheckDelay")
                     end
                 end
-                if (run_combo_timer[killer]) then
-                    timer(50, "comboCheckDelay")
+
+                if (stats.streaks.enabled) then
+                    -- [ STREAKS ]
+                    if (players[victim].streaks > 0) then
+                        players[victim].streaks = 0
+                    end
+                    local p1 = { }
+                    players[killer].streaks = players[killer].streaks + 1
+                    p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract = "streaks", players[killer].streaks, killer, kip, stats.streaks, false
+                    mod:check(p1)
                 end
-            end
 
-            if (stats.streaks.enabled) then
-                -- [ STREAKS ]
-                if (players[victim].streaks > 0) then
-                    players[victim].streaks = 0
+                if (stats.kills.enabled) then
+                    local p2 = { }
+                    players[killer].kills = players[killer].kills + 1
+                    p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
+                    mod:check(p2)
                 end
-                local p1 = { }
-                players[killer].streaks = players[killer].streaks + 1
-                p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract = "streaks", players[killer].streaks, killer, kip, stats.streaks, false
-                mod:check(p1)
-            end
 
-            if (stats.kills.enabled) then
-                local p2 = { }
-                players[killer].kills = players[killer].kills + 1
-                p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
-                mod:check(p2)
-            end
+                -- Victim Death Penalty
+                local p3 = { }
+                p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
+                money:update(p3)
+                rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
 
-            -- Victim Death Penalty
-            local p3 = { }
-            p3.ip, p3.money, p3.subtract = vip, stats.penalty[1][1], true
-            money:update(p3)
-            rprint(victim, gsub(stats.penalty[1][2], "%%penalty_points%%", p3.money))
-
-            if (stats.on_kill.enabled) then
-                local tab = stats.on_kill
-                players[killer].kill_single = players[killer].kill_single + 1
-                for key, v in ipairs(tab) do
-                    local reward = tab[key][1]
-                    local message = tab[key][2]
-                    local p = { }
-                    p.ip, p.money, p.subtract = kip, reward, false
-                    money:update(p)
-                    rprint(killer, gsub(message, "%%upgrade_points%%", p.money))
+                if (stats.on_kill.enabled) then
+                    local tab = stats.on_kill
+                    players[killer].kill_single = players[killer].kill_single + 1
+                    for key, v in ipairs(tab) do
+                        local reward = tab[key][1]
+                        local message = tab[key][2]
+                        local p = { }
+                        p.ip, p.money, p.subtract = kip, reward, false
+                        money:update(p)
+                        rprint(killer, gsub(gsub(message, "%%upgrade_points%%", p.money), "%%kills%%", players[killer].kill_single))
+                    end
                 end
-            end
 
-            -- Victim Suicide
-        elseif (victim == killer) then
-            local p = { }
-            p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
-            money:update(p)
-            rprint(victim, gsub(stats.penalty[2][2], "%%penalty_points%%", p.money))
-        end
-        -- Betray
-        if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
-            local p = { }
-            p.ip, p.money, p.subtract = kip, stats.penalty[3][1], true
-            money:update(p)
-            rprint(killer, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
+                -- Victim Suicide
+            elseif (victim == killer) then
+                local p = { }
+                p.ip, p.money, p.subtract = vip, stats.penalty[2][1], true
+                money:update(p)
+                rprint(victim, gsub(stats.penalty[2][2], "%%penalty_points%%", p.money))
+            end
+            -- Betray
+            if (isTeamPlay() and (kTeam == vTeam)) and (killer ~= victim) then
+                local p = { }
+                p.ip, p.money, p.subtract = kip, stats.penalty[3][1], true
+                money:update(p)
+                rprint(killer, gsub(stats.penalty[3][2], "%%penalty_points%%", p.money))
+            end
         end
     end
 end
@@ -1330,7 +1365,7 @@ end
 function OnPlayerAssist(PlayerIndex)
     if (stats.assists.enabled) then
         players[PlayerIndex].assists = players[PlayerIndex].assists + 1
-        local p, ip = { }, getIP(PlayerIndex)
+        local p, ip = { }, get_var(PlayerIndex, "$ip")
         p.type, p.total, p.id, p.ip, p.table, p.subtract = "assists", players[PlayerIndex].assists, PlayerIndex, ip, stats.assists, false
         mod:check(p)
     end
