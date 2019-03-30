@@ -203,11 +203,9 @@ function data:align(player, table, target, total, shared, name)
         endIndex = max_columns
     end
     rprint(player, " ")
+    rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
     if (shared) then
-        rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
         rprint(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.')
-    else
-        rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
     end
 end
 
