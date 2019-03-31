@@ -99,6 +99,18 @@ local function GameSettings()
             
             server_prefix = "**SERVER** ",
             
+            plugin_commands = {
+                bgs = {"velocity", 1},
+                enable = "enable",
+                disable = "disable",
+                list = "plugins",
+                mute = "mute",
+                unmute = "unmute",
+                mutelist = "mutelist",
+                clearchat = "clear",
+                garbage_collection = "clean",
+            },
+            
             -- Do not Touch...
             player_data = {
                 "Player: %name%",
@@ -265,7 +277,7 @@ function OnScriptLoad()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
-        cprint("[VELOCITY - Multi Mod] Current Version: " .. settings.global.script_version, 2 + 8)
+        cprint("[VELOCITY] Current Version: " .. settings.global.script_version, 2 + 8)
     end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -953,12 +965,26 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
+    local level = tonumber(get_var(executor, "$lvl"))
 
     local TargetID, target_all_players, is_error
     local ip = get_var(executor, "$ip")
-    local total = 0
-
     local pl
+    
+    local pCMD = settings.global.plugin_commands
+    
+    local function hasAccess(e, lvl_req)
+        local allow_access
+        if isConsole(e) then
+            return true
+        elseif (level >= lvl_req) then
+                return true
+            else
+                return false
+            end
+        end
+    end
+    
     local function validate_params()
         local function getplayers(arg, executor)
             local players = { }
@@ -1070,6 +1096,25 @@ function OnServerCommand(PlayerIndex, Command)
                     return false
                 end
             end
+        end
+        return false
+    -- #Velocity Version command
+    elseif (command == pCMD.bgs[1]) then
+        if hasAccess(executor, pCMD.bgs[2]) then
+            if (settings.global.check_for_updates) then
+                if (getCurrentVersion(false) ~= settings.global.script_version) then
+                    respond(executor, "============================================================================", "rcon")
+                    respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon")
+                    respond(executor, "Current version: v" .. settings.global.script_version)
+                    respond(executor, "============================================================================", "rcon")
+                else
+                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon")
+                end
+            else
+                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon")
+            end
+        else
+            respond(executor, "Insufficient Permission", "rcon")
         end
         return false
     end
@@ -1482,11 +1527,11 @@ function getCurrentVersion(bool)
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5 + 8)
-            cprint("[VELOCITY - Multi Mod] Version " .. tostring(version) .. " is available for download.")
+            cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
             cprint("Current version: v" .. settings.global.script_version, 5 + 8)
             cprint("============================================================================", 5 + 8)
         else
-            cprint("[VELOCITY - Multi Mod] Version " .. settings.global.script_version, 2 + 8)
+            cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
         end
     end
     return tonumber(version)
@@ -1494,7 +1539,7 @@ end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
 function printEnabled()
-    cprint("\n----- [ VELOCITY | Multi-Mod ] -----", 3 + 5)
+    cprint("\n----- [ VELOCITY ] -----", 3 + 5)
     for k, _ in pairs(settings.mod) do
         if (settings.mod[k].enabled) then
             cprint(k .. " is enabled", 2 + 8)
