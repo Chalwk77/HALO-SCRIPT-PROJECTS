@@ -1358,52 +1358,39 @@ function velocity:determineAchat(params)
     end
     
     local level = get_var(tid, "$lvl")
+    local base_command = settings.mod["Admin Chat"].base_command
     if tonumber(level) >= getPermLevel("Admin Chat") then
+        local status, already_set, is_error
         if (option == "on") or (option == "1") or (option == "true") then
+            status, already_set, is_error = "Enabled", true, false
             if (mod.boolean ~= true) then
                 mod.adminchat = true
                 mod.boolean = true
-                if not (is_self) then
-                    respond(eid, "Admin Chat enabled for " .. tn, "rcon", 2+8)
-                    respond(tid, "Your Admin Chat was enabled by " .. en, "rcon")
-                else
-                    respond(eid, "Admin Chat Enabled", "rcon")
-                end
-                return false
-            else
-                if not (is_self) then
-                    respond(eid, en .. "'s Admin Chat is already enabled.", "rcon")
-                else
-                    respond(eid, "Admin Chat is already enabled.", "rcon")
-                end
-                return false
             end
         elseif (option == "off") or (option == "0") or (option == "false") then
+            status, already_set, is_error = "Disabled", false, false
             if (mod.boolean ~= false) then
                 mod.adminchat = false
                 mod.boolean = false
-                if not (is_self) then
-                    respond(eid, "Admin Chat disabled for " .. tn, "rcon", 2+8)
-                    respond(tid, "Your Admin Chat was disabled by " .. en, "rcon")
-                else
-                    respond(eid, "Admin Chat Disabled", "rcon")
-                end
-                return false
-            else
-                if not (is_self) then
-                    respond(eid, en .. "'s Admin Chat is already disabled.", "rcon")
-                else
-                    respond(eid, "Admin Chat is already disabled.", "rcon")
-                end
-                return false
             end
         else
-            local base_command = settings.mod["Admin Chat"].base_command
+            is_error = true
             respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4+8)
+        end
+        if not (is_error) and not (already_set) then
+            if not (is_self) then
+                respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2+8)
+                respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
+            else
+                respond(eid, "Admin Chat " .. status, "rcon")
+            end
+        elseif (already_set) then
+            respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
         end
     else
         respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4+8)
     end
+    return false
 end
 
 function velocity:mute(params)
