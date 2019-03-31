@@ -1101,21 +1101,18 @@ function OnServerCommand(PlayerIndex, Command)
     
     -- #Player List
     local cmd_list = settings.mod["Player List"].command_aliases
-    for _, v in pairs(cmd_list) do
-        local cmds = stringSplit(v, ",")
-        for i = 1, #cmds do
-            if (command == cmds[i]) then
-                if modEnabled("Player List", executor) then
-                    if (args[1] == nil) then
-                        if (checkAccess(executor, true, "Player List")) then
-                            velocity:listplayers(executor)
-                        end
-                    else
-                        respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4+8)
+    for i = 1, #cmd_list do
+        if (command == cmd_list[i]) then
+            if modEnabled("Player List", executor) then
+                if (args[1] == nil) then
+                    if (checkAccess(executor, true, "Player List")) then
+                        velocity:listplayers(executor)
                     end
-                    return false
+                else
+                    respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4+8)
                 end
             end
+            return false
         end
     end
     
