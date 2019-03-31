@@ -40,9 +40,22 @@ local function GameSettings()
                 "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
                 }
             },
+            ["Player List"] = {
+                enabled = true,
+                permission_level = 1,
+                alignment = "l",
+                command_aliases = {
+                    "pl",
+                    "players",
+                    "playerlist",
+                    "playerslist"
+                }
+            },
         },
         global = { 
+            script_version = 1.00,
             beepOnJoin = true,
+            check_for_updates = false,
             player_data = {
                 "Player: %name%",
                 "CD Hash: %hash%",
@@ -55,10 +68,8 @@ local function GameSettings()
 end
 -- Configuration [ENDS] -----------------------------------------
 
-local script_version = 1.02
-
 -- Tables used Globally
-local player_info = { }
+local velocity, player_info = { }, { }
 local players = {
     ["Alias System"] = { },
     ["Message Board"] = { },
@@ -71,8 +82,8 @@ local concat = table.concat
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local servername = read_widestring(network_struct + 0x8, 0x42)
-    return servername
+    local sv_name = read_widestring(network_struct + 0x8, 0x42)
+    return sv_name
 end
 
 -- Checks if the MOD being called is enabled in settings.
@@ -103,6 +114,16 @@ local function getPlayerInfo(Player, ID)
     end
 end
 
+local function isConsole(e)
+    if (e) then
+        if (e ~= -1 and e >= 1 and e < 16) then
+            return false
+        else 
+            return true
+        end
+    end
+end
+
 -- #Alias System ---------------------------------------------
 local max_columns, max_results = 5, 100
 local startIndex, endIndex = 1, max_columns
@@ -129,24 +150,24 @@ local function PreLoad()
 end
 --------------------------------------------------------------
 -- #Message Board
-local messages = { }
-local message_board = { }
+local messageBoard = { }
+local m_board = { }
 local function set(Player, ip)
-    message_board[ip] = { }
+    m_board[ip] = { }
     local tab = settings.mod["Message Board"].messages
     for i = 1, #tab do
         if (tab[i]) then
-            table.insert(message_board[ip], tab[i])
+            table.insert(m_board[ip], tab[i])
         end
     end
-    for _, v in pairs(message_board[ip]) do
-        for j = 1, #message_board[ip] do
-            message_board[ip][j] = gsub(gsub(message_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
+    for _, v in pairs(m_board[ip]) do
+        for j = 1, #m_board[ip] do
+            m_board[ip][j] = gsub(gsub(m_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
         end
     end
 end
 
-function messages:show(Player, ip)
+function messageBoard:show(Player, ip)
     set(Player, ip)
     players["Message Board"][ip] = {
         timer = 0,
@@ -154,9 +175,9 @@ function messages:show(Player, ip)
     }
 end
 
-function messages:hide(PlayerIndex, ip)
+function messageBoard:hide(PlayerIndex, ip)
     players["Message Board"][ip] = nil
-    message_board[ip] = nil
+    m_board[ip] = nil
     cls(PlayerIndex)
 end
 --------------------------------------------------------------
@@ -164,6 +185,12 @@ end
 function OnScriptLoad()
     GameSettings()
     servername = getServerName()
+    
+    if (settings.global.check_for_updates) then
+        getCurrentVersion(true)
+    else
+        cprint("[BGS] Current Version: " .. settings.global.script_version, 2 + 8)
+    end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -193,7 +220,7 @@ function OnScriptLoad()
             local ip = get_var(i, "$ip")
             if modEnabled("Message Board") then
                 if (players[ip]["Message Board"] ~= nil) then
-                    messages:hide(i, ip)
+                    messageBoard:hide(i, ip)
                 end
             end
         end
@@ -233,7 +260,7 @@ function OnNewGame()
         for i = 1, 16 do
             local ip = get_var(i, "$ip")
             if player_present(i) and (players[ip]["Message Board"] ~= nil) then
-                messages:hide(i, ip)
+                messageBoard:hide(i, ip)
             end
         end
     end
@@ -245,7 +272,7 @@ function OnGameEnd()
         for i = 1, 16 do
             local ip = get_var(i, "$ip")
             if player_present(i) and (players[ip]["Message Board"] ~= nil) then
-                messages:hide(i, ip)
+                messageBoard:hide(i, ip)
             end
         end
     end
@@ -270,9 +297,9 @@ function OnTick()
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
                     players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
                     cls(i)
-                    rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. message_board[ip][1])
+                    rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][1])
                     if players["Message Board"][ip].timer >= math.floor(settings.mod["Message Board"].duration) then
-                        messages:hide(i, ip)
+                        messageBoard:hide(i, ip)
                     end
                 end
             end
@@ -343,7 +370,7 @@ function OnPlayerJoin(PlayerIndex)
     
     -- #Message Board
     if modEnabled("Message Board") then
-        messages:show(PlayerIndex, ip)
+        messageBoard:show(PlayerIndex, ip)
     end
 end
 
@@ -376,7 +403,7 @@ function OnPlayerLeave(PlayerIndex)
     
     -- #Message Board
     if modEnabled("Message Board") then
-        messages:hide(PlayerIndex, ip)
+        messageBoard:hide(PlayerIndex, ip)
     end
 end
 
@@ -475,6 +502,70 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
+    end
+    -- #Player List
+    if (settings.mod["Player List"].enabled) then
+        local cmd_list = settings.mod["Player List"].command_aliases
+        for _, v in pairs(cmd_list) do
+            local cmds = stringSplit(v, ",")
+            for i = 1, #cmds do
+                if (command == cmds[i]) then
+                    if (args[1] == nil) then
+                        if (checkAccess(executor, true, "Player List")) then
+                            velocity:listplayers(executor)
+                        end
+                    else
+                        rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                    end
+                    return false
+                end
+            end
+        end
+    end
+end
+
+function velocity:listplayers(e)
+    local header, cheader, ffa
+    local count = 0
+    local bool = true
+    local alignment = settings.mod["Player List"].alignment
+    if (getTeamPlay()) then
+        header = "|" .. alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
+        cheader = "ID.        Name.        Team.        IP."
+    else
+        ffa = true
+        header = "|" .. alignment .. " [ ID.    -    Name.    -    IP. ]"
+        cheader = "ID.        Name.        IP"
+    end
+    local str
+    for i = 1, 16 do
+        if player_present(i) then
+            if (bool) then
+                bool = false
+                if not (isConsole(e)) then
+                    rprint(e, header)
+                else
+                    cprint(cheader, 7+8)
+                end
+            end
+            count = count + 1
+            local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), get_var(i, "$ip")
+            if not (ffa) then
+                str = id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip
+            else
+                str = id .. ".         " .. name .. "   |   " .. ip
+            end
+            if not (isConsole(e)) then
+                rprint(e, "|" .. alignment .. "     " .. str)
+            else
+                cprint(str, 5+8)
+            end
+        end
+    end
+    if (count == 0) and (isConsole(e)) then
+        cprint("------------------------------------", 5+8)
+        cprint("There are no players online", 4+8)
+        cprint("------------------------------------", 5+8)
     end
 end
 
@@ -711,6 +802,12 @@ function cls(PlayerIndex)
     end
 end
 
+function getTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    end
+end
+
 function stringSplit(inp, sep)
     if (sep == nil) then
         sep = "%s"
@@ -792,11 +889,53 @@ function read_widestring(address, length)
     return concat(byte_table)
 end
 
+function getCurrentVersion(bool)
+    local http_client
+    local ffi = require("ffi")
+    ffi.cdef [[
+        typedef void http_response;
+        http_response *http_get(const char *url, bool async);
+        void http_destroy_response(http_response *);
+        void http_wait_async(const http_response *);
+        bool http_response_is_null(const http_response *);
+        bool http_response_received(const http_response *);
+        const char *http_read_response(const http_response *);
+        uint32_t http_response_length(const http_response *);
+    ]]
+    http_client = ffi.load("lua_http_client")
+
+    local function GetPage(URL)
+        local response = http_client.http_get(URL, false)
+        local returning = nil
+        if http_client.http_response_is_null(response) ~= true then
+            local response_text_ptr = http_client.http_read_response(response)
+            returning = ffi.string(response_text_ptr)
+        end
+        http_client.http_destroy_response(response)
+        return returning
+    end
+
+    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
+    local version = GetPage(url):match("script_version = (%d+.%d+)")
+
+    if (bool == true) then
+        if (tonumber(version) ~= settings.global.script_version) then
+            cprint("============================================================================", 5 + 8)
+            cprint("[BGS] Version " .. tostring(version) .. " is available for download.")
+            cprint("Current version: v" .. settings.global.script_version, 5 + 8)
+            cprint("============================================================================", 5 + 8)
+        else
+            cprint("[BGS] Version " .. settings.global.script_version, 2 + 8)
+        end
+    end
+    return tonumber(version)
+end
+
 function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("Script Version: " .. settings.global.script_version, 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
