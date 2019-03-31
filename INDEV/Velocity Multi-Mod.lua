@@ -143,7 +143,7 @@ end
 local max_columns, max_results = 5, 100
 local startIndex, endIndex = 1, max_columns
 local spaces = 2
-local alias, alias_results, shared = { }, { }, { }
+local alias, alias_results = { }, { } 
 local initialStartIndex, known_pirated_hashes
 local function PreLoad()
     initialStartIndex = tonumber(startIndex)
@@ -161,6 +161,18 @@ local function PreLoad()
         "c702226e783ea7e091c0bb44c2d0ec64",
         "f443106bd82fd6f3c22ba2df7c5e4094",
         "10440b462f6cbc3160c6280c2734f184",
+    }
+end
+-- #Alias System
+function alias:reset(ip)
+    players["Alias System"][ip] = {
+        eid = 0,
+        timer = 0,
+        total = 0,
+        bool = false,
+        trigger = false,
+        shared = false,
+        check_pirated_hash = false,
     }
 end
 --------------------------------------------------------------
@@ -205,6 +217,7 @@ function adminchat:reset(ip)
         boolean = false,
     }
 end
+
 --------------------------------------------------------------
 
 function OnScriptLoad()
@@ -247,15 +260,15 @@ function OnScriptLoad()
             local level = tonumber(get_var(i, "$lvl"))
             -- #Message Board
             if modEnabled("Message Board") then
-                if (players[ip]["Message Board"] ~= nil) then
+                if (players["Message Board"][ip] ~= nil) then
                     messageBoard:hide(i, ip)
                 end
             end
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
-                    players[ip]["Admin Chat"].adminchat = false
-                    players[ip]["Admin Chat"].boolean = false
+                    players["Admin Chat"][ip].adminchat = false
+                    players["Admin Chat"][ip].boolean = false
                 end
             end
         end
@@ -292,8 +305,8 @@ function OnScriptUnload()
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
-                    players[ip]["Admin Chat"].adminchat = false
-                    players[ip]["Admin Chat"].boolean = false
+                    players["Admin Chat"][ip].adminchat = false
+                    players["Admin Chat"][ip].boolean = false
                 end
             end
         end
@@ -310,7 +323,7 @@ function OnNewGame()
             
             -- #Message Board
             if modEnabled("Message Board") then
-                if (players[ip]["Message Board"] ~= nil) then
+                if (players["Message Board"][ip] ~= nil) then
                     messageBoard:hide(i, ip)
                 end
             end
@@ -318,8 +331,8 @@ function OnNewGame()
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
-                    players[ip]["Admin Chat"].adminchat = false
-                    players[ip]["Admin Chat"].boolean = false
+                    players["Admin Chat"][ip].adminchat = false
+                    players["Admin Chat"][ip].boolean = false
                 end
             end
         end
@@ -334,14 +347,14 @@ function OnGameEnd()
             
             -- #Message Board
             if modEnabled("Message Board") then
-                if (players[ip]["Message Board"] ~= nil) then
+                if (players["Message Board"][ip] ~= nil) then
                     messageBoard:hide(i, ip)
                 end
             end
             
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-                local mod = players[ip]["Admin Chat"]
+                local mod = players["Admin Chat"][ip]
                 local restore = settings.mod["Admin Chat"].restore
                 if tonumber(level) >= getPermLevel("Admin Chat") then
                     if (restore) then
@@ -383,7 +396,7 @@ function OnTick()
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
                     players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
                     cls(i)
-                    rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][1])
+                    respond(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][1], "rcon")
                     if players["Message Board"][ip].timer >= math.floor(settings.mod["Message Board"].duration) then
                         messageBoard:hide(i, ip)
                     end
@@ -450,7 +463,6 @@ function OnPlayerJoin(PlayerIndex)
         alias:add(name, hash)
         if (tonumber(level) >= getPermLevel("Alias System")) then
             alias:reset(ip)
-            shared[PlayerIndex] = { }
         end
     end
     
@@ -461,15 +473,15 @@ function OnPlayerJoin(PlayerIndex)
     
     -- #Admin Chat
      if modEnabled("Admin Chat") then
-        adminchat:reset(ip)
-        local mod = players[ip]["Admin Chat"]
         local restore = settings.mod["Admin Chat"].restore
         if (tonumber(level) >= getPermLevel("Admin Chat")) then
+            adminchat:reset(ip)
+            local mod = players["Admin Chat"][ip]
             if (restore) then
                 local args = stringSplit(tostring(achat_status[ip]), "|")
                 if (args[2] ~= nil) then
                     if (args[2] == "true") then
-                        rprint(PlayerIndex, "[reminder] Your admin chat is on!")
+                        respond(PlayerIndex, "[reminder] Your admin chat is on!", "rcon")
                         mod.adminchat = true
                         mod.boolean = true
                     else
@@ -478,8 +490,8 @@ function OnPlayerJoin(PlayerIndex)
                     end
                 end
             else
-                mod.adminchat = false
-                mod.boolean = false
+                players["Admin Chat"][ip].adminchat = false
+                players["Admin Chat"][ip].boolean = false
             end
         end
     end
@@ -508,7 +520,6 @@ function OnPlayerLeave(PlayerIndex)
     if modEnabled("Alias System") then
         if (tonumber(level) >= getPermLevel("Alias System")) then
             alias:reset(ip)
-            shared[PlayerIndex] = false
         end
     end
     
@@ -520,7 +531,7 @@ function OnPlayerLeave(PlayerIndex)
     -- #Admin Chat
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
-        local mod = players[ip]["Admin Chat"]
+        local mod = players["Admin Chat"][ip]
         if tonumber(level) >= getPermLevel("Admin Chat") then
             if (restore) then
                 local bool
@@ -566,11 +577,11 @@ local function isOnline(t, e)
             if player_present(t) then
                 return true
             else
-                rprint(e, "Command failed. Player not online.")
+                respond(e, "Command failed. Player not online.")
                 return false
             end
         else
-            rprint(e, "Invalid player id. Please enter a number between 1-16")
+            respond(e, "Invalid player id. Please enter a number between 1-16")
         end
     end
 end
@@ -579,7 +590,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local pl = tonumber(PlayerIndex)
     local level = tonumber(get_var(pl, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
-    local ip = get_var(pl, "ip")
+    local ip = get_var(pl, "$ip")
     local response
     
     -- Used throughout OnPlayerChat()
@@ -591,27 +602,27 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat IDs & Admin Chat
     local keyword
     
-    if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
-        local ignore = settings.mod["Chat IDs"].ignore_list
-        if (table.match(ignore, message[1])) then
-            keyword = true
-        else
-            keyword = false
-        end
-    end
+    -- if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
+        -- local ignore = settings.mod["Chat IDs"].ignore_list
+        -- if (table.match(ignore, message[1])) then
+            -- keyword = true
+        -- else
+            -- keyword = false
+        -- end
+    -- end
     
     -- #Admin Chat
     if modEnabled("Admin Chat", PlayerIndex) then
-        local mod = players[ip]["Admin Chat"]
+        local mod = players["Admin Chat"][ip]
         local environment = settings.mod["Admin Chat"].environment
         local function AdminChat(Message)
             for i = 1, 16 do
                 if player_present(i) and (level >= getPermLevel("Admin Chat")) then
                     if (environment == "rcon") then
-                        rprint(i, "|l" .. Message)
+                        respond(i, "|l" .. Message, "rcon")
                     elseif (environment == "chat") then
                         execute_command("msg_prefix \"\"")
-                        say(i, Message)
+                        respond(i, Message, "chat")
                         execute_command("msg_prefix \" *  * SERVER *  * \"")
                     end
                 end
@@ -667,7 +678,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                rprint(executor, "Invalid player id")
+                respond(executor, "Invalid player id")
                 is_error = true
                 return false
             end
@@ -681,22 +692,29 @@ function OnServerCommand(PlayerIndex, Command)
     end
     
     if (command == settings.mod["Alias System"].base_command) then
-        if (checkAccess(executor, false, "Alias System")) then
-            if modEnabled("Alias System", executor) then
+        if modEnabled("Alias System", executor) then
+            if (checkAccess(executor, true, "Alias System")) then
+                local bool
+                if isConsole(executor) then
+                    ip = "000.000.000.000"
+                    bool = false
+                else
+                    bool = settings.mod["Alias System"].use_timer
+                end
                 alias:reset(ip)
                 if (args[1] ~= nil) then
-                    is_error = false
                     validate_params()
                     if not (target_all_players) then
+                        
                         if not (is_error) and isOnline(TargetID, executor) then
-                            aliasCmdRoutine(executor, TargetID, ip, settings.mod["Alias System"].use_timer)
+                            aliasCmdRoutine(executor, TargetID, ip, bool)
                         end
                     else
-                        rprint(executor, "Unable to check aliases from all players.")
+                        respond(executor, "Unable to check aliases from all players.", "rcon")
                     end
                 else
                     local base_command = settings.mod["Alias System"].base_command
-                    rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me ]")
+                    respond(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me ]", "rcon")
                 end
             end
         end
@@ -714,7 +732,7 @@ function OnServerCommand(PlayerIndex, Command)
                             velocity:listplayers(executor)
                         end
                     else
-                        rprint(executor, "Invalid Syntax. Usage: /" .. command)
+                        respond(executor, "Invalid Syntax. Usage: /" .. command)
                     end
                     return false
                 end
@@ -723,43 +741,34 @@ function OnServerCommand(PlayerIndex, Command)
     end
     -- #Admin Chat
     if (command == settings.mod["Admin Chat"].base_command) then
-        if (checkAccess(executor, false, "Admin Chat")) then
-            if modEnabled("Alias System", executor) then
-                if not isConsole(executor) then
-                    if (checkAccess(executor, false, "Admin Chat")) then
-                        local mod = players[ip]["Admin Chat"]
-                        local param = args[1]
-                        if (param == "on") or (param == "1") or (param == "true") then
-                            if (mod.boolean ~= true) then
-                                mod.adminchat = true
-                                mod.boolean = true
-                                rprint(PlayerIndex, "Admin Chat enabled.")
-                                return false
-                            else
-                                rprint(PlayerIndex, "Admin Chat is already enabled.")
-                                return false
-                            end
-                        elseif (param == "off") or (param == "0") or (param == "false") then
-                            if (mod.boolean ~= false) then
-                                mod.adminchat = false
-                                mod.boolean = false
-                                rprint(PlayerIndex, "Admin Chat disabled.")
-                                return false
-                            else
-                                rprint(PlayerIndex, "Admin Chat is already disabled.")
-                                return false
-                            end
-                        else
-                            local base_command = settings.mod["Admin Chat"].base_command
-                            rprint(PlayerIndex, "Invalid Syntax: Type /" .. base_command .. " on|off")
-                            return false
-                        end
+        if modEnabled("Admin Chat", executor) then
+            if (checkAccess(executor, false, "Admin Chat")) then
+                local mod = players["Admin Chat"][ip]
+                local param = args[1]
+                if (param == "on") or (param == "1") or (param == "true") then
+                    if (mod.boolean ~= true) then
+                        mod.adminchat = true
+                        mod.boolean = true
+                        respond(PlayerIndex, "Admin Chat enabled.", "rcon")
+                        return false
                     else
-                        rprint(PlayerIndex, "Insufficient Permission")
+                        respond(PlayerIndex, "Admin Chat is already enabled.", "rcon")
+                        return false
+                    end
+                elseif (param == "off") or (param == "0") or (param == "false") then
+                    if (mod.boolean ~= false) then
+                        mod.adminchat = false
+                        mod.boolean = false
+                        respond(PlayerIndex, "Admin Chat disabled.", "rcon")
+                        return false
+                    else
+                        respond(PlayerIndex, "Admin Chat is already disabled.", "rcon")
                         return false
                     end
                 else
-                    cprint("The Server cannot execute this command!", 4 + 8)
+                    local base_command = settings.mod["Admin Chat"].base_command
+                    respond(PlayerIndex, "Invalid Syntax: Type /" .. base_command .. " on|off.", "rcon")
+                    return false
                 end
             end
         end
@@ -815,6 +824,7 @@ end
 -- #Alias System
 function aliasCmdRoutine(executor, target, ip, use_timer)
     local aliases, content
+    local tab = players["Alias System"][ip]
     alias_results = { }
   
     players["Alias System"][ip].tHash = get_var(target, "$hash")
@@ -823,43 +833,30 @@ function aliasCmdRoutine(executor, target, ip, use_timer)
     local directory = settings.mod["Alias System"].dir
     local lines = lines_from(directory)
     for _, v in pairs(lines) do
-        if (v:match(players["Alias System"][ip].tHash)) then
+        if (v:match(tab.tHash)) then
             aliases = v:match(":(.+)")
             content = stringSplit(aliases, ",")
             alias_results[#alias_results + 1] = content
         end
     end
 
-    players["Alias System"][ip].eid = tonumber(get_var(executor, "$n"))
-    players["Alias System"][ip].shared = false
-    players["Alias System"][ip].check_pirated_hash = true
+    tab.eid = tonumber(get_var(executor, "$n"))
+    tab.shared = false
+    tab.check_pirated_hash = true
 
     for i = 1, max_results do
         if (alias_results[1][i]) then
-            players["Alias System"][ip].total = players["Alias System"][ip].total + 1
+            tab.total = tab.total + 1
         end
     end
     
-    local total = players["Alias System"][ip].total
+    local total = tab.total
     if (use_timer) then
-        players["Alias System"][ip].trigger = true
-        players["Alias System"][ip].bool = true
+        tab.trigger = true
+        tab.bool = true
     else
         alias:show(executor, ip, total)
     end
-end
-
--- #Alias System
-function alias:reset(ip)
-    players["Alias System"][ip] = {
-        eid = 0,
-        timer = 0,
-        total = 0,
-        bool = false,
-        trigger = false,
-        shared = false,
-        check_pirated_hash = false,
-    }
 end
 
 -- #Alias System
@@ -926,7 +923,7 @@ function alias:align(player, table, target, total, pirated, name, alignment)
         end
 
         if (row ~= nil) then
-            rprint(player, "|" .. alignment .. " " .. row)
+            respond(player, "|" .. alignment .. " " .. row, "rcon")
         end
 
         for a in pairs(placeholder) do
@@ -945,10 +942,10 @@ function alias:align(player, table, target, total, pirated, name, alignment)
         startIndex = initialStartIndex
         endIndex = max_columns
     end
-    rprint(player, " ")
-    rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
+    respond(player, " ", "rcon")
+    respond(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"', "rcon")
     if (pirated) then
-        rprint(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.')
+        respond(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.', "rcon")
     end
 end
 
@@ -1040,7 +1037,7 @@ end
 function cls(PlayerIndex)
     if (PlayerIndex) then
         for _ = 1, 25 do
-            rprint(PlayerIndex, " ")
+            respond(PlayerIndex, " ", "rcon")
         end
     end
 end
@@ -1067,6 +1064,20 @@ function table.match(table, value)
     for k, v in pairs(table) do
         if v == value then
             return k
+        end
+    end
+end
+
+function respond(executor, message, environment)
+    if (executor) then
+        if not (isConsole(executor)) then
+            if (environment == "chat") then
+                say(executor, message)
+            elseif (environment == "rcon") then
+                rprint(executor, message)
+            end
+        else
+            cprint(message, 4+8)
         end
     end
 end
