@@ -62,7 +62,7 @@ local function GameSettings()
             },
         },
         global = { 
-            script_version = 1.00,
+            script_version = 1.06,
             beepOnJoin = true,
             check_for_updates = false,
             -- Do not Touch...
@@ -227,7 +227,7 @@ function OnScriptLoad()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
-        cprint("[BGS] Current Version: " .. settings.global.script_version, 2 + 8)
+        cprint("[VELOCITY - Multi Mod] Current Version: " .. settings.global.script_version, 2 + 8)
     end
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -1183,11 +1183,11 @@ function getCurrentVersion(bool)
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
             cprint("============================================================================", 5 + 8)
-            cprint("[BGS] Version " .. tostring(version) .. " is available for download.")
+            cprint("[VELOCITY - Multi Mod] Version " .. tostring(version) .. " is available for download.")
             cprint("Current version: v" .. settings.global.script_version, 5 + 8)
             cprint("============================================================================", 5 + 8)
         else
-            cprint("[BGS] Version " .. settings.global.script_version, 2 + 8)
+            cprint("[VELOCITY - Multi Mod] Version " .. settings.global.script_version, 2 + 8)
         end
     end
     return tonumber(version)
