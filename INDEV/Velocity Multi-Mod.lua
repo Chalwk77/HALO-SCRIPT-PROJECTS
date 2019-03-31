@@ -100,15 +100,15 @@ local function GameSettings()
             server_prefix = "**SERVER** ",
             
             plugin_commands = {
-                bgs = {"velocity", 1},
-                enable = "enable",
-                disable = "disable",
-                list = "plugins",
-                mute = "mute",
-                unmute = "unmute",
-                mutelist = "mutelist",
-                clearchat = "clear",
-                garbage_collection = "clean",
+                bgs = {"velocity", -1},
+                enable = {"enable", 1},
+                disable = {"disable", 1},
+                list = {"plugins", 1},
+                mute = {"mute", 1},
+                unmute = {"unmute", 1},
+                mutelist = {"mutelist", 1},
+                clearchat = {"clear", 1},
+                garbage_collection ={"clean", 1},
             },
             
             -- Do not Touch...
@@ -169,7 +169,7 @@ local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
         return true
     elseif (e) then
-        respond(e, "Command Failed. " .. script .. " is disabled", "rcon")
+        respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4+8)
     end
 end
 
@@ -737,11 +737,11 @@ local function isOnline(t, e)
             if player_present(t) then
                 return true
             else
-                respond(e, "Command failed. Player not online.")
+                respond(e, "Command failed. Player not online.", "rcon", 4+8)
                 return false
             end
         else
-            respond(e, "Invalid player id. Please enter a number between 1-16")
+            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4+8)
         end
     end
 end
@@ -1001,7 +1001,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond(executor, "Invalid player id")
+                respond(executor, "Invalid player id", "rcon", 4+8)
                 is_error = true
                 return false
             end
@@ -1026,7 +1026,7 @@ function OnServerCommand(PlayerIndex, Command)
                             velocity:listplayers(executor)
                         end
                     else
-                        respond(executor, "Invalid Syntax. Usage: /" .. command)
+                        respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4+8)
                     end
                     return false
                 end
@@ -1049,16 +1049,15 @@ function OnServerCommand(PlayerIndex, Command)
                 if (args[1] ~= nil) then
                     validate_params()
                     if not (target_all_players) then
-                        
                         if not (is_error) and isOnline(TargetID, executor) then
                             aliasCmdRoutine(executor, TargetID, ip, bool)
                         end
                     else
-                        respond(executor, "Unable to check aliases from all players.", "rcon")
+                        respond(executor, "Unable to check aliases from all players.", "rcon", 4+8)
                     end
                 else
                     local base_command = settings.mod["Alias System"].base_command
-                    respond(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me ]", "rcon")
+                    respond(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me ]", "rcon", 4+8)
                 end
             end
         end
@@ -1073,25 +1072,25 @@ function OnServerCommand(PlayerIndex, Command)
                     if (mod.boolean ~= true) then
                         mod.adminchat = true
                         mod.boolean = true
-                        respond(PlayerIndex, "Admin Chat enabled.", "rcon")
+                        respond(executor, "Admin Chat enabled.", "rcon")
                         return false
                     else
-                        respond(PlayerIndex, "Admin Chat is already enabled.", "rcon")
+                        respond(executor, "Admin Chat is already enabled.", "rcon")
                         return false
                     end
                 elseif (param == "off") or (param == "0") or (param == "false") then
                     if (mod.boolean ~= false) then
                         mod.adminchat = false
                         mod.boolean = false
-                        respond(PlayerIndex, "Admin Chat disabled.", "rcon")
+                        respond(executor, "Admin Chat disabled.", "rcon")
                         return false
                     else
-                        respond(PlayerIndex, "Admin Chat is already disabled.", "rcon")
+                        respond(executor, "Admin Chat is already disabled.", "rcon")
                         return false
                     end
                 else
                     local base_command = settings.mod["Admin Chat"].base_command
-                    respond(PlayerIndex, "Invalid Syntax: Type /" .. base_command .. " on|off.", "rcon")
+                    respond(executor, "Invalid Syntax: Type /" .. base_command .. " on|off.", "rcon")
                     return false
                 end
             end
@@ -1102,18 +1101,100 @@ function OnServerCommand(PlayerIndex, Command)
         if hasAccess(executor, pCMD.bgs[2]) then
             if (settings.global.check_for_updates) then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
-                    respond(executor, "============================================================================", "rcon")
-                    respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon")
-                    respond(executor, "Current version: v" .. settings.global.script_version)
-                    respond(executor, "============================================================================", "rcon")
+                    respond(executor, "============================================================================", "rcon", 7+8)
+                    respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon", 5+8)
+                    respond(executor, "Current version: v" .. settings.global.script_version, "rcon", 5+8)
+                    respond(executor, "============================================================================", "rcon", 7+8)
                 else
-                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon")
+                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon", 5+8)
                 end
             else
-                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon")
+                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon", 5+8)
+            end
+        else
+            respond(executor, "Insufficient Permission", "rcon", 5+8)
+        end
+        return false
+    elseif (command == pCMD.list[1]) then
+        if hasAccess(executor, pCMD.list[2]) then
+            local t = {}
+            for k, _ in pairs(settings.mod) do
+                t[#t + 1] = k
+            end
+            for k, v in pairs(t) do
+                if v then
+                    if (settings.mod[v].enabled) then
+                        respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon")
+                    else
+                        respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon")
+                    end
+                end
+            end
+            for _ in pairs(t) do
+                t[_] = nil
             end
         else
             respond(executor, "Insufficient Permission", "rcon")
+        end
+        return false
+    elseif (command == pCMD.enable[1]) then
+        if (args[1] ~= nil and args[1]:match("%d+")) then
+            if hasAccess(executor, pCMD.enable[2]) then
+                local id = args[1]
+                local t = {}
+                for k, _ in pairs(settings.mod) do
+                    t[#t + 1] = k
+                end
+                for k, v in pairs(t) do
+                    if v then
+                        if (tonumber(id) == tonumber(k)) then
+                            if not (settings.mod[v].enabled) then
+                                settings.mod[v].enabled = true
+                                respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
+                            else
+                                respond(executor, v .. " is already enabled!", "rcon", 3+8)
+                            end
+                        end
+                    end
+                end
+                for _ in pairs(t) do
+                    t[_] = nil
+                end
+            else
+                respond(executor, "Insufficient Permission", "rcon", 4+8)
+            end
+        else
+            respond(executor, "Invalid Syntax", "rcon", 4+8)
+        end
+        return false
+    elseif (command == pCMD.disable[1]) then
+        if (args[1] ~= nil and args[1]:match("%d+")) then
+            if hasAccess(executor, pCMD.disable[2]) then
+                local id = args[1]
+                local t = {}
+                for k, _ in pairs(settings.mod) do
+                    t[#t + 1] = k
+                end
+                for k, v in pairs(t) do
+                    if v then
+                        if (tonumber(id) == tonumber(k)) then
+                            if (settings.mod[v].enabled) then
+                                settings.mod[v].enabled = false
+                                respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
+                            else
+                                respond(executor, v .. " is already enabled!", "rcon", 3+8)
+                            end
+                        end
+                    end
+                end
+                for _ in pairs(t) do
+                    t[_] = nil
+                end
+            else
+                respond(executor, "Insufficient Permission", "rcon", 4+8)
+            end
+        else
+            respond(executor, "Invalid Syntax", "rcon", 4+8)
         end
         return false
     end
@@ -1411,8 +1492,9 @@ function table.match(table, value)
     end
 end
 
-function respond(executor, message, environment)
+function respond(executor, message, environment, color)
     if (executor) then
+        color = color or 4+8
         if not (isConsole(executor)) then
             if (environment == "chat") then
                 say(executor, message)
@@ -1420,7 +1502,7 @@ function respond(executor, message, environment)
                 rprint(executor, message)
             end
         else
-            cprint(message, 4+8)
+            cprint(message, color)
         end
     end
 end
