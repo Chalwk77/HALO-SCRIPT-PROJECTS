@@ -220,8 +220,7 @@ end
 
 function OnScriptLoad()
     GameSettings()
-    servername = getServerName()
-    
+    printEnabled()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
@@ -286,7 +285,7 @@ function OnScriptLoad()
             cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
             cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                     " .. servername, 0+8)
+            cprint("                     " .. getServerName(), 0+8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
             cprint("")
             cprint("================================================================================", 2 + 8)
@@ -1189,6 +1188,19 @@ function getCurrentVersion(bool)
         end
     end
     return tonumber(version)
+end
+
+-- Prints enabled scripts | Called by OnScriptLoad()
+function printEnabled()
+    cprint("\n----- [ VELOCITY | Multi-Mod ] -----", 3 + 5)
+    for k, _ in pairs(settings.mod) do
+        if (settings.mod[k].enabled) then
+            cprint(k .. " is enabled", 2 + 8)
+        else
+            cprint(k .. " is disabled", 4 + 8)
+        end
+    end
+    cprint("----------------------------------\n", 3 + 5)
 end
 
 function report()
