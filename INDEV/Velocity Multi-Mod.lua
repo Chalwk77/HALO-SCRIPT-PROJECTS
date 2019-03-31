@@ -978,10 +978,9 @@ function OnServerCommand(PlayerIndex, Command)
         if isConsole(e) then
             return true
         elseif (level >= lvl_req) then
-                return true
-            else
-                return false
-            end
+            return true
+        else
+            return false
         end
     end
     
