@@ -981,11 +981,9 @@ function OnServerCommand(PlayerIndex, Command)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
 
-    local params = { }
     local TargetID, target_all_players, is_error
-    local ip = get_var(executor, "$ip")
+    local ip, name, hash = get_var(executor, "$ip"), get_var(executor, "$name"), get_var(executor, "$hash")
     local pl
-    
     
     local pCMD = settings.global.plugin_commands
     
@@ -1000,6 +998,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     
+    local params = { }
     local function validate_params(parameter)
         local function getplayers(arg, executor)
             local players = { }
@@ -1033,14 +1032,20 @@ function OnServerCommand(PlayerIndex, Command)
                 if pl[i] == nil then
                     break
                 end
+                
+                params.eid = executor
+                params.eip = ip
+                params.en = name
+                params.eh = hash
+                
+                params.tid = tonumber(pl[i])
+                params.tip = get_var(pl[i], "$ip")
+                params.tn = get_var(pl[i], "$name")
+                params.th = get_var(pl[i], "$hash")
+                
+                -- SAPP | Mute Handler
                 if (parameter == "mute") then
                     local default_time = settings.global.default_mute_time
-                    params.eid = executor
-                    params.tid = tonumber(pl[i])
-                    params.tip = get_var(pl[i], "$ip")
-                    params.tn = get_var(pl[i], "$name")
-                    params.th = get_var(pl[i], "$hash")
-                    
                     if (settings.global.can_mute_admins) then
                         proceed = true
                     elseif tonumber(get_var(pl[i], "$lvl")) >= 1 then
@@ -1049,7 +1054,6 @@ function OnServerCommand(PlayerIndex, Command)
                     else
                         proceed = true
                     end
-
                     mute_duration[params.tid] = 0
                     if (args[2] == nil) then
                         time_diff[params.tid] = tonumber(default_time)
@@ -1066,10 +1070,31 @@ function OnServerCommand(PlayerIndex, Command)
                         valid = false
                         respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4+8)
                     end
-
                     params.proceed, params.valid = proceed, valid
                     if (target_all_players) then
                         velocity:mute(params)
+                    end
+                -- #Alias System
+                elseif (parameter == "alias") then
+                    alias:reset(ip)
+                    local bool
+                    if isConsole(executor) then
+                        ip = "000.000.000.000"
+                        bool = false
+                    else
+                        bool = settings.mod["Alias System"].use_timer
+                    end
+                    params.timer = bool
+                    if (target_all_players) then
+                        velocity:aliasCmdRoutine(params)
+                    end
+                -- #Admin Chat
+                elseif (parameter == "achat") then
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
+                    if (target_all_players) then
+                        velocity:determineAchat(params)
                     end
                 end
             end
@@ -1100,19 +1125,11 @@ function OnServerCommand(PlayerIndex, Command)
     if (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
-                local bool
-                if isConsole(executor) then
-                    ip = "000.000.000.000"
-                    bool = false
-                else
-                    bool = settings.mod["Alias System"].use_timer
-                end
-                alias:reset(ip)
                 if (args[1] ~= nil) then
-                    validate_params()
+                    validate_params("alias")
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
-                            aliasCmdRoutine(executor, TargetID, ip, bool)
+                            velocity:aliasCmdRoutine(params)
                         end
                     else
                         respond(executor, "Unable to check aliases from all players.", "rcon", 4+8)
@@ -1127,32 +1144,17 @@ function OnServerCommand(PlayerIndex, Command)
         -- #Admin Chat
     elseif (command == settings.mod["Admin Chat"].base_command) then
         if modEnabled("Admin Chat", executor) then
-            if (checkAccess(executor, false, "Admin Chat")) then
-                local mod = players["Admin Chat"][ip]
-                local param = args[1]
-                if (param == "on") or (param == "1") or (param == "true") then
-                    if (mod.boolean ~= true) then
-                        mod.adminchat = true
-                        mod.boolean = true
-                        respond(executor, "Admin Chat enabled.", "rcon")
-                        return false
-                    else
-                        respond(executor, "Admin Chat is already enabled.", "rcon")
-                        return false
-                    end
-                elseif (param == "off") or (param == "0") or (param == "false") then
-                    if (mod.boolean ~= false) then
-                        mod.adminchat = false
-                        mod.boolean = false
-                        respond(executor, "Admin Chat disabled.", "rcon")
-                        return false
-                    else
-                        respond(executor, "Admin Chat is already disabled.", "rcon")
-                        return false
+            if (checkAccess(executor, true, "Admin Chat")) then
+                if (args[1] ~= nil) then
+                    validate_params("achat")
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:determineAchat(params)
+                        end
                     end
                 else
                     local base_command = settings.mod["Admin Chat"].base_command
-                    respond(executor, "Invalid Syntax: Type /" .. base_command .. " on|off.", "rcon")
+                    respond(executor, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4+8)
                     return false
                 end
             end
@@ -1325,6 +1327,84 @@ function velocity:listplayers(e)
     end
 end
 
+function velocity:determineAchat(params)
+    
+    local params = params or {}
+    local eid = params.eid or nil
+    local eip = params.eip or nil
+    local en = params.en or nil
+    
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+    
+    local option = params.option or nil
+    local mod = players["Admin Chat"][tip]
+    
+    if option == nil then
+        if type(mod.adminchat) == 'true' then
+            status = "on"
+        else
+            status = "off"
+        end
+        respond(eid, tn .. "'s admin chat is " .. status)
+    end
+    
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local level = get_var(tid, "$lvl")
+    if tonumber(level) >= getPermLevel("Admin Chat") then
+        if (option == "on") or (option == "1") or (option == "true") then
+            if (mod.boolean ~= true) then
+                mod.adminchat = true
+                mod.boolean = true
+                if not (is_self) then
+                    respond(eid, "Admin Chat enabled for " .. tn, "rcon", 2+8)
+                    respond(tid, "Your Admin Chat was enabled by " .. en, "rcon")
+                else
+                    respond(eid, "Admin Chat Enabled", "rcon")
+                end
+                return false
+            else
+                if not (is_self) then
+                    respond(eid, en .. "'s Admin Chat is already enabled.", "rcon")
+                else
+                    respond(eid, "Admin Chat is already enabled.", "rcon")
+                end
+                return false
+            end
+        elseif (option == "off") or (option == "0") or (option == "false") then
+            if (mod.boolean ~= false) then
+                mod.adminchat = false
+                mod.boolean = false
+                if not (is_self) then
+                    respond(eid, "Admin Chat disabled for " .. tn, "rcon", 2+8)
+                    respond(tid, "Your Admin Chat was disabled by " .. en, "rcon")
+                else
+                    respond(eid, "Admin Chat Disabled", "rcon")
+                end
+                return false
+            else
+                if not (is_self) then
+                    respond(eid, en .. "'s Admin Chat is already disabled.", "rcon")
+                else
+                    respond(eid, "Admin Chat is already disabled.", "rcon")
+                end
+                return false
+            end
+        end
+    else
+        respond(executor, "Unable to set " .. tn .. "'s admin chat to " .. option, "rcon", 4+8)
+    end
+end
+
 function velocity:mute(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -1362,13 +1442,19 @@ function velocity:mute(params)
 end
 
 -- #Alias System
-function aliasCmdRoutine(executor, target, ip, use_timer)
+function velocity:aliasCmdRoutine(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local tn = params.tn or nil
+    local th = params.th or nil
+    local use_timer = params.timer or nil
+    
     local aliases, content
     local tab = players["Alias System"][ip]
     alias_results = { }
   
-    players["Alias System"][ip].tHash = get_var(target, "$hash")
-    players["Alias System"][ip].tName = get_var(target, "$name")
+    tab.tHash = params.th
+    tab.tName = params.tn
     
     local directory = settings.mod["Alias System"].dir
     local lines = lines_from(directory)
@@ -1380,7 +1466,7 @@ function aliasCmdRoutine(executor, target, ip, use_timer)
         end
     end
 
-    tab.eid = tonumber(get_var(executor, "$n"))
+    tab.eid = eid
     tab.shared = false
     tab.check_pirated_hash = true
 
@@ -1395,7 +1481,7 @@ function aliasCmdRoutine(executor, target, ip, use_timer)
         tab.trigger = true
         tab.bool = true
     else
-        alias:show(executor, ip, total)
+        alias:show(eid, eip, total)
     end
 end
 
@@ -1491,19 +1577,20 @@ end
 
 -- #Alias System
 function alias:show(executor, ip, total)
-    local target = players["Alias System"][ip].tHash
-    local name = players["Alias System"][ip].tName
-    local check_pirated_hash = players["Alias System"][ip].check_pirated_hash
+    local tab = players["Alias System"][ip]
+    local target = tab.tHash
+    local name = tab.tName
+    local check_pirated_hash = tab.check_pirated_hash
     if (check_pirated_hash) then
-        players["Alias System"][ip].check_pirated_hash = false
+        tab.check_pirated_hash = false
         for i = 1, #known_pirated_hashes do
             if (target == known_pirated_hashes[i]) then
-                players["Alias System"][ip].shared = true
+                tab.shared = true
             end
         end
     end
     local alignment = settings.mod["Alias System"].alignment
-    alias:align(executor, alias_results, target, total, players["Alias System"][ip].shared, name, alignment)
+    alias:align(executor, alias_results, target, total, tab.shared, name, alignment)
 end
 
 -- #Alias System
