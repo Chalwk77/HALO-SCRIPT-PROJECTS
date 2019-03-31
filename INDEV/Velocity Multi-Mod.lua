@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod, for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.07), for SAPP (PC & CE)
 
 [!] INDEV (not ready for download)
 
@@ -62,7 +62,7 @@ local function GameSettings()
             },
         },
         global = { 
-            script_version = 1.06,
+            script_version = 1.07,
             beepOnJoin = true,
             check_for_updates = false,
             -- Do not Touch...
@@ -101,14 +101,22 @@ local function getServerName()
     return sv_name
 end
 
+local function isConsole(e)
+    if (e) then
+        if (e ~= -1 and e >= 1 and e < 16) then
+            return false
+        else 
+            return true
+        end
+    end
+end
+
 -- Checks if the MOD being called is enabled in settings.
 local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
         return true
-    elseif (e) and (e ~= -1 and e >= 1 and e < 16) then
-        rprint(executor, "Command Failed. " .. script .. " is disabled")
-    else
-        cprint("Command Failed. " .. script .. " is disabled", 4+8)
+    elseif (e) then
+        respond(e, "Command Failed. " .. script .. " is disabled", "rcon")
     end
 end
 
@@ -125,16 +133,6 @@ local function getPlayerInfo(Player, ID)
             end
         else
             return error('getPlayerInfo() -> Unable to get Player IP')
-        end
-    end
-end
-
-local function isConsole(e)
-    if (e) then
-        if (e ~= -1 and e >= 1 and e < 16) then
-            return false
-        else 
-            return true
         end
     end
 end
