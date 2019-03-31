@@ -1016,7 +1016,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond(executor, "Invalid player id", "rcon", 4+8)
+                respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", "rcon", 4+8)
                 is_error = true
                 return false
             end
@@ -1226,7 +1226,7 @@ function OnServerCommand(PlayerIndex, Command)
                 respond(executor, "Insufficient Permission", "rcon", 4+8)
             end
         else
-            respond(executor, "Invalid Syntax", "rcon", 4+8)
+            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4+8)
         end
         return false
     elseif (command == pCMD.disable[1]) then
@@ -1256,7 +1256,7 @@ function OnServerCommand(PlayerIndex, Command)
                 respond(executor, "Insufficient Permission", "rcon", 4+8)
             end
         else
-            respond(executor, "Invalid Syntax", "rcon", 4+8)
+            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4+8)
         end
         return false
     elseif (command == pCMD.mute[1]) then
