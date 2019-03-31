@@ -100,7 +100,7 @@ local function GameSettings()
             server_prefix = "**SERVER** ",
             
             plugin_commands = {
-                bgs = {"velocity", -1},
+                velocity = {"velocity", -1},
                 enable = {"enable", 1},
                 disable = {"disable", 1},
                 list = {"plugins", 1},
@@ -994,6 +994,7 @@ function OnServerCommand(PlayerIndex, Command)
         elseif (level >= lvl_req) then
             return true
         else
+            respond(e, "Insufficient Permission", "rcon", 5+8)
             return false
         end
     end
@@ -1156,8 +1157,8 @@ function OnServerCommand(PlayerIndex, Command)
         end
         return false
     -- #Velocity Version command
-    elseif (command == pCMD.bgs[1]) then
-        if hasAccess(executor, pCMD.bgs[2]) then
+    elseif (command == pCMD.velocity[1]) then
+        if hasAccess(executor, pCMD.velocity[2]) then
             if (settings.global.check_for_updates) then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
                     respond(executor, "============================================================================", "rcon", 7+8)
@@ -1170,8 +1171,17 @@ function OnServerCommand(PlayerIndex, Command)
             else
                 respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon", 5+8)
             end
-        else
-            respond(executor, "Insufficient Permission", "rcon", 5+8)
+        end
+        return false
+    -- #Clear Chat Command
+    elseif (command == pCMD.clearchat[1]) then
+        if hasAccess(executor, pCMD.clearchat[2]) then
+            for _ = 1, 20 do
+                execute_command("msg_prefix \"\"")
+                say_all(" ")
+                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+            end
+            respond(executor, "Chat was cleared!", "rcon", 5+8)
         end
         return false
     elseif (command == pCMD.list[1]) then
@@ -1192,8 +1202,6 @@ function OnServerCommand(PlayerIndex, Command)
             for _ in pairs(t) do
                 t[_] = nil
             end
-        else
-            respond(executor, "Insufficient Permission", "rcon")
         end
         return false
     elseif (command == pCMD.enable[1]) then
@@ -1219,8 +1227,6 @@ function OnServerCommand(PlayerIndex, Command)
                 for _ in pairs(t) do
                     t[_] = nil
                 end
-            else
-                respond(executor, "Insufficient Permission", "rcon", 4+8)
             end
         else
             respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4+8)
@@ -1249,8 +1255,6 @@ function OnServerCommand(PlayerIndex, Command)
                 for _ in pairs(t) do
                     t[_] = nil
                 end
-            else
-                respond(executor, "Insufficient Permission", "rcon", 4+8)
             end
         else
             respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4+8)
