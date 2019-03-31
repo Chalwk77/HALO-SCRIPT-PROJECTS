@@ -30,6 +30,16 @@ local function GameSettings()
             ["Console Logo"] = {
                 enabled = true
             },
+            ["Message Board"] = {
+                enabled = true,
+                duration = 2,
+                alignment = "l",
+                messages = {
+                "Welcome to %server_name%, %player_name%", 
+                "Message Board created by Chalwk (Jericho Crosby)",
+                "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+                }
+            },
         },
         global = { 
             beepOnJoin = true,
@@ -50,7 +60,8 @@ local script_version = 1.02
 -- Tables used Globally
 local player_info = { }
 local players = {
-    ["Alias System"] = {},
+    ["Alias System"] = { },
+    ["Message Board"] = { },
 }
 
 -- String Library, Math Library, Table Library
@@ -117,9 +128,42 @@ local function PreLoad()
     }
 end
 --------------------------------------------------------------
+-- #Message Board
+local messages = { }
+local message_board = { }
+local function set(Player, ip)
+    message_board[ip] = { }
+    local tab = settings.mod["Message Board"].messages
+    for i = 1, #tab do
+        if (tab[i]) then
+            table.insert(message_board[ip], tab[i])
+        end
+    end
+    for _, v in pairs(message_board[ip]) do
+        for j = 1, #message_board[ip] do
+            message_board[ip][j] = gsub(gsub(message_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
+        end
+    end
+end
+
+function messages:show(Player, ip)
+    set(Player, ip)
+    players["Message Board"][ip] = {
+        timer = 0,
+        show = true
+    }
+end
+
+function messages:hide(PlayerIndex, ip)
+    players["Message Board"][ip] = nil
+    message_board[ip] = nil
+    cls(PlayerIndex)
+end
+--------------------------------------------------------------
 
 function OnScriptLoad()
     GameSettings()
+    servername = getServerName()
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -143,6 +187,18 @@ function OnScriptLoad()
         resetAliasParams()
         PreLoad()
     end
+    
+    for i = 1, 16 do
+        if player_present(i) then 
+            local ip = get_var(i, "$ip")
+            if modEnabled("Message Board") then
+                if (players[ip]["Message Board"] ~= nil) then
+                    messages:hide(i, ip)
+                end
+            end
+        end
+    end
+    
     -- #Console Logo
     if (settings.mod["Console Logo"].enabled) then
         --noinspection GlobalCreationOutsideO
@@ -157,7 +213,7 @@ function OnScriptLoad()
             cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
             cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                     " .. getServerName(), 0+8)
+            cprint("                     " .. servername, 0+8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
             cprint("")
             cprint("================================================================================", 2 + 8)
@@ -173,22 +229,50 @@ end
 function OnNewGame()
     PreLoad()
     resetAliasParams()
+    if modEnabled("Message Board") then
+        for i = 1, 16 do
+            local ip = get_var(i, "$ip")
+            if player_present(i) and (players[ip]["Message Board"] ~= nil) then
+                messages:hide(i, ip)
+            end
+        end
+    end
 end
 
 function OnGameEnd()
     resetAliasParams()
+    if modEnabled("Message Board") then
+        for i = 1, 16 do
+            local ip = get_var(i, "$ip")
+            if player_present(i) and (players[ip]["Message Board"] ~= nil) then
+                messages:hide(i, ip)
+            end
+        end
+    end
 end
 
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             local ip = get_var(i, "$ip")
+            -- #Alias System
             if modEnabled("Alias System") then
-                if (players["Alias System"][ip] and players["Alias System"][ip].trigger == true) then
+                if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
                     players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
                     alias:show(i, ip, players["Alias System"][ip].total)
                     if players["Alias System"][ip].timer >= floor(settings.mod["Alias System"].duration) then
                         alias:reset(get_var(i, "$ip"))
+                    end
+                end
+            end
+            -- #Message Board
+            if modEnabled("Message Board") then 
+                if players["Message Board"][ip] and (players["Message Board"][ip].show) then
+                    players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
+                    cls(i)
+                    rprint(i, "|" .. settings.mod["Message Board"].alignment .. " " .. message_board[ip][1])
+                    if players["Message Board"][ip].timer >= math.floor(settings.mod["Message Board"].duration) then
+                        messages:hide(i, ip)
                     end
                 end
             end
@@ -256,6 +340,11 @@ function OnPlayerJoin(PlayerIndex)
             shared[PlayerIndex] = { }
         end
     end
+    
+    -- #Message Board
+    if modEnabled("Message Board") then
+        messages:show(PlayerIndex, ip)
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -283,6 +372,11 @@ function OnPlayerLeave(PlayerIndex)
             alias:reset(ip)
             shared[PlayerIndex] = false
         end
+    end
+    
+    -- #Message Board
+    if modEnabled("Message Board") then
+        messages:hide(PlayerIndex, ip)
     end
 end
 
@@ -438,7 +532,7 @@ end
 function resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
-            if (tonumber(get_var(i, "$lvl")) >= privilege_level) then
+            if (tonumber(get_var(i, "$lvl")) >= settings.mod["Alias System"].permission_level) then
                 alias:reset(get_var(i, "$ip"))
             end
         end
