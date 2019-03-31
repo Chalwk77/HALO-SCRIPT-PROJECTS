@@ -85,6 +85,14 @@ local function GameSettings()
                     "playerslist"
                 }
             },
+            ["Suggestions Box"] = {
+                enabled = true,
+                base_command = "suggestion",
+                permission_level = -1,
+                dir = "sapp\\suggestions.txt",
+                msg_format = "[%time_stamp%] %player_name%: %message%",
+                response = "Thank you for your suggestion, %player_name%"
+            },
         },
         global = { 
             script_version = 1.07,
@@ -297,6 +305,7 @@ function OnScriptLoad()
         ce = 0x40
     end
     
+    -- #Alias System
     if modEnabled("Alias System") then
         checkFile(settings.mod["Alias System"].dir)
         resetAliasParams()
@@ -305,6 +314,11 @@ function OnScriptLoad()
     
     if (settings.global.handlemutes) then
         checkFile(settings.global.mute_dir)
+    end
+    
+    -- #Suggestions Box
+    if modEnabled("Suggestions Box") then
+        checkFile(settings.mod["Suggestions Box"].dir)
     end
     
     for i = 1, 16 do
@@ -721,7 +735,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local level = tonumber(get_var(id, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
     local ip = get_var(id, "$ip")
-    local response
+    local valid
     
     -- SAPP | Mute Handler
     if (settings.global.handlemutes) then
@@ -775,13 +789,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     if message[c] then
                         if not (keyword) or (keyword == nil) then
                             if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
-                                response = true
+                                valid = true
                             else
                                 local strFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
                                 local Format = (gsub(gsub(gsub(gsub(strFormat,"%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 AdminChat(Format)
-                                response = false
+                                valid = false
                             end
                         end
                         break
@@ -834,7 +848,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 end
                                 say(i, formattedString)
                                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                response = false
+                                valid = false
                             end
                         end
                     end
@@ -855,7 +869,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         end
                         say_all(formattedString)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                        response = false
+                        valid = false
                     end
 
                     for b = 0, #message do
@@ -913,7 +927,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     end
                                 end
                             else
-                                response = true
+                                valid = true
                             end
                             break
                         end
@@ -929,7 +943,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-    return response
+    return valid
 end
 
 -- Used in OnServerCommand()
@@ -1002,6 +1016,7 @@ function OnServerCommand(PlayerIndex, Command)
     local params = { }
     local function validate_params(parameter)
         local function getplayers(arg, executor)
+            if (arg == nil) then arg = executor end
             local players = { }
             if arg == "me" then
                 TargetID = executor
@@ -1049,7 +1064,7 @@ function OnServerCommand(PlayerIndex, Command)
                     local default_time = settings.global.default_mute_time
                     if (settings.global.can_mute_admins) then
                         proceed = true
-                    elseif tonumber(get_var(pl[i], "$lvl")) >= 1 then
+                    elseif tonumber(get_var(tid, "$lvl")) >= 1 then
                         proceed = false
                         respond(executor, "You cannot mute admins.", "rcon", 4+8)
                     else
@@ -1075,9 +1090,12 @@ function OnServerCommand(PlayerIndex, Command)
                     if (target_all_players) then
                         velocity:mute(params)
                     end
+                elseif (parameter == "unmute") then
+                    if (target_all_players) then
+                        velocity:unmute(params)
+                    end
                 -- #Alias System
                 elseif (parameter == "alias") then
-                    alias:reset(ip)
                     local bool
                     if isConsole(executor) then
                         ip = "000.000.000.000"
@@ -1086,6 +1104,7 @@ function OnServerCommand(PlayerIndex, Command)
                         bool = settings.mod["Alias System"].use_timer
                     end
                     params.timer = bool
+                    alias:reset(ip)
                     if (target_all_players) then
                         velocity:aliasCmdRoutine(params)
                     end
@@ -1122,6 +1141,7 @@ function OnServerCommand(PlayerIndex, Command)
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
                 if (args[1] ~= nil) then
+                    local tab = settings.mod["Alias System"]
                     validate_params("alias")
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
@@ -1131,8 +1151,7 @@ function OnServerCommand(PlayerIndex, Command)
                         respond(executor, "Unable to check aliases from all players.", "rcon", 4+8)
                     end
                 else
-                    local base_command = settings.mod["Alias System"].base_command
-                    respond(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me ]", "rcon", 4+8)
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4+8)
                 end
             end
         end
@@ -1141,6 +1160,7 @@ function OnServerCommand(PlayerIndex, Command)
     elseif (command == settings.mod["Admin Chat"].base_command) then
         if modEnabled("Admin Chat", executor) then
             if (checkAccess(executor, true, "Admin Chat")) then
+                local tab = settings.mod["Admin Chat"]
                 if (args[1] ~= nil) then
                     validate_params("achat")
                     if not (target_all_players) then
@@ -1149,13 +1169,32 @@ function OnServerCommand(PlayerIndex, Command)
                         end
                     end
                 else
-                    local base_command = settings.mod["Admin Chat"].base_command
-                    respond(executor, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4+8)
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4+8)
                     return false
                 end
             end
         end
         return false
+        -- #Suggestions Box
+    elseif (command == settings.mod["Suggestions Box"].base_command) then
+        if modEnabled("Suggestions Box", executor) then
+            if (checkAccess(executor, true, "Suggestions Box")) then
+                local tab = settings.mod["Suggestions Box"]
+                if (args[1] ~= nil) then
+                    local p = { }
+                    local content = gsub(Command, tab.base_command, "")
+                    p.eid, p.en, p.message = executor, name, content
+                    p.format, p.dir = tab.msg_format, tab.dir
+                    velocity:suggestion(p)
+                else
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4+8)
+                    return false
+                end
+            end
+        end
+        return false
+    -- VELOCITY COMMANDS
+    -- ==========================================================================================================================
     -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
         if hasAccess(executor, pCMD.velocity[2]) then
@@ -1184,6 +1223,7 @@ function OnServerCommand(PlayerIndex, Command)
             respond(executor, "Chat was cleared!", "rcon", 5+8)
         end
         return false
+    -- #Plugin List
     elseif (command == pCMD.list[1]) then
         if hasAccess(executor, pCMD.list[2]) then
             local t = {}
@@ -1204,6 +1244,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
+    -- #Enable Plugin
     elseif (command == pCMD.enable[1]) then
         if (args[1] ~= nil and args[1]:match("%d+")) then
             if hasAccess(executor, pCMD.enable[2]) then
@@ -1232,6 +1273,7 @@ function OnServerCommand(PlayerIndex, Command)
             respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4+8)
         end
         return false
+    -- #Disable Plugin
     elseif (command == pCMD.disable[1]) then
         if (args[1] ~= nil and args[1]:match("%d+")) then
             if hasAccess(executor, pCMD.disable[2]) then
@@ -1260,6 +1302,7 @@ function OnServerCommand(PlayerIndex, Command)
             respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4+8)
         end
         return false
+    -- Mute Command
     elseif (command == pCMD.mute[1]) then
         if (settings.global.handlemutes == true) then
             if hasAccess(executor, pCMD.mute[2]) then
@@ -1273,8 +1316,37 @@ function OnServerCommand(PlayerIndex, Command)
                         end
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>")
+                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4+8)
                 end
+            end
+        end
+        return false
+    -- Unmute Command
+    elseif (command == pCMD.unmute[1]) then
+        if (settings.global.handlemutes == true) then
+            if hasAccess(executor, pCMD.unmute[2]) then
+                if (args[1] ~= nil) then
+                    validate_params("unmute")
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            if not cmdself(TargetID, executor) then
+                                velocity:unmute(params)
+                            end
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4+8)
+                end
+            end
+        end
+        return false
+    -- Mute List Command
+    elseif (command == pCMD.mutelist[1]) then
+        if (settings.global.handlemutes == true) then
+            if hasAccess(executor, pCMD.mutelist[2]) then
+                local p = { }
+                p.eid, p.option = executor, args[1]
+                velocity:mutelist(p)
             end
         end
         return false
@@ -1394,6 +1466,7 @@ function velocity:determineAchat(params)
     return false
 end
 
+-- SAPP | MUTE HANDLER
 function velocity:mute(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -1427,6 +1500,94 @@ function velocity:mute(params)
         else
             rprint(eid, tn .. " is already muted!", "rcon", 4+8)
         end
+    end
+end
+
+-- SAPP | MUTE HANDLER
+function velocity:unmute(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    local th = params.th or nil
+    if (muted[tid] == true) then
+        muted[tid] = false
+        init_mute_timer[tid] = false
+        time_diff[tid] = 0
+        respond(eid, tn .. " has been unmuted", "rcon", 4+8)
+        respond(tid, "You have been  unmuted", "rcon", 4+8)
+        removeEntry(tip, th, tid)
+    else
+        respond(eid, tn .. " it not muted")
+    end
+end
+
+-- SAPP | MUTE HANDLER
+function velocity:mutelist(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local option = params.options or nil
+    if (option == nil) then
+        respond(eid, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4+8)
+    else
+        respond(eid, "----------- NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4+8)
+    end
+    local file_name = settings.global.mute_dir
+    local lines = lines_from(file_name)
+    for k, v in pairs(lines) do
+        if (k ~= nil) then
+            if (option == nil) then
+                respond(eid, gsub(v, "(;)", "(") .. "m)", "rcon", 2+8)
+            elseif (option == "-o") then
+                for i = 1, 16 do
+                    if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
+                        local name = get_var(i, "$name")
+                        local id = get_var(i, "$n")
+                        local time = time_diff[tonumber(i)]
+                        respond(eid, name .. " [" .. id .. "]: " .. time .. " minutes left", "rcon", 2+8)
+                    end
+                end
+            else
+                respond(eid, "Invalid syntax. Usage: /" .. pCMD.mutelist[1], "rcon", 4+8)
+                break
+            end
+        end
+    end
+end
+
+-- #Suggestions Box
+function velocity:suggestion(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+    local content = params.message or nil
+    local msg_format = params.format or nil
+    local dir = params.dir or nil
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+    local t, text = {}
+    t[#t + 1] = content
+    if (t) then
+        local file = io.open(dir, "a+")
+        if (file) then
+            for _, v in pairs(t) do
+                text = v
+            end
+            local timestamp = os.date("%d/%m/%Y - %H:%M:%S")
+            local str = gsub(gsub(gsub(msg_format, "%%time_stamp%%", timestamp), "%%player_name%%", en), "%%message%%", text .. "\n")
+            file:write(str)
+            file:close()
+            local tab = settings.mod["Suggestions Box"]
+            respond(eid, gsub(tab.response, "%%player_name%%", en), "rcon", 7+8)
+            respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7+8)
+            respond(eid, text)
+            respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7+8)
+        end
+    end
+    for _ in pairs(t) do
+        _ = nil
     end
 end
 
