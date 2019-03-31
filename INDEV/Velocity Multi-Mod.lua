@@ -1090,9 +1090,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 -- #Admin Chat
                 elseif (parameter == "achat") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
-                    end
+                    if (args[2] ~= nil) then params.option = args[2] end
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
@@ -1399,9 +1397,12 @@ function velocity:determineAchat(params)
                 end
                 return false
             end
+        else
+            local base_command = settings.mod["Admin Chat"].base_command
+            respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4+8)
         end
     else
-        respond(executor, "Unable to set " .. tn .. "'s admin chat to " .. option, "rcon", 4+8)
+        respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4+8)
     end
 end
 
