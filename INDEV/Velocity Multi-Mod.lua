@@ -36,6 +36,31 @@ local function GameSettings()
                 duration = 10,
                 alignment = "l",
             },
+            ["Chat IDs"] = {
+                enabled = true,
+                global_format = { "%sender_name% [%index%]: %message%" },
+                team_format = { "[%sender_name%] [%index%]: %message%" },
+                use_admin_prefixes = false,
+                trial_moderator = {
+                    "[T-MOD] %sender_name% [%index%]: %message%",
+                    "[T-MOD] [%sender_name%] [%index%]: %message%"
+                },
+                moderator = {
+                    "[MOD] %sender_name% [%index%]: %message%",
+                    "[MOD] [%sender_name%] [%index%]: %message%"
+                },
+                admin = {
+                    "[ADMIN] %sender_name% [%index%]: %message%",
+                    "[ADMIN] [%sender_name%] [%index%]: %message%"
+                },
+                senior_admin = {
+                    "[S-ADMIN] %sender_name% [%index%]: %message%",
+                    "[S-ADMIN] [%sender_name%] [%index%]: %message%"
+                },
+                ignore_list = {
+                    "skip",
+                }
+            },
             ["Console Logo"] = {
                 enabled = true
             },
@@ -65,6 +90,15 @@ local function GameSettings()
             script_version = 1.07,
             beepOnJoin = true,
             check_for_updates = false,
+            
+            -- Mute Handler
+            handlemutes = true,
+            mute_dir = "sapp\\mutes.txt",
+            default_mute_time = 525600,
+            can_mute_admins = false,
+            
+            server_prefix = "**SERVER** ",
+            
             -- Do not Touch...
             player_data = {
                 "Player: %name%",
@@ -94,6 +128,13 @@ local concat = table.concat
 
 -- Global Booleans
 local game_over
+
+-- Mute Handler
+local mute_duration = {}
+local time_diff = {}
+local muted = {}
+local mute_timer = {}
+local init_mute_timer = {}
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -245,10 +286,13 @@ function OnScriptLoad()
     end
     
     if modEnabled("Alias System") then
-        local dir = settings.mod["Alias System"].dir
-        checkFile(dir)
+        checkFile(settings.mod["Alias System"].dir)
         resetAliasParams()
         PreLoad()
+    end
+    
+    if (settings.global.handlemutes) then
+        checkFile(settings.global.mute_dir)
     end
     
     for i = 1, 16 do
@@ -337,6 +381,10 @@ function OnNewGame()
 end
 
 function OnGameEnd()
+    -- Prevents displaying chat ids when the game is over.
+    -- Otherwise map voting breaks.
+    game_over = true
+    
     resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then 
@@ -370,6 +418,32 @@ function OnGameEnd()
                     end
                 end
             end
+            
+            -- SAPP | Mute Handler
+            if (settings.global.handlemutes == true) then
+                if (muted[tonumber(i)] == true) then
+                    local name, hash = get_var(i, "$name"), get_var(i, "$hash")
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+)")
+                    local file_name = settings.global.mute_dir
+                    local file = io.open(file_name, "r")
+                    file:close()
+                    local lines = lines_from(file_name)
+                    for k, v in pairs(lines) do
+                        if k ~= nil then
+                            if v:match(ip) and v:match(hash) then
+                                local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(i)]
+                                local f1 = io.open(file_name, "r")
+                                local content = f1:read("*all")
+                                f1:close()
+                                content = gsub(content, v, updated_entry)
+                                local f2 = io.open(file_name, "w")
+                                f2:write(content)
+                                f2:close()
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
 end
@@ -378,6 +452,31 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             local ip = get_var(i, "$ip")
+            
+            -- SAPP | Mute Handler
+            if (settings.global.handlemutes) then
+                if (init_mute_timer[tonumber(i)]) then
+
+                    local hash = get_var(i, "$hash")
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+)")
+                    local entry = ip .. ", " .. hash
+
+                    mute_timer[entry].timer = mute_timer[entry].timer + 0.030
+
+                    local minutes = secondsToTime(mute_timer[entry].timer, 4)
+                    local mute_time = (mute_duration[tonumber(i)]) - floor(minutes)
+                    time_diff[tonumber(i)] = mute_time
+
+                    if (mute_time <= 0) then
+                        time_diff[tonumber(i)] = 0
+                        muted[tonumber(i)] = false
+                        init_mute_timer[tonumber(i)] = false
+                        removeEntry(ip, hash, i)
+                        rprint(i, "Your mute time has expired.")
+                    end
+                end
+            end
+            
             -- #Alias System
             if modEnabled("Alias System") then
                 if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
@@ -455,6 +554,33 @@ function OnPlayerJoin(PlayerIndex)
         cprint("________________________________________________________________________________", 2 + 8)
     end
     
+    -- SAPP | Mute Handler
+    if not (settings.global.handlemutes) then
+        muted[tonumber(PlayerIndex)] = false or nil
+    else
+        local file_name = settings.global.mute_dir
+        local stringToMatch = ip .. ", " .. hash
+        local lines = lines_from(file_name)
+        for _, v in pairs(lines) do
+            if v:match(stringToMatch) then
+                local timeFound = match(v, (";(.+)"))
+                local words = stringSplit(timeFound, ", ")
+                mute_duration[tonumber(PlayerIndex)] = tonumber(words[1])
+                muted[tonumber(PlayerIndex)] = true
+                if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
+                    rprint(PlayerIndex, "You are muted permanently.")
+                else
+                    init_mute_timer[tonumber(PlayerIndex)] = true
+                    rprint(PlayerIndex, "You were muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
+                end
+            else
+                mute_duration[tonumber(PlayerIndex)] = 0
+                muted[tonumber(PlayerIndex)] = false
+                init_mute_timer[tonumber(PlayerIndex)] = false
+            end
+        end
+    end
+    
     -- #Alias System
     if modEnabled("Alias System") then
         alias:add(name, hash)
@@ -512,6 +638,31 @@ function OnPlayerLeave(PlayerIndex)
         player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
+    
+    -- SAPP | Mute Handler
+    if (settings.global.handlemutes) then
+        if (muted[tonumber(PlayerIndex)] == true) then
+            muted[tonumber(PlayerIndex)] = false
+            local file_name = settings.global.mute_dir
+            local file = io.open(file_name, "r")
+            file:close()
+            local lines = lines_from(file_name)
+            for k, v in pairs(lines) do
+                if k ~= nil then
+                    if v:match(ip) and v:match(hash) then
+                        local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(PlayerIndex)]
+                        local f1 = io.open(file_name, "r")
+                        local content = f1:read("*all")
+                        f1:close()
+                        content = gsub(content, v, updated_entry)
+                        local f2 = io.open(file_name, "w")
+                        f2:write(content)
+                        f2:close()
+                    end
+                end
+            end
+        end
+    end
     
     -- #Alias System
     if modEnabled("Alias System") then
@@ -584,11 +735,23 @@ local function isOnline(t, e)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    local pl = tonumber(PlayerIndex)
-    local level = tonumber(get_var(pl, "$lvl"))
+    local id = tonumber(PlayerIndex)
+    local level = tonumber(get_var(id, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
-    local ip = get_var(pl, "$ip")
+    local ip = get_var(id, "$ip")
     local response
+    
+    -- SAPP | Mute Handler
+    if (settings.global.handlemutes) then
+        if (muted[tonumber(PlayerIndex)] == true) then
+            if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
+                rprint(PlayerIndex, "You are muted permanently.")
+            else
+                rprint(PlayerIndex, "You are muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
+            end
+            return false
+        end
+    end
     
     -- Used throughout OnPlayerChat()
     local message = stringSplit(Message)
@@ -598,15 +761,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
     
     -- #Chat IDs & Admin Chat
     local keyword
-    
-    -- if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
-        -- local ignore = settings.mod["Chat IDs"].ignore_list
-        -- if (table.match(ignore, message[1])) then
-            -- keyword = true
-        -- else
-            -- keyword = false
-        -- end
-    -- end
+    if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
+        local ignore = settings.mod["Chat IDs"].ignore_list
+        if (table.match(ignore, message[1])) then
+            keyword = true
+        else
+            keyword = false
+        end
+    end
     
     -- #Admin Chat
     if modEnabled("Admin Chat", PlayerIndex) then
@@ -635,13 +797,152 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             else
                                 local strFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
-                                local Format = (gsub(gsub(gsub(gsub(strFormat,"%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", pl), "%%message%%", Message))
+                                local Format = (gsub(gsub(gsub(gsub(strFormat,"%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 AdminChat(Format)
                                 response = false
                             end
                         end
                         break
                     end
+                end
+            end
+        end
+    end
+    -- #Chat IDs
+    if modEnabled("Chat IDs", PlayerIndex) then
+        if not (game_over) and not (muted[tonumber(PlayerIndex)]) then
+
+            -- GLOBAL FORMAT
+            local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
+            local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
+            local Global_ModFormat = settings.mod["Chat IDs"].moderator[1]
+            local Global_AdminFormat = settings.mod["Chat IDs"].admin[1]
+            local Global_SAdminFormat = settings.mod["Chat IDs"].senior_admin[1]
+
+            --TEAM FORMAT
+            local TeamDefault = settings.mod["Chat IDs"].team_format[1]
+            local Team_TModFormat = settings.mod["Chat IDs"].trial_moderator[2]
+            local Team_ModFormat = settings.mod["Chat IDs"].moderator[2]
+            local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
+            local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
+            
+            -- Permission Levels
+            local tmod_perm = settings.mod["Chat IDs"].trial_moderator.lvl
+            local mod_perm = settings.mod["Chat IDs"].moderator.lvl
+            local admin_perm = settings.mod["Chat IDs"].admin.lvl
+            local sadmin_perm = settings.mod["Chat IDs"].senior_admin.lvl
+
+            if not (keyword) or (keyword == nil) then
+                local function ChatHandler(PlayerIndex, Message)
+                    local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
+                        for i = 1, 16 do
+                            if player_present(i) and (get_var(i, "$team") == get_var(PlayerIndex, "$team")) then
+                                local formattedString = ""
+                                execute_command("msg_prefix \"\"")
+                                if (Global == true) then
+                                    formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Tmod == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Mod == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (Admin == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                elseif (sAdmin == true) then
+                                    formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                end
+                                say(i, formattedString)
+                                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                response = false
+                            end
+                        end
+                    end
+
+                    local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
+                        local formattedString = ""
+                        execute_command("msg_prefix \"\"")
+                        if (Global == true) then
+                            formattedString = (gsub(gsub(gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                        elseif (Tmod == true) then
+                            formattedString = (gsub(gsub(gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                        elseif (Mod == true) then
+                            formattedString = (gsub(gsub(gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                        elseif (Admin == true) then
+                            formattedString = (gsub(gsub(gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                        elseif (sAdmin == true) then
+                            formattedString = (gsub(gsub(gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                        end
+                        say_all(formattedString)
+                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                        response = false
+                    end
+
+                    for b = 0, #message do
+                        if message[b] then
+                            if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
+                                if (getTeamPlay()) then
+                                    if (type == 0 or type == 2) then
+                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                            if (level == tmod_perm) then
+                                                SendToAll(Message, nil, true, nil, nil, nil)
+                                            elseif (level == mod_perm) then
+                                                SendToAll(Message, nil, nil, true, nil, nil)
+                                            elseif (level == admin_perm) then
+                                                SendToAll(Message, nil, nil, nil, true, nil)
+                                            elseif (level == sadmin_perm) then
+                                                SendToAll(Message, nil, nil, nil, nil, true)
+                                            else
+                                                SendToAll(Message, true, nil, nil, nil, nil)
+                                            end
+                                        else
+                                            SendToAll(Message, true, nil, nil, nil, nil)
+                                        end
+                                    elseif (type == 1) then
+                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                            if (level == tmod_perm) then
+                                                SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
+                                            elseif (level == mod_perm) then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, true, nil, nil)
+                                            elseif (level == admin_perm) then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, true, nil)
+                                            elseif (level == sadmin_perm) then
+                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
+                                            else
+                                                SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+                                            end
+                                        else
+                                            SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+                                        end
+                                    end
+                                else
+                                    if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                        if (level == tmod_perm) then
+                                            SendToAll(Message, nil, true, nil, nil, nil)
+                                        elseif (level == mod_perm) then
+                                            SendToAll(Message, nil, nil, true, nil, nil)
+                                        elseif (level == admin_perm) then
+                                            SendToAll(Message, nil, nil, nil, true, nil)
+                                        elseif (level == sadmin_perm) then
+                                            SendToAll(Message, nil, nil, nil, nil, true)
+                                        else
+                                            SendToAll(Message, true, nil, nil, nil, nil)
+                                        end
+                                    else
+                                        SendToAll(Message, true, nil, nil, nil, nil)
+                                    end
+                                end
+                            else
+                                response = true
+                            end
+                            break
+                        end
+                    end
+                end
+                if modEnabled("Admin Chat") then
+                    if (players["Admin Chat"][ip].adminchat ~= true) then
+                        ChatHandler(PlayerIndex, Message)
+                    end
+                else
+                    ChatHandler(PlayerIndex, Message)
                 end
             end
         end
@@ -688,6 +989,27 @@ function OnServerCommand(PlayerIndex, Command)
         pl = getplayers(args[1], executor)
     end
     
+    -- #Player List
+    local cmd_list = settings.mod["Player List"].command_aliases
+    for _, v in pairs(cmd_list) do
+        local cmds = stringSplit(v, ",")
+        for i = 1, #cmds do
+            if (command == cmds[i]) then
+                if modEnabled("Player List", executor) then
+                    if (args[1] == nil) then
+                        if (checkAccess(executor, true, "Player List")) then
+                            velocity:listplayers(executor)
+                        end
+                    else
+                        respond(executor, "Invalid Syntax. Usage: /" .. command)
+                    end
+                    return false
+                end
+            end
+        end
+    end
+    
+    -- #Alias System
     if (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
@@ -716,28 +1038,8 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
-    end
-    -- #Player List
-    if modEnabled("Player List", executor) then
-        local cmd_list = settings.mod["Player List"].command_aliases
-        for _, v in pairs(cmd_list) do
-            local cmds = stringSplit(v, ",")
-            for i = 1, #cmds do
-                if (command == cmds[i]) then
-                    if (args[1] == nil) then
-                        if (checkAccess(executor, true, "Player List")) then
-                            velocity:listplayers(executor)
-                        end
-                    else
-                        respond(executor, "Invalid Syntax. Usage: /" .. command)
-                    end
-                    return false
-                end
-            end
-        end
-    end
-    -- #Admin Chat
-    if (command == settings.mod["Admin Chat"].base_command) then
+        -- #Admin Chat
+    elseif (command == settings.mod["Admin Chat"].base_command) then
         if modEnabled("Admin Chat", executor) then
             if (checkAccess(executor, false, "Admin Chat")) then
                 local mod = players["Admin Chat"][ip]
