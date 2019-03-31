@@ -435,7 +435,7 @@ function OnGameEnd()
             if (settings.global.handlemutes == true) then
                 if (muted[tonumber(i)] == true) then
                     local name, hash = get_var(i, "$name"), get_var(i, "$hash")
-                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+)")
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local file_name = settings.global.mute_dir
                     local file = io.open(file_name, "r")
                     file:close()
@@ -470,7 +470,7 @@ function OnTick()
                 if (init_mute_timer[tonumber(i)]) then
 
                     local hash = get_var(i, "$hash")
-                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+)")
+                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
                     local entry = ip .. ", " .. hash
 
                     mute_timer[entry].timer = mute_timer[entry].timer + 0.030
@@ -570,6 +570,11 @@ function OnPlayerJoin(PlayerIndex)
     if not (settings.global.handlemutes) then
         muted[tonumber(PlayerIndex)] = false or nil
     else
+    
+        local entry = ip .. ", " .. hash
+        mute_timer[entry] = {}
+        mute_timer[entry].timer = 0
+        
         local file_name = settings.global.mute_dir
         local stringToMatch = ip .. ", " .. hash
         local lines = lines_from(file_name)
@@ -707,41 +712,6 @@ function OnPlayerLeave(PlayerIndex)
                 mod.adminchat = false
                 mod.boolean = false
             end
-        end
-    end
-end
-
--- Used in OnServerCommand()
-local function checkAccess(e, c, script)
-    local access
-    if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script)) then
-            access = true
-        else
-            rprint(e, "Command failed. Insufficient Permission.")
-            access = false
-        end
-    elseif (c) then
-        access = true
-    elseif not (c) then 
-        cprint('This command cannot be executed from console', 4+8)
-        access = false
-    end
-    return access
-end
-
--- Used in OnServerCommand()
-local function isOnline(t, e)
-    if (t) then
-        if (t > 0 and t < 17) then
-            if player_present(t) then
-                return true
-            else
-                respond(e, "Command failed. Player not online.", "rcon", 4+8)
-                return false
-            end
-        else
-            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4+8)
         end
     end
 end
@@ -962,14 +932,60 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return response
 end
 
+-- Used in OnServerCommand()
+local function checkAccess(e, c, script)
+    local access
+    if (e ~= -1 and e >= 1 and e < 16) then
+        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script)) then
+            access = true
+        else
+            rprint(e, "Command failed. Insufficient Permission.")
+            access = false
+        end
+    elseif (c) then
+        access = true
+    elseif not (c) then 
+        cprint('This command cannot be executed from console', 4+8)
+        access = false
+    end
+    return access
+end
+
+-- Used in OnServerCommand()
+local function isOnline(t, e)
+    if (t) then
+        if (t > 0 and t < 17) then
+            if player_present(t) then
+                return true
+            else
+                respond(e, "Command failed. Player not online.", "rcon", 4+8)
+                return false
+            end
+        else
+            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4+8)
+        end
+    end
+end
+
+local function cmdself(t, e)
+    if (t) then
+        if tonumber(t) == tonumber(e) then
+            rprint(e, "You cannot execute this command on yourself.")
+            return true
+        end
+    end
+end
+
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
 
+    local params = { }
     local TargetID, target_all_players, is_error
     local ip = get_var(executor, "$ip")
     local pl
+    
     
     local pCMD = settings.global.plugin_commands
     
@@ -984,7 +1000,7 @@ function OnServerCommand(PlayerIndex, Command)
         end
     end
     
-    local function validate_params()
+    local function validate_params(parameter)
         local function getplayers(arg, executor)
             local players = { }
             if arg == "me" then
@@ -1011,7 +1027,53 @@ function OnServerCommand(PlayerIndex, Command)
             players = nil
             return false
         end
-        pl = getplayers(args[1], executor)
+        local pl = getplayers(args[1], executor)
+        if pl then
+            for i = 1, #pl do
+                if pl[i] == nil then
+                    break
+                end
+                if (parameter == "mute") then
+                    local default_time = settings.global.default_mute_time
+                    params.eid = executor
+                    params.tid = tonumber(pl[i])
+                    params.tip = get_var(pl[i], "$ip")
+                    params.tn = get_var(pl[i], "$name")
+                    params.th = get_var(pl[i], "$hash")
+                    
+                    if (settings.global.can_mute_admins) then
+                        proceed = true
+                    elseif tonumber(get_var(pl[i], "$lvl")) >= 1 then
+                        proceed = false
+                        respond(executor, "You cannot mute admins.", "rcon", 4+8)
+                    else
+                        proceed = true
+                    end
+
+                    mute_duration[params.tid] = 0
+                    if (args[2] == nil) then
+                        time_diff[params.tid] = tonumber(default_time)
+                        mute_duration[params.tid] = tonumber(default_time)
+                        params.time = mute_duration[params.tid]
+                        valid = true
+                    elseif match(args[2], "%d+") then
+                        time_diff[params.tid] = tonumber(args[2])
+                        mute_duration[params.tid] = tonumber(args[2])
+                        params.time = mute_duration[params.tid]
+                        init_mute_timer[params.tid] = true
+                        valid = true
+                    else
+                        valid = false
+                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4+8)
+                    end
+
+                    params.proceed, params.valid = proceed, valid
+                    if (target_all_players) then
+                        velocity:mute(params)
+                    end
+                end
+            end
+        end
     end
     
     -- #Player List
@@ -1197,6 +1259,24 @@ function OnServerCommand(PlayerIndex, Command)
             respond(executor, "Invalid Syntax", "rcon", 4+8)
         end
         return false
+    elseif (command == pCMD.mute[1]) then
+        if (settings.global.handlemutes == true) then
+            if hasAccess(executor, pCMD.mute[2]) then
+                if (args[1] ~= nil) then
+                    validate_params("mute")
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            if not cmdself(TargetID, executor) then
+                                velocity:mute(params)
+                            end
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>")
+                end
+            end
+        end
+        return false
     end
 end
 
@@ -1242,6 +1322,42 @@ function velocity:listplayers(e)
         cprint("------------------------------------", 5+8)
         cprint("There are no players online", 4+8)
         cprint("------------------------------------", 5+8)
+    end
+end
+
+function velocity:mute(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    local th = params.th or nil
+    local proceed = params.proceed or nil
+    local valid = params.valid or nil
+    local time = params.time or nil
+    
+    if (proceed) and (valid) then
+        muted[tid] = true
+        local file_name = settings.global.mute_dir
+        local file = io.open(file_name, "r")
+        local content = file:read("*a")
+        file:close()
+
+        if not (match(content, tip) and match(content, tid) and match(content, th)) then
+            if (tonumber(time) ~= settings.global.default_mute_time) then
+                respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4+8)
+                rprint(tid, "You have been muted for " .. time .. " minute(s)")
+            else
+                rprint(eid, tn .. " has been muted permanently")
+                rprint(tid, "You were muted permanently")
+            end
+            local new_entry = tip .. ", " .. th .. ", " .. tn .. ", ;" .. time
+            local file = assert(io.open(file_name, "a+"))
+            file:write(new_entry .. "\n")
+            file:close()
+        else
+            rprint(eid, tn .. " is already muted!", "rcon", 4+8)
+        end
     end
 end
 
@@ -1574,6 +1690,34 @@ function read_widestring(address, length)
         count = count + 2
     end
     return concat(byte_table)
+end
+
+function secondsToTime(seconds, places)
+    
+    local years = floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
+    local minutes = floor(seconds / 60)
+    seconds = seconds % 60
+
+    if places == 6 then
+        return string.format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
+    elseif places == 5 then
+        return string.format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
+    elseif not places or places == 4 then
+        return days, hours, minutes, seconds
+    elseif places == 3 then
+        return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+    elseif places == 2 then
+        return string.format("%02d:%02d", minutes, seconds)
+    elseif places == 1 then
+        return string.format("%02", seconds)
+    end
 end
 
 function getCurrentVersion(bool)
