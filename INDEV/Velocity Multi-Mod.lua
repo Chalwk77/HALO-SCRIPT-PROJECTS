@@ -149,6 +149,59 @@ local function GameSettings()
                     [18] = { "available" } -- salmon
                 }
             },
+            ["Custom Weapons"] = {
+                enabled = true, -- Enabled = true, Disabled = false
+                assign_weapons = true,
+                assign_custom_frags = false,
+                assign_custom_plasmas = false,
+                weapons = {
+                
+                    -- [!] WARNING: 4th weapon slot is usually reserved for the objective (flag/oddball).
+                    -- If this slot is occupied, you cannot pick up the objective.
+                
+                    -- [slot1,slot2,slot3,slot4] [frags,plasmas] [map enabled/disabled (true or false)]
+                   
+                    -- If you don't want to utilize custom grenade assignments for a given map, 
+                    -- and would prefer to use the game-type settings for grenade assignments instead, set the respective grenade type count to "00" (double zero).
+       
+                    -- If you want to utilize a given map for grenade assignment but not weapon assignments, set all 4 weapon slots to 'nil'.
+                    -- You will spawn with default weapons set in the game-type settings.
+                    
+                    -- If you want to utilize weapon assignments but don't want to spawn with grenades (at all) on a given map, 
+                    -- set the respective grenade type count to '0' (single 0).
+                    
+                    -- To completely disable custom weapon and grenade assignment for a given map, set the last value to 'false'
+
+                    ["beavercreek"] = {     pistol, sniper, nil, nil, 00, 00, false},
+                    ["bloodgulch"] = {      sniper, pistol, needler, nil, 2, 2, false},
+                    ["boardingaction"] = {  shotgun, pistol, nil, nil, 1, 3, false},
+                    ["carousel"] = {        sniper, pistol, shotgun, nil, 2, 2, false},
+                    ["dangercanyon"] = {    pistol, rocket_launcher, assault_rifle, nil, 00, 00, false},
+                    ["deathisland"] = {     sniper, pistol, assault_rifle, nil, 1, 1, false},
+                    ["gephyrophobia"] = {   sniper, pistol, rocket_launcher, nil, 3, 3, false},
+                    ["icefields"] = {       pistol, assault_rifle, nil, nil, 2, 3, false},
+                    ["infinity"] = {        pistol, sniper, rocket_launcher, nil, 4, 4, false},
+                    ["sidewinder"] = {      pistol, rocket_launcher, plasma_cannon, nil, 3, 2, false},
+                    ["timberland"] = {      pistol, assault_rifle, needler, nil, 3, 3, false},
+                    ["hangemhigh"] = {      pistol, shotgun, nil, nil, 2, 2, false},
+                    ["ratrace"] = {         assault_rifle, pistol, nil, nil, 0, 0, false},
+                    ["damnation"] = {       assault_rifle, pistol, nil, nil, 1, 3, false},
+                    ["putput"] = {          plasma_pistol, plasma_rifle, nil, nil, 1, 1, false},
+                    ["prisoner"] = {        pistol, rocket_launcher, nil, nil, 1, 1, false},
+                    ["wizard"] = {          pistol, sniper, nil, nil, 0, 0, true},
+                    -- [ custom maps ]...
+                    -- place custom weapon tag IDs in the loadWeaponTags() function and assign a variable name to them.
+                    -- Repeat the structure to add more maps.
+                    ["room_final"] = {      rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["dead_end"] = {        pistol, assault_rifle, nil, nil, 00, 00, true},
+                    ["gruntground"] = {     needler, nil, nil, nil, 1, 1, true},
+                    ["feelgoodinc"] = {     rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["lolcano"] = {         rocket_launcher, nil, nil, nil, 00, 00, true},
+                    ["camden_place"] = {    pistol, nil, nil, nil, 00, 00, true},
+                    ["alice_gulch"] = {     pistol, nil, nil, nil, 00, 00, true},
+                    ["snowdrop"] = {        battle_rifle, pistol, nil, nil, 00, 00, true},
+                },
+            },
             ["Message Board"] = {
                 enabled = false,
                 duration = 2, -- How long should the message be displayed on screen for? (in seconds)
@@ -161,6 +214,12 @@ local function GameSettings()
                     "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
                     -- repeat the structure to add more entries
                 }
+            },
+            ["Portal Gun"] = {
+                enabled = true,
+                base_command = "portalgun",
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
+                permission_level = 1,
             },
             -- # An alternative player list mod. Overrides SAPP's built in /pl command.
             ["Player List"] = {
@@ -237,6 +296,10 @@ local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, s
 local floor = math.floor
 local concat = table.concat
 
+local mapname = ""
+local ce
+local empty_file
+local console_address_patch = nil
 local game_over
 
 -- #Color Reservation
@@ -249,6 +312,13 @@ local time_diff = {}
 local muted = {}
 local mute_timer = {}
 local init_mute_timer = {}
+
+-- #Custom Weapons
+local weapon = {}
+
+-- #Portal Gun
+local weapon_status = {}
+local portalgun_mode = {}
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -374,6 +444,7 @@ end
 --------------------------------------------------------------
 
 function OnScriptLoad()
+    loadWeaponTags()
     GameSettings()
     printEnabled()
     if (settings.global.check_for_updates) then
@@ -421,6 +492,15 @@ function OnScriptLoad()
     -- #Chat Logging
     if modEnabled("Chat Logging") then
         checkFile(settings.mod["Chat Logging"].dir)
+    end
+    
+    -- #Custom Weapons
+    if modEnabled("Custom Weapons") then
+        if not (game_over) then
+            if get_var(0, "$gt") ~= "n/a" then
+                mapname = get_var(0, "$map")
+            end
+        end
     end
 
     if (settings.global.handlemutes) then
@@ -507,6 +587,10 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
+    -- Used Globally
+    game_over = false
+    mapname = get_var(0, "$map")
+    
     PreLoad()
     resetAliasParams()
     for i = 1, 16 do
@@ -566,7 +650,12 @@ function OnGameEnd()
         if player_present(i) then
             local ip = get_var(i, "$ip")
             local level = get_var(i, "$lvl")
-
+            
+            -- #Custom Weapons
+            if modEnabled("Custom Weapons") and (settings.mod["Custom Weapons"].assign_weapons) then
+                weapon[i] = false
+            end
+            
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -642,6 +731,76 @@ function OnTick()
         if player_present(i) then
             local ip = get_var(i, "$ip")
 
+            -- #Custom Weapons
+          local wTab = settings.mod["Custom Weapons"]
+          if modEnabled("Custom Weapons") and (wTab.assign_weapons) then
+                if wTab.weapons[mapname] ~= nil then
+                    if (player_alive(i)) then
+                        if (weapon[i] == true) then
+                            local player = get_dynamic_player(i)
+                            local x, y, z = read_vector3d(player + 0x5C)
+                            local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
+
+                            if (primary) or (secondary) or (tertiary) or (quaternary) then
+                                execute_command("wdel " .. i)
+                            end
+                            
+                            if (secondary) then
+                                assign_weapon(spawn_object("weap", secondary, x, y, z), i)
+                            end
+                            
+                            if (primary) then
+                                assign_weapon(spawn_object("weap", primary, x, y, z), i)
+                            end
+
+                            if (Slot == 3 or Slot == 4) then
+                                timer(100, "delayAssignMore", player, x, y, z)
+                            end
+                            function delayAssignMore(player, x, y, z)
+                                if (tertiary) then
+                                    assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
+                                end
+
+                                if (quaternary) then
+                                    assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
+                                end
+                            end
+                        end
+                        weapon[i] = false
+                    end
+                end
+            end
+            
+            -- #Portal Gun
+            if modEnabled("Portal Gun") then
+                if (player_present(i) and player_alive(i)) then
+                    if (portalgun_mode[i] == true) then
+                        local player_object = get_dynamic_player(i)
+                        local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
+                        local shot_fired
+                        local is_crouching
+                        local couching = read_float(player_object + 0x50C)
+                        local px, py, pz = read_vector3d(player_object + 0x5c)
+                        if (couching == 0) then
+                            pz = pz + 0.65
+                            is_crouching = false
+                        else
+                            pz = pz + (0.35 * couching)
+                            is_crouching = true
+                        end
+                        local ignore_player = read_dword(get_player(i) + 0x34)
+                        local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
+                        if (success == true and target ~= nil) then
+                            shot_fired = read_float(player_object + 0x490)
+                            if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                                execute_command("boost " .. i)
+                            end
+                            weapon_status[i] = shot_fired
+                        end
+                    end
+                end
+            end
+            
             -- SAPP | Mute Handler
             if (settings.global.handlemutes) then
                 if (init_mute_timer[tonumber(i)]) then
@@ -689,6 +848,33 @@ function OnTick()
             end
         end
     end
+end
+
+function determineWeapon()
+    local primary, secondary, tertiary, quaternary, Slot
+    local tab = settings.mod["Custom Weapons"]
+    for i = 1, 4 do
+        local weapon = tab.weapons[mapname][i]
+        if (weapon ~= nil) then
+            if (i == 1 and tab.weapons[mapname][i] ~= nil) then
+                primary = tab.weapons[mapname][i]
+                Slot = i
+            end
+            if (i == 2 and tab.weapons[mapname][i] ~= nil) then
+                secondary = tab.weapons[mapname][i]
+                Slot = i
+            end
+            if (i == 3 and tab.weapons[mapname][i] ~= nil) then
+                tertiary = tab.weapons[mapname][i]
+                Slot = i
+            end
+            if (i == 4 and tab.weapons[mapname][i] ~= nil) then
+                quaternary = tab.weapons[mapname][i]
+                Slot = i
+            end
+        end
+    end
+    return primary, secondary, tertiary, quaternary, Slot
 end
 
 function OnPlayerPrejoin(PlayerIndex)
@@ -1005,6 +1191,32 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
+    -- #Custom Weapons
+    if modEnabled("Custom Weapons") then
+        local Wtab = settings.mod["Custom Weapons"]
+        if player_alive(PlayerIndex) then
+            if (Wtab.weapons[mapname] ~= nil) then
+                if (Wtab.weapons[mapname][7]) then
+                    weapon[PlayerIndex] = true
+                    local player_object = get_dynamic_player(PlayerIndex)
+                    if (player_object ~= 0) then
+                        if (Wtab.assign_custom_frags == true) then
+                            local frags = Wtab.weapons[mapname][5]
+                            if (frags ~= 00) then
+                                write_word(player_object + 0x31E, tonumber(frags))
+                            end
+                        end
+                        if (Wtab.assign_custom_plasmas == true) then
+                            local plasmas = Wtab.weapons[mapname][6]
+                            if (plasmas ~= 00) then
+                                write_word(player_object + 0x31F, tonumber(plasmas))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
@@ -1014,6 +1226,10 @@ function OnPlayerSpawn(PlayerIndex)
                 DestroyObject(player_object)
             end
         end
+    end
+    -- #Portal Gun
+    if modEnabled("Portal Gun") then
+        weapon_status[PlayerIndex] = 0
     end
 end
 
@@ -1462,6 +1678,14 @@ function OnServerCommand(PlayerIndex, Command)
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
+                    -- #Portal Gun
+                elseif (parameter == "portalgun") then
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
+                    if (target_all_players) then
+                        velocity:portalgun(params)
+                    end
                 end
             end
         end
@@ -1536,6 +1760,25 @@ function OnServerCommand(PlayerIndex, Command)
                     velocity:suggestion(p)
                 else
                     respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
+                    return false
+                end
+            end
+        end
+        return false
+        -- #Portal Gun
+    elseif (command == settings.mod["Portal Gun"].base_command) then
+        if modEnabled("Portal Gun", executor) then
+            if (checkAccess(executor, true, "Portal Gun")) then
+                local tab = settings.mod["Portal Gun"]
+                if (args[1] ~= nil) then
+                    validate_params("portalgun")
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:portalgun(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
                     return false
                 end
             end
@@ -1701,6 +1944,77 @@ function OnServerCommand(PlayerIndex, Command)
     end
 end
 
+function velocity:portalgun(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local option = params.option or nil
+    local proceed
+    
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    if (option == nil) then
+        if (portalgun_mode[tid] == true) then
+            status = "enabled"
+        else
+            status = "disabled"
+        end
+        if (is_self) then
+            respond(eid, "Your portalgun mode is " .. status, "rcon", 4+8)
+        else
+            respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4+8)
+        end
+    else
+        proceed = true
+    end
+
+    if (proceed) then
+        local level = get_var(tid, "$lvl")
+        local base_command = settings.mod["Portal Gun"].base_command
+        if tonumber(level) >= getPermLevel("Portal Gun") then
+            local status, already_set, is_error
+            if (option == "on") or (option == "1") or (option == "true") then
+                status, already_set, is_error = "Enabled", true, false
+                if (portalgun_mode[tid] ~= true) then
+                    portalgun_mode[tid] = true
+                end
+            elseif (option == "off") or (option == "0") or (option == "false") then
+                status, already_set, is_error = "Disabled", false, false
+                if (portalgun_mode[tid] ~= false) then
+                    portalgun_mode[tid] = false
+                end
+            else
+                is_error = true
+                respond(eid, "Invalid Syntax: Usage: /" .. base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
+            end
+            if not (is_error) and not (already_set) then
+                if not (is_self) then
+                    respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
+                    respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
+                else
+                    respond(eid, "Portal Gun " .. status, "rcon")
+                end
+            elseif (already_set) then
+                respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+            end
+        else
+            respond(eid, "Failed set " .. tn .. "'s portal gun to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+        end
+    end
+    return false
+end
+
 function velocity:listplayers(e)
     local header, cheader, ffa
     local count = 0
@@ -1763,14 +2077,21 @@ function velocity:determineAchat(params)
 
     local option = params.option or nil
     local mod = players["Admin Chat"][tip]
+    local proceed
 
-    if option == nil then
+    if (option == nil) then
         if type(mod.adminchat) == 'true' then
-            status = "on"
+            status = "enabled"
         else
-            status = "off"
+            status = "disabled"
         end
-        respond(eid, tn .. "'s admin chat is " .. status)
+        if (is_self) then
+            respond(eid, "Your admin chat is " .. status, "rcon", 4+8)
+        else
+            respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4+8)
+        end
+    else
+        proceed = true
     end
 
     local is_self
@@ -1778,38 +2099,40 @@ function velocity:determineAchat(params)
         is_self = true
     end
 
-    local level = get_var(tid, "$lvl")
-    local base_command = settings.mod["Admin Chat"].base_command
-    if tonumber(level) >= getPermLevel("Admin Chat") then
-        local status, already_set, is_error
-        if (option == "on") or (option == "1") or (option == "true") then
-            status, already_set, is_error = "Enabled", true, false
-            if (mod.boolean ~= true) then
-                mod.adminchat = true
-                mod.boolean = true
+    if (proceed) then
+        local level = get_var(tid, "$lvl")
+        local base_command = settings.mod["Admin Chat"].base_command
+        if tonumber(level) >= getPermLevel("Admin Chat") then
+            local status, already_set, is_error
+            if (option == "on") or (option == "1") or (option == "true") then
+                status, already_set, is_error = "Enabled", true, false
+                if (mod.boolean ~= true) then
+                    mod.adminchat = true
+                    mod.boolean = true
+                end
+            elseif (option == "off") or (option == "0") or (option == "false") then
+                status, already_set, is_error = "Disabled", false, false
+                if (mod.boolean ~= false) then
+                    mod.adminchat = false
+                    mod.boolean = false
+                end
+            else
+                is_error = true
+                respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4 + 8)
             end
-        elseif (option == "off") or (option == "0") or (option == "false") then
-            status, already_set, is_error = "Disabled", false, false
-            if (mod.boolean ~= false) then
-                mod.adminchat = false
-                mod.boolean = false
+            if not (is_error) and not (already_set) then
+                if not (is_self) then
+                    respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2 + 8)
+                    respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
+                else
+                    respond(eid, "Admin Chat " .. status, "rcon")
+                end
+            elseif (already_set) then
+                respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
             end
         else
-            is_error = true
-            respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4 + 8)
+            respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
         end
-        if not (is_error) and not (already_set) then
-            if not (is_self) then
-                respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2 + 8)
-                respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
-            else
-                respond(eid, "Admin Chat " .. status, "rcon")
-            end
-        elseif (already_set) then
-            respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
-        end
-    else
-        respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
     end
     return false
 end
@@ -2215,6 +2538,26 @@ function respond(executor, message, environment, color)
             cprint(message, color)
         end
     end
+end
+
+-- #Custom Weapons
+function loadWeaponTags()
+    
+    -- [ stock weapons ]
+    pistol = "weapons\\pistol\\pistol"
+    sniper = "weapons\\sniper rifle\\sniper rifle"
+    plasma_cannon = "weapons\\plasma_cannon\\plasma_cannon"
+    rocket_launcher = "weapons\\rocket launcher\\rocket launcher"
+    plasma_pistol = "weapons\\plasma pistol\\plasma pistol"
+    plasma_rifle = "weapons\\plasma rifle\\plasma rifle"
+    assault_rifle = "weapons\\assault rifle\\assault rifle"
+    flamethrower = "weapons\\flamethrower\\flamethrower"
+    needler = "weapons\\needler\\mp_needler"
+    shotgun = "weapons\\shotgun\\shotgun"
+    
+    -- [ custom weapons ]
+    -- snowdrop
+    battle_rifle = "halo3\\weapons\\battle rifle\\tactical battle rifle"
 end
 
 function cmdsplit(str)
