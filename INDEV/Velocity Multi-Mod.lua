@@ -20,7 +20,7 @@ local function GameSettings()
         mod = {
             ["Admin Chat"] = {
                 enabled = true, -- Enabled = true, Disabled = false
-                base_command = "achat", -- /base_command [id | me */all] [on/off]
+                base_command = "achat", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 permission_level = 1, -- Minimum level required to execute /base_command
                 prefix = "[ADMIN CHAT]",
                 restore = true,
@@ -127,7 +127,7 @@ local function GameSettings()
                 enabled = true
             },
             ["Color Reservation"] = {
-                enabled = true, -- Enabled = true, Disabled = false
+                enabled = false, -- Enabled = true, Disabled = false
                 color_table = {
                     [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
                     [2] = { "available" }, -- black
@@ -150,8 +150,8 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true, -- Enabled = true, Disabled = false
-                assign_weapons = true,
+                enabled = false, -- Enabled = true, Disabled = false
+                assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
@@ -202,6 +202,27 @@ local function GameSettings()
                     ["snowdrop"] = {        battle_rifle, pistol, nil, nil, 00, 00, true},
                 },
             },
+            -- # This is a spectator-like feature.
+            ["Lurker"] = {
+                -- To enable a feature, set 'false' to 'true'
+                enabled = true,
+                base_command = "lurker", -- /base_command [me | id | */all] [on|off|0|1|true|false)
+                permission_level = -1,
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
+                speed = true,
+                god = true,
+                camouflage = true,
+                running_speed = 2, -- Speed boost applied (default running speed is 1)
+                default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
+
+                -- If the player picks up the oddball or flag, they receive a warning and are asked to drop the objective.
+                -- If they do not drop the objective before the timer reaches 0, they are killed automatically.
+                -- Warnings are given immediately upon picking up the objective.
+                -- If the player has no warnings left their Lurker will be disabled (however, not revoked).
+                -- ...
+                time_until_death = 10, -- Time (in seconds) until the player is killed after picking up the objective.
+                warnings = 4,
+            },
             ["Message Board"] = {
                 enabled = false,
                 duration = 2, -- How long should the message be displayed on screen for? (in seconds)
@@ -217,7 +238,7 @@ local function GameSettings()
             },
             ["Portal Gun"] = {
                 enabled = true,
-                base_command = "portalgun",
+                base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
             },
@@ -289,6 +310,7 @@ local players = {
     ["Alias System"] = { },
     ["Message Board"] = { },
     ["Admin Chat"] = { },
+    ["Lurker"] = { },
 }
 
 -- String Library, Math Library, Table Library
@@ -320,6 +342,13 @@ local weapon = {}
 local weapon_status = {}
 local portalgun_mode = {}
 
+-- #Lurker
+local lurker = {}
+local object_picked_up = {}
+local has_objective = {}
+local lurker_warnings = {}
+local scores = { }
+
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local sv_name = read_widestring(network_struct + 0x8, 0x42)
@@ -346,8 +375,16 @@ local function modEnabled(script, e)
 end
 
 -- Returns the require permission level of the respective mod.
-local function getPermLevel(script)
-    return tonumber(settings.mod[script].permission_level)
+local function getPermLevel(script, bool, level)
+    if (bool) then
+        return tonumber(settings.mod[script].permission_level)
+    else
+        if (tonumber(level) >= (settings.mod[script].set_others_perm)) then 
+            return true
+        else
+            return false
+        end
+    end
 end
 
 local function getPlayerInfo(Player, ID)
@@ -358,6 +395,14 @@ local function getPlayerInfo(Player, ID)
             end
         else
             return error('getPlayerInfo() -> Unable to get ' .. ID)
+        end
+    end
+end
+
+local function announce(PlayerIndex, message)
+    for i = 1, 16 do
+        if (player_present(i) and i ~= PlayerIndex) then
+            say(i, message)
         end
     end
 end
@@ -421,7 +466,7 @@ function messageBoard:show(Player, ip)
     set(Player, ip)
     players["Message Board"][ip] = {
         timer = 0,
-        show = true
+        show = true,
     }
 end
 
@@ -434,13 +479,24 @@ end
 -- #Admin Chat
 local adminchat, achat_status = {}, { }
 local achat_data = {}
-function adminchat:reset(ip)
+function adminchat:set(ip)
     players["Admin Chat"][ip] = {
         adminchat = false,
         boolean = false,
     }
 end
-
+--------------------------------------------------------------
+-- #Lurker
+function velocity:LurkerReset(ip)
+    players["Lurker"][ip] = {
+        lurker_warn = false,
+        lurker_timer = 0,
+        lurker_warnings = settings.mod["Lurker"].warnings,
+    }
+end
+local function getWarnings(ip)
+    return players["Lurker"][ip].lurker_warnings
+end
 --------------------------------------------------------------
 
 function OnScriptLoad()
@@ -466,6 +522,9 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 
     if halo_type == "PC" then
         ce = 0x0
@@ -519,17 +578,23 @@ function OnScriptLoad()
             end
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
+                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip].adminchat = false
                     players["Admin Chat"][ip].boolean = false
                 end
             end
             -- for key, _ in ipairs(players) do
                 -- players = { [key] = {} }
-                -- adminchat:reset(ip)
+                -- adminchat:set(ip)
                 -- messageBoard:hide(PlayerIndex, ip)
                 -- messageBoard:show(Player, ip)
             -- end
+            -- #Lurker
+            if modEnabled("Lurker") then
+                if tonumber(level) >= getPermLevel("Lurker", false) then
+                    velocity:LurkerReset(ip)
+                end
+            end
         end
     end
 
@@ -572,7 +637,7 @@ function OnScriptUnload()
             local level = tonumber(get_var(i, "$lvl"))
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
+                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip].adminchat = false
                     players["Admin Chat"][ip].boolean = false
                 end
@@ -607,9 +672,16 @@ function OnNewGame()
 
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
+                if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip].adminchat = false
                     players["Admin Chat"][ip].boolean = false
+                end
+            end
+            
+            -- #Lurker
+            if modEnabled("Lurker") then
+                if tonumber(level) >= getPermLevel("Lurker", false) then
+                    velocity:LurkerReset(ip)
                 end
             end
         end
@@ -667,7 +739,7 @@ function OnGameEnd()
             if modEnabled("Admin Chat") then
                 local mod = players["Admin Chat"][ip]
                 local restore = settings.mod["Admin Chat"].restore
-                if tonumber(level) >= getPermLevel("Admin Chat") then
+                if tonumber(level) >= getPermLevel("Admin Chat", false) then
                     if (restore) then
                         local bool
                         if (mod.adminchat) then
@@ -682,6 +754,13 @@ function OnGameEnd()
                         mod.adminchat = false
                         mod.boolean = false
                     end
+                end
+            end
+            
+            -- #Lurker
+            if modEnabled("Lurker") then
+                if tonumber(level) >= getPermLevel("Lurker", false) then
+                    velocity:LurkerReset(ip)
                 end
             end
 
@@ -767,6 +846,62 @@ function OnTick()
                             end
                         end
                         weapon[i] = false
+                    end
+                end
+            end
+            
+            -- #Lurker
+            if modEnabled("Portal Gun") then
+                local tab = settings.mod["Lurker"]
+                if (lurker[i] == true) then
+                    execute_command("score " .. tonumber(i) .. " " .. scores[i])
+                    if (tab.speed == true) then
+                        execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
+                    end
+                end
+                if (lurker[i] == true) and (players["Lurker"][ip].lurker_warn == true) then
+                    local LTab = players["Lurker"][ip]
+                    LTab.lurker_timer = LTab.lurker_timer + 0.030
+
+                    if (getWarnings(ip) <= 0) then
+                        LTab.lurker_warn = false
+                        cls(i)
+                        say(i, "Lurker mode was disabled!")
+                        cls(i)
+                        -- No warnings left: Turn off lurker and reset counters
+                        local params = { }
+                        params.tid = tonumber(i)
+                        params.tip = ip
+                        params.tn = get_var(i, "$name")
+                        params.bool = false
+                        params.CmdTrigger = false
+                        velocity:setLurker(params)
+                        write_dword(get_player(i) + 0x2C, 0 * 33)
+                    end
+
+                    cls(i)
+                    local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
+                    rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
+                    rprint(i, "|cYou will be killed in " .. tab.time_until_death - floor(seconds) .. " seconds")
+                    rprint(i, "|c[ warnings left ] ")
+                    rprint(i, "|c" .. getWarnings(ip))
+                    rprint(i, "|c ")
+                    rprint(i, "|c ")
+                    rprint(i, "|c ")
+
+                    if (LTab.lurker_timer >= tab.time_until_death) then
+                        players["Lurker"][ip].lurker_warn = false
+                        killSilently(i)
+                        write_dword(get_player(i) + 0x2C, 0 * 33)
+                        cls(i)
+                        rprint(i, "|c=========================================================")
+                        rprint(i, "|cYou were killed!")
+                        rprint(i, "|c=========================================================")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        rprint(i, "|c ")
+                        object_picked_up[i] = ""
                     end
                 end
             end
@@ -933,7 +1068,6 @@ function OnPlayerJoin(PlayerIndex)
     if not (settings.global.handlemutes) then
         muted[tonumber(PlayerIndex)] = false or nil
     else
-
         local entry = ip .. ", " .. hash
         mute_timer[entry] = {}
         mute_timer[entry].timer = 0
@@ -961,10 +1095,20 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
 
+    -- #Lurker
+    if modEnabled("Lurker") then
+        if (tonumber(level) >= getPermLevel("Lurker", false)) then
+            velocity:LurkerReset(ip)
+            scores[PlayerIndex] = 0
+            lurker[PlayerIndex] = false
+            has_objective[PlayerIndex] = false
+        end
+    end
+    
     -- #Alias System
     if modEnabled("Alias System") then
         alias:add(name, hash)
-        if (tonumber(level) >= getPermLevel("Alias System")) then
+        if (tonumber(level) >= getPermLevel("Alias System", false)) then
             alias:reset(ip)
         end
     end
@@ -977,8 +1121,8 @@ function OnPlayerJoin(PlayerIndex)
     -- #Admin Chat
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
-        if (tonumber(level) >= getPermLevel("Admin Chat")) then
-            adminchat:reset(ip)
+        if (tonumber(level) >= getPermLevel("Admin Chat", false)) then
+            adminchat:set(ip)
             local mod = players["Admin Chat"][ip]
             if (restore) then
                 local args = stringSplit(tostring(achat_status[ip]), "|")
@@ -1142,7 +1286,7 @@ function OnPlayerLeave(PlayerIndex)
 
     -- #Alias System
     if modEnabled("Alias System") then
-        if (tonumber(level) >= getPermLevel("Alias System")) then
+        if (tonumber(level) >= getPermLevel("Alias System", false)) then
             alias:reset(ip)
         end
     end
@@ -1156,7 +1300,7 @@ function OnPlayerLeave(PlayerIndex)
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
         local mod = players["Admin Chat"][ip]
-        if tonumber(level) >= getPermLevel("Admin Chat") then
+        if tonumber(level) >= getPermLevel("Admin Chat", false) then
             if (restore) then
                 local bool
                 if (mod.adminchat) then
@@ -1171,6 +1315,16 @@ function OnPlayerLeave(PlayerIndex)
                 mod.adminchat = false
                 mod.boolean = false
             end
+        end
+    end
+    
+    -- #Lurker
+    if modEnabled("Lurker") then
+        if (tonumber(level) >= getPermLevel("Lurker", false)) then
+            velocity:LurkerReset(ip)
+            scores[PlayerIndex] = 0
+            lurker[PlayerIndex] = false
+            has_objective[PlayerIndex] = false
         end
     end
 
@@ -1191,6 +1345,7 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
+    local ip = get_var(PlayerIndex, "$ip")
     -- #Custom Weapons
     if modEnabled("Custom Weapons") then
         local Wtab = settings.mod["Custom Weapons"]
@@ -1230,6 +1385,20 @@ function OnPlayerSpawn(PlayerIndex)
     -- #Portal Gun
     if modEnabled("Portal Gun") then
         weapon_status[PlayerIndex] = 0
+    end
+    -- #Lurker
+    if modEnabled("Lurker") then
+        if (lurker[PlayerIndex] == true) then
+            has_objective[PlayerIndex] = false
+            velocity:LurkerReset(ip)
+            local params = { }
+            params.tid = tonumber(PlayerIndex)
+            params.tip = ip
+            params.tn = get_var(PlayerIndex, "$name")
+            params.bool = true
+            params.CmdTrigger = false
+            velocity:setLurker(params)
+        end
     end
 end
 
@@ -1332,7 +1501,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local environment = settings.mod["Admin Chat"].environment
         local function AdminChat(Message)
             for i = 1, 16 do
-                if player_present(i) and (level >= getPermLevel("Admin Chat")) then
+                if player_present(i) and (level >= getPermLevel("Admin Chat", false)) then
                     if (environment == "rcon") then
                         respond(i, "|l" .. Message, "rcon")
                     elseif (environment == "chat") then
@@ -1344,7 +1513,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
         if (mod.adminchat) then
-            if (level >= getPermLevel("Admin Chat")) then
+            if (level >= getPermLevel("Admin Chat", false)) then
                 for c = 0, #message do
                     if message[c] then
                         if not (keyword) or (keyword == nil) then
@@ -1507,10 +1676,11 @@ function OnPlayerChat(PlayerIndex, Message, type)
 end
 
 -- Used in OnServerCommand()
-local function checkAccess(e, c, script)
-    local access
+local function checkAccess(e, c, script, bool)
+    local access, others
+    if (bool) then others = true else others = false end
     if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script)) then
+        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script,  others)) then
             access = true
         else
             rprint(e, "Command failed. Insufficient Permission.")
@@ -1672,19 +1842,23 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                     -- #Admin Chat
                 elseif (parameter == "achat") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
-                    end
+                    if (args[2] ~= nil) then params.option = args[2] end
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
                     -- #Portal Gun
                 elseif (parameter == "portalgun") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
-                    end
+                    if (args[2] ~= nil) then params.option = args[2] end
                     if (target_all_players) then
                         velocity:portalgun(params)
+                    end
+                    -- #Lurker
+                elseif (parameter == "lurker") then
+                    params.bool = true
+                    params.CmdTrigger = true
+                    if (args[2] ~= nil) then params.option = args[2] end
+                    if (target_all_players) then
+                        velocity:setLurker(params)
                     end
                 end
             end
@@ -1738,6 +1912,25 @@ function OnServerCommand(PlayerIndex, Command)
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             velocity:determineAchat(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                    return false
+                end
+            end
+        end
+        return false
+        -- #Lurker
+    elseif (command == settings.mod["Lurker"].base_command) then
+        if modEnabled("Lurker", executor) then
+            if (checkAccess(executor, true, "Lurker")) then
+                local tab = settings.mod["Lurker"]
+                if (args[1] ~= nil) then
+                    validate_params("lurker")
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:setLurker(params)
                         end
                     end
                 else
@@ -1982,7 +2175,7 @@ function velocity:portalgun(params)
     if (proceed) then
         local level = get_var(tid, "$lvl")
         local base_command = settings.mod["Portal Gun"].base_command
-        if tonumber(level) >= getPermLevel("Portal Gun") then
+        if tonumber(level) >= getPermLevel("Portal Gun", false) then
             local status, already_set, is_error
             if (option == "on") or (option == "1") or (option == "true") then
                 status, already_set, is_error = "Enabled", true, false
@@ -2078,6 +2271,11 @@ function velocity:determineAchat(params)
     local option = params.option or nil
     local mod = players["Admin Chat"][tip]
     local proceed
+    
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
 
     if (option == nil) then
         if type(mod.adminchat) == 'true' then
@@ -2094,27 +2292,26 @@ function velocity:determineAchat(params)
         proceed = true
     end
 
-    local is_self
-    if (eid == tid) then
-        is_self = true
-    end
-
     if (proceed) then
         local level = get_var(tid, "$lvl")
         local base_command = settings.mod["Admin Chat"].base_command
-        if tonumber(level) >= getPermLevel("Admin Chat") then
+        if tonumber(level) >= getPermLevel("Admin Chat", false) then
             local status, already_set, is_error
             if (option == "on") or (option == "1") or (option == "true") then
-                status, already_set, is_error = "Enabled", true, false
                 if (mod.boolean ~= true) then
+                    status, already_set, is_error = "Enabled", false, false
                     mod.adminchat = true
                     mod.boolean = true
+                else
+                    status, already_set, is_error = "Enabled", true, false
                 end
             elseif (option == "off") or (option == "0") or (option == "false") then
-                status, already_set, is_error = "Disabled", false, false
                 if (mod.boolean ~= false) then
+                    status, already_set, is_error = "Disabled", false, false
                     mod.adminchat = false
                     mod.boolean = false
+                else
+                    status, already_set, is_error = "Disabled", true, false
                 end
             else
                 is_error = true
@@ -2132,6 +2329,129 @@ function velocity:determineAchat(params)
             end
         else
             respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+        end
+    end
+    return false
+end
+
+function velocity:setLurker(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local eip = params.eip or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    local bool = params.bool or nil
+    local CmdTrigger = params.CmdTrigger or nil
+
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+    
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+   
+    local proceed
+    local option = params.option or nil
+    if (option == nil) then
+        if (CmdTrigger) then
+            if (lurker[tid] == true) then
+                status = "enabled"
+            else
+                status = "disabled"
+            end
+            if (is_self) then
+                respond(eid, "Your Lurker Mode is " .. status, "rcon", 4+8)
+            else
+                respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4+8)
+            end
+        else
+            proceed = true
+        end
+    else
+        proceed = true
+    end
+
+    if (proceed) then
+        local mod = settings.mod["Lurker"]
+        local level = get_var(tid, "$lvl")
+
+        local function Enable()
+            lurker[tid] = true
+            if (mod.god) then
+                execute_command("god " .. tid)
+            end
+            if (mod.camouflage) then
+                execute_command("camo " .. tid)
+            end
+            if (mod.announcer) then
+                announce(tid, tn .. " is now in lurker mode! [spectator]")
+            end
+        end
+        
+        local function Disable()
+            scores[tid] = 0
+            lurker[tid] = false
+            if (mod.speed) then
+                execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
+            end
+            if (mod.god == true) then
+                execute_command("ungod " .. tid)
+            end
+            killSilently(tid)
+            velocity:LurkerReset(tip)
+            cls(tid)
+            if (mod.announcer) then
+                announce(tid, tn .. " is no longer in lurker mode! [spectator]")
+            end
+        end
+
+        if tonumber(level) >= getPermLevel("Lurker", false) then
+            if (CmdTrigger) and (option) then
+                local status, already_set, is_error
+                if (option == "on") or (option == "1") or (option == "true") then
+                    if (lurker[tid] ~= true) then
+                        status, already_set, is_error = "Enabled", false, false
+                        Enable()
+                    else
+                        status, already_set, is_error = "Enabled", true, false
+                    end
+                elseif (option == "off") or (option == "0") or (option == "false") then
+                    if (lurker[tid] ~= false) then
+                        status, already_set, is_error = "Disable", false, false
+                        Disable()
+                    else
+                        status, already_set, is_error = "Disable", true, false
+                    end
+                else
+                    is_error = true
+                    respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                end
+                ------------------------- [ ON ENABLE ] --------------------------------------------------
+                if not (is_error) and not (already_set) then
+                    if not (is_self) then
+                        respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
+                        respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
+                    else
+                        respond(eid, "Lurker Mode " .. status, "rcon", 2+8)
+                    end
+                elseif (already_set) then
+                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4+8)
+                end
+                ----------------------------------------------------------------------------------------------------------------------------------
+            else
+                if (bool) then
+                    Enable()
+                    respond(tid, "Lurker mode enabled!", "rcon", 2+8)
+                else
+                    Disable()
+                    respond(tid, "Lurker mode disabled!", "rcon", 2+8)
+                end
+            end
         end
     end
     return false
@@ -2465,6 +2785,60 @@ function alias:add(name, hash)
     end
 end
 
+function OnWeaponDrop(PlayerIndex)
+    -- #Lurker
+    if modEnabled("Lurker", PlayerIndex) then
+        if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
+            local ip = get_var(PlayerIndex, "$ip")
+            cls(PlayerIndex)
+            has_objective[PlayerIndex] = false
+            velocity:LurkerReset(ip)
+        end
+    end
+end
+
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+    -- #Lurker
+    if modEnabled("Lurker", PlayerIndex) then
+        if (lurker[PlayerIndex] == true) then
+            local ip = get_var(PlayerIndex, "$ip")
+            local mod = players["Lurker"][ip]
+            if (tonumber(Type) == 1) then
+                local PlayerObj = get_dynamic_player(PlayerIndex)
+                local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+                local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
+                if (name == "weapons\\flag\\flag" or name == "weapons\\ball\\ball") then
+                    if (name == "weapons\\flag\\flag") then
+                        object_picked_up[PlayerIndex] = "flag"
+                    elseif (name == "weapons\\ball\\ball") then
+                        object_picked_up[PlayerIndex] = "oddball"
+                    end
+                    mod.lurker_warnings = mod.lurker_warnings - 1
+                    lurker_warn[PlayerIndex] = true
+                    has_objective[PlayerIndex] = true
+                    if (mod.lurker_warnings <= 0) then
+                        mod.lurker_warnings = 0
+                    end
+                end
+            end
+        end
+    end
+end
+
+function killSilently(PlayerIndex)
+    local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    local original = read_dword(kill_message_addresss)
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
+    execute_command("kill " .. tonumber(PlayerIndex))
+    safe_write(true)
+    write_dword(kill_message_addresss, original)
+    safe_write(false)
+    -- Deduct one death
+    local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
+    execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
+end
 
 -----------------------------------------------------------------------------------------------
 -- FUNCTIONS USED THROUGHOUT
