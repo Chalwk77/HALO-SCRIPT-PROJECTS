@@ -309,13 +309,15 @@ end
 
 -- Tables used Globally
 local velocity, player_info = { }, { }
-local players = {
+local players
+local function InitPlayers()
+	players = {
     ["Alias System"] = { },
     ["Message Board"] = { },
     ["Admin Chat"] = { },
     ["Lurker"] = { },
 }
-
+end
 -- String Library, Math Library, Table Library
 local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, string.find, string.lower, string.format, string.match, string.gmatch
 local floor = math.floor
@@ -384,6 +386,31 @@ local function getPermLevel(script, bool)
     else
         return tonumber(settings.mod[script].execute_on_others)
     end
+end
+
+local function populateInfoTable(p)
+	player_info[p] = { }
+    if (halo_type == "PC") then ce = 0x0 else ce = 0x40 end
+    local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local cns = ns + 0x1AA + ce + to_real_index(p) * 0x20
+    local name, hash = read_widestring(cns, 12), get_var(p, "$hash")
+    local ip, id, level = get_var(p, "$ip"), get_var(p, "$n"), tonumber(get_var(p, "$lvl"))
+    local a, b, c, d, e
+    local tab = settings.global.player_data
+    for i = 1, #tab do
+        if tab[i]:match("%%name%%") then
+            a = gsub(tab[i], "%%name%%", name)
+        elseif tab[i]:match("%%hash%%") then
+            b = gsub(tab[i], "%%hash%%", hash)
+        elseif tab[i]:match("%%index_id%%") then
+            d = gsub(tab[i], "%%index_id%%", id)
+        elseif tab[i]:match("%%ip_address%%") then
+            c = gsub(tab[i], "%%ip_address%%", ip)
+        elseif tab[i]:match("%%level%%") then
+            e = gsub(tab[i], "%%level%%", level)
+        end
+    end
+    table.insert(player_info[p], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
 end
 
 local function getPlayerInfo(Player, ID)
@@ -499,6 +526,7 @@ end
 --------------------------------------------------------------
 
 function OnScriptLoad()
+	InitPlayers()
     loadWeaponTags()
     GameSettings()
     printEnabled()
@@ -525,7 +553,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 
-    if halo_type == "PC" then
+    if (halo_type == "PC") then
         ce = 0x0
     else
         ce = 0x40
@@ -567,8 +595,10 @@ function OnScriptLoad()
 
     for i = 1, 16 do
         if player_present(i) then
+			populateInfoTable(i)
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -577,17 +607,12 @@ function OnScriptLoad()
             end
             -- #Admin Chat
             if modEnabled("Admin Chat") then
+				
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
-                    players["Admin Chat"][ip].adminchat = false
-                    players["Admin Chat"][ip].boolean = false
+					players["Admin Chat"][ip] = nil
+					adminchat:set(ip)
                 end
             end
-            -- for key, _ in ipairs(players) do
-                -- players = { [key] = {} }
-                -- adminchat:set(ip)
-                -- messageBoard:hide(PlayerIndex, ip)
-                -- messageBoard:show(Player, ip)
-            -- end
             -- #Lurker
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
