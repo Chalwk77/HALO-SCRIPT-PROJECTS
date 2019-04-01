@@ -22,6 +22,7 @@ local function GameSettings()
                 enabled = true, -- Enabled = true, Disabled = false
                 base_command = "achat", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 permission_level = 1, -- Minimum level required to execute /base_command
+                execute_on_others = 4,
                 prefix = "[ADMIN CHAT]",
                 restore = true,
                 environment = "rcon", -- Valid environments: "rcon", "chat".
@@ -34,6 +35,7 @@ local function GameSettings()
                 base_command = "alias", -- /base_command [id | me ]
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
+                execute_on_others = 4,
                 use_timer = true,
                 duration = 10, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
@@ -208,6 +210,7 @@ local function GameSettings()
                 enabled = true,
                 base_command = "lurker", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 permission_level = -1,
+                execute_on_others = 4, -- Permission level needed to set for others.
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
                 speed = true,
                 god = true,
@@ -241,6 +244,7 @@ local function GameSettings()
                 base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
+                execute_on_others = 4,
             },
             -- # An alternative player list mod. Overrides SAPP's built in /pl command.
             ["Player List"] = {
@@ -375,15 +379,11 @@ local function modEnabled(script, e)
 end
 
 -- Returns the require permission level of the respective mod.
-local function getPermLevel(script, bool, level)
-    if (bool) then
+local function getPermLevel(script, bool)
+    if not (bool) then
         return tonumber(settings.mod[script].permission_level)
     else
-        if (tonumber(level) >= (settings.mod[script].set_others_perm)) then 
-            return true
-        else
-            return false
-        end
+        return tonumber(settings.mod[script].execute_on_others)
     end
 end
 
@@ -1443,6 +1443,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local iscommand
     local cmd_prefix
     if modEnabled("Command Spy") or modEnabled("Chat Logging") then
+        local cSpy = settings.mod["Command Spy"]
         if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
             command = message[1]:gsub("\\", "/")
             iscommand = true
@@ -1450,19 +1451,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
         else
             iscommand = false
         end
-        local hidden_messages, hidden = settings.mod["Command Spy"].commands_to_hide
-        for k, _ in pairs(hidden_messages) do
-            if (command == k) then
-                hidden = true
-            end
-            break
-        end
+        
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
-            local hide_commands = settings.mod["Command Spy"].hide_commands
+            local hidden_messages, hidden = cSpy.commands_to_hide
+            for k, _ in pairs(hidden_messages) do
+                if (command == k) then
+                    hidden = true
+                end
+                break
+            end
+            local hide_commands = cSpy.hide_commands
             if (hide_commands and hidden) then
                 response = false
             elseif (hide_commands and not hidden) or (hide_commands == false) then
-                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. Message .. "\"")
+                velocity:commandspy(cSpy.prefix .. " " .. name .. ":    \"" .. Message .. "\"")
                 response = true
             end
         end
@@ -1675,8 +1677,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return response
 end
 
--- Used in OnServerCommand()
-local function checkAccess(e, c, script, bool)
+local function checkAccess(e, console, script, bool)
     local access, others
     if (bool) then others = true else others = false end
     if (e ~= -1 and e >= 1 and e < 16) then
@@ -1686,11 +1687,8 @@ local function checkAccess(e, c, script, bool)
             rprint(e, "Command failed. Insufficient Permission.")
             access = false
         end
-    elseif (c) then
+    elseif (console) and (e < 1) then
         access = true
-    elseif not (c) then
-        cprint('This command cannot be executed from console', 4 + 8)
-        access = false
     end
     return access
 end
@@ -1870,12 +1868,12 @@ function OnServerCommand(PlayerIndex, Command)
     for i = 1, #cmd_list do
         if (command == cmd_list[i]) then
             if modEnabled("Player List", executor) then
-                if (args[1] == nil) then
-                    if (checkAccess(executor, true, "Player List")) then
+                if (checkAccess(executor, true, "Player List")) then
+                    if (args[1] == nil) then
                         velocity:listplayers(executor)
+                    else
+                        respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4 + 8)
                     end
-                else
-                    respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4 + 8)
                 end
             end
             return false
@@ -2355,7 +2353,7 @@ function velocity:setLurker(params)
         is_self = true
     end
    
-    local proceed
+    local proceed, access
     local option = params.option or nil
     if (option == nil) then
         if (CmdTrigger) then
@@ -2379,6 +2377,19 @@ function velocity:setLurker(params)
     if (proceed) then
         local mod = settings.mod["Lurker"]
         local level = get_var(tid, "$lvl")
+        
+        -- Checks if the player can execute this command on others
+        if not (is_self) and not isConsole(eid) then
+            if tonumber(level) >= getPermLevel("Lurker", true) then
+                access = true
+            else
+                access = false
+                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4+8)
+            end
+        else
+            access = true
+        end
+        --------------------------------------------------------------
 
         local function Enable()
             lurker[tid] = true
@@ -2393,7 +2404,7 @@ function velocity:setLurker(params)
             end
         end
         
-        local function Disable()
+        local function Disable(tid)
             scores[tid] = 0
             lurker[tid] = false
             if (mod.speed) then
@@ -2410,20 +2421,20 @@ function velocity:setLurker(params)
             end
         end
 
-        if tonumber(level) >= getPermLevel("Lurker", false) then
+        if (access) then
             if (CmdTrigger) and (option) then
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
                     if (lurker[tid] ~= true) then
                         status, already_set, is_error = "Enabled", false, false
-                        Enable()
+                        Enable(tid, tn)
                     else
                         status, already_set, is_error = "Enabled", true, false
                     end
                 elseif (option == "off") or (option == "0") or (option == "false") then
                     if (lurker[tid] ~= false) then
                         status, already_set, is_error = "Disable", false, false
-                        Disable()
+                        Disable(tid, tn)
                     else
                         status, already_set, is_error = "Disable", true, false
                     end
@@ -2479,17 +2490,17 @@ function velocity:mute(params)
         if not (match(content, tip) and match(content, tid) and match(content, th)) then
             if (tonumber(time) ~= settings.global.default_mute_time) then
                 respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4 + 8)
-                rprint(tid, "You have been muted for " .. time .. " minute(s)")
+                respond(tid, "You have been muted for " .. time .. " minute(s)", "rcon")
             else
-                rprint(eid, tn .. " has been muted permanently")
-                rprint(tid, "You were muted permanently")
+                respond(eid, tn .. " has been muted permanently", "rcon")
+                respond(tid, "You were muted permanently", "rcon")
             end
             local new_entry = tip .. ", " .. th .. ", " .. tn .. ", ;" .. time
             local file = assert(io.open(file_name, "a+"))
             file:write(new_entry .. "\n")
             file:close()
         else
-            rprint(eid, tn .. " is already muted!", "rcon", 4 + 8)
+            respond(eid, tn .. " is already muted!", "rcon", 4 + 8)
         end
     end
 end
@@ -2510,7 +2521,7 @@ function velocity:unmute(params)
         respond(tid, "You have been  unmuted", "rcon", 4 + 8)
         removeEntry(tip, th, tid)
     else
-        respond(eid, tn .. " it not muted")
+        respond(eid, tn .. " it not muted", "rcon")
     end
 end
 
@@ -2627,9 +2638,10 @@ function velocity:aliasCmdRoutine(params)
     end
 end
 
-function velocity:commandspy(params)
+function velocity:commandspy(Message)
     for i = 1, 16 do
-        if (checkAccess(i, false, "Admin Chat")) then
+        local level = get_var(i, "$lvl")
+        if tonumber(level) >= getPermLevel("Command Spy", false) then
             respond(i, Message, "rcon", 2 + 8)
         end
     end
