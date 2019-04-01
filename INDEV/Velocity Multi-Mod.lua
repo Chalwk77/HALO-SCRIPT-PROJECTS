@@ -2205,52 +2205,72 @@ function velocity:portalgun(params)
         is_self = true
     end
 
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+
     if (option == nil) then
-        if (portalgun_mode[tid] == true) then
-            status = "enabled"
+        if (tLvl >= 1) then
+            if (portalgun_mode[tid] == true) then
+                status = "enabled"
+            else
+                status = "disabled"
+            end
+            if (is_self) then
+                respond(eid, "Your portalgun mode is " .. status, "rcon", 4 + 8)
+            else
+                respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4 + 8)
+            end
         else
-            status = "disabled"
-        end
-        if (is_self) then
-            respond(eid, "Your portalgun mode is " .. status, "rcon", 4 + 8)
-        else
-            respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4 + 8)
+            respond(eid, tn .. " is not an admin! [Portal Gun Off]", "rcon", 4+8)
         end
     else
         proceed = true
     end
 
     if (proceed) then
-        local level = get_var(tid, "$lvl")
-        local base_command = settings.mod["Portal Gun"].base_command
-        if tonumber(level) >= getPermLevel("Portal Gun", false) then
-            local status, already_set, is_error
-            if (option == "on") or (option == "1") or (option == "true") then
-                status, already_set, is_error = "Enabled", true, false
-                if (portalgun_mode[tid] ~= true) then
-                    portalgun_mode[tid] = true
-                end
-            elseif (option == "off") or (option == "0") or (option == "false") then
-                status, already_set, is_error = "Disabled", false, false
-                if (portalgun_mode[tid] ~= false) then
-                    portalgun_mode[tid] = false
-                end
+        -- Checks if the player can execute this command on others
+        if not (is_self) and not isConsole(eid) then
+            if tonumber(eLvl) >= getPermLevel("Lurker", true) then
+                access = true
             else
-                is_error = true
-                respond(eid, "Invalid Syntax: Usage: /" .. base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
-            end
-            if not (is_error) and not (already_set) then
-                if not (is_self) then
-                    respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
-                    respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
-                else
-                    respond(eid, "Portal Gun " .. status, "rcon")
-                end
-            elseif (already_set) then
-                respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+                access = false
+                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
             end
         else
-            respond(eid, "Failed set " .. tn .. "'s portal gun to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+            access = true
+        end
+        --------------------------------------------------------------
+        local base_command = settings.mod["Portal Gun"].base_command
+        if (access) then
+            if (tLvl >= 1) then 
+                local status, already_set, is_error
+                if (option == "on") or (option == "1") or (option == "true") then
+                    status, already_set, is_error = "Enabled", true, false
+                    if (portalgun_mode[tid] ~= true) then
+                        portalgun_mode[tid] = true
+                    end
+                elseif (option == "off") or (option == "0") or (option == "false") then
+                    status, already_set, is_error = "Disabled", false, false
+                    if (portalgun_mode[tid] ~= false) then
+                        portalgun_mode[tid] = false
+                    end
+                else
+                    is_error = true
+                    respond(eid, "Invalid Syntax: Usage: /" .. base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
+                end
+                if not (is_error) and not (already_set) then
+                    if not (is_self) then
+                        respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
+                        respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
+                    else
+                        respond(eid, "Portal Gun " .. status, "rcon")
+                    end
+                elseif (already_set) then
+                    respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+                end
+            else
+                respond(eid, "Failed to set " .. tn .. "'s portal gun to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+            end
         end
     end
     return false
@@ -2324,59 +2344,79 @@ function velocity:determineAchat(params)
     if (eid == tid) then
         is_self = true
     end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (option == nil) then
-        if type(mod.adminchat) == 'true' then
-            status = "enabled"
+        if (tLvl >= 1) then
+            if type(mod.adminchat) == 'true' then
+                status = "enabled"
+            else
+                status = "disabled"
+            end
+            if (is_self) then
+                respond(eid, "Your admin chat is " .. status, "rcon", 4 + 8)
+            else
+                respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4 + 8)
+            end
         else
-            status = "disabled"
-        end
-        if (is_self) then
-            respond(eid, "Your admin chat is " .. status, "rcon", 4 + 8)
-        else
-            respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4 + 8)
+            respond(eid, tn .. " is not an admin! [Admin Chat Off]", "rcon", 4+8)
         end
     else
         proceed = true
     end
 
     if (proceed) then
-        local level = get_var(tid, "$lvl")
-        local base_command = settings.mod["Admin Chat"].base_command
-        if tonumber(level) >= getPermLevel("Admin Chat", false) then
-            local status, already_set, is_error
-            if (option == "on") or (option == "1") or (option == "true") then
-                if (mod.boolean ~= true) then
-                    status, already_set, is_error = "Enabled", false, false
-                    mod.adminchat = true
-                    mod.boolean = true
-                else
-                    status, already_set, is_error = "Enabled", true, false
-                end
-            elseif (option == "off") or (option == "0") or (option == "false") then
-                if (mod.boolean ~= false) then
-                    status, already_set, is_error = "Disabled", false, false
-                    mod.adminchat = false
-                    mod.boolean = false
-                else
-                    status, already_set, is_error = "Disabled", true, false
-                end
+        -- Checks if the player can execute this command on others
+        if not (is_self) and not isConsole(eid) then
+            if tonumber(eLvl) >= getPermLevel("Admin Chat", true) then
+                access = true
             else
-                is_error = true
-                respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4 + 8)
-            end
-            if not (is_error) and not (already_set) then
-                if not (is_self) then
-                    respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2 + 8)
-                    respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
-                else
-                    respond(eid, "Admin Chat " .. status, "rcon")
-                end
-            elseif (already_set) then
-                respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
+                access = false
+                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
             end
         else
-            respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+            access = true
+        end
+        --------------------------------------------------------------
+        local base_command = settings.mod["Admin Chat"].base_command
+        if (access) then
+            if (tLvl >= 1) then 
+                local status, already_set, is_error
+                if (option == "on") or (option == "1") or (option == "true") then
+                    if (mod.boolean ~= true) then
+                        status, already_set, is_error = "Enabled", false, false
+                        mod.adminchat = true
+                        mod.boolean = true
+                    else
+                        status, already_set, is_error = "Enabled", true, false
+                    end
+                elseif (option == "off") or (option == "0") or (option == "false") then
+                    if (mod.boolean ~= false) then
+                        status, already_set, is_error = "Disabled", false, false
+                        mod.adminchat = false
+                        mod.boolean = false
+                    else
+                        status, already_set, is_error = "Disabled", true, false
+                    end
+                else
+                    is_error = true
+                    respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4 + 8)
+                end
+                if not (is_error) and not (already_set) then
+                    if not (is_self) then
+                        respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2 + 8)
+                        respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
+                    else
+                        respond(eid, "Admin Chat " .. status, "rcon")
+                    end
+                elseif (already_set) then
+                    respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
+                end
+            else
+                respond(eid, "Failed to set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+            end
         end
     end
     return false
@@ -2403,19 +2443,26 @@ function velocity:setLurker(params)
         is_self = true
     end
 
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+    
     local proceed, access
     local option = params.option or nil
     if (option == nil) then
         if (CmdTrigger) then
-            if (lurker[tid] == true) then
-                status = "enabled"
+            if (tLvl >= 1) then
+                if (lurker[tid] == true) then
+                    status = "enabled"
+                else
+                    status = "disabled"
+                end
+                if (is_self) then
+                    respond(eid, "Your Lurker Mode is " .. status, "rcon", 4 + 8)
+                else
+                    respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4 + 8)
+                end
             else
-                status = "disabled"
-            end
-            if (is_self) then
-                respond(eid, "Your Lurker Mode is " .. status, "rcon", 4 + 8)
-            else
-                respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4 + 8)
+                respond(eid, tn .. " is not an admin! [Lurker Mode Off]", "rcon", 4+8)
             end
         else
             proceed = true
@@ -2426,15 +2473,13 @@ function velocity:setLurker(params)
 
     if (proceed) then
         local mod = settings.mod["Lurker"]
-        local level = get_var(tid, "$lvl")
-
         -- Checks if the player can execute this command on others
         if not (is_self) and not isConsole(eid) then
-            if tonumber(level) >= getPermLevel("Lurker", true) then
+            if tonumber(eLvl) >= getPermLevel("Lurker", true) then
                 access = true
             else
                 access = false
-                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4 + 8)
+                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
             end
         else
             access = true
