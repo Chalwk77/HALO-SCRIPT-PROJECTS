@@ -481,6 +481,8 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
+    -- Register Console to Table
+    alias:reset("000.000.000.000")
 end
 
 function OnScriptUnload()
@@ -1442,7 +1444,7 @@ function OnServerCommand(PlayerIndex, Command)
                 elseif (parameter == "alias") then
                     local bool
                     if isConsole(executor) then
-                        ip = "000.000.000.000"
+                        params.eip = '000.000.000.000'
                         bool = false
                     else
                         bool = settings.mod["Alias System"].use_timer
@@ -1486,8 +1488,8 @@ function OnServerCommand(PlayerIndex, Command)
     if (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
+                local tab = settings.mod["Alias System"]
                 if (args[1] ~= nil) then
-                    local tab = settings.mod["Alias System"]
                     validate_params("alias")
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
@@ -1941,12 +1943,13 @@ end
 function velocity:aliasCmdRoutine(params)
     local params = params or {}
     local eid = params.eid or nil
+    local eip = params.eip or nil
     local tn = params.tn or nil
     local th = params.th or nil
     local use_timer = params.timer or nil
 
     local aliases, content
-    local tab = players["Alias System"][ip]
+    local tab = players["Alias System"][eip]
     alias_results = { }
 
     tab.tHash = params.th
@@ -2041,7 +2044,7 @@ end
 
 -- #Alias System
 function alias:align(player, table, target, total, pirated, name, alignment)
-    cls(player)
+    if not isConsole(player) then cls(player) end
     local function formatResults()
         local placeholder, row = { }
 
