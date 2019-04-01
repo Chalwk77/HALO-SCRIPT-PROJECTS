@@ -19,65 +19,106 @@ local function GameSettings()
     settings = {
         mod = {
             ["Admin Chat"] = {
-                enabled = true,
-                base_command = "achat",
-                permission_level = 1,
+                enabled = true, -- Enabled = true, Disabled = false
+                base_command = "achat", -- /base_command [id | me */all] [on/off]
+                permission_level = 1, -- Minimum level required to execute /base_command
                 prefix = "[ADMIN CHAT]",
                 restore = true,
-                environment = "rcon",
+                environment = "rcon", -- Valid environments: "rcon", "chat".
+                -- Message Format
                 message_format = { "%prefix% %sender_name% [%index%] %message%" }
             },
+            -- # Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
                 enabled = true,
-                dir = "sapp\\alias.lua",
-                base_command = "alias",
+                base_command = "alias", -- /base_command [id | me ]
+                dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
                 use_timer = true,
-                duration = 10,
-                alignment = "l",
+                duration = 10, -- How long should the alias results be displayed for? (in seconds)
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
             },
             ["Chat IDs"] = {
+                --[[
+                    This feature modifies player chat messages.
+                    --> Adds a Player Index ID in front of their name in square [] brackets.
+                
+                    Example: 
+                    Team output: [Chalwk] [1]: This is a test message
+                    Global output: Chalwk [1]: This is a test message
+                --]]
                 enabled = true,
                 global_format = { "%sender_name% [%index%]: %message%" },
                 team_format = { "[%sender_name%] [%index%]: %message%" },
-                use_admin_prefixes = false,
+                use_admin_prefixes = false, -- Set to TRUE to enable the below bonus feature.
+                -- Ability to have separate chat formats on a per-admin-level basis...
                 trial_moderator = {
-                    "[T-MOD] %sender_name% [%index%]: %message%",
-                    "[T-MOD] [%sender_name%] [%index%]: %message%"
+                    lvl = 1,
+                    "[T-MOD] %sender_name% [%index%]: %message%", -- global
+                    "[T-MOD] [%sender_name%] [%index%]: %message%" -- team
                 },
                 moderator = {
-                    "[MOD] %sender_name% [%index%]: %message%",
-                    "[MOD] [%sender_name%] [%index%]: %message%"
+                    lvl = 2,
+                    "[MOD] %sender_name% [%index%]: %message%", -- global
+                    "[MOD] [%sender_name%] [%index%]: %message%" -- team
                 },
                 admin = {
-                    "[ADMIN] %sender_name% [%index%]: %message%",
-                    "[ADMIN] [%sender_name%] [%index%]: %message%"
+                    lvl = 3,
+                    "[ADMIN] %sender_name% [%index%]: %message%", -- global
+                    "[ADMIN] [%sender_name%] [%index%]: %message%" -- team
                 },
                 senior_admin = {
-                    "[S-ADMIN] %sender_name% [%index%]: %message%",
-                    "[S-ADMIN] [%sender_name%] [%index%]: %message%"
+                    lvl = 4,
+                    "[S-ADMIN] %sender_name% [%index%]: %message%", -- global
+                    "[S-ADMIN] [%sender_name%] [%index%]: %message%" -- team
                 },
                 ignore_list = {
                     "skip",
                 }
             },
-            ["Console Logo"] = {
+            -- # Logs chat, commands and quit-join events.
+            ["Chat Logging"] = {
+                enabled = true,
+                dir = "sapp\\Server Chat.txt"
+            },
+            -- Admins get notified when a player executes a command
+            ["Command Spy"] = {
+                enabled = true,
+                permission_level = 1,
+                prefix = "[SPY]",
+                hide_commands = true,
+                commands_to_hide = {
+                    "/accept",
+                    "/deny",
+                    -- "/afk",
+                    -- "/lead",
+                    -- "/stfu",
+                    -- "/unstfu",
+                    -- "/skip",
+                    -- repeat the structure to add more entries
+                }
+            },
+            ["Console Logo"] = { -- A nifty console logo (ascii: 'kban')
                 enabled = true
             },
             ["Message Board"] = {
                 enabled = true,
-                duration = 2,
-                alignment = "l",
+                duration = 2, -- How long should the message be displayed on screen for? (in seconds)
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
+                -- Use %server_name% variable to output the server name.
+                -- Use %player_name% variable to output the joining player's name.
                 messages = {
-                "Welcome to %server_name%, %player_name%", 
-                "Message Board created by Chalwk (Jericho Crosby)",
-                "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+                    "Welcome to %server_name%, %player_name%",
+                    "Message Board created by Chalwk (Jericho Crosby)",
+                    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
+                    -- repeat the structure to add more entries
                 }
             },
+            -- # An alternative player list mod. Overrides SAPP's built in /pl command.
             ["Player List"] = {
                 enabled = true,
                 permission_level = 1,
-                alignment = "l",
+                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 command_aliases = {
                     "pl",
                     "players",
@@ -86,39 +127,41 @@ local function GameSettings()
                 }
             },
             ["Suggestions Box"] = {
+                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
                 enabled = true,
-                base_command = "suggestion",
-                permission_level = -1,
-                dir = "sapp\\suggestions.txt",
-                msg_format = "[%time_stamp%] %player_name%: %message%",
-                response = "Thank you for your suggestion, %player_name%"
+                base_command = "suggestion", -- /base_command {message}
+                permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
+                dir = "sapp\\suggestions.txt", -- file directory
+                msg_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
+                response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
             },
         },
-        global = { 
+        global = {
             script_version = 1.07,
+            beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
-            
+
             -- Mute Handler
             handlemutes = true,
             mute_dir = "sapp\\mutes.txt",
             default_mute_time = 525600,
             can_mute_admins = false,
-            
+
             server_prefix = "**SERVER** ",
-            
+
             plugin_commands = {
-                velocity = {"velocity", -1},
-                enable = {"enable", 1},
-                disable = {"disable", 1},
-                list = {"plugins", 1},
-                mute = {"mute", 1},
-                unmute = {"unmute", 1},
-                mutelist = {"mutelist", 1},
-                clearchat = {"clear", 1},
-                garbage_collection ={"clean", 1},
+                velocity = { "velocity", -1 }, -- /velocity
+                enable = { "enable", 1 }, -- /enable [id]
+                disable = { "disable", 1 }, -- /disable [id]
+                list = { "plugins", 1 }, -- /pluigns
+                mute = { "mute", 1 }, -- /mute [id] <time dif>
+                unmute = { "unmute", 1 }, -- /unmute [id]
+                mutelist = { "mutelist", 1 }, -- /mutelist (optional -o flag)
+                clearchat = { "clear", 1 }, -- /clear
+                garbage_collection = { "clean", 1 }, -- /clean
             },
-            
+
             -- Do not Touch...
             player_data = {
                 "Player: %name%",
@@ -126,7 +169,7 @@ local function GameSettings()
                 "IP Address: %ip_address%",
                 "Index ID: %index_id%",
                 "Privilege Level: %level%",
-            -------------------------------
+                -------------------------------
             },
         }
     }
@@ -166,7 +209,7 @@ local function isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
             return false
-        else 
+        else
             return true
         end
     end
@@ -177,7 +220,7 @@ local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
         return true
     elseif (e) then
-        respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4+8)
+        respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4 + 8)
     end
 end
 
@@ -202,7 +245,7 @@ end
 local max_columns, max_results = 5, 100
 local startIndex, endIndex = 1, max_columns
 local spaces = 2
-local alias, alias_results = { }, { } 
+local alias, alias_results = { }, { }
 local initialStartIndex, known_pirated_hashes
 local function PreLoad()
     initialStartIndex = tonumber(startIndex)
@@ -298,31 +341,40 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     if halo_type == "PC" then
         ce = 0x0
     else
         ce = 0x40
     end
-    
+
+    if (settings.global.beepOnLoad) then
+        execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
+    end
+
     -- #Alias System
     if modEnabled("Alias System") then
         checkFile(settings.mod["Alias System"].dir)
         resetAliasParams()
         PreLoad()
     end
-    
-    if (settings.global.handlemutes) then
-        checkFile(settings.global.mute_dir)
-    end
-    
+
     -- #Suggestions Box
     if modEnabled("Suggestions Box") then
         checkFile(settings.mod["Suggestions Box"].dir)
     end
-    
+
+    -- #Chat Logging
+    if modEnabled("Chat Logging") then
+        checkFile(settings.mod["Chat Logging"].dir)
+    end
+
+    if (settings.global.handlemutes) then
+        checkFile(settings.global.mute_dir)
+    end
+
     for i = 1, 16 do
-        if player_present(i) then 
+        if player_present(i) then
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
             -- #Message Board
@@ -342,7 +394,7 @@ function OnScriptLoad()
     end
 
     -- #Console Logo
-    if (settings.mod["Console Logo"].enabled) then
+    if modEnabled("Console Logo") then
         --noinspection GlobalCreationOutsideO
         function consoleLogo()
             -- Logo: ascii: 'kban'
@@ -355,18 +407,25 @@ function OnScriptLoad()
             cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
             cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                     " .. getServerName(), 0+8)
+            cprint("                     " .. getServerName(), 0 + 8)
             cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
             cprint("")
             cprint("================================================================================", 2 + 8)
         end
         timer(50, "consoleLogo")
     end
+    local rcon = sig_scan("B8????????E8??000000A1????????55")
+    if (rcon ~= 0) then
+        console_address_patch = read_dword(rcon + 1)
+        safe_write(true)
+        write_byte(console_address_patch, 0)
+        safe_write(false)
+    end
 end
 
 function OnScriptUnload()
     for i = 1, 16 do
-        if player_present(i) then 
+        if player_present(i) then
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
             -- #Admin Chat
@@ -377,6 +436,11 @@ function OnScriptUnload()
                 end
             end
         end
+    end
+    if console_address_patch ~= nil then
+        safe_write(true)
+        write_byte(console_address_patch, 0x72)
+        safe_write(false)
     end
 end
 
@@ -387,14 +451,14 @@ function OnNewGame()
         if player_present(i) then
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
                     messageBoard:hide(i, ip)
                 end
             end
-                
+
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat") then
@@ -404,25 +468,40 @@ function OnNewGame()
             end
         end
     end
+
+    -- #Chat Logging
+    if modEnabled("Chat Logging") then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local map = get_var(0, "$map")
+            local gt = get_var(0, "$mode")
+            local n1 = "\n"
+            local t1 = os.date("[%A %d %B %Y] - %X - A new game has started on " .. tostring(map) .. ", Mode: " .. tostring(gt))
+            local n2 = "\n---------------------------------------------------------------------------------------------\n"
+            file:write(n1, t1, n2)
+            file:close()
+        end
+    end
 end
 
 function OnGameEnd()
     -- Prevents displaying chat ids when the game is over.
     -- Otherwise map voting breaks.
     game_over = true
-    
+
     resetAliasParams()
     for i = 1, 16 do
-        if player_present(i) then 
+        if player_present(i) then
             local ip = get_var(i, "$ip")
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
                     messageBoard:hide(i, ip)
                 end
             end
-            
+
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 local mod = players["Admin Chat"][ip]
@@ -444,7 +523,7 @@ function OnGameEnd()
                     end
                 end
             end
-            
+
             -- SAPP | Mute Handler
             if (settings.global.handlemutes == true) then
                 if (muted[tonumber(i)] == true) then
@@ -472,13 +551,25 @@ function OnGameEnd()
             end
         end
     end
+
+    -- #Chat Logging
+    if modEnabled("Chat Logging") then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local data = os.date("[%A %d %B %Y] - %X - The game is ending - ")
+            file:write(data)
+            file:close()
+        end
+    end
+    cprint("The Game Has Ended | Map Voting has begun.", 4 + 8)
 end
 
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             local ip = get_var(i, "$ip")
-            
+
             -- SAPP | Mute Handler
             if (settings.global.handlemutes) then
                 if (init_mute_timer[tonumber(i)]) then
@@ -502,7 +593,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Alias System
             if modEnabled("Alias System") then
                 if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
@@ -514,7 +605,7 @@ function OnTick()
                 end
             end
             -- #Message Board
-            if modEnabled("Message Board") then 
+            if modEnabled("Message Board") then
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
                     players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
                     cls(i)
@@ -572,23 +663,23 @@ function OnPlayerJoin(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = get_var(PlayerIndex, "$ip")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
+
     -- #CONSOLE OUTPUT
     if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
         cprint("Status: " .. name .. " connected successfully.", 5 + 8)
         cprint("________________________________________________________________________________", 2 + 8)
     end
-    
+
     -- SAPP | Mute Handler
     if not (settings.global.handlemutes) then
         muted[tonumber(PlayerIndex)] = false or nil
     else
-    
+
         local entry = ip .. ", " .. hash
         mute_timer[entry] = {}
         mute_timer[entry].timer = 0
-        
+
         local file_name = settings.global.mute_dir
         local stringToMatch = ip .. ", " .. hash
         local lines = lines_from(file_name)
@@ -611,7 +702,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    
+
     -- #Alias System
     if modEnabled("Alias System") then
         alias:add(name, hash)
@@ -619,14 +710,14 @@ function OnPlayerJoin(PlayerIndex)
             alias:reset(ip)
         end
     end
-    
+
     -- #Message Board
     if modEnabled("Message Board") then
         messageBoard:show(PlayerIndex, ip)
     end
-    
+
     -- #Admin Chat
-     if modEnabled("Admin Chat") then
+    if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
         if (tonumber(level) >= getPermLevel("Admin Chat")) then
             adminchat:reset(ip)
@@ -649,6 +740,16 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
+    -- #Chat Logging
+    if modEnabled("Chat Logging") then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
+        end
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -657,7 +758,7 @@ function OnPlayerLeave(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
+
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
     if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
@@ -669,7 +770,7 @@ function OnPlayerLeave(PlayerIndex)
         player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
-    
+
     -- SAPP | Mute Handler
     if (settings.global.handlemutes) then
         if (muted[tonumber(PlayerIndex)] == true) then
@@ -694,19 +795,19 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
-    
+
     -- #Alias System
     if modEnabled("Alias System") then
         if (tonumber(level) >= getPermLevel("Alias System")) then
             alias:reset(ip)
         end
     end
-    
+
     -- #Message Board
     if modEnabled("Message Board") then
         messageBoard:hide(PlayerIndex, ip)
     end
-    
+
     -- #Admin Chat
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
@@ -728,6 +829,17 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
+
+    -- #Chat Logging
+    if modEnabled("Admin Chat") then
+        local dir = settings.mod["Chat Logging"].dir
+        local file = io.open(dir, "a+")
+        if file ~= nil then
+            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:close()
+        end
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -735,8 +847,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local level = tonumber(get_var(id, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
     local ip = get_var(id, "$ip")
-    local valid
-    
+    local response
+
     -- SAPP | Mute Handler
     if (settings.global.handlemutes) then
         if (muted[tonumber(PlayerIndex)] == true) then
@@ -748,13 +860,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
             return false
         end
     end
-    
+
     -- Used throughout OnPlayerChat()
     local message = stringSplit(Message)
     if (#message == 0) then
         return nil
     end
-    
+
     -- #Chat IDs & Admin Chat
     local keyword
     if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
@@ -765,7 +877,64 @@ function OnPlayerChat(PlayerIndex, Message, type)
             keyword = false
         end
     end
-    
+
+    -- #Command Spy & Chat Logging
+    local command
+    local iscommand
+    local cmd_prefix
+    if modEnabled("Command Spy") or modEnabled("Chat Logging") then
+        if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
+            command = message[1]:gsub("\\", "/")
+            iscommand = true
+            cmd_prefix = "[COMMAND] "
+        else
+            iscommand = false
+        end
+        local hidden_messages, hidden = settings.mod["Command Spy"].commands_to_hide
+        for k, _ in pairs(hidden_messages) do
+            if (command == k) then
+                hidden = true
+            end
+            break
+        end
+        if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
+            local hide_commands = settings.mod["Command Spy"].hide_commands
+            if (hide_commands and hidden) then
+                response = false
+            elseif (hide_commands and not hidden) or (hide_commands == false) then
+                CommandSpy(settings.mod["Command Spy"].prefix .. " " .. name .. ":    \"" .. Message .. "\"")
+                response = true
+            end
+        end
+
+        local chat_type
+        if type == 0 then
+            chat_type = "[GLOBAL]  "
+        elseif type == 1 then
+            chat_type = "[TEAM]    "
+        elseif type == 2 then
+            chat_type = "[VEHICLE] "
+        end
+        local dir = settings.mod["Chat Logging"].dir
+        local function LogChat(dir, msg)
+            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            local file = io.open(dir, "a+")
+            if file ~= nil then
+                local str = string.format("%s\t%s\n", timestamp, tostring(msg))
+                file:write(str)
+                file:close()
+            end
+        end
+        if iscommand then
+            LogChat(dir, "   " .. cmd_prefix .. "     " .. name .. " [" .. id .. "]: " .. Message)
+            cprint(cmd_prefix .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
+        else
+            LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. Message)
+            cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
+        end
+    end
+
+
     -- #Admin Chat
     if modEnabled("Admin Chat", PlayerIndex) then
         local mod = players["Admin Chat"][ip]
@@ -789,13 +958,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     if message[c] then
                         if not (keyword) or (keyword == nil) then
                             if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
-                                valid = true
+                                response = true
                             else
                                 local strFormat = settings.mod["Admin Chat"].message_format[1]
                                 local prefix = settings.mod["Admin Chat"].prefix
-                                local Format = (gsub(gsub(gsub(gsub(strFormat,"%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+                                local Format = (gsub(gsub(gsub(gsub(strFormat, "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 AdminChat(Format)
-                                valid = false
+                                response = false
                             end
                         end
                         break
@@ -821,7 +990,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             local Team_ModFormat = settings.mod["Chat IDs"].moderator[2]
             local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
             local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
-            
+
             -- Permission Levels
             local tmod_perm = settings.mod["Chat IDs"].trial_moderator.lvl
             local mod_perm = settings.mod["Chat IDs"].moderator.lvl
@@ -848,7 +1017,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 end
                                 say(i, formattedString)
                                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                                valid = false
+                                response = false
                             end
                         end
                     end
@@ -869,7 +1038,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         end
                         say_all(formattedString)
                         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                        valid = false
+                        response = false
                     end
 
                     for b = 0, #message do
@@ -927,7 +1096,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     end
                                 end
                             else
-                                valid = true
+                                response = true
                             end
                             break
                         end
@@ -943,7 +1112,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
-    return valid
+    return response
 end
 
 -- Used in OnServerCommand()
@@ -958,8 +1127,8 @@ local function checkAccess(e, c, script)
         end
     elseif (c) then
         access = true
-    elseif not (c) then 
-        cprint('This command cannot be executed from console', 4+8)
+    elseif not (c) then
+        cprint('This command cannot be executed from console', 4 + 8)
         access = false
     end
     return access
@@ -972,11 +1141,11 @@ local function isOnline(t, e)
             if player_present(t) then
                 return true
             else
-                respond(e, "Command failed. Player not online.", "rcon", 4+8)
+                respond(e, "Command failed. Player not online.", "rcon", 4 + 8)
                 return false
             end
         else
-            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4+8)
+            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4 + 8)
         end
     end
 end
@@ -998,9 +1167,9 @@ function OnServerCommand(PlayerIndex, Command)
     local TargetID, target_all_players, is_error
     local ip, name, hash = get_var(executor, "$ip"), get_var(executor, "$name"), get_var(executor, "$hash")
     local pl
-    
+
     local pCMD = settings.global.plugin_commands
-    
+
     local function hasAccess(e, lvl_req)
         local allow_access
         if isConsole(e) then
@@ -1008,15 +1177,17 @@ function OnServerCommand(PlayerIndex, Command)
         elseif (level >= lvl_req) then
             return true
         else
-            respond(e, "Insufficient Permission", "rcon", 5+8)
+            respond(e, "Insufficient Permission", "rcon", 5 + 8)
             return false
         end
     end
-    
+
     local params = { }
     local function validate_params(parameter)
         local function getplayers(arg, executor)
-            if (arg == nil) then arg = executor end
+            if (arg == nil) then
+                arg = executor
+            end
             local players = { }
             if arg == "me" then
                 TargetID = executor
@@ -1032,7 +1203,7 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                 end
             else
-                respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", "rcon", 4+8)
+                respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", "rcon", 4 + 8)
                 is_error = true
                 return false
             end
@@ -1048,17 +1219,17 @@ function OnServerCommand(PlayerIndex, Command)
                 if pl[i] == nil then
                     break
                 end
-                
+
                 params.eid = executor
                 params.eip = ip
                 params.en = name
                 params.eh = hash
-                
+
                 params.tid = tonumber(pl[i])
                 params.tip = get_var(pl[i], "$ip")
                 params.tn = get_var(pl[i], "$name")
                 params.th = get_var(pl[i], "$hash")
-                
+
                 -- SAPP | Mute Handler
                 if (parameter == "mute") then
                     local default_time = settings.global.default_mute_time
@@ -1066,7 +1237,7 @@ function OnServerCommand(PlayerIndex, Command)
                         proceed = true
                     elseif tonumber(get_var(tid, "$lvl")) >= 1 then
                         proceed = false
-                        respond(executor, "You cannot mute admins.", "rcon", 4+8)
+                        respond(executor, "You cannot mute admins.", "rcon", 4 + 8)
                     else
                         proceed = true
                     end
@@ -1084,7 +1255,7 @@ function OnServerCommand(PlayerIndex, Command)
                         valid = true
                     else
                         valid = false
-                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4+8)
+                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
                     end
                     params.proceed, params.valid = proceed, valid
                     if (target_all_players) then
@@ -1094,7 +1265,7 @@ function OnServerCommand(PlayerIndex, Command)
                     if (target_all_players) then
                         velocity:unmute(params)
                     end
-                -- #Alias System
+                    -- #Alias System
                 elseif (parameter == "alias") then
                     local bool
                     if isConsole(executor) then
@@ -1108,9 +1279,11 @@ function OnServerCommand(PlayerIndex, Command)
                     if (target_all_players) then
                         velocity:aliasCmdRoutine(params)
                     end
-                -- #Admin Chat
+                    -- #Admin Chat
                 elseif (parameter == "achat") then
-                    if (args[2] ~= nil) then params.option = args[2] end
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
@@ -1118,7 +1291,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-    
+
     -- #Player List
     local cmd_list = settings.mod["Player List"].command_aliases
     for i = 1, #cmd_list do
@@ -1129,13 +1302,13 @@ function OnServerCommand(PlayerIndex, Command)
                         velocity:listplayers(executor)
                     end
                 else
-                    respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4+8)
+                    respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4 + 8)
                 end
             end
             return false
         end
     end
-    
+
     -- #Alias System
     if (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
@@ -1148,10 +1321,10 @@ function OnServerCommand(PlayerIndex, Command)
                             velocity:aliasCmdRoutine(params)
                         end
                     else
-                        respond(executor, "Unable to check aliases from all players.", "rcon", 4+8)
+                        respond(executor, "Unable to check aliases from all players.", "rcon", 4 + 8)
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4+8)
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
                 end
             end
         end
@@ -1169,7 +1342,7 @@ function OnServerCommand(PlayerIndex, Command)
                         end
                     end
                 else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4+8)
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
                     return false
                 end
             end
@@ -1187,32 +1360,32 @@ function OnServerCommand(PlayerIndex, Command)
                     p.format, p.dir = tab.msg_format, tab.dir
                     velocity:suggestion(p)
                 else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4+8)
+                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
                     return false
                 end
             end
         end
         return false
-    -- VELOCITY COMMANDS
-    -- ==========================================================================================================================
-    -- #Velocity Version command
+        -- VELOCITY COMMANDS
+        -- ==========================================================================================================================
+        -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
         if hasAccess(executor, pCMD.velocity[2]) then
             if (settings.global.check_for_updates) then
                 if (getCurrentVersion(false) ~= settings.global.script_version) then
-                    respond(executor, "============================================================================", "rcon", 7+8)
-                    respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon", 5+8)
-                    respond(executor, "Current version: v" .. settings.global.script_version, "rcon", 5+8)
-                    respond(executor, "============================================================================", "rcon", 7+8)
+                    respond(executor, "============================================================================", "rcon", 7 + 8)
+                    respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon", 5 + 8)
+                    respond(executor, "Current version: v" .. settings.global.script_version, "rcon", 5 + 8)
+                    respond(executor, "============================================================================", "rcon", 7 + 8)
                 else
-                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon", 5+8)
+                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon", 5 + 8)
                 end
             else
-                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon", 5+8)
+                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon", 5 + 8)
             end
         end
         return false
-    -- #Clear Chat Command
+        -- #Clear Chat Command
     elseif (command == pCMD.clearchat[1]) then
         if hasAccess(executor, pCMD.clearchat[2]) then
             for _ = 1, 20 do
@@ -1220,10 +1393,10 @@ function OnServerCommand(PlayerIndex, Command)
                 say_all(" ")
                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
             end
-            respond(executor, "Chat was cleared!", "rcon", 5+8)
+            respond(executor, "Chat was cleared!", "rcon", 5 + 8)
         end
         return false
-    -- #Plugin List
+        -- #Plugin List
     elseif (command == pCMD.list[1]) then
         if hasAccess(executor, pCMD.list[2]) then
             local t = {}
@@ -1244,7 +1417,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
-    -- #Enable Plugin
+        -- #Enable Plugin
     elseif (command == pCMD.enable[1]) then
         if (args[1] ~= nil and args[1]:match("%d+")) then
             if hasAccess(executor, pCMD.enable[2]) then
@@ -1258,9 +1431,9 @@ function OnServerCommand(PlayerIndex, Command)
                         if (tonumber(id) == tonumber(k)) then
                             if not (settings.mod[v].enabled) then
                                 settings.mod[v].enabled = true
-                                respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
+                                respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2 + 8)
                             else
-                                respond(executor, v .. " is already enabled!", "rcon", 3+8)
+                                respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
                             end
                         end
                     end
@@ -1270,10 +1443,10 @@ function OnServerCommand(PlayerIndex, Command)
                 end
             end
         else
-            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4+8)
+            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4 + 8)
         end
         return false
-    -- #Disable Plugin
+        -- #Disable Plugin
     elseif (command == pCMD.disable[1]) then
         if (args[1] ~= nil and args[1]:match("%d+")) then
             if hasAccess(executor, pCMD.disable[2]) then
@@ -1287,9 +1460,9 @@ function OnServerCommand(PlayerIndex, Command)
                         if (tonumber(id) == tonumber(k)) then
                             if (settings.mod[v].enabled) then
                                 settings.mod[v].enabled = false
-                                respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
+                                respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4 + 8)
                             else
-                                respond(executor, v .. " is already enabled!", "rcon", 3+8)
+                                respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
                             end
                         end
                     end
@@ -1299,10 +1472,10 @@ function OnServerCommand(PlayerIndex, Command)
                 end
             end
         else
-            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4+8)
+            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4 + 8)
         end
         return false
-    -- Mute Command
+        -- Mute Command
     elseif (command == pCMD.mute[1]) then
         if (settings.global.handlemutes == true) then
             if hasAccess(executor, pCMD.mute[2]) then
@@ -1316,12 +1489,12 @@ function OnServerCommand(PlayerIndex, Command)
                         end
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4+8)
+                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
                 end
             end
         end
         return false
-    -- Unmute Command
+        -- Unmute Command
     elseif (command == pCMD.unmute[1]) then
         if (settings.global.handlemutes == true) then
             if hasAccess(executor, pCMD.unmute[2]) then
@@ -1335,12 +1508,12 @@ function OnServerCommand(PlayerIndex, Command)
                         end
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4+8)
+                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4 + 8)
                 end
             end
         end
         return false
-    -- Mute List Command
+        -- Mute List Command
     elseif (command == pCMD.mutelist[1]) then
         if (settings.global.handlemutes == true) then
             if hasAccess(executor, pCMD.mutelist[2]) then
@@ -1374,7 +1547,7 @@ function velocity:listplayers(e)
                 if not (isConsole(e)) then
                     rprint(e, header)
                 else
-                    cprint(cheader, 7+8)
+                    cprint(cheader, 7 + 8)
                 end
             end
             count = count + 1
@@ -1387,35 +1560,35 @@ function velocity:listplayers(e)
             if not (isConsole(e)) then
                 rprint(e, "|" .. alignment .. "     " .. str)
             else
-                cprint(str, 5+8)
+                cprint(str, 5 + 8)
             end
         end
     end
     if (count == 0) and (isConsole(e)) then
-        cprint("------------------------------------", 5+8)
-        cprint("There are no players online", 4+8)
-        cprint("------------------------------------", 5+8)
+        cprint("------------------------------------", 5 + 8)
+        cprint("There are no players online", 4 + 8)
+        cprint("------------------------------------", 5 + 8)
     end
 end
 
 function velocity:determineAchat(params)
-    
+
     local params = params or {}
     local eid = params.eid or nil
     local eip = params.eip or nil
     local en = params.en or nil
-    
+
     local tid = params.tid or nil
     local tip = params.tip or nil
     local tn = params.tn or nil
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
-    
+
     local option = params.option or nil
     local mod = players["Admin Chat"][tip]
-    
+
     if option == nil then
         if type(mod.adminchat) == 'true' then
             status = "on"
@@ -1424,12 +1597,12 @@ function velocity:determineAchat(params)
         end
         respond(eid, tn .. "'s admin chat is " .. status)
     end
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
     end
-    
+
     local level = get_var(tid, "$lvl")
     local base_command = settings.mod["Admin Chat"].base_command
     if tonumber(level) >= getPermLevel("Admin Chat") then
@@ -1448,11 +1621,11 @@ function velocity:determineAchat(params)
             end
         else
             is_error = true
-            respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4+8)
+            respond(eid, "Invalid Syntax: Type /" .. base_command .. " [id] on|off.", "rcon", 4 + 8)
         end
         if not (is_error) and not (already_set) then
             if not (is_self) then
-                respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2+8)
+                respond(eid, "Admin Chat " .. status .. " for " .. tn, "rcon", 2 + 8)
                 respond(tid, "Your Admin Chat was " .. status .. " by " .. en, "rcon")
             else
                 respond(eid, "Admin Chat " .. status, "rcon")
@@ -1461,7 +1634,7 @@ function velocity:determineAchat(params)
             respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
         end
     else
-        respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4+8)
+        respond(eid, "Failed set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
     end
     return false
 end
@@ -1477,7 +1650,7 @@ function velocity:mute(params)
     local proceed = params.proceed or nil
     local valid = params.valid or nil
     local time = params.time or nil
-    
+
     if (proceed) and (valid) then
         muted[tid] = true
         local file_name = settings.global.mute_dir
@@ -1487,7 +1660,7 @@ function velocity:mute(params)
 
         if not (match(content, tip) and match(content, tid) and match(content, th)) then
             if (tonumber(time) ~= settings.global.default_mute_time) then
-                respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4+8)
+                respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4 + 8)
                 rprint(tid, "You have been muted for " .. time .. " minute(s)")
             else
                 rprint(eid, tn .. " has been muted permanently")
@@ -1498,7 +1671,7 @@ function velocity:mute(params)
             file:write(new_entry .. "\n")
             file:close()
         else
-            rprint(eid, tn .. " is already muted!", "rcon", 4+8)
+            rprint(eid, tn .. " is already muted!", "rcon", 4 + 8)
         end
     end
 end
@@ -1515,8 +1688,8 @@ function velocity:unmute(params)
         muted[tid] = false
         init_mute_timer[tid] = false
         time_diff[tid] = 0
-        respond(eid, tn .. " has been unmuted", "rcon", 4+8)
-        respond(tid, "You have been  unmuted", "rcon", 4+8)
+        respond(eid, tn .. " has been unmuted", "rcon", 4 + 8)
+        respond(tid, "You have been  unmuted", "rcon", 4 + 8)
         removeEntry(tip, th, tid)
     else
         respond(eid, tn .. " it not muted")
@@ -1529,27 +1702,27 @@ function velocity:mutelist(params)
     local eid = params.eid or nil
     local option = params.options or nil
     if (option == nil) then
-        respond(eid, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4+8)
+        respond(eid, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4 + 8)
     else
-        respond(eid, "----------- NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4+8)
+        respond(eid, "----------- NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4 + 8)
     end
     local file_name = settings.global.mute_dir
     local lines = lines_from(file_name)
     for k, v in pairs(lines) do
         if (k ~= nil) then
             if (option == nil) then
-                respond(eid, gsub(v, "(;)", "(") .. "m)", "rcon", 2+8)
+                respond(eid, gsub(v, "(;)", "(") .. "m)", "rcon", 2 + 8)
             elseif (option == "-o") then
                 for i = 1, 16 do
                     if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
                         local name = get_var(i, "$name")
                         local id = get_var(i, "$n")
                         local time = time_diff[tonumber(i)]
-                        respond(eid, name .. " [" .. id .. "]: " .. time .. " minutes left", "rcon", 2+8)
+                        respond(eid, name .. " [" .. id .. "]: " .. time .. " minutes left", "rcon", 2 + 8)
                     end
                 end
             else
-                respond(eid, "Invalid syntax. Usage: /" .. pCMD.mutelist[1], "rcon", 4+8)
+                respond(eid, "Invalid syntax. Usage: /" .. pCMD.mutelist[1], "rcon", 4 + 8)
                 break
             end
         end
@@ -1580,10 +1753,10 @@ function velocity:suggestion(params)
             file:write(str)
             file:close()
             local tab = settings.mod["Suggestions Box"]
-            respond(eid, gsub(tab.response, "%%player_name%%", en), "rcon", 7+8)
-            respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7+8)
+            respond(eid, gsub(tab.response, "%%player_name%%", en), "rcon", 7 + 8)
+            respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
             respond(eid, text)
-            respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7+8)
+            respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7 + 8)
         end
     end
     for _ in pairs(t) do
@@ -1598,14 +1771,14 @@ function velocity:aliasCmdRoutine(params)
     local tn = params.tn or nil
     local th = params.th or nil
     local use_timer = params.timer or nil
-    
+
     local aliases, content
     local tab = players["Alias System"][ip]
     alias_results = { }
-  
+
     tab.tHash = params.th
     tab.tName = params.tn
-    
+
     local directory = settings.mod["Alias System"].dir
     local lines = lines_from(directory)
     for _, v in pairs(lines) do
@@ -1625,13 +1798,21 @@ function velocity:aliasCmdRoutine(params)
             tab.total = tab.total + 1
         end
     end
-    
+
     local total = tab.total
     if (use_timer) then
         tab.trigger = true
         tab.bool = true
     else
         alias:show(eid, eip, total)
+    end
+end
+
+function velocity:commandspy(params)
+    for i = 1, 16 do
+        if (checkAccess(i, false, "Admin Chat")) then
+            respond(i, Message, "rcon", 2 + 8)
+        end
     end
 end
 
@@ -1667,7 +1848,7 @@ local function FormatTable(table, rowlen, space, delimiter)
         if len > longest then
             longest = len
         end
-        end
+    end
     local rows = {}
     local row = 1
     local count = 1
@@ -1705,7 +1886,7 @@ function alias:align(player, table, target, total, pirated, name, alignment)
         for a in pairs(placeholder) do
             placeholder[a] = nil
         end
-        
+
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
@@ -1745,23 +1926,23 @@ end
 
 -- #Alias System
 function alias:add(name, hash)
-   
-    local function containsExact(w,s)
-        return select(2,s:gsub('^' .. w .. '%W+','')) +
-             select(2,s:gsub('%W+' .. w .. '$','')) +
-             select(2,s:gsub('^' .. w .. '$','')) +
-             select(2,s:gsub('%W+' .. w .. '%W+','')) > 0
+
+    local function containsExact(w, s)
+        return select(2, s:gsub('^' .. w .. '%W+', '')) +
+                select(2, s:gsub('%W+' .. w .. '$', '')) +
+                select(2, s:gsub('^' .. w .. '$', '')) +
+                select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
     end
-   
+
     local found, proceed
     local dir = settings.mod["Alias System"].dir
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
-    
+
         if containsExact(hash, v) and containsExact(name, v) then
             proceed = true
         end
-        
+
         if containsExact(hash, v) and not containsExact(name, v) then
             found = true
 
@@ -1847,7 +2028,7 @@ end
 
 function respond(executor, message, environment, color)
     if (executor) then
-        color = color or 4+8
+        color = color or 4 + 8
         if not (isConsole(executor)) then
             if (environment == "chat") then
                 say(executor, message)
@@ -1930,7 +2111,7 @@ function read_widestring(address, length)
 end
 
 function secondsToTime(seconds, places)
-    
+
     local years = floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
     local weeks = floor(seconds / (60 * 60 * 24 * 7))
