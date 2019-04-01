@@ -1712,6 +1712,14 @@ local function cmdself(t, e)
     end
 end
 
+local function gameover(p)
+    if (game_over) then
+        rprint(p, "Command Failed -> Game has Ended.")
+        rprint(p, "Please wait until the next game has started.")
+        return true
+    end
+end
+
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
@@ -1896,75 +1904,83 @@ function OnServerCommand(PlayerIndex, Command)
         return false
         -- #Admin Chat
     elseif (command == settings.mod["Admin Chat"].base_command) then
-        if modEnabled("Admin Chat", executor) then
-            if (checkAccess(executor, true, "Admin Chat")) then
-                local tab = settings.mod["Admin Chat"]
-                if (args[1] ~= nil) then
-                    validate_params("achat")
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:determineAchat(params)
+        if not gameover(executor) then
+            if modEnabled("Admin Chat", executor) then
+                if (checkAccess(executor, true, "Admin Chat")) then
+                    local tab = settings.mod["Admin Chat"]
+                    if (args[1] ~= nil) then
+                        validate_params("achat")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:determineAchat(params)
+                            end
                         end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                        return false
                     end
-                else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
-                    return false
                 end
             end
         end
         return false
         -- #Lurker
     elseif (command == settings.mod["Lurker"].base_command) then
-        if modEnabled("Lurker", executor) then
-            if (checkAccess(executor, true, "Lurker")) then
-                local tab = settings.mod["Lurker"]
-                if (args[1] ~= nil) then
-                    validate_params("lurker")
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:setLurker(params)
+        if not gameover(executor) then
+            if modEnabled("Lurker", executor) then
+                if (checkAccess(executor, true, "Lurker")) then
+                    local tab = settings.mod["Lurker"]
+                    if (args[1] ~= nil) then
+                        validate_params("lurker")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:setLurker(params)
+                            end
                         end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                        return false
                     end
-                else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
-                    return false
                 end
             end
         end
         return false
         -- #Suggestions Box
     elseif (command == settings.mod["Suggestions Box"].base_command) then
-        if modEnabled("Suggestions Box", executor) then
-            if (checkAccess(executor, true, "Suggestions Box")) then
-                local tab = settings.mod["Suggestions Box"]
-                if (args[1] ~= nil) then
-                    local p = { }
-                    local content = gsub(Command, tab.base_command, "")
-                    p.eid, p.en, p.message = executor, name, content
-                    p.format, p.dir = tab.msg_format, tab.dir
-                    velocity:suggestion(p)
-                else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
-                    return false
+        if not gameover(executor) then
+            if modEnabled("Suggestions Box", executor) then
+                if (checkAccess(executor, true, "Suggestions Box")) then
+                    local tab = settings.mod["Suggestions Box"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        local content = gsub(Command, tab.base_command, "")
+                        p.eid, p.en, p.message = executor, name, content
+                        p.format, p.dir = tab.msg_format, tab.dir
+                        velocity:suggestion(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
+                        return false
+                    end
                 end
             end
         end
         return false
         -- #Portal Gun
     elseif (command == settings.mod["Portal Gun"].base_command) then
-        if modEnabled("Portal Gun", executor) then
-            if (checkAccess(executor, true, "Portal Gun")) then
-                local tab = settings.mod["Portal Gun"]
-                if (args[1] ~= nil) then
-                    validate_params("portalgun")
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:portalgun(params)
+        if not gameover(executor) then
+            if modEnabled("Portal Gun", executor) then
+                if (checkAccess(executor, true, "Portal Gun")) then
+                    local tab = settings.mod["Portal Gun"]
+                    if (args[1] ~= nil) then
+                        validate_params("portalgun")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:portalgun(params)
+                            end
                         end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
+                        return false
                     end
-                else
-                    respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
-                    return false
                 end
             end
         end
@@ -1990,139 +2006,153 @@ function OnServerCommand(PlayerIndex, Command)
         return false
         -- #Clear Chat Command
     elseif (command == pCMD.clearchat[1]) then
-        if hasAccess(executor, pCMD.clearchat[2]) then
-            for _ = 1, 20 do
-                execute_command("msg_prefix \"\"")
-                say_all(" ")
-                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+        if not gameover(executor) then
+            if hasAccess(executor, pCMD.clearchat[2]) then
+                for _ = 1, 20 do
+                    execute_command("msg_prefix \"\"")
+                    say_all(" ")
+                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                end
+                respond(executor, "Chat was cleared!", "rcon", 5 + 8)
             end
-            respond(executor, "Chat was cleared!", "rcon", 5 + 8)
         end
         return false
         -- #Plugin List
     elseif (command == pCMD.list[1]) then
-        if hasAccess(executor, pCMD.list[2]) then
-            local t = {}
-            for k, _ in pairs(settings.mod) do
-                t[#t + 1] = k
-            end
-            for k, v in pairs(t) do
-                if v then
-                    if (settings.mod[v].enabled) then
-                        respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
-                    else
-                        respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
+        if not gameover(executor) then
+            if hasAccess(executor, pCMD.list[2]) then
+                local t = {}
+                for k, _ in pairs(settings.mod) do
+                    t[#t + 1] = k
+                end
+                for k, v in pairs(t) do
+                    if v then
+                        if (settings.mod[v].enabled) then
+                            respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
+                        else
+                            respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
+                        end
                     end
                 end
-            end
-            for _ in pairs(t) do
-                t[_] = nil
+                for _ in pairs(t) do
+                    t[_] = nil
+                end
             end
         end
         return false
         -- #Enable Plugin
     elseif (command == pCMD.enable[1]) then
-        if (args[1] ~= nil and args[1]:match("%d+")) then
-            if hasAccess(executor, pCMD.enable[2]) then
-                local id = args[1]
-                local t = {}
-                for k, _ in pairs(settings.mod) do
-                    t[#t + 1] = k
-                end
-                for k, v in pairs(t) do
-                    if v then
-                        if (tonumber(id) == tonumber(k)) then
-                            if not (settings.mod[v].enabled) then
-                                settings.mod[v].enabled = true
-                                respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2 + 8)
-                            else
-                                respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
+        if not gameover(executor) then
+            if (args[1] ~= nil and args[1]:match("%d+")) then
+                if hasAccess(executor, pCMD.enable[2]) then
+                    local id = args[1]
+                    local t = {}
+                    for k, _ in pairs(settings.mod) do
+                        t[#t + 1] = k
+                    end
+                    for k, v in pairs(t) do
+                        if v then
+                            if (tonumber(id) == tonumber(k)) then
+                                if not (settings.mod[v].enabled) then
+                                    settings.mod[v].enabled = true
+                                    respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2 + 8)
+                                else
+                                    respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
+                                end
                             end
                         end
                     end
+                    for _ in pairs(t) do
+                        t[_] = nil
+                    end
                 end
-                for _ in pairs(t) do
-                    t[_] = nil
-                end
+            else
+                respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4 + 8)
             end
-        else
-            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.enable[1], "rcon", 4 + 8)
         end
         return false
         -- #Disable Plugin
     elseif (command == pCMD.disable[1]) then
-        if (args[1] ~= nil and args[1]:match("%d+")) then
-            if hasAccess(executor, pCMD.disable[2]) then
-                local id = args[1]
-                local t = {}
-                for k, _ in pairs(settings.mod) do
-                    t[#t + 1] = k
-                end
-                for k, v in pairs(t) do
-                    if v then
-                        if (tonumber(id) == tonumber(k)) then
-                            if (settings.mod[v].enabled) then
-                                settings.mod[v].enabled = false
-                                respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4 + 8)
-                            else
-                                respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
+        if not gameover(executor) then
+            if (args[1] ~= nil and args[1]:match("%d+")) then
+                if hasAccess(executor, pCMD.disable[2]) then
+                    local id = args[1]
+                    local t = {}
+                    for k, _ in pairs(settings.mod) do
+                        t[#t + 1] = k
+                    end
+                    for k, v in pairs(t) do
+                        if v then
+                            if (tonumber(id) == tonumber(k)) then
+                                if (settings.mod[v].enabled) then
+                                    settings.mod[v].enabled = false
+                                    respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4 + 8)
+                                else
+                                    respond(executor, v .. " is already enabled!", "rcon", 3 + 8)
+                                end
                             end
                         end
                     end
+                    for _ in pairs(t) do
+                        t[_] = nil
+                    end
                 end
-                for _ in pairs(t) do
-                    t[_] = nil
-                end
+            else
+                respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4 + 8)
             end
-        else
-            respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4 + 8)
         end
         return false
         -- Mute Command
     elseif (command == pCMD.mute[1]) then
-        if (settings.global.handlemutes == true) then
-            if hasAccess(executor, pCMD.mute[2]) then
-                if (args[1] ~= nil) then
-                    validate_params("mute")
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            if not cmdself(TargetID, executor) then
-                                velocity:mute(params)
+        if not gameover(executor) then
+            if (settings.global.handlemutes == true) then
+                if hasAccess(executor, pCMD.mute[2]) then
+                    if (args[1] ~= nil) then
+                        validate_params("mute")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                if not cmdself(TargetID, executor) then
+                                    velocity:mute(params)
+                                end
                             end
                         end
+                    else
+                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
                     end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
                 end
             end
         end
         return false
         -- Unmute Command
     elseif (command == pCMD.unmute[1]) then
-        if (settings.global.handlemutes == true) then
-            if hasAccess(executor, pCMD.unmute[2]) then
-                if (args[1] ~= nil) then
-                    validate_params("unmute")
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            if not cmdself(TargetID, executor) then
-                                velocity:unmute(params)
+        if not gameover(executor) then
+            if (settings.global.handlemutes == true) then
+                if hasAccess(executor, pCMD.unmute[2]) then
+                    if (args[1] ~= nil) then
+                        validate_params("unmute")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                if not cmdself(TargetID, executor) then
+                                    velocity:unmute(params)
+                                end
                             end
                         end
+                    else
+                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4 + 8)
                     end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4 + 8)
                 end
             end
         end
         return false
         -- Mute List Command
     elseif (command == pCMD.mutelist[1]) then
-        if (settings.global.handlemutes == true) then
-            if hasAccess(executor, pCMD.mutelist[2]) then
-                local p = { }
-                p.eid, p.option = executor, args[1]
-                velocity:mutelist(p)
+        if not gameover(executor) then
+            if (settings.global.handlemutes == true) then
+                if hasAccess(executor, pCMD.mutelist[2]) then
+                    local p = { }
+                    p.eid, p.option = executor, args[1]
+                    velocity:mutelist(p)
+                end
             end
         end
         return false
