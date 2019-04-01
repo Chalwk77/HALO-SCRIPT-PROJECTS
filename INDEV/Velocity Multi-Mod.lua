@@ -56,12 +56,12 @@ local function GameSettings()
                 reason = "impersonating",
                 bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
                 users = {
-                    {["Chalwk"] = {"6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-                    {["Ro@dhog"] = {"0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-                    {["§hoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-                    
+                    { ["Chalwk"] = { "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["�hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
-                    {["NAME"] = {"hash1", "hash2", "hash3", "etc..."}},
+                    { ["NAME"] = { "hash1", "hash2", "hash3", "etc..." } },
                 },
             },
             ["Chat IDs"] = {
@@ -156,51 +156,51 @@ local function GameSettings()
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
-                
+
                     -- [!] WARNING: 4th weapon slot is usually reserved for the objective (flag/oddball).
                     -- If this slot is occupied, you cannot pick up the objective.
-                
+
                     -- [slot1,slot2,slot3,slot4] [frags,plasmas] [map enabled/disabled (true or false)]
-                   
+
                     -- If you don't want to utilize custom grenade assignments for a given map, 
                     -- and would prefer to use the game-type settings for grenade assignments instead, set the respective grenade type count to "00" (double zero).
-       
+
                     -- If you want to utilize a given map for grenade assignment but not weapon assignments, set all 4 weapon slots to 'nil'.
                     -- You will spawn with default weapons set in the game-type settings.
-                    
+
                     -- If you want to utilize weapon assignments but don't want to spawn with grenades (at all) on a given map, 
                     -- set the respective grenade type count to '0' (single 0).
-                    
+
                     -- To completely disable custom weapon and grenade assignment for a given map, set the last value to 'false'
 
-                    ["beavercreek"] = {     pistol, sniper, nil, nil, 00, 00, false},
-                    ["bloodgulch"] = {      sniper, pistol, needler, nil, 2, 2, false},
-                    ["boardingaction"] = {  shotgun, pistol, nil, nil, 1, 3, false},
-                    ["carousel"] = {        sniper, pistol, shotgun, nil, 2, 2, false},
-                    ["dangercanyon"] = {    pistol, rocket_launcher, assault_rifle, nil, 00, 00, false},
-                    ["deathisland"] = {     sniper, pistol, assault_rifle, nil, 1, 1, false},
-                    ["gephyrophobia"] = {   sniper, pistol, rocket_launcher, nil, 3, 3, false},
-                    ["icefields"] = {       pistol, assault_rifle, nil, nil, 2, 3, false},
-                    ["infinity"] = {        pistol, sniper, rocket_launcher, nil, 4, 4, false},
-                    ["sidewinder"] = {      pistol, rocket_launcher, plasma_cannon, nil, 3, 2, false},
-                    ["timberland"] = {      pistol, assault_rifle, needler, nil, 3, 3, false},
-                    ["hangemhigh"] = {      pistol, shotgun, nil, nil, 2, 2, false},
-                    ["ratrace"] = {         assault_rifle, pistol, nil, nil, 0, 0, false},
-                    ["damnation"] = {       assault_rifle, pistol, nil, nil, 1, 3, false},
-                    ["putput"] = {          plasma_pistol, plasma_rifle, nil, nil, 1, 1, false},
-                    ["prisoner"] = {        pistol, rocket_launcher, nil, nil, 1, 1, false},
-                    ["wizard"] = {          pistol, sniper, nil, nil, 0, 0, true},
+                    ["beavercreek"] = { pistol, sniper, nil, nil, 00, 00, false },
+                    ["bloodgulch"] = { sniper, pistol, needler, nil, 2, 2, false },
+                    ["boardingaction"] = { shotgun, pistol, nil, nil, 1, 3, false },
+                    ["carousel"] = { sniper, pistol, shotgun, nil, 2, 2, false },
+                    ["dangercanyon"] = { pistol, rocket_launcher, assault_rifle, nil, 00, 00, false },
+                    ["deathisland"] = { sniper, pistol, assault_rifle, nil, 1, 1, false },
+                    ["gephyrophobia"] = { sniper, pistol, rocket_launcher, nil, 3, 3, false },
+                    ["icefields"] = { pistol, assault_rifle, nil, nil, 2, 3, false },
+                    ["infinity"] = { pistol, sniper, rocket_launcher, nil, 4, 4, false },
+                    ["sidewinder"] = { pistol, rocket_launcher, plasma_cannon, nil, 3, 2, false },
+                    ["timberland"] = { pistol, assault_rifle, needler, nil, 3, 3, false },
+                    ["hangemhigh"] = { pistol, shotgun, nil, nil, 2, 2, false },
+                    ["ratrace"] = { assault_rifle, pistol, nil, nil, 0, 0, false },
+                    ["damnation"] = { assault_rifle, pistol, nil, nil, 1, 3, false },
+                    ["putput"] = { plasma_pistol, plasma_rifle, nil, nil, 1, 1, false },
+                    ["prisoner"] = { pistol, rocket_launcher, nil, nil, 1, 1, false },
+                    ["wizard"] = { pistol, sniper, nil, nil, 0, 0, true },
                     -- [ custom maps ]...
                     -- place custom weapon tag IDs in the loadWeaponTags() function and assign a variable name to them.
                     -- Repeat the structure to add more maps.
-                    ["room_final"] = {      rocket_launcher, nil, nil, nil, 00, 00, true},
-                    ["dead_end"] = {        pistol, assault_rifle, nil, nil, 00, 00, true},
-                    ["gruntground"] = {     needler, nil, nil, nil, 1, 1, true},
-                    ["feelgoodinc"] = {     rocket_launcher, nil, nil, nil, 00, 00, true},
-                    ["lolcano"] = {         rocket_launcher, nil, nil, nil, 00, 00, true},
-                    ["camden_place"] = {    pistol, nil, nil, nil, 00, 00, true},
-                    ["alice_gulch"] = {     pistol, nil, nil, nil, 00, 00, true},
-                    ["snowdrop"] = {        battle_rifle, pistol, nil, nil, 00, 00, true},
+                    ["room_final"] = { rocket_launcher, nil, nil, nil, 00, 00, true },
+                    ["dead_end"] = { pistol, assault_rifle, nil, nil, 00, 00, true },
+                    ["gruntground"] = { needler, nil, nil, nil, 1, 1, true },
+                    ["feelgoodinc"] = { rocket_launcher, nil, nil, nil, 00, 00, true },
+                    ["lolcano"] = { rocket_launcher, nil, nil, nil, 00, 00, true },
+                    ["camden_place"] = { pistol, nil, nil, nil, 00, 00, true },
+                    ["alice_gulch"] = { pistol, nil, nil, nil, 00, 00, true },
+                    ["snowdrop"] = { battle_rifle, pistol, nil, nil, 00, 00, true },
                 },
             },
             -- # This is a spectator-like feature.
@@ -311,12 +311,12 @@ end
 local velocity, player_info = { }, { }
 local players
 local function InitPlayers()
-	players = {
-    ["Alias System"] = { },
-    ["Message Board"] = { },
-    ["Admin Chat"] = { },
-    ["Lurker"] = { },
-}
+    players = {
+        ["Alias System"] = { },
+        ["Message Board"] = { },
+        ["Admin Chat"] = { },
+        ["Lurker"] = { },
+    }
 end
 -- String Library, Math Library, Table Library
 local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, string.find, string.lower, string.format, string.match, string.gmatch
@@ -389,8 +389,12 @@ local function getPermLevel(script, bool)
 end
 
 local function populateInfoTable(p)
-	player_info[p] = { }
-    if (halo_type == "PC") then ce = 0x0 else ce = 0x40 end
+    player_info[p] = { }
+    if (halo_type == "PC") then
+        ce = 0x0
+    else
+        ce = 0x40
+    end
     local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local cns = ns + 0x1AA + ce + to_real_index(p) * 0x20
     local name, hash = read_widestring(cns, 12), get_var(p, "$hash")
@@ -526,7 +530,7 @@ end
 --------------------------------------------------------------
 
 function OnScriptLoad()
-	InitPlayers()
+    InitPlayers()
     loadWeaponTags()
     GameSettings()
     printEnabled()
@@ -543,13 +547,13 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    
+
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 
@@ -573,7 +577,7 @@ function OnScriptLoad()
     if modEnabled("Chat Logging") then
         checkFile(settings.mod["Chat Logging"].dir)
     end
-    
+
     -- #Custom Weapons
     if modEnabled("Custom Weapons") then
         if not (game_over) then
@@ -589,7 +593,7 @@ function OnScriptLoad()
 
     for i = 1, 16 do
         if player_present(i) then
-			populateInfoTable(i)
+            populateInfoTable(i)
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
 
@@ -601,10 +605,10 @@ function OnScriptLoad()
             end
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-				
+
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
-					players["Admin Chat"][ip] = nil
-					adminchat:set(ip)
+                    players["Admin Chat"][ip] = nil
+                    adminchat:set(ip)
                 end
             end
             -- #Lurker
@@ -673,7 +677,7 @@ function OnNewGame()
     -- Used Globally
     game_over = false
     mapname = get_var(0, "$map")
-    
+
     PreLoad()
     resetAliasParams()
     for i = 1, 16 do
@@ -695,7 +699,7 @@ function OnNewGame()
                     players["Admin Chat"][ip].boolean = false
                 end
             end
-            
+
             -- #Lurker
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
@@ -719,7 +723,7 @@ function OnNewGame()
             file:close()
         end
     end
-    
+
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (getTeamPlay()) then
@@ -740,12 +744,12 @@ function OnGameEnd()
         if player_present(i) then
             local ip = get_var(i, "$ip")
             local level = get_var(i, "$lvl")
-            
+
             -- #Custom Weapons
             if modEnabled("Custom Weapons") and (settings.mod["Custom Weapons"].assign_weapons) then
                 weapon[i] = false
             end
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -774,7 +778,7 @@ function OnGameEnd()
                     end
                 end
             end
-            
+
             -- #Lurker
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
@@ -829,8 +833,8 @@ function OnTick()
             local ip = get_var(i, "$ip")
 
             -- #Custom Weapons
-          local wTab = settings.mod["Custom Weapons"]
-          if modEnabled("Custom Weapons") and (wTab.assign_weapons) then
+            local wTab = settings.mod["Custom Weapons"]
+            if modEnabled("Custom Weapons") and (wTab.assign_weapons) then
                 if wTab.weapons[mapname] ~= nil then
                     if (player_alive(i)) then
                         if (weapon[i] == true) then
@@ -841,11 +845,11 @@ function OnTick()
                             if (primary) or (secondary) or (tertiary) or (quaternary) then
                                 execute_command("wdel " .. i)
                             end
-                            
+
                             if (secondary) then
                                 assign_weapon(spawn_object("weap", secondary, x, y, z), i)
                             end
-                            
+
                             if (primary) then
                                 assign_weapon(spawn_object("weap", primary, x, y, z), i)
                             end
@@ -867,7 +871,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Lurker
             if modEnabled("Portal Gun") then
                 local tab = settings.mod["Lurker"]
@@ -923,7 +927,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Portal Gun
             if modEnabled("Portal Gun") then
                 if (player_present(i) and player_alive(i)) then
@@ -953,7 +957,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- SAPP | Mute Handler
             if (settings.global.handlemutes) then
                 if (init_mute_timer[tonumber(i)]) then
@@ -1033,7 +1037,7 @@ end
 function OnPlayerPrejoin(PlayerIndex)
     cprint("________________________________________________________________________________", 2 + 8)
     cprint("Player attempting to connect to the server...", 5 + 8)
-	populateInfoTable(PlayerIndex)
+    populateInfoTable(PlayerIndex)
     cprint(getPlayerInfo(PlayerIndex, "name"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "hash"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "ip"), 2 + 8)
@@ -1098,7 +1102,7 @@ function OnPlayerJoin(PlayerIndex)
             has_objective[PlayerIndex] = false
         end
     end
-    
+
     -- #Alias System
     if modEnabled("Alias System") then
         alias:add(name, hash)
@@ -1146,12 +1150,12 @@ function OnPlayerJoin(PlayerIndex)
             file:close()
         end
     end
-    
+
     -- #Admin Join Messages
     if modEnabled("Admin Join Messages") then
-		local level = tonumber(get_var(PlayerIndex, "$lvl"))
+        local level = tonumber(get_var(PlayerIndex, "$lvl"))
         if (level >= 1) then
-			local tab, join_message = settings.mod["Admin Join Messages"].messages
+            local tab, join_message = settings.mod["Admin Join Messages"].messages
             join_message = tab[level][1] .. name .. tab[level][2]
             local function announceJoin(join_message)
                 for i = 1, 16 do
@@ -1163,7 +1167,7 @@ function OnPlayerJoin(PlayerIndex)
             announceJoin(join_message)
         end
     end
-    
+
     -- #Anti Impersonator
     if modEnabled("Anti Impersonator") then
         local tab = settings.mod["Anti Impersonator"]
@@ -1171,7 +1175,7 @@ function OnPlayerJoin(PlayerIndex)
         for key, _ in ipairs(tab.users) do
             local userdata = tab.users[key][name]
             if (userdata ~= nil) then
-                for i = 1,#userdata do
+                for i = 1, #userdata do
                     if (userdata[i] == hash) then
                         found = true
                         break
@@ -1190,7 +1194,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
-    
+
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
@@ -1311,7 +1315,7 @@ function OnPlayerLeave(PlayerIndex)
             end
         end
     end
-    
+
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
@@ -1445,7 +1449,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         else
             iscommand = false
         end
-        
+
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
             local hidden_messages, hidden = cSpy.commands_to_hide
             for k, _ in pairs(hidden_messages) do
@@ -1673,9 +1677,13 @@ end
 
 local function checkAccess(e, console, script, bool)
     local access, others
-    if (bool) then others = true else others = false end
+    if (bool) then
+        others = true
+    else
+        others = false
+    end
     if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script,  others)) then
+        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others)) then
             access = true
         else
             rprint(e, "Command failed. Insufficient Permission.")
@@ -1842,13 +1850,17 @@ function OnServerCommand(PlayerIndex, Command)
                     end
                     -- #Admin Chat
                 elseif (parameter == "achat") then
-                    if (args[2] ~= nil) then params.option = args[2] end
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
                     -- #Portal Gun
                 elseif (parameter == "portalgun") then
-                    if (args[2] ~= nil) then params.option = args[2] end
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
                     if (target_all_players) then
                         velocity:portalgun(params)
                     end
@@ -1856,7 +1868,9 @@ function OnServerCommand(PlayerIndex, Command)
                 elseif (parameter == "lurker") then
                     params.bool = true
                     params.CmdTrigger = true
-                    if (args[2] ~= nil) then params.option = args[2] end
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
@@ -2028,9 +2042,9 @@ function OnServerCommand(PlayerIndex, Command)
                 for k, v in pairs(t) do
                     if v then
                         if (settings.mod[v].enabled) then
-                            respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
+                            respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2 + 8)
                         else
-                            respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
+                            respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4 + 8)
                         end
                     end
                 end
@@ -2173,12 +2187,12 @@ function velocity:portalgun(params)
 
     local option = params.option or nil
     local proceed
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
     end
-    
+
     if (option == nil) then
         if (portalgun_mode[tid] == true) then
             status = "enabled"
@@ -2186,9 +2200,9 @@ function velocity:portalgun(params)
             status = "disabled"
         end
         if (is_self) then
-            respond(eid, "Your portalgun mode is " .. status, "rcon", 4+8)
+            respond(eid, "Your portalgun mode is " .. status, "rcon", 4 + 8)
         else
-            respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4+8)
+            respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4 + 8)
         end
     else
         proceed = true
@@ -2293,7 +2307,7 @@ function velocity:determineAchat(params)
     local option = params.option or nil
     local mod = players["Admin Chat"][tip]
     local proceed
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
@@ -2306,9 +2320,9 @@ function velocity:determineAchat(params)
             status = "disabled"
         end
         if (is_self) then
-            respond(eid, "Your admin chat is " .. status, "rcon", 4+8)
+            respond(eid, "Your admin chat is " .. status, "rcon", 4 + 8)
         else
-            respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4+8)
+            respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4 + 8)
         end
     else
         proceed = true
@@ -2371,12 +2385,12 @@ function velocity:setLurker(params)
     if isConsole(eid) then
         en = "SERVER"
     end
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
     end
-   
+
     local proceed, access
     local option = params.option or nil
     if (option == nil) then
@@ -2387,9 +2401,9 @@ function velocity:setLurker(params)
                 status = "disabled"
             end
             if (is_self) then
-                respond(eid, "Your Lurker Mode is " .. status, "rcon", 4+8)
+                respond(eid, "Your Lurker Mode is " .. status, "rcon", 4 + 8)
             else
-                respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4+8)
+                respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4 + 8)
             end
         else
             proceed = true
@@ -2401,14 +2415,14 @@ function velocity:setLurker(params)
     if (proceed) then
         local mod = settings.mod["Lurker"]
         local level = get_var(tid, "$lvl")
-        
+
         -- Checks if the player can execute this command on others
         if not (is_self) and not isConsole(eid) then
             if tonumber(level) >= getPermLevel("Lurker", true) then
                 access = true
             else
                 access = false
-                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4+8)
+                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4 + 8)
             end
         else
             access = true
@@ -2427,7 +2441,7 @@ function velocity:setLurker(params)
                 announce(tid, tn .. " is now in lurker mode! [spectator]")
             end
         end
-        
+
         local function Disable(tid)
             scores[tid] = 0
             lurker[tid] = false
@@ -2472,19 +2486,19 @@ function velocity:setLurker(params)
                         respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
                         respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
                     else
-                        respond(eid, "Lurker Mode " .. status, "rcon", 2+8)
+                        respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
                     end
                 elseif (already_set) then
-                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4+8)
+                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
                 end
                 ----------------------------------------------------------------------------------------------------------------------------------
             else
                 if (bool) then
                     Enable()
-                    respond(tid, "Lurker mode enabled!", "rcon", 2+8)
+                    respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
                 else
                     Disable()
-                    respond(tid, "Lurker mode disabled!", "rcon", 2+8)
+                    respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
                 end
             end
         end
@@ -2723,7 +2737,9 @@ end
 
 -- #Alias System
 function alias:align(player, table, target, total, pirated, name, alignment)
-    if not isConsole(player) then cls(player) end
+    if not isConsole(player) then
+        cls(player)
+    end
     local function formatResults()
         local placeholder, row = { }
 
@@ -2952,7 +2968,7 @@ end
 
 -- #Custom Weapons
 function loadWeaponTags()
-    
+
     -- [ stock weapons ]
     pistol = "weapons\\pistol\\pistol"
     sniper = "weapons\\sniper rifle\\sniper rifle"
@@ -2964,7 +2980,7 @@ function loadWeaponTags()
     flamethrower = "weapons\\flamethrower\\flamethrower"
     needler = "weapons\\needler\\mp_needler"
     shotgun = "weapons\\shotgun\\shotgun"
-    
+
     -- [ custom weapons ]
     -- snowdrop
     battle_rifle = "halo3\\weapons\\battle rifle\\tactical battle rifle"
