@@ -553,12 +553,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 
-    if (halo_type == "PC") then
-        ce = 0x0
-    else
-        ce = 0x40
-    end
-
     if (settings.global.beepOnLoad) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
     end
@@ -1037,41 +1031,17 @@ function determineWeapon()
 end
 
 function OnPlayerPrejoin(PlayerIndex)
-    if (settings.global.beepOnJoin == true) then
-        os.execute("echo \7")
-    end
-    player_info[PlayerIndex] = {}
     cprint("________________________________________________________________________________", 2 + 8)
     cprint("Player attempting to connect to the server...", 5 + 8)
-    -- #CONSOLE OUTPUT
-    local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-    local name, hash = read_widestring(cns, 12), get_var(PlayerIndex, "$hash")
-    local ip, id, level = get_var(PlayerIndex, "$ip"), get_var(PlayerIndex, "$n"), tonumber(get_var(PlayerIndex, "$lvl"))
-
-    -- Matching and replacing in case the OP decides to reorder the player_data table
-    local a, b, c, d, e
-    local tab = settings.global.player_data
-    for i = 1, #tab do
-        if tab[i]:match("%%name%%") then
-            a = gsub(tab[i], "%%name%%", name)
-        elseif tab[i]:match("%%hash%%") then
-            b = gsub(tab[i], "%%hash%%", hash)
-        elseif tab[i]:match("%%index_id%%") then
-            d = gsub(tab[i], "%%index_id%%", id)
-        elseif tab[i]:match("%%ip_address%%") then
-            c = gsub(tab[i], "%%ip_address%%", ip)
-        elseif tab[i]:match("%%level%%") then
-            e = gsub(tab[i], "%%level%%", level)
-        end
-    end
-    table.insert(player_info[PlayerIndex], { ["name"] = a, ["hash"] = b, ["ip"] = c, ["id"] = d, ["level"] = e })
-
+	populateInfoTable(PlayerIndex)
     cprint(getPlayerInfo(PlayerIndex, "name"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "hash"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "ip"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "id"), 2 + 8)
     cprint(getPlayerInfo(PlayerIndex, "level"), 2 + 8)
+    if (settings.global.beepOnJoin == true) then
+        os.execute("echo \7")
+    end
 end
 
 function OnPlayerJoin(PlayerIndex)
