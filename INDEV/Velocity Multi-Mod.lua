@@ -997,9 +997,9 @@ function OnTick()
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
                     players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
                     cls(i)
-					for j = 1,#m_board[ip] do
-						respond(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][j], "rcon")
-					end
+                    for j = 1, #m_board[ip] do
+                        respond(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][j], "rcon")
+                    end
                     if players["Message Board"][ip].timer >= math.floor(settings.mod["Message Board"].duration) then
                         messageBoard:hide(i, ip)
                     end
@@ -1752,16 +1752,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-	
-	-- Command Spy
-	if modEnabled("Command Spy") then	
-		if (Environment == 1) then
-			if (level == -1) then
-				local cSpy = settings.mod["Command Spy"]
-				velocity:commandspy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
-			end
-		end
-	end
+
+    -- Command Spy
+    if modEnabled("Command Spy") then
+        if (Environment == 1) then
+            if (level == -1) then
+                local cSpy = settings.mod["Command Spy"]
+                velocity:commandspy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
+            end
+        end
+    end
 
     local params = { }
     local function validate_params(parameter)
