@@ -257,6 +257,101 @@ local function GameSettings()
                     "playerslist"
                 }
             },
+            ["Respawn Time"] = {
+                enabled = true,
+                permission_level = 1,
+                execute_on_others = 4,
+                base_command = "setrespawn",
+                -- [ This enables you to set the default re-spawn time for all maps and game types. 
+                -- When enabled, the custom respawn settings in the 'maps' table have no effect.
+                global_respawn_time = {
+                    enabled = false,
+                    time = 3
+                },
+                -- ]
+                maps = {
+                    -- CTF, SLAYER, TEAM-S, KOTH, TEAM-KOTH, ODDBALL, TEAM-ODDBALL, RACE, TEAM-RACE
+                    ["beavercreek"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bloodgulch"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["boardingaction"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["carousel"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dangercanyon"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deathisland"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gephyrophobia"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["icefields"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["infinity"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sidewinder"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["timberland"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["hangemhigh"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ratrace"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["damnation"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["putput"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["prisoner"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["wizard"] = { 0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["tactics"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["gruntground"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["lolcano"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["homestead"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["camden_place"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["olympus_mons"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["chaosgulchv2"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["enigma"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["extinction"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["coldsnap"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["mario64"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["dead-end"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["destinycanyon"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["immure"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sneak"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["windfall_island"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["feelgoodinc"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["battlegulch_v2_chaos"] = { 0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ragnarok"] = { 0.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["celebration_island"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["doom_wa_view"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["garden_ce"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sciophobiav2"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["portent"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pitfall"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["quagmire"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["baz_canyon"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bigass"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pardis_perdu"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["insomnia_map"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["zanzibar_intense"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["deltaruined_intense"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["knot"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0.5, 0.5 },
+                    ["juggernaught"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["room_final"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["yoyorast island v2"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["h3 foundry"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["cliffhanger"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["snowtorn_cove"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["h3 foundry"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["remnants"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["temprate"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["pueblo_fantasma_beta"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["combat_arena"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["h2_new_mombasa"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["h2_zanzibar"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["lavaflows"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["runway-mod"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["medical block"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["[hsp]the-pit"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["abandonment"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ambush"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["armageddon"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["augury"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["bitch_slap"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["crimson_woods"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["fission_point"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["h2 coagulation"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["ministunt"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["no_remorse"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["sledding02"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["train.station"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                }
+            },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
                 enabled = true,
@@ -346,6 +441,10 @@ local weapon = {}
 -- #Portal Gun
 local weapon_status = {}
 local portalgun_mode = {}
+
+-- #Respawn Time
+local respawn_cmd_override = { }
+local respawn_time = { }
 
 -- #Lurker
 local lurker = {}
@@ -553,6 +652,8 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    
+    register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
@@ -757,6 +858,12 @@ function OnGameEnd()
                 end
             end
 
+            -- #Respawn Time
+            if modEnabled("Respawn Time") then
+                respawn_cmd_override[ip] = false
+                respawn_time[ip] = 0
+            end
+            
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 local mod = players["Admin Chat"][ip]
@@ -1063,6 +1170,12 @@ function OnPlayerJoin(PlayerIndex)
         cprint("Status: " .. name .. " connected successfully.", 5 + 8)
         cprint("________________________________________________________________________________", 2 + 8)
     end
+    
+    -- #Respawn Time
+    if modEnabled("Respawn Time") then
+        respawn_cmd_override[ip] = false
+        respawn_time[ip] = 0
+    end
 
     -- SAPP | Mute Handler
     if not (settings.global.handlemutes) then
@@ -1259,6 +1372,9 @@ function OnPlayerLeave(PlayerIndex)
     end
     cprint("________________________________________________________________________________", 4 + 8)
 
+    -- #Respawn Time
+    respawn_time[ip] = nil
+    
     -- SAPP | Mute Handler
     if (settings.global.handlemutes) then
         if (muted[tonumber(PlayerIndex)] == true) then
@@ -1398,6 +1514,71 @@ function OnPlayerSpawn(PlayerIndex)
             params.bool = true
             params.CmdTrigger = false
             velocity:setLurker(params)
+        end
+    end
+end
+
+function OnPlayerKill(PlayerIndex)
+    local name = get_var(PlayerIndex, "$name")
+    local ip = get_var(PlayerIndex, "$ip")
+    local level = tonumber(get_var(PlayerIndex, "$lvl"))
+
+    -- #Respawn Time
+    if modEnabled("Respawn Time") then
+        local player = get_player(PlayerIndex)
+        if not (respawn_cmd_override[ip]) then
+            local mod = settings.mod["Respawn Time"]
+            local function getSpawnTime()
+                local spawntime
+                if (get_var(1, "$gt") == "ctf") then
+                    spawntime = mod.maps[mapname][1]
+                elseif (get_var(1, "$gt") == "slayer") then
+                    if not getTeamPlay() then
+                        spawntime = mod.maps[mapname][2]
+                    else
+                        spawntime = mod.maps[mapname][3]
+                    end
+                elseif (get_var(1, "$gt") == "koth") then
+                    if not getTeamPlay() then
+                        spawntime = mod.maps[mapname][4]
+                    else
+                        spawntime = mod.maps[mapname][5]
+                    end
+                elseif (get_var(1, "$gt") == "oddball") then
+                    if not getTeamPlay() then
+                        spawntime = mod.maps[mapname][6]
+                    else
+                        spawntime = mod.maps[mapname][7]
+                    end
+                elseif (get_var(1, "$gt") == "race") then
+                    if not getTeamPlay() then
+                        spawntime = mod.maps[mapname][8]
+                    else
+                        spawntime = mod.maps[mapname][9]
+                    end
+                end
+                return spawntime
+            end        
+            if not mod.global_respawn_time.enabled then
+                if (mod.maps[mapname] ~= nil) then
+                    write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
+                end
+            else
+                local time = mod.global_respawn_time.time
+                write_dword(player + 0x2C, time * 33)
+            end
+        else
+            write_dword(player + 0x2C, respawn_time[ip] * 33)
+        end
+    end
+    -- #Lurker
+    if modEnabled("Lurker") then
+        if (level >= getPermLevel("Lurker", false)) then
+            has_objective[PlayerIndex] = false
+            scores[PlayerIndex] = 0
+            local mod = players["Lurker"][ip]
+            mod.lurker_warn = false
+            mod.lurker_timer = 0
         end
     end
 end
@@ -1886,6 +2067,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
+                    -- #Respawn Time
+                elseif (parameter == "setrespawn") then
+                    if (args[2] ~= nil) then
+                        params.time = args[2]
+                    end
+                    if (target_all_players) then
+                        velocity:setRespawnTime(params)
+                    end
                 end
             end
         end
@@ -1928,6 +2117,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+        -- #Respawn Time
+    elseif (command == settings.mod["Respawn Time"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Respawn Time", executor) then
+                if (checkAccess(executor, true, "Respawn Time")) then
+                    local tab = settings.mod["Respawn Time"]
+                    if (args[1] ~= nil) then
+                        validate_params("setrespawn")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:setRespawnTime(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] <time diff>", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
         -- #Admin Chat
     elseif (command == settings.mod["Admin Chat"].base_command) then
         if not gameover(executor) then
@@ -1942,7 +2152,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -1963,7 +2173,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -2230,11 +2440,11 @@ function velocity:portalgun(params)
     if (proceed) then
         -- Checks if the player can execute this command on others
         if not (is_self) and not isConsole(eid) then
-            if tonumber(eLvl) >= getPermLevel("Lurker", true) then
+            if tonumber(eLvl) >= getPermLevel("Portal Gun", true) then
                 access = true
             else
                 access = false
-                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
+                respond(eid, "You are not allowed to set portal gun for other players!", "rcon", 4 + 8)
             end
         else
             access = true
@@ -2374,7 +2584,7 @@ function velocity:determineAchat(params)
                 access = true
             else
                 access = false
-                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
+                respond(eid, "You are not allowed to set Admin Chat for other players!", "rcon", 4 + 8)
             end
         else
             access = true
@@ -2416,6 +2626,92 @@ function velocity:determineAchat(params)
                 end
             else
                 respond(eid, "Failed to set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+            end
+        end
+    end
+    return false
+end
+
+function velocity:setRespawnTime(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local en = params.en or nil
+    local eip = params.eip or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    local tip = params.tip or nil
+    
+    local time = params.time or nil
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    
+    local function getRSTime(p)
+        if (get_player(p)) then
+            return read_dword(get_player(p) + 0x2C)
+        end
+    end
+
+    local proceed, access
+    local time = params.time or nil
+    if (time == nil) then
+        if (respawn_cmd_override[tip] == true) then
+            status = getRSTime(tid)
+        else
+            status = getRSTime(tid)
+        end
+        if (is_self) then
+            respond(eid, "Your respawn time: " .. status .. " seconds", "rcon", 4 + 8)
+        else
+            respond(eid, tn .. "'s respawn time: " .. status .. " seconds", "rcon", 4 + 8)
+        end
+    else
+        proceed = true
+    end
+
+    if (proceed) then
+        local mod = settings.mod["Respawn Time"]
+        -- Checks if the player can execute this command on others
+        if not (is_self) and not isConsole(eid) then
+            if tonumber(eLvl) >= getPermLevel("Respawn Time", true) then
+                access = true
+            else
+                access = false
+                respond(eid, "You are not allowed to set respawn time for other players!", "rcon", 4 + 8)
+            end
+        else
+            access = true
+        end
+        --------------------------------------------------------------
+        if (access) then
+            if not (is_error) then
+                if not (is_self) then
+                    if (respawn_time[tip] == nil) then 
+                        respawn_time[tip] = getRSTime(tid)
+                    else
+                        respawn_time[tip] = time
+                    end
+                    respond(eid, tn .. "'s respawn time was set to " .. respawn_time[tip] .. " seconds", "rcon", 4 + 8)
+                    respond(tid, "Your respawn time was set to " .. respawn_time[tip] .. " seconds", "rcon", 4 + 8)
+                    respawn_cmd_override[tip] = true
+                else
+                    if (respawn_time[eip] == nil) then 
+                        respawn_time[eip] = getRSTime(eid)
+                    else
+                        respawn_time[eip] = time
+                    end
+                    respawn_cmd_override[eip] = true
+                    respond(eid, "Your respawn time was set to " .. respawn_time[eip] .. " seconds", "rcon", 4 + 8)
+                end
             end
         end
     end
@@ -2479,7 +2775,7 @@ function velocity:setLurker(params)
                 access = true
             else
                 access = false
-                respond(eid, "You are not allowed to portal gun for other players!", "rcon", 4 + 8)
+                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4 + 8)
             end
         else
             access = true
@@ -2923,7 +3219,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                         object_picked_up[PlayerIndex] = "oddball"
                     end
                     mod.lurker_warnings = mod.lurker_warnings - 1
-                    lurker_warn[PlayerIndex] = true
+                    mod.lurker_warn = true
                     has_objective[PlayerIndex] = true
                     if (mod.lurker_warnings <= 0) then
                         mod.lurker_warnings = 0
