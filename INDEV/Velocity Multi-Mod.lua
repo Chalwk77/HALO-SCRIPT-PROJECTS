@@ -35,7 +35,6 @@ local function GameSettings()
                 base_command = "alias", -- /base_command [id | me ]
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
-                execute_on_others = 4,
                 use_timer = true,
                 duration = 10, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
