@@ -1,8 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.07), for SAPP (PC & CE)
-
-[!] INDEV (not ready for download)
+Script Name: Velocity Multi-Mod (v 1.10), for SAPP (PC & CE)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -363,7 +361,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.07,
+            script_version = 1.10,
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
