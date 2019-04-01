@@ -201,6 +201,92 @@ local function GameSettings()
                     ["snowdrop"] = { battle_rifle, pistol, nil, nil, 00, 00, true },
                 },
             },
+            ["Enter Vehicle"] = {
+                enabled = true,
+                base_command = "enter", -- /base_command [id] <item> (optional height) (optional distance)
+                permission_level = 1,
+                execute_on_others = 4,
+                multi_control = true,
+                -- Destroy objects spawned:
+                garbage_collection = {
+                    on_death = true,
+                    on_disconnect = true,
+                },
+            },
+            ["Item Spawner"] = {
+                enabled = true,
+                base_command = "spawn",  -- /base_command [id | me ] <item>
+                permission_level = 1,
+                execute_on_others = 4,
+                -- Destroy objects spawned:
+                garbage_collection = {
+                    on_death = true,
+                    on_disconnect = true,
+                },
+                list = "itemlist",
+                distance_from_playerX = 2.5,
+                distance_from_playerY = 2.5,
+                objects = {
+                    -- "Item Name", "tag type", "tag name"
+                    [1] = { "cyborg", "bipd", "characters\\cyborg_mp\\cyborg_mp" },
+
+                    -- Equipment
+                    [2] = { "camo", "eqip", "powerups\\active camouflage" },
+                    [3] = { "health", "eqip", "powerups\\health pack" },
+                    [4] = { "overshield", "eqip", "powerups\\over shield" },
+                    [5] = { "frag", "eqip", "weapons\\frag grenade\\frag grenade" },
+                    [6] = { "plasma", "eqip", "weapons\\plasma grenade\\plasma grenade" },
+
+                    -- Vehicles
+                    [7] = { "banshee", "vehi", "vehicles\\banshee\\banshee_mp" },
+                    [8] = { "turret", "vehi", "vehicles\\c gun turret\\c gun turret_mp" },
+                    [9] = { "ghost", "vehi", "vehicles\\ghost\\ghost_mp" },
+                    [10] = { "tank", "vehi", "vehicles\\scorpion\\scorpion_mp" },
+                    [11] = { "rhog", "vehi", "vehicles\\rwarthog\\rwarthog" },
+                    [12] = { "hog", "vehi", "vehicles\\warthog\\mp_warthog" },
+
+                    -- Weapons
+                    [13] = { "rifle", "weap", "weapons\\assault rifle\\assault rifle" },
+                    [14] = { "ball", "weap", "weapons\\ball\\ball" },
+                    [15] = { "flag", "weap", "weapons\\flag\\flag" },
+                    [16] = { "flamethrower", "weap", "weapons\\flamethrower\\flamethrower" },
+                    [17] = { "needler", "weap", "weapons\\needler\\mp_needler" },
+                    [18] = { "pistol", "weap", "weapons\\pistol\\pistol" },
+                    [19] = { "ppistol", "weap", "weapons\\plasma pistol\\plasma pistol" },
+                    [20] = { "prifle", "weap", "weapons\\plasma rifle\\plasma rifle" },
+                    [21] = { "frg", "weap", "weapons\\plasma_cannon\\plasma_cannon" },
+                    [22] = { "rocket", "weap", "weapons\\rocket launcher\\rocket launcher" },
+                    [23] = { "shotgun", "weap", "weapons\\shotgun\\shotgun" },
+                    [24] = { "sniper", "weap", "weapons\\sniper rifle\\sniper rifle" },
+
+                    -- Projectiles
+                    [25] = { "sheebolt", "proj", "vehicles\\banshee\\banshee bolt" },
+                    [26] = { "sheerod", "proj", "vehicles\\banshee\\mp_banshee fuel rod" },
+                    [27] = { "turretbolt", "proj", "vehicles\\c gun turret\\mp gun turret" },
+                    [28] = { "ghostbolt", "proj", "vehicles\\ghost\\ghost bolt" },
+                    [29] = { "tankbullet", "proj", "vehicles\\scorpion\\bullet" },
+                    [30] = { "tankshell", "proj", "vehicles\\scorpion\\tank shell" },
+                    [31] = { "hogbullet", "proj", "vehicles\\warthog\\bullet" },
+                    [32] = { "riflebullet", "proj", "weapons\\assault rifle\\bullet" },
+                    [33] = { "flame", "proj", "weapons\\flamethrower\\flame" },
+                    [34] = { "needle", "proj", "weapons\\needler\\mp_needle" },
+                    [35] = { "pistolbullet", "proj", "weapons\\pistol\\bullet" },
+                    [36] = { "ppistolbolt", "proj", "weapons\\plasma pistol\\bolt" },
+                    [37] = { "priflebolt", "proj", "weapons\\plasma rifle\\bolt" },
+                    [38] = { "priflecbolt", "proj", "weapons\\plasma rifle\\charged bolt" },
+                    [39] = { "rocketproj", "proj", "weapons\\rocket launcher\\rocket" },
+                    [40] = { "shottyshot", "proj", "weapons\\shotgun\\pellet" },
+                    [41] = { "snipershot", "proj", "weapons\\sniper rifle\\sniper bullet" },
+                    [42] = { "fuelrodshot", "proj", "weapons\\plasma_cannon\\plasma_cannon" },
+
+                    -- Custom Vehicles [ Bitch Slap ]
+                    [43] = { "slap1", "vehi", "deathstar\\1\\vehicle\\tag_2830" }, -- Chain Gun Hog
+                    [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" }, -- Quad Bike
+                    [45] = { "wraith", "vehi", "vehicles\\wraith\\wraith" },
+                    [46] = { "pelican", "vehi", "vehicles\\pelican\\pelican" },
+                    -- Custom Weapons ...
+                }
+            },
             -- # This is a spectator-like feature.
             ["Lurker"] = {
                 -- To enable a feature, set 'false' to 'true'
@@ -224,15 +310,13 @@ local function GameSettings()
                 warnings = 4,
             },
             ["Message Board"] = {
-                enabled = true,
+                enabled = false,
                 duration = 5, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
-                    "Welcome to %server_name%, %player_name%",
-                    "Message Board created by Chalwk (Jericho Crosby)",
-                    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS",
+                    "Welcome to %server_name%",
                     -- repeat the structure to add more entries
                 }
             },
@@ -425,6 +509,20 @@ local game_over
 -- #Color Reservation
 local colorres_bool = {}
 local can_use_colorres
+
+-- #Item Spawner
+local temp_objects_table = {}
+
+-- #Enter Vehicle
+local ev = {}
+local ev_Status = {}
+local ev_NewVehicle = {}
+local ev_OldVehicle = {}
+
+-- drones
+local EV_drone_table = {}
+local IS_drone_table = {}
+local item_objects = {}
 
 -- Mute Handler
 local mute_duration = {}
@@ -831,6 +929,14 @@ function OnNewGame()
             can_use_colorres = true
         end
     end
+    
+    -- #Item Spawner
+    if modEnabled("Item Spawner") then
+        local objects_table = settings.mod["Item Spawner"].objects
+        for i = 1, #objects_table do
+            temp_objects_table[#temp_objects_table + 1] = objects_table[i][1]
+        end
+    end
 end
 
 function OnGameEnd()
@@ -1110,6 +1216,19 @@ function OnTick()
                     end
                 end
             end
+            
+            -- #Enter Vehicle
+            if modEnabled("Enter Vehicle") then
+                if (ev_Status[i]) then
+                    if not PlayerInVehicle(i) then
+                        enter_vehicle(ev_NewVehicle[i], i, 0)
+                        local old_vehicle = get_object_memory(ev_OldVehicle[i])
+                        write_vector3d(old_vehicle + 0x5C, 0, 0, 0)
+                        timer(500, "DestroyObject", ev_OldVehicle[i])
+                        ev_Status[i] = false
+                    end
+                end
+            end
         end
     end
 end
@@ -1253,6 +1372,7 @@ function OnPlayerJoin(PlayerIndex)
             end
         end
     end
+    
     -- #Chat Logging
     if modEnabled("Chat Logging") then
         local dir = settings.mod["Chat Logging"].dir
@@ -1308,6 +1428,18 @@ function OnPlayerJoin(PlayerIndex)
         end
     end
 
+    -- #Item Spawner
+    if modEnabled("Item Spawner") then
+        IS_drone_table[PlayerIndex] = nil
+    end
+    
+    -- #Enter Vehicle
+    if modEnabled("Enter Vehicle") then
+        ev[PlayerIndex] = false
+        ev_Status[PlayerIndex] = false
+        EV_drone_table[PlayerIndex] = nil
+    end
+    
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
@@ -1452,6 +1584,22 @@ function OnPlayerLeave(PlayerIndex)
             file:close()
         end
     end
+    
+    -- #Enter Vehicle & Item Spawner
+    if modEnabled("Enter Vehicle") or modEnabled("Item Spawner") then
+        local tab = settings.mod["Enter Vehicle"]
+        if (tab.garbage_collection.on_disconnect) then
+            if ev_NewVehicle[PlayerIndex] ~= nil then
+                ev[PlayerIndex] = false
+                ev_Status[PlayerIndex] = false
+            end
+            CleanUpDrones(PlayerIndex, 1)
+        end
+        local tab = settings.mod["Item Spawner"]
+        if (tab.garbage_collection.on_disconnect) then
+            CleanUpDrones(PlayerIndex, 2)
+        end
+    end
 end
 
 function OnPlayerPrespawn(PlayerIndex)
@@ -1577,6 +1725,16 @@ function OnPlayerKill(PlayerIndex)
             local mod = players["Lurker"][ip]
             mod.lurker_warn = false
             mod.lurker_timer = 0
+        end
+    end
+    
+    -- #Enter Vehicle & Item Spawner
+    if modEnabled("Enter Vehicle") or modEnabled("Item Spawner") then
+        if (settings.mod["Enter Vehicle"].garbage_collection.on_death) then
+            CleanUpDrones(PlayerIndex, 1)
+        end
+        if (settings.mod["Item Spawner"].garbage_collection.on_death) then
+            CleanUpDrones(PlayerIndex, 2)
         end
     end
 end
@@ -2073,6 +2231,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setRespawnTime(params)
                     end
+                    -- #Enter Vehicle
+                elseif (parameter == "entervehicle") then
+                    if (args[2] ~= nil) then
+                        params.item = args[2] -- item
+                    end
+                    if (args[3] ~= nil) then
+                        params.height = args[3] -- height
+                    end
+                    if (args[4] ~= nil) then
+                        params.distance = args[4] -- distance
+                    end
+                    if (target_all_players) then
+                        velocity:enterVehicle(params)
+                    end
                 end
             end
         end
@@ -2111,6 +2283,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 else
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
+                end
+            end
+        end
+        return false
+        -- #Enter Vehicle
+    elseif (command == settings.mod["Enter Vehicle"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Enter Vehicle", executor) then
+                if (checkAccess(executor, true, "Enter Vehicle")) then
+                    local tab = settings.mod["Enter Vehicle"]
+                    if (args[1] ~= nil) then
+                        validate_params("entervehicle")
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:enterVehicle(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] <vehicle name>", "rcon", 4 + 8)
+                        return false
+                    end
                 end
             end
         end
@@ -2716,6 +2909,61 @@ function velocity:setRespawnTime(params)
     return false
 end
 
+function velocity:enterVehicle(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    
+    local height = params.height or nil
+    local distance = params.distance or nil
+    local item = params.item or nil
+
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+
+    local access
+    -- Checks if the player can execute this command on others
+    if not (is_self) and not isConsole(eid) then
+        if tonumber(eLvl) >= getPermLevel("Enter Vehicle", true) then
+            access = true
+        else
+            access = false
+            respond(eid, "You are not allowed to set Admin Chat for other players!", "rcon", 4 + 8)
+        end
+    else
+        access = true
+    end
+    ----------------------------------------------------------------------------------------------------------------------------
+    local base_command = settings.mod["Enter Vehicle"].base_command
+    if (access) then
+        if (tLvl >= 1) then 
+            if not (is_error) then
+                if not (is_self) then
+                    respond(eid, "Entering " .. tn .. " into " .. item, "rcon", 4 + 8)
+                    respond(tid, "Entering " .. item, "rcon", 4 + 8)
+                else
+                    respond(tid, "Entering " .. item, "rcon", 4 + 8)
+                end
+            end
+        else
+            respond(eid, "Failed to spawn item for " .. tn .. " - [no permission to receive]", "rcon", 4 + 8)
+        end
+    end
+    return false
+end
+
 function velocity:setLurker(params)
     local params = params or { }
     local eid = params.eid or nil
@@ -3243,8 +3491,64 @@ function killSilently(PlayerIndex)
     execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
 end
 
+function CleanUpDrones(TargetID, TableID)
+    -- Enter Vehicle
+    local function CleanVehicles(TargetID)
+        if EV_drone_table[TargetID] ~= nil then
+            for k, v in pairs(EV_drone_table[TargetID]) do
+                if EV_drone_table[TargetID][k] > 0 then
+                    if v then
+                        destroy_object(v)
+                        EV_drone_table[TargetID][k] = nil
+                    end
+                end
+            end
+            EV_drone_table[TargetID] = nil
+            ev_NewVehicle[TargetID] = nil
+        end
+    end
+
+    -- Item Spawner
+    local function CleanItems(TargetID)
+        if IS_drone_table[TargetID] ~= nil then
+            for k, v in pairs(IS_drone_table[TargetID]) do
+                if IS_drone_table[TargetID][k] > 0 then
+                    if v then
+                        destroy_object(v)
+                        IS_drone_table[TargetID][k] = nil
+                    end
+                end
+            end
+            IS_drone_table[TargetID] = nil
+            item_objects[TargetID] = nil
+        end
+    end
+
+    if (TableID == 1) then
+        CleanVehicles(TargetID)
+    elseif (TableID == 2) then
+        CleanItems(TargetID)
+    elseif (TableID == "all") then
+        CleanVehicles(TargetID)
+        CleanItems(TargetID)
+    end
+end
+
 -----------------------------------------------------------------------------------------------
 -- FUNCTIONS USED THROUGHOUT
+
+function PlayerInVehicle(PlayerIndex)
+    if (get_dynamic_player(PlayerIndex) ~= 0) then
+        local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
 
 function lines_from(file)
     local lines = {}
