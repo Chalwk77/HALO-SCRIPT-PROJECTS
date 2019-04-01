@@ -203,7 +203,7 @@ local function GameSettings()
             },
             ["Enter Vehicle"] = {
                 enabled = true,
-                base_command = "enter", -- /base_command [id] <item> (optional height) (optional distance)
+                base_command = "enter", -- /base_command <item> [id] (opt height/distance)
                 permission_level = 1,
                 execute_on_others = 4,
                 multi_control = true,
@@ -215,7 +215,7 @@ local function GameSettings()
             },
             ["Item Spawner"] = {
                 enabled = true,
-                base_command = "spawn",  -- /base_command [id | me ] <item>
+                base_command = "spawn",  -- /base_command <item> [id]
                 permission_level = 1,
                 execute_on_others = 4,
                 -- Destroy objects spawned:
@@ -2101,19 +2101,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     local params = { }
-    local function validate_params(parameter)
+    local function validate_params(parameter, pos)
         local function getplayers(arg, executor)
             if (arg == nil) then
                 arg = executor
             end
             local players = { }
-            if arg == "me" then
+            if (arg == "me") then
                 TargetID = executor
                 table.insert(players, executor)
-            elseif arg:match("%d+") then
-                TargetID = tonumber(args[1])
+            elseif (arg:match("%d+")) then
+                TargetID = tonumber(arg)
                 table.insert(players, arg)
-            elseif arg == "*" or (arg == "all") then
+            elseif (arg == "*" or arg == "all") then
                 for i = 1, 16 do
                     if player_present(i) then
                         target_all_players = true
@@ -2131,13 +2131,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             players = nil
             return false
         end
-        local pl = getplayers(args[1], executor)
+        local pl = getplayers(args[tonumber(pos)], executor)
         if pl then
             for i = 1, #pl do
                 if pl[i] == nil then
                     break
                 end
-
+                
                 params.eid = executor
                 params.eip = ip
                 params.en = name
@@ -2199,16 +2199,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     -- #Admin Chat
                 elseif (parameter == "achat") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
                     end
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
                     -- #Portal Gun
                 elseif (parameter == "portalgun") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
                     end
                     if (target_all_players) then
                         velocity:portalgun(params)
@@ -2217,8 +2217,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 elseif (parameter == "lurker") then
                     params.bool = true
                     params.CmdTrigger = true
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
                     end
                     if (target_all_players) then
                         velocity:setLurker(params)
@@ -2233,8 +2233,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     -- #Enter Vehicle
                 elseif (parameter == "entervehicle") then
-                    if (args[2] ~= nil) then
-                        params.item = args[2] -- item
+                    if (args[1] ~= nil) then
+                        params.item = args[1] -- item
                     end
                     if (args[3] ~= nil) then
                         params.height = args[3] -- height
@@ -2244,6 +2244,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     if (target_all_players) then
                         velocity:enterVehicle(params)
+                    end
+                    -- #Item Spawner
+                elseif (parameter == "itemspawner") then
+                    if (args[1] ~= nil) then
+                        params.item = args[1] -- item
+                    end
+                    if (target_all_players) then
+                        velocity:spawnItem(params)
                     end
                 end
             end
@@ -2273,7 +2281,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, true, "Alias System")) then
                 local tab = settings.mod["Alias System"]
                 if (args[1] ~= nil) then
-                    validate_params("alias")
+                    validate_params("alias", 1)
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             velocity:aliasCmdRoutine(params)
@@ -2285,25 +2293,50 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
                 end
             end
+        return false
+        end
+        -- #Item Spawner
+    elseif (command == settings.mod["Item Spawner"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Item Spawner", executor) then
+                if (checkAccess(executor, true, "Item Spawner")) then
+                    local tab = settings.mod["Item Spawner"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("itemspawner", 2)
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:spawnItem(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [id]", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
         end
         return false
         -- #Enter Vehicle
     elseif (command == settings.mod["Enter Vehicle"].base_command) then
         if not gameover(executor) then
             if modEnabled("Enter Vehicle", executor) then
-                if (checkAccess(executor, true, "Enter Vehicle")) then
-                    local tab = settings.mod["Enter Vehicle"]
-                    if (args[1] ~= nil) then
-                        validate_params("entervehicle")
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:enterVehicle(params)
+                if modEnabled("Item Spawner", executor) then
+                    if (checkAccess(executor, true, "Enter Vehicle")) then
+                        local tab = settings.mod["Enter Vehicle"]
+                        if (args[1] ~= nil) and (args[2] ~= nil) then
+                            validate_params("entervehicle", 2)
+                            if not (target_all_players) then
+                                if not (is_error) and isOnline(TargetID, executor) then
+                                    velocity:enterVehicle(params)
+                                end
                             end
+                        else
+                            respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <vehicle name> [id] (opt height/distance)", "rcon", 4 + 8)
+                            return false
                         end
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] <vehicle name>", "rcon", 4 + 8)
-                        return false
                     end
+                else
+                    rprint(executor, "Error. Plugin: 'Item Spawner' needs to be enabled for this to work.")
                 end
             end
         end
@@ -2315,7 +2348,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Respawn Time")) then
                     local tab = settings.mod["Respawn Time"]
                     if (args[1] ~= nil) then
-                        validate_params("setrespawn")
+                        validate_params("setrespawn", 1)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:setRespawnTime(params)
@@ -2335,15 +2368,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Admin Chat", executor) then
                 if (checkAccess(executor, true, "Admin Chat")) then
                     local tab = settings.mod["Admin Chat"]
-                    if (args[1] ~= nil) then
-                        validate_params("achat")
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("achat", 2)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:determineAchat(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " n|off [id]", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -2356,15 +2389,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Lurker", executor) then
                 if (checkAccess(executor, true, "Lurker")) then
                     local tab = settings.mod["Lurker"]
-                    if (args[1] ~= nil) then
-                        validate_params("lurker")
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("lurker", 2)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:setLurker(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] on|off", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [id]", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -2397,15 +2430,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Portal Gun", executor) then
                 if (checkAccess(executor, true, "Portal Gun")) then
                     local tab = settings.mod["Portal Gun"]
-                    if (args[1] ~= nil) then
-                        validate_params("portalgun")
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("portalgun", 2)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:portalgun(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -2535,7 +2568,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (settings.global.handlemutes == true) then
                 if hasAccess(executor, pCMD.mute[2]) then
                     if (args[1] ~= nil) then
-                        validate_params("mute")
+                        validate_params("mute", 1)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 if not cmdself(TargetID, executor) then
@@ -2556,7 +2589,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (settings.global.handlemutes == true) then
                 if hasAccess(executor, pCMD.unmute[2]) then
                     if (args[1] ~= nil) then
-                        validate_params("unmute")
+                        validate_params("unmute", 1)
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 if not cmdself(TargetID, executor) then
@@ -2940,7 +2973,7 @@ function velocity:enterVehicle(params)
             access = true
         else
             access = false
-            respond(eid, "You are not allowed to set Admin Chat for other players!", "rcon", 4 + 8)
+            respond(eid, "You are not allowed to enter players into vehicles", "rcon", 4 + 8)
         end
     else
         access = true
@@ -2950,11 +2983,211 @@ function velocity:enterVehicle(params)
     if (access) then
         if (tLvl >= 1) then 
             if not (is_error) then
-                if not (is_self) then
-                    respond(eid, "Entering " .. tn .. " into " .. item, "rcon", 4 + 8)
-                    respond(tid, "Entering " .. item, "rcon", 4 + 8)
+
+                if (distance) then
+                    if distance:match("%d+") then
+                        distance = tonumber(distance)
+                    else
+                        respond(eid, "Command failed. Invalid distance parameter")
+                    end
                 else
-                    respond(tid, "Entering " .. item, "rcon", 4 + 8)
+                    distance = 2
+                end
+            
+                if (height) then
+                    if height:match("%d+") then
+                        height = tonumber(height)
+                    else
+                        respond(eid, "Command failed. Invalid height parameter")
+                    end
+                else
+                    height = 0.3
+                end
+                
+                if player_alive(tid) then
+                    local x, y, z, is_valid, err, no_match
+                    local objects_table = settings.mod["Item Spawner"].objects
+                    local player_object = get_dynamic_player(tid)
+                    for i = 1, #objects_table do
+                        if item:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
+                            if TagInfo(objects_table[i][2], objects_table[i][3]) then
+                                if PlayerInVehicle(tid) then
+                                    local VehicleID = read_dword(player_object + 0x11C)
+                                    if (VehicleID == 0xFFFFFFFF) then
+                                        return false
+                                    end
+                                    local vehicle = get_object_memory(VehicleID)
+                                    x, y, z = read_vector3d(vehicle + 0x5c)
+                                    ev_OldVehicle[tid] = VehicleID
+                                else
+                                    x, y, z = read_vector3d(player_object + 0x5c)
+                                end
+                                
+                                local camera_x = read_float(player_object + 0x230)
+                                local camera_y = read_float(player_object + 0x234)
+                                x = x + camera_x * distance
+                                y = y + camera_y * distance
+                                z = z + height
+
+                                ev_NewVehicle[tid] = spawn_object("vehi", objects_table[i][3], x, y, z)
+
+                                local multi_control = settings.mod["Enter Vehicle"].multi_control
+
+                                local function Enter(player, vehicle)
+                                    enter_vehicle(vehicle, player, 0)
+                                    ev[player] = true
+                                end
+                                
+                                -- Multi Control - NOT in vehicle
+                                if multi_control and not PlayerInVehicle(tid) then
+                                    Enter(tid, ev_NewVehicle[tid])
+
+                                    -- Multi Control - IN vehicle
+                                elseif multi_control and PlayerInVehicle(tid) then
+                                    Enter(tid, ev_NewVehicle[tid])
+
+                                    -- NO Multi Control - NOT in vehicle
+                                elseif not multi_control and not PlayerInVehicle(tid) then
+                                    Enter(tid, ev_NewVehicle[tid])
+
+                                    -- NO Multi Control - IN vehicle
+                                elseif not multi_control and PlayerInVehicle(tid) then
+                                    exit_vehicle(tid)
+                                    ev_Status[tid] = true
+                                end
+
+                                if ev_NewVehicle[tid] ~= nil then
+                                    EV_drone_table[tid] = EV_drone_table[tid] or {}
+                                    table.insert(EV_drone_table[tid], ev_NewVehicle[tid])
+                                end
+
+                                ev[tid] = true
+                                is_valid = true
+                            else
+                                err = true
+                            end
+                        else
+                            no_match = true
+                        end
+                    end
+
+                    if (is_valid) then
+                        if not (is_self) then
+                            respond(tid, "Entering " .. item, "rcon", 4 + 8)
+                            respond(eid, "Entering " .. tn .. " into " .. item, "rcon", 4 + 8)
+                        else
+                            respond(tid, "Entering " .. item, "rcon", 4 + 8)
+                        end
+                    end
+                    if not (is_valid) and (no_match) and not (err) then
+                        respond(eid, "Failed to spawn object. [unknown object name]", "rcon", 4+8)
+                    elseif (is_valid == nil or is_valid == false) and (err) and (no_match) then
+                        respond(eid, "Failed to spawn object. [missing tag id", "rcon", 4+8)
+                    end
+                else
+                    if not (is_self) then
+                        respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4+8)
+                    else
+                        respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4+8)
+                    end
+                end
+            end
+        else
+            respond(eid, "Failed to spawn item for " .. tn .. " - [no permission to receive]", "rcon", 4 + 8)
+        end
+    end
+    return false
+end
+
+function velocity:spawnItem(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    local item = params.item or nil
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+
+    local access
+    -- Checks if the player can execute this command on others
+    if not (is_self) and not isConsole(eid) then
+        if tonumber(eLvl) >= getPermLevel("Item Spawner", true) then
+            access = true
+        else
+            access = false
+            respond(eid, "You are not allowed to spawn items for other players!", "rcon", 4 + 8)
+        end
+    else
+        access = true
+    end
+    ----------------------------------------------------------------------------------------------------------------------------
+    if (access) then
+        local base_command = settings.mod["Item Spawner"].base_command
+        if (tLvl >= 1) then 
+            if player_alive(tid) then
+                local objects_table = settings.mod["Item Spawner"].objects
+                local valid, err
+                local sin = math.sin
+                for i = 1, #objects_table do
+                    if (item:match(objects_table[i][1])) then
+                        local tag_type = objects_table[i][2]
+                        local tag_name = objects_table[i][3]
+                        if TagInfo(tag_type, tag_name) then
+                            local function SpawnObject(tid, tag_type, tag_name)
+                                local player_object = get_dynamic_player(tid)
+                                if player_object ~= 0 then
+                                    local x_aim = read_float(player_object + 0x230)
+                                    local y_aim = read_float(player_object + 0x234)
+                                    local z_aim = read_float(player_object + 0x238)
+                                    local x = read_float(player_object + 0x5C)
+                                    local y = read_float(player_object + 0x60)
+                                    local z = read_float(player_object + 0x64)
+                                    local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * sin(x_aim)
+                                    local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * sin(y_aim)
+                                    local obj_z = z + 0.3 * sin(z_aim) + 0.5
+                                    item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                    if not (is_self) then
+                                        -- Item Spawner Logic Here
+                                        respond(eid, "Spawning " .. objects_table[i][1] .. " for " .. tn, "rcon", 4 + 8)
+                                        respond(tid, en .. " spawned " .. objects_table[i][1] .. " for you", "rcon", 4 + 8)
+                                    else
+                                        respond(eid, "Spawning " .. objects_table[i][1], "rcon", 4 + 8)
+                                    end
+                                    valid = true
+                                    if (item_objects[tid]) ~= nil then
+                                        IS_drone_table[tid] = IS_drone_table[tid] or {}
+                                        table.insert(IS_drone_table[tid], item_objects[tid])
+                                    end
+                                end
+                            end
+                            SpawnObject(tid, tag_type, tag_name)
+                        else
+                            err = true
+                            respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4+8)
+                        end
+                        break
+                    end
+                end
+                if not (valid) and not (err) then
+                    respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4+8)
+                end
+            else
+                if not (is_self) then
+                    respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4+8)
+                else
+                    respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4+8)
                 end
             end
         else
@@ -3548,6 +3781,11 @@ function PlayerInVehicle(PlayerIndex)
     else
         return false
     end
+end
+
+function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function lines_from(file)
