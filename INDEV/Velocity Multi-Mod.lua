@@ -35,6 +35,7 @@ local function GameSettings()
                 base_command = "alias", -- /base_command [id | me ]
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
+                execute_on_others = 4,
                 use_timer = true,
                 duration = 10, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
@@ -1154,18 +1155,18 @@ function OnPlayerJoin(PlayerIndex)
     
     -- #Admin Join Messages
     if modEnabled("Admin Join Messages") then
-        if (tonumber(level) >= 1) then
-            local str
-            local tab = settings.mod["Admin Join Messages"].messages[tonumber(level)]
-            str = tab[1] .. name .. tab[2]
-            local function announceJoin(str)
+		local level = tonumber(get_var(PlayerIndex, "$lvl"))
+        if (level >= 1) then
+			local tab, join_message = settings.mod["Admin Join Messages"].messages
+            join_message = tab[level][1] .. name .. tab[level][2]
+            local function announceJoin(join_message)
                 for i = 1, 16 do
                     if player_present(i) then
-                        rprint(i, str)
+                        rprint(i, join_message)
                     end
                 end
             end
-            announceJoin(str)
+            announceJoin(join_message)
         end
     end
     
