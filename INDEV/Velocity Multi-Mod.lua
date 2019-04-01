@@ -38,6 +38,31 @@ local function GameSettings()
                 duration = 10, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
             },
+            -- # Custom (separate) join messages for staff on a per-level basis
+            ["Admin Join Messages"] = {
+                enabled = true,
+                messages = {
+                    -- [prefix] [message] (note: the joining player's name is automatically inserted between [prefix] and [message])
+                    [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
+                    [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
+                    [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
+                    [4] = { "[SENIOR-ADMIN] ", " joined the server." }
+                }
+            },
+            ["Anti Impersonator"] = {
+                enabled = true,
+                action = "kick", -- Valid actions, "kick", "ban"
+                reason = "impersonating",
+                bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
+                users = {
+                    {["Chalwk"] = {"6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    {["Ro@dhog"] = {"0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    {["§hoo"] = {"abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    
+                    -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
+                    {["NAME"] = {"hash1", "hash2", "hash3", "etc..."}},
+                },
+            },
             ["Chat IDs"] = {
                 --[[
                     This feature modifies player chat messages.
@@ -101,8 +126,31 @@ local function GameSettings()
             ["Console Logo"] = { -- A nifty console logo (ascii: 'kban')
                 enabled = true
             },
+            ["Color Reservation"] = {
+                enabled = true, -- Enabled = true, Disabled = false
+                color_table = {
+                    [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
+                    [2] = { "available" }, -- black
+                    [3] = { "available" }, -- red
+                    [4] = { "available" }, -- blue
+                    [5] = { "available" }, -- gray
+                    [6] = { "available" }, -- yellow
+                    [7] = { "available" }, -- green
+                    [8] = { "available" }, -- pink
+                    [9] = { "available" }, -- purple
+                    [10] = { "available" }, -- cyan
+                    [11] = { "available" }, -- cobalt
+                    [12] = { "available" }, -- orange
+                    [13] = { "abd5c96cd22517b4e2f358598147c606" }, -- teal (Shoo)
+                    [14] = { "0ca756f62f9ecb677dc94238dcbc6c75" }, -- sage (Ro@dhod)
+                    [15] = { "available" }, -- brown
+                    [16] = { "available" }, -- tan
+                    [17] = { "available" }, -- maroon
+                    [18] = { "available" } -- salmon
+                }
+            },
             ["Message Board"] = {
-                enabled = true,
+                enabled = false,
                 duration = 2, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
@@ -189,8 +237,11 @@ local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, s
 local floor = math.floor
 local concat = table.concat
 
--- Global Booleans
 local game_over
+
+-- #Color Reservation
+local colorres_bool = {}
+local can_use_colorres
 
 -- Mute Handler
 local mute_duration = {}
@@ -236,7 +287,7 @@ local function getPlayerInfo(Player, ID)
                 return player_info[Player][key][ID]
             end
         else
-            return error('getPlayerInfo() -> Unable to get Player IP')
+            return error('getPlayerInfo() -> Unable to get ' .. ID)
         end
     end
 end
@@ -338,6 +389,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -390,6 +444,12 @@ function OnScriptLoad()
                     players["Admin Chat"][ip].boolean = false
                 end
             end
+            -- for key, _ in ipairs(players) do
+                -- players = { [key] = {} }
+                -- adminchat:reset(ip)
+                -- messageBoard:hide(PlayerIndex, ip)
+                -- messageBoard:show(Player, ip)
+            -- end
         end
     end
 
@@ -483,6 +543,15 @@ function OnNewGame()
             file:close()
         end
     end
+    
+    -- #Color Reservation
+    if modEnabled("Color Reservation") then
+        if (getTeamPlay()) then
+            can_use_colorres = false
+        else
+            can_use_colorres = true
+        end
+    end
 end
 
 function OnGameEnd()
@@ -494,6 +563,7 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             local ip = get_var(i, "$ip")
+            local level = get_var(i, "$lvl")
 
             -- #Message Board
             if modEnabled("Message Board") then
@@ -750,6 +820,92 @@ function OnPlayerJoin(PlayerIndex)
             file:close()
         end
     end
+    
+    -- #Admin Join Messages
+    if modEnabled("Admin Join Messages") then
+        if (tonumber(level) >= 1) then
+            local str
+            local tab = settings.mod["Admin Join Messages"].messages[tonumber(level)]
+            str = tab[1] .. name .. tab[2]
+            local function announceJoin(str)
+                for i = 1, 16 do
+                    if player_present(i) then
+                        rprint(i, str)
+                    end
+                end
+            end
+            announceJoin(str)
+        end
+    end
+    
+    -- #Anti Impersonator
+    if modEnabled("Anti Impersonator") then
+        local tab = settings.mod["Anti Impersonator"]
+        local found
+        for key, _ in ipairs(tab.users) do
+            local userdata = tab.users[key][name]
+            if (userdata ~= nil) then
+                for i = 1,#userdata do
+                    if (userdata[i] == hash) then
+                        found = true
+                        break
+                    end
+                end
+                if not (found) then
+                    if (tab.action == "kick") then
+                        execute_command("k" .. " " .. id .. " \"" .. tab.reason .. "\"")
+                        cprint(name .. " was kicked for " .. tab.reason, 4 + 8)
+                    elseif (tab.action == "ban") then
+                        execute_command("b" .. " " .. id .. " " .. tab.bantime .. " \"" .. tab.reason .. "\"")
+                        cprint(name .. " was banned for " .. tab.bantime .. " minutes for " .. tab.reason, 4 + 8)
+                    end
+                    break
+                end
+            end
+        end
+    end
+    
+    -- #Color Reservation
+    if modEnabled("Color Reservation") then
+        if (can_use_colorres == true) then
+            local ColorTable = settings.mod["Color Reservation"].color_table
+            local player = getPlayer(PlayerIndex)
+            local found
+            for k, _ in ipairs(ColorTable) do
+                for i = 1, #ColorTable do
+                    local val = ColorTable[k][i]
+                    if (val) then
+                        if find(val, hash) then
+                            k = k - 1
+                            write_byte(player + 0x60, tonumber(k))
+                            colorres_bool[PlayerIndex] = true
+                            found = true
+                            break
+                        end
+                        if not (found) then
+                            if (val ~= "available") then
+                                if (read_byte(getPlayer(PlayerIndex) + 0x60) == k - 1) then
+                                    local function selectRandomColor(exclude)
+                                        local num = rand(1, 18)
+                                        if (num == exclude) then
+                                            selectRandomColor(tonumber(k))
+                                        else
+                                            return num
+                                        end
+                                    end
+                                    local colorID = selectRandomColor(tonumber(k))
+                                    if colorID then
+                                        write_byte(player + 0x60, colorID)
+                                        colorres_bool[PlayerIndex] = true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerLeave(PlayerIndex)
@@ -838,6 +994,23 @@ function OnPlayerLeave(PlayerIndex)
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
             file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
+        end
+    end
+end
+
+function OnPlayerPrespawn(PlayerIndex)
+    --
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    -- #Color Reservation
+    if modEnabled("Color Reservation") then
+        if (can_use_colorres == true) then
+            if (colorres_bool[PlayerIndex]) then
+                colorres_bool[PlayerIndex] = false
+                local player_object = read_dword(get_player(PlayerIndex) + 0x34)
+                DestroyObject(player_object)
+            end
         end
     end
 end
@@ -1406,9 +1579,9 @@ function OnServerCommand(PlayerIndex, Command)
             for k, v in pairs(t) do
                 if v then
                     if (settings.mod[v].enabled) then
-                        respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon")
+                        respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2+8)
                     else
-                        respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon")
+                        respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4+8)
                     end
                 end
             end
@@ -2096,6 +2269,12 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function DestroyObject(object)
+    if object then
+        destroy_object(object)
+    end
 end
 
 function read_widestring(address, length)
