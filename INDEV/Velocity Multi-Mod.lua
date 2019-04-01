@@ -56,7 +56,7 @@ local function GameSettings()
                 users = {
                     { ["Chalwk"] = { "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-                    { ["�hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["?hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
                     { ["NAME"] = { "hash1", "hash2", "hash3", "etc..." } },
@@ -2090,7 +2090,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- Command Spy
+    -- #Command Spy
     if modEnabled("Command Spy") then
         if (Environment == 1) then
             if (level == -1) then
@@ -2150,32 +2150,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                 -- SAPP | Mute Handler
                 if (parameter == "mute") then
-                    local default_time = settings.global.default_mute_time
-                    if (settings.global.can_mute_admins) then
-                        proceed = true
-                    elseif tonumber(get_var(tid, "$lvl")) >= 1 then
-                        proceed = false
-                        respond(executor, "You cannot mute admins.", "rcon", 4 + 8)
-                    else
-                        proceed = true
+                    if (args[2] ~= nil) then
+                        params.time = args[2]
                     end
-                    mute_duration[params.tid] = 0
-                    if (args[2] == nil) then
-                        time_diff[params.tid] = tonumber(default_time)
-                        mute_duration[params.tid] = tonumber(default_time)
-                        params.time = mute_duration[params.tid]
-                        valid = true
-                    elseif match(args[2], "%d+") then
-                        time_diff[params.tid] = tonumber(args[2])
-                        mute_duration[params.tid] = tonumber(args[2])
-                        params.time = mute_duration[params.tid]
-                        init_mute_timer[params.tid] = true
-                        valid = true
-                    else
-                        valid = false
-                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
-                    end
-                    params.proceed, params.valid = proceed, valid
                     if (target_all_players) then
                         velocity:mute(params)
                     end
@@ -3350,13 +3327,35 @@ function velocity:mute(params)
     local valid = params.valid or nil
     local time = params.time or nil
 
+	local default_time = settings.global.default_mute_time
+	local pCMD = settings.global.plugin_commands
+	if (settings.global.can_mute_admins) then
+		proceed = true
+	elseif tonumber(get_var(tid, "$lvl")) >= 1 then
+		proceed = false
+		respond(eid, "You cannot mute admins.", "rcon", 4 + 8)
+	else
+		proceed = true
+	end
+	mute_duration[tid] = 0
+	if (time == nil) then
+		time_diff[tid], mute_duration[tid] = default_time, default_time
+		valid = true
+	elseif match(time, "%d+") then
+		time_diff[tid], mute_duration[tid] = time, time
+		init_mute_timer[tid] = true
+		valid = true
+	else
+		valid = false
+		respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
+	end
+
     if (proceed) and (valid) then
         muted[tid] = true
         local file_name = settings.global.mute_dir
         local file = io.open(file_name, "r")
         local content = file:read("*a")
         file:close()
-
         if not (match(content, tip) and match(content, tid) and match(content, th)) then
             if (tonumber(time) ~= settings.global.default_mute_time) then
                 respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4 + 8)
@@ -3365,7 +3364,7 @@ function velocity:mute(params)
                 respond(eid, tn .. " has been muted permanently", "rcon")
                 respond(tid, "You were muted permanently", "rcon")
             end
-            local new_entry = tip .. ", " .. th .. ", " .. tn .. ", ;" .. time
+            local new_entry = tip .. ", " .. th .. ", " .. tn .. ", ;" .. mute_duration[tid]
             local file = assert(io.open(file_name, "a+"))
             file:write(new_entry .. "\n")
             file:close()
