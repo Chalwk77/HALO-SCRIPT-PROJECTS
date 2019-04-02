@@ -323,7 +323,8 @@ local function GameSettings()
             ["Mute System"] = {
                 enabled = true,
                 dir = "sapp\\mutes.txt",
-                privilege_level = 1,
+                permission_level = 1,
+                can_mute_admins = true,
                 mute_command = "mute",
                 unmute_command = "unmute",
                 mutelist_command = "mutelist",
@@ -501,6 +502,8 @@ local function getip(p)
     return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
 end
 
+local velocity = { }
+
 local mapname = ""
 local ce
 local empty_file
@@ -526,8 +529,7 @@ local IS_drone_table = {}
 local item_objects = {}
 
 -- Mute Handler
-local velocity, mute_table = { }, { }
-local script_version = 1.0
+local mute_table = { }
 
 -- #Custom Weapons
 local weapon = {}
@@ -817,7 +819,7 @@ function OnScriptLoad()
             -- #Mute System
             if modEnabled("Mute System") then
                 local p, ip, name = { }, getip(i), get_var(i, "$name")
-                p.ip = ip
+                p.tip = ip
                 local muted = velocity:loadMute(p)
                 if (muted ~= nil) and (ip == muted[1]) then
                     p.name, p.time, p.tid = name, muted[3], tonumber(i)
@@ -879,11 +881,11 @@ function OnScriptUnload()
                 end
             end
             -- #Mute System
-            if modEnabled("Admin Chat") then
+            if modEnabled("Mute System") then
                 local ip, name = getip(i), get_var(i, "$name")
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
                     local p = { }
-                    p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
                     velocity:saveMute(p, false, true)
                 end
             end
@@ -987,7 +989,7 @@ function OnGameEnd()
                 local ip, name = getip(i), get_var(i, "$name")
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
                     local p = { }
-                    p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
                     velocity:saveMute(p, false, false)
                 end
             end
@@ -1226,7 +1228,7 @@ function OnTick()
                     mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
                     if (mute_table[ip].remaining <= 0) then
                         local p = { }
-                        p.ip, p.name, p.tid = ip, get_var(i, "$name"), tonumber(i)
+                        p.tip, p.name, p.tid = ip, get_var(i, "$name"), tonumber(i)
                         velocity:unmute(p)
                     end
                 end
@@ -1293,7 +1295,7 @@ function OnPlayerConnect(PlayerIndex)
     -- #Mute System
     if modEnabled("Mute System") then
         local p, ip, name = { }, getip(PlayerIndex), get_var(PlayerIndex, "$name")
-        p.ip = ip
+        p.tip = ip
         local muted = velocity:loadMute(p)
         if (muted ~= nil) and (ip == muted[1]) then
             p.name, p.time, p.tid = name, muted[3], tonumber(PlayerIndex)
@@ -1489,7 +1491,7 @@ function OnPlayerDisconnect(PlayerIndex)
         local ip, name = getip(PlayerIndex), get_var(PlayerIndex, "$name")
         if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
             local p = { }
-            p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
+            p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
@@ -1842,7 +1844,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
     -- #Chat IDs
     if modEnabled("Chat IDs", PlayerIndex) then
-        if not (game_over) and not (muted[tonumber(PlayerIndex)]) then
+        if not (game_over) then
 
             -- GLOBAL FORMAT
             local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
@@ -2122,11 +2124,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         params.time = args[2]
                     end
                     if (target_all_players) then
-                        velocity:saveMute(params, true, true)
+                        if not cmdself(params.tid, executor) then
+                            velocity:saveMute(params, true, true)
+                        end
                     end
                 elseif (parameter == "unmute") then
                     if (target_all_players) then
-                        velocity:unmute(params)
+                        if not cmdself(params.tid, executor) then
+                            velocity:unmute(params)
+                        end
                     end
                 -- #Alias System
                 elseif (parameter == "alias") then
@@ -2222,13 +2228,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     if (command == settings.mod["Mute System"].mute_command) then
         if modEnabled("Mute System", executor) then
-            local tab = settings.mod["Mute System"]
-            if (args[1] ~= nil) and (args[2] ~= nil) then
-                if checkAccess(executor, true) then
+            if (checkAccess(executor, true, "Mute System")) then
+                local tab = settings.mod["Mute System"]
+                if (args[1] ~= nil) and (args[2] ~= nil) then
                     validate_params("mute", 1)
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:saveMute(params, true, true)
+                            if not cmdself(params.tid, executor) then
+                                velocity:saveMute(params, true, true)
+                            end
                         end
                     end
                 end
@@ -2239,13 +2247,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == settings.mod["Mute System"].unmute_command) then
         if modEnabled("Mute System", executor) then
-            local tab = settings.mod["Mute System"]
-            if (args[1] ~= nil) then
-                if checkAccess(executor, true) then
-                    validate_params("unmute", 1)
+            if (checkAccess(executor, true, "Mute System")) then
+                local tab = settings.mod["Mute System"]
+                if (args[1] ~= nil) then
+                        validate_params("unmute", 1)
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:unmute(params)
+                            if not cmdself(params.tid, executor) then
+                                velocity:unmute(params)
+                            end
                         end
                     end
                 end
@@ -2256,7 +2266,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == settings.mod["Mute System"].mutelist_command) then
         if modEnabled("Mute System", executor) then
-            if checkAccess(executor, true) then
+            if (checkAccess(executor, true, "Mute System")) then
                 local p = { }
                 p.eid = executor
                 p.flag = args[1]
@@ -3518,50 +3528,65 @@ end
 function velocity:saveMute(params, bool, showMessage)
     local params = params or { }
     
-    local ip = params.ip or nil
-    local name = params.name or nil
+    local ip = params.tip or nil
+    local name = params.tn or nil
     local eid = params.eid or nil
     local tid = params.tid or nil
     local time = params.time or nil
-
-    mute_table[ip] = mute_table[ip] or { }
-    mute_table[ip].muted = true
-    mute_table[ip].timer = 0
-    mute_table[ip].remaining = time
-    mute_table[ip].duration = time
     
-    local dir = settings.mod["Mute System"].dir
-    
-    local lines, found = lines_from(dir)
-    for _, v in pairs(lines) do
-        if (v:match(ip)) then
-            found = true
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-            content = gsub(content, v, ip .. ", " .. name .. ", " .. time)
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
-        end
-    end
-    if not (found) then
-        local file = assert(io.open(dir, "a+"))
-        file:write(ip .. ", " .. name .. ", " .. time .. "\n")
-        file:close()
-    end
-    if (bool) and (showMessage) then
-        if (mute_table[ip].duration == default_mute_time) then
-            respond(tid, "You are muted permanently", "rcon", 2+8)
-            if (eid ~= nil) then
-                respond(eid, name .. " was muted permanently", "rcon", 2+8)
-            end
+    local proceed
+    if not (settings.mod["Mute System"].can_mute_admins) then
+        if tonumber(get_var(tid, "$lvl")) >= 1 then
+            proceed = false
         else
-            respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2+8)
-            if (eid ~= nil) then
-                respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2+8)
+            proceed = true
+        end
+    else
+        proceed = true
+    end
+
+    if (proceed) then
+        mute_table[ip] = mute_table[ip] or { }
+        mute_table[ip].muted = true
+        mute_table[ip].timer = 0
+        mute_table[ip].remaining = time
+        mute_table[ip].duration = time
+        
+        local dir = settings.mod["Mute System"].dir
+        
+        local lines, found = lines_from(dir)
+        for _, v in pairs(lines) do
+            if (v:match(ip)) then
+                found = true
+                local fRead = io.open(dir, "r")
+                local content = fRead:read("*all")
+                fRead:close()
+                content = gsub(content, v, ip .. ", " .. name .. ", " .. time)
+                local fWrite = io.open(dir, "w")
+                fWrite:write(content)
+                fWrite:close()
             end
         end
+        if not (found) then
+            local file = assert(io.open(dir, "a+"))
+            file:write(ip .. ", " .. name .. ", " .. time .. "\n")
+            file:close()
+        end
+        if (bool) and (showMessage) then
+            if (mute_table[ip].duration == default_mute_time) then
+                respond(tid, "You are muted permanently", "rcon", 2+8)
+                if (eid ~= nil) then
+                    respond(eid, name .. " was muted permanently", "rcon", 2+8)
+                end
+            else
+                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2+8)
+                if (eid ~= nil) then
+                    respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2+8)
+                end
+            end
+        end
+    else
+        respond(eid, "Unable to mute " .. name .. ". [can_mute_admins is disabled]" , "rcon", 4+8)
     end
 end
 
@@ -3569,42 +3594,57 @@ end
 function velocity:unmute(params)
     local params = params or { }
     
-    local ip = params.ip or nil
-    local name = params.name or nil
+    local ip = params.tip or nil
+    local name = params.tn or nil
     local eid = params.eid or nil
     local tid = params.tid or nil
     local en = params.en or nil
     
-    local dir = settings.mod["Mute System"].dir
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if (v:match(ip)) then
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-            local file = io.open(dir, "w")
-            content = gsub(content, v, "")
-            file:write(content)
-            file:close()
-            mute_table[ip] = { }
+    local proceed
+    if not (settings.mod["Mute System"].can_mute_admins) then
+        if tonumber(get_var(tid, "$lvl")) >= 1 then
+            proceed = false
+        else
+            proceed = true
         end
+    else
+        proceed = true
     end
     
-    if (eid ~= nil and eid == 0) or (eid == nil) then
-        en = 'SERVER'
-        id = 0
-    elseif (eid ~= nil and eid > 0) then
-        en = en
-        id = eid
+    if (proceed) then
+        local dir = settings.mod["Mute System"].dir
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if (v:match(ip)) then
+                local fRead = io.open(dir, "r")
+                local content = fRead:read("*all")
+                fRead:close()
+                local file = io.open(dir, "w")
+                content = gsub(content, v, "")
+                file:write(content)
+                file:close()
+                mute_table[ip] = { }
+            end
+        end
+        
+        if (eid ~= nil and eid == 0) or (eid == nil) then
+            en = 'SERVER'
+            id = 0
+        elseif (eid ~= nil and eid > 0) then
+            en = en
+            id = eid
+        end
+        respond(tid, "You were unmuted by " .. en, "rcon", 2+8)
+        respond(id, name .. " was unmuted by " .. en, "rcon", 2+8)
+    else
+        respond(eid, "Unable to unmute " .. name .. ". [can_mute_admins is disabled]" , "rcon", 4+8)
     end
-    respond(tid, "You were unmuted by " .. en, "rcon", 2+8)
-    respond(id, name .. " was unmuted by " .. en, "rcon", 2+8)
 end
 
 -- #Mute System
 function velocity:loadMute(params)
     local params = params or { }
-    local ip = params.ip or nil
+    local ip = params.tip or nil
     local dir = settings.mod["Mute System"].dir
     local content, data
     
