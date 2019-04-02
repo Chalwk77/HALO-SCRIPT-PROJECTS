@@ -571,6 +571,20 @@ local function isConsole(e)
     end
 end
 
+-- Checks if the player can execute this command on others
+local function executeOnOthers(e, self, console, level, mod)
+    if not (self) and not console(e) then
+        if tonumber(level) >= getPermLevel(mod, true) then
+            return true
+        else
+            respond(e, "You are not allowed to execute this command on other players!", "rcon", 4 + 8)
+            return false
+        end
+    else
+        return true
+    end
+end
+
 -- Checks if the MOD being called is enabled in settings.
 local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
@@ -2213,7 +2227,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 				-- #Garbage Collection
                 elseif (parameter == "garbagecollection") then
                     if (args[1] ~= nil) then
-                        params.identifier = args[2] -- target
+                        params.table = args[2] -- table id
                     end
                     if (target_all_players) then
                         velocity:clean(params)
@@ -2360,15 +2374,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Garbage Collection", executor) or modEnabled("Garbage Collection", executor) then
 				if (checkAccess(executor, true, "Garbage Collection")) then
 					local tab = settings.mod["Garbage Collection"]
-					if (args[1] ~= nil) then
-						validate_params("garbagecollection", 2)
+					if (args[1] ~= nil) and (args[2] ~= nil) then
+						validate_params("garbagecollection", 1)
 						if not (target_all_players) then
 							if not (is_error) and isOnline(TargetID, executor) then
 								velocity:clean(params)
 							end
 						end
 					else
-						respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command, "rcon", 4 + 8)
+						respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]" , "rcon", 4 + 8)
 						return false
 					end
                 end
@@ -2641,20 +2655,8 @@ function velocity:portalgun(params)
     end
 
     if (proceed) then
-        -- Checks if the player can execute this command on others
-        if not (is_self) and not isConsole(eid) then
-            if tonumber(eLvl) >= getPermLevel("Portal Gun", true) then
-                access = true
-            else
-                access = false
-                respond(eid, "You are not allowed to set portal gun for other players!", "rcon", 4 + 8)
-            end
-        else
-            access = true
-        end
-        --------------------------------------------------------------
         local base_command = settings.mod["Portal Gun"].base_command
-        if (access) then
+        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
             if (tLvl >= 1) then 
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
@@ -2682,7 +2684,7 @@ function velocity:portalgun(params)
                     respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
                 end
             else
-                respond(eid, "Failed to set " .. tn .. "'s portal gun to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+                respond(eid, "Failed to set " .. tn .. "'s portal gun to (" .. option .. ") [player not admin]", "rcon", 4 + 8)
             end
         end
     end
@@ -2781,20 +2783,8 @@ function velocity:determineAchat(params)
     end
 
     if (proceed) then
-        -- Checks if the player can execute this command on others
-        if not (is_self) and not isConsole(eid) then
-            if tonumber(eLvl) >= getPermLevel("Admin Chat", true) then
-                access = true
-            else
-                access = false
-                respond(eid, "You are not allowed to set Admin Chat for other players!", "rcon", 4 + 8)
-            end
-        else
-            access = true
-        end
-        --------------------------------------------------------------
         local base_command = settings.mod["Admin Chat"].base_command
-        if (access) then
+        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Admin Chat")) then
             if (tLvl >= 1) then 
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
@@ -2828,7 +2818,7 @@ function velocity:determineAchat(params)
                     respond(eid, "[SERVER] -> " .. tn .. ", Admin Chat is already " .. status, "rcon")
                 end
             else
-                respond(eid, "Failed to set " .. tn .. "'s admin chat to (" .. option .. ") [not an admin]", "rcon", 4 + 8)
+                respond(eid, "Failed to set " .. tn .. "'s admin chat to (" .. option .. ") [player not admin]", "rcon", 4 + 8)
             end
         end
     end
@@ -2882,20 +2872,7 @@ function velocity:setRespawnTime(params)
     end
 
     if (proceed) then
-        local mod = settings.mod["Respawn Time"]
-        -- Checks if the player can execute this command on others
-        if not (is_self) and not isConsole(eid) then
-            if tonumber(eLvl) >= getPermLevel("Respawn Time", true) then
-                access = true
-            else
-                access = false
-                respond(eid, "You are not allowed to set respawn time for other players!", "rcon", 4 + 8)
-            end
-        else
-            access = true
-        end
-        --------------------------------------------------------------
-        if (access) then
+        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn Time")) then
             if not (is_error) then
                 if not (is_self) then
                     if (respawn_time[tip] == nil) then 
@@ -2945,21 +2922,7 @@ function velocity:enterVehicle(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
-    local access
-    -- Checks if the player can execute this command on others
-    if not (is_self) and not isConsole(eid) then
-        if tonumber(eLvl) >= getPermLevel("Enter Vehicle", true) then
-            access = true
-        else
-            access = false
-            respond(eid, "You are not allowed to enter players into vehicles", "rcon", 4 + 8)
-        end
-    else
-        access = true
-    end
-    ----------------------------------------------------------------------------------------------------------------------------
-    local base_command = settings.mod["Enter Vehicle"].base_command
-    if (access) then
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Enter Vehicle")) then
         if (tLvl >= 1) then 
             if not (is_error) then
 
@@ -3072,11 +3035,12 @@ function velocity:enterVehicle(params)
                 end
             end
         else
-            respond(eid, "Failed to spawn item for " .. tn .. " - [no permission to receive]", "rcon", 4 + 8)
+            respond(eid, "Failed to spawn item for " .. tn .. " - [player not admin]", "rcon", 4 + 8)
         end
     end
     return false
 end
+
 
 function velocity:spawnItem(params)
     local params = params or {}
@@ -3086,6 +3050,8 @@ function velocity:spawnItem(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local item = params.item or nil
+    
+    local tab = settings.mod["Item Spawner"]
     
     if isConsole(eid) then
         en = "SERVER"
@@ -3099,24 +3065,10 @@ function velocity:spawnItem(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
-    local access
-    -- Checks if the player can execute this command on others
-    if not (is_self) and not isConsole(eid) then
-        if tonumber(eLvl) >= getPermLevel("Item Spawner", true) then
-            access = true
-        else
-            access = false
-            respond(eid, "You are not allowed to spawn items for other players!", "rcon", 4 + 8)
-        end
-    else
-        access = true
-    end
-    ----------------------------------------------------------------------------------------------------------------------------
-    if (access) then
-        local base_command = settings.mod["Item Spawner"].base_command
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Item Spawner")) then
         if (tLvl >= 1) then 
             if player_alive(tid) then
-                local objects_table = settings.mod["Item Spawner"].objects
+                local objects_table = tab.objects
                 local valid, err
                 local sin = math.sin
                 for i = 1, #objects_table do
@@ -3133,8 +3085,8 @@ function velocity:spawnItem(params)
                                     local x = read_float(player_object + 0x5C)
                                     local y = read_float(player_object + 0x60)
                                     local z = read_float(player_object + 0x64)
-                                    local obj_x = x + settings.mod["Item Spawner"].distance_from_playerX * sin(x_aim)
-                                    local obj_y = y + settings.mod["Item Spawner"].distance_from_playerY * sin(y_aim)
+                                    local obj_x = x + tab.distance_from_playerX * sin(x_aim)
+                                    local obj_y = y + tab.distance_from_playerY * sin(y_aim)
                                     local obj_z = z + 0.3 * sin(z_aim) + 0.5
                                     item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                     if not (is_self) then
@@ -3170,7 +3122,70 @@ function velocity:spawnItem(params)
                 end
             end
         else
-            respond(eid, "Failed to spawn item for " .. tn .. " - [no permission to receive]", "rcon", 4 + 8)
+            respond(eid, "Failed to spawn item for " .. tn .. " - [player not admin]", "rcon", 4 + 8)
+        end
+    end
+    return false
+end
+
+function velocity:clean(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    local identifier = params.table or nil
+    
+    local tab = settings.mod["Garbage Collection"]
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Garbage Collection")) then
+        if (tLvl >= 1) then 
+            local object, proceed
+            if identifier:match("%d+") then
+                identifier = tonumber(identifier)
+                if (identifier > 0) and (identifier < 3) then
+                    if (identifier == 1) then
+                        object = "Enter Vehicle"
+                    else
+                        object = "Item Spawner"
+                    end
+                end
+            elseif (identifier == "*" or identifier == "all") then
+                identifier = tostring(identifier)
+                object = "Enter Vehicle & Item Spawner"
+            else
+                respond(eid, "Invalid Table ID!", "rcon", 4+8)
+            end
+
+            if (ev_NewVehicle[tid] ~= nil) or (item_objects[tid] ~= nil) then
+                proceed = true
+            else
+                rprint(tid, tn .. " has nothing to clean up")
+            end
+            
+            if (proceed) then
+                CleanUpDrones(tid, identifier)
+                if (is_self) then
+                    rprint(eid, "Cleaning up " .. object .. " objects")
+                else
+                    rprint(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects")
+                end
+            end
+        else
+            respond(eid, "Failed to clean objects for " .. tn .. " - [player not admin]", "rcon", 4 + 8)
         end
     end
     return false
@@ -3227,19 +3242,6 @@ function velocity:setLurker(params)
 
     if (proceed) then
         local mod = settings.mod["Lurker"]
-        -- Checks if the player can execute this command on others
-        if not (is_self) and not isConsole(eid) then
-            if tonumber(eLvl) >= getPermLevel("Lurker", true) then
-                access = true
-            else
-                access = false
-                respond(eid, "You are not allowed to set Lurker for other players!", "rcon", 4 + 8)
-            end
-        else
-            access = true
-        end
-        --------------------------------------------------------------
-
         local function Enable()
             lurker[tid] = true
             if (mod.god) then
@@ -3270,7 +3272,7 @@ function velocity:setLurker(params)
             end
         end
 
-        if (access) then
+        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
             if (CmdTrigger) and (option) then
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
@@ -3837,7 +3839,7 @@ function CleanUpDrones(TargetID, TableID)
         CleanVehicles(TargetID)
     elseif (TableID == 2) then
         CleanItems(TargetID)
-    elseif (TableID == "all") then
+    elseif (TableID == "all" or TableID == "*") then
         CleanVehicles(TargetID)
         CleanItems(TargetID)
     end
