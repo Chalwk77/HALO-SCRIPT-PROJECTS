@@ -2,11 +2,8 @@
 --=====================================================================================================--
 Script Name: Velocity Multi-Mod (v 1.10), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
-
-             Nearly every aspect of the combined scripts have been heavily refined and improved in this version,
+             ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
-             This mod is heavy on features and highly customizable, but also user friendly.
-
 
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -1333,6 +1330,7 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) then
             local ip = get_var(i, "$ip")
+            local player = get_dynamic_player(i)
 
             -- #Custom Weapons
             local wTab = settings.mod["Custom Weapons"]
@@ -1340,7 +1338,6 @@ function OnTick()
                 if wTab.weapons[mapname] ~= nil then
                     if (player_alive(i)) then
                         if (weapon[i] == true) then
-                            local player = get_dynamic_player(i)
                             if (player ~= 0) then
                                 local x, y, z = read_vector3d(player + 0x5C)
                                 local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
@@ -1385,7 +1382,7 @@ function OnTick()
             end
 
             -- #Lurker
-            if modEnabled("Portal Gun") then
+            if modEnabled("Lurker") then
                 local tab = settings.mod["Lurker"]
                 if (lurker[i] == true) then
                     execute_command("score " .. tonumber(i) .. " " .. scores[i])
@@ -1449,14 +1446,13 @@ function OnTick()
 
             -- #Portal Gun
             if modEnabled("Portal Gun") then
-                if (player_present(i) and player_alive(i)) then
-                    if (portalgun_mode[i] == true) then
-                        local player_object = get_dynamic_player(i)
-                        local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
+                if player_alive(i) and (portalgun_mode[i] == true) then
+                    if (player ~= 0) then
+                        local playerX, playerY, playerZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
                         local shot_fired
                         local is_crouching
-                        local couching = read_float(player_object + 0x50C)
-                        local px, py, pz = read_vector3d(player_object + 0x5c)
+                        local couching = read_float(player + 0x50C)
+                        local px, py, pz = read_vector3d(player + 0x5c)
                         if (couching == 0) then
                             pz = pz + 0.65
                             is_crouching = false
@@ -1467,7 +1463,7 @@ function OnTick()
                         local ignore_player = read_dword(get_player(i) + 0x34)
                         local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
                         if (success == true and target ~= nil) then
-                            shot_fired = read_float(player_object + 0x490)
+                            shot_fired = read_float(player + 0x490)
                             if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
                                 execute_command("boost " .. i)
                             end
@@ -1502,15 +1498,13 @@ function OnTick()
             end
 
             -- #Enter Vehicle
-            if modEnabled("Enter Vehicle") then
-                if (ev_Status[i]) then
-                    if not PlayerInVehicle(i) then
-                        enter_vehicle(ev_NewVehicle[i], i, 0)
-                        local old_vehicle = get_object_memory(ev_OldVehicle[i])
-                        write_vector3d(old_vehicle + 0x5C, 0, 0, 0)
-                        timer(500, "DestroyObject", ev_OldVehicle[i])
-                        ev_Status[i] = false
-                    end
+            if modEnabled("Enter Vehicle") and (ev_Status[i]) then
+                if not PlayerInVehicle(i) then
+                    enter_vehicle(ev_NewVehicle[i], i, 0)
+                    local old_vehicle = get_object_memory(ev_OldVehicle[i])
+                    write_vector3d(old_vehicle + 0x5C, 0, 0, 0)
+                    timer(500, "DestroyObject", ev_OldVehicle[i])
+                    ev_Status[i] = false
                 end
             end
 
@@ -2684,17 +2678,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [id] <time diff>", "rcon", 2 + 8)
                 end
             end
-        else
-            respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [id] <time diff>", "rcon", 2 + 8)
         end
         return false
         -- #Mute System
     elseif (command == settings.mod["Mute System"].unmute_command) then
         if modEnabled("Mute System", executor) then
-            local tab = settings.mod["Mute System"]
             if (checkAccess(executor, true, "Mute System")) then
+                local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) then
                     validate_params("unmute", 1) --/base_command [id] <args>
                     if not (target_all_players) then
@@ -2704,9 +2698,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [id]", "rcon", 2 + 8)
                 end
-            else
-                respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [id]", "rcon", 2 + 8)
             end
         end
         return false
@@ -2741,18 +2735,20 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
         -- #Infinity Ammo
     elseif (command == settings.mod["Infinity Ammo"].base_command) then
-        if modEnabled("Infinity Ammo", executor) then
-            if (checkAccess(executor, true, "Infinity Ammo")) then
-                local tab = settings.mod["Infinity Ammo"]
-                if (args[1] ~= nil and args[2] ~= nil) then
-                    validate_params("infinityammo", 1) --/base_command [id] <args>
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:infinityAmmo(params)
+        if not gameover(executor) then
+            if modEnabled("Infinity Ammo", executor) then
+                if (checkAccess(executor, true, "Infinity Ammo")) then
+                    local tab = settings.mod["Infinity Ammo"]
+                    if (args[1] ~= nil and args[2] ~= nil) then
+                        validate_params("infinityammo", 1) --/base_command [id] <args>
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:infinityAmmo(params)
+                            end
                         end
+                    else
+                        respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
                     end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
                 end
             end
         end
@@ -2792,7 +2788,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [id]", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2838,7 +2833,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2859,7 +2853,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] <time diff>", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2880,7 +2873,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " n|off [id]", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2901,7 +2893,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [id]", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2921,7 +2912,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         velocity:suggestion(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2942,7 +2932,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2961,7 +2950,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     else
                         local tab = settings.mod["Teleport Manager"]
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -2982,7 +2970,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[2] .. " [warp name] [me | id | */all] ", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -3003,7 +2990,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[3] .. " [me | id | */all] ", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -3021,7 +3007,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         velocity:warplist(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[4] .. " or /" .. tab.commands[5], "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -3039,7 +3024,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         velocity:warplistall(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[5] .. " or /" .. tab.commands[4], "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -3058,7 +3042,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         velocity:delwarp(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[6] .. " [warp id]", "rcon", 4 + 8)
-                        return false
                     end
                 end
             end
@@ -3084,15 +3067,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
         -- #Clear Chat Command
     elseif (command == pCMD.clearchat[1]) then
-        if not gameover(executor) then
-            if hasAccess(executor, pCMD.clearchat[2]) then
-                for _ = 1, 20 do
-                    execute_command("msg_prefix \"\"")
-                    say_all(" ")
-                    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-                end
-                respond(executor, "Chat was cleared!", "rcon", 5 + 8)
+        if hasAccess(executor, pCMD.clearchat[2]) then
+            for _ = 1, 20 do
+                execute_command("msg_prefix \"\"")
+                say_all(" ")
+                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
             end
+            respond(executor, "Chat was cleared!", "rcon", 5 + 8)
         end
         return false
         -- #Plugin List
@@ -3422,7 +3403,7 @@ function velocity:setRespawnTime(params)
         end
     end
 
-    local proceed, access
+    local proceed
     local time = params.time or nil
     if (time == nil) then
         if (respawn_cmd_override[tip] == true) then
@@ -3449,7 +3430,7 @@ function velocity:setRespawnTime(params)
                         respawn_time[tip] = time
                     end
                     respond(eid, tn .. "'s respawn time was set to " .. respawn_time[tip] .. " seconds", "rcon", 4 + 8)
-                    respond(tid, "Your respawn time was set to " .. respawn_time[tip] .. " seconds", "rcon", 4 + 8)
+                    respond(tid, "Your respawn time was set to " .. respawn_time[tip] .. " seconds by " .. en, "rcon", 4 + 8)
                     respawn_cmd_override[tip] = true
                 else
                     if (respawn_time[eip] == nil) then
@@ -5148,12 +5129,12 @@ end
 function isFileEmpty(dir)
     local file = io.open(dir, "r")
     local line = file:read()
+    file:close()
     if (line == nil) then
         return true
     else
         return false
     end
-    file:close()
 end
 
 function getCurrentVersion(bool)
