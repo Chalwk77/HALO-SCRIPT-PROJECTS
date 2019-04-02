@@ -148,6 +148,23 @@ local function GameSettings()
                     [18] = { "available" } -- salmon
                 }
             },
+            ["Cute"] = {
+                -- # What cute things did you do today? (requested by Shoo)
+                enabled = true,
+                base_command = "cute",
+
+                -- Use %executors_name% (optional) variable to output the executor's name.
+                -- Use %target_name% (optional) variable to output the target's name.
+
+                messages = {
+                    -- Target sees this message
+                    "%target_name%, what cute things did you do today?",
+                    -- Command response (to executor)
+                    "[you] -> %target_name%, what cute things did you do today?",
+                },
+                permission_level = -1,
+                environment = "chat" -- Valid environments: "rcon", "chat".
+            },
             ["Custom Weapons"] = {
                 enabled = false, -- Enabled = true, Disabled = false
                 assign_weapons = false,
@@ -469,6 +486,26 @@ local function GameSettings()
                 msg_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
                 response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
             },
+            ["Teleport Manager"] = {
+                enabled = true,
+                dir = "sapp\\teleports.txt",
+                permission_level = {
+                    setwarp = 1,
+                    warp = -1,
+                    back = -1,
+                    warplist = -1,
+                    warplistall = -1,
+                    delwarp = 1
+                },
+                commands = {
+                    "setwarp", -- set command
+                    "warp", -- go to command
+                    "back", -- go back command
+                    "warplist", --list command
+                    "warplistall", -- list all command
+                    "delwarp" -- delete command
+                }
+            },
         },
         global = {
             script_version = 1.10,
@@ -513,8 +550,12 @@ local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, s
 local floor = math.floor
 local concat = table.concat
 
-local function getip(p)
-    return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+local function getip(p, bool)
+    if (bool) then
+        return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    else
+        return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+:%d+)")
+    end
 end
 
 local velocity = { }
@@ -569,6 +610,14 @@ local object_picked_up = {}
 local has_objective = {}
 local lurker_warnings = {}
 local scores = { }
+
+-- #Teleport Manager
+local canset = {}
+local wait_for_response = {}
+local previous_location = {}
+for i = 1, 16 do
+    previous_location[i] = {}
+end
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -625,13 +674,27 @@ local function modEnabled(script, e)
 end
 
 -- Returns the require permission level of the respective mod.
-local function getPermLevel(script, bool)
-    if not (bool) then
+local function getPermLevel(script, bool, p)
+    local level, index
+    if (params) then
+        level, index = p.level, p.index
+    end
+    if not (bool) and not (params) then
         return tonumber(settings.mod[script].permission_level)
-    else
+    elseif (bool) and not (params) then
         return tonumber(settings.mod[script].execute_on_others)
+    elseif not (bool) and (params) then
+        local tab = settings.mod[script].permission_level
+        if (tab) then
+            if (level >= tab[index]) then
+                return true
+            else
+                return false
+            end
+        end
     end
 end
+
 
 local function populateInfoTable(p)
     player_info[p] = { }
@@ -818,6 +881,10 @@ function OnScriptLoad()
         PreLoad()
     end
     
+    if modEnabled("Teleport Manager") then
+        checkFile(settings.mod["Teleport Manager"].dir)
+    end
+    
     -- #Mute System
     if modEnabled("Mute System") then
         checkFile(settings.mod["Mute System"].dir)
@@ -842,10 +909,6 @@ function OnScriptLoad()
         end
     end
 
-    if (settings.global.handlemutes) then
-        checkFile(settings.global.mute_dir)
-    end
-
     for i = 1, 16 do
         if player_present(i) then
             populateInfoTable(i)
@@ -854,7 +917,6 @@ function OnScriptLoad()
 
             -- #Admin Chat
             if modEnabled("Admin Chat") then
-
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip] = nil
                     adminchat:set(ip)
@@ -1545,7 +1607,7 @@ function OnPlayerDisconnect(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-
+    
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
     if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
@@ -1581,6 +1643,14 @@ function OnPlayerDisconnect(PlayerIndex)
     -- #Message Board
     if modEnabled("Message Board") then
         messageBoard:hide(PlayerIndex, ip)
+    end
+    
+    -- #Teleport Manager
+    if modEnabled("Teleport Manager") then
+        wait_for_response[PlayerIndex] = false
+        for i = 1, 3 do
+            previous_location[PlayerIndex][i] = nil
+        end
     end
 
     -- #Admin Chat
@@ -2068,22 +2138,47 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
         end
     end
+    -- #Teleport Manager
+    if modEnabled("Teleport Manager") then
+        if wait_for_response[PlayerIndex] then
+            if Message == ("yes") then
+                local dir = settings.mod["Teleport Manager"].dir
+                local warp_num = tonumber(getWarp())
+                delete_from_file(dir, warp_num, 1, PlayerIndex)
+                rprint(PlayerIndex, "Successfully deleted teleport id #" .. warp_num)
+                wait_for_response[PlayerIndex] = false
+            elseif Message == ("no") then
+                rprint(PlayerIndex, "Process Cancelled")
+                wait_for_response[PlayerIndex] = false
+            end
+            if Message ~= "yes" or Message ~= "no" then
+                rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
+            end
+            response = false
+        end
+    end
     return response
 end
 
-local function checkAccess(e, console, script, bool)
-    local access, others
-    if (bool) then
-        others = true
-    else
-        others = false
-    end
+local function checkAccess(e, console, script, others, params)
+    local access
     if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others)) then
-            access = true
-        else
-            rprint(e, "Command failed. Insufficient Permission.")
-            access = false
+        if not (params) then
+            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others)) then
+                access = true
+            else
+                rprint(e, "Command failed. Insufficient Permission.")
+                access = false
+            end
+        else 
+            local p = {}
+            p.level, p.index = params.level, params.index
+            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others, p)) then
+                access = true
+            else
+                rprint(e, "Command failed. Insufficient Permission.")
+                access = false
+            end
         end
     elseif (console) and (e < 1) then
         access = true
@@ -2308,6 +2403,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:infinityAmmo(params)
                     end
+				-- #Cute
+                elseif (parameter == "cute") then
+                    if (target_all_players) then
+                        if not cmdself(params.tid, executor) then
+                            velocity:cute(params)
+                        end
+                    end
+				-- #Teleport Manager
+                elseif (parameter == "setwarp") then
+                    if (target_all_players) then
+                        velocity:setwarp(params)
+                    end
                 end
             end
         end
@@ -2378,6 +2485,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 p.eid = executor
                 p.flag = args[1]
                 velocity:mutelist(p)
+            end
+        end
+        return false
+    -- #Cute
+    elseif (command == settings.mod["Cute"].base_command) then
+        if modEnabled("Cute", executor) then
+            if (checkAccess(executor, true, "Cute")) then
+                local tab = settings.mod["Cute"]
+                if (args[1] ~= nil) then
+                    validate_params("cute", 1) --/base_command [id]
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:cute(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                end
             end
         end
         return false
@@ -2584,6 +2709,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
+        -- #Teleport Manager | setwarp
+    elseif (command == settings.mod["Teleport Manager"].commands[1]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                local tab = settings.mod["Teleport Manager"]
+                local p = {}
+                p.level, p.index = get_var(executor, "$lvl"), tab.permission_level[1]
+                if (checkAccess(executor, true, "Teleport Manager", p)) then
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("setwarp", 2) --/base_command <args> [id]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:setwarp(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name> [id]", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -3270,15 +3418,15 @@ function velocity:clean(params)
             if (ev_NewVehicle[tid] ~= nil) or (item_objects[tid] ~= nil) then
                 proceed = true
             else
-                rprint(tid, tn .. " has nothing to clean up")
+                respond(tid, tn .. " has nothing to clean up", "rcon", 4+8)
             end
             
             if (proceed) then
                 CleanUpDrones(tid, identifier)
                 if (is_self) then
-                    rprint(eid, "Cleaning up " .. object .. " objects")
+                    respond(eid, "Cleaning up " .. object .. " objects", "rcon", 4+8)
                 else
-                    rprint(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects")
+                    respond(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects", "rcon", 4+8)
                 end
             end
         else
@@ -3321,13 +3469,13 @@ function velocity:infinityAmmo(params)
                     local mult = tonumber(multiplier)
                     modify_damage[TargetID] = true
                     damage_multiplier[TargetID] = mult
-                    rprint(TargetID, "[cheat] Infinity Ammo enabled!")
-                    rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                    respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4+8)
+                    respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4+8)
                 else
-                    rprint(eid, "Unable to set damage multipliers while in Lurker Mode")
+                    respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4+8)
                 end
             else
-                rprint(TargetID, "[cheat] Infinity Ammo enabled!")
+                respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4+8)
                 if (tab..announcer) then
                     announce(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
                 end
@@ -3341,7 +3489,7 @@ function velocity:infinityAmmo(params)
             if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
                 return true
             else
-                rprint(eid, "Invalid multiplier. Choose a number between 0.001-10")
+                respond(eid, "Invalid multiplier. Choose a number between 0.001-10", "rcon", 4+8)
             end
             return false
         end
@@ -3363,22 +3511,22 @@ function velocity:infinityAmmo(params)
             if (multiplier == nil) then
                 if player_present(tid) then
                     EnableInfAmmo(tid, false, 0)
-                    rprint(eid, "[cheat] Enabled infammo for " .. tn)
+                    respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4+8)
                 else
-                    rprint(eid, "Player not present")
+                    respond(eid, "Player not present", "rcon", 4+8)
                 end
             elseif multiplier:match("%d+") then
                 if player_present(tid) then
                     if validate_multiplier(multiplier) then
                         EnableInfAmmo(tid, true, multiplier)
-                        rprint(eid, "[cheat] Enabled infammo for " .. tn)
+                        respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4+8)
                     end
                 else
-                    rprint(eid, "Player not present")
+                    respond(eid, "Command failed. Player not online", "rcon", 4+8)
                 end
             elseif (multiplier == "off") then
                 DisableInfAmmo(tid)
-                rprint(eid, "[cheat] Disabled infammo for " .. tn)
+                respond(eid, "[cheat] Disabled infammo for " .. tn, "rcon", 4+8)
                 if (tab..announcer) then
                     announce(tid, tn .. " is no longer in Infinity Ammo Mode")
                 end
@@ -3386,6 +3534,45 @@ function velocity:infinityAmmo(params)
         end
     end
     return false
+end
+
+function velocity:cute(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    local multiplier = params.multiplier or nil
+    
+    local tab = settings.mod["Infinity Ammo"]
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local tab = settings.mod["Cute"]
+    local tFormat, eFormat = tab.messages[1], tab.messages[2]
+
+    local tStr = (gsub(gsub(tFormat,"%%executors_name%%", en), "%%target_name%%", tn))
+
+    if (tab.environment == "chat") then
+        execute_command("msg_prefix \"\"")
+        respond(tid, tStr, "chat", 2+8)
+        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+    else
+        respond(tid, tStr, "rcon", 2+8)
+    end
+
+    local eStr = (gsub(gsub(eFormat,"%%executors_name%%", en), "%%target_name%%", tn))
+    execute_command("msg_prefix \"\"")
+    respond(eid, eStr, "rcon", 2+8)
+    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+    return false
+end
+
+function velocity:setwarp(params)
+    print('working')
 end
 
 function velocity:setLurker(params)
@@ -4302,6 +4489,28 @@ function secondsToTime(seconds, places)
     elseif places == 1 then
         return string.format("%02", seconds)
     end
+end
+
+function delete_from_file(dir, start_index, end_index, player)
+    local fp = io.open(dir, "r")
+    local t = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < start_index or i >= start_index + end_index then
+            t[#t + 1] = line
+        end
+        i = i + 1
+    end
+    if i > start_index and i < start_index + end_index then
+        rprint(player, "Warning: End of File! No entries to delete.")
+        cprint("Warning: End of File! No entries to delete.")
+    end
+    fp:close()
+    fp = io.open(dir, "w+")
+    for i = 1, #t do
+        fp:write(string.format("%s\n", t[i]))
+    end
+    fp:close()
 end
 
 function getCurrentVersion(bool)
