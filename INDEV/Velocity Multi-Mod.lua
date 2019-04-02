@@ -1,6 +1,45 @@
 --[[
 --=====================================================================================================--
 Script Name: Velocity Multi-Mod (v 1.10), for SAPP (PC & CE)
+Description: An all-in-one package that combines many of my scripts into one place.
+
+             Nearly every aspect of the combined scripts have been heavily refined and improved in this version,
+             with the addition of many new features not found in the standalone versions.
+             This mod is heavy on features and highly customizable, but also user friendly.
+
+
+Combined Scripts:
+    - Admin Chat            Chat IDs            Message Board
+    - Chat Logging          Command Spy         Custom Weapons
+    - Anti Impersonator     Console Logo        Player List
+    - Alias System          Respawn Time        Teleport Manager
+    - Get Coords            Spawn From Sky      Admin Join Messages
+    - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
+    - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
+    - Suggestions Box (request by Cyser@)       Enter Vehicle
+    - Mute System
+
+    BGS Commands:
+    /plugins, /enable [id], /disable [id]
+    /mute [id] <time dif>, /unmute [id]
+    /clear (clears chat)
+    /clean
+    
+    "/plugins" shows you a list of all mods and tells you which ones are enabled or disabled.
+    You can enable or disable any mod in game at any time with /enable [id], /disable [id].
+   
+    /clean (command syntax info) for Enter Vehicle & Item Spawner:
+    
+    ~ Valid [id] inputs: [number range 1-16, me or *] 
+        * /clean [id] 1 (cleans up "Enter Vehicle" objects)
+        * /clean [id] 2 (cleans up "Item Spawner" objects)
+        * /clean [id] * (cleans up "everything")
+        Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
+    --
+
+To enable update checking, this script requires that the following plugin is installed:
+https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+Credits to Kavawuvi (002) for HTTP client functionality.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
