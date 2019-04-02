@@ -2774,6 +2774,61 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+        -- #Teleport Manager | WARP LIST
+    elseif (command == settings.mod["Teleport Manager"].commands[4]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                    local tab = settings.mod["Teleport Manager"]
+                    if (args[1] == nil) then
+                        local p = {} 
+                        p.eid = executor
+                        velocity:warplist(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[4] .. " or /" .. tab.commands[5], "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
+        -- #Teleport Manager | WARP LIST ALL
+    elseif (command == settings.mod["Teleport Manager"].commands[5]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                    local tab = settings.mod["Teleport Manager"]
+                    if (args[1] == nil) then
+                        local p = {} 
+                        p.eid = executor
+                        velocity:warplistall(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[5] .. " or /" .. tab.commands[4], "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
+        -- #Teleport Manager | BACK
+    elseif (command == settings.mod["Teleport Manager"].commands[6]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                    local tab = settings.mod["Teleport Manager"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        p.warpid = args[1]
+                        p.eid = executor
+                        velocity:delwarp(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[6] .. " [warp id]", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
         -- ==========================================================================================================================
         -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
@@ -3849,6 +3904,74 @@ function velocity:warpback(params)
                 end
             end
         end
+    end
+end
+
+function velocity:warplist(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    if not isFileEmpty(dir) then
+        local lines = lines_from(dir)
+        for k, v in pairs(lines) do
+            if find(v, mapname) then
+                found = true
+                respond(eid, "[" .. k .. "] " .. v, "rcon", 4+8)
+            end
+        end
+        if not (found) then
+            respond(eid, "There are no warps for the current map.", "rcon", 4+8)
+        end
+    else
+        respond(eid, "The teleport list is empty!", "rcon", 4+8)
+    end
+end
+
+function velocity:warplistall(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    if not isFileEmpty(dir) then
+        local lines = lines_from(dir)
+        for k, v in pairs(lines) do
+            respond(eid, "[" .. k .. "] " .. v, "rcon", 2+8)
+        end
+    else
+        respond(eid, "The teleport list is empty!", "rcon", 4+8)
+    end
+end
+
+function velocity:delwarp(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local warpid = params.warpid or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    if not isFileEmpty(dir) then
+        local lines = lines_from(dir)
+        local found
+        for k, v in pairs(lines) do
+            if (k ~= nil) then
+                if (warpid == v:match(k)) then
+                    found = true
+                    if find(v, mapname) then
+                        delete_from_file(dir, k, 1, eid)
+                        respond(eid, "Successfully deleted teleport id #" .. k, "rcon", 2+8)
+                    else
+                        wait_for_response[eid] = true
+                        respond(eid, "Warning: That teleport is not linked to this map.", "rcon", 2+8)
+                        respond(eid, "Type 'YES' to delete, type 'NO' to cancel.", "rcon", 2+8)
+                        function getWarp()
+                            return tonumber(k)
+                        end
+                    end
+                end
+            end
+        end
+        if not (found) then
+            respond(eid, "Teleport Index ID does not exist", "rcon", 2+8)
+        end
+    else
+        respond(eid, "The teleport list is empty", "rcon", 2+8)
     end
 end
 
