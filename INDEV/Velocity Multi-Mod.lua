@@ -2182,6 +2182,9 @@ local function checkAccess(e, console, script, others, params)
         end
     elseif (console) and (e < 1) then
         access = true
+    elseif not (console) and (e < 1) then
+        access = false
+		respond(e, "Command Failed. Unable to execute from console.", "rcon", 4+8)
     end
     return access
 end
@@ -2409,11 +2412,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if not cmdself(params.tid, executor) then
                             velocity:cute(params)
                         end
-                    end
-				-- #Teleport Manager
-                elseif (parameter == "setwarp") then
-                    if (target_all_players) then
-                        velocity:setwarp(params)
                     end
                 end
             end
@@ -2719,19 +2717,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[1]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                local tab = settings.mod["Teleport Manager"]
-                local p = {}
-                p.level, p.index = get_var(executor, "$lvl"), tab.permission_level[1]
-                if (checkAccess(executor, true, "Teleport Manager", p)) then
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("setwarp", 2) --/base_command <args> [id]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:setwarp(params)
-                            end
-                        end
+                local p, tab = { }, settings.mod["Teleport Manager"]
+                p.eid, p.level, p.index = executor, level, tab.permission_level[1]
+                if (checkAccess(executor, false, "Teleport Manager", p)) then
+                    if (args[1] ~= nil) then
+						velocity:setwarp(p)
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name> [id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
                         return false
                     end
                 end
