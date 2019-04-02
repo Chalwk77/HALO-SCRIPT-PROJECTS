@@ -992,16 +992,21 @@ function velocity:spawnFromSkyReset(ip)
     }
 end
 --------------------------------------------------------------
-function OnScriptLoad()
-    InitPlayers()
-    loadWeaponTags()
-    GameSettings()
-    printEnabled()
+
+function velocity:ShowCurrentVersion()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
         cprint("[VELOCITY] Current Version: " .. settings.global.script_version, 2 + 8)
     end
+end
+
+function OnScriptLoad()
+    InitPlayers()
+    loadWeaponTags()
+    GameSettings()
+    printEnabled()
+    velocity:ShowCurrentVersion()
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -4220,7 +4225,7 @@ function velocity:setLurker(params)
     local option = params.option or nil
     if (option == nil) then
         if (CmdTrigger) then
-            if (tLvl >= 1) then
+            if (tLvl >= getPermLevel("Lurker", false)) then
                 if (lurker[tid] == true) then
                     status = "enabled"
                 else
@@ -4232,7 +4237,7 @@ function velocity:setLurker(params)
                     respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4 + 8)
                 end
             else
-                respond(eid, tn .. " is not an admin! [Lurker Mode Off]", "rcon", 4 + 8)
+                respond(eid, tn .. " does not have permission to use Lurker.", "rcon", 4 + 8)
             end
         else
             proceed = true
