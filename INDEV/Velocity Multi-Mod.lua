@@ -213,6 +213,13 @@ local function GameSettings()
                     on_disconnect = true,
                 },
             },
+			-- Used for Item Spawner and Enter Vehicle
+            ["Garbage Collection"] = {
+                enabled = true,
+                base_command = "clean", -- /base_command <item> [id] (opt height/distance)
+                permission_level = 1,
+                execute_on_others = 4,
+            },
             ["Item Spawner"] = {
                 enabled = true,
                 base_command = "spawn",  -- /base_command <item> [id]
@@ -466,7 +473,6 @@ local function GameSettings()
                 disable = { "disable", 1 }, -- /disable [id]
                 list = { "plugins", 1 }, -- /pluigns
                 clearchat = { "clear", 1 }, -- /clear
-                garbage_collection = { "clean", 1 }, -- /clean
             },
             -- Do not Touch...
             player_data = {
@@ -2148,7 +2154,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:aliasCmdRoutine(params)
                     end
-                    -- #Admin Chat
+				-- #Admin Chat
                 elseif (parameter == "achat") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
@@ -2156,7 +2162,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
-                    -- #Portal Gun
+				-- #Portal Gun
                 elseif (parameter == "portalgun") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
@@ -2164,7 +2170,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:portalgun(params)
                     end
-                    -- #Lurker
+				-- #Lurker
                 elseif (parameter == "lurker") then
                     params.bool = true
                     params.CmdTrigger = true
@@ -2174,7 +2180,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
-                    -- #Respawn Time
+				-- #Respawn Time
                 elseif (parameter == "setrespawn") then
                     if (args[2] ~= nil) then
                         params.time = args[2]
@@ -2182,7 +2188,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setRespawnTime(params)
                     end
-                    -- #Enter Vehicle
+				-- #Enter Vehicle
                 elseif (parameter == "entervehicle") then
                     if (args[1] ~= nil) then
                         params.item = args[1] -- item
@@ -2196,13 +2202,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:enterVehicle(params)
                     end
-                    -- #Item Spawner
+				-- #Item Spawner
                 elseif (parameter == "itemspawner") then
                     if (args[1] ~= nil) then
-                        params.item = args[1] -- item
+                        params.item = args[1] -- object
                     end
                     if (target_all_players) then
                         velocity:spawnItem(params)
+                    end
+				-- #Garbage Collection
+                elseif (parameter == "garbagecollection") then
+                    if (args[1] ~= nil) then
+                        params.identifier = args[2] -- target
+                    end
+                    if (target_all_players) then
+                        velocity:clean(params)
                     end
                 end
             end
@@ -2340,6 +2354,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+        -- #Garbage Collection
+    elseif (command == settings.mod["Garbage Collection"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Garbage Collection", executor) or modEnabled("Garbage Collection", executor) then
+				if (checkAccess(executor, true, "Garbage Collection")) then
+					local tab = settings.mod["Garbage Collection"]
+					if (args[1] ~= nil) then
+						validate_params("garbagecollection", 2)
+						if not (target_all_players) then
+							if not (is_error) and isOnline(TargetID, executor) then
+								velocity:clean(params)
+							end
+						end
+					else
+						respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command, "rcon", 4 + 8)
+						return false
+					end
+                end
+            end
+        end
+        return false
         -- #Respawn Time
     elseif (command == settings.mod["Respawn Time"].base_command) then
         if not gameover(executor) then
@@ -2444,7 +2479,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-        -- VELOCITY COMMANDS
         -- ==========================================================================================================================
         -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
