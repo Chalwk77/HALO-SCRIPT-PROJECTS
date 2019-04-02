@@ -220,6 +220,15 @@ local function GameSettings()
                 permission_level = 1,
                 execute_on_others = 4,
             },
+            ["Infinity Ammo"] = {
+                enabled = true,
+                server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default (the /infammo command cannot be used)
+                base_command = "infammo",
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
+                permission_level = 1,
+                multiplier_min = 0.001, -- minimum damage multiplier
+                multiplier_max = 10, -- maximum damage multiplier
+            },
             ["Item Spawner"] = {
                 enabled = true,
                 base_command = "spawn",  -- /base_command <item> [id]
@@ -540,6 +549,12 @@ local mute_table = { }
 -- #Custom Weapons
 local weapon = {}
 
+-- #Infinity Ammo
+local infammo = {}
+local frag_check = {}
+local modify_damage = {}
+local damage_multiplier = {}
+
 -- #Portal Gun
 local weapon_status = {}
 local portalgun_mode = {}
@@ -559,6 +574,21 @@ local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local sv_name = read_widestring(network_struct + 0x8, 0x42)
     return sv_name
+end
+
+local function adjust_ammo(PlayerIndex)
+    for i = 1, 4 do
+        execute_command("ammo " .. tonumber(PlayerIndex) .. " 999 " .. i)
+        execute_command("mag " .. tonumber(PlayerIndex) .. " 100 " .. i)
+        execute_command("battery " .. tonumber(PlayerIndex) .. " 100 " .. i)
+    end
+end
+
+local function DisableInfAmmo(TargetID)
+    infammo[TargetID] = false
+    frag_check[TargetID] = false
+    modify_damage[TargetID] = false
+    damage_multiplier[TargetID] = 0
 end
 
 local function isConsole(e)
@@ -773,6 +803,9 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 
     if (settings.global.beepOnLoad) then
         execute_command_sequence("beep 1200 200; beep 1200 200; beep 1200 200")
@@ -1116,6 +1149,13 @@ function OnTick()
                 end
             end
 
+            -- #Infinity Ammo
+            if modEnabled("Infinity Ammo") and infammo[i] then
+                if (frag_check[i] == true) and getFrags(i) == true then
+                    execute_command("nades " .. tonumber(i) .. " 7")
+                end
+            end
+            
             -- #Lurker
             if modEnabled("Portal Gun") then
                 local tab = settings.mod["Lurker"]
@@ -1336,6 +1376,18 @@ function OnPlayerConnect(PlayerIndex)
             scores[PlayerIndex] = 0
             lurker[PlayerIndex] = false
             has_objective[PlayerIndex] = false
+        end
+    end
+    
+    -- #Infinity Ammo
+    if modEnabled("Infinity Ammo") then
+        damage_multiplier[PlayerIndex] = 0
+        if not (settings.mod["Infinity Ammo"].server_override) then
+            infammo[PlayerIndex] = false
+            modify_damage[PlayerIndex] = false
+            damage_multiplier[PlayerIndex] = 0
+        else
+            infammo[PlayerIndex] = true
         end
     end
 
@@ -1562,6 +1614,11 @@ function OnPlayerDisconnect(PlayerIndex)
             has_objective[PlayerIndex] = false
         end
     end
+    
+    -- #Infinity Ammo
+    if (modEnabled("Lurker") and infammo[PlayerIndex]) then
+        DisableInfAmmo(PlayerIndex)
+    end
 
     -- #Chat Logging
     if modEnabled("Admin Chat") then
@@ -1651,6 +1708,11 @@ function OnPlayerSpawn(PlayerIndex)
             velocity:setLurker(params)
         end
     end
+    -- #Infinity Ammo
+    if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
+        frag_check[PlayerIndex] = true
+        adjust_ammo(PlayerIndex)
+    end
 end
 
 function OnPlayerKill(PlayerIndex)
@@ -1725,6 +1787,11 @@ function OnPlayerKill(PlayerIndex)
         if (settings.mod["Item Spawner"].garbage_collection.on_death) then
             CleanUpDrones(PlayerIndex, 2)
         end
+    end
+    
+    -- #Infinity Ammo
+    if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
+        frag_check[PlayerIndex] = false
     end
 end
 
@@ -2232,6 +2299,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:clean(params)
                     end
+				-- #Infinity Ammo
+                elseif (parameter == "infinityammo") then
+                    if (args[1] ~= nil) then
+                        params.off = args[3] -- off
+                        params.multiplier = args[2] -- multipler
+                    end
+                    if (target_all_players) then
+                        velocity:infinityAmmo(params)
+                    end
                 end
             end
         end
@@ -2254,12 +2330,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    -- #Mute System
     if (command == settings.mod["Mute System"].mute_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) and (args[2] ~= nil) then
-                    validate_params("mute", 1)
+                    validate_params("mute", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             if not cmdself(params.tid, executor) then
@@ -2273,12 +2350,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command.. " [id] <time diff>", "rcon", 2+8)
         end
         return false
+    -- #Mute System
     elseif (command == settings.mod["Mute System"].unmute_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) then
-                        validate_params("unmute", 1)
+                        validate_params("unmute", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             if not cmdself(params.tid, executor) then
@@ -2292,6 +2370,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+    -- #Mute System
     elseif (command == settings.mod["Mute System"].mutelist_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
@@ -2302,13 +2381,31 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+    -- #Infinity Ammo
+    elseif (command == settings.mod["Infinity Ammo"].base_command) then
+        if modEnabled("Infinity Ammo", executor) then
+            if (checkAccess(executor, true, "Infinity Ammo")) then
+                local tab = settings.mod["Infinity Ammo"]
+                if (args[1] ~= nil and args[2] ~= nil) then
+                    validate_params("infinityammo", 1) --/base_command [id] <args>
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:infinityAmmo(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
+                end
+            end
+        end
+        return false
     -- #Alias System
     elseif (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
                 local tab = settings.mod["Alias System"]
                 if (args[1] ~= nil) then
-                    validate_params("alias", 1)
+                    validate_params("alias", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             velocity:aliasCmdRoutine(params)
@@ -2320,8 +2417,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
                 end
             end
-            return false
         end
+        return false
         -- #Item Spawner
     elseif (command == settings.mod["Item Spawner"].base_command) then
         if not gameover(executor) then
@@ -2329,7 +2426,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Item Spawner")) then
                     local tab = settings.mod["Item Spawner"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("itemspawner", 2)
+                        validate_params("itemspawner", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:spawnItem(params)
@@ -2351,7 +2448,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (checkAccess(executor, true, "Enter Vehicle")) then
                         local tab = settings.mod["Enter Vehicle"]
                         if (args[1] ~= nil) and (args[2] ~= nil) then
-                            validate_params("entervehicle", 2)
+                            validate_params("entervehicle", 2) --/base_command <args> [id]
                             if not (target_all_players) then
                                 if not (is_error) and isOnline(TargetID, executor) then
                                     velocity:enterVehicle(params)
@@ -2375,7 +2472,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 				if (checkAccess(executor, true, "Garbage Collection")) then
 					local tab = settings.mod["Garbage Collection"]
 					if (args[1] ~= nil) and (args[2] ~= nil) then
-						validate_params("garbagecollection", 1)
+						validate_params("garbagecollection", 1) --/base_command [id] <args>
 						if not (target_all_players) then
 							if not (is_error) and isOnline(TargetID, executor) then
 								velocity:clean(params)
@@ -2396,7 +2493,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Respawn Time")) then
                     local tab = settings.mod["Respawn Time"]
                     if (args[1] ~= nil) then
-                        validate_params("setrespawn", 1)
+                        validate_params("setrespawn", 1) --/base_command [id] <args>
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:setRespawnTime(params)
@@ -2417,7 +2514,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Admin Chat")) then
                     local tab = settings.mod["Admin Chat"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("achat", 2)
+                        validate_params("achat", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:determineAchat(params)
@@ -2438,7 +2535,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Lurker")) then
                     local tab = settings.mod["Lurker"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("lurker", 2)
+                        validate_params("lurker", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:setLurker(params)
@@ -2479,7 +2576,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Portal Gun")) then
                     local tab = settings.mod["Portal Gun"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("portalgun", 2)
+                        validate_params("portalgun", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:portalgun(params)
@@ -3191,6 +3288,106 @@ function velocity:clean(params)
     return false
 end
 
+function velocity:infinityAmmo(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+    local multiplier = params.multiplier or nil
+    
+    local tab = settings.mod["Infinity Ammo"]
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Infinity Ammo")) then
+        local function EnableInfAmmo(TargetID, specified, multiplier)
+            infammo[TargetID] = true
+            frag_check[TargetID] = true
+            adjust_ammo(TargetID)
+            if specified then
+                if not (lurker[TargetID]) then
+                    local mult = tonumber(multiplier)
+                    modify_damage[TargetID] = true
+                    damage_multiplier[TargetID] = mult
+                    rprint(TargetID, "[cheat] Infinity Ammo enabled!")
+                    rprint(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied")
+                else
+                    rprint(eid, "Unable to set damage multipliers while in Lurker Mode")
+                end
+            else
+                rprint(TargetID, "[cheat] Infinity Ammo enabled!")
+                if (tab..announcer) then
+                    announce(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
+                end
+            end
+        end
+        
+        local _min = tab.multiplier_min
+        local _max = tab.multiplier_max 
+        
+        local function validate_multiplier(T3)
+            if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
+                return true
+            else
+                rprint(eid, "Invalid multiplier. Choose a number between 0.001-10")
+            end
+            return false
+        end
+        
+        if (is_self) then
+            if (multiplier == nil) then
+                EnableInfAmmo(eid, false, 0)
+            elseif multiplier:match("%d+") then
+                if validate_multiplier(multiplier) then
+                    EnableInfAmmo(eid, true, multiplier)
+                end
+            elseif (multiplier == "off") then
+                DisableInfAmmo(eid)
+                if (tab.announcer) then
+                    announce(eid, en .. " is no longer in Infinity Ammo Mode")
+                end
+            end
+        elseif not (is_self) then
+            if (multiplier == nil) then
+                if player_present(tid) then
+                    EnableInfAmmo(tid, false, 0)
+                    rprint(eid, "[cheat] Enabled infammo for " .. tn)
+                else
+                    rprint(eid, "Player not present")
+                end
+            elseif multiplier:match("%d+") then
+                if player_present(tid) then
+                    if validate_multiplier(multiplier) then
+                        EnableInfAmmo(tid, true, multiplier)
+                        rprint(eid, "[cheat] Enabled infammo for " .. tn)
+                    end
+                else
+                    rprint(eid, "Player not present")
+                end
+            elseif (multiplier == "off") then
+                DisableInfAmmo(tid)
+                rprint(eid, "[cheat] Disabled infammo for " .. tn)
+                if (tab..announcer) then
+                    announce(tid, tn .. " is no longer in Infinity Ammo Mode")
+                end
+            end
+        end
+    end
+    return false
+end
+
 function velocity:setLurker(params)
     local params = params or { }
     local eid = params.eid or nil
@@ -3747,6 +3944,25 @@ function velocity:mutelist(params)
     end
 end
 
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    -- #Lurker
+    if modEnabled("Lurker", PlayerIndex) then
+        if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+            if (lurker[CauserIndex] == true) then
+                return false
+            end
+        end
+    end
+    -- #Infinity Ammo
+    if modEnabled("Infinity Ammo", PlayerIndex) then
+        if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+            if (modify_damage[CauserIndex] == true) then
+                return true, Damage * tonumber(damage_multiplier[CauserIndex])
+            end
+        end
+    end
+end
+
 function OnWeaponDrop(PlayerIndex)
     -- #Lurker
     if modEnabled("Lurker", PlayerIndex) then
@@ -3785,6 +4001,34 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
             end
         end
     end
+    -- #Infinity Ammo
+    if (modEnabled("Lurker", PlayerIndex) and infammo[PlayerIndex]) then
+        adjust_ammo(PlayerIndex)
+    end
+end
+
+function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+    if (PlayerIndex) then
+        -- #Infinity Ammo
+        if (modEnabled("Infinity Ammo", PlayerIndex) and infammo[PlayerIndex]) then
+            adjust_ammo(PlayerIndex)
+        end
+    end
+end
+
+-- #Infinity Ammo
+function getFrags(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if player_object ~= 0 and player_present(PlayerIndex) then
+        safe_read(true)
+        local frags = read_byte(player_object + 0x31E)
+        local plasmas = read_byte(player_object + 0x31F)
+        safe_read(false)
+        if tonumber(frags) <= 0 or tonumber(plasmas) <= 0 then
+            return true
+        end
+    end
+    return false
 end
 
 function killSilently(PlayerIndex)
