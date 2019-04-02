@@ -486,6 +486,125 @@ local function GameSettings()
                 msg_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
                 response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
             },
+            ["Spawn From Sky"] = {
+                enabled = true,
+                maps = {
+                    ["bloodgulch"] = {
+                        height = 35,
+                        invulnerability = 9,
+                        { 95.687797546387, -159.44900512695, -0.10000000149012 },
+                        { 40.240600585938, -79.123199462891, -0.10000000149012 }
+                    },
+                    ["deathisland"] = {
+                        height = 35,
+                        invulnerability = 9,
+                        { -26.576030731201, -6.9761986732483, 9.6631727218628 },
+                        { 29.843469619751, 15.971487045288, 8.2952880859375 }
+                    },
+                    ["icefields"] = {
+                        height = 35,
+                        invulnerability = 9,
+                        { 24.85000038147, -22.110000610352, 2.1110000610352 },
+                        { -77.860000610352, 86.550003051758, 2.1110000610352 }
+                    },
+                    ["infinity"] = {
+                        height = 35,
+                        invulnerability = 9,
+                        { 0.67973816394806, -164.56719970703, 15.039022445679 },
+                        { -1.8581243753433, 47.779975891113, 11.791272163391 }
+                    },
+                    ["sidewinder"] = {
+                        height = 35,
+                        invulnerability = 9,
+                        { -32.038200378418, -42.066699981689, -3.7000000476837 },
+                        { 30.351499557495, -46.108001708984, -3.7000000476837 }
+                    },
+                    ["timberland"] = {
+                        height = 25,
+                        invulnerability = 5,
+                        { 17.322099685669, -52.365001678467, -17.751399993896 },
+                        { -16.329900741577, 52.360000610352, -17.741399765015 }
+                    },
+                    ["dangercanyon"] = {
+                        height = 25,
+                        invulnerability = 5,
+                        { -12.104507446289, -3.4351840019226, -2.2419033050537 },
+                        { 12.007399559021, -3.4513700008392, -2.2418999671936 }
+                    },
+                    ["beavercreek"] = {
+                        height = 25,
+                        invulnerability = 5,
+                        { 29.055599212646, 13.732000350952, -0.10000000149012 },
+                        { -0.86037802696228, 13.764800071716, -0.0099999997764826 }
+                    },
+                    ["boardingaction"] = {
+                        height = 4,
+                        invulnerability = 3,
+                        { 1.723109960556, 0.4781160056591, 0.60000002384186 },
+                        { 18.204000473022, -0.53684097528458, 0.60000002384186 }
+                    },
+                    ["carousel"] = {
+                        height = 3,
+                        invulnerability = 2,
+                        { 5.6063799858093, -13.548299789429, -3.2000000476837 },
+                        { -5.7499198913574, 13.886699676514, -3.2000000476837 }
+                    },
+                    ["chillout"] = {
+                        height = 2,
+                        invulnerability = 1,
+                        { 7.4876899719238, -4.49059009552, 2.5 },
+                        { -7.5086002349854, 9.750340461731, 0.10000000149012 }
+                    },
+                    ["damnation"] = {
+                        height = 3,
+                        invulnerability = 2,
+                        { 9.6933002471924, -13.340399742126, 6.8000001907349 },
+                        { -12.17884349823, 14.982703208923, -0.20000000298023 }
+                    },
+                    ["gephyrophobia"] = {
+                        height = 5,
+                        invulnerability = 4,
+                        { 26.884338378906, -144.71551513672, -16.049139022827 },
+                        { 26.727857589722, 0.16621616482735, -16.048349380493 }
+                    },
+                    ["hangemhigh"] = {
+                        height = 5,
+                        invulnerability = 4,
+                        { 13.047902107239, 9.0331249237061, -3.3619771003723 },
+                        { 32.655700683594, -16.497299194336, -1.7000000476837 }
+                    },
+                    ["longest"] = {
+                        height = 2,
+                        invulnerability = 1,
+                        { -12.791899681091, -21.6422996521, -0.40000000596046 },
+                        { 11.034700393677, -7.5875601768494, -0.40000000596046 }
+                    },
+                    ["prisoner"] = {
+                        height = 2,
+                        invulnerability = 1,
+                        { -9.3684597015381, -4.9481601715088, 5.6999998092651 },
+                        { 9.3676500320435, 5.1193399429321, 5.6999998092651 }
+                    },
+                    ["putput"] = {
+                        height = 3,
+                        invulnerability = 2,
+                        { -18.89049911499, -20.186100006104, 1.1000000238419 },
+                        { 34.865299224854, -28.194700241089, 0.10000000149012 }
+                    },
+                    ["ratrace"] = {
+                        height = 3,
+                        invulnerability = 2,
+                        { -4.2277698516846, -0.85564690828323, -0.40000000596046 },
+                        { 18.613000869751, -22.652599334717, -3.4000000953674 }
+                    },
+                    ["wizard"] = {
+                        height = 3,
+                        invulnerability = 2,
+                        { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
+                        { 9.1828498840332, -9.1805400848389, -2.5999999046326 }
+                    }
+                }
+            },
             ["Teleport Manager"] = {
                 enabled = true,
                 dir = "sapp\\teleports.txt",
@@ -544,6 +663,7 @@ local function InitPlayers()
         ["Message Board"] = { },
         ["Admin Chat"] = { },
         ["Lurker"] = { },
+        ["Spawn From Sky"] = { },
     }
 end
 -- String Library, Math Library, Table Library
@@ -618,6 +738,10 @@ local previous_location = {}
 for i = 1, 16 do
     previous_location[i] = {}
 end
+
+-- #Spawn From Sky
+local init_timer = {}
+local first_join = {}
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -825,7 +949,13 @@ local function getWarnings(ip)
     return players["Lurker"][ip].lurker_warnings
 end
 --------------------------------------------------------------
-
+-- #Spawn From Sky
+function velocity:spawnFromSkyReset(ip)
+    players["Spawn From Sky"][ip] = {
+        sky_timer = 0,
+    }
+end
+--------------------------------------------------------------
 function OnScriptLoad()
     InitPlayers()
     loadWeaponTags()
@@ -1263,6 +1393,14 @@ function OnTick()
                 end
             end
 
+            -- #Spawn From Sky
+            if modEnabled("Spawn From Sky") then
+                print("is enabled")
+                if (init_timer[i] == true) then
+                    timeUntilRestore(i)
+                end
+            end
+            
             -- #Portal Gun
             if modEnabled("Portal Gun") then
                 if (player_present(i) and player_alive(i)) then
@@ -1419,7 +1557,7 @@ function OnPlayerConnect(PlayerIndex)
         respawn_cmd_override[ip] = false
         respawn_time[ip] = 0
     end
-
+    
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
@@ -1480,6 +1618,14 @@ function OnPlayerConnect(PlayerIndex)
         end
     end
     
+    -- #Spawn From Sky
+    if modEnabled("Spawn From Sky") then
+        local ip = getip(PlayerIndex)
+        velocity:spawnFromSkyReset(ip)
+        init_timer[PlayerIndex] = true
+        first_join[PlayerIndex] = true
+    end
+    
     -- #Chat Logging
     if modEnabled("Chat Logging") then
         local dir = settings.mod["Chat Logging"].dir
@@ -1507,6 +1653,7 @@ function OnPlayerConnect(PlayerIndex)
             announceJoin(join_message)
         end
     end
+    
 
     -- #Anti Impersonator
     if modEnabled("Anti Impersonator") then
@@ -1663,6 +1810,18 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
+    
+    -- #Spawn From Sky
+    if modEnabled("Spawn From Sky") then
+        if init_timer == true then
+            init_timer[PlayerIndex] = false
+        end
+        if (first_join[PlayerIndex] == true) then
+            first_join[PlayerIndex] = false
+        end
+        local ip = getip(PlayerIndex)
+        players["Spawn From Sky"][ip].sky_timer = 0
+    end
 
     -- #Lurker
     if modEnabled("Lurker") then
@@ -1708,7 +1867,38 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    --
+    -- #Spawn From Sky
+    if modEnabled("Spawn From Sky") then
+        if (first_join[PlayerIndex] == true) then
+            first_join[PlayerIndex] = false
+            local team = get_var(PlayerIndex, "$team")
+            local function Teleport(PlayerIndex, id)
+                local height = settings.mod["Spawn From Sky"].maps[mapname].height
+                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
+                        settings.mod["Spawn From Sky"].maps[mapname][id][1],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][2],
+                        settings.mod["Spawn From Sky"].maps[mapname][id][3] + floor(height))
+                execute_command("god " .. tonumber(PlayerIndex))
+            end
+            if (team == "red") then
+                Teleport(PlayerIndex, 1)
+            elseif (team == "blue") then
+                Teleport(PlayerIndex, 2)
+            end
+        end
+    end
+end
+
+-- #Spawn From Sky
+function timeUntilRestore(PlayerIndex)
+    local ip = getip(PlayerIndex)
+    local tab = players["Spawn From Sky"][ip]
+    tab.sky_timer = tab.sky_timer + 0.030
+    if (tab.sky_timer >= (settings.mod["Spawn From Sky"].maps[mapname].invulnerability)) then
+        tab.sky_timer = 0
+        init_timer[tonumber(PlayerIndex)] = false
+        execute_command("ungod " .. tonumber(PlayerIndex))
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
