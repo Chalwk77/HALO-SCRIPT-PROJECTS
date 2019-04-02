@@ -166,8 +166,8 @@ local function GameSettings()
                 environment = "chat" -- Valid environments: "rcon", "chat".
             },
             ["Custom Weapons"] = {
-                enabled = false, -- Enabled = true, Disabled = false
-                assign_weapons = false,
+                enabled = true, -- Enabled = true, Disabled = false
+                assign_weapons = true,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
@@ -343,7 +343,7 @@ local function GameSettings()
                 warnings = 4,
             },
             ["Message Board"] = {
-                enabled = false,
+                enabled = true,
                 duration = 5, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
