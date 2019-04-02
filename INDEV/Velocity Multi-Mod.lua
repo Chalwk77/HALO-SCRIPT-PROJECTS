@@ -1685,8 +1685,8 @@ function OnPlayerConnect(PlayerIndex)
     if modEnabled("Chat Logging") then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
-        local ip = getip(PlayerIndex, false) -- include port
         if file ~= nil then
+            local ip = getip(PlayerIndex, false) -- include port
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
             file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
@@ -1873,7 +1873,6 @@ function OnPlayerDisconnect(PlayerIndex)
         if (first_join[PlayerIndex] == true) then
             first_join[PlayerIndex] = false
         end
-        local ip = getip(PlayerIndex)
         players["Spawn From Sky"][ip].sky_timer = 0
     end
 
@@ -1896,8 +1895,8 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Admin Chat") then
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
-        local ip = getip(PlayerIndex, false) -- include port
         if file ~= nil then
+            local ip = getip(PlayerIndex, false) -- include port
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
             file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
@@ -1946,7 +1945,7 @@ end
 
 -- #Spawn From Sky
 function timeUntilRestore(PlayerIndex)
-    local ip = getip(PlayerIndex)
+    local ip = getip(PlayerIndex, true)
     local tab = players["Spawn From Sky"][ip]
     tab.sky_timer = tab.sky_timer + 0.030
     if (tab.sky_timer >= (settings.mod["Spawn From Sky"].maps[mapname].invulnerability)) then
@@ -1956,8 +1955,7 @@ function timeUntilRestore(PlayerIndex)
     end
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    local ip = get_var(PlayerIndex, "$ip")
+function OnPlayerSpawn(PlayerIndex)    
     -- #Custom Weapons
     if modEnabled("Custom Weapons") then
         local Wtab = settings.mod["Custom Weapons"]
@@ -2001,6 +1999,7 @@ function OnPlayerSpawn(PlayerIndex)
     -- #Lurker
     if modEnabled("Lurker") then
         if (lurker[PlayerIndex] == true) then
+            local ip = getip(PlayerIndex, true)
             has_objective[PlayerIndex] = false
             velocity:LurkerReset(ip)
             local params = { }
@@ -2020,7 +2019,7 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex)
-    local ip = get_var(PlayerIndex, "$ip")
+    local ip = getip(PlayerIndex, true)
     local level = tonumber(get_var(PlayerIndex, "$lvl"))
 
     -- #Respawn Time
@@ -2102,11 +2101,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local id = tonumber(PlayerIndex)
     local level = tonumber(get_var(id, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
-    local ip = get_var(id, "$ip")
+    local ip = getip(PlayerIndex, true)
     local response
 
     if modEnabled("Mute System") then
-        local ip = getip(PlayerIndex)
         if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
             if (mute_table[ip].duration == default_mute_time) then
                 rprint(PlayerIndex, "[muted] You are muted permanently.")
@@ -2456,9 +2454,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
-
+    local ip = getip(PlayerIndex, true)
     local TargetID, target_all_players, is_error
-    local ip, name, hash = get_var(executor, "$ip"), get_var(executor, "$name"), get_var(executor, "$hash")
+    local name, hash = get_var(executor, "$name"), get_var(executor, "$hash")
 
     local pCMD = settings.global.plugin_commands
 
@@ -2527,7 +2525,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 params.eh = hash
 
                 params.tid = tonumber(pl[i])
-                params.tip = get_var(pl[i], "$ip")
+                params.tip = getip(pl[i], true)
                 params.tn = get_var(pl[i], "$name")
                 params.th = get_var(pl[i], "$hash")
 
