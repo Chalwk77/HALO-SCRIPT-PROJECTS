@@ -56,7 +56,7 @@ local function GameSettings()
                 users = {
                     { ["Chalwk"] = { "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-                    { ["?hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["§hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
                     { ["NAME"] = { "hash1", "hash2", "hash3", "etc..." } },
@@ -126,7 +126,7 @@ local function GameSettings()
                 enabled = true
             },
             ["Color Reservation"] = {
-                enabled = false, -- Enabled = true, Disabled = false
+                enabled = true, -- Enabled = true, Disabled = false
                 color_table = {
                     [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
                     [2] = { "available" }, -- black
@@ -1100,6 +1100,9 @@ function OnScriptLoad()
     end
     -- Register Console to Table
     alias:reset("000.000.000.000")
+    if checkFile("sapp\\bgs_changelog.txt") then
+        RecordChanges()
+    end
 end
 
 function OnScriptUnload()
@@ -1395,7 +1398,6 @@ function OnTick()
 
             -- #Spawn From Sky
             if modEnabled("Spawn From Sky") then
-                print("is enabled")
                 if (init_timer[i] == true) then
                     timeUntilRestore(i)
                 end
@@ -5053,6 +5055,18 @@ function read_widestring(address, length)
     return concat(byte_table)
 end
 
+function getPlayer(PlayerIndex)
+    if tonumber(PlayerIndex) then
+        if tonumber(PlayerIndex) ~= 0 then
+            local player = get_player(PlayerIndex)
+            if player ~= 0 then
+                return player
+            end
+        end
+    end
+    return nil
+end
+
 function secondsToTime(seconds, places)
 
     local years = floor(seconds / (60 * 60 * 24 * 365))
@@ -5180,4 +5194,61 @@ end
 function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
+end
+
+function RecordChanges()
+    local file = io.open("sapp\\changelog.txt", "w")
+    local cl = {}
+    cl[#cl + 1] = "[2/22/19]"
+    cl[#cl + 1] = "I have made some heavy tweaks the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)"
+    cl[#cl + 1] = "in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner."
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "The base command is the same. However, the command arguments have changed:"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Valid [id] inputs: [number range 1-16, me or *]"
+    cl[#cl + 1] = "/clean [id] 1 (cleans up 'Enter Vehicle' objects)"
+    cl[#cl + 1] = "/clean [id] 2 (cleans up 'Item Spawner' objects)"
+    cl[#cl + 1] = "/clean [id] * (cleans up 'everything')"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody."
+    cl[#cl + 1] = "Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/23/19]"
+    cl[#cl + 1] = "You can now use Lurker mode while Infinity Ammo is enabled,"
+    cl[#cl + 1] = "but you cannot manipulate damage multipliers."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/24/19]"
+    cl[#cl + 1] = "Fixed a map check error relating to Respawn Time"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/26/19]"
+    cl[#cl + 1] = "Fixed a bug relating to Anti Impersonator."
+    cl[#cl + 1] = "The user table in the Anti Impersonator configuration table now supports multiple hashes per user."
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[2/2/19]"
+    cl[#cl + 1] = "Refactored Color Reservation"
+    cl[#cl + 1] = "OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed."
+    cl[#cl + 1] = "Bug fix for Alias System."
+    cl[#cl + 1] = "Other minor bug fixes"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/2/19]"
+    cl[#cl + 1] = "Completely Rewrote BGS and released under a new name: Velocity - Multi Mod"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+
+    file:write(concat(cl, "\n"))
+    file:close()
+    cprint("[VELOCITY] Writing Change Log...", 2 + 8)
+    for _ in pairs(cl) do
+        cl[_] = nil
+    end
 end
