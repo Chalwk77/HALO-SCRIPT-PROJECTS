@@ -518,7 +518,7 @@ local function GameSettings()
             },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = true,
+                enabled = false,
                 base_command = "suggestion", -- /base_command {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
@@ -526,7 +526,7 @@ local function GameSettings()
                 response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
             },
             ["Spawn From Sky"] = {
-                enabled = true,
+                enabled = false,
                 maps = {
                     ["bloodgulch"] = {
                         height = 35,
@@ -1661,10 +1661,12 @@ function OnPlayerConnect(PlayerIndex)
     
     -- #Spawn From Sky
     if modEnabled("Spawn From Sky") then
-        local ip = getip(PlayerIndex)
-        velocity:spawnFromSkyReset(ip)
-        init_timer[PlayerIndex] = true
-        first_join[PlayerIndex] = true
+        if (settings.mod["Spawn From Sky"].maps[mapname] ~= nil) then
+            local ip = getip(PlayerIndex)
+            velocity:spawnFromSkyReset(ip)
+            init_timer[PlayerIndex] = true
+            first_join[PlayerIndex] = true
+        end
     end
     
     -- #Chat Logging
