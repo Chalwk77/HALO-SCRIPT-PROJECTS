@@ -562,7 +562,6 @@ local velocity = { }
 
 local mapname = ""
 local ce
-local empty_file
 local console_address_patch = nil
 local game_over
 
@@ -650,20 +649,6 @@ local function isConsole(e)
     end
 end
 
--- Checks if the player can execute this command on others
-local function executeOnOthers(e, self, console, level, mod)
-    if not (self) and not console(e) then
-        if tonumber(level) >= getPermLevel(mod, true) then
-            return true
-        else
-            respond(e, "You are not allowed to execute this command on other players!", "rcon", 4 + 8)
-            return false
-        end
-    else
-        return true
-    end
-end
-
 -- Checks if the MOD being called is enabled in settings.
 local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
@@ -675,26 +660,29 @@ end
 
 -- Returns the require permission level of the respective mod.
 local function getPermLevel(script, bool, p)
-    local level, index
-    if (params) then
-        level, index = p.level, p.index
-    end
-    if not (bool) and not (params) then
+    local p = p or nil
+    if not (bool) and (p == nil) then
         return tonumber(settings.mod[script].permission_level)
-    elseif (bool) and not (params) then
+    elseif (bool) and (p == nil) then
         return tonumber(settings.mod[script].execute_on_others)
-    elseif not (bool) and (params) then
-        local tab = settings.mod[script].permission_level
-        if (tab) then
-            if (level >= tab[index]) then
-                return true
-            else
-                return false
-            end
-        end
+    elseif not (bool) and (p ~= nil) then
+        return tonumber(settings.mod[script].permission_level[p.cmd])
     end
 end
 
+-- Checks if the player can execute this command on others
+local function executeOnOthers(e, self, is_console, level, script)
+    if not (self) and not (is_console)then
+        if tonumber(level) >= getPermLevel(script, true) then
+            return true
+        else
+            respond(e, "You are not allowed to executed this command on other players.", "rcon", 4 + 8)
+            return false
+        end
+    else
+        return true
+    end
+end
 
 local function populateInfoTable(p)
     player_info[p] = { }
@@ -2160,29 +2148,27 @@ function OnPlayerChat(PlayerIndex, Message, type)
     return response
 end
 
-local function checkAccess(e, console, script, others, params)
+local function checkAccess(e, console_allowed, script, others, alt, params)
     local access
     if (e ~= -1 and e >= 1 and e < 16) then
-        if not (params) then
+        if not (alt) then
             if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others)) then
                 access = true
             else
                 rprint(e, "Command failed. Insufficient Permission.")
                 access = false
             end
-        else 
-            local p = {}
-            p.level, p.index = params.level, params.index
-            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others, p)) then
+        else
+            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others, params)) then
                 access = true
             else
                 rprint(e, "Command failed. Insufficient Permission.")
                 access = false
             end
         end
-    elseif (console) and (e < 1) then
+    elseif (console_allowed) and (e < 1) then
         access = true
-    elseif not (console) and (e < 1) then
+    elseif not (console_allowed) and (e < 1) then
         access = false
 		respond(e, "Command Failed. Unable to execute from console.", "rcon", 4+8)
     end
@@ -2717,12 +2703,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[1]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                local p, tab = { }, settings.mod["Teleport Manager"]
-                p.eid, p.level, p.index = executor, level, tab.permission_level[1]
-                if (checkAccess(executor, false, "Teleport Manager", p)) then
+                local p = { }
+                p.eid, p.level, p.cmd = executor, level, "setwarp"
+                if (checkAccess(executor, false, "Teleport Manager", false, true, p)) then
                     if (args[1] ~= nil) then
+                        p.warpname = args[1]
 						velocity:setwarp(p)
                     else
+                        local tab = settings.mod["Teleport Manager"]
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
                         return false
                     end
@@ -3564,7 +3552,43 @@ function velocity:cute(params)
 end
 
 function velocity:setwarp(params)
-    print('working')
+    local params = params or { }
+    local eid = params.eid or nil
+    local warpname = params.warpname or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    
+    if not isFileEmpty(dir) then
+        local lines = lines_from(dir)
+        for _, v in pairs(lines) do
+            if (warpname == v:match("[%a%d+_]*")) then
+                respond(eid, "That portal name already exists!", "rcon")
+                canset[eid] = false
+                break
+            else
+                canset[eid] = true
+            end
+        end
+    else
+        canset[eid] = true
+    end
+    
+    if warpname:match(mapname) then
+        respond(eid, "Teleport name cannot be the same as the current map name!", "rcon")
+        canset[eid] = false
+    end
+    if (canset[eid] == true) then
+        local x,y,z
+        if PlayerInVehicle(eid) then
+            x,y,z = read_vector3d(get_object_memory(read_dword(get_dynamic_player(eid) + 0x11C)) + 0x5c)
+        else
+            x,y,z = read_vector3d(get_dynamic_player(eid) + 0x5C)
+        end
+        local file = io.open(dir, "a+")
+        local str = warpname .. " [Map: " .. mapname .. "] X " .. x .. ", Y " .. y .. ", Z " .. z
+        file:write(str, "\n")
+        file:close()
+        respond(eid, "Teleport location set to: " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon")
+    end
 end
 
 function velocity:setLurker(params)
@@ -4503,6 +4527,17 @@ function delete_from_file(dir, start_index, end_index, player)
         fp:write(string.format("%s\n", t[i]))
     end
     fp:close()
+end
+
+function isFileEmpty(dir)
+    local file = io.open(dir, "r")
+    local line = file:read()
+    if (line == nil) then
+        return true
+    else
+        return false
+    end
+    file:close()
 end
 
 function getCurrentVersion(bool)
