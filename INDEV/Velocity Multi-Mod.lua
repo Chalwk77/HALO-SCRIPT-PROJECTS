@@ -95,7 +95,7 @@ local function GameSettings()
                 users = {
                     { ["Chalwk"] = { "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-                    { ["§hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["�hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
                     -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
                     { ["NAME"] = { "hash1", "hash2", "hash3", "etc..." } },
@@ -237,7 +237,7 @@ local function GameSettings()
                     ["icefields"] = { pistol, assault_rifle, nil, nil, 2, 3, false },
                     ["infinity"] = { pistol, sniper, rocket_launcher, nil, 4, 4, false },
                     ["sidewinder"] = { pistol, rocket_launcher, plasma_cannon, nil, 3, 2, false },
-                    ["timberland"] = { pistol, assault_rifle, needler, nil, 3, 3, false },
+                    ["timberland"] = { pistol, assault_rifle, needler, nil, 3, 3, true },
                     ["hangemhigh"] = { pistol, shotgun, nil, nil, 2, 2, false },
                     ["ratrace"] = { assault_rifle, pistol, nil, nil, 0, 0, false },
                     ["damnation"] = { assault_rifle, pistol, nil, nil, 1, 3, false },
@@ -269,7 +269,7 @@ local function GameSettings()
                     on_disconnect = true,
                 },
             },
-			-- Used for Item Spawner and Enter Vehicle
+            -- Used for Item Spawner and Enter Vehicle
             ["Garbage Collection"] = {
                 enabled = true,
                 base_command = "clean", -- /base_command <item> [id] (opt height/distance)
@@ -287,7 +287,7 @@ local function GameSettings()
             },
             ["Item Spawner"] = {
                 enabled = true,
-                base_command = "spawn",  -- /base_command <item> [id]
+                base_command = "spawn", -- /base_command <item> [id]
                 permission_level = 1,
                 execute_on_others = 4,
                 -- Destroy objects spawned:
@@ -491,7 +491,6 @@ local function GameSettings()
                     ["h3 foundry"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["cliffhanger"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["snowtorn_cove"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["h3 foundry"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["remnants"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["temprate"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["pueblo_fantasma_beta"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
@@ -836,7 +835,7 @@ end
 
 -- Checks if the player can execute this command on others
 local function executeOnOthers(e, self, is_console, level, script)
-    if not (self) and not (is_console)then
+    if not (self) and not (is_console) then
         if tonumber(level) >= getPermLevel(script, true) then
             return true
         else
@@ -945,10 +944,8 @@ local function set(Player, ip)
             table.insert(m_board[ip], tab[i])
         end
     end
-    for _, v in pairs(m_board[ip]) do
-        for j = 1, #m_board[ip] do
-            m_board[ip][j] = gsub(gsub(m_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
-        end
+    for j = 1, #m_board[ip] do
+        m_board[ip][j] = gsub(gsub(m_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
     end
 end
 
@@ -1019,12 +1016,12 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-    
+
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
 
@@ -1038,11 +1035,11 @@ function OnScriptLoad()
         resetAliasParams()
         PreLoad()
     end
-    
+
     if modEnabled("Teleport Manager") then
         checkFile(settings.mod["Teleport Manager"].dir)
     end
-    
+
     -- #Mute System
     if modEnabled("Mute System") then
         checkFile(settings.mod["Mute System"].dir)
@@ -1080,15 +1077,15 @@ function OnScriptLoad()
                     adminchat:set(ip)
                 end
             end
-            
+
             -- #Lurker
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
                     velocity:LurkerReset(ip)
                 end
-                
+
             end
-            
+
             -- #Mute System
             if modEnabled("Mute System") then
                 local p, ip, name = { }, getip(i), get_var(i, "$name")
@@ -1099,7 +1096,7 @@ function OnScriptLoad()
                     velocity:saveMute(p, true, true)
                 end
             end
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -1233,7 +1230,7 @@ function OnNewGame()
             can_use_colorres = true
         end
     end
-    
+
     -- #Item Spawner
     if modEnabled("Item Spawner") then
         local objects_table = settings.mod["Item Spawner"].objects
@@ -1259,7 +1256,7 @@ function OnGameEnd()
                 weapon[i] = false
             end
 
-            
+
             -- #Mute System
             if modEnabled("Mute System") then
                 local ip, name = getip(i), get_var(i, "$name")
@@ -1269,7 +1266,7 @@ function OnGameEnd()
                     velocity:saveMute(p, false, false)
                 end
             end
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -1282,7 +1279,7 @@ function OnGameEnd()
                 respawn_cmd_override[ip] = false
                 respawn_time[ip] = 0
             end
-            
+
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 local mod = players["Admin Chat"][ip]
@@ -1339,31 +1336,34 @@ function OnTick()
                     if (player_alive(i)) then
                         if (weapon[i] == true) then
                             local player = get_dynamic_player(i)
-                            local x, y, z = read_vector3d(player + 0x5C)
-                            local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
+                            if (player ~= 0) then
+                                local x, y, z = read_vector3d(player + 0x5C)
+                                local primary, secondary, tertiary, quaternary, Slot = select(1, determineWeapon())
 
-                            if (primary) or (secondary) or (tertiary) or (quaternary) then
-                                execute_command("wdel " .. i)
-                            end
-
-                            if (secondary) then
-                                assign_weapon(spawn_object("weap", secondary, x, y, z), i)
-                            end
-
-                            if (primary) then
-                                assign_weapon(spawn_object("weap", primary, x, y, z), i)
-                            end
-
-                            if (Slot == 3 or Slot == 4) then
-                                timer(100, "delayAssignMore", player, x, y, z)
-                            end
-                            function delayAssignMore(player, x, y, z)
-                                if (tertiary) then
-                                    assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
+                                if (primary) or (secondary) or (tertiary) or (quaternary) then
+                                    execute_command("wdel " .. i)
                                 end
 
-                                if (quaternary) then
-                                    assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
+                                if (secondary) then
+                                    assign_weapon(spawn_object("weap", secondary, x, y, z), i)
+                                end
+
+                                if (primary) then
+                                    assign_weapon(spawn_object("weap", primary, x, y, z), i)
+                                end
+
+                                if (Slot == 3 or Slot == 4) then
+                                    timer(100, "delayAssignMore", i, x, y, z)
+                                end
+
+                                function delayAssignMore(i, x, y, z)
+                                    if (tertiary) then
+                                        assign_weapon(spawn_object("weap", tertiary, x, y, z), i)
+                                    end
+
+                                    if (quaternary) then
+                                        assign_weapon(spawn_object("weap", quaternary, x, y, z), i)
+                                    end
                                 end
                             end
                         end
@@ -1378,7 +1378,7 @@ function OnTick()
                     execute_command("nades " .. tonumber(i) .. " 7")
                 end
             end
-            
+
             -- #Lurker
             if modEnabled("Portal Gun") then
                 local tab = settings.mod["Lurker"]
@@ -1441,7 +1441,7 @@ function OnTick()
                     timeUntilRestore(i)
                 end
             end
-            
+
             -- #Portal Gun
             if modEnabled("Portal Gun") then
                 if (player_present(i) and player_alive(i)) then
@@ -1495,7 +1495,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Enter Vehicle
             if modEnabled("Enter Vehicle") then
                 if (ev_Status[i]) then
@@ -1508,7 +1508,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Mute System
             if modEnabled("Mute System") then
                 local ip = getip(i)
@@ -1581,7 +1581,7 @@ function OnPlayerConnect(PlayerIndex)
         cprint("Status: " .. name .. " connected successfully.", 5 + 8)
         cprint("________________________________________________________________________________", 2 + 8)
     end
-    
+
     -- #Mute System
     if modEnabled("Mute System") then
         local p, ip, name = { }, getip(PlayerIndex), get_var(PlayerIndex, "$name")
@@ -1592,13 +1592,13 @@ function OnPlayerConnect(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
-    
+
     -- #Respawn Time
     if modEnabled("Respawn Time") then
         respawn_cmd_override[ip] = false
         respawn_time[ip] = 0
     end
-    
+
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
@@ -1608,7 +1608,7 @@ function OnPlayerConnect(PlayerIndex)
             has_objective[PlayerIndex] = false
         end
     end
-    
+
     -- #Infinity Ammo
     if modEnabled("Infinity Ammo") then
         damage_multiplier[PlayerIndex] = 0
@@ -1658,7 +1658,7 @@ function OnPlayerConnect(PlayerIndex)
             end
         end
     end
-    
+
     -- #Spawn From Sky
     if modEnabled("Spawn From Sky") then
         if (settings.mod["Spawn From Sky"].maps[mapname] ~= nil) then
@@ -1668,7 +1668,7 @@ function OnPlayerConnect(PlayerIndex)
             first_join[PlayerIndex] = true
         end
     end
-    
+
     -- #Chat Logging
     if modEnabled("Chat Logging") then
         local dir = settings.mod["Chat Logging"].dir
@@ -1696,7 +1696,7 @@ function OnPlayerConnect(PlayerIndex)
             announceJoin(join_message)
         end
     end
-    
+
 
     -- #Anti Impersonator
     if modEnabled("Anti Impersonator") then
@@ -1729,14 +1729,14 @@ function OnPlayerConnect(PlayerIndex)
     if modEnabled("Item Spawner") then
         IS_drone_table[PlayerIndex] = nil
     end
-    
+
     -- #Enter Vehicle
     if modEnabled("Enter Vehicle") then
         ev[PlayerIndex] = false
         ev_Status[PlayerIndex] = false
         EV_drone_table[PlayerIndex] = nil
     end
-    
+
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
@@ -1786,7 +1786,7 @@ function OnPlayerDisconnect(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
+
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
     if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
@@ -1808,7 +1808,7 @@ function OnPlayerDisconnect(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
-    
+
     -- #Respawn Time
     respawn_time[ip] = nil
 
@@ -1823,7 +1823,7 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Message Board") then
         messageBoard:hide(PlayerIndex, ip)
     end
-    
+
     -- #Teleport Manager
     if modEnabled("Teleport Manager") then
         wait_for_response[PlayerIndex] = false
@@ -1853,7 +1853,7 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
-    
+
     -- #Spawn From Sky
     if modEnabled("Spawn From Sky") then
         if init_timer == true then
@@ -1875,7 +1875,7 @@ function OnPlayerDisconnect(PlayerIndex)
             has_objective[PlayerIndex] = false
         end
     end
-    
+
     -- #Infinity Ammo
     if (modEnabled("Lurker") and infammo[PlayerIndex]) then
         DisableInfAmmo(PlayerIndex)
@@ -1891,7 +1891,7 @@ function OnPlayerDisconnect(PlayerIndex)
             file:close()
         end
     end
-    
+
     -- #Enter Vehicle & Item Spawner
     if modEnabled("Enter Vehicle") or modEnabled("Item Spawner") then
         local tab = settings.mod["Enter Vehicle"]
@@ -2008,7 +2008,6 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnPlayerKill(PlayerIndex)
-    local name = get_var(PlayerIndex, "$name")
     local ip = get_var(PlayerIndex, "$ip")
     local level = tonumber(get_var(PlayerIndex, "$lvl"))
 
@@ -2047,7 +2046,7 @@ function OnPlayerKill(PlayerIndex)
                     end
                 end
                 return spawntime
-            end        
+            end
             if not mod.global_respawn_time.enabled then
                 if (mod.maps[mapname] ~= nil) then
                     write_dword(player + 0x2C, tonumber(getSpawnTime()) * 33)
@@ -2070,7 +2069,7 @@ function OnPlayerKill(PlayerIndex)
             mod.lurker_timer = 0
         end
     end
-    
+
     -- #Enter Vehicle & Item Spawner
     if modEnabled("Enter Vehicle") or modEnabled("Item Spawner") then
         if (settings.mod["Enter Vehicle"].garbage_collection.on_death) then
@@ -2080,7 +2079,7 @@ function OnPlayerKill(PlayerIndex)
             CleanUpDrones(PlayerIndex, 2)
         end
     end
-    
+
     -- #Infinity Ammo
     if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = false
@@ -2105,8 +2104,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             return false
         end
     end
-    
-    
+
+
     -- Used throughout OnPlayerChat()
     local message = stringSplit(Message)
     if (#message == 0) then
@@ -2404,7 +2403,7 @@ local function checkAccess(e, console_allowed, script, others, alt, params)
         access = true
     elseif not (console_allowed) and (e < 1) then
         access = false
-		respond(e, "Command Failed. Unable to execute from console.", "rcon", 4+8)
+        respond(e, "Command Failed. Unable to execute from console.", "rcon", 4 + 8)
     end
     return access
 end
@@ -2449,12 +2448,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local TargetID, target_all_players, is_error
     local ip, name, hash = get_var(executor, "$ip"), get_var(executor, "$name"), get_var(executor, "$hash")
-    local pl
 
     local pCMD = settings.global.plugin_commands
 
     local function hasAccess(e, lvl_req)
-        local allow_access
         if isConsole(e) then
             return true
         elseif (level >= lvl_req) then
@@ -2512,7 +2509,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if pl[i] == nil then
                     break
                 end
-                
+
                 params.eid = executor
                 params.eip = ip
                 params.en = name
@@ -2539,7 +2536,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             velocity:unmute(params)
                         end
                     end
-                -- #Alias System
+                    -- #Alias System
                 elseif (parameter == "alias") then
                     local bool
                     if isConsole(executor) then
@@ -2553,7 +2550,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:aliasCmdRoutine(params)
                     end
-				-- #Admin Chat
+                    -- #Admin Chat
                 elseif (parameter == "achat") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
@@ -2561,7 +2558,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:determineAchat(params)
                     end
-				-- #Portal Gun
+                    -- #Portal Gun
                 elseif (parameter == "portalgun") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
@@ -2569,7 +2566,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:portalgun(params)
                     end
-				-- #Lurker
+                    -- #Lurker
                 elseif (parameter == "lurker") then
                     params.bool = true
                     params.CmdTrigger = true
@@ -2579,7 +2576,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
-				-- #Respawn Time
+                    -- #Respawn Time
                 elseif (parameter == "setrespawn") then
                     if (args[2] ~= nil) then
                         params.time = args[2]
@@ -2587,7 +2584,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setRespawnTime(params)
                     end
-				-- #Enter Vehicle
+                    -- #Enter Vehicle
                 elseif (parameter == "entervehicle") then
                     if (args[1] ~= nil) then
                         params.item = args[1] -- item
@@ -2601,7 +2598,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:enterVehicle(params)
                     end
-				-- #Item Spawner
+                    -- #Item Spawner
                 elseif (parameter == "itemspawner") then
                     if (args[1] ~= nil) then
                         params.item = args[1] -- object
@@ -2609,7 +2606,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:spawnItem(params)
                     end
-				-- #Garbage Collection
+                    -- #Garbage Collection
                 elseif (parameter == "garbagecollection") then
                     if (args[1] ~= nil) then
                         params.table = args[2] -- table id
@@ -2617,7 +2614,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:clean(params)
                     end
-				-- #Infinity Ammo
+                    -- #Infinity Ammo
                 elseif (parameter == "infinityammo") then
                     if (args[1] ~= nil) then
                         params.off = args[3] -- off
@@ -2626,14 +2623,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:infinityAmmo(params)
                     end
-				-- #Cute
+                    -- #Cute
                 elseif (parameter == "cute") then
                     if (target_all_players) then
                         if not cmdself(params.tid, executor) then
                             velocity:cute(params)
                         end
                     end
-				-- #Teleport Manager | warp
+                    -- #Teleport Manager | warp
                 elseif (parameter == "warp") then
                     if (args[1] ~= nil) then
                         params.warpname = args[1]
@@ -2641,7 +2638,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:warp(params)
                     end
-				-- #Teleport Manager | back
+                    -- #Teleport Manager | back
                 elseif (parameter == "warpback") then
                     if (target_all_players) then
                         velocity:warpback(params)
@@ -2685,16 +2682,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         else
-            respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command.. " [id] <time diff>", "rcon", 2+8)
+            respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [id] <time diff>", "rcon", 2 + 8)
         end
         return false
-    -- #Mute System
+        -- #Mute System
     elseif (command == settings.mod["Mute System"].unmute_command) then
         if modEnabled("Mute System", executor) then
+            local tab = settings.mod["Mute System"]
             if (checkAccess(executor, true, "Mute System")) then
-                local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) then
-                        validate_params("unmute", 1) --/base_command [id] <args>
+                    validate_params("unmute", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             if not cmdself(params.tid, executor) then
@@ -2704,11 +2701,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command.. " [id]", "rcon", 2+8)
+                respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [id]", "rcon", 2 + 8)
             end
         end
         return false
-    -- #Mute System
+        -- #Mute System
     elseif (command == settings.mod["Mute System"].mutelist_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
@@ -2719,7 +2716,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Cute
+        -- #Cute
     elseif (command == settings.mod["Cute"].base_command) then
         if modEnabled("Cute", executor) then
             if (checkAccess(executor, true, "Cute")) then
@@ -2737,7 +2734,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Infinity Ammo
+        -- #Infinity Ammo
     elseif (command == settings.mod["Infinity Ammo"].base_command) then
         if modEnabled("Infinity Ammo", executor) then
             if (checkAccess(executor, true, "Infinity Ammo")) then
@@ -2755,7 +2752,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Alias System
+        -- #Alias System
     elseif (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
@@ -2825,19 +2822,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Garbage Collection"].base_command) then
         if not gameover(executor) then
             if modEnabled("Garbage Collection", executor) or modEnabled("Garbage Collection", executor) then
-				if (checkAccess(executor, true, "Garbage Collection")) then
-					local tab = settings.mod["Garbage Collection"]
-					if (args[1] ~= nil) and (args[2] ~= nil) then
-						validate_params("garbagecollection", 1) --/base_command [id] <args>
-						if not (target_all_players) then
-							if not (is_error) and isOnline(TargetID, executor) then
-								velocity:clean(params)
-							end
-						end
-					else
-						respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]" , "rcon", 4 + 8)
-						return false
-					end
+                if (checkAccess(executor, true, "Garbage Collection")) then
+                    local tab = settings.mod["Garbage Collection"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("garbagecollection", 1) --/base_command [id] <args>
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:clean(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]", "rcon", 4 + 8)
+                        return false
+                    end
                 end
             end
         end
@@ -2955,7 +2952,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, false, "Teleport Manager", false, true, p)) then
                     if (args[1] ~= nil) then
                         p.warpname = args[1]
-						velocity:setwarp(p)
+                        velocity:setwarp(p)
                     else
                         local tab = settings.mod["Teleport Manager"]
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
@@ -3014,7 +3011,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] == nil) then
-                        local p = {} 
+                        local p = {}
                         p.eid = executor
                         velocity:warplist(p)
                     else
@@ -3032,7 +3029,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] == nil) then
-                        local p = {} 
+                        local p = {}
                         p.eid = executor
                         velocity:warplistall(p)
                     else
@@ -3217,7 +3214,7 @@ function velocity:portalgun(params)
                 respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4 + 8)
             end
         else
-            respond(eid, tn .. " is not an admin! [Portal Gun Off]", "rcon", 4+8)
+            respond(eid, tn .. " is not an admin! [Portal Gun Off]", "rcon", 4 + 8)
         end
     else
         proceed = true
@@ -3226,7 +3223,7 @@ function velocity:portalgun(params)
     if (proceed) then
         local base_command = settings.mod["Portal Gun"].base_command
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
-            if (tLvl >= 1) then 
+            if (tLvl >= 1) then
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
                     status, already_set, is_error = "Enabled", true, false
@@ -3309,7 +3306,6 @@ function velocity:determineAchat(params)
 
     local params = params or {}
     local eid = params.eid or nil
-    local eip = params.eip or nil
     local en = params.en or nil
 
     local tid = params.tid or nil
@@ -3328,7 +3324,7 @@ function velocity:determineAchat(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
@@ -3345,7 +3341,7 @@ function velocity:determineAchat(params)
                 respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4 + 8)
             end
         else
-            respond(eid, tn .. " is not an admin! [Admin Chat Off]", "rcon", 4+8)
+            respond(eid, tn .. " is not an admin! [Admin Chat Off]", "rcon", 4 + 8)
         end
     else
         proceed = true
@@ -3354,7 +3350,7 @@ function velocity:determineAchat(params)
     if (proceed) then
         local base_command = settings.mod["Admin Chat"].base_command
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Admin Chat")) then
-            if (tLvl >= 1) then 
+            if (tLvl >= 1) then
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
                     if (mod.boolean ~= true) then
@@ -3403,9 +3399,7 @@ function velocity:setRespawnTime(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local tip = params.tip or nil
-    
-    local time = params.time or nil
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -3416,7 +3410,7 @@ function velocity:setRespawnTime(params)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    
+
     local function getRSTime(p)
         if (get_player(p)) then
             return read_dword(get_player(p) + 0x2C)
@@ -3444,7 +3438,7 @@ function velocity:setRespawnTime(params)
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn Time")) then
             if not (is_error) then
                 if not (is_self) then
-                    if (respawn_time[tip] == nil) then 
+                    if (respawn_time[tip] == nil) then
                         respawn_time[tip] = getRSTime(tid)
                     else
                         respawn_time[tip] = time
@@ -3453,7 +3447,7 @@ function velocity:setRespawnTime(params)
                     respond(tid, "Your respawn time was set to " .. respawn_time[tip] .. " seconds", "rcon", 4 + 8)
                     respawn_cmd_override[tip] = true
                 else
-                    if (respawn_time[eip] == nil) then 
+                    if (respawn_time[eip] == nil) then
                         respawn_time[eip] = getRSTime(eid)
                     else
                         respawn_time[eip] = time
@@ -3474,7 +3468,7 @@ function velocity:enterVehicle(params)
 
     local tid = params.tid or nil
     local tn = params.tn or nil
-    
+
     local height = params.height or nil
     local distance = params.distance or nil
     local item = params.item or nil
@@ -3487,12 +3481,12 @@ function velocity:enterVehicle(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Enter Vehicle")) then
-        if (tLvl >= 1) then 
+        if (tLvl >= 1) then
             if not (is_error) then
 
                 if (distance) then
@@ -3504,7 +3498,7 @@ function velocity:enterVehicle(params)
                 else
                     distance = 2
                 end
-            
+
                 if (height) then
                     if height:match("%d+") then
                         height = tonumber(height)
@@ -3514,7 +3508,7 @@ function velocity:enterVehicle(params)
                 else
                     height = 0.3
                 end
-                
+
                 if player_alive(tid) then
                     local x, y, z, is_valid, err, no_match
                     local objects_table = settings.mod["Item Spawner"].objects
@@ -3533,7 +3527,7 @@ function velocity:enterVehicle(params)
                                 else
                                     x, y, z = read_vector3d(player_object + 0x5c)
                                 end
-                                
+
                                 local camera_x = read_float(player_object + 0x230)
                                 local camera_y = read_float(player_object + 0x234)
                                 x = x + camera_x * distance
@@ -3548,7 +3542,7 @@ function velocity:enterVehicle(params)
                                     enter_vehicle(vehicle, player, 0)
                                     ev[player] = true
                                 end
-                                
+
                                 -- Multi Control - NOT in vehicle
                                 if multi_control and not PlayerInVehicle(tid) then
                                     Enter(tid, ev_NewVehicle[tid])
@@ -3591,15 +3585,15 @@ function velocity:enterVehicle(params)
                         end
                     end
                     if not (is_valid) and (no_match) and not (err) then
-                        respond(eid, "Failed to spawn object. [unknown object name]", "rcon", 4+8)
+                        respond(eid, "Failed to spawn object. [unknown object name]", "rcon", 4 + 8)
                     elseif (is_valid == nil or is_valid == false) and (err) and (no_match) then
-                        respond(eid, "Failed to spawn object. [missing tag id", "rcon", 4+8)
+                        respond(eid, "Failed to spawn object. [missing tag id", "rcon", 4 + 8)
                     end
                 else
                     if not (is_self) then
-                        respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4+8)
+                        respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4 + 8)
                     else
-                        respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4+8)
+                        respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3610,7 +3604,6 @@ function velocity:enterVehicle(params)
     return false
 end
 
-
 function velocity:spawnItem(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -3619,9 +3612,9 @@ function velocity:spawnItem(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local item = params.item or nil
-    
+
     local tab = settings.mod["Item Spawner"]
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -3630,12 +3623,12 @@ function velocity:spawnItem(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Item Spawner")) then
-        if (tLvl >= 1) then 
+        if (tLvl >= 1) then
             if player_alive(tid) then
                 local objects_table = tab.objects
                 local valid, err
@@ -3675,19 +3668,19 @@ function velocity:spawnItem(params)
                             SpawnObject(tid, tag_type, tag_name)
                         else
                             err = true
-                            respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4+8)
+                            respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                         end
                         break
                     end
                 end
                 if not (valid) and not (err) then
-                    respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4+8)
+                    respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
                 end
             else
                 if not (is_self) then
-                    respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4+8)
+                    respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4 + 8)
                 else
-                    respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4+8)
+                    respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4 + 8)
                 end
             end
         else
@@ -3705,9 +3698,7 @@ function velocity:clean(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local identifier = params.table or nil
-    
-    local tab = settings.mod["Garbage Collection"]
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -3716,12 +3707,12 @@ function velocity:clean(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Garbage Collection")) then
-        if (tLvl >= 1) then 
+        if (tLvl >= 1) then
             local object, proceed
             if identifier:match("%d+") then
                 identifier = tonumber(identifier)
@@ -3736,21 +3727,21 @@ function velocity:clean(params)
                 identifier = tostring(identifier)
                 object = "Enter Vehicle & Item Spawner"
             else
-                respond(eid, "Invalid Table ID!", "rcon", 4+8)
+                respond(eid, "Invalid Table ID!", "rcon", 4 + 8)
             end
 
             if (ev_NewVehicle[tid] ~= nil) or (item_objects[tid] ~= nil) then
                 proceed = true
             else
-                respond(tid, tn .. " has nothing to clean up", "rcon", 4+8)
+                respond(tid, tn .. " has nothing to clean up", "rcon", 4 + 8)
             end
-            
+
             if (proceed) then
                 CleanUpDrones(tid, identifier)
                 if (is_self) then
-                    respond(eid, "Cleaning up " .. object .. " objects", "rcon", 4+8)
+                    respond(eid, "Cleaning up " .. object .. " objects", "rcon", 4 + 8)
                 else
-                    respond(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects", "rcon", 4+8)
+                    respond(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects", "rcon", 4 + 8)
                 end
             end
         else
@@ -3768,9 +3759,9 @@ function velocity:infinityAmmo(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local multiplier = params.multiplier or nil
-    
+
     local tab = settings.mod["Infinity Ammo"]
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -3779,9 +3770,8 @@ function velocity:infinityAmmo(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Infinity Ammo")) then
         local function EnableInfAmmo(TargetID, specified, multiplier)
@@ -3793,31 +3783,31 @@ function velocity:infinityAmmo(params)
                     local mult = tonumber(multiplier)
                     modify_damage[TargetID] = true
                     damage_multiplier[TargetID] = mult
-                    respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4+8)
-                    respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4+8)
+                    respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
+                    respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4 + 8)
                 else
-                    respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4+8)
+                    respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
                 end
             else
-                respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4+8)
-                if (tab..announcer) then
+                respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
+                if (tab .. announcer) then
                     announce(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
                 end
             end
         end
-        
+
         local _min = tab.multiplier_min
-        local _max = tab.multiplier_max 
-        
+        local _max = tab.multiplier_max
+
         local function validate_multiplier(T3)
             if tonumber(T3) >= tonumber(_min) and tonumber(T3) < tonumber(_max) + 1 then
                 return true
             else
-                respond(eid, "Invalid multiplier. Choose a number between 0.001-10", "rcon", 4+8)
+                respond(eid, "Invalid multiplier. Choose a number between 0.001-10", "rcon", 4 + 8)
             end
             return false
         end
-        
+
         if (is_self) then
             if (multiplier == nil) then
                 EnableInfAmmo(eid, false, 0)
@@ -3835,23 +3825,23 @@ function velocity:infinityAmmo(params)
             if (multiplier == nil) then
                 if player_present(tid) then
                     EnableInfAmmo(tid, false, 0)
-                    respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4+8)
+                    respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4 + 8)
                 else
-                    respond(eid, "Player not present", "rcon", 4+8)
+                    respond(eid, "Player not present", "rcon", 4 + 8)
                 end
             elseif multiplier:match("%d+") then
                 if player_present(tid) then
                     if validate_multiplier(multiplier) then
                         EnableInfAmmo(tid, true, multiplier)
-                        respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4+8)
+                        respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4 + 8)
                     end
                 else
-                    respond(eid, "Command failed. Player not online", "rcon", 4+8)
+                    respond(eid, "Command failed. Player not online", "rcon", 4 + 8)
                 end
             elseif (multiplier == "off") then
                 DisableInfAmmo(tid)
-                respond(eid, "[cheat] Disabled infammo for " .. tn, "rcon", 4+8)
-                if (tab..announcer) then
+                respond(eid, "[cheat] Disabled infammo for " .. tn, "rcon", 4 + 8)
+                if (tab .. announcer) then
                     announce(tid, tn .. " is no longer in Infinity Ammo Mode")
                 end
             end
@@ -3867,14 +3857,11 @@ function velocity:cute(params)
 
     local tid = params.tid or nil
     local tn = params.tn or nil
-    local multiplier = params.multiplier or nil
-    
-    local tab = settings.mod["Infinity Ammo"]
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
@@ -3883,19 +3870,19 @@ function velocity:cute(params)
     local tab = settings.mod["Cute"]
     local tFormat, eFormat = tab.messages[1], tab.messages[2]
 
-    local tStr = (gsub(gsub(tFormat,"%%executors_name%%", en), "%%target_name%%", tn))
+    local tStr = (gsub(gsub(tFormat, "%%executors_name%%", en), "%%target_name%%", tn))
 
     if (tab.environment == "chat") then
         execute_command("msg_prefix \"\"")
-        respond(tid, tStr, "chat", 2+8)
+        respond(tid, tStr, "chat", 2 + 8)
         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     else
-        respond(tid, tStr, "rcon", 2+8)
+        respond(tid, tStr, "rcon", 2 + 8)
     end
 
-    local eStr = (gsub(gsub(eFormat,"%%executors_name%%", en), "%%target_name%%", tn))
+    local eStr = (gsub(gsub(eFormat, "%%executors_name%%", en), "%%target_name%%", tn))
     execute_command("msg_prefix \"\"")
-    respond(eid, eStr, "rcon", 2+8)
+    respond(eid, eStr, "rcon", 2 + 8)
     execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     return false
 end
@@ -3905,7 +3892,7 @@ function velocity:setwarp(params)
     local eid = params.eid or nil
     local warpname = params.warpname or nil
     local dir = settings.mod["Teleport Manager"].dir
-    
+
     if not isFileEmpty(dir) then
         local lines = lines_from(dir)
         for _, v in pairs(lines) do
@@ -3920,17 +3907,17 @@ function velocity:setwarp(params)
     else
         canset[eid] = true
     end
-    
+
     if warpname:match(mapname) then
         respond(eid, "Teleport name cannot be the same as the current map name!", "rcon")
         canset[eid] = false
     end
     if (canset[eid] == true) then
-        local x,y,z
+        local x, y, z
         if PlayerInVehicle(eid) then
-            x,y,z = read_vector3d(get_object_memory(read_dword(get_dynamic_player(eid) + 0x11C)) + 0x5c)
+            x, y, z = read_vector3d(get_object_memory(read_dword(get_dynamic_player(eid) + 0x11C)) + 0x5c)
         else
-            x,y,z = read_vector3d(get_dynamic_player(eid) + 0x5C)
+            x, y, z = read_vector3d(get_dynamic_player(eid) + 0x5C)
         end
         local file = io.open(dir, "a+")
         local str = warpname .. " [Map: " .. mapname .. "] X " .. x .. ", Y " .. y .. ", Z " .. z
@@ -3948,7 +3935,7 @@ function velocity:warp(params)
     local tn = params.tn or nil
     local warpname = params.warpname or nil
     local dir = settings.mod["Teleport Manager"].dir
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -3957,9 +3944,9 @@ function velocity:warp(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    
+
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Teleport Manager")) then
         if not isFileEmpty(dir) then
             local found
@@ -4054,7 +4041,7 @@ function velocity:warp(params)
                                 y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
                                 z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
                             else
-                                respond(eid, "Script Error! Coordinates for that teleport do not match the regex expression", "rcon", 4+8)
+                                respond(eid, "Script Error! Coordinates for that teleport do not match the regex expression", "rcon", 4 + 8)
                                 cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4 + 8)
                             end
                             if (v ~= nil and valid) then
@@ -4070,27 +4057,27 @@ function velocity:warp(params)
                                     valid = false
                                 end
                                 if (is_self) then
-                                    respond(eid, "Teleporting to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
+                                    respond(eid, "Teleporting to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4 + 8)
                                 else
-                                    respond(eid, "Teleporting " .. tn .. " to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
-                                    respond(tid, en .. " teleport you to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
+                                    respond(eid, "Teleporting " .. tn .. " to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4 + 8)
+                                    respond(tid, en .. " teleport you to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4 + 8)
                                 end
                             end
                         else
                             found = true
-                            respond(eid, "That warp is not linked to this map", "rcon", 4+8)
+                            respond(eid, "That warp is not linked to this map", "rcon", 4 + 8)
                         end
                     else
                         found = true
-                        respond(eid, "You cannot teleport when dead", "rcon", 4+8)
+                        respond(eid, "You cannot teleport when dead", "rcon", 4 + 8)
                     end
                 end
             end
             if not (found) then
-                respond(eid, "That teleport name is not valid", "rcon", 4+8)
+                respond(eid, "That teleport name is not valid", "rcon", 4 + 8)
             end
         else
-            respond(eid, "The teleport list is empty!", "rcon", 4+8)
+            respond(eid, "The teleport list is empty!", "rcon", 4 + 8)
         end
     end
     return false
@@ -4102,9 +4089,7 @@ function velocity:warpback(params)
     local tid = params.tid or nil
     local en = params.en or nil
     local tn = params.tn or nil
-    local warpname = params.warpname or nil
-    local dir = settings.mod["Teleport Manager"].dir
-    
+
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -4113,18 +4098,18 @@ function velocity:warpback(params)
     if (eid == tid) then
         is_self = true
     end
-    
+
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    
+
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Teleport Manager")) then
         if not PlayerInVehicle(tid) then
             if previous_location[tid][1] ~= nil then
                 write_vector3d(get_dynamic_player(tid) + 0x5C, previous_location[tid][1], previous_location[tid][2], previous_location[tid][3])
                 if (is_self) then
-                    respond(eid, "Returning to previous location", "rcon", 4+8)
+                    respond(eid, "Returning to previous location", "rcon", 4 + 8)
                 else
-                    respond(eid, "Returning " .. tn .. " to previous location", "rcon", 4+8)
-                    respond(tid, en " sent you back to your previous location", "rcon", 4+8)
+                    respond(eid, "Returning " .. tn .. " to previous location", "rcon", 4 + 8)
+                    respond(tid, en " sent you back to your previous location", "rcon", 4 + 8)
                 end
                 for i = 1, 3 do
                     previous_location[tid][i] = nil
@@ -4149,14 +4134,14 @@ function velocity:warplist(params)
         for k, v in pairs(lines) do
             if find(v, mapname) then
                 found = true
-                respond(eid, "[" .. k .. "] " .. v, "rcon", 4+8)
+                respond(eid, "[" .. k .. "] " .. v, "rcon", 4 + 8)
             end
         end
         if not (found) then
-            respond(eid, "There are no warps for the current map.", "rcon", 4+8)
+            respond(eid, "There are no warps for the current map.", "rcon", 4 + 8)
         end
     else
-        respond(eid, "The teleport list is empty!", "rcon", 4+8)
+        respond(eid, "The teleport list is empty!", "rcon", 4 + 8)
     end
 end
 
@@ -4167,10 +4152,10 @@ function velocity:warplistall(params)
     if not isFileEmpty(dir) then
         local lines = lines_from(dir)
         for k, v in pairs(lines) do
-            respond(eid, "[" .. k .. "] " .. v, "rcon", 2+8)
+            respond(eid, "[" .. k .. "] " .. v, "rcon", 2 + 8)
         end
     else
-        respond(eid, "The teleport list is empty!", "rcon", 4+8)
+        respond(eid, "The teleport list is empty!", "rcon", 4 + 8)
     end
 end
 
@@ -4188,11 +4173,11 @@ function velocity:delwarp(params)
                     found = true
                     if find(v, mapname) then
                         delete_from_file(dir, k, 1, eid)
-                        respond(eid, "Successfully deleted teleport id #" .. k, "rcon", 2+8)
+                        respond(eid, "Successfully deleted teleport id #" .. k, "rcon", 2 + 8)
                     else
                         wait_for_response[eid] = true
-                        respond(eid, "Warning: That teleport is not linked to this map.", "rcon", 2+8)
-                        respond(eid, "Type 'YES' to delete, type 'NO' to cancel.", "rcon", 2+8)
+                        respond(eid, "Warning: That teleport is not linked to this map.", "rcon", 2 + 8)
+                        respond(eid, "Type 'YES' to delete, type 'NO' to cancel.", "rcon", 2 + 8)
                         function getWarp()
                             return tonumber(k)
                         end
@@ -4201,17 +4186,16 @@ function velocity:delwarp(params)
             end
         end
         if not (found) then
-            respond(eid, "Teleport Index ID does not exist", "rcon", 2+8)
+            respond(eid, "Teleport Index ID does not exist", "rcon", 2 + 8)
         end
     else
-        respond(eid, "The teleport list is empty", "rcon", 2+8)
+        respond(eid, "The teleport list is empty", "rcon", 2 + 8)
     end
 end
 
 function velocity:setLurker(params)
     local params = params or { }
     local eid = params.eid or nil
-    local eip = params.eip or nil
     local en = params.en or nil
 
     local tid = params.tid or nil
@@ -4231,8 +4215,8 @@ function velocity:setLurker(params)
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
-    
-    local proceed, access
+
+    local proceed
     local option = params.option or nil
     if (option == nil) then
         if (CmdTrigger) then
@@ -4248,7 +4232,7 @@ function velocity:setLurker(params)
                     respond(eid, tn .. "'s lurker mode is " .. status, "rcon", 4 + 8)
                 end
             else
-                respond(eid, tn .. " is not an admin! [Lurker Mode Off]", "rcon", 4+8)
+                respond(eid, tn .. " is not an admin! [Lurker Mode Off]", "rcon", 4 + 8)
             end
         else
             proceed = true
@@ -4376,8 +4360,6 @@ function velocity:aliasCmdRoutine(params)
     local params = params or {}
     local eid = params.eid or nil
     local eip = params.eip or nil
-    local tn = params.tn or nil
-    local th = params.th or nil
     local use_timer = params.timer or nil
 
     local aliases, content
@@ -4580,13 +4562,13 @@ end
 -- #Mute System
 function velocity:saveMute(params, bool, showMessage)
     local params = params or { }
-    
+
     local ip = params.tip or nil
     local name = params.tn or nil
     local eid = params.eid or nil
     local tid = params.tid or nil
     local time = params.time or nil
-    
+
     local proceed
     if not (settings.mod["Mute System"].can_mute_admins) then
         if tonumber(get_var(tid, "$lvl")) >= 1 then
@@ -4604,9 +4586,9 @@ function velocity:saveMute(params, bool, showMessage)
         mute_table[ip].timer = 0
         mute_table[ip].remaining = time
         mute_table[ip].duration = time
-        
+
         local dir = settings.mod["Mute System"].dir
-        
+
         local lines, found = lines_from(dir)
         for _, v in pairs(lines) do
             if (v:match(ip)) then
@@ -4627,32 +4609,32 @@ function velocity:saveMute(params, bool, showMessage)
         end
         if (bool) and (showMessage) then
             if (mute_table[ip].duration == default_mute_time) then
-                respond(tid, "You are muted permanently", "rcon", 2+8)
+                respond(tid, "You are muted permanently", "rcon", 2 + 8)
                 if (eid ~= nil) then
-                    respond(eid, name .. " was muted permanently", "rcon", 2+8)
+                    respond(eid, name .. " was muted permanently", "rcon", 2 + 8)
                 end
             else
-                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2+8)
+                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2 + 8)
                 if (eid ~= nil) then
-                    respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2+8)
+                    respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2 + 8)
                 end
             end
         end
     else
-        respond(eid, "Unable to mute " .. name .. ". [can_mute_admins is disabled]" , "rcon", 4+8)
+        respond(eid, "Unable to mute " .. name .. ". [can_mute_admins is disabled]", "rcon", 4 + 8)
     end
 end
 
 -- #Mute System
 function velocity:unmute(params)
     local params = params or { }
-    
+
     local ip = params.tip or nil
     local name = params.tn or nil
     local eid = params.eid or nil
     local tid = params.tid or nil
     local en = params.en or nil
-    
+
     local proceed
     if not (settings.mod["Mute System"].can_mute_admins) then
         if tonumber(get_var(tid, "$lvl")) >= 1 then
@@ -4663,7 +4645,7 @@ function velocity:unmute(params)
     else
         proceed = true
     end
-    
+
     if (proceed) then
         local dir = settings.mod["Mute System"].dir
         local lines = lines_from(dir)
@@ -4679,7 +4661,7 @@ function velocity:unmute(params)
                 mute_table[ip] = { }
             end
         end
-        
+
         if (eid ~= nil and eid == 0) or (eid == nil) then
             en = 'SERVER'
             id = 0
@@ -4687,10 +4669,10 @@ function velocity:unmute(params)
             en = en
             id = eid
         end
-        respond(tid, "You were unmuted by " .. en, "rcon", 2+8)
-        respond(id, name .. " was unmuted by " .. en, "rcon", 2+8)
+        respond(tid, "You were unmuted by " .. en, "rcon", 2 + 8)
+        respond(id, name .. " was unmuted by " .. en, "rcon", 2 + 8)
     else
-        respond(eid, "Unable to unmute " .. name .. ". [can_mute_admins is disabled]" , "rcon", 4+8)
+        respond(eid, "Unable to unmute " .. name .. ". [can_mute_admins is disabled]", "rcon", 4 + 8)
     end
 end
 
@@ -4700,7 +4682,7 @@ function velocity:loadMute(params)
     local ip = params.tip or nil
     local dir = settings.mod["Mute System"].dir
     local content, data
-    
+
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(ip)) then
@@ -4727,37 +4709,37 @@ function velocity:loadMute(params)
 end
 
 -- #Mute System
-function velocity:mutelist(params) 
+function velocity:mutelist(params)
     local params = params or { }
     local eid = params.eid or nil
     local flag = params.flag or nil
     local dir = settings.mod["Mute System"].dir
-    
-    respond(eid, "----------- IP - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 7+8)
-    
+
+    respond(eid, "----------- IP - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 7 + 8)
+
     local lines = lines_from(dir)
     for k, v in pairs(lines) do
         if (k ~= nil) then
             if (flag == nil) then
-                respond(eid, v, "rcon", 2+8)
+                respond(eid, v, "rcon", 2 + 8)
             elseif (flag == "-o") then
                 local count = 0
                 for i = 1, 16 do
-                    if player_present(i) then 
+                    if player_present(i) then
                         cout = count + 1
                         local ip = getip(i)
                         local muted = velocity:loadMute(ip)
                         if (ip == muted[1]) then
-                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7+8)
+                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7 + 8)
                         end
                     end
                 end
                 if (count == 0) then
-                    respond(eid, "Nobody online is currently muted.", "rcon", 4+8)
+                    respond(eid, "Nobody online is currently muted.", "rcon", 4 + 8)
                     break
                 end
             else
-                respond(eid, "Invalid syntax. Usage: /" .. mutelist_command.. " <flag>", "rcon", 2+8)
+                respond(eid, "Invalid syntax. Usage: /" .. mutelist_command .. " <flag>", "rcon", 2 + 8)
                 break
             end
         end
