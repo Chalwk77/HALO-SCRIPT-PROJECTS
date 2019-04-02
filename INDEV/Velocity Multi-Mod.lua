@@ -73,7 +73,7 @@ local function GameSettings()
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
                 use_timer = true,
-                duration = 10, -- How long should the alias results be displayed for? (in seconds)
+                duration = 5, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
             },
             -- # Custom (separate) join messages for staff on a per-level basis
