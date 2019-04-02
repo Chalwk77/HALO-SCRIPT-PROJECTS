@@ -489,6 +489,7 @@ local function GameSettings()
             ["Teleport Manager"] = {
                 enabled = true,
                 dir = "sapp\\teleports.txt",
+                execute_on_others = 4,
                 permission_level = {
                     setwarp = 1,
                     warp = -1,
@@ -2399,6 +2400,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             velocity:cute(params)
                         end
                     end
+				-- #Teleport Manager | warp
+                elseif (parameter == "warp") then
+                    if (args[1] ~= nil) then
+                        params.warpname = args[1]
+                    end
+                    if (target_all_players) then
+                        velocity:warp(params)
+                    end
+				-- #Teleport Manager | back
+                elseif (parameter == "warpback") then
+                    if (target_all_players) then
+                        velocity:warpback(params)
+                    end
                 end
             end
         end
@@ -2699,7 +2713,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-        -- #Teleport Manager | setwarp
+        -- #Teleport Manager | SET WARP
     elseif (command == settings.mod["Teleport Manager"].commands[1]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
@@ -2712,6 +2726,48 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     else
                         local tab = settings.mod["Teleport Manager"]
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
+        -- #Teleport Manager | WARP
+    elseif (command == settings.mod["Teleport Manager"].commands[2]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                    local tab = settings.mod["Teleport Manager"]
+                    if (args[1] ~= nil and args[2] ~= nil) then
+                        validate_params("warp", 2) --/base_command <args> [id]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:warp(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[2] .. " [warp name] [me | id | */all] ", "rcon", 4 + 8)
+                        return false
+                    end
+                end
+            end
+        end
+        return false
+        -- #Teleport Manager | BACK
+    elseif (command == settings.mod["Teleport Manager"].commands[3]) then
+        if not gameover(executor) then
+            if modEnabled("Teleport Manager", executor) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                    local tab = settings.mod["Teleport Manager"]
+                    if (args[1] ~= nil and args[2] == nil) then
+                        validate_params("warpback", 1) --/base_command <args>
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:warpback(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[3] .. " [me | id | */all] ", "rcon", 4 + 8)
                         return false
                     end
                 end
@@ -3530,6 +3586,11 @@ function velocity:cute(params)
     if isConsole(eid) then
         en = "SERVER"
     end
+    
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
 
     local tab = settings.mod["Cute"]
     local tFormat, eFormat = tab.messages[1], tab.messages[2]
@@ -3588,6 +3649,206 @@ function velocity:setwarp(params)
         file:write(str, "\n")
         file:close()
         respond(eid, "Teleport location set to: " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon")
+    end
+end
+
+function velocity:warp(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local en = params.en or nil
+    local tn = params.tn or nil
+    local warpname = params.warpname or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Teleport Manager")) then
+        if not isFileEmpty(dir) then
+            local found
+            local valid
+            local lines = lines_from(dir)
+            for _, v in pairs(lines) do
+                if (warpname == v:match("[%a%d+_]*")) then
+                    if (player_alive(tid)) then
+                        if find(v, mapname) then
+                            found = true
+                            -- numbers without decimal points -----------------------------------------------------------------------------
+                            local x, y, z
+                            if match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                valid = true -- 0
+                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                            elseif match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                valid = true -- *
+                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                            elseif match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*%d+")) then
+                                valid = true -- 1
+                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                            elseif match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                valid = true -- 2
+                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                            elseif match(v, ("X%s*%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                valid = true -- 3
+                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                            elseif match(v, ("X%s*-%d+,%s*Y%s*-%d+,%s*Z%s*%d+")) then
+                                valid = true -- 1 & 2
+                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                z = gsub(match(v, "Z%s*%d+"), "Z%s*%d+", match(match(v, "Z%s*%d+"), "%d+"))
+                            elseif match(v, ("X%s*-%d+,%s*Y%s*%d+,%s*Z%s*-%d+")) then
+                                valid = true -- 1 & 3
+                                x = gsub(match(v, "X%s*-%d+"), "X%s*-%d+", match(match(v, "X%s*-%d+"), "-%d+"))
+                                y = gsub(match(v, "Y%s*%d+"), "Y%s*%d+", match(match(v, "Y%s*%d+"), "%d+"))
+                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                            elseif match(v, ("X%s*%d+,%s*Y%s*-%d+,%s*Z%s*-%d+")) then
+                                valid = true -- 2 & 3
+                                x = gsub(match(v, "X%s*%d+"), "X%s*%d+", match(match(v, "X%s*%d+"), "%d+"))
+                                y = gsub(match(v, "Y%s*-%d+"), "Y%s*-%d+", match(match(v, "Y%s*-%d+"), "-%d+"))
+                                z = gsub(match(v, "Z%s*-%d+"), "Z%s*-%d+", match(match(v, "Z%s*-%d+"), "-%d+"))
+                                -- numbers with decimal points -----------------------------------------------------------------------------
+                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                valid = true -- 0
+                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                valid = true -- *
+                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                valid = true -- 1
+                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                valid = true -- 2
+                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                valid = true -- 3
+                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*%d+.%d+")) then
+                                valid = true -- 1 & 2
+                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                z = gsub(match(v, "Z%s*%d+.%d+"), "Z%s*%d+.%d+", match(match(v, "Z%s*%d+.%d+"), "%d+.%d+"))
+                            elseif match(v, ("X%s*-%d+.%d+,%s*Y%s*%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                valid = true -- 1 & 3
+                                x = gsub(match(v, "X%s*-%d+.%d+"), "X%s*-%d+.%d+", match(match(v, "X%s*-%d+.%d+"), "-%d+.%d+"))
+                                y = gsub(match(v, "Y%s*%d+.%d+"), "Y%s*%d+.%d+", match(match(v, "Y%s*%d+.%d+"), "%d+.%d+"))
+                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                            elseif match(v, ("X%s*%d+.%d+,%s*Y%s*-%d+.%d+,%s*Z%s*-%d+.%d+")) then
+                                valid = true -- 2 & 3
+                                x = gsub(match(v, "X%s*%d+.%d+"), "X%s*%d+.%d+", match(match(v, "X%s*%d+.%d+"), "%d+.%d+"))
+                                y = gsub(match(v, "Y%s*-%d+.%d+"), "Y%s*-%d+.%d+", match(match(v, "Y%s*-%d+.%d+"), "-%d+.%d+"))
+                                z = gsub(match(v, "Z%s*-%d+.%d+"), "Z%s*-%d+.%d+", match(match(v, "Z%s*-%d+.%d+"), "-%d+.%d+"))
+                            else
+                                respond(eid, "Script Error! Coordinates for that teleport do not match the regex expression", "rcon", 4+8)
+                                cprint("Script Error! Coordinates for that teleport do not match the regex expression!", 4 + 8)
+                            end
+                            if (v ~= nil and valid) then
+                                if not PlayerInVehicle(tid) then
+                                    local prevX, prevY, prevZ = read_vector3d(get_dynamic_player(tid) + 0x5C)
+                                    previous_location[tid][1] = prevX
+                                    previous_location[tid][2] = prevY
+                                    previous_location[tid][3] = prevZ
+                                    write_vector3d(get_dynamic_player(tid) + 0x5C, tonumber(x), tonumber(y), tonumber(z))
+                                    valid = false
+                                else
+                                    TeleportPlayer(read_dword(get_dynamic_player(tid) + 0x11C), tonumber(x), tonumber(y), tonumber(z) + 0.5)
+                                    valid = false
+                                end
+                                if (is_self) then
+                                    respond(eid, "Teleporting to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
+                                else
+                                    respond(eid, "Teleporting " .. tn .. " to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
+                                    respond(tid, en .. " teleport you to [" .. warpname .. "] " .. floor(x) .. ", " .. floor(y) .. ", " .. floor(z), "rcon", 4+8)
+                                end
+                            end
+                        else
+                            found = true
+                            respond(eid, "That warp is not linked to this map", "rcon", 4+8)
+                        end
+                    else
+                        found = true
+                        respond(eid, "You cannot teleport when dead", "rcon", 4+8)
+                    end
+                end
+            end
+            if not (found) then
+                respond(eid, "That teleport name is not valid", "rcon", 4+8)
+            end
+        else
+            respond(eid, "The teleport list is empty!", "rcon", 4+8)
+        end
+    end
+    return false
+end
+
+function velocity:warpback(params)
+    local params = params or { }
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local en = params.en or nil
+    local tn = params.tn or nil
+    local warpname = params.warpname or nil
+    local dir = settings.mod["Teleport Manager"].dir
+    
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+    
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Teleport Manager")) then
+        if not PlayerInVehicle(tid) then
+            if previous_location[tid][1] ~= nil then
+                write_vector3d(get_dynamic_player(tid) + 0x5C, previous_location[tid][1], previous_location[tid][2], previous_location[tid][3])
+                if (is_self) then
+                    respond(eid, "Returning to previous location", "rcon", 4+8)
+                else
+                    respond(eid, "Returning " .. tn .. " to previous location", "rcon", 4+8)
+                    respond(tid, en " sent you back to your previous location", "rcon", 4+8)
+                end
+                for i = 1, 3 do
+                    previous_location[tid][i] = nil
+                end
+            else
+                if (is_self) then
+                    respond(eid, "Unable to teleport back! You haven't been anywhere!")
+                else
+                    respond(eid, "Unable to teleport " .. tn .. " back! They haven't been anywhere!")
+                end
+            end
+        end
     end
 end
 
