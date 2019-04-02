@@ -663,10 +663,10 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.10,
+            script_version = 1.11, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
-            check_for_updates = false,
+            check_for_updates = true,
             server_prefix = "**SERVER** ",
             plugin_commands = {
                 velocity = { "velocity", -1 }, -- /velocity
