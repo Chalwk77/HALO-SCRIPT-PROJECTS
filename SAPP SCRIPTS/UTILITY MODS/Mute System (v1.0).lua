@@ -133,7 +133,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if (mute_table[ip].duration == default_mute_time) then
             rprint(PlayerIndex, "[muted] You are muted permanently.")
         else
-            rprint(PlayerIndex, "[muted ]Time remaining: " .. mute_table[ip].duration .. " minute(s)")
+            rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute(s)")
         end
         return false
     end
