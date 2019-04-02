@@ -45,7 +45,7 @@ local function GameSettings()
                     [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
                     [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
                     [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
-                    [4] = { "[SENIOR-ADMIN] ", " joined the server." }
+                    [4] = { "[SENIOR-ADMIN] ", " joined the server." },
                 }
             },
             ["Anti Impersonator"] = {
@@ -320,6 +320,15 @@ local function GameSettings()
                     -- repeat the structure to add more entries
                 }
             },
+            ["Mute System"] = {
+                enabled = true,
+                dir = "sapp\\mutes.txt",
+                privilege_level = 1,
+                mute_command = "mute",
+                unmute_command = "unmute",
+                mutelist_command = "mutelist",
+                default_mute_time = 525600,
+            },
             ["Portal Gun"] = {
                 enabled = true,
                 base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
@@ -449,27 +458,15 @@ local function GameSettings()
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
-
-            -- Mute Handler
-            handlemutes = true,
-            mute_dir = "sapp\\mutes.txt",
-            default_mute_time = 525600,
-            can_mute_admins = false,
-
             server_prefix = "**SERVER** ",
-
             plugin_commands = {
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
                 list = { "plugins", 1 }, -- /pluigns
-                mute = { "mute", 1 }, -- /mute [id] <time dif>
-                unmute = { "unmute", 1 }, -- /unmute [id]
-                mutelist = { "mutelist", 1 }, -- /mutelist (optional -o flag)
                 clearchat = { "clear", 1 }, -- /clear
                 garbage_collection = { "clean", 1 }, -- /clean
             },
-
             -- Do not Touch...
             player_data = {
                 "Player: %name%",
@@ -500,6 +497,10 @@ local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, s
 local floor = math.floor
 local concat = table.concat
 
+local function getip(p)
+    return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+end
+
 local mapname = ""
 local ce
 local empty_file
@@ -525,11 +526,8 @@ local IS_drone_table = {}
 local item_objects = {}
 
 -- Mute Handler
-local mute_duration = {}
-local time_diff = {}
-local muted = {}
-local mute_timer = {}
-local init_mute_timer = {}
+local velocity, mute_table = { }, { }
+local script_version = 1.0
 
 -- #Custom Weapons
 local weapon = {}
@@ -740,8 +738,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
@@ -763,6 +761,11 @@ function OnScriptLoad()
         checkFile(settings.mod["Alias System"].dir)
         resetAliasParams()
         PreLoad()
+    end
+    
+    -- #Mute System
+    if modEnabled("Mute System") then
+        checkFile(settings.mod["Mute System"].dir)
     end
 
     -- #Suggestions Box
@@ -794,12 +797,6 @@ function OnScriptLoad()
             local ip = get_var(i, "$ip")
             local level = tonumber(get_var(i, "$lvl"))
 
-            -- #Message Board
-            if modEnabled("Message Board") then
-                if (players["Message Board"][ip] ~= nil) then
-                    messageBoard:hide(i, ip)
-                end
-            end
             -- #Admin Chat
             if modEnabled("Admin Chat") then
 
@@ -808,10 +805,30 @@ function OnScriptLoad()
                     adminchat:set(ip)
                 end
             end
+            
             -- #Lurker
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
                     velocity:LurkerReset(ip)
+                end
+                
+            end
+            
+            -- #Mute System
+            if modEnabled("Mute System") then
+                local p, ip, name = { }, getip(i), get_var(i, "$name")
+                p.ip = ip
+                local muted = velocity:loadMute(p)
+                if (muted ~= nil) and (ip == muted[1]) then
+                    p.name, p.time, p.tid = name, muted[3], tonumber(i)
+                    velocity:saveMute(p, true, true)
+                end
+            end
+            
+            -- #Message Board
+            if modEnabled("Message Board") then
+                if (players["Message Board"][ip] ~= nil) then
+                    messageBoard:hide(i, ip)
                 end
             end
         end
@@ -859,6 +876,15 @@ function OnScriptUnload()
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip].adminchat = false
                     players["Admin Chat"][ip].boolean = false
+                end
+            end
+            -- #Mute System
+            if modEnabled("Admin Chat") then
+                local ip, name = getip(i), get_var(i, "$name")
+                if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+                    local p = { }
+                    p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    velocity:saveMute(p, false, true)
                 end
             end
         end
@@ -955,6 +981,17 @@ function OnGameEnd()
                 weapon[i] = false
             end
 
+            
+            -- #Mute System
+            if modEnabled("Mute System") then
+                local ip, name = getip(i), get_var(i, "$name")
+                if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+                    local p = { }
+                    p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    velocity:saveMute(p, false, false)
+                end
+            end
+            
             -- #Message Board
             if modEnabled("Message Board") then
                 if (players["Message Board"][ip] ~= nil) then
@@ -994,32 +1031,6 @@ function OnGameEnd()
             if modEnabled("Lurker") then
                 if tonumber(level) >= getPermLevel("Lurker", false) then
                     velocity:LurkerReset(ip)
-                end
-            end
-
-            -- SAPP | Mute Handler
-            if (settings.global.handlemutes == true) then
-                if (muted[tonumber(i)] == true) then
-                    local name, hash = get_var(i, "$name"), get_var(i, "$hash")
-                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
-                    local file_name = settings.global.mute_dir
-                    local file = io.open(file_name, "r")
-                    file:close()
-                    local lines = lines_from(file_name)
-                    for k, v in pairs(lines) do
-                        if k ~= nil then
-                            if v:match(ip) and v:match(hash) then
-                                local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(i)]
-                                local f1 = io.open(file_name, "r")
-                                local content = f1:read("*all")
-                                f1:close()
-                                content = gsub(content, v, updated_entry)
-                                local f2 = io.open(file_name, "w")
-                                f2:write(content)
-                                f2:close()
-                            end
-                        end
-                    end
                 end
             end
         end
@@ -1169,30 +1180,6 @@ function OnTick()
                 end
             end
 
-            -- SAPP | Mute Handler
-            if (settings.global.handlemutes) then
-                if (init_mute_timer[tonumber(i)]) then
-
-                    local hash = get_var(i, "$hash")
-                    local ip = getPlayerInfo(i, "ip"):match("(%d+.%d+.%d+.%d+:%d+)")
-                    local entry = ip .. ", " .. hash
-
-                    mute_timer[entry].timer = mute_timer[entry].timer + 0.030
-
-                    local minutes = secondsToTime(mute_timer[entry].timer, 4)
-                    local mute_time = (mute_duration[tonumber(i)]) - floor(minutes)
-                    time_diff[tonumber(i)] = mute_time
-
-                    if (mute_time <= 0) then
-                        time_diff[tonumber(i)] = 0
-                        muted[tonumber(i)] = false
-                        init_mute_timer[tonumber(i)] = false
-                        removeEntry(ip, hash, i)
-                        rprint(i, "Your mute time has expired.")
-                    end
-                end
-            end
-
             -- #Alias System
             if modEnabled("Alias System") then
                 if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
@@ -1226,6 +1213,21 @@ function OnTick()
                         write_vector3d(old_vehicle + 0x5C, 0, 0, 0)
                         timer(500, "DestroyObject", ev_OldVehicle[i])
                         ev_Status[i] = false
+                    end
+                end
+            end
+            
+            -- #Mute System
+            if modEnabled("Mute System") then
+                local ip = getip(i)
+                if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+                    mute_table[ip].timer = mute_table[ip].timer + 0.030
+                    local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
+                    mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
+                    if (mute_table[ip].remaining <= 0) then
+                        local p = { }
+                        p.ip, p.name, p.tid = ip, get_var(i, "$name"), tonumber(i)
+                        velocity:unmute(p)
                     end
                 end
             end
@@ -1274,7 +1276,7 @@ function OnPlayerPrejoin(PlayerIndex)
     end
 end
 
-function OnPlayerJoin(PlayerIndex)
+function OnPlayerConnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
@@ -1288,41 +1290,21 @@ function OnPlayerJoin(PlayerIndex)
         cprint("________________________________________________________________________________", 2 + 8)
     end
     
+    -- #Mute System
+    if modEnabled("Mute System") then
+        local p, ip, name = { }, getip(PlayerIndex), get_var(PlayerIndex, "$name")
+        p.ip = ip
+        local muted = velocity:loadMute(p)
+        if (muted ~= nil) and (ip == muted[1]) then
+            p.name, p.time, p.tid = name, muted[3], tonumber(PlayerIndex)
+            velocity:saveMute(p, true, true)
+        end
+    end
+    
     -- #Respawn Time
     if modEnabled("Respawn Time") then
         respawn_cmd_override[ip] = false
         respawn_time[ip] = 0
-    end
-
-    -- SAPP | Mute Handler
-    if not (settings.global.handlemutes) then
-        muted[tonumber(PlayerIndex)] = false or nil
-    else
-        local entry = ip .. ", " .. hash
-        mute_timer[entry] = {}
-        mute_timer[entry].timer = 0
-
-        local file_name = settings.global.mute_dir
-        local stringToMatch = ip .. ", " .. hash
-        local lines = lines_from(file_name)
-        for _, v in pairs(lines) do
-            if v:match(stringToMatch) then
-                local timeFound = match(v, (";(.+)"))
-                local words = stringSplit(timeFound, ", ")
-                mute_duration[tonumber(PlayerIndex)] = tonumber(words[1])
-                muted[tonumber(PlayerIndex)] = true
-                if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
-                    rprint(PlayerIndex, "You are muted permanently.")
-                else
-                    init_mute_timer[tonumber(PlayerIndex)] = true
-                    rprint(PlayerIndex, "You were muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
-                end
-            else
-                mute_duration[tonumber(PlayerIndex)] = 0
-                muted[tonumber(PlayerIndex)] = false
-                init_mute_timer[tonumber(PlayerIndex)] = false
-            end
-        end
     end
 
     -- #Lurker
@@ -1483,7 +1465,7 @@ function OnPlayerJoin(PlayerIndex)
     end
 end
 
-function OnPlayerLeave(PlayerIndex)
+function OnPlayerDisconnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
@@ -1502,33 +1484,18 @@ function OnPlayerLeave(PlayerIndex)
     end
     cprint("________________________________________________________________________________", 4 + 8)
 
-    -- #Respawn Time
-    respawn_time[ip] = nil
-    
-    -- SAPP | Mute Handler
-    if (settings.global.handlemutes) then
-        if (muted[tonumber(PlayerIndex)] == true) then
-            muted[tonumber(PlayerIndex)] = false
-            local file_name = settings.global.mute_dir
-            local file = io.open(file_name, "r")
-            file:close()
-            local lines = lines_from(file_name)
-            for k, v in pairs(lines) do
-                if k ~= nil then
-                    if v:match(ip) and v:match(hash) then
-                        local updated_entry = ip .. ", " .. hash .. ", " .. name .. ", ;" .. time_diff[tonumber(PlayerIndex)]
-                        local f1 = io.open(file_name, "r")
-                        local content = f1:read("*all")
-                        f1:close()
-                        content = gsub(content, v, updated_entry)
-                        local f2 = io.open(file_name, "w")
-                        f2:write(content)
-                        f2:close()
-                    end
-                end
-            end
+    -- #Mute System
+    if modEnabled("Mute System") then
+        local ip, name = getip(PlayerIndex), get_var(PlayerIndex, "$name")
+        if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+            local p = { }
+            p.ip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
+            velocity:saveMute(p, true, true)
         end
     end
+    
+    -- #Respawn Time
+    respawn_time[ip] = nil
 
     -- #Alias System
     if modEnabled("Alias System") then
@@ -1746,18 +1713,19 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local ip = get_var(id, "$ip")
     local response
 
-    -- SAPP | Mute Handler
-    if (settings.global.handlemutes) then
-        if (muted[tonumber(PlayerIndex)] == true) then
-            if (mute_duration[tonumber(PlayerIndex)] == settings.global.default_mute_time) then
-                rprint(PlayerIndex, "You are muted permanently.")
+    if modEnabled("Mute System") then
+        local ip = getip(PlayerIndex)
+        if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+            if (mute_table[ip].duration == default_mute_time) then
+                rprint(PlayerIndex, "[muted] You are muted permanently.")
             else
-                rprint(PlayerIndex, "You are muted! Time remaining: " .. mute_duration[tonumber(PlayerIndex)] .. " minute(s)")
+                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute(s)")
             end
             return false
         end
     end
-
+    
+    
     -- Used throughout OnPlayerChat()
     local message = stringSplit(Message)
     if (#message == 0) then
@@ -2148,19 +2116,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 params.tn = get_var(pl[i], "$name")
                 params.th = get_var(pl[i], "$hash")
 
-                -- SAPP | Mute Handler
+                -- #Mute System
                 if (parameter == "mute") then
                     if (args[2] ~= nil) then
                         params.time = args[2]
                     end
                     if (target_all_players) then
-                        velocity:mute(params)
+                        velocity:saveMute(params, true, true)
                     end
                 elseif (parameter == "unmute") then
                     if (target_all_players) then
                         velocity:unmute(params)
                     end
-                    -- #Alias System
+                -- #Alias System
                 elseif (parameter == "alias") then
                     local bool
                     if isConsole(executor) then
@@ -2252,8 +2220,52 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    if (command == settings.mod["Mute System"].mute_command) then
+        if modEnabled("Mute System", executor) then
+            local tab = settings.mod["Mute System"]
+            if (args[1] ~= nil) and (args[2] ~= nil) then
+                if checkAccess(executor, true) then
+                    validate_params("mute", 1)
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:saveMute(params, true, true)
+                        end
+                    end
+                end
+            end
+        else
+            respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command.. " [id] <time diff>", "rcon", 2+8)
+        end
+        return false
+    elseif (command == settings.mod["Mute System"].unmute_command) then
+        if modEnabled("Mute System", executor) then
+            local tab = settings.mod["Mute System"]
+            if (args[1] ~= nil) then
+                if checkAccess(executor, true) then
+                    validate_params("unmute", 1)
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:unmute(params)
+                        end
+                    end
+                end
+            else
+                respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command.. " [id]", "rcon", 2+8)
+            end
+        end
+        return false
+    elseif (command == settings.mod["Mute System"].mutelist_command) then
+        if modEnabled("Mute System", executor) then
+            if checkAccess(executor, true) then
+                local p = { }
+                p.eid = executor
+                p.flag = args[1]
+                velocity:mutelist(p)
+            end
+        end
+        return false
     -- #Alias System
-    if (command == settings.mod["Alias System"].base_command) then
+    elseif (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
                 local tab = settings.mod["Alias System"]
@@ -2270,7 +2282,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
                 end
             end
-        return false
+            return false
         end
         -- #Item Spawner
     elseif (command == settings.mod["Item Spawner"].base_command) then
@@ -2536,60 +2548,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             else
                 respond(executor, "Invalid Syntax. Usage: /" .. pCMD.disable[1], "rcon", 4 + 8)
-            end
-        end
-        return false
-        -- Mute Command
-    elseif (command == pCMD.mute[1]) then
-        if not gameover(executor) then
-            if (settings.global.handlemutes == true) then
-                if hasAccess(executor, pCMD.mute[2]) then
-                    if (args[1] ~= nil) then
-                        validate_params("mute", 1)
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                if not cmdself(TargetID, executor) then
-                                    velocity:mute(params)
-                                end
-                            end
-                        end
-                    else
-                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
-                    end
-                end
-            end
-        end
-        return false
-        -- Unmute Command
-    elseif (command == pCMD.unmute[1]) then
-        if not gameover(executor) then
-            if (settings.global.handlemutes == true) then
-                if hasAccess(executor, pCMD.unmute[2]) then
-                    if (args[1] ~= nil) then
-                        validate_params("unmute", 1)
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                if not cmdself(TargetID, executor) then
-                                    velocity:unmute(params)
-                                end
-                            end
-                        end
-                    else
-                        respond(executor, "Invalid syntax. Usage: /" .. pCMD.unmute[1] .. " [id]", "rcon", 4 + 8)
-                    end
-                end
-            end
-        end
-        return false
-        -- Mute List Command
-    elseif (command == pCMD.mutelist[1]) then
-        if not gameover(executor) then
-            if (settings.global.handlemutes == true) then
-                if hasAccess(executor, pCMD.mutelist[2]) then
-                    local p = { }
-                    p.eid, p.option = executor, args[1]
-                    velocity:mutelist(p)
-                end
             end
         end
         return false
@@ -3315,118 +3273,6 @@ function velocity:setLurker(params)
     return false
 end
 
--- SAPP | MUTE HANDLER
-function velocity:mute(params)
-    local params = params or {}
-    local eid = params.eid or nil
-    local tid = params.tid or nil
-    local tip = params.tip or nil
-    local tn = params.tn or nil
-    local th = params.th or nil
-    local proceed = params.proceed or nil
-    local valid = params.valid or nil
-    local time = params.time or nil
-
-	local default_time = settings.global.default_mute_time
-	local pCMD = settings.global.plugin_commands
-	if (settings.global.can_mute_admins) then
-		proceed = true
-	elseif tonumber(get_var(tid, "$lvl")) >= 1 then
-		proceed = false
-		respond(eid, "You cannot mute admins.", "rcon", 4 + 8)
-	else
-		proceed = true
-	end
-	mute_duration[tid] = 0
-	if (time == nil) then
-		time_diff[tid], mute_duration[tid] = default_time, default_time
-		valid = true
-	elseif match(time, "%d+") then
-		time_diff[tid], mute_duration[tid] = time, time
-		init_mute_timer[tid] = true
-		valid = true
-	else
-		valid = false
-		respond(executor, "Invalid syntax. Usage: /" .. pCMD.mute[1] .. " [id] <time dif>", "rcon", 4 + 8)
-	end
-
-    if (proceed) and (valid) then
-        muted[tid] = true
-        local file_name = settings.global.mute_dir
-        local file = io.open(file_name, "r")
-        local content = file:read("*a")
-        file:close()
-        if not (match(content, tip) and match(content, tid) and match(content, th)) then
-            if (tonumber(time) ~= settings.global.default_mute_time) then
-                respond(eid, tn .. " has been muted for " .. time .. " minute(s)", "rcon", 4 + 8)
-                respond(tid, "You have been muted for " .. time .. " minute(s)", "rcon")
-            else
-                respond(eid, tn .. " has been muted permanently", "rcon")
-                respond(tid, "You were muted permanently", "rcon")
-            end
-            local new_entry = tip .. ", " .. th .. ", " .. tn .. ", ;" .. mute_duration[tid]
-            local file = assert(io.open(file_name, "a+"))
-            file:write(new_entry .. "\n")
-            file:close()
-        else
-            respond(eid, tn .. " is already muted!", "rcon", 4 + 8)
-        end
-    end
-end
-
--- SAPP | MUTE HANDLER
-function velocity:unmute(params)
-    local params = params or {}
-    local eid = params.eid or nil
-    local tid = params.tid or nil
-    local tip = params.tip or nil
-    local tn = params.tn or nil
-    local th = params.th or nil
-    if (muted[tid] == true) then
-        muted[tid] = false
-        init_mute_timer[tid] = false
-        time_diff[tid] = 0
-        respond(eid, tn .. " has been unmuted", "rcon", 4 + 8)
-        respond(tid, "You have been  unmuted", "rcon", 4 + 8)
-        removeEntry(tip, th, tid)
-    else
-        respond(eid, tn .. " it not muted", "rcon")
-    end
-end
-
--- SAPP | MUTE HANDLER
-function velocity:mutelist(params)
-    local params = params or {}
-    local eid = params.eid or nil
-    local option = params.options or nil
-    if (option == nil) then
-        respond(eid, "----------- IP - HASH - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4 + 8)
-    else
-        respond(eid, "----------- NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 4 + 8)
-    end
-    local file_name = settings.global.mute_dir
-    local lines = lines_from(file_name)
-    for k, v in pairs(lines) do
-        if (k ~= nil) then
-            if (option == nil) then
-                respond(eid, gsub(v, "(;)", "(") .. "m)", "rcon", 2 + 8)
-            elseif (option == "-o") then
-                for i = 1, 16 do
-                    if player_present(i) and v:match(get_var(i, "$ip")) and v:match(get_var(i, "$hash")) then
-                        local name = get_var(i, "$name")
-                        local id = get_var(i, "$n")
-                        local time = time_diff[tonumber(i)]
-                        respond(eid, name .. " [" .. id .. "]: " .. time .. " minutes left", "rcon", 2 + 8)
-                    end
-                end
-            else
-                respond(eid, "Invalid syntax. Usage: /" .. pCMD.mutelist[1], "rcon", 4 + 8)
-                break
-            end
-        end
-    end
-end
-
 -- #Suggestions Box
 function velocity:suggestion(params)
     local params = params or {}
@@ -3665,6 +3511,163 @@ function alias:add(name, hash)
         local file = assert(io.open(dir, "a+"))
         file:write(hash .. ":" .. name .. "\n")
         file:close()
+    end
+end
+
+-- #Mute System
+function velocity:saveMute(params, bool, showMessage)
+    local params = params or { }
+    
+    local ip = params.ip or nil
+    local name = params.name or nil
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local time = params.time or nil
+
+    mute_table[ip] = mute_table[ip] or { }
+    mute_table[ip].muted = true
+    mute_table[ip].timer = 0
+    mute_table[ip].remaining = time
+    mute_table[ip].duration = time
+    
+    local dir = settings.mod["Mute System"].dir
+    
+    local lines, found = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(ip)) then
+            found = true
+            local fRead = io.open(dir, "r")
+            local content = fRead:read("*all")
+            fRead:close()
+            content = gsub(content, v, ip .. ", " .. name .. ", " .. time)
+            local fWrite = io.open(dir, "w")
+            fWrite:write(content)
+            fWrite:close()
+        end
+    end
+    if not (found) then
+        local file = assert(io.open(dir, "a+"))
+        file:write(ip .. ", " .. name .. ", " .. time .. "\n")
+        file:close()
+    end
+    if (bool) and (showMessage) then
+        if (mute_table[ip].duration == default_mute_time) then
+            respond(tid, "You are muted permanently", "rcon", 2+8)
+            if (eid ~= nil) then
+                respond(eid, name .. " was muted permanently", "rcon", 2+8)
+            end
+        else
+            respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2+8)
+            if (eid ~= nil) then
+                respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2+8)
+            end
+        end
+    end
+end
+
+-- #Mute System
+function velocity:unmute(params)
+    local params = params or { }
+    
+    local ip = params.ip or nil
+    local name = params.name or nil
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local en = params.en or nil
+    
+    local dir = settings.mod["Mute System"].dir
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(ip)) then
+            local fRead = io.open(dir, "r")
+            local content = fRead:read("*all")
+            fRead:close()
+            local file = io.open(dir, "w")
+            content = gsub(content, v, "")
+            file:write(content)
+            file:close()
+            mute_table[ip] = { }
+        end
+    end
+    
+    if (eid ~= nil and eid == 0) or (eid == nil) then
+        en = 'SERVER'
+        id = 0
+    elseif (eid ~= nil and eid > 0) then
+        en = en
+        id = eid
+    end
+    respond(tid, "You were unmuted by " .. en, "rcon", 2+8)
+    respond(id, name .. " was unmuted by " .. en, "rcon", 2+8)
+end
+
+-- #Mute System
+function velocity:loadMute(params)
+    local params = params or { }
+    local ip = params.ip or nil
+    local dir = settings.mod["Mute System"].dir
+    local content, data
+    
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(ip)) then
+            content = v:match(v)
+            data = stringSplit(content, ",")
+        end
+    end
+
+    if (data) then
+        i = 1
+        local result = { }
+        for j = 1, 3 do
+            if (data[j] ~= nil) then
+                result[j] = data[j]
+                i = i + 1
+            else
+                return
+            end
+        end
+        if (result ~= nil) then
+            return result
+        end
+    end
+end
+
+-- #Mute System
+function velocity:mutelist(params) 
+    local params = params or { }
+    local eid = params.eid or nil
+    local flag = params.flag or nil
+    local dir = settings.mod["Mute System"].dir
+    
+    respond(eid, "----------- IP - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 7+8)
+    
+    local lines = lines_from(dir)
+    for k, v in pairs(lines) do
+        if (k ~= nil) then
+            if (flag == nil) then
+                respond(eid, v, "rcon", 2+8)
+            elseif (flag == "-o") then
+                local count = 0
+                for i = 1, 16 do
+                    if player_present(i) then 
+                        cout = count + 1
+                        local ip = getip(i)
+                        local muted = velocity:loadMute(ip)
+                        if (ip == muted[1]) then
+                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7+8)
+                        end
+                    end
+                end
+                if (count == 0) then
+                    respond(eid, "Nobody online is currently muted.", "rcon", 4+8)
+                    break
+                end
+            else
+                respond(eid, "Invalid syntax. Usage: /" .. mutelist_command.. " <flag>", "rcon", 2+8)
+                break
+            end
+        end
     end
 end
 
