@@ -1494,7 +1494,7 @@ function OnTick()
                     players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
                     alias:show(i, ip, players["Alias System"][ip].total)
                     if players["Alias System"][ip].timer >= floor(settings.mod["Alias System"].duration) then
-                        alias:reset(get_var(i, "$ip"))
+                        alias:reset(ip)
                     end
                 end
             end
@@ -4385,7 +4385,8 @@ function resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
             if (tonumber(get_var(i, "$lvl")) >= settings.mod["Alias System"].permission_level) then
-                alias:reset(get_var(i, "$ip"))
+                local ip = getip(i, true)
+                alias:reset(ip)
             end
         end
     end
@@ -4743,7 +4744,7 @@ function OnWeaponDrop(PlayerIndex)
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
             cls(PlayerIndex)
             has_objective[PlayerIndex] = false
-            local ip = getip(PlayerIndex)
+            local ip = getip(PlayerIndex, true)
             velocity:LurkerReset(ip)
         end
     end
@@ -4763,7 +4764,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     elseif (name == "weapons\\ball\\ball") then
                         object_picked_up[PlayerIndex] = "oddball"
                     end
-                    local ip = getip(PlayerIndex)
+                    local ip = getip(PlayerIndex, true)
                     local mod = players["Lurker"][ip]
                     mod.lurker_warnings = (mod.lurker_warnings - 1)
                     mod.lurker_warn = true
