@@ -2900,7 +2900,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " n|off [id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [id]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3213,58 +3213,38 @@ function velocity:portalgun(params)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    local tLvl = tonumber(get_var(tid, "$lvl"))
 
-    if (option == nil) then
-        if (tLvl >= 1) then
-            if (portalgun_mode[tid] == true) then
-                status = "enabled"
-            else
-                status = "disabled"
-            end
-            if (is_self) then
-                respond(eid, "Your portalgun mode is " .. status, "rcon", 4 + 8)
-            else
-                respond(eid, tn .. "'s portalgun mode is " .. status, "rcon", 4 + 8)
-            end
-        else
-            respond(eid, tn .. " is not an admin! [Portal Gun Off]", "rcon", 4 + 8)
-        end
-    else
-        proceed = true
-    end
-
-    if (proceed) then
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
         local base_command = settings.mod["Portal Gun"].base_command
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
-            if (tLvl >= 1) then
-                local status, already_set, is_error
-                if (option == "on") or (option == "1") or (option == "true") then
-                    status, already_set, is_error = "Enabled", true, false
-                    if (portalgun_mode[tid] ~= true) then
-                        portalgun_mode[tid] = true
-                    end
-                elseif (option == "off") or (option == "0") or (option == "false") then
-                    status, already_set, is_error = "Disabled", false, false
-                    if (portalgun_mode[tid] ~= false) then
-                        portalgun_mode[tid] = false
-                    end
+            local status, already_set, is_error
+            if (option == "on") or (option == "1") or (option == "true") then
+                if (portalgun_mode[tid] ~= true) then
+                    portalgun_mode[tid] = true
+                    status, already_set, is_error = "Enabled", false, false
                 else
-                    is_error = true
-                    respond(eid, "Invalid Syntax: Usage: /" .. base_command .. " [me | id | */all] on|off", "rcon", 4 + 8)
+                    status, already_set, is_error = "Enabled", true, false
                 end
-                if not (is_error) and not (already_set) then
-                    if not (is_self) then
-                        respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
-                        respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
-                    else
-                        respond(eid, "Portal Gun " .. status, "rcon")
-                    end
-                elseif (already_set) then
-                    respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+            elseif (option == "off") or (option == "0") or (option == "false") then
+                if (portalgun_mode[tid] ~= false) then
+                    portalgun_mode[tid] = false
+                    status, already_set, is_error = "Disabled", false, false
+                else
+                    status, already_set, is_error = "Disabled", true, false
                 end
             else
-                respond(eid, "Failed to set " .. tn .. "'s portal gun to (" .. option .. ") [player not admin]", "rcon", 4 + 8)
+                is_error = true
+                respond(eid, "Invalid Syntax: Type /" .. base_command .. " on|off [id]", "rcon", 4 + 8)
+            end
+            if not (is_error) and not (already_set) then
+                if not (is_self) then
+                    respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
+                    respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
+                else
+                    respond(eid, "Portal Gun " .. status, "rcon")
+                end
+            elseif (already_set) then
+                respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
             end
         end
     end
