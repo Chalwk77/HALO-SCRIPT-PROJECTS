@@ -3581,7 +3581,7 @@ function velocity:enterVehicle(params)
                     if not (is_valid) and (no_match) and not (err) then
                         respond(eid, "Failed to spawn object. [unknown object name]", "rcon", 4 + 8)
                     elseif (is_valid == nil or is_valid == false) and (err) and (no_match) then
-                        respond(eid, "Failed to spawn object. [missing tag id", "rcon", 4 + 8)
+                        respond(eid, "Failed to spawn object. [missing tag id]", "rcon", 4 + 8)
                     end
                 else
                     if not (is_self) then
@@ -3646,7 +3646,6 @@ function velocity:spawnItem(params)
                                     local obj_z = z + 0.3 * sin(z_aim) + 0.5
                                     item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
                                     if not (is_self) then
-                                        -- Item Spawner Logic Here
                                         respond(eid, "Spawning " .. objects_table[i][1] .. " for " .. tn, "rcon", 4 + 8)
                                         respond(tid, en .. " spawned " .. objects_table[i][1] .. " for you", "rcon", 4 + 8)
                                     else
