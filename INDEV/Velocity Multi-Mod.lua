@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.10), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.12), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -663,7 +663,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.11, -- << --- do not touch
+            script_version = 1.12, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
