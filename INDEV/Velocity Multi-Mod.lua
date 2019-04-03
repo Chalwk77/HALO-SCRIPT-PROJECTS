@@ -1085,13 +1085,12 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             populateInfoTable(i)
-            local ip = getip(PlayerIndex, true)
+            local ip = getip(i, true)
             local level = tonumber(get_var(i, "$lvl"))
 
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
-                    players["Admin Chat"][ip] = nil
                     adminchat:set(ip)
                 end
             end
@@ -1473,8 +1472,7 @@ function OnTick()
                 if player_alive(i) and (portalgun_mode[i] == true) then
                     if (player ~= 0) then
                         local playerX, playerY, playerZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
-                        local shot_fired
-                        local is_crouching
+                        local shot_fired, is_crouching
                         local couching = read_float(player + 0x50C)
                         local px, py, pz = read_vector3d(player + 0x5c)
                         if (couching == 0) then
