@@ -3278,7 +3278,7 @@ function velocity:listplayers(e)
                 end
             end
             count = count + 1
-            local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), get_var(i, "$ip")
+            local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
             if not (ffa) then
                 str = id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip
             else
@@ -4504,11 +4504,9 @@ function alias:add(name, hash)
     local dir = settings.mod["Alias System"].dir
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
-
         if containsExact(hash, v) and containsExact(name, v) then
             proceed = true
         end
-
         if containsExact(hash, v) and not containsExact(name, v) then
             found = true
 
@@ -4701,7 +4699,7 @@ function velocity:mutelist(params)
                     if player_present(i) then
                         cout = count + 1
                         local p = { }
-                        p.tip = getip(i)
+                        p.tip = getip(i, true)
                         local muted = velocity:loadMute(p)
                         if (p.tip == muted[1]) then
                             respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7 + 8)
@@ -4769,8 +4767,6 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     local mod = players["Lurker"][ip]
                     mod.lurker_warnings = (mod.lurker_warnings - 1)
                     mod.lurker_warn = true
-
-                    print(mod.lurker_warnings)
                     has_objective[PlayerIndex] = true
                     if (mod.lurker_warnings <= 0) then
                         mod.lurker_warnings = 0
