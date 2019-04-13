@@ -2485,7 +2485,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-
+    
     -- #Command Spy
     if modEnabled("Command Spy") then
         if (Environment == 1) then
@@ -4379,15 +4379,6 @@ function velocity:aliasCmdRoutine(params)
     end
 end
 
-function velocity:commandspy(Message)
-    for i = 1, 16 do
-        local level = get_var(i, "$lvl")
-        if tonumber(level) >= getPermLevel("Command Spy", false) then
-            respond(i, Message, "rcon", 2 + 8)
-        end
-    end
-end
-
 -- #Alias System
 function resetAliasParams()
     for i = 1, 16 do
@@ -4539,6 +4530,15 @@ function alias:add(name, hash)
     end
 end
 
+function velocity:commandspy(Message)
+    for i = 1, 16 do
+        local level = get_var(i, "$lvl")
+        if tonumber(level) >= getPermLevel("Command Spy", false) then
+            respond(i, Message, "rcon", 2 + 8)
+        end
+    end
+end
+
 -- #Mute System
 function velocity:saveMute(params, bool, showMessage)
     local params = params or { }
@@ -4678,8 +4678,6 @@ function velocity:loadMute(params)
             if (data[j] ~= nil) then
                 result[j] = data[j]
                 i = i + 1
-            else
-                return
             end
         end
         if (result ~= nil) then
@@ -4757,6 +4755,13 @@ function OnWeaponDrop(PlayerIndex)
             mod.lurker_warn = false
             mod.lurker_timer = 0
         end
+    end
+end
+
+function TeleportPlayer(ObjectID, x, y, z)
+    if get_object_memory(ObjectID) ~= 0 then
+        local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
+        write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
 end
 
