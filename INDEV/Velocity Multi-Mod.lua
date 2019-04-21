@@ -5270,6 +5270,11 @@ function RecordChanges()
     cl[#cl + 1] = "Completely Rewrote BGS and released under a new name: Velocity - Multi Mod"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/22/19]"
+    cl[#cl + 1] = "Updated Anti-Impersonator with optional IP Address scans - script updated to v.1.14"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
 
     file:write(concat(cl, "\n"))
     file:close()
