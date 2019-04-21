@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.13), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.14), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -90,12 +90,20 @@ local function GameSettings()
                 reason = "impersonating",
                 bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
                 users = {
-                    { ["Chalwk"] = { "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+                    { ["Chalwk"] = { "127.0.0.1", "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-                    { ["�hoo"] = { "abd5c96cd22517b4e2f358598147c606", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
-                    -- repeat the structure to add more hash entries (assuming you own multiple copies of halo)
-                    { ["NAME"] = { "hash1", "hash2", "hash3", "etc..." } },
+                    -- In this example, we have added a player by the name of "example_name". 
+                    -- They use Halo on multiple computers at different houses. Each computer has a unique public ip address. 
+                    -- We add each ip entry and hash to the respective table for that user. 
+                    -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip addrees for that name entry, action will be taken.
+                    { ["example_name"] = {"127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
+                    
+                    
+                    -- repeat the structure to add more entries
+                    { ["name_here"] = { "ip 1", "ip 2", "hash1", "hash2", "hash3", "etc..." } },
+                    
+                    -- You do not need both ip and hash but it adds a bit more security.
                 },
             },
             ["Chat IDs"] = {
@@ -663,7 +671,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.13, -- << --- do not touch
+            script_version = 1.14, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1574,6 +1582,19 @@ function determineWeapon()
     return primary, secondary, tertiary, quaternary, Slot
 end
 
+local function takeAction(tab, id, name)
+    local action, reason, bantime = tab.action, tab.reason, tab.bantime
+    if (action == "kick") then
+        execute_command("k" .. " " .. id .. " \"" .. reason .. "\"")
+        cprint(name .. " was kicked for " .. reason, 4 + 8)
+    elseif (action == "ban") then
+        execute_command("b" .. " " .. id .. " " .. bantime .. " \"" .. reason .. "\"")
+        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
+    else
+        error("Action not properly defined. Valid Actions: 'kick' or 'ban'")
+    end
+end
+
 function OnPlayerPrejoin(PlayerIndex)
     cprint("________________________________________________________________________________", 2 + 8)
     cprint("Player attempting to connect to the server...", 5 + 8)
@@ -1724,19 +1745,13 @@ function OnPlayerConnect(PlayerIndex)
             local userdata = tab.users[key][name]
             if (userdata ~= nil) then
                 for i = 1, #userdata do
-                    if (userdata[i] == hash) then
+                    if (userdata[i] == hash) or (userdata[i] == ip) then
                         found = true
                         break
                     end
                 end
                 if not (found) then
-                    if (tab.action == "kick") then
-                        execute_command("k" .. " " .. id .. " \"" .. tab.reason .. "\"")
-                        cprint(name .. " was kicked for " .. tab.reason, 4 + 8)
-                    elseif (tab.action == "ban") then
-                        execute_command("b" .. " " .. id .. " " .. tab.bantime .. " \"" .. tab.reason .. "\"")
-                        cprint(name .. " was banned for " .. tab.bantime .. " minutes for " .. tab.reason, 4 + 8)
-                    end
+                    takeAction(tab, id, name)
                     break
                 end
             end
