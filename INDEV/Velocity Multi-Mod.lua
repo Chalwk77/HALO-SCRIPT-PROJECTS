@@ -94,9 +94,9 @@ local function GameSettings()
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
                     -- In this example, we have added a player by the name of "example_name". 
-                    -- They use Halo on multiple computers at different houses. Each computer has a unique public ip address. 
+                    -- They use Halo on multiple computers at different houses. Each house has a unique public ip address. 
                     -- We add each ip entry and hash to the respective table for that user. 
-                    -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip addrees for that name entry, action will be taken.
+                    -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip address (or hashes) for that name entry, action will be taken.
                     { ["example_name"] = {"127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
                     
                     
