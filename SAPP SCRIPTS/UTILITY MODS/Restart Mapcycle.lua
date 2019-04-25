@@ -83,7 +83,7 @@ local function CountdownLoop()
     
     -- Debugging:
     if (_debug_) then
-        cprint("Time Remaining: " .. duration - floor(countdown), 5+8)
+        cprint("Restarting Mapcycle in: " .. duration - floor(countdown) .. " seconds", 5+8)
     end
     
     if (countdown >= (duration)) then
