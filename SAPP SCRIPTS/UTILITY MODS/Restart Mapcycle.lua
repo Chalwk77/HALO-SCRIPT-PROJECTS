@@ -28,7 +28,7 @@ local sapp_command = "mapcycle_begin"
 local on_restart = "RESTARTING MAP CYCLE. Please wait..."
 -- Configuration [ends]
 
--- Do not touch anything below this point unless you nkow what you're doing.
+-- Do not touch anything below this point unless you know what you're doing.
 --========================================================================--
 
 local script_version = "1.5" -- For error reporting
