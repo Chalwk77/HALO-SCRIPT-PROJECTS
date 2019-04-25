@@ -28,7 +28,7 @@ local on_restart = "RESTARTING MAP CYCLE. Please wait..."
 local script_version = "1.3" -- For error reporting
 local player_count, init_timer
 local original_time = time_remaining
-local _debug_ = false
+local _debug_ = true
 
 -- Returns the current player count
 local function playerCount()
@@ -113,7 +113,7 @@ function OnPlayerDisconnect(p)
     end
 end
 
-local floor, format, = math.floor, string.format
+local floor, format = math.floor, string.format
 local function CountdownLoop()
   
     -- 1). Monitors elapsed time.
