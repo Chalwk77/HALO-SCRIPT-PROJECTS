@@ -33,6 +33,8 @@ local function playerCount()
 end
 
 function OnScriptLoad()
+    
+    -- Register needed event callbacks:
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
@@ -40,6 +42,8 @@ function OnScriptLoad()
     
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    --
+    
     
     -- These variables are semi-redundant in OnScriptLoad() because they are being declared in OnGameStart().
     -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
