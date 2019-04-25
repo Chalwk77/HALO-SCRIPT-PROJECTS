@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.14), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.15), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -671,7 +671,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.14, -- << --- do not touch
+            script_version = 1.15, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -5279,6 +5279,11 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/22/19]"
     cl[#cl + 1] = "Updated Anti-Impersonator with optional IP Address scans - script updated to v.1.14"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/25/19]"
+    cl[#cl + 1] = "Fixed a bug relating to Alias System - script updated to v.1.15"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
 
