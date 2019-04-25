@@ -122,16 +122,16 @@ local function CountdownLoop()
 	time_remaining = time_remaining - 0.030
 	local minutes, seconds = floor( time_remaining / 60 ), time_remaining % 60
 	local time = format( "%02d:%02d", minutes, seconds )
-    
-    -- Debugging:
-    if (_debug_) then
-        cprint("Restarting Mapcycle in: " .. time .. " seconds", 5+8)
-    end
-    
-    if (time <= "0") then
-        stopTimer()
-        execute_command(sapp_command)
-        cprint(onRestart, 2 + 8)
+
+    if (time ~= nil) then
+        if (time <= "0") then
+            stopTimer()
+            execute_command(sapp_command)
+            cprint(on_restart, 2 + 8)
+        elseif (_debug_) then
+            -- Debugging:
+            cprint("Restarting Mapcycle in: " .. time .. " seconds", 5+8)
+        end
     end
 end
 
