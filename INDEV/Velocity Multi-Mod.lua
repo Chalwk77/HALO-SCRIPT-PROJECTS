@@ -5281,6 +5281,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/25/19]"
     cl[#cl + 1] = "Fixed a bug relating to Alias System - script updated to v.1.15"
+    cl[#cl + 1] = "A couple of documentation edits"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
 
