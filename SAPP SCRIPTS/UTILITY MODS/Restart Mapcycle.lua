@@ -3,6 +3,10 @@
 Script Name: Restart Mapcycle (utility), for SAPP (PC & CE)
 Description: This mod will restart the mapcycle if the server has been empty for "time_remaining" seconds.
 
+IMPORTANT: 
+Ensure at least one mapcycle entry is configured in the init.txt file (this will be the map the server will always start on).
+Additionally, make sure the first mapcycle entry in the mapcycle.txt file matches the first map entry in the init.txt file. (this includes gametype)
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -24,11 +28,14 @@ local sapp_command = "mapcycle_begin"
 local on_restart = "RESTARTING MAP CYCLE. Please wait..."
 -- Configuration [ends]
 
+-- Do not touch anything below this point unless you nkow what you're doing.
+--========================================================================--
 
-local script_version = "1.4" -- For error reporting
+local script_version = "1.5" -- For error reporting
 local player_count, init_timer
 local original_time = time_remaining
 local _debug_ = false
+local floor, format = math.floor, string.format
 
 -- Returns the current player count
 local function playerCount()
@@ -48,7 +55,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     --
-    
     
     -- These variables are semi-redundant in OnScriptLoad() because they are being declared in OnGameStart().
     -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
@@ -113,7 +119,6 @@ function OnPlayerDisconnect(p)
     end
 end
 
-local floor, format = math.floor, string.format
 local function CountdownLoop()
   
     -- 1). Monitors elapsed time.
