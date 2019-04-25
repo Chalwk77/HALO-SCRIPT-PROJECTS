@@ -21,10 +21,11 @@ local duration = 90 -- (in seconds) 90 = one-and-a-half minutes
 local sapp_command = "mapcycle_begin"
 -- Configuration [ends]
 
-local script_version = "1.2"
+local script_version = "1.2" -- For error reporting
 local player_count, countdown, init_timer
 local _debug_ = false
 
+-- Returns the current player count
 local function playerCount()
     if (player_count ~= nil) then
         return tonumber(player_count)
