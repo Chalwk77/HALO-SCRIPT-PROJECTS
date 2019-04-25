@@ -14,15 +14,17 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
--- If the server is empty, the mapcycle will be reset after "duration" seconds:
-local duration = 300 -- (in seconds) 300 = 5 minutes
+-- If the server is empty, the mapcycle will be restarted after "duration" seconds:
+local duration = 5 -- (in seconds) 300 = 5 seconds
 
 -- Command to execute:
 local sapp_command = "mapcycle_begin"
 -- Configuration [ends]
 
-local script_version = "1.0"
+local script_version = "1.2"
 local player_count, countdown, init_timer
+local _debug_ = false
+
 local function playerCount()
     if (player_count ~= nil) then
         return tonumber(player_count)
@@ -32,8 +34,12 @@ end
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb["EVENT_TICK"], "OnTick")
 
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    
+    -- register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    
     player_count, countdown, init_timer = 0, 0
 
     for i = 1, 16 do
@@ -41,6 +47,14 @@ function OnScriptLoad()
             player_count = player_count + 1
         end
     end
+end
+
+-- function OnGameStart()
+
+-- end
+
+function OnGameEnd()
+    player_count = 0
 end
 
 function OnScriptUnload()
@@ -66,15 +80,17 @@ end
 local floor = math.floor
 local function CountdownLoop()
     countdown = countdown + 0.030
-
+    
     -- Debugging:
-    -- cprint("Time Remaining: " .. duration - floor(countdown))
-
+    if (_debug_) then
+        cprint("Time Remaining: " .. duration - floor(countdown))
+    end
+    
     if (countdown >= (duration)) then
         countdown = 0
         init_timer = false
         execute_command(sapp_command)
-        cprint("RESTARTING MAP...", 2 + 8)
+        cprint("RESETTING MAP CYCLE...", 2 + 8)
     end
 end
 
