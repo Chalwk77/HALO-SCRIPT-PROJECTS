@@ -83,14 +83,14 @@ local function CountdownLoop()
     
     -- Debugging:
     if (_debug_) then
-        cprint("Time Remaining: " .. duration - floor(countdown))
+        cprint("Time Remaining: " .. duration - floor(countdown), 5+8)
     end
     
     if (countdown >= (duration)) then
         countdown = 0
         init_timer = false
         execute_command(sapp_command)
-        cprint("RESETTING MAP CYCLE...", 2 + 8)
+        cprint("RESTARTING MAP CYCLE. Please wait...", 2 + 8)
     end
 end
 
