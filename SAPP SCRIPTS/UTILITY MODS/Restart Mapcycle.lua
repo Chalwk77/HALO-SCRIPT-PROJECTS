@@ -44,7 +44,7 @@ function OnScriptLoad()
     -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
     -- To do: Write a listener function for "/reload" command.
     player_count, countdown, init_timer = 0, 0
-
+    
     for i = 1, 16 do
         if player_present(i) then
             player_count = player_count + 1
@@ -53,6 +53,7 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
+    -- Reset timer and player count variables
     player_count, countdown, init_timer = 0, 0
 end
 
@@ -62,7 +63,10 @@ local function stopTimer()
 end
 
 function OnGameEnd()
+    -- Reset player count.
     player_count = 0
+    
+    -- If the countdown timer is already running when the game ends, stop it.
     if (init_timer) then
         stopTimer()
         
@@ -118,6 +122,7 @@ local function CountdownLoop()
     end
 end
 
+-- OnTick() | Called every 1/30 seconds. (Similar to Phasor's OnClientUpdate function)
 function OnTick()
     
     -- 1). Determines whether the server is empty. 
@@ -136,7 +141,10 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
+-- This function will return a string with a traceback of the stack call.
 function OnError()
     cprint(debug.traceback(), 4 + 8)
+    
+    -- Calls function 'report' after 50 milliseconds
     timer(50, "report")
 end
