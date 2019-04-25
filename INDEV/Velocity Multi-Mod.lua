@@ -16,14 +16,11 @@ Combined Scripts:
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System
 
-    BGS Commands:
+    Special Commands:
     /plugins, /enable [id], /disable [id]
-    /mute [id] <time dif>, /unmute [id]
-    /clear (clears chat)
-    /clean
     
-    "/plugins" shows you a list of all mods and tells you which ones are enabled or disabled.
-    You can enable or disable any mod in game at any time with /enable [id], /disable [id].
+    "/plugins" shows you a list of all features and tells you which ones are enabled or disabled.
+    You can enable or disable any feature at any time with /enable [id], /disable [id].
    
     /clean (command syntax info) for Enter Vehicle & Item Spawner:
     
