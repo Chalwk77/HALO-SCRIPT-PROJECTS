@@ -63,6 +63,14 @@ end
 
 function OnPlayerConnect(p)
     player_count = player_count + 1
+    if (init_timer) then
+        init_timer = false
+        countdown = 0
+        -- Debugging:
+        if (_debug_) then
+            cprint("Countdown stopped", 5+8)
+        end
+    end
 end
 
 function OnPlayerDisconnect(p)
