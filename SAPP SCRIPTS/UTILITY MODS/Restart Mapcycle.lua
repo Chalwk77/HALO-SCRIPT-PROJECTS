@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 -- If the server is empty, the mapcycle will be restarted after "duration" seconds:
-local duration = 5 -- (in seconds) 300 = 5 seconds
+local duration = 90 -- (in seconds) 90 = one-and-a-half minutes
 
 -- Command to execute:
 local sapp_command = "mapcycle_begin"
