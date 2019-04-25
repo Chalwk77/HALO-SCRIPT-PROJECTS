@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Restart Mapcycle (utility), for SAPP (PC & CE)
-Description: This mod will restart the mapcycle if the server has been empty for "duration" seconds.
+Description: This mod will restart the mapcycle if the server has been empty for "time_remaining" seconds.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -14,15 +14,20 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
--- If the server is empty, the mapcycle will be restarted after "duration" seconds:
-local duration = 90 -- (in seconds) 90 = one-and-a-half minutes
+-- If the server is empty, the mapcycle will be restarted after "time_remaining" minutes/seconds has elapsed:
+local time_remaining = 1.5 * 60 -- one-and-a-half minutes
 
 -- Command to execute:
 local sapp_command = "mapcycle_begin"
+
+-- Message output when "time_remaining" has elapsed
+local on_restart = "RESTARTING MAP CYCLE. Please wait..."
 -- Configuration [ends]
 
-local script_version = "1.2" -- For error reporting
-local player_count, countdown, init_timer
+
+local script_version = "1.3" -- For error reporting
+local player_count, init_timer
+local original_time = time_remaining
 local _debug_ = false
 
 -- Returns the current player count
@@ -48,7 +53,7 @@ function OnScriptLoad()
     -- These variables are semi-redundant in OnScriptLoad() because they are being declared in OnGameStart().
     -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
     -- To do: Write a listener function for "/reload" command.
-    player_count, countdown, init_timer = 0, 0
+    player_count, time_remaining, init_timer = 0, original_time
     
     for i = 1, 16 do
         if player_present(i) then
@@ -59,12 +64,12 @@ end
 
 function OnGameStart()
     -- Reset timer and player count variables
-    player_count, countdown, init_timer = 0, 0
+    player_count, time_remaining, init_timer = 0, original_time
 end
 
 local function stopTimer()
     -- Reset timer variables
-    init_timer, countdown = false, 0
+    init_timer, time_remaining = false, original_time
 end
 
 function OnGameEnd()
@@ -108,22 +113,25 @@ function OnPlayerDisconnect(p)
     end
 end
 
-local floor = math.floor
+local floor, format, = math.floor, string.format
 local function CountdownLoop()
-    countdown = countdown + 0.030
+  
+    -- 1). Monitors elapsed time.
+    -- 2). Stops the 'timer' when 'time_remaining' has elapsed.
+    -- 3). Executes the 'sapp_command'.
+	time_remaining = time_remaining - 0.030
+	local minutes, seconds = floor( time_remaining / 60 ), time_remaining % 60
+	local time = format( "%02d:%02d", minutes, seconds )
     
     -- Debugging:
     if (_debug_) then
-        cprint("Restarting Mapcycle in: " .. duration - floor(countdown) .. " seconds", 5+8)
+        cprint("Restarting Mapcycle in: " .. time .. " seconds", 5+8)
     end
     
-    -- 1). Monitors elapsed time.
-    -- 2). Stops the 'timer' when 'countdown' is equal-to-or-greater-than the value of 'duration'.
-    -- 3). Executes the 'sapp_command'.
-    if (countdown >= (duration)) then
+    if (time <= "0") then
         stopTimer()
         execute_command(sapp_command)
-        cprint("RESTARTING MAP CYCLE. Please wait...", 2 + 8)
+        cprint(onRestart, 2 + 8)
     end
 end
 
