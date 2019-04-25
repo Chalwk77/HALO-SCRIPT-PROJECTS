@@ -700,6 +700,7 @@ end
 -- Tables used Globally
 local velocity, player_info = { }, { }
 local players
+local server_ip = "000.000.000.000"
 local function InitPlayers()
     players = {
         ["Alias System"] = { },
@@ -1158,8 +1159,10 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
-    -- Register Console to Table
-    alias:reset("000.000.000.000")
+    
+    -- Register Server Console to Table
+    alias:reset(server_ip)
+    
     if checkFile("sapp\\bgs_changelog.txt") then
         RecordChanges()
     end
@@ -1344,7 +1347,7 @@ function OnGameEnd()
             file:close()
         end
     end
-    cprint("The Game Has Ended | Map Voting has begun.", 4 + 8)
+    cprint("The Game Has Ended | Showing: POST GAME CARNAGE REPORT.", 4 + 8)
 end
 
 function OnTick()
@@ -2558,6 +2561,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 params.tip = getip(pl[i], true)
                 params.tn = get_var(pl[i], "$name")
                 params.th = get_var(pl[i], "$hash")
+                
+                if (params.eip == nil) then 
+                    params.eip = server_ip
+                end
 
                 -- #Mute System
                 if (parameter == "mute") then
@@ -2579,13 +2586,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 elseif (parameter == "alias") then
                     local bool
                     if isConsole(executor) then
-                        params.eip = '000.000.000.000'
                         bool = false
                     else
                         bool = settings.mod["Alias System"].use_timer
                     end
                     params.timer = bool
-                    alias:reset(ip)
+                    alias:reset(params.eip)
                     if (target_all_players) then
                         velocity:aliasCmdRoutine(params)
                     end
@@ -2609,7 +2615,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 elseif (parameter == "lurker") then
                     params.bool = true
                     params.CmdTrigger = true
-                    params.warnings = getLurkerWarnings(ip)
+                    params.warnings = getLurkerWarnings(params.eip)
                     if (args[1] ~= nil) then
                         params.option = args[1]
                     end
