@@ -14,9 +14,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
--- Map cycle will be reset after "duration" seconds of being empty
+-- If the server is empty, the mapcycle will be reset after "duration" seconds:
 local duration = 300 -- (in seconds) 300 = 5 minutes
 
+-- Command to execute:
 local sapp_command = "mapcycle_begin"
 -- Configuration [ends]
 
@@ -67,13 +68,13 @@ local function CountdownLoop()
     countdown = countdown + 0.030
 
     -- Debugging:
-    -- cprint("Time Repaining: " .. duration - floor(countdown))
+    -- cprint("Time Remaining: " .. duration - floor(countdown))
 
     if (countdown >= (duration)) then
         countdown = 0
         init_timer = false
         execute_command(sapp_command)
-        cprint("RESTARTING MAPCYCLE", 2 + 8)
+        cprint("RESTARTING MAP...", 2 + 8)
     end
 end
 
