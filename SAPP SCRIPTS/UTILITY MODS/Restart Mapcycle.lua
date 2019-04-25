@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 -- If the server is empty, the mapcycle will be restarted after "duration" seconds:
-local duration = 5 -- (in seconds) 90 = one-and-a-half minutes
+local duration = 90 -- (in seconds) 90 = one-and-a-half minutes
 
 -- Command to execute:
 local sapp_command = "mapcycle_begin"
@@ -57,14 +57,19 @@ function OnGameStart()
 end
 
 local function stopTimer()
-    init_timer = false
-    countdown = 0
+    -- Reset timer variables
+    init_timer, countdown = false, 0
 end
 
 function OnGameEnd()
     player_count = 0
     if (init_timer) then
         stopTimer()
+        
+        -- Debugging:
+        if (_debug_) then
+            cprint("Countdown stopped", 5+8)
+        end
     end
 end
 
@@ -76,6 +81,7 @@ function OnPlayerConnect(p)
     player_count = player_count + 1
     if (init_timer) then
         stopTimer()
+        
         -- Debugging:
         if (_debug_) then
             cprint("Countdown stopped", 5+8)
@@ -86,12 +92,10 @@ end
 function OnPlayerDisconnect(p)
     player_count = player_count - 1
     if (playerCount() <= 0) then
-
-        -- Ensures player count never goes into negatives.
-        player_count = 0
-
-        -- Initialize Countdown Timer.
-        init_timer = true
+    
+        -- 1). Ensures player count never goes into negatives.
+        -- 2). Initialize Countdown Timer.
+        player_count, init_timer = 0, true
     end
 end
 
@@ -104,9 +108,9 @@ local function CountdownLoop()
         cprint("Restarting Mapcycle in: " .. duration - floor(countdown) .. " seconds", 5+8)
     end
     
-    -- Monitors elapsed time.
-    -- Stops the 'timer' when 'countdown' is equal-to-or-greater-than the value of 'duration'.
-    -- Executes the 'sapp_command'.
+    -- 1). Monitors elapsed time.
+    -- 2). Stops the 'timer' when 'countdown' is equal-to-or-greater-than the value of 'duration'.
+    -- 3). Executes the 'sapp_command'.
     if (countdown >= (duration)) then
         stopTimer()
         execute_command(sapp_command)
@@ -115,8 +119,9 @@ local function CountdownLoop()
 end
 
 function OnTick()
-    -- Determines whether the server is empty. 
-    -- Listens for the 'go-ahead' ("init_timer" [bool]) to initialize the countdown timer.
+    
+    -- 1). Determines whether the server is empty. 
+    -- 2). Listens for the 'go-ahead' ("init_timer" [bool]) to initialize the countdown timer.
     if (playerCount() <= 0) and (init_timer) then
         CountdownLoop()
     end
