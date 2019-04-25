@@ -25,10 +25,10 @@ local on_restart = "RESTARTING MAP CYCLE. Please wait..."
 -- Configuration [ends]
 
 
-local script_version = "1.3" -- For error reporting
+local script_version = "1.4" -- For error reporting
 local player_count, init_timer
 local original_time = time_remaining
-local _debug_ = true
+local _debug_ = false
 
 -- Returns the current player count
 local function playerCount()
