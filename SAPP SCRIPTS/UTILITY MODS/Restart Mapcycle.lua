@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 -- If the server is empty, the mapcycle will be restarted after "duration" seconds:
-local duration = 90 -- (in seconds) 90 = one-and-a-half minutes
+local duration = 5 -- (in seconds) 90 = one-and-a-half minutes
 
 -- Command to execute:
 local sapp_command = "mapcycle_begin"
@@ -37,9 +37,12 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_TICK"], "OnTick")
     
-    -- register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     
+    -- These variables are semi-redundant in OnScriptLoad() because they are being declared in OnGameStart().
+    -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
+    -- To do: Write a listener function for "/reload" command.
     player_count, countdown, init_timer = 0, 0
 
     for i = 1, 16 do
@@ -49,12 +52,20 @@ function OnScriptLoad()
     end
 end
 
--- function OnGameStart()
+function OnGameStart()
+    player_count, countdown, init_timer = 0, 0
+end
 
--- end
+local function stopTimer()
+    init_timer = false
+    countdown = 0
+end
 
 function OnGameEnd()
     player_count = 0
+    if (init_timer) then
+        stopTimer()
+    end
 end
 
 function OnScriptUnload()
@@ -64,8 +75,7 @@ end
 function OnPlayerConnect(p)
     player_count = player_count + 1
     if (init_timer) then
-        init_timer = false
-        countdown = 0
+        stopTimer()
         -- Debugging:
         if (_debug_) then
             cprint("Countdown stopped", 5+8)
@@ -77,10 +87,10 @@ function OnPlayerDisconnect(p)
     player_count = player_count - 1
     if (playerCount() <= 0) then
 
-        -- Ensures player count never goes into negatives
+        -- Ensures player count never goes into negatives.
         player_count = 0
 
-        -- Initialize Countdown Timer
+        -- Initialize Countdown Timer.
         init_timer = true
     end
 end
@@ -94,20 +104,25 @@ local function CountdownLoop()
         cprint("Restarting Mapcycle in: " .. duration - floor(countdown) .. " seconds", 5+8)
     end
     
+    -- Monitors elapsed time.
+    -- Stops the 'timer' when 'countdown' is equal-to-or-greater-than the value of 'duration'.
+    -- Executes the 'sapp_command'.
     if (countdown >= (duration)) then
-        countdown = 0
-        init_timer = false
+        stopTimer()
         execute_command(sapp_command)
         cprint("RESTARTING MAP CYCLE. Please wait...", 2 + 8)
     end
 end
 
 function OnTick()
+    -- Determines whether the server is empty. 
+    -- Listens for the 'go-ahead' ("init_timer" [bool]) to initialize the countdown timer.
     if (playerCount() <= 0) and (init_timer) then
         CountdownLoop()
     end
 end
 
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
 function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
