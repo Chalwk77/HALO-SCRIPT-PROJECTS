@@ -41,15 +41,13 @@ function OnGameStart()
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-        if (proceed) then
-            local weapon_object = get_object_memory(read_dword(get_dynamic_player(CauserIndex) + 0x118))
-            if (weapon_object ~= 0) then
-                local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-                if (tag_name == weapon_tag_name) then
-                    return true, Damage * tonumber(multiplier)
-                end
-            end
-        end
+    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) and (proceed) then
+		local weapon_object = get_object_memory(read_dword(get_dynamic_player(CauserIndex) + 0x118))
+		if (weapon_object ~= 0) then
+			local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+			if (tag_name == weapon_tag_name) then
+				return true, Damage * tonumber(multiplier)
+			end
+		end
     end
 end
