@@ -99,7 +99,7 @@ function OnPlayerSpawn(p)
     init_timer[p], time_remaining[p] = true, duration
     if (_debug_) then
         cprint(get_var(p, "$name") .. " just spawned. Starting Timer.", 5 + 8)
-        cprint("Spawn-Protect-DoNoDamage: " .. get_var(p, "$name") .. " just spawned. Starting Timer."
+        cprint("Spawn-Protect-DoNoDamage: " .. get_var(p, "$name") .. " just spawned. Starting Timer.")
     end
     local player_object = get_dynamic_player(p)
     if (player_object ~= 0) then
