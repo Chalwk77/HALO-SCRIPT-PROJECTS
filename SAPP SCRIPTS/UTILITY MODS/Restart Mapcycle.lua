@@ -21,8 +21,8 @@ api_version = "1.12.0.0"
 -- If the server is empty, the mapcycle will be restarted after "time_remaining" minutes/seconds has elapsed:
 local time_remaining = 1.5 * 60 -- one-and-a-half minutes
 
--- Command to execute:
-local sapp_command = "mapcycle_begin"
+-- This command wil be executed when 'time_remaining' has elapsed:
+local sapp_command = "mapcycle_begin" -- Reset command.
 
 -- Message output when "time_remaining" has elapsed
 local on_restart = "RESTARTING MAP CYCLE. Please wait..."
@@ -37,7 +37,7 @@ local original_time = time_remaining
 local _debug_ = false
 local floor, format = math.floor, string.format
 
--- Returns the current player count
+-- Returns the current player count [number]
 local function playerCount()
     if (player_count ~= nil) then
         return tonumber(player_count)
@@ -45,22 +45,24 @@ local function playerCount()
 end
 
 function OnScriptLoad()
-    
+
     -- Register needed event callbacks:
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
     register_callback(cb["EVENT_TICK"], "OnTick")
-    
+
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     --
-    
+
     -- These variables are semi-redundant in OnScriptLoad() because they are being declared in OnGameStart().
-    -- But necessary if the server is configured such that it doesn't end the current game and reload a new map.
-    -- To do: Write a listener function for "/reload" command.
+    -- But necessary if the server is configured such that it doesn't end the current game and reload a new map
+    -- when /reload is executed.
     player_count, time_remaining, init_timer = 0, original_time
-    
+
+    -- To do: Write a listener function for "/reload" command.
+
     for i = 1, 16 do
         if player_present(i) then
             player_count = player_count + 1
@@ -81,14 +83,14 @@ end
 function OnGameEnd()
     -- Reset player count.
     player_count = 0
-    
+
     -- If the countdown timer is already running when the game ends, stop it.
     if (init_timer) then
         stopTimer()
-        
+
         -- Debugging:
         if (_debug_) then
-            cprint("Countdown stopped", 5+8)
+            cprint("Countdown stopped", 5 + 8)
         end
     end
 end
@@ -99,12 +101,13 @@ end
 
 function OnPlayerConnect(p)
     player_count = player_count + 1
+    -- If the countdown timer is already running, stop it.
     if (init_timer) then
         stopTimer()
-        
+
         -- Debugging:
         if (_debug_) then
-            cprint("Countdown stopped", 5+8)
+            cprint("Countdown stopped", 5 + 8)
         end
     end
 end
@@ -112,7 +115,7 @@ end
 function OnPlayerDisconnect(p)
     player_count = player_count - 1
     if (playerCount() <= 0) then
-    
+
         -- 1). Ensures player count never goes into negatives.
         -- 2). Initialize Countdown Timer.
         player_count, init_timer = 0, true
@@ -120,29 +123,29 @@ function OnPlayerDisconnect(p)
 end
 
 local function CountdownLoop()
-  
+
     -- 1). Monitors elapsed time.
     -- 2). Stops the 'timer' when 'time_remaining' has elapsed.
     -- 3). Executes the 'sapp_command'.
-	time_remaining = time_remaining - 0.030
-	local minutes, seconds = floor( time_remaining / 60 ), time_remaining % 60
-	local time = format( "%02d:%02d", minutes, seconds )
+    time_remaining = time_remaining - 0.030
+    local minutes, seconds = floor(time_remaining / 60), time_remaining % 60
+    local time = format("%02d:%02d", minutes, seconds)
 
     if (time ~= nil) then
         if (time <= "0") then
             stopTimer()
             execute_command(sapp_command)
-            cprint(on_restart, 2 + 8)
+            cprint(on_restart, 2 + 8) -- console-print on_restart [string]
         elseif (_debug_) then
             -- Debugging:
-            cprint("Restarting Mapcycle in: " .. time .. " seconds", 5+8)
+            cprint("Restarting Mapcycle in: " .. time .. " seconds", 5 + 8)
         end
     end
 end
 
 -- OnTick() | Called every 1/30 seconds. (Similar to Phasor's OnClientUpdate function)
 function OnTick()
-    
+
     -- 1). Determines whether the server is empty. 
     -- 2). Listens for the 'go-ahead' ("init_timer" [bool]) to initialize the countdown timer.
     if (playerCount() <= 0) and (init_timer) then
@@ -159,10 +162,9 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
--- This function will return a string with a traceback of the stack call.
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
 function OnError()
     cprint(debug.traceback(), 4 + 8)
-    
-    -- Calls function 'report' after 50 milliseconds
     timer(50, "report")
 end
