@@ -1,8 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Spawn-Protect-DoNoDamage, for SAPP (PC & CE)
-Description: Players who just spawned will not able to inflict damage 
-			 on others for 'duration' seconds after spawning.
+Description: Prevent newly spawned players from inflicting damage 
+			 on others until the timer has expired.
 
 			 This mod is intended to be used in conjuction with SAPP's Spawn Protection feature.
 			 SAPP's Spawn Protection Feature prevents others from harming you for X seconds, 
@@ -62,9 +62,7 @@ local function stopTimer(p)
         cprint("Spawn-Protect-DoNoDamage: Stopping Timer for " .. get_var(p, "$name"))
     end
     if player_alive(p) then
-        for _ = 1, 4 do
-            execute_command("wdel " .. p)
-        end
+        for _ = 1, 4 do execute_command("wdel " .. p) end
         local x, y, z = read_vector3d(get_dynamic_player(p) + 0x5C)
         local inventory = provisions[p]
         for _, weapon in ipairs(inventory) do
@@ -122,9 +120,6 @@ function OnPlayerSpawn(p)
         inventory.frags = read_byte(player_object + 0x31E)
         inventory.plasmas = read_byte(player_object + 0x31F)
         provisions[p] = inventory
-        for _ = 1, 4 do
-            execute_command("wdel " .. p)
-        end
     end
 end
 
