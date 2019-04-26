@@ -37,7 +37,6 @@ function OnGameStart()
     proceed = false
     if TagInfo("weap", weapon_tag_name) then
         proceed = true
-        cprint('proceeding', 2 + 8)
     end
 end
 
