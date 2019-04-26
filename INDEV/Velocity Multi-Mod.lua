@@ -94,12 +94,12 @@ local function GameSettings()
                     -- They use Halo on multiple computers at different houses. Each house has a unique public ip address. 
                     -- We add each ip entry and hash to the respective table for that user. 
                     -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip address (or hashes) for that name entry, action will be taken.
-                    { ["example_name"] = {"127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-                    
-                    
+                    { ["example_name"] = { "127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+
+
                     -- repeat the structure to add more entries
                     { ["name_here"] = { "ip 1", "ip 2", "hash1", "hash2", "hash3", "etc..." } },
-                    
+
                     -- You do not need both ip and hash but it adds a bit more security.
                 },
             },
@@ -1156,10 +1156,10 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
-    
+
     -- Register Server Console to Table
     alias:reset(server_ip)
-    
+
     if checkFile("sapp\\bgs_changelog.txt") then
         RecordChanges()
     end
@@ -1406,7 +1406,7 @@ function OnTick()
             -- #Lurker
             if modEnabled("Lurker") then
                 local tab = settings.mod["Lurker"]
-                if (lurker[i] == true) then 
+                if (lurker[i] == true) then
                     if (players["Lurker"][ip].lurker_warn == true) then
                         local LTab = players["Lurker"][ip]
                         LTab.lurker_timer = LTab.lurker_timer + 0.030
@@ -1457,7 +1457,7 @@ function OnTick()
                     if (tonumber(scores[i]) ~= nil) then
                         execute_command("score " .. tonumber(i) .. " " .. scores[i])
                         local score = get_var(i, "$score")
-                        if (tonumber(score) < 0) then 
+                        if (tonumber(score) < 0) then
                             -- In the event scores goes into the negatives, this will set it back to what it should be.
                             execute_command("score " .. tonumber(i) .. " " .. scores[i])
                         end
@@ -1818,17 +1818,17 @@ function OnPlayerDisconnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-	
-	local function ip(PlayerIndex)
-		local ip
-		if (halo_type == "PC") then
-			ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
-		else
-			ip = getip(PlayerIndex, true)
-		end
-		return ip
-	end
-    
+
+    local function ip(PlayerIndex)
+        local ip
+        if (halo_type == "PC") then
+            ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
+        else
+            ip = getip(PlayerIndex, true)
+        end
+        return ip
+    end
+
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
     if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
@@ -1850,16 +1850,16 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 
     -- #Respawn Time
-    if (respawn_time[ip(PlayerIndex)] ~= nil) then 
-		respawn_time[ip(PlayerIndex)] = nil
-	end
-	
+    if (respawn_time[ip(PlayerIndex)] ~= nil) then
+        respawn_time[ip(PlayerIndex)] = nil
+    end
+
     -- #Alias System
     if modEnabled("Alias System") then
         if (tonumber(level) >= getPermLevel("Alias System", false)) then
-			if (players["Alias System"][ip(PlayerIndex)] ~= nil) then
-				alias:reset(ip(PlayerIndex))
-			end
+            if (players["Alias System"][ip(PlayerIndex)] ~= nil) then
+                alias:reset(ip(PlayerIndex))
+            end
         end
     end
 
@@ -1913,7 +1913,7 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
             velocity:LurkerReset(ip(PlayerIndex))
-            if tonumber(scores[PlayerIndex]) then 
+            if tonumber(scores[PlayerIndex]) then
                 scores[PlayerIndex] = nil
             end
             lurker[PlayerIndex] = false
@@ -1952,8 +1952,8 @@ function OnPlayerDisconnect(PlayerIndex)
             CleanUpDrones(PlayerIndex, 2)
         end
     end
-	-- Clean up player_info table for PlayerIndex:
-	 player_info[PlayerIndex] = nil
+    -- Clean up player_info table for PlayerIndex:
+    player_info[PlayerIndex] = nil
 end
 
 function OnPlayerPrespawn(PlayerIndex)
@@ -1991,7 +1991,7 @@ function timeUntilRestore(PlayerIndex)
     end
 end
 
-function OnPlayerSpawn(PlayerIndex)    
+function OnPlayerSpawn(PlayerIndex)
     -- #Custom Weapons
     if modEnabled("Custom Weapons") then
         local Wtab = settings.mod["Custom Weapons"]
@@ -2037,12 +2037,12 @@ function OnPlayerSpawn(PlayerIndex)
         if (lurker[PlayerIndex] == true) then
             local ip = getip(PlayerIndex, true)
             has_objective[PlayerIndex] = false
-            
+
             local mod = players["Lurker"][ip]
             mod.lurker_warnings = mod.lurker_warnings
             mod.lurker_warn = false
             mod.timer = 0
-            
+
             local params = { }
             params.tid = tonumber(PlayerIndex)
             params.warnings = mod.lurker_warnings
@@ -2115,7 +2115,7 @@ function OnPlayerKill(PlayerIndex)
     if modEnabled("Lurker") then
         if (level >= getPermLevel("Lurker", false)) then
             has_objective[PlayerIndex] = false
-            if tonumber(scores[PlayerIndex]) then 
+            if tonumber(scores[PlayerIndex]) then
                 scores[PlayerIndex] = 0
             end
             local mod = players["Lurker"][ip]
@@ -2513,7 +2513,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    
+
     -- #Command Spy
     if modEnabled("Command Spy") then
         if (Environment == 1) then
@@ -2571,8 +2571,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 params.tip = getip(pl[i], true)
                 params.tn = get_var(pl[i], "$name")
                 params.th = get_var(pl[i], "$hash")
-                
-                if (params.eip == nil) then 
+
+                if (params.eip == nil) then
                     params.eip = server_ip
                 end
 
@@ -4242,7 +4242,7 @@ function velocity:setLurker(params)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    
+
     local mod = settings.mod["Lurker"]
     local function Enable()
         scores[tid] = scores[tid] or { }
