@@ -97,10 +97,6 @@ end
 
 function OnPlayerSpawn(p)
     init_timer[p], time_remaining[p] = true, duration
-    if (_debug_) then
-        cprint(get_var(p, "$name") .. " just spawned. Starting Timer.", 5 + 8)
-        cprint("Spawn-Protect-DoNoDamage: " .. get_var(p, "$name") .. " just spawned. Starting Timer.")
-    end
     local player_object = get_dynamic_player(p)
     if (player_object ~= 0) then
         provisions[p] = provisions[p] or { }
@@ -122,6 +118,9 @@ function OnPlayerSpawn(p)
         inventory.frags = read_byte(player_object + 0x31E)
         inventory.plasmas = read_byte(player_object + 0x31F)
         provisions[p] = inventory
+	    if (_debug_) then
+			cprint("Spawn-Protect-DoNoDamage: " .. get_var(p, "$name") .. " just spawned. Starting Timer.")
+		end
     end
 end
 
