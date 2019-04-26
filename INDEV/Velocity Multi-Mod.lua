@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.15), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.16), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -384,7 +384,7 @@ local function GameSettings()
                 warnings = 4,
             },
             ["Message Board"] = {
-                enabled = true,
+                enabled = false,
                 duration = 5, -- How long should the message be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
@@ -668,7 +668,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.15, -- << --- do not touch
+            script_version = 1.16, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1818,7 +1818,16 @@ function OnPlayerDisconnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local id = get_var(PlayerIndex, "$n")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    local ip = getip(PlayerIndex, true)
+	
+	local function ip(PlayerIndex)
+		local ip
+		if (halo_type == "PC") then
+			ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
+		else
+			ip = getip(PlayerIndex, true)
+		end
+		return ip
+	end
     
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
@@ -1828,32 +1837,35 @@ function OnPlayerDisconnect(PlayerIndex)
         cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
         cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
-        player_info[PlayerIndex] = nil
     end
     cprint("________________________________________________________________________________", 4 + 8)
 
     -- #Mute System
     if modEnabled("Mute System") then
-        if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+        if (mute_table[ip(PlayerIndex)] ~= nil) and (mute_table[ip(PlayerIndex)].muted) then
             local p = { }
-            p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
+            p.tip, p.name, p.time, p.tid = ip(PlayerIndex), name, mute_table[ip(PlayerIndex)].remaining, tonumber(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
 
     -- #Respawn Time
-    respawn_time[ip] = nil
-
+    if (respawn_time[ip(PlayerIndex)] ~= nil) then 
+		respawn_time[ip(PlayerIndex)] = nil
+	end
+	
     -- #Alias System
     if modEnabled("Alias System") then
         if (tonumber(level) >= getPermLevel("Alias System", false)) then
-            alias:reset(ip)
+			if (players["Alias System"][ip(PlayerIndex)] ~= nil) then
+				alias:reset(ip(PlayerIndex))
+			end
         end
     end
 
     -- #Message Board
     if modEnabled("Message Board") then
-        messageBoard:hide(PlayerIndex, ip)
+        messageBoard:hide(PlayerIndex, ip(PlayerIndex))
     end
 
     -- #Teleport Manager
@@ -1867,18 +1879,18 @@ function OnPlayerDisconnect(PlayerIndex)
     -- #Admin Chat
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
-        local mod = players["Admin Chat"][ip]
+        local mod = players["Admin Chat"][ip(PlayerIndex)]
         if tonumber(level) >= getPermLevel("Admin Chat", false) then
-            if (restore) then
+            if (restore) and (mod ~= nil) then
                 local bool
                 if (mod.adminchat) then
                     bool = "true"
                 else
                     bool = "false"
                 end
-                achat_status[ip] = bool
+                achat_status[ip(PlayerIndex)] = bool
                 achat_data[achat_status] = achat_data[achat_status] or {}
-                table.insert(achat_data[achat_status], tostring(achat_status[ip]))
+                table.insert(achat_data[achat_status], tostring(achat_status[ip(PlayerIndex)]))
             else
                 mod.adminchat = false
                 mod.boolean = false
@@ -1894,13 +1906,13 @@ function OnPlayerDisconnect(PlayerIndex)
         if (first_join[PlayerIndex] == true) then
             first_join[PlayerIndex] = false
         end
-        players["Spawn From Sky"][ip].sky_timer = 0
+        players["Spawn From Sky"][ip(PlayerIndex)].sky_timer = 0
     end
 
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
-            velocity:LurkerReset(ip)
+            velocity:LurkerReset(ip(PlayerIndex))
             if tonumber(scores[PlayerIndex]) then 
                 scores[PlayerIndex] = nil
             end
@@ -1919,9 +1931,8 @@ function OnPlayerDisconnect(PlayerIndex)
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
-            local ip = getip(PlayerIndex, false) -- include port
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip(PlayerIndex) .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
         end
     end
@@ -1941,6 +1952,8 @@ function OnPlayerDisconnect(PlayerIndex)
             CleanUpDrones(PlayerIndex, 2)
         end
     end
+	-- Clean up player_info table for PlayerIndex:
+	 player_info[PlayerIndex] = nil
 end
 
 function OnPlayerPrespawn(PlayerIndex)
@@ -5212,6 +5225,7 @@ function printEnabled()
     cprint("----------------------------------\n", 3 + 5)
 end
 
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
 function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
@@ -5220,6 +5234,8 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
 function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
@@ -5284,7 +5300,11 @@ function RecordChanges()
     cl[#cl + 1] = "A couple of documentation edits"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
-
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/27/19]"
+    cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
