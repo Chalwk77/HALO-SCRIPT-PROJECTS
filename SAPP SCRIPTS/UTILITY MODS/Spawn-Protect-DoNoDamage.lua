@@ -2,13 +2,13 @@
 --=====================================================================================================--
 Script Name: Spawn-Protect-DoNoDamage, for SAPP (PC & CE)
 Description: Prevent newly spawned players from inflicting damage 
-			 on others until the timer has expired.
+             on others until the timer has expired.
 
-			 This mod is intended to be used in conjuction with SAPP's Spawn Protection feature.
-			 SAPP's Spawn Protection Feature prevents others from harming you for X seconds, 
-			 but you can still inflict damage on them.
+             This mod is intended to be used in conjuction with SAPP's Spawn Protection feature.
+             SAPP's Spawn Protection Feature prevents others from harming you for X seconds, 
+             but you can still inflict damage on them.
 			 
-			 * This mod is a work-around for the above issue.
+             * This mod is a work-around for the above issue.
 
 ~ Credits: This scipt utilizes modified parts of 002's equipment loading/saving script.
 
