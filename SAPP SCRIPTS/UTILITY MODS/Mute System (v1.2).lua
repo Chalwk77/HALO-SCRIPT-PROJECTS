@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Mute System (v 1.10), for SAPP (PC & CE)
+Script Name: Mute System (v 1.2), for SAPP (PC & CE)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -22,7 +22,7 @@ local privilege_level = 1
 -- Configuration [ENDS] --
 
 local mod, mute_table = { }, { }
-local script_version = 1.0
+local script_version = 1.2
 local function getip(p)
     return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
 end
@@ -378,14 +378,11 @@ function mod:load(params)
     end
 
     if (data) then
-        i = 1
-        local result = { }
+        local result, i = { }, 1
         for j = 1, 3 do
             if (data[j] ~= nil) then
-                result[j] = data[j]
+                result[i] = data[j]
                 i = i + 1
-            else
-                return
             end
         end
         if (result ~= nil) then
