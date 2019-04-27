@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.18), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.20), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -14,7 +14,7 @@ Combined Scripts:
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
-    - Mute System
+    - Mute System			Private Messaging System
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -432,7 +432,7 @@ local function GameSettings()
                 read_command = "readmail", -- /read_command [id]
                 delete_command = "delpm", -- /delete_command [id]
                 new_mail = "You have (%count%) unread private messages",
-                msg_format = "[%recipient%] %sender%: %message%",
+                msg_format = "[%recipient%], %sender%, %message%",
                 send_response = "Message Sent"
             },
             ["Respawn Time"] = {
@@ -680,7 +680,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.19, -- << --- do not touch
+            script_version = 1.20, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1228,9 +1228,8 @@ end
 function OnNewGame()
     -- Used Globally
     game_over = false
-    mapname = get_var(0, "$map")
-
-    PreLoad()
+    mapname = get_var(0, "$map")    
+	PreLoad()
     resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
@@ -2799,8 +2798,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local tab = settings.mod["Private Messaging System"]
                     if (args[1] == nil) then
                         local p = { }
-                        p.eid, p.mail = executor, unread_mail[ip]
-                        unread_mail[ip] = unread_mail[ip] or { }
+                        p.eid, p.eip = executor, ip
+						p.mail = privateMessage:load(p)
                         privateMessage:read(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command, "rcon", 4 + 8)
@@ -4498,7 +4497,7 @@ function privateMessage:send(params)
             if (text) then
                 local msg_format = params.format or nil
                 if isConsole(eid) then en = "SERVER" end
-                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")
+                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")				
                 file:write(str)
                 file:close()
                 local tab = settings.mod["Private Messaging System"]
@@ -4517,22 +4516,18 @@ end
 
 -- #Private Messaging System
 function privateMessage:load(params)
-
     local params = params or {}
-    local id = params.id or nil
-    local ip = params.ip or nil
-    
+    local ip = params.eip or nil
     local tab = settings.mod["Private Messaging System"]
-    local content, data
-
     local lines = lines_from(tab.dir)
+	
     unread_mail[ip] = { }
-    local mail = unread_mail[ip]
     for _, v in pairs(lines) do
         if (v:match(ip)) then
-            mail[#mail + 1] = v:match(":(.+)")
+            unread_mail[ip][#unread_mail[ip] + 1] = v
         end
     end
+	return unread_mail[ip]
 end
 
 -- #Private Messaging System
@@ -4540,13 +4535,23 @@ function privateMessage:read(params)
     local params = params or {}
     local eid = params.eid or nil
     local mail = params.mail or nil
-    if (mail ~= nil) then
-        for k,_ in pairs(mail) do
-            respond(eid, mail[k], "rcon", 2+8)
-        end
-    else
-        respond(eid, "You have no mail", "rcon", 2+8)
-    end
+	for _, v in pairs(mail) do
+		local data = stringSplit(v, ",")
+		if (data) then
+			local result, i = { }, 1
+			for j = 1, 3 do
+				if (data[j] ~= nil) then
+					result[i] = data[j]
+					i = i + 1
+				end
+			end
+			if (result ~= nil) then
+				respond(eid, result[2] .. ": " .. result[3], "rcon", 2+8)
+			else
+				respond(eid, "You have no mail", "rcon", 2+8)
+			end
+		end
+	end
 end
 
 -- #Alias System
@@ -5498,8 +5503,9 @@ function RecordChanges()
     cl[#cl + 1] = "[4/27/19]"
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
-    cl[#cl + 1] = "A couple more minor bug fixes' - script updated to v.1.18"
-    cl[#cl + 1] = "Bug Fix for Suggestion Box"
+    cl[#cl + 1] = "Bug Fix for Suggestion Box - script updated to v.1.18"
+    cl[#cl + 1] = "Minor Bug Fixes- script updated to v.1.19"
+    cl[#cl + 1] = "Began writing Private Messaging System - script updated to v.1.20"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
