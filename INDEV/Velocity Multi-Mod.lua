@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.22), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.23), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -687,7 +687,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.22, -- << --- do not touch
+            script_version = 1.23, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2788,7 +2788,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         local p = { }
                         local content = Command:match(args[1] .. "(.+)")
                         if find(content, tab.seperator) then
-                            content = gsub(content, seperator, "")
+                            content = gsub(content, tab.seperator, "")
                         end
                         p.eid, p.en, p.message, p.user_id = executor, name, content, args[1]
                         p.dir = tab.dir
@@ -4505,8 +4505,7 @@ function privateMessage:send(params)
         local dir = params.dir or nil
         local file = io.open(dir, "a+")
         if (file) then
-            local proceed
-            local len
+            local proceed, len
             for _, v in pairs(t) do
                 len = string.len(v)
                 local max_char = tab.max_characters
@@ -4520,7 +4519,6 @@ function privateMessage:send(params)
                 end
             end
             if (text) and (proceed) then
-                print(len)
                 local msg_format = params.format or nil
                 if isConsole(eid) then
                     en = "SERVER"
@@ -5608,6 +5606,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/28/19]"
     cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v.1.22"
+    cl[#cl + 1] = "Bug Fix - script updated to v.1.23"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
