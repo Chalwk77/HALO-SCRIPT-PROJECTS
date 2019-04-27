@@ -47,6 +47,7 @@ local weapons = {
     [20] = { "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser", 1, true },
     [21] = { "bourrin\\weapons\\badass rocket launcher\\bourrinrl", 1, true },
     [22] = { "reach\\objects\\weapons\\pistol\\magnum\\gold magnum", 1, true },
+    -- Repeat the structure to add more weapons.
 }
 -- Configuration [end]
 
