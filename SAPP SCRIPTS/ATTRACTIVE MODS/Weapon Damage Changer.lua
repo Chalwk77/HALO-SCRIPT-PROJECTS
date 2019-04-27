@@ -1,10 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Weapon Damage Changer, for SAPP (PC & CE)
-Description: This script enables you to set the default weapon damage.
-             You can enable/disable each individual weapon.
-             If a weapon is disabled, its damage will revert to default.
-			
+Description: This mod is a fully-involved damage multiplier changer - 
+             that enables you to change the default damage for any desired weapon.
+             
+             Individual weapons can be enabled or disabled - if a weapon is disabled, it will revert to the maps default damage.
+             
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
