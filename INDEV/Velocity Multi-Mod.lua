@@ -432,8 +432,15 @@ local function GameSettings()
                 read_command = "readmail", -- /read_command [id]
                 delete_command = "delpm", -- /delete_command [id]
                 new_mail = "You have (%count%) unread private messages",
-                msg_format = "[%recipient%], %sender%, %message%",
-                send_response = "Message Sent"
+                send_response = "Message Sent",
+				read_format = {
+					"Sender: %sender_name%",
+					"Date & Time: %time_stamp%",
+					"%msg%",
+				},
+				-- do not touch these unless you know what you're doing
+                max_characters = 78,
+                seperator = "|",
             },
             ["Respawn Time"] = {
                 enabled = true,
@@ -1035,11 +1042,11 @@ function velocity:ShowCurrentVersion()
     end
 end
 
-local function getChar(time)
+local function getChar(input)
     local char = ""
-    if (tonumber(time) > 1) then
+    if (tonumber(input) > 1) then
         char = "s"
-    elseif (tonumber(time) <= 1) then
+    elseif (tonumber(input) <= 1) then
         char = ""
     end
     return char
@@ -2780,8 +2787,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] ~= nil) and (args[2] ~= nil) then
                         local p = { }
                         local content = Command:match(args[1] .. "(.+)")
+						if find(content, tab.seperator) then 
+							content = gsub(content, seperator, "")
+						end
                         p.eid, p.en, p.message, p.user_id = executor, name, content, args[1]
-                        p.format, p.dir = tab.msg_format, tab.dir
+                        p.dir = tab.dir
                         privateMessage:send(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.send_command .. " [user id] {message}", "rcon", 4 + 8)
@@ -2794,7 +2804,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Private Messaging System"].read_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, true, "Private Messaging System")) then
+                if (checkAccess(executor, false, "Private Messaging System")) then
                     local tab = settings.mod["Private Messaging System"]
                     if (args[1] == nil) then
                         local p = { }
@@ -4462,6 +4472,8 @@ function privateMessage:send(params)
     local en = params.en or nil
 
     local user_id = params.user_id or nil
+	local tab = settings.mod["Private Messaging System"]
+	
     local valid_username
     if (user_id) then
         if user_id:match("(%d+.%d+.%d+.%d+)") then
@@ -4493,18 +4505,32 @@ function privateMessage:send(params)
         local dir = params.dir or nil
         local file = io.open(dir, "a+")
         if (file) then
-            for _, v in pairs(t) do
-                text = v
+			local proceed
+            local len
+			for _, v in pairs(t) do
+				len = string.len(v)
+				local max_char = tab.max_characters
+				if (len < max_char) then
+					text = v
+					proceed = true
+				else
+					local char = getChar(max_char)
+					respond(eid, "Your message is too long! (max " .. max_char .. " character" .. char .. ")", "rcon", 7 + 8)
+					break
+				end
             end
-            if (text) then
+            if (text) and (proceed) then
+				print(len)
                 local msg_format = params.format or nil
                 if isConsole(eid) then
                     en = "SERVER"
                 end
-                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")
+				
+				local time_stamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+
+				local str = user_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " ..  en .. tab.seperator .. " " .. text
                 file:write(str)
                 file:close()
-                local tab = settings.mod["Private Messaging System"]
                 respond(eid, tab.send_response, "rcon", 7 + 8)
                 respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
                 respond(eid, "[you] -> " .. user_id, "rcon", 7 + 8)
@@ -4538,24 +4564,65 @@ end
 function privateMessage:read(params)
     local params = params or {}
     local eid = params.eid or nil
+    local eip = params.eip or nil
     local mail = params.mail or nil
-    for _, v in pairs(mail) do
-        local data = stringSplit(v, ",")
-        if (data) then
-            local result, i = { }, 1
-            for j = 1, 3 do
-                if (data[j] ~= nil) then
-                    result[i] = data[j]
-                    i = i + 1
-                end
-            end
-            if (result ~= nil) then
-                respond(eid, result[2] .. ": " .. result[3], "rcon", 2 + 8)
-            else
-                respond(eid, "You have no mail", "rcon", 2 + 8)
-            end
-        end
+    local tab = settings.mod["Private Messaging System"]
+	
+	local has_mail
+	local function hasMail(has_mail)
+		if (has_mail) and (#unread_mail[eip] > 0) then
+			local count = #unread_mail[eip]
+			respond(eid, "Total Messages: " .. count, "rcon", 2 + 8)
+		end
+	end
+	
+	if (#mail > 0) then
+		for _, v in pairs(mail) do
+			local data = stringSplit(v, tab.seperator)
+			if (data) then
+				local result, i = { }, 1
+				for j = 1, 4 do
+					if (data[j] ~= nil) then
+						result[i] = data[j]
+						i = i + 1
+					end
+				end
+				if (result ~= nil) then
+					has_mail = true
+					local tab = tab.read_format
+					local a, b, c
+					for k = 1, #tab do
+						if tab[k]:match("%%sender_name%%") then
+							a = gsub(tab[k], "%%sender_name%%", result[3])
+						elseif tab[k]:match("%%time_stamp%%") then
+							b = gsub(tab[k], "%%time_stamp%%", result[2])
+						elseif tab[k]:match("%%msg%%") then
+							c = gsub(tab[k], "%%msg%%", result[4])
+						end
+					end
+					local temp = {}
+					table.insert(temp, {["name"] = a, ["time_stamp"] = b, ["msg"] = c})
+
+					local function get(ID)
+						for key, _ in ipairs(temp) do
+							return temp[key][ID]
+						end
+					end
+							
+					local sender_name = get("name")
+					local time_stamp = get("time_stamp")
+					local msg = get("msg")
+					
+					respond(eid, sender_name .. " | " .. time_stamp, "rcon", 2 + 8)
+					respond(eid, msg, "rcon", 2 + 8)
+					respond(eid, " ", "rcon", 2 + 8)
+				end
+			end
+		end
+	else
+		respond(eid, "You have no mail", "rcon", 2 + 8)
     end
+	hasMail(has_mail)
 end
 
 -- #Alias System
@@ -5448,7 +5515,7 @@ function RecordChanges()
     local file = io.open("sapp\\changelog.txt", "w")
     local cl = {}
     cl[#cl + 1] = "[2/22/19]"
-    cl[#cl + 1] = "I have made some heavy tweaks the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)"
+    cl[#cl + 1] = "I have made some heavy tweaks to the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)"
     cl[#cl + 1] = "in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "The base command is the same. However, the command arguments have changed:"
