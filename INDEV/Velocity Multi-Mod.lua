@@ -2790,7 +2790,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         if find(content, tab.seperator) then
                             content = gsub(content, tab.seperator, "")
                         end
-                        p.eid, p.en, p.message, p.user_id = executor, name, content, args[1]
+                        p.eid, p.en, p.eip, p.message, p.user_id = executor, name, ip, content, args[1]
                         p.dir = tab.dir
                         privateMessage:send(p)
                     else
@@ -4469,29 +4469,31 @@ function privateMessage:send(params)
     local params = params or {}
 
     local eid = params.eid or nil
+    local eip = params.eip or nil
     local en = params.en or nil
 
     local user_id = params.user_id or nil
     local tab = settings.mod["Private Messaging System"]
 
+	local function isSelf()
+		if (eid == user_id or eip == user_id) then
+			respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
+			return true
+		end
+	end
+
     local valid_username
     if (user_id) then
-        if user_id:match("(%d+.%d+.%d+.%d+)") then
+        if user_id:match("(%d+.%d+.%d+.%d+)") and not isSelf() then
             valid_username = true
-        elseif user_id:match("(%d+)") and (tonumber(user_id) > 0 and tonumber(user_id) < 17) then
+        elseif user_id:match("(%d+)") and (tonumber(user_id) > 0 and tonumber(user_id) < 17)  and not isSelf() then
             if player_present(user_id) then
-                if (user_id ~= eid) then
-                    valid_username = true
-                else
-                    valid_username = false
-                    respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
-                end
+				valid_username = true
             else
                 respond(eid, "Player not online!", "rcon", 4 + 8)
                 respond(eid, "To pm OFFLINE players enter their IP Address instead.", "rcon", 4 + 8)
             end
         else
-            valid_username = false
             respond(eid, "----- [ Invalid User ID ] -----", "rcon", 4 + 8)
             respond(eid, "FOR ONLINE PLAYERS: Enter their Index ID", "rcon", 4 + 8)
             respond(eid, "FOR OFFLINE PLAYERS: Enter their IP Address.", "rcon", 4 + 8)
