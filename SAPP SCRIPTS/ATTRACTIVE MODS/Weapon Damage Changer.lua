@@ -2,8 +2,8 @@
 --=====================================================================================================--
 Script Name: Weapon Damage Changer, for SAPP (PC & CE)
 Description: This script enables you to set the default weapon damage.
-		     You can enable/disable each individual weapon.
-			 If a weapon is disabled, its damage will revert to default.
+             You can enable/disable each individual weapon.
+             If a weapon is disabled, its damage will revert to default.
 			
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
