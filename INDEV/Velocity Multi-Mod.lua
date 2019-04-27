@@ -5302,7 +5302,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/27/19]"
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
-    cl[#cl + 1] = "Bug Fixe relating to function 'velocity:loadMute()' - script updated to v.1.17"
+    cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
