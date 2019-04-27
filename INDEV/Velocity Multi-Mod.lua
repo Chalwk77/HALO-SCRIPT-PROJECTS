@@ -423,6 +423,18 @@ local function GameSettings()
                     "playerslist"
                 }
             },
+            -- # Private Messaging System
+            ["Private Messaging System"] = {
+                enabled = true,
+                dir = "sapp\\private_messages.txt",
+                permission_level = 1,
+                send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
+                read_command = "readmail", -- /read_command [id]
+                delete_command = "delpm", -- /delete_command [id]
+                new_mail = "You have (%count%) unread private messages",
+                msg_format = "[%recipient%] %sender%: %message%",
+                send_response = "Message Sent"
+            },
             ["Respawn Time"] = {
                 enabled = true,
                 permission_level = 1,
@@ -781,6 +793,9 @@ end
 local init_timer = {}
 local first_join = {}
 
+-- #Private Messaging System
+local privateMessage, unread_mail = { }, { }
+
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local sv_name = read_widestring(network_struct + 0x8, 0x42)
@@ -1020,16 +1035,15 @@ function velocity:ShowCurrentVersion()
     end
 end
 
-local function getChar(input)
+local function getChar(time)
     local char = ""
-    if (tonumber(input) > 1) then
+    if (tonumber(time) > 1) then
         char = "s"
-    elseif (tonumber(input) <= 1) then
+    elseif (tonumber(time) <= 1) then
         char = ""
     end
     return char
 end
-
 
 function OnScriptLoad()
     InitPlayers()
@@ -1069,6 +1083,11 @@ function OnScriptLoad()
         checkFile(settings.mod["Alias System"].dir)
         resetAliasParams()
         PreLoad()
+    end
+    
+    -- #Private Messaging System
+    if modEnabled("Private Messaging System") then
+        checkFile(settings.mod["Private Messaging System"].dir)
     end
 
     if modEnabled("Teleport Manager") then
@@ -1624,7 +1643,7 @@ end
 function OnPlayerConnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
-    local id = get_var(PlayerIndex, "$n")
+    local id = tonumber(get_var(PlayerIndex, "$n"))
     local ip = getip(PlayerIndex, true)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
@@ -1645,7 +1664,26 @@ function OnPlayerConnect(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
-
+    
+    -- #Private Messaging System
+    if modEnabled("Private Messaging System") then
+        local count = 0 
+        unread_mail[ip] = { }
+        local tab = settings.mod["Private Messaging System"]
+        local lines = lines_from(tab.dir)
+        for _, v in pairs(lines) do
+            if (v:match(ip)) then
+                unread_mail[ip][#unread_mail[ip] + 1] = v:match(":(.+)")
+                count = count + 1
+            end
+        end
+        
+        if (count > 0) then
+            local str = gsub(tab.new_mail, "%%count%%", count)
+            respond(id, str, "rcon", 2+8)
+        end
+    end
+    
     -- #Respawn Time
     if modEnabled("Respawn Time") then
         respawn_cmd_override[ip] = false
@@ -2734,13 +2772,50 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    -- #Private Messaging System
+    if (command == settings.mod["Private Messaging System"].send_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, true, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        local p = { }
+                        local content = Command:match(args[1] .. "(.+)")
+                        p.eid, p.en, p.message, p.user_id = executor, name, content, args[1]
+                        p.format, p.dir = tab.msg_format, tab.dir
+                        privateMessage:send(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.send_command .. " [user id] {message}", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+    -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].read_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, true, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] == nil) then
+                        local p = { }
+                        p.eid, p.mail = executor, unread_mail[ip]
+                        unread_mail[ip] = unread_mail[ip] or { }
+                        privateMessage:read(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command, "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
     -- #Mute System
-    if (command == settings.mod["Mute System"].mute_command) then
+    elseif (command == settings.mod["Mute System"].mute_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) and (args[2] ~= nil) then
-                    validate_params("mute", 1) --/base_command [id] <args>
+                    validate_params("mute", 1) --/mute_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             if not cmdself(params.tid, executor) then
@@ -2760,7 +2835,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if (checkAccess(executor, true, "Mute System")) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) then
-                    validate_params("unmute", 1) --/base_command [id] <args>
+                    validate_params("unmute", 1) --/unmute_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             if not cmdself(params.tid, executor) then
@@ -3032,7 +3107,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] ~= nil and args[2] ~= nil) then
-                        validate_params("warp", 2) --/base_command <args> [id]
+                        validate_params("warp", 2) --/commands[2] <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:warp(params)
@@ -3052,7 +3127,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] ~= nil and args[2] == nil) then
-                        validate_params("warpback", 1) --/base_command <args>
+                        validate_params("warpback", 1) --/commands[3] <args>
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:warpback(params)
@@ -4380,6 +4455,100 @@ function velocity:suggestion(params)
     end
 end
 
+-- #Private Messaging System
+function privateMessage:send(params)
+    local params = params or {}
+    
+    local eid = params.eid or nil
+    local en = params.en or nil
+    
+    local user_id = params.user_id or nil
+    local valid_username
+    if (user_id) then
+        if user_id:match("(%d+.%d+.%d+.%d+)") then
+            valid_username = true
+        elseif user_id:match("(%d+)") and (tonumber(user_id) > 0 and tonumber(user_id) < 17) then
+            if player_present(user_id) then
+                if (user_id ~= eid) then
+                    valid_username = true
+                else
+                    valid_username = false
+                    respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
+                end
+            else
+                respond(eid, "Player not online!", "rcon", 4 + 8)                
+                respond(eid, "To pm OFFLINE players enter their IP Address instead.", "rcon", 4 + 8)                
+            end
+        else
+            valid_username = false
+            respond(eid, "----- [ Invalid User ID ] -----", "rcon", 4 + 8)
+            respond(eid, "FOR ONLINE PLAYERS: Enter their Index ID", "rcon", 4 + 8)
+            respond(eid, "FOR OFFLINE PLAYERS: Enter their IP Address.", "rcon", 4 + 8)
+        end
+    end
+    
+    local t, text = {}
+    local message = params.message or nil
+    t[#t + 1] = message
+    if (t) and (valid_username) then
+        local dir = params.dir or nil
+        local file = io.open(dir, "a+")
+        if (file) then
+            for _, v in pairs(t) do text = v end
+            if (text) then
+                local msg_format = params.format or nil
+                if isConsole(eid) then en = "SERVER" end
+                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")
+                file:write(str)
+                file:close()
+                local tab = settings.mod["Private Messaging System"]
+                respond(eid, tab.send_response, "rcon", 7 + 8)
+                respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
+                respond(eid, "[you] -> " .. user_id, "rcon", 7 + 8)
+                respond(eid, tostring(text), "rcon", 7 + 8)
+                respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7 + 8)
+            end
+        end
+    end
+    for _ in pairs(t) do
+        _ = nil
+    end
+end
+
+-- #Private Messaging System
+function privateMessage:load(params)
+
+    local params = params or {}
+    local id = params.id or nil
+    local ip = params.ip or nil
+    
+    local tab = settings.mod["Private Messaging System"]
+    local content, data
+
+    local lines = lines_from(tab.dir)
+    unread_mail[ip] = { }
+    local mail = unread_mail[ip]
+    for _, v in pairs(lines) do
+        if (v:match(ip)) then
+            mail[#mail + 1] = v:match(":(.+)")
+        end
+    end
+end
+
+-- #Private Messaging System
+function privateMessage:read(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local mail = params.mail or nil
+    if (mail ~= nil) then
+        for k,_ in pairs(mail) do
+            respond(eid, mail[k], "rcon", 2+8)
+        end
+    else
+        respond(eid, "You have no mail", "rcon", 2+8)
+    end
+end
+
 -- #Alias System
 function velocity:aliasCmdRoutine(params)
     local params = params or {}
@@ -5330,7 +5499,7 @@ function RecordChanges()
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
     cl[#cl + 1] = "A couple more minor bug fixes' - script updated to v.1.18"
-    cl[#cl + 1] = "Bug Fix for Suggestion Box' - script updated to v.1.19"
+    cl[#cl + 1] = "Bug Fix for Suggestion Box"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
