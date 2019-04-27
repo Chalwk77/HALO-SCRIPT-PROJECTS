@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.21), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.22), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -428,9 +428,9 @@ local function GameSettings()
                 enabled = true,
                 dir = "sapp\\private_messages.txt",
                 permission_level = 1,
+                max_results_per_page = 5, -- max emails per page
                 send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
-                read_command = "readmail", -- /read_command [id]
-                delete_command = "delpm", -- /delete_command [id]
+                read_command = "readmail", -- /read_command [page num]
                 new_mail = "You have (%count%) unread private messages",
                 send_response = "Message Sent",
                 read_format = {
@@ -687,7 +687,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.21, -- << --- do not touch
+            script_version = 1.22, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1070,7 +1070,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
 
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
     register_callback(cb['EVENT_DIE'], "OnPlayerKill")
@@ -1232,7 +1232,7 @@ function OnScriptUnload()
     end
 end
 
-function OnNewGame()
+function OnGameStart()
     -- Used Globally
     game_over = false
     mapname = get_var(0, "$map")
@@ -2806,13 +2806,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Private Messaging System", executor) then
                 if (checkAccess(executor, false, "Private Messaging System")) then
                     local tab = settings.mod["Private Messaging System"]
-                    if (args[1] == nil) then
+                    if (args[1] ~= nil) then
                         local p = { }
-                        p.eid, p.eip = executor, ip
+                        p.eid, p.eip, p.page = executor, ip, args[1]
                         p.mail = privateMessage:load(p)
                         privateMessage:read(p)
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command, "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command .. " [page num]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -4525,11 +4525,9 @@ function privateMessage:send(params)
                 if isConsole(eid) then
                     en = "SERVER"
                 end
-
                 local time_stamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-
                 local str = user_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. " " .. text
-                file:write(str)
+                file:write(str .. "\n")
                 file:close()
                 respond(eid, tab.send_response, "rcon", 7 + 8)
                 respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
@@ -4567,62 +4565,89 @@ function privateMessage:read(params)
     local eip = params.eip or nil
     local mail = params.mail or nil
     local tab = settings.mod["Private Messaging System"]
+    local page = params.page
 
-    local has_mail
-    local function hasMail(has_mail)
-        if (has_mail) and (#unread_mail[eip] > 0) then
-            local count = #unread_mail[eip]
-            respond(eid, "Total Messages: " .. count, "rcon", 2 + 8)
-        end
+    local proceed
+    if (page:match("%d+")) then
+        proceed = true
     end
 
-    if (#mail > 0) then
-        for _, v in pairs(mail) do
-            local data = stringSplit(v, tab.seperator)
-            if (data) then
-                local result, i = { }, 1
-                for j = 1, 4 do
-                    if (data[j] ~= nil) then
-                        result[i] = data[j]
-                        i = i + 1
-                    end
-                end
-                if (result ~= nil) then
-                    has_mail = true
-                    local tab = tab.read_format
-                    local a, b, c
-                    for k = 1, #tab do
-                        if tab[k]:match("%%sender_name%%") then
-                            a = gsub(tab[k], "%%sender_name%%", result[3])
-                        elseif tab[k]:match("%%time_stamp%%") then
-                            b = gsub(tab[k], "%%time_stamp%%", result[2])
-                        elseif tab[k]:match("%%msg%%") then
-                            c = gsub(tab[k], "%%msg%%", result[4])
-                        end
-                    end
-                    local temp = {}
-                    table.insert(temp, { ["name"] = a, ["time_stamp"] = b, ["msg"] = c })
-
-                    local function get(ID)
-                        for key, _ in ipairs(temp) do
-                            return temp[key][ID]
-                        end
-                    end
-
-                    local sender_name = get("name")
-                    local time_stamp = get("time_stamp")
-                    local msg = get("msg")
-
-                    respond(eid, sender_name .. " | " .. time_stamp, "rcon", 2 + 8)
-                    respond(eid, msg, "rcon", 2 + 8)
-                    respond(eid, " ", "rcon", 2 + 8)
-                end
+    if (proceed) then
+        local has_mail
+        local function hasMail(has_mail)
+            if (has_mail) and (#unread_mail[eip] > 0) then
+                local count = #unread_mail[eip]
+                respond(eid, "Viewing Page (" .. page .. "). Total Messages: " .. count, "rcon", 2 + 8)
             end
         end
+
+        if (#mail > 0) then
+            local max_results = tab.max_results_per_page
+
+            local start = (max_results) * page
+            local startpage = (start - max_results + 1)
+            local endpage = start
+
+            local table = { }
+            for page_num = startpage, endpage do
+                if (mail[page_num]) then
+                    table[#table + 1] = mail[page_num]
+                end
+            end
+
+            if (#table > 0) then
+                for _, v in pairs(table) do
+                    local data = stringSplit(v, tab.seperator)
+                    if (data) then
+                        local result, i = { }, 1
+                        for j = 1, 4 do
+                            if (data[j] ~= nil) then
+                                result[i] = data[j]
+                                i = i + 1
+                            end
+                        end
+                        if (result ~= nil) then
+                            has_mail = true
+                            local tab = tab.read_format
+                            local a, b, c
+                            for k = 1, #tab do
+                                if tab[k]:match("%%sender_name%%") then
+                                    a = gsub(tab[k], "%%sender_name%%", result[3])
+                                elseif tab[k]:match("%%time_stamp%%") then
+                                    b = gsub(tab[k], "%%time_stamp%%", result[2])
+                                elseif tab[k]:match("%%msg%%") then
+                                    c = gsub(tab[k], "%%msg%%", result[4])
+                                end
+                            end
+                            local temp = {}
+                            temp[#temp + 1] = { ["name"] = a, ["time_stamp"] = b, ["msg"] = c }
+
+                            local function get(ID)
+                                for key, _ in ipairs(temp) do
+                                    return temp[key][ID]
+                                end
+                            end
+
+                            local sender_name = get("name")
+                            local time_stamp = get("time_stamp")
+                            local msg = get("msg")
+
+                            respond(eid, sender_name .. " | " .. time_stamp, "rcon", 2 + 8)
+                            respond(eid, msg, "rcon", 2 + 8)
+                            respond(eid, " ", "rcon", 2 + 8)
+                        end
+                    end
+                end
+            else
+                respond(eid, "Nothing to show", "rcon", 2 + 8)
+            end
+        else
+            respond(eid, "You have no mail", "rcon", 2 + 8)
+        end
+        hasMail(has_mail)
     else
-        respond(eid, "You have no mail", "rcon", 2 + 8)
+        respond(eid, "Invalid Page Number", "rcon", 2 + 8)
     end
-    hasMail(has_mail)
 end
 
 -- #Alias System
@@ -5578,6 +5603,11 @@ function RecordChanges()
     cl[#cl + 1] = "Minor Bug Fixes- script updated to v.1.19"
     cl[#cl + 1] = "Began writing Private Messaging System - script updated to v.1.20"
     cl[#cl + 1] = "Continued development on Private Messaging System - script updated to v.1.21"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/28/19]"
+    cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v.1.22"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
