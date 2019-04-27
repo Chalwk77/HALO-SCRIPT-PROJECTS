@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.17), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.18), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -668,7 +668,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.17, -- << --- do not touch
+            script_version = 1.18, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1020,6 +1020,17 @@ function velocity:ShowCurrentVersion()
     end
 end
 
+local function getChar(input)
+    local char = ""
+    if (tonumber(input) > 1) then
+        char = "s"
+    elseif (tonumber(input) <= 1) then
+        char = ""
+    end
+    return char
+end
+
+
 function OnScriptLoad()
     InitPlayers()
     loadWeaponTags()
@@ -1114,7 +1125,7 @@ function OnScriptLoad()
                 p.tip = ip
                 local muted = velocity:loadMute(p)
                 if (muted ~= nil) and (p.tip == muted[1]) then
-                    p.name, p.time, p.tid = name, muted[3], tonumber(i)
+                    p.tn, p.time, p.tid = name, muted[3], tonumber(i)
                     velocity:saveMute(p, true, true)
                 end
             end
@@ -1182,7 +1193,7 @@ function OnScriptUnload()
                 local name = get_var(i, "$name")
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
                     local p = { }
-                    p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    p.tip, p.tn, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
                     velocity:saveMute(p, false, true)
                 end
             end
@@ -1285,7 +1296,7 @@ function OnGameEnd()
                 local name = get_var(i, "$name")
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
                     local p = { }
-                    p.tip, p.name, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
+                    p.tip, p.tn, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(i)
                     velocity:saveMute(p, false, false)
                 end
             end
@@ -1432,7 +1443,8 @@ function OnTick()
                         cls(i)
                         local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
                         rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
-                        rprint(i, "|cYou will be killed in " .. tab.time_until_death - floor(seconds) .. " seconds")
+                        local char = getChar(tab.time_until_death - floor(seconds))
+                        rprint(i, "|cYou will be killed in " .. tab.time_until_death - floor(seconds) .. " second" .. char)
                         rprint(i, "|c[ warnings left ] ")
                         rprint(i, "|c" .. LTab.lurker_warnings)
                         rprint(i, "|c ")
@@ -1629,7 +1641,7 @@ function OnPlayerConnect(PlayerIndex)
         p.tip = ip
         local muted = velocity:loadMute(p)
         if (muted ~= nil) and (ip == muted[1]) then
-            p.name, p.time, p.tid = name, muted[3], tonumber(PlayerIndex)
+            p.tn, p.time, p.tid = name, muted[3], tonumber(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
@@ -1844,7 +1856,7 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Mute System") then
         if (mute_table[ip(PlayerIndex)] ~= nil) and (mute_table[ip(PlayerIndex)].muted) then
             local p = { }
-            p.tip, p.name, p.time, p.tid = ip(PlayerIndex), name, mute_table[ip(PlayerIndex)].remaining, tonumber(PlayerIndex)
+            p.tip, p.tn, p.time, p.tid = ip(PlayerIndex), name, mute_table[ip(PlayerIndex)].remaining, tonumber(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
@@ -2152,7 +2164,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if (mute_table[ip].duration == default_mute_time) then
                 rprint(PlayerIndex, "[muted] You are muted permanently.")
             else
-                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute(s)")
+                local char = getChar(mute_table[ip].duration)
+                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" ..char)
             end
             return false
         end
@@ -4577,6 +4590,7 @@ function velocity:saveMute(params, bool, showMessage)
     local ip = params.tip or nil
     local name = params.tn or nil
     local eid = params.eid or nil
+    local en = params.en or nil
     local tid = params.tid or nil
     local time = params.time or nil
 
@@ -4623,11 +4637,22 @@ function velocity:saveMute(params, bool, showMessage)
                 respond(tid, "You are muted permanently", "rcon", 2 + 8)
                 if (eid ~= nil) then
                     respond(eid, name .. " was muted permanently", "rcon", 2 + 8)
+                    for i = 1,16 do
+                        if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
+                            respond(i, name .. " was muted permanently by " .. en, "rcon", 2 + 8)
+                        end
+                    end
                 end
             else
-                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2 + 8)
+                local char = getChar(mute_table[ip].duration)
+                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute" .. char , "rcon", 2 + 8)
                 if (eid ~= nil) then
-                    respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2 + 8)
+                    respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char, "rcon", 2 + 8)
+                    for i = 1,16 do
+                        if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
+                            respond(i, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char .. " by " .. en, "rcon", 2 + 8)
+                        end
+                    end
                 end
             end
         end
@@ -4739,7 +4764,8 @@ function velocity:mutelist(params)
                         p.tip = getip(i, true)
                         local muted = velocity:loadMute(p)
                         if (p.tip == muted[1]) then
-                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7 + 8)
+                            local char = getChar(muted[3])
+                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minute".. char .. " left", "rcon", 7 + 8)
                         end
                     end
                 end
@@ -5303,6 +5329,7 @@ function RecordChanges()
     cl[#cl + 1] = "[4/27/19]"
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
+    cl[#cl + 1] = "A couple more minor bug fixes' - script updated to v.1.18"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
