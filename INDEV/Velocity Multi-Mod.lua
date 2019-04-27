@@ -519,7 +519,7 @@ local function GameSettings()
             },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = false,
+                enabled = true,
                 base_command = "suggestion", -- /base_command {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
@@ -668,7 +668,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.18, -- << --- do not touch
+            script_version = 1.19, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -4371,7 +4371,7 @@ function velocity:suggestion(params)
             local tab = settings.mod["Suggestions Box"]
             respond(eid, gsub(tab.response, "%%player_name%%", en), "rcon", 7 + 8)
             respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
-            respond(eid, text)
+            respond(eid, tostring(text), "rcon", 7 + 8)
             respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7 + 8)
         end
     end
@@ -5330,6 +5330,7 @@ function RecordChanges()
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
     cl[#cl + 1] = "A couple more minor bug fixes' - script updated to v.1.18"
+    cl[#cl + 1] = "Bug Fix for Suggestion Box' - script updated to v.1.19"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
