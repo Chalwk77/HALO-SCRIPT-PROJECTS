@@ -1084,7 +1084,7 @@ function OnScriptLoad()
         resetAliasParams()
         PreLoad()
     end
-    
+
     -- #Private Messaging System
     if modEnabled("Private Messaging System") then
         checkFile(settings.mod["Private Messaging System"].dir)
@@ -1228,8 +1228,8 @@ end
 function OnNewGame()
     -- Used Globally
     game_over = false
-    mapname = get_var(0, "$map")    
-	PreLoad()
+    mapname = get_var(0, "$map")
+    PreLoad()
     resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
@@ -1663,10 +1663,10 @@ function OnPlayerConnect(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
-    
+
     -- #Private Messaging System
     if modEnabled("Private Messaging System") then
-        local count = 0 
+        local count = 0
         unread_mail[ip] = { }
         local tab = settings.mod["Private Messaging System"]
         local lines = lines_from(tab.dir)
@@ -1676,13 +1676,13 @@ function OnPlayerConnect(PlayerIndex)
                 count = count + 1
             end
         end
-        
+
         if (count > 0) then
             local str = gsub(tab.new_mail, "%%count%%", count)
-            respond(id, str, "rcon", 2+8)
+            respond(id, str, "rcon", 2 + 8)
         end
     end
-    
+
     -- #Respawn Time
     if modEnabled("Respawn Time") then
         respawn_cmd_override[ip] = false
@@ -2202,7 +2202,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 rprint(PlayerIndex, "[muted] You are muted permanently.")
             else
                 local char = getChar(mute_table[ip].duration)
-                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" ..char)
+                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" .. char)
             end
             return false
         end
@@ -2790,7 +2790,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Private Messaging System
+        -- #Private Messaging System
     elseif (command == settings.mod["Private Messaging System"].read_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
@@ -2799,7 +2799,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] == nil) then
                         local p = { }
                         p.eid, p.eip = executor, ip
-						p.mail = privateMessage:load(p)
+                        p.mail = privateMessage:load(p)
                         privateMessage:read(p)
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command, "rcon", 4 + 8)
@@ -2808,7 +2808,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Mute System
+        -- #Mute System
     elseif (command == settings.mod["Mute System"].mute_command) then
         if modEnabled("Mute System", executor) then
             if (checkAccess(executor, true, "Mute System")) then
@@ -4457,10 +4457,10 @@ end
 -- #Private Messaging System
 function privateMessage:send(params)
     local params = params or {}
-    
+
     local eid = params.eid or nil
     local en = params.en or nil
-    
+
     local user_id = params.user_id or nil
     local valid_username
     if (user_id) then
@@ -4475,8 +4475,8 @@ function privateMessage:send(params)
                     respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
                 end
             else
-                respond(eid, "Player not online!", "rcon", 4 + 8)                
-                respond(eid, "To pm OFFLINE players enter their IP Address instead.", "rcon", 4 + 8)                
+                respond(eid, "Player not online!", "rcon", 4 + 8)
+                respond(eid, "To pm OFFLINE players enter their IP Address instead.", "rcon", 4 + 8)
             end
         else
             valid_username = false
@@ -4485,7 +4485,7 @@ function privateMessage:send(params)
             respond(eid, "FOR OFFLINE PLAYERS: Enter their IP Address.", "rcon", 4 + 8)
         end
     end
-    
+
     local t, text = {}
     local message = params.message or nil
     t[#t + 1] = message
@@ -4493,11 +4493,15 @@ function privateMessage:send(params)
         local dir = params.dir or nil
         local file = io.open(dir, "a+")
         if (file) then
-            for _, v in pairs(t) do text = v end
+            for _, v in pairs(t) do
+                text = v
+            end
             if (text) then
                 local msg_format = params.format or nil
-                if isConsole(eid) then en = "SERVER" end
-                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")				
+                if isConsole(eid) then
+                    en = "SERVER"
+                end
+                local str = gsub(gsub(gsub(msg_format, "%%recipient%%", user_id), "%%sender%%", en), "%%message%%", text .. "\n")
                 file:write(str)
                 file:close()
                 local tab = settings.mod["Private Messaging System"]
@@ -4520,14 +4524,14 @@ function privateMessage:load(params)
     local ip = params.eip or nil
     local tab = settings.mod["Private Messaging System"]
     local lines = lines_from(tab.dir)
-	
+
     unread_mail[ip] = { }
     for _, v in pairs(lines) do
         if (v:match(ip)) then
             unread_mail[ip][#unread_mail[ip] + 1] = v
         end
     end
-	return unread_mail[ip]
+    return unread_mail[ip]
 end
 
 -- #Private Messaging System
@@ -4535,23 +4539,23 @@ function privateMessage:read(params)
     local params = params or {}
     local eid = params.eid or nil
     local mail = params.mail or nil
-	for _, v in pairs(mail) do
-		local data = stringSplit(v, ",")
-		if (data) then
-			local result, i = { }, 1
-			for j = 1, 3 do
-				if (data[j] ~= nil) then
-					result[i] = data[j]
-					i = i + 1
-				end
-			end
-			if (result ~= nil) then
-				respond(eid, result[2] .. ": " .. result[3], "rcon", 2+8)
-			else
-				respond(eid, "You have no mail", "rcon", 2+8)
-			end
-		end
-	end
+    for _, v in pairs(mail) do
+        local data = stringSplit(v, ",")
+        if (data) then
+            local result, i = { }, 1
+            for j = 1, 3 do
+                if (data[j] ~= nil) then
+                    result[i] = data[j]
+                    i = i + 1
+                end
+            end
+            if (result ~= nil) then
+                respond(eid, result[2] .. ": " .. result[3], "rcon", 2 + 8)
+            else
+                respond(eid, "You have no mail", "rcon", 2 + 8)
+            end
+        end
+    end
 end
 
 -- #Alias System
@@ -4811,7 +4815,7 @@ function velocity:saveMute(params, bool, showMessage)
                 respond(tid, "You are muted permanently", "rcon", 2 + 8)
                 if (eid ~= nil) then
                     respond(eid, name .. " was muted permanently", "rcon", 2 + 8)
-                    for i = 1,16 do
+                    for i = 1, 16 do
                         if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
                             respond(i, name .. " was muted permanently by " .. en, "rcon", 2 + 8)
                         end
@@ -4819,10 +4823,10 @@ function velocity:saveMute(params, bool, showMessage)
                 end
             else
                 local char = getChar(mute_table[ip].duration)
-                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute" .. char , "rcon", 2 + 8)
+                respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute" .. char, "rcon", 2 + 8)
                 if (eid ~= nil) then
                     respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char, "rcon", 2 + 8)
-                    for i = 1,16 do
+                    for i = 1, 16 do
                         if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
                             respond(i, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char .. " by " .. en, "rcon", 2 + 8)
                         end
@@ -4939,7 +4943,7 @@ function velocity:mutelist(params)
                         local muted = velocity:loadMute(p)
                         if (p.tip == muted[1]) then
                             local char = getChar(muted[3])
-                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minute".. char .. " left", "rcon", 7 + 8)
+                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minute" .. char .. " left", "rcon", 7 + 8)
                         end
                     end
                 end
