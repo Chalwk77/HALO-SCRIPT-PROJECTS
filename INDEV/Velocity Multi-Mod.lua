@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.16), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.17), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -668,7 +668,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.16, -- << --- do not touch
+            script_version = 1.17, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -4703,11 +4703,10 @@ function velocity:loadMute(params)
     end
 
     if (data) then
-        i = 1
-        local result = { }
+        local result, i = { }, 1
         for j = 1, 3 do
             if (data[j] ~= nil) then
-                result[j] = data[j]
+                result[i] = data[j]
                 i = i + 1
             end
         end
@@ -5303,6 +5302,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/27/19]"
     cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
+    cl[#cl + 1] = "Bug Fixe relating to function 'velocity:loadMute()' - script updated to v.1.17"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
