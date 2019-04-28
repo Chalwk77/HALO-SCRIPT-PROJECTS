@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.28), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.29), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -453,7 +453,7 @@ local function GameSettings()
             -- Respawn yourself or others on demand (no death penalty incurred)
             ["Respawn On Demand"] = {
                 enabled = true,
-                permission_level = 1,
+                permission_level = -1,
                 execute_on_others = 4,
                 base_command = "respawn",
             },
@@ -702,7 +702,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.28, -- << --- do not touch
+            script_version = 1.29, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2846,7 +2846,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
 
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [user id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -2925,7 +2925,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [id] <time diff>", "rcon", 2 + 8)
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [me | id | */all] <time diff>", "rcon", 2 + 8)
                 end
             end
         end
@@ -2945,7 +2945,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [id]", "rcon", 2 + 8)
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [me | id | */all]", "rcon", 2 + 8)
                 end
             end
         end
@@ -3033,7 +3033,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3054,7 +3054,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         else
-                            respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <vehicle name> [id] (opt height/distance)", "rcon", 4 + 8)
+                            respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <vehicle name> [me | id | */all] (opt height/distance)", "rcon", 4 + 8)
                             return false
                         end
                     end
@@ -3098,7 +3098,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [id] <time diff>", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] <time diff>", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3118,7 +3118,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3138,7 +3138,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3482,9 +3482,6 @@ function velocity:respawn(params)
         en = "SERVER"
     end
 
-    local option = params.option or nil
-    local proceed
-
     local is_self
     if (eid == tid) then
         is_self = true
@@ -3494,6 +3491,12 @@ function velocity:respawn(params)
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
         killSilently(tid)
+        if not (is_self) then
+            respond(eid, "Respawning " .. tn, "rcon", 2 + 8)
+            respond(tid, "You were respawned by " .. en, "rcon", 2 + 8)
+        else
+            respond(eid, "Respawning...", "rcon", 2 + 8)
+        end
     end
     return false
 end
@@ -5830,6 +5833,7 @@ function RecordChanges()
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
     cl[#cl + 1] = ""
     cl[#cl + 1] = "Bug Fix for Portalgun Gun - script updated to v1.28"
+    cl[#cl + 1] = "More Bug Fixes - script updated to v1.29"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
