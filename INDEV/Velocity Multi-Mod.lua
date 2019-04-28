@@ -14,7 +14,7 @@ Combined Scripts:
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
-    - Mute System           Private Messaging System
+    - Mute System 			Private Messaging System
 	- Respawn On Demand
 
     Special Commands:
@@ -35,7 +35,6 @@ Combined Scripts:
     
     TO DO:
     1). VPN Checker
-    2). /respawn command
 
 To enable update checking, this script requires that the following plugin is installed:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
