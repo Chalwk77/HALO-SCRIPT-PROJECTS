@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.25), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.26), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -440,6 +440,7 @@ local function GameSettings()
                 delete_command = "delpm", -- /delete_command [message id]
                 send_response = "Message Sent",
                 read_format = {
+                    "%index%",
                     "Sender: %sender_name%",
                     "Date & Time: %time_stamp%",
                     "%msg%",
@@ -693,7 +694,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.25, -- << --- do not touch
+            script_version = 1.26, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2823,7 +2824,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         end
-        return false       
+        return false
         -- #Private Messaging System
     elseif (command == settings.mod["Private Messaging System"].delete_command) then
         if not gameover(executor) then
@@ -4614,6 +4615,17 @@ function privateMessage:load(params)
 end
 
 -- #Private Messaging System
+function privateMessage:getMailList()
+    local tab = settings.mod["Private Messaging System"]
+    local lines = lines_from(tab.dir)
+    local t = { }
+    for _, v in pairs(lines) do
+        t[#t + 1] = v
+    end
+    return t
+end
+
+-- #Private Messaging System
 function privateMessage:read(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -4644,10 +4656,16 @@ function privateMessage:read(params)
             local endpage = start
 
             local table = { }
+
+            local list = privateMessage:getMailList()
+
             for page_num = startpage, endpage do
-                if (mail[page_num]) then
-                    count = count + 1
-                    table[#table + 1] = mail[page_num]
+                if (list[page_num]) then
+                    for k, v in pairs(list) do
+                        if (k == page_num) and (v:match(eip)) then
+                            table[#table + 1] = (list[page_num] .. tab.seperator .. k)
+                        end
+                    end
                 end
             end
 
@@ -4656,7 +4674,7 @@ function privateMessage:read(params)
                     local data = stringSplit(v, tab.seperator)
                     if (data) then
                         local result, i = { }, 1
-                        for j = 1, 4 do
+                        for j = 1, 5 do
                             if (data[j] ~= nil) then
                                 result[i] = data[j]
                                 i = i + 1
@@ -4667,16 +4685,18 @@ function privateMessage:read(params)
                             local tab = tab.read_format
                             local a, b, c
                             for k = 1, #tab do
-                                if tab[k]:match("%%sender_name%%") then
-                                    a = gsub(tab[k], "%%sender_name%%", result[3])
+                                if tab[k]:match("%%index%%") then
+                                    a = gsub(tab[k], "%%index%%", result[5])
+                                elseif tab[k]:match("%%sender_name%%") then
+                                    b = gsub(tab[k], "%%sender_name%%", result[3])
                                 elseif tab[k]:match("%%time_stamp%%") then
-                                    b = gsub(tab[k], "%%time_stamp%%", result[2])
+                                    c = gsub(tab[k], "%%time_stamp%%", result[2])
                                 elseif tab[k]:match("%%msg%%") then
-                                    c = gsub(tab[k], "%%msg%%", result[4])
+                                    d = gsub(tab[k], "%%msg%%", result[4])
                                 end
                             end
                             local temp = {}
-                            temp[#temp + 1] = { ["name"] = a, ["time_stamp"] = b, ["msg"] = c }
+                            temp[#temp + 1] = { ["index"] = a, ["name"] = b, ["time_stamp"] = c, ["msg"] = d }
 
                             local function get(ID)
                                 for key, _ in ipairs(temp) do
@@ -4687,8 +4707,10 @@ function privateMessage:read(params)
                             local sender_name = get("name")
                             local time_stamp = get("time_stamp")
                             local msg = get("msg")
+                            local index = get("index")
 
-                            respond(eid, sender_name .. " | " .. time_stamp, "rcon", 2 + 8)
+                            local seperator = "|c"
+                            respond(eid, "[#" .. index .. "] " .. sender_name .. seperator .. time_stamp, "rcon", 2 + 8)
                             respond(eid, msg, "rcon", 2 + 8)
                             respond(eid, " ", "rcon", 2 + 8)
                         end
@@ -4712,18 +4734,23 @@ function privateMessage:delete(params)
     if (#mail > 0) then
         local eid = params.eid or nil
         local eip = params.eip or nil
-        
+
         local mail_id = tonumber(params.mail_id) or nil
-        local tab = settings.mod["Private Messaging System"]    
+        local tab = settings.mod["Private Messaging System"]
 
         local lines = lines_from(tab.dir)
+        local found
         for k, v in pairs(lines) do
             if (k ~= nil) then
-                if (mail_id == k) then
+                if (mail_id == k) and v:find(eip) then
+                    found = true
                     delete_from_file(tab.dir, k, 1, eid)
-                    respond(eid, "Message deleted", "rcon", 2 + 8)
+                    respond(eid, "Message [" .. k .. "] deleted", "rcon", 2 + 8)
                 end
             end
+        end
+        if not (found) then
+            respond(eid, "Invalid mail id", "rcon", 2 + 8)
         end
     end
 end
@@ -5689,6 +5716,7 @@ function RecordChanges()
     cl[#cl + 1] = "Bug Fix - script updated to v.1.23"
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.24"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v.1.25"
+    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.26"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
