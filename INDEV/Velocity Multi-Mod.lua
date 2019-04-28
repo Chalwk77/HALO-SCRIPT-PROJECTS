@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.23), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.24), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -14,7 +14,7 @@ Combined Scripts:
     - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
-    - Mute System			Private Messaging System
+    - Mute System           Private Messaging System
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -687,7 +687,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.23, -- << --- do not touch
+            script_version = 1.24, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2787,10 +2787,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] ~= nil) and (args[2] ~= nil) then
                         local p = { }
                         local content = Command:match(args[1] .. "(.+)")
-                        if find(content, tab.seperator) then
+                        if Command:find(tab.seperator) then
                             content = gsub(content, tab.seperator, "")
                         end
-                        p.eid, p.en, p.eip, p.message, p.user_id = executor, name, ip, content, args[1]
+                        p.eid, p.en, p.eip, p.message, p.recipient_id = executor, name, ip, content, args[1]
                         p.dir = tab.dir
                         privateMessage:send(p)
                     else
@@ -4470,75 +4470,106 @@ function privateMessage:send(params)
 
     local eid = params.eid or nil
     local eip = params.eip or nil
+
     local en = params.en or nil
+    if isConsole(eid) then
+        en = "SERVER"
+    end
 
-    local user_id = params.user_id or nil
-    local tab = settings.mod["Private Messaging System"]
+    local recipient_id = params.recipient_id or nil
 
-	local function isSelf()
-		if (eid == user_id or eip == user_id) then
-			respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
-			return true
-		end
-	end
-
-    local valid_username
-    if (user_id) then
-        if user_id:match("(%d+.%d+.%d+.%d+)") and not isSelf() then
-            valid_username = true
-        elseif user_id:match("(%d+)") and (tonumber(user_id) > 0 and tonumber(user_id) < 17)  and not isSelf() then
-            if player_present(user_id) then
-				valid_username = true
-            else
-                respond(eid, "Player not online!", "rcon", 4 + 8)
-                respond(eid, "To pm OFFLINE players enter their IP Address instead.", "rcon", 4 + 8)
-            end
-        else
-            respond(eid, "----- [ Invalid User ID ] -----", "rcon", 4 + 8)
-            respond(eid, "FOR ONLINE PLAYERS: Enter their Index ID", "rcon", 4 + 8)
-            respond(eid, "FOR OFFLINE PLAYERS: Enter their IP Address.", "rcon", 4 + 8)
+    local function isSelf()
+        if (tonumber(eid) == tonumber(recipient_id)) or (tostring(eip) == tostring(recipient_id)) then
+            respond(eid, "You cannot send yourself private messages!", "rcon", 4 + 8)
+            return true
         end
     end
 
-    local t, text = {}
-    local message = params.message or nil
-    t[#t + 1] = message
-    if (t) and (valid_username) then
-        local dir = params.dir or nil
-        local file = io.open(dir, "a+")
-        if (file) then
-            local proceed, len
-            for _, v in pairs(t) do
+    local ip_match = recipient_id:match("(%d+.%d+.%d+.%d+)")
+    local player_id = tonumber(recipient_id:match("%d+"))
+    local exclude = recipient_id:match('[A-Za-z]')
+
+    local valid_recipient
+    if (recipient_id) then
+        if (ip_match) and not (exclude) then
+            if not isSelf() then
+                valid_recipient = true
+            end
+        elseif (player_id) and not (exclude) then
+            if (player_id > 0 and player_id < 17) then
+                if not isSelf() then
+                    if player_present(player_id) then
+                        valid_recipient = true
+                    else
+                        respond(eid, "Player (#" .. player_id .. ") not online!", "rcon", 4 + 8)
+                        respond(eid, "To message OFFLINE players please enter their IP Address instead.", "rcon", 4 + 8)
+                    end
+                end
+            end
+        else
+            respond(eid, "----- [ Invalid User ID ] -----", "rcon", 4 + 8)
+            respond(eid, "To message ONLINE players please enter their Index ID", "rcon", 4 + 8)
+            respond(eid, "To message OFFLINE players please enter their IP Address", "rcon", 4 + 8)
+        end
+    end
+
+    local tab = settings.mod["Private Messaging System"]
+
+    local proceed
+    local function msgCheck()
+        local t, len = {}
+        local message = params.message or nil
+        local max_char = tab.max_characters
+        t[#t + 1] = message
+        for _, v in pairs(t) do
+            if (t) then
                 len = string.len(v)
-                local max_char = tab.max_characters
                 if (len < max_char) then
-                    text = v
+                    t[1] = v
                     proceed = true
+                    return t[1]
                 else
                     local char = getChar(max_char)
                     respond(eid, "Your message is too long! (max " .. max_char .. " character" .. char .. ")", "rcon", 7 + 8)
                     break
                 end
             end
-            if (text) and (proceed) then
-                local msg_format = params.format or nil
-                if isConsole(eid) then
-                    en = "SERVER"
-                end
-                local time_stamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-                local str = user_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. " " .. text
-                file:write(str .. "\n")
-                file:close()
-                respond(eid, tab.send_response, "rcon", 7 + 8)
-                respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
-                respond(eid, "[you] -> " .. user_id, "rcon", 7 + 8)
-                respond(eid, tostring(text), "rcon", 7 + 8)
-                respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7 + 8)
-            end
+        end
+        for _ in pairs(t) do
+            _ = nil
         end
     end
-    for _ in pairs(t) do
-        _ = nil
+
+    if (valid_recipient) then
+        local text = msgCheck()
+        local t = { }
+        t[#t + 1] = text
+        if (t) and (proceed) then
+
+            local time_stamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+            local message = tostring(t[1])
+            local str = recipient_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. message
+
+            if (ip_match) then
+                local dir = params.dir or nil
+                local file = io.open(dir, "a+")
+                if (file) then
+                    file:write(str .. "\n")
+                    file:close()
+                    respond(eid, tab.send_response, "rcon", 7 + 8)
+                    respond(eid, "------------ [ MESSAGE ] ------------------------------------------------", "rcon", 7 + 8)
+                    respond(eid, "[you] -> " .. recipient_id, "rcon", 7 + 8)
+                    respond(eid, message, "rcon", 7 + 8)
+                    respond(eid, "-------------------------------------------------------------------------------------------------------------", "rcon", 7 + 8)
+                end
+            elseif (player_id) then
+                respond(player_id, "New Private Message from: " .. en, "rcon", 7 + 8)
+                respond(player_id, message, "rcon", 7 + 8)
+
+                respond(eid, "Message Sent to " .. get_var(player_id, "$name"), "rcon", 7 + 8)
+                respond(eid, message, "rcon", 7 + 8)
+            end
+        end
     end
 end
 
@@ -4568,7 +4599,7 @@ function privateMessage:read(params)
     local page = params.page
 
     local proceed
-    if (page:match("%d+")) then
+    if (page:match("%d+")) and not page:match('[A-Za-z]') then
         proceed = true
     end
 
@@ -5609,6 +5640,7 @@ function RecordChanges()
     cl[#cl + 1] = "[4/28/19]"
     cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v.1.22"
     cl[#cl + 1] = "Bug Fix - script updated to v.1.23"
+    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.24"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
