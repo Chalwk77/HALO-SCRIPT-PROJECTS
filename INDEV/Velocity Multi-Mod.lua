@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.24), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.25), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -30,6 +30,11 @@ Combined Scripts:
         * /clean [id] * (cleans up "everything")
         Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
     --
+    
+    
+    TO DO:
+    1). VPN Checker
+    2). /respawn command
 
 To enable update checking, this script requires that the following plugin is installed:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
@@ -432,6 +437,7 @@ local function GameSettings()
                 send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
                 read_command = "readmail", -- /read_command [page num]
                 new_mail = "You have (%count%) unread private messages",
+                delete_command = "delpm", -- /delete_command [message id]
                 send_response = "Message Sent",
                 read_format = {
                     "Sender: %sender_name%",
@@ -687,7 +693,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.24, -- << --- do not touch
+            script_version = 1.25, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2817,6 +2823,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         end
+        return false       
+        -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].delete_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, false, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        p.eid, p.eip, p.mail_id = executor, ip, args[1]
+                        p.mail = privateMessage:load(p)
+                        privateMessage:delete(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.mark_as_read_command .. " [message id]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
         return false
         -- #Mute System
     elseif (command == settings.mod["Mute System"].mute_command) then
@@ -4410,7 +4434,7 @@ function velocity:setLurker(params)
                 end
             else
                 if not (is_self) then
-                    respond(eid, tn "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
+                    respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
                 else
                     respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
                 end
@@ -4678,6 +4702,40 @@ function privateMessage:read(params)
         hasMail(has_mail)
     else
         respond(eid, "Invalid Page Number", "rcon", 2 + 8)
+    end
+end
+
+function privateMessage:delete(params)
+    local params = params or {}
+    local mail = params.mail or nil
+    if (#mail > 0) then
+        local eid = params.eid or nil
+        local eip = params.eip or nil
+        
+        local mail_id = tonumber(params.mail_id) or nil
+        local tab = settings.mod["Private Messaging System"]    
+
+        local t, i = {}, 1
+        
+        local lines = lines_from(tab.dir)
+        for k, v in pairs(lines) do
+            if (i < tonumber(mail_id) or i >= tonumber(mail_id) + 1) then
+                t[#t + 1] = v[i]
+            end
+            i = i + 1
+        end
+
+        if (#t > 0) then
+            print('#t > 0')
+            local file, count = io.open(tab.dir, "w+"), 0
+            for i = 1, #t do
+                count = count + 1
+                file:write(string.format("%s\n", t[i]))
+            end
+            local char = getChar(i)
+            respond(eid, "(" .. count .. ") Message" .. char .. " deleted", "rcon", 2 + 8)
+            file:close()
+        end
     end
 end
 
@@ -5641,6 +5699,7 @@ function RecordChanges()
     cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v.1.22"
     cl[#cl + 1] = "Bug Fix - script updated to v.1.23"
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.24"
+    cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v.1.25"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
