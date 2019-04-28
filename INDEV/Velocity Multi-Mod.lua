@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.26), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.27), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -15,6 +15,7 @@ Combined Scripts:
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System           Private Messaging System
+	- Respawn On Demand
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -429,6 +430,7 @@ local function GameSettings()
                 }
             },
             -- # Private Messaging System
+            -- Send private mesages to players both online and offline
             ["Private Messaging System"] = {
                 enabled = true,
                 dir = "sapp\\private_messages.txt",
@@ -448,6 +450,13 @@ local function GameSettings()
                 -- do not touch these unless you know what you're doing
                 max_characters = 78,
                 seperator = "|",
+            },
+            -- Respawn yourself or others on demand (no death penalty incurred)
+            ["Respawn On Demand"] = {
+                enabled = true,
+                permission_level = 1,
+                execute_on_others = 4,
+                base_command = "respawn",
             },
             ["Respawn Time"] = {
                 enabled = true,
@@ -694,7 +703,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.26, -- << --- do not touch
+            script_version = 1.27, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -832,9 +841,9 @@ local function DisableInfAmmo(TargetID)
 end
 
 local function isAdmin(p)
-	 if (tonumber(get_var(p, "$lvl")) >= 1) then
-		return true
-	 end
+    if (tonumber(get_var(p, "$lvl")) >= 1) then
+        return true
+    end
 end
 
 local function isConsole(e)
@@ -2769,6 +2778,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:warpback(params)
                     end
+                    -- #Respawn On Demand
+                elseif (parameter == "respawn") then
+                    if (target_all_players) then
+                        velocity:respawn(params)
+                    end
                 end
             end
         end
@@ -2791,8 +2805,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- #Private Messaging System
-    if (command == settings.mod["Private Messaging System"].send_command) then
+    -- #Respawn On Demand
+    if (command == settings.mod["Respawn On Demand"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Respawn On Demand", executor) then
+                if (checkAccess(executor, true, "Respawn On Demand")) then
+                    local tab = settings.mod["Respawn On Demand"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("respawn", 1) --/base_command [id]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:respawn(params)
+                            end
+                        end
+
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [user id]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].send_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
                 if (checkAccess(executor, true, "Private Messaging System")) then
@@ -3404,6 +3439,34 @@ function velocity:portalgun(params)
                 respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
             end
         end
+    end
+    return false
+end
+
+function velocity:respawn(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local option = params.option or nil
+    local proceed
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
+        killSilently(tid)
     end
     return false
 end
@@ -4581,16 +4644,16 @@ function privateMessage:send(params)
             local message = tostring(t[1])
             local str = recipient_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. message
 
-			local function tellAdmins()
-				for i = 1,16 do
-					if player_present(i) and isAdmin(i) then
-						if (i ~= eid) then
-							rprint(i, "[PM SPY] " .. en .. " ->" .. recipient_id)
-							rprint(i, message)
-						end
-					end
-				end
-			end
+            local function tellAdmins()
+                for i = 1, 16 do
+                    if player_present(i) and isAdmin(i) then
+                        if (i ~= eid) then
+                            rprint(i, "[PM SPY] " .. en .. " ->" .. recipient_id)
+                            rprint(i, message)
+                        end
+                    end
+                end
+            end
 
             if (ip_match) then
                 local dir = params.dir or nil
@@ -4611,7 +4674,7 @@ function privateMessage:send(params)
                 respond(eid, "Message Sent to " .. get_var(player_id, "$name"), "rcon", 7 + 8)
                 respond(eid, message, "rcon", 7 + 8)
             end
-			tellAdmins()
+            tellAdmins()
         end
     end
 end
@@ -5735,6 +5798,9 @@ function RecordChanges()
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.24"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v.1.25"
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.26"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[new] Added a new feature (Respawn On Demand) - script updated to v.1.27"
+    cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
