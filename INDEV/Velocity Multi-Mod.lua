@@ -831,6 +831,12 @@ local function DisableInfAmmo(TargetID)
     damage_multiplier[TargetID] = 0
 end
 
+local function isAdmin(p)
+	 if (tonumber(get_var(p, "$lvl")) >= 1) then
+		return true
+	 end
+end
+
 local function isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -4575,6 +4581,17 @@ function privateMessage:send(params)
             local message = tostring(t[1])
             local str = recipient_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. message
 
+			local function tellAdmins()
+				for i = 1,16 do
+					if player_present(i) and isAdmin(i) then
+						if (i ~= eid) then
+							rprint(i, "[PM SPY] " .. en .. " ->" .. recipient_id)
+							rprint(i, message)
+						end
+					end
+				end
+			end
+
             if (ip_match) then
                 local dir = params.dir or nil
                 local file = io.open(dir, "a+")
@@ -4594,6 +4611,7 @@ function privateMessage:send(params)
                 respond(eid, "Message Sent to " .. get_var(player_id, "$name"), "rcon", 7 + 8)
                 respond(eid, message, "rcon", 7 + 8)
             end
+			tellAdmins()
         end
     end
 end
