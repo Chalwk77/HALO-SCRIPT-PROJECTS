@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.27), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.28), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -702,7 +702,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.27, -- << --- do not touch
+            script_version = 1.28, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1166,6 +1166,14 @@ function OnScriptLoad()
                 end
             end
 
+			-- #Portal Gun
+			if modEnabled("Portal Gun") then		
+				if portalgun_mode[ip] then
+					portalgun_mode[ip] = false
+					weapon_status[ip] = nil		
+				end
+			end
+
             -- #Mute System
             if modEnabled("Mute System") then
                 local p = { }
@@ -1346,6 +1354,14 @@ function OnGameEnd()
                     velocity:saveMute(p, false, false)
                 end
             end
+			
+			-- #Portal Gun
+			if modEnabled("Portal Gun") then		
+				if portalgun_mode[ip] then
+					portalgun_mode[ip] = false
+					weapon_status[ip] = nil		
+				end
+			end
 
             -- #Message Board
             if modEnabled("Message Board") then
@@ -1535,7 +1551,7 @@ function OnTick()
 
             -- #Portal Gun
             if modEnabled("Portal Gun") then
-                if player_alive(i) and (portalgun_mode[i] == true) then
+                if player_alive(i) and (portalgun_mode[ip] == true) then
                     if (player ~= 0) then
                         local playerX, playerY, playerZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
                         local shot_fired, is_crouching
@@ -1552,10 +1568,10 @@ function OnTick()
                         local success, _, _, _, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
                         if (success == true and target ~= nil) then
                             shot_fired = read_float(player + 0x490)
-                            if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                            if (shot_fired ~= weapon_status[ip] and shot_fired == 1 and is_crouching) then
                                 execute_command("boost " .. i)
                             end
-                            weapon_status[i] = shot_fired
+                            weapon_status[ip] = shot_fired
                         end
                     end
                 end
@@ -1896,15 +1912,17 @@ function OnPlayerDisconnect(PlayerIndex)
     local id = get_var(PlayerIndex, "$n")
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
-    local function ip(PlayerIndex)
-        local ip
+    local function GetIP(PlayerIndex)
+        local ip_address
         if (halo_type == "PC") then
-            ip = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
+            ip_address = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
         else
-            ip = getip(PlayerIndex, true)
+            ip_address = getip(PlayerIndex, true)
         end
-        return ip
+        return ip_address
     end
+
+	local ip = GetIP(PlayerIndex)
 
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
@@ -1919,30 +1937,38 @@ function OnPlayerDisconnect(PlayerIndex)
 
     -- #Mute System
     if modEnabled("Mute System") then
-        if (mute_table[ip(PlayerIndex)] ~= nil) and (mute_table[ip(PlayerIndex)].muted) then
+        if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
             local p = { }
-            p.tip, p.tn, p.time, p.tid = ip(PlayerIndex), name, mute_table[ip(PlayerIndex)].remaining, tonumber(PlayerIndex)
+            p.tip, p.tn, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
+	
+    -- #Portal Gun
+    if modEnabled("Portal Gun") then		
+		if (portalgun_mode[ip] == true) then
+			portalgun_mode[ip] = false
+			weapon_status[ip] = nil
+		end
+    end
 
     -- #Respawn Time
-    if (respawn_time[ip(PlayerIndex)] ~= nil) then
-        respawn_time[ip(PlayerIndex)] = nil
+    if (respawn_time[ip] ~= nil) then
+        respawn_time[ip] = nil
     end
 
     -- #Alias System
     if modEnabled("Alias System") then
         if (tonumber(level) >= getPermLevel("Alias System", false)) then
-            if (players["Alias System"][ip(PlayerIndex)] ~= nil) then
-                alias:reset(ip(PlayerIndex))
+            if (players["Alias System"][ip] ~= nil) then
+                alias:reset(ip)
             end
         end
     end
 
     -- #Message Board
     if modEnabled("Message Board") then
-        messageBoard:hide(PlayerIndex, ip(PlayerIndex))
+        messageBoard:hide(PlayerIndex, ip)
     end
 
     -- #Teleport Manager
@@ -1956,7 +1982,7 @@ function OnPlayerDisconnect(PlayerIndex)
     -- #Admin Chat
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
-        local mod = players["Admin Chat"][ip(PlayerIndex)]
+        local mod = players["Admin Chat"][ip]
         if tonumber(level) >= getPermLevel("Admin Chat", false) then
             if (restore) and (mod ~= nil) then
                 local bool
@@ -1965,9 +1991,9 @@ function OnPlayerDisconnect(PlayerIndex)
                 else
                     bool = "false"
                 end
-                achat_status[ip(PlayerIndex)] = bool
+                achat_status[ip] = bool
                 achat_data[achat_status] = achat_data[achat_status] or {}
-                table.insert(achat_data[achat_status], tostring(achat_status[ip(PlayerIndex)]))
+                table.insert(achat_data[achat_status], tostring(achat_status[ip]))
             else
                 mod.adminchat = false
                 mod.boolean = false
@@ -1983,13 +2009,13 @@ function OnPlayerDisconnect(PlayerIndex)
         if (first_join[PlayerIndex] == true) then
             first_join[PlayerIndex] = false
         end
-        players["Spawn From Sky"][ip(PlayerIndex)].sky_timer = 0
+        players["Spawn From Sky"][ip].sky_timer = 0
     end
 
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
-            velocity:LurkerReset(ip(PlayerIndex))
+            velocity:LurkerReset(ip)
             if tonumber(scores[PlayerIndex]) then
                 scores[PlayerIndex] = nil
             end
@@ -2009,7 +2035,7 @@ function OnPlayerDisconnect(PlayerIndex)
         local file = io.open(dir, "a+")
         if file ~= nil then
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip(PlayerIndex) .. "]    CD-Key Hash: [" .. hash .. "]\n")
+            file:write(timestamp .. "    [QUIT]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
         end
     end
@@ -2070,6 +2096,7 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     -- #Custom Weapons
+    local ip = getip(PlayerIndex, true)
     if modEnabled("Custom Weapons") then
         local Wtab = settings.mod["Custom Weapons"]
         if player_alive(PlayerIndex) then
@@ -2107,7 +2134,7 @@ function OnPlayerSpawn(PlayerIndex)
     end
     -- #Portal Gun
     if modEnabled("Portal Gun") then
-        weapon_status[PlayerIndex] = 0
+        weapon_status[ip] = 0
     end
     -- #Lurker
     if modEnabled("Lurker") then
@@ -3389,6 +3416,7 @@ function velocity:portalgun(params)
     local en = params.en or nil
 
     local tid = params.tid or nil
+    local tip = params.tip or nil
     local tn = params.tn or nil
 
     if isConsole(eid) then
@@ -3410,15 +3438,15 @@ function velocity:portalgun(params)
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
             local status, already_set, is_error
             if (option == "on") or (option == "1") or (option == "true") then
-                if (portalgun_mode[tid] ~= true) then
-                    portalgun_mode[tid] = true
+                if (portalgun_mode[tip] ~= true) then
+                    portalgun_mode[tip] = true
                     status, already_set, is_error = "Enabled", false, false
                 else
                     status, already_set, is_error = "Enabled", true, false
                 end
             elseif (option == "off") or (option == "0") or (option == "false") then
-                if (portalgun_mode[tid] ~= false) then
-                    portalgun_mode[tid] = false
+                if (portalgun_mode[tip] ~= false) then
+                    portalgun_mode[tip] = false
                     status, already_set, is_error = "Disabled", false, false
                 else
                     status, already_set, is_error = "Disabled", true, false
@@ -5771,35 +5799,37 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/22/19]"
-    cl[#cl + 1] = "Updated Anti-Impersonator with optional IP Address scans - script updated to v.1.14"
+    cl[#cl + 1] = "Updated Anti-Impersonator with optional IP Address scans - script updated to v1.14"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/25/19]"
-    cl[#cl + 1] = "Fixed a bug relating to Alias System - script updated to v.1.15"
+    cl[#cl + 1] = "Fixed a bug relating to Alias System - script updated to v1.15"
     cl[#cl + 1] = "A couple of documentation edits"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/27/19]"
-    cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v.1.16"
-    cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v.1.17"
-    cl[#cl + 1] = "Bug Fix for Suggestion Box - script updated to v.1.18"
-    cl[#cl + 1] = "Minor Bug Fixes- script updated to v.1.19"
-    cl[#cl + 1] = "Began writing Private Messaging System - script updated to v.1.20"
-    cl[#cl + 1] = "Continued development on Private Messaging System - script updated to v.1.21"
+    cl[#cl + 1] = "Bug Fixes relating to function 'OnPlayerDisconnect()' - script updated to v1.16"
+    cl[#cl + 1] = "Bug Fix relating to function 'velocity:loadMute()' - script updated to v1.17"
+    cl[#cl + 1] = "Bug Fix for Suggestion Box - script updated to v1.18"
+    cl[#cl + 1] = "Minor Bug Fixes- script updated to v1.19"
+    cl[#cl + 1] = "Began writing Private Messaging System - script updated to v1.20"
+    cl[#cl + 1] = "Continued development on Private Messaging System - script updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/28/19]"
-    cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v.1.22"
+    cl[#cl + 1] = "Added page browser to Private Messaging System (read command /readmail [page num])' - script updated to v1.22"
     cl[#cl + 1] = "Bug Fix - script updated to v.1.23"
-    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.24"
-    cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v.1.25"
-    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v.1.26"
+    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v1.24"
+    cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v1.25"
+    cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v1.26"
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "[new] Added a new feature (Respawn On Demand) - script updated to v.1.27"
+    cl[#cl + 1] = "[new] Added a new feature (Respawn On Demand) - script updated to v1.27"
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Bug Fix for Portalgun Gun - sscript updated to v1.28"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
