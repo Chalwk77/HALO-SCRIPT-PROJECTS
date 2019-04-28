@@ -1166,13 +1166,13 @@ function OnScriptLoad()
                 end
             end
 
-			-- #Portal Gun
-			if modEnabled("Portal Gun") then		
-				if portalgun_mode[ip] then
-					portalgun_mode[ip] = false
-					weapon_status[ip] = nil		
-				end
-			end
+            -- #Portal Gun
+            if modEnabled("Portal Gun") then
+                if portalgun_mode[ip] then
+                    portalgun_mode[ip] = false
+                    weapon_status[ip] = nil
+                end
+            end
 
             -- #Mute System
             if modEnabled("Mute System") then
@@ -1354,14 +1354,14 @@ function OnGameEnd()
                     velocity:saveMute(p, false, false)
                 end
             end
-			
-			-- #Portal Gun
-			if modEnabled("Portal Gun") then		
-				if portalgun_mode[ip] then
-					portalgun_mode[ip] = false
-					weapon_status[ip] = nil		
-				end
-			end
+
+            -- #Portal Gun
+            if modEnabled("Portal Gun") then
+                if portalgun_mode[ip] then
+                    portalgun_mode[ip] = false
+                    weapon_status[ip] = nil
+                end
+            end
 
             -- #Message Board
             if modEnabled("Message Board") then
@@ -1922,7 +1922,7 @@ function OnPlayerDisconnect(PlayerIndex)
         return ip_address
     end
 
-	local ip = GetIP(PlayerIndex)
+    local ip = GetIP(PlayerIndex)
 
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
@@ -1943,13 +1943,13 @@ function OnPlayerDisconnect(PlayerIndex)
             velocity:saveMute(p, true, true)
         end
     end
-	
+
     -- #Portal Gun
-    if modEnabled("Portal Gun") then		
-		if (portalgun_mode[ip] == true) then
-			portalgun_mode[ip] = false
-			weapon_status[ip] = nil
-		end
+    if modEnabled("Portal Gun") then
+        if (portalgun_mode[ip] == true) then
+            portalgun_mode[ip] = false
+            weapon_status[ip] = nil
+        end
     end
 
     -- #Respawn Time
