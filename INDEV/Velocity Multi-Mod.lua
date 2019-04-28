@@ -5829,7 +5829,7 @@ function RecordChanges()
     cl[#cl + 1] = "[new] Added a new feature (Respawn On Demand) - script updated to v1.27"
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "Bug Fix for Portalgun Gun - sscript updated to v1.28"
+    cl[#cl + 1] = "Bug Fix for Portalgun Gun - script updated to v1.28"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
