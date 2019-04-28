@@ -4646,6 +4646,7 @@ function privateMessage:read(params)
             local table = { }
             for page_num = startpage, endpage do
                 if (mail[page_num]) then
+                    count = count + 1
                     table[#table + 1] = mail[page_num]
                 end
             end
@@ -4715,26 +4716,14 @@ function privateMessage:delete(params)
         local mail_id = tonumber(params.mail_id) or nil
         local tab = settings.mod["Private Messaging System"]    
 
-        local t, i = {}, 1
-        
         local lines = lines_from(tab.dir)
         for k, v in pairs(lines) do
-            if (i < tonumber(mail_id) or i >= tonumber(mail_id) + 1) then
-                t[#t + 1] = v[i]
+            if (k ~= nil) then
+                if (mail_id == k) then
+                    delete_from_file(tab.dir, k, 1, eid)
+                    respond(eid, "Message deleted", "rcon", 2 + 8)
+                end
             end
-            i = i + 1
-        end
-
-        if (#t > 0) then
-            print('#t > 0')
-            local file, count = io.open(tab.dir, "w+"), 0
-            for i = 1, #t do
-                count = count + 1
-                file:write(string.format("%s\n", t[i]))
-            end
-            local char = getChar(i)
-            respond(eid, "(" .. count .. ") Message" .. char .. " deleted", "rcon", 2 + 8)
-            file:close()
         end
     end
 end
