@@ -90,11 +90,9 @@ local function GameSettings()
                 users = {
                     { ["Chalwk"] = { "127.0.0.1", "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-
-                    -- In this example, we have added a player by the name of "example_name". 
-                    -- They use Halo on multiple computers at different houses. Each house has a unique public ip address. 
-                    -- We add each ip entry and hash to the respective table for that user. 
-                    -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip address (or hashes) for that name entry, action will be taken.
+					
+                    -- If someone joins with the name 'example_name' and their ip address (or hash) 
+					-- does not match any of the ip address (or hashes) for that name entry, action will be taken.
                     { ["example_name"] = { "127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
 
@@ -5973,6 +5971,8 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/22/19]"
     cl[#cl + 1] = "Updated Anti-Impersonator with optional IP Address scans - script updated to v1.14"
+    cl[#cl + 1] = "If someone joins with a name found in the users table and their ip address (or hash)"
+    cl[#cl + 1] = "does not match any of the ip address (or hashes) for that name entry, action will be taken."
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
@@ -5998,21 +5998,21 @@ function RecordChanges()
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v1.24"
     cl[#cl + 1] = "Bug Fix relating to function 'velocity:setLurker()' - script updated to v1.25"
     cl[#cl + 1] = "[Private Messaging System] Continued Developed - script updated to v1.26"
-    cl[#cl + 1] = ""
     cl[#cl + 1] = "[new] Added a new feature (Respawn On Demand) - script updated to v1.27"
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
-    cl[#cl + 1] = ""
     cl[#cl + 1] = "Bug Fix for Portalgun Gun - script updated to v1.28"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/29/19]"
     cl[#cl + 1] = "Bug Fix for Alias System - scrit updated for v1.30"
     cl[#cl + 1] = "[new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all] - scrit updated for v1.30"
     cl[#cl + 1] = "Bug Fixes - script updated to v1.31"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/30/19]"
-    cl[#cl + 1] = "Bug Fixes - script updated to v1.32"
+    cl[#cl + 1] = "Updated Documentation and Bug Fixes - script updated to v1.32"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
