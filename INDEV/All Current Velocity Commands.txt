@@ -15,7 +15,7 @@
 
 -- Respawn Time:
 /setrespawn [me | id | */all] <time diff>
--->> info: If no <time diff> parameter is specified, it will show you the target's current respawn time setting.
+-->> info: If <time diff> parameter is not specified, it will show you the target's current respawn time setting.
 
 -- Teleport Manager:
 /setwarp <warp name>
@@ -54,7 +54,8 @@
 -->> info: If '<time diff>' parameter is not specified, the player will be muted permanently.
 -->> info: You cannot execute /mute or /unmute on yourself.
 /unmute [id | */all]
-/mutelist ( optional: {flag} )		
+/mutelist ( optional: {flag} )
+-->> info: If you specify the '-o' flag, this command will only show you muted players who are currently online.
 				
 -- Private Messaging System:
 /pm [id | ip] {message}
