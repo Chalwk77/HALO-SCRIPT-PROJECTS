@@ -1,0 +1,79 @@
+-- Admin Chat:
+/achat on|off|status|-s [me | id */all]
+-->> info: 'status' or '-s' tells you whether the target's achat is enabled/disabled.
+
+-- Player List (4 command aliases):
+/pl, players, playerlist, playeslist
+
+-- Alias System:
+/alias [me | id]
+
+-- Respawn Time:
+/setrespawn [me | id | */all] <time diff>
+-->> info: If <time diff> parameter is specified, it will show you the target's current respawn time setting.
+
+-- Teleport Manager:
+/setwarp <warp name>
+/warp <warp name>
+/back
+/warplist
+/warplistall
+/delwarp [warp id]
+
+-- Item Spawner:
+/spawn <item> [me | id | */all]
+/itemlist
+-->> info: /itemlist shows a list of valid items for the current map.
+
+-- What Cute Things Did You Do Today:
+/cute [id */all]
+-->> info: You cannot execute this command on yourself.
+
+-- Lurker:
+/lurker [me | id | */all] on|off
+-->> info: If 'on|off' parameter is not specified, it will show you the target's current lurker setting (enabled/disabled).
+
+-- Infinity Ammo:
+/infammo [me | id | */all] [multiplier or off] ( optional: {flag} )
+-->> info: You can optionally execute this command silently for other players by specifying the '-s' command parameter.
+
+-- Portal Gun:
+/portalgun on|off [me | id | */all]
+-->> info: If 'on|off' parameter is not specified, it will show you the target's current portalgun setting (enabled/disabled).
+
+-- Suggestion Box
+/suggestion {message}
+
+-- Mute System:
+/mute [id | */all] ( optional: <time diff> )
+-->> info: If '<time diff>' parameter is not specified, the player will be muted permanently.
+-->> info: You cannot execute /mute or /unmute on yourself.
+/unmute [id | */all]
+/mutelist ( optional: {flag} )		
+				
+-- Private Messaging System:
+/pm [id | ip] {message}
+/readmail [page]
+/delpm [#mail id]
+-->> info: The [#mail id] is inserted 'before' the senders name on the /readmail page
+				
+-- Respawn:
+/respawn [me | id | */all]
+
+-- Give:
+/give <item> [me | id | */all]				
+				
+-- Special Commands:
+/plugins, /enable [id], /disable [id]
+-->> info: "/plugins" shows you a list of all features and tells you which ones are enabled or disabled.
+-->> info: You can enable or disable any feature at any time with /enable [id], /disable [id].
+
+/clean [me | id | */all] 1 (cleans up "Enter Vehicle" objects)
+/clean [me | id | */all] 2 (cleans up "Item Spawner" objects)
+/clean [me | id | */all] * (cleans up "everything")
+
+-- Get Velocity Version:
+/velocity
+
+-- Clear Chat:
+/clear			
