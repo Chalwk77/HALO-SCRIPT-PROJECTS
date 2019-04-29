@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.31), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.32), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -704,7 +704,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.31, -- << --- do not touch
+            script_version = 1.32, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3201,7 +3201,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Admin Chat", executor) then
                 if (checkAccess(executor, true, "Admin Chat")) then
                     local tab = settings.mod["Admin Chat"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("achat", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3209,7 +3209,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on/off", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3743,15 +3743,15 @@ function velocity:determineAchat(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
-    if (option == nil) then
-        if (tLvl >= 1) then
-            if type(mod.adminchat) == 'true' then
+    if (option == "-s") or (option == "status") then
+        if (tLvl >=1) then
+            if (mod.adminchat == true) then
                 status = "enabled"
             else
                 status = "disabled"
             end
             if (is_self) then
-                respond(eid, "Your admin chat is " .. status, "rcon", 4 + 8)
+                respond(eid, "[status] - > " .. status, "rcon", 4 + 8)
             else
                 respond(eid, tn .. "'s admin chat is " .. status, "rcon", 4 + 8)
             end
@@ -6003,12 +6003,16 @@ function RecordChanges()
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)"
     cl[#cl + 1] = ""
     cl[#cl + 1] = "Bug Fix for Portalgun Gun - script updated to v1.28"
-    cl[#cl + 1] = "More Bug Fixes - script updated to v1.29"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/29/19]"
     cl[#cl + 1] = "Bug Fix for Alias System - scrit updated for v1.30"
     cl[#cl + 1] = "[new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all] - scrit updated for v1.30"
+    cl[#cl + 1] = "Bug Fixes - script updated to v1.31"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/30/19]"
+    cl[#cl + 1] = "Bug Fixes - script updated to v1.32"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
