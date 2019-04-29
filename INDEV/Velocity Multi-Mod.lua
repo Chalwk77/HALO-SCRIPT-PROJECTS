@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.29), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.30), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -32,10 +32,6 @@ Combined Scripts:
         Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
     --
     
-    
-    TO DO:
-    1). VPN Checker
-
 To enable update checking, this script requires that the following plugin is installed:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
 Credits to Kavawuvi (002) for HTTP client functionality.
@@ -433,7 +429,7 @@ local function GameSettings()
             ["Private Messaging System"] = {
                 enabled = true,
                 dir = "sapp\\private_messages.txt",
-                permission_level = 1,
+                permission_level = -1,
                 max_results_per_page = 5, -- max emails per page
                 send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
                 read_command = "readmail", -- /read_command [page num]
@@ -702,7 +698,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.29, -- << --- do not touch
+            script_version = 1.30, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -984,6 +980,7 @@ local function PreLoad()
 end
 -- #Alias System
 function alias:reset(ip)
+	alias_results[ip] = { }
     players["Alias System"][ip] = {
         eid = 0,
         timer = 0,
@@ -1995,8 +1992,8 @@ function OnPlayerDisconnect(PlayerIndex)
                 achat_data[achat_status] = achat_data[achat_status] or {}
                 table.insert(achat_data[achat_status], tostring(achat_status[ip]))
             else
-                mod.adminchat = false
-                mod.boolean = false
+                mod.adminchat = false -- attempt to index local 'mod' (a nil value) - when script is reloaded
+                mod.boolean = false 
             end
         end
     end
@@ -2356,7 +2353,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
-        if (mod.adminchat) then
+        if (mod.adminchat) then -- attempt to index local 'mod' (a nil value) - when script is reloaded
             if (level >= getPermLevel("Admin Chat", false)) then
                 for c = 0, #message do
                     if message[c] then
@@ -4873,20 +4870,19 @@ function velocity:aliasCmdRoutine(params)
     local eip = params.eip or nil
     local use_timer = params.timer or nil
 
-    local aliases, content
     local tab = players["Alias System"][eip]
-    alias_results = { }
 
     tab.tHash = params.th
     tab.tName = params.tn
 
+    local aliases, content
     local directory = settings.mod["Alias System"].dir
     local lines = lines_from(directory)
     for _, v in pairs(lines) do
         if (v:match(tab.tHash)) then
             aliases = v:match(":(.+)")
             content = stringSplit(aliases, ",")
-            alias_results[#alias_results + 1] = content
+            alias_results[eip][#alias_results[eip] + 1] = content
         end
     end
 
@@ -4895,7 +4891,7 @@ function velocity:aliasCmdRoutine(params)
     tab.check_pirated_hash = true
 
     for i = 1, max_results do
-        if (alias_results[1][i]) then
+        if (alias_results[eip][1][i]) then
             tab.total = tab.total + 1
         end
     end
@@ -5017,7 +5013,7 @@ function alias:show(executor, ip, total)
         end
     end
     local alignment = settings.mod["Alias System"].alignment
-    alias:align(executor, alias_results, target, total, tab.shared, name, alignment)
+    alias:align(executor, alias_results[ip], target, total, tab.shared, name, alignment)
 end
 
 -- #Alias System
@@ -5834,6 +5830,10 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "Bug Fix for Portalgun Gun - script updated to v1.28"
     cl[#cl + 1] = "More Bug Fixes - script updated to v1.29"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[4/29/19]"
+    cl[#cl + 1] = "Bug Fix for Alias System"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
