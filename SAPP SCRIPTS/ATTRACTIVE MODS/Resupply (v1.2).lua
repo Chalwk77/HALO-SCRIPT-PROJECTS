@@ -1,9 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Resupply (v1.0), for SAPP (PC & CE)
+Script Name: Resupply (v1.2), for SAPP (PC & CE)
 Description: Use a custom command to resupply your inventory with grenades and ammo.
-
-Command syntax: /base_command
 
 A more advanced version of this will come at a later date.
 
@@ -18,7 +16,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-local base_command = "resupply"
+local command_aliases = {
+    "res",
+    "sup",
+    "resupply",
+}
 local privilege_level = -1
 local ammo, mag = 200, 500
 local grenades = 4
@@ -47,26 +49,31 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
-    if (command == lower(base_command)) then
-        if (checkAccess(executor)) then
-            if (args[1] == nil) then
-                if player_alive(executor) then
-                    for i = 1, 4 do
-                        execute_command("ammo " .. executor .. " " .. ammo .. " " .. i)
-                        execute_command("mag " .. executor .. " " .. mag .. " " .. i)
-                        execute_command("battery " .. executor .. " " .. battery .. " " .. i)
+    local response
+    for i = 1,#command_aliases do
+        if (command == lower(command_aliases[i])) then
+            if (checkAccess(executor)) then
+                if (args[2] == nil) then
+                    if player_alive(executor) then
+                        for weapon = 1, 4 do
+                            execute_command("ammo " .. executor .. " " .. ammo .. " " .. weapon)
+                            execute_command("mag " .. executor .. " " .. mag .. " " .. weapon)
+                            execute_command("battery " .. executor .. " " .. battery .. " " .. weapon)
+                        end
+                        execute_command("nades " .. executor .. " " .. grenades)
+                        rprint(executor, gsub(gsub(gsub(gsub(message, "%%ammo%%", ammo), "%%mag%%", mag), "%%grenades%%", grenades), "%%battery%%", battery))
+                    else
+                        rprint(executor, "Please wait until you respawn.")
                     end
-                    execute_command("nades " .. executor .. " " .. grenades)
-                    rprint(executor, gsub(gsub(gsub(gsub(message, "%%ammo%%", ammo), "%%mag%%", mag), "%%grenades%%", grenades), "%%battery%%", battery))
                 else
-                    rprint(executor, "Please wait until you respawn.")
+                    rprint(executor, "Invalid syntax. Usage: /" .. base_command)
                 end
-            else
-                rprint(executor, "Invalid syntax. Usage: /" .. base_command)
             end
+            response = false
+            break
         end
-        return false
     end
+    return response
 end
 
 function cmdsplit(str)
