@@ -66,7 +66,7 @@ function OnServerCommand(PlayerIndex, Command)
                         rprint(executor, "Please wait until you respawn.")
                     end
                 else
-                    rprint(executor, "Invalid syntax. Usage: /" .. base_command)
+                    rprint(executor, "Invalid syntax. Usage: /" .. command_aliases[i])
                 end
             end
             response = false
