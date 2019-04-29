@@ -15,7 +15,7 @@
 
 -- Respawn Time:
 /setrespawn [me | id | */all] <time diff>
--->> info: If <time diff> parameter is specified, it will show you the target's current respawn time setting.
+-->> info: If no <time diff> parameter is specified, it will show you the target's current respawn time setting.
 
 -- Teleport Manager:
 /setwarp <warp name>
@@ -81,4 +81,5 @@
 /velocity
 
 -- Clear Chat:
-/clear			
+/clear
+
