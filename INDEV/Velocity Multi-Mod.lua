@@ -15,7 +15,7 @@ Combined Scripts:
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System 			Private Messaging System
-	- Respawn On Demand
+	- Respawn On Demand		Give
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -2936,7 +2936,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 velocity:give(params)
                             end
                         end
-
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item> [me | id | */all]", "rcon", 4 + 8)
                     end
