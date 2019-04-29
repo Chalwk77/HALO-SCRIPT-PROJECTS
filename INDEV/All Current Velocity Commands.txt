@@ -8,6 +8,11 @@
 -- Alias System:
 /alias [me | id]
 
+-- Enter Vehicle:
+/enter <item> [me | id | */all] (optional: height/distance)
+-->> info: Optional Flags: 'height' = height from ground, 'distance' = distance from player
+-->> info: You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
+
 -- Respawn Time:
 /setrespawn [me | id | */all] <time diff>
 -->> info: If <time diff> parameter is specified, it will show you the target's current respawn time setting.
