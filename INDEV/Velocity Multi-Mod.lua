@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.30), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.31), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -193,7 +193,7 @@ local function GameSettings()
             ["Cute"] = {
                 -- # What cute things did you do today? (requested by Shoo)
                 enabled = true,
-                base_command = "cute",
+                base_command = "cute", -- /base_command [me | id | */all]
 
                 -- Use %executors_name% (optional) variable to output the executor's name.
                 -- Use %target_name% (optional) variable to output the target's name.
@@ -262,7 +262,7 @@ local function GameSettings()
             },
             ["Enter Vehicle"] = {
                 enabled = true,
-                base_command = "enter", -- /base_command <item> [id] (opt height/distance)
+                base_command = "enter", -- /base_command <item> [me | id | */all] (opt height/distance)
                 permission_level = 1,
                 execute_on_others = 4,
                 multi_control = true,
@@ -275,7 +275,13 @@ local function GameSettings()
             -- Used for Item Spawner and Enter Vehicle
             ["Garbage Collection"] = {
                 enabled = true,
-                base_command = "clean", -- /base_command <item> [id] (opt height/distance)
+                base_command = "clean", -- /base_command <item> [me | id | */all] (opt height/distance)
+                permission_level = 1,
+                execute_on_others = 4,
+            },
+            ["Give"] = {
+                enabled = true,
+                base_command = "give", -- /base_command <item> [me | id | */all]
                 permission_level = 1,
                 execute_on_others = 4,
             },
@@ -290,7 +296,7 @@ local function GameSettings()
             },
             ["Item Spawner"] = {
                 enabled = true,
-                base_command = "spawn", -- /base_command <item> [id]
+                base_command = "spawn", -- /base_command <item> [me | id | */all]
                 permission_level = 1,
                 execute_on_others = 4,
                 -- Destroy objects spawned:
@@ -698,7 +704,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.30, -- << --- do not touch
+            script_version = 1.31, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -813,6 +819,9 @@ local first_join = {}
 
 -- #Private Messaging System
 local privateMessage, unread_mail = { }, { }
+
+-- #Give
+local check_available_slots, give_weapon, delete_weapon = { }, { }, { }
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -980,7 +989,7 @@ local function PreLoad()
 end
 -- #Alias System
 function alias:reset(ip)
-	alias_results[ip] = { }
+    alias_results[ip] = { }
     players["Alias System"][ip] = {
         eid = 0,
         timer = 0,
@@ -1149,6 +1158,13 @@ function OnScriptLoad()
             local ip = getip(i, true)
             local level = tonumber(get_var(i, "$lvl"))
 
+            -- #Give
+            if modEnabled("Give") then
+                check_available_slots[i] = false
+                give_weapon[i] = false
+                delete_weapon[i] = false
+            end
+
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
@@ -1249,6 +1265,12 @@ function OnScriptUnload()
                     velocity:saveMute(p, false, true)
                 end
             end
+            -- #Give
+            if modEnabled("Give") then
+                check_available_slots[i] = false
+                give_weapon[i] = false
+                delete_weapon[i] = false
+            end
         end
     end
     if console_address_patch ~= nil then
@@ -1340,6 +1362,13 @@ function OnGameEnd()
             -- #Custom Weapons
             if modEnabled("Custom Weapons") and (settings.mod["Custom Weapons"].assign_weapons) then
                 weapon[i] = false
+            end
+
+            -- #Give
+            if modEnabled("Give") then
+                check_available_slots[i] = false
+                give_weapon[i] = false
+                delete_weapon[i] = false
             end
 
             -- #Mute System
@@ -1462,6 +1491,28 @@ function OnTick()
                             end
                         end
                         weapon[i] = false
+                    end
+                end
+            end
+
+            -- #Give
+            if modEnabled("Give") then
+                if (check_available_slots[i]) then
+                    check_available_slots[i] = false
+                    local player_object = get_dynamic_player(i)
+                    if (player_object ~= 0) then
+                        local weapon
+                        for j = 0, 3 do
+                            weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                            if (weapon ~= 0) then
+                                if (j < 2) then
+                                    give_weapon[i] = true
+                                else
+                                    delete_weapon[i] = true
+                                    give_weapon[i] = true
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -1688,7 +1739,7 @@ function OnPlayerConnect(PlayerIndex)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
     -- #CONSOLE OUTPUT
-    if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
+    if (player_info[id] ~= nil or player_info[id] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
         cprint("Status: " .. name .. " connected successfully.", 5 + 8)
         cprint("________________________________________________________________________________", 2 + 8)
@@ -1700,9 +1751,16 @@ function OnPlayerConnect(PlayerIndex)
         p.tip = ip
         local muted = velocity:loadMute(p)
         if (muted ~= nil) and (ip == muted[1]) then
-            p.tn, p.time, p.tid = name, muted[3], tonumber(PlayerIndex)
+            p.tn, p.time, p.tid = name, muted[3], id
             velocity:saveMute(p, true, true)
         end
+    end
+
+    -- #Give
+    if modEnabled("Give") then
+        check_available_slots[id] = false
+        give_weapon[id] = false
+        delete_weapon[id] = false
     end
 
     -- #Private Messaging System
@@ -1734,20 +1792,20 @@ function OnPlayerConnect(PlayerIndex)
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
             velocity:LurkerReset(ip)
-            lurker[PlayerIndex] = false
-            has_objective[PlayerIndex] = false
+            lurker[id] = false
+            has_objective[id] = false
         end
     end
 
     -- #Infinity Ammo
     if modEnabled("Infinity Ammo") then
-        damage_multiplier[PlayerIndex] = 0
+        damage_multiplier[id] = 0
         if not (settings.mod["Infinity Ammo"].server_override) then
-            infammo[PlayerIndex] = false
-            modify_damage[PlayerIndex] = false
-            damage_multiplier[PlayerIndex] = 0
+            infammo[id] = false
+            modify_damage[id] = false
+            damage_multiplier[id] = 0
         else
-            infammo[PlayerIndex] = true
+            infammo[id] = true
         end
     end
 
@@ -1761,7 +1819,7 @@ function OnPlayerConnect(PlayerIndex)
 
     -- #Message Board
     if modEnabled("Message Board") then
-        messageBoard:show(PlayerIndex, ip)
+        messageBoard:show(id, ip)
     end
 
     -- #Admin Chat
@@ -1774,7 +1832,7 @@ function OnPlayerConnect(PlayerIndex)
                 local args = stringSplit(tostring(achat_status[ip]), "|")
                 if (args[2] ~= nil) then
                     if (args[2] == "true") then
-                        respond(PlayerIndex, "[reminder] Your admin chat is on!", "rcon")
+                        respond(id, "[reminder] Your admin chat is on!", "rcon")
                         mod.adminchat = true
                         mod.boolean = true
                     else
@@ -1793,8 +1851,8 @@ function OnPlayerConnect(PlayerIndex)
     if modEnabled("Spawn From Sky") then
         if (settings.mod["Spawn From Sky"].maps[mapname] ~= nil) then
             velocity:spawnFromSkyReset(ip)
-            init_timer[PlayerIndex] = true
-            first_join[PlayerIndex] = true
+            init_timer[id] = true
+            first_join[id] = true
         end
     end
 
@@ -1803,7 +1861,7 @@ function OnPlayerConnect(PlayerIndex)
         local dir = settings.mod["Chat Logging"].dir
         local file = io.open(dir, "a+")
         if file ~= nil then
-            local ip = getip(PlayerIndex, false) -- include port
+            local ip = getip(id, false) -- include port
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
             file:write(timestamp .. "    [JOIN]    Name: " .. name .. "    ID: [" .. id .. "]    IP: [" .. ip .. "]    CD-Key Hash: [" .. hash .. "]\n")
             file:close()
@@ -1812,7 +1870,7 @@ function OnPlayerConnect(PlayerIndex)
 
     -- #Admin Join Messages
     if modEnabled("Admin Join Messages") then
-        local level = tonumber(get_var(PlayerIndex, "$lvl"))
+        local level = tonumber(get_var(id, "$lvl"))
         if (level >= 1) then
             local tab, join_message = settings.mod["Admin Join Messages"].messages
             join_message = tab[level][1] .. name .. tab[level][2]
@@ -1850,21 +1908,21 @@ function OnPlayerConnect(PlayerIndex)
 
     -- #Item Spawner
     if modEnabled("Item Spawner") then
-        IS_drone_table[PlayerIndex] = nil
+        IS_drone_table[id] = nil
     end
 
     -- #Enter Vehicle
     if modEnabled("Enter Vehicle") then
-        ev[PlayerIndex] = false
-        ev_Status[PlayerIndex] = false
-        EV_drone_table[PlayerIndex] = nil
+        ev[id] = false
+        ev_Status[id] = false
+        EV_drone_table[id] = nil
     end
 
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
             local ColorTable = settings.mod["Color Reservation"].color_table
-            local player = getPlayer(PlayerIndex)
+            local player = getPlayer(id)
             local found
             for k, _ in ipairs(ColorTable) do
                 for i = 1, #ColorTable do
@@ -1873,13 +1931,13 @@ function OnPlayerConnect(PlayerIndex)
                         if find(val, hash) then
                             k = k - 1
                             write_byte(player + 0x60, tonumber(k))
-                            colorres_bool[PlayerIndex] = true
+                            colorres_bool[id] = true
                             found = true
                             break
                         end
                         if not (found) then
                             if (val ~= "available") then
-                                if (read_byte(getPlayer(PlayerIndex) + 0x60) == k - 1) then
+                                if (read_byte(getPlayer(id) + 0x60) == k - 1) then
                                     local function selectRandomColor(exclude)
                                         local num = rand(1, 18)
                                         if (num == exclude) then
@@ -1891,7 +1949,7 @@ function OnPlayerConnect(PlayerIndex)
                                     local colorID = selectRandomColor(tonumber(k))
                                     if colorID then
                                         write_byte(player + 0x60, colorID)
-                                        colorres_bool[PlayerIndex] = true
+                                        colorres_bool[id] = true
                                     end
                                 end
                             end
@@ -1906,29 +1964,29 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
-    local id = get_var(PlayerIndex, "$n")
+    local id = tonumber(get_var(PlayerIndex, "$n"))
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
 
-    local function GetIP(PlayerIndex)
+    local function GetIP(id)
         local ip_address
         if (halo_type == "PC") then
-            ip_address = getPlayerInfo(PlayerIndex, "ip"):match("(%d+.%d+.%d+.%d+)")
+            ip_address = getPlayerInfo(id, "ip"):match("(%d+.%d+.%d+.%d+)")
         else
-            ip_address = getip(PlayerIndex, true)
+            ip_address = getip(id, true)
         end
         return ip_address
     end
 
-    local ip = GetIP(PlayerIndex)
+    local ip = GetIP(id)
 
     -- #CONSOLE OUTPUT
     cprint("________________________________________________________________________________", 4 + 8)
-    if (player_info[PlayerIndex] ~= nil or player_info[PlayerIndex] ~= {}) then
-        cprint(getPlayerInfo(PlayerIndex, "name"), 4 + 8)
-        cprint(getPlayerInfo(PlayerIndex, "hash"), 4 + 8)
-        cprint(getPlayerInfo(PlayerIndex, "ip"), 4 + 8)
-        cprint(getPlayerInfo(PlayerIndex, "id"), 4 + 8)
-        cprint(getPlayerInfo(PlayerIndex, "level"), 4 + 8)
+    if (player_info[id] ~= nil or player_info[id] ~= {}) then
+        cprint(getPlayerInfo(id, "name"), 4 + 8)
+        cprint(getPlayerInfo(id, "hash"), 4 + 8)
+        cprint(getPlayerInfo(id, "ip"), 4 + 8)
+        cprint(getPlayerInfo(id, "id"), 4 + 8)
+        cprint(getPlayerInfo(id, "level"), 4 + 8)
     end
     cprint("________________________________________________________________________________", 4 + 8)
 
@@ -1936,9 +1994,16 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Mute System") then
         if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
             local p = { }
-            p.tip, p.tn, p.time, p.tid = ip, name, mute_table[ip].remaining, tonumber(PlayerIndex)
+            p.tip, p.tn, p.time, p.tid = ip, name, mute_table[ip].remaining, id
             velocity:saveMute(p, true, true)
         end
+    end
+
+    -- #Give
+    if modEnabled("Give") then
+        check_available_slots[id] = false
+        give_weapon[id] = false
+        delete_weapon[id] = false
     end
 
     -- #Portal Gun
@@ -1965,14 +2030,14 @@ function OnPlayerDisconnect(PlayerIndex)
 
     -- #Message Board
     if modEnabled("Message Board") then
-        messageBoard:hide(PlayerIndex, ip)
+        messageBoard:hide(id, ip)
     end
 
     -- #Teleport Manager
     if modEnabled("Teleport Manager") then
-        wait_for_response[PlayerIndex] = false
+        wait_for_response[id] = false
         for i = 1, 3 do
-            previous_location[PlayerIndex][i] = nil
+            previous_location[id][i] = nil
         end
     end
 
@@ -1993,7 +2058,7 @@ function OnPlayerDisconnect(PlayerIndex)
                 table.insert(achat_data[achat_status], tostring(achat_status[ip]))
             else
                 mod.adminchat = false -- attempt to index local 'mod' (a nil value) - when script is reloaded
-                mod.boolean = false 
+                mod.boolean = false
             end
         end
     end
@@ -2001,10 +2066,10 @@ function OnPlayerDisconnect(PlayerIndex)
     -- #Spawn From Sky
     if modEnabled("Spawn From Sky") then
         if init_timer == true then
-            init_timer[PlayerIndex] = false
+            init_timer[id] = false
         end
-        if (first_join[PlayerIndex] == true) then
-            first_join[PlayerIndex] = false
+        if (first_join[id] == true) then
+            first_join[id] = false
         end
         players["Spawn From Sky"][ip].sky_timer = 0
     end
@@ -2013,17 +2078,17 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
             velocity:LurkerReset(ip)
-            if tonumber(scores[PlayerIndex]) then
-                scores[PlayerIndex] = nil
+            if tonumber(scores[id]) then
+                scores[id] = nil
             end
-            lurker[PlayerIndex] = false
-            has_objective[PlayerIndex] = false
+            lurker[id] = false
+            has_objective[id] = false
         end
     end
 
     -- #Infinity Ammo
-    if (modEnabled("Lurker") and infammo[PlayerIndex]) then
-        DisableInfAmmo(PlayerIndex)
+    if (modEnabled("Lurker") and infammo[id]) then
+        DisableInfAmmo(id)
     end
 
     -- #Chat Logging
@@ -2041,19 +2106,19 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Enter Vehicle") or modEnabled("Item Spawner") then
         local tab = settings.mod["Enter Vehicle"]
         if (tab.garbage_collection.on_disconnect) then
-            if ev_NewVehicle[PlayerIndex] ~= nil then
-                ev[PlayerIndex] = false
-                ev_Status[PlayerIndex] = false
+            if ev_NewVehicle[id] ~= nil then
+                ev[id] = false
+                ev_Status[id] = false
             end
-            CleanUpDrones(PlayerIndex, 1)
+            CleanUpDrones(id, 1)
         end
         local tab = settings.mod["Item Spawner"]
         if (tab.garbage_collection.on_disconnect) then
-            CleanUpDrones(PlayerIndex, 2)
+            CleanUpDrones(id, 2)
         end
     end
-    -- Clean up player_info table for PlayerIndex:
-    player_info[PlayerIndex] = nil
+    -- Clean up player_info table for id:
+    player_info[id] = nil
 end
 
 function OnPlayerPrespawn(PlayerIndex)
@@ -2353,7 +2418,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 end
             end
         end
-        if (mod.adminchat) then -- attempt to index local 'mod' (a nil value) - when script is reloaded
+        if (mod.adminchat) then
+            -- attempt to index local 'mod' (a nil value) - when script is reloaded
             if (level >= getPermLevel("Admin Chat", false)) then
                 for c = 0, #message do
                     if message[c] then
@@ -2806,6 +2872,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:respawn(params)
                     end
+                    -- #Give
+                elseif (parameter == "give") then
+                    if (args[1] ~= nil) then
+                        params.object = args[1]
+                    end
+                    if (target_all_players) then
+                        velocity:give(params)
+                    end
                 end
             end
         end
@@ -2835,7 +2909,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (checkAccess(executor, true, "Respawn On Demand")) then
                     local tab = settings.mod["Respawn On Demand"]
                     if (args[1] ~= nil) and (args[2] == nil) then
-                        validate_params("respawn", 1) --/base_command [id]
+                        validate_params("respawn", 1) --/base_command [me | id | */all]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:respawn(params)
@@ -2844,6 +2918,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Give
+    elseif (command == settings.mod["Give"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Give", executor) then
+                if (checkAccess(executor, true, "Give")) then
+                    local tab = settings.mod["Give"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("give", 2) --/base_command <item> [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:give(params)
+                            end
+                        end
+
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item> [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3496,6 +3591,86 @@ function velocity:respawn(params)
         end
     end
     return false
+end
+
+function velocity:give(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local en = params.en or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+
+    local item = params.object or nil
+
+    if isConsole(eid) then
+        en = "SERVER"
+    end
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
+        local tab = settings["Give"]
+        function delay_add()
+            if (give_weapon[tid]) then
+                give_weapon[tid] = false
+                if player_alive(tid) then
+                    local table = settings.mod["Item Spawner"].objects
+                    local valid, err
+                    for i = 1, #table do
+                        if (item:match(table[i][1])) then
+                            local tag_type = table[i][2]
+                            if (tag_type == "weap" or tag_type == "eqip") then
+                                if (delete_weapon[tid]) and (tag_type == "weap") then
+                                    execute_command('wdel ' .. tid .. ' 0')
+                                end
+                                local tag_name = table[i][3]
+                                if TagInfo(tag_type, tag_name) then
+                                    local function giveObject(tid, tag_type, tag_name)
+                                        local player_object = get_dynamic_player(tid)
+                                        if (player_object ~= 0) then
+                                            local x, y, z = read_vector3d(player_object + 0x5C)
+                                            assign_weapon(spawn_object(tag_type, tag_name, x, y, z), tid)
+                                            if not (is_self) then
+                                                respond(eid, "Giving " .. tn .. " " .. table[i][1], "rcon", 2 + 8)
+                                                respond(tid, en .. " gave you " .. table[i][1], "rcon", 2 + 8)
+                                            else
+                                                respond(eid, "Received " .. table[i][1], "rcon", 2 + 8)
+                                            end
+                                            valid = true
+                                        end
+                                    end
+                                    giveObject(tid, tag_type, tag_name)
+                                else
+                                    respond(eid, "Unable to give that object!", "rcon", 4 + 8)
+                                end
+                            else
+                                err = true
+                                respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
+                            end
+                            break
+                        end
+                    end
+                    if not (valid) and not (err) then
+                        respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
+                    end
+                else
+                    if not (is_self) then
+                        respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4 + 8)
+                    else
+                        respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        check_available_slots[tid] = true
+        timer(100, "delay_add")
+    end
 end
 
 function velocity:listplayers(e)
@@ -5833,7 +6008,8 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/29/19]"
-    cl[#cl + 1] = "Bug Fix for Alias System"
+    cl[#cl + 1] = "Bug Fix for Alias System - scrit updated for v1.30"
+    cl[#cl + 1] = "[new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all] - scrit updated for v1.30"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
