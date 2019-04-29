@@ -15,7 +15,7 @@ Combined Scripts:
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System 			Private Messaging System
-	- Respawn On Demand		Give
+    - Respawn On Demand     Give
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -90,9 +90,9 @@ local function GameSettings()
                 users = {
                     { ["Chalwk"] = { "127.0.0.1", "6c8f0bc306e0108b4904812110185edd", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
                     { ["Ro@dhog"] = { "0ca756f62f9ecb677dc94238dcbc6c75", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
-					
+
                     -- If someone joins with the name 'example_name' and their ip address (or hash) 
-					-- does not match any of the ip address (or hashes) for that name entry, action will be taken.
+                    -- does not match any of the ip address (or hashes) for that name entry, action will be taken.
                     { ["example_name"] = { "127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
 
@@ -3742,7 +3742,7 @@ function velocity:determineAchat(params)
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (option == "-s") or (option == "status") then
-        if (tLvl >=1) then
+        if (tLvl >= 1) then
             if (mod.adminchat == true) then
                 status = "enabled"
             else
@@ -5936,7 +5936,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[2/24/19]"
     cl[#cl + 1] = "1). First semi-stable Release (github: master -> INDEV)"
-	cl[#cl + 1] = "Script Released: v1.0"
+    cl[#cl + 1] = "Script Released: v1.0"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
@@ -5953,26 +5953,26 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody."
     cl[#cl + 1] = "Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods."
-	cl[#cl + 1] = "Script Updated to v1.2"
+    cl[#cl + 1] = "Script Updated to v1.2"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[2/26/19]"
     cl[#cl + 1] = "1). You can now use Lurker mode while Infinity Ammo is enabled, but you cannot manipulate damage multipliers."
-	cl[#cl + 1] = "Script Updated to v1.3"
+    cl[#cl + 1] = "Script Updated to v1.3"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[2/27/19]"
     cl[#cl + 1] = "1). Fixed a map check error relating to Respawn Time."
-	cl[#cl + 1] = "Script Updated to v1.4"
+    cl[#cl + 1] = "Script Updated to v1.4"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[2/28/19]"
     cl[#cl + 1] = "1). Fixed a bug relating to Anti Impersonator."
     cl[#cl + 1] = "The user table in the Anti Impersonator configuration table now supports multiple hashes per user."
-	cl[#cl + 1] = "Script Updated to v1.5"
+    cl[#cl + 1] = "Script Updated to v1.5"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
@@ -5980,13 +5980,13 @@ function RecordChanges()
     cl[#cl + 1] = "1). Refactored Color Reservation"
     cl[#cl + 1] = "2). OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed."
     cl[#cl + 1] = "3). Bug fix for Alias System and other minor bug fixes."
-	cl[#cl + 1] = "Script Updated to v1.6"
+    cl[#cl + 1] = "Script Updated to v1.6"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/2/19]"
     cl[#cl + 1] = "1). Completely Rewrote BGS and released under a new name: (Velocity - Multi Mod)."
-	cl[#cl + 1] = "Script Updated to v1.7"
+    cl[#cl + 1] = "Script Updated to v1.7"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
@@ -5994,13 +5994,13 @@ function RecordChanges()
     cl[#cl + 1] = "1). Updated Anti-Impersonator with optional IP Address scans"
     cl[#cl + 1] = "If someone joins with a name found in the users table and their ip address (or hash)"
     cl[#cl + 1] = "does not match any of the ip address (or hashes) for that name entry, action will be taken."
-	cl[#cl + 1] = "Script Updated to v1.8"
+    cl[#cl + 1] = "Script Updated to v1.8"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/25/19]"
     cl[#cl + 1] = "1). Fixed a bug relating to Alias System and a couple of documentation edits"
-	cl[#cl + 1] = "Script Updated to v1.9"
+    cl[#cl + 1] = "Script Updated to v1.9"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
@@ -6012,36 +6012,36 @@ function RecordChanges()
     cl[#cl + 1] = "5). Began writing Private Messaging System"
     cl[#cl + 1] = "Script Updated to v1.10"
     cl[#cl + 1] = "6). Continued development on Private Messaging System"
-	cl[#cl + 1] = "Script Updated to v1.11"
+    cl[#cl + 1] = "Script Updated to v1.11"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/28/19]"
     cl[#cl + 1] = "1). Added page browser to Private Messaging System (read command /readmail [page num])'."
     cl[#cl + 1] = "2). [Private Messaging System] Continued Developed."
-	cl[#cl + 1] = "Script Updated to v1.12"
+    cl[#cl + 1] = "Script Updated to v1.12"
     cl[#cl + 1] = "3). Bug Fix relating to function 'velocity:setLurker()'."
-	cl[#cl + 1] = "Script Updated to v1.13"
+    cl[#cl + 1] = "Script Updated to v1.13"
     cl[#cl + 1] = "4). [Private Messaging System] Continued Developed."
     cl[#cl + 1] = "5). [new] Added a new feature (Respawn On Demand)."
     cl[#cl + 1] = "6). Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)."
     cl[#cl + 1] = "7). Bug Fix for Portalgun Gun."
-	cl[#cl + 1] = "Script Updated to v1.14"
+    cl[#cl + 1] = "Script Updated to v1.14"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/29/19]"
     cl[#cl + 1] = "1). Bug Fix for Alias System"
-	cl[#cl + 1] = "Script Updated to v1.15"
+    cl[#cl + 1] = "Script Updated to v1.15"
     cl[#cl + 1] = "2). [new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all]"
     cl[#cl + 1] = "3). Bug Fixes"
-	cl[#cl + 1] = "Script Updated to v1.16"
+    cl[#cl + 1] = "Script Updated to v1.16"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/30/19]"
     cl[#cl + 1] = "1). Updated Documentation and Bug Fixes"
-	cl[#cl + 1] = "Script Updated to v1.17"
+    cl[#cl + 1] = "Script Updated to v1.17"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
