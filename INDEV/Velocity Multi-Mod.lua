@@ -16,6 +16,7 @@ Combined Scripts:
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System 			Private Messaging System
     - Respawn On Demand     Give                Block Object Pickup
+    - Chat Censor
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -69,7 +70,7 @@ local function GameSettings()
                 permission_level = 1,
                 use_timer = true,
                 duration = 5, -- How long should the alias results be displayed for? (in seconds)
-                alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
+                alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
             },
             -- # Custom (separate) join messages for staff on a per-level basis
             ["Admin Join Messages"] = {
@@ -3901,6 +3902,7 @@ function velocity:listplayers(e)
 			else
 				prefix = ""
 			end
+            
 			local sep, seperator = ".         ", " | "
             if isConsole(e) then
                 prefix = gsub(prefix, "|r", "   ")
@@ -5341,7 +5343,10 @@ end
 function alias:align(player, table, target, total, pirated, name, alignment)
     if not isConsole(player) then
         cls(player)
+    else
+        alignment = ""
     end
+    
     local function formatResults()
         local placeholder, row = { }
 
@@ -5353,7 +5358,7 @@ function alias:align(player, table, target, total, pirated, name, alignment)
         end
 
         if (row ~= nil) then
-            respond(player, "|" .. alignment .. " " .. row, "rcon")
+            respond(player, alignment .. " " .. row, "rcon")
         end
 
         for a in pairs(placeholder) do
@@ -5373,9 +5378,9 @@ function alias:align(player, table, target, total, pirated, name, alignment)
         endIndex = max_columns
     end
     respond(player, " ", "rcon")
-    respond(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"', "rcon")
+    respond(player, alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"', "rcon")
     if (pirated) then
-        respond(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.', "rcon")
+        respond(player, alignment .. " " .. name .. ' is using a pirated copy of Halo.', "rcon")
     end
 end
 
