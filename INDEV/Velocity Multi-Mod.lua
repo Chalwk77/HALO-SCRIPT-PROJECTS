@@ -106,7 +106,8 @@ local function GameSettings()
                 enabled = true,
                 permission_level = 1,
                 execute_on_others = 4,
-                base_command = "block", -- /base_command [me | id | */all] 0|1)
+                block_command = "block", -- /block_command [me | id | */all]
+                unblock_command = "unblock", -- /unblock_command [me | id | */all]
                 enable_on_disconnect = false,
             },
             ["Chat IDs"] = {
@@ -2957,11 +2958,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     -- #Block Object Pickup
                 elseif (parameter == "blockpickup") then
-                    if (args[2] ~= nil) then
-                        params.option = args[2]
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
                     end
                     if (target_all_players) then
                         velocity:blockpickup(params)
+                    end
+                elseif (parameter == "unblock") then
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
+                    end
+                    if (target_all_players) then
+                        velocity:unblockpickups(params)
                     end
                 end
             end
@@ -2985,14 +2993,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- #Block Object Pickup
-    if (command == settings.mod["Block Object Pickup"].base_command) then
+    -- #Block Object Pickup [block]
+    if (command == settings.mod["Block Object Pickup"].block_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickup", executor) then
                 if (checkAccess(executor, true, "Block Object Pickup")) then
                     local tab = settings.mod["Block Object Pickup"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
-                        validate_params("blockpickup", 1) --/base_command [me | id | */all] [0|1]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("blockpickup", 1) --/base_command [me | id | */all]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
                                 velocity:blockpickup(params)
@@ -3000,7 +3008,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
 
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [0|1]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+    -- #Block Object Pickup [unblock]
+    elseif (command == settings.mod["Block Object Pickup"].unblock_command) then
+        if not gameover(executor) then
+            if modEnabled("Block Object Pickup", executor) then
+                if (checkAccess(executor, true, "Block Object Pickup")) then
+                    local tab = settings.mod["Block Object Pickup"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("blockpickup", 1) --/base_command [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:unblockpickups(params)
+                            end
+                        end
+
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             end
@@ -3666,46 +3695,55 @@ function velocity:portalgun(params)
     return false
 end
 
--- #Block Object Pickup
+-- #Block Object Pickup [block]
 function velocity:blockpickup(params)
     local params = params or {}
     local eid = params.eid or nil
-
     local tid = params.tid or nil
     local tip = params.tip or nil
     local tn = params.tn or nil
-    
-    local option = params.option or nil
-    
-    if (option ~= nil) then
-    
-        local is_self
-        if (eid == tid) then
-            is_self = true
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
+        block_table[tip] = true
+        execute_command("block_all_objects " .. tid .. " 1")
+        if not (is_self) then
+            respond(eid, "Blocking object pickups for " .. tn, "rcon", 2 + 8)
+        else
+            respond(eid, "Blocking object pickups", "rcon", 2 + 8)
         end
+    end
+    return false
+end
 
-        local eLvl = tonumber(get_var(eid, "$lvl"))
+-- #Block Object Pickup [unblock]
+function velocity:unblockpickups(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
 
-        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
-            local status = ""
-            if (option == "on") or (option == "1") or (option == "true") then
-                block_table[tip] = true
-                status, proceed = "Disabling", true
-                execute_command("block_all_objects " .. tid .. " 1")
-            elseif (option == "off") or (option == "0") or (option == "false") then
-                block_table[tip] = false
-                status, proceed = "Enabling", true
-                execute_command("block_all_objects " .. tid .. " 0")
-            end
-            if (proceed) then
-                if not (is_self) then
-                    respond(eid, status .. " objects for " .. tn, "rcon", 2 + 8)
-                else
-                    respond(eid, status .. " objects", "rcon", 2 + 8)
-                end
-            else
-                respond(eid, "Invalid Command Parameter", "rcon", 2 + 8)
-            end
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
+        block_table[tip] = false
+        execute_command("block_all_objects " .. tid .. " 0")
+        if not (is_self) then
+            respond(eid, "Unblocking object pickups for " .. tn, "rcon", 2 + 8)
+        else
+            respond(eid, "Unblocking object pickups", "rcon", 2 + 8)
         end
     end
     return false
