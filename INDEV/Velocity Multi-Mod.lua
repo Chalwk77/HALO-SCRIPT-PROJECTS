@@ -5738,7 +5738,7 @@ function velocity:mutelist(params)
                 local count = 0
                 for i = 1, 16 do
                     if player_present(i) then
-                        cout = count + 1
+                        count = count + 1
                         local p = { }
                         p.tip = getip(i, true)
                         local muted = velocity:loadMute(p)
