@@ -84,3 +84,8 @@
 -- Clear Chat:
 /clear
 
+-- Block Object Pickup
+/block [id]
+/unblock [id]
+-->> info: Prevents players from picking up objects
+
