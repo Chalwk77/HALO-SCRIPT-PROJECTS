@@ -1692,16 +1692,14 @@ function OnTick()
             -- #Mute System
             if modEnabled("Mute System") then
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
-                    -- mute_table[ip].timer = mute_table[ip].timer + 0.030
-                    -- local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
-                    
-                    -- print(mute_table[ip].remaining)
-                    -- mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
-                    -- if (mute_table[ip].remaining <= 0) then
-                        -- local p = { }
-                        -- p.tip, p.tn, p.tid = ip, name, tonumber(i)
-                        -- velocity:unmute(p)
-                    -- end
+                    mute_table[ip].timer = mute_table[ip].timer + 0.030
+                    local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
+                    mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
+                    if (mute_table[ip].remaining <= 0) then
+                        local p = { }
+                        p.tip, p.tn, p.tid = ip, name, tonumber(i)
+                        velocity:unmute(p)
+                    end
                 end
             end
         end
