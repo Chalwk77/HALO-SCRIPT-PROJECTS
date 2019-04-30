@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.20), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.21), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -742,7 +742,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.20, -- << --- do not touch
+            script_version = 1.21, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -6375,6 +6375,10 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.19"
     cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]"
     cl[#cl + 1] = "Script Updated to v1.20"
+    cl[#cl + 1] = "7). Tweaked Plugin List feature"
+    cl[#cl + 1] = "You can now view plugins by page: /plugins [page id] (max 10 results per page)"
+    cl[#cl + 1] = "You can change the max results in 'settings -> global -> max_results_per_page'"
+    cl[#cl + 1] = "Script Updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
