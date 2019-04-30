@@ -3723,15 +3723,15 @@ end
 
 function velocity:listplayers(e)
     local header, cheader, ffa
-    local count = 0
+    local player_count = 0
     local bool = true
     local alignment = settings.mod["Player List"].alignment
     if (getTeamPlay()) then
-        header = "|" .. alignment .. " [ ID.    -    Name.    -    Team.    -    IP. ]"
+        header = "|" .. alignment .. " [ ID.    -    Name.    -    Team.    -    IP.    -    Mode ]"
         cheader = "ID.        Name.        Team.        IP."
     else
         ffa = true
-        header = "|" .. alignment .. " [ ID.    -    Name.    -    IP. ]"
+        header = "|" .. alignment .. " [ ID.    -    Name.    -    IP.    -    Mode ]"
         cheader = "ID.        Name.        IP"
     end
     local str
@@ -3745,10 +3745,9 @@ function velocity:listplayers(e)
                     cprint(cheader, 7 + 8)
                 end
             end
-            count = count + 1
+            player_count = player_count + 1
             local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
 			
-			local seperator = "  |  "
 			local in_lurker = lurker[i]
 			local in_portalgun = portalgun_mode[ip]
 			local prefix
@@ -3761,11 +3760,11 @@ function velocity:listplayers(e)
 			else
 				prefix = ""
 			end
-			local sep = ".        "
+			local sep, seperator = ".         ", " | "
             if not (ffa) then
-                str = "  " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
+                str = "    " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
-                str = "  " .. id .. sep .. name .. seperator .. ip .. prefix
+                str = "    " .. id .. sep .. name .. seperator .. ip .. prefix
             end
             if not (isConsole(e)) then
                 rprint(e, "|" .. alignment .. " " .. str)
@@ -3774,7 +3773,7 @@ function velocity:listplayers(e)
             end
         end
     end
-    if (count == 0) and (isConsole(e)) then
+    if (player_count == 0) and (isConsole(e)) then
         cprint("------------------------------------", 5 + 8)
         cprint("There are no players online", 4 + 8)
         cprint("------------------------------------", 5 + 8)
