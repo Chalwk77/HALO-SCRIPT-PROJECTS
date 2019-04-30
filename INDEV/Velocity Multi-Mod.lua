@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.20), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.21), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -733,7 +733,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.20, -- << --- do not touch
+            script_version = 1.21, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3747,13 +3747,28 @@ function velocity:listplayers(e)
             end
             count = count + 1
             local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
+			
+			local seperator = "  |  "
+			local in_lurker = lurker[i]
+			local in_portalgun = portalgun_mode[ip]
+			local prefix
+			if (in_lurker) and not (in_portalgun) then 
+				prefix = seperator .. "|r[LURKER]"
+			elseif (in_portalgun) and not (in_lurker) then 
+				prefix = seperator .. "|r[PGUN]"
+			elseif (in_portalgun) and (in_lurker) then 
+				prefix = seperator .. "|r[PGUN] [LURKER]"
+			else
+				prefix = ""
+			end
             if not (ffa) then
-                str = id .. ".         " .. name .. "   |   " .. team .. "   |   " .. ip
+				local sep = ".        "
+                str = id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
-                str = id .. ".         " .. name .. "   |   " .. ip
+                str = id .. sep .. name .. seperator .. ip .. prefix
             end
             if not (isConsole(e)) then
-                rprint(e, "|" .. alignment .. "     " .. str)
+                rprint(e, "|" .. alignment .. " " .. str)
             else
                 cprint(str, 5 + 8)
             end
@@ -6106,6 +6121,8 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.19"
     cl[#cl + 1] = "4). Bug Fixes for Alias System and Mute System"
     cl[#cl + 1] = "Script Updated to v1.20"
+    cl[#cl + 1] = "Small Tweak to Player List"
+    cl[#cl + 1] = "Script Updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
