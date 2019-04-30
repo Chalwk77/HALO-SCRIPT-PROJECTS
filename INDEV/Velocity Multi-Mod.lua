@@ -6370,7 +6370,7 @@ function RecordChanges()
     cl[#cl + 1] = "4). [Private Messaging System] Continued Developed."
     cl[#cl + 1] = "5). [new] Added a new feature (Respawn On Demand)."
     cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)."
-    cl[#cl + 1] = "7). Bug Fix for Portalgun Gun."
+    cl[#cl + 1] = "6). Bug Fix for Portalgun Gun."
     cl[#cl + 1] = "Script Updated to v1.14"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
