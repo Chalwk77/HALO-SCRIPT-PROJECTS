@@ -59,7 +59,7 @@
 				
 -- Private Messaging System:
 /pm [id | ip] {message}
-/readmail [page]
+/readmail [page id]
 /delpm [#mail id]
 -->> info: The [#mail id] is inserted 'before' the senders name on the /readmail page
 				
@@ -70,8 +70,8 @@
 /give <item> [me | id | */all]				
 				
 -- Special Commands:
-/plugins, /enable [id], /disable [id]
--->> info: "/plugins" shows you a list of all features and tells you which ones are enabled or disabled.
+/plugins [page id], /enable [id], /disable [id]
+-->> info: "/plugins [page id]" shows you a list of all features and tells you which ones are enabled or disabled.
 -->> info: You can enable or disable any feature at any time with /enable [id], /disable [id].
 
 /clean [me | id | */all] 1 (cleans up "Enter Vehicle" objects)
