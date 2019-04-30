@@ -3753,19 +3753,19 @@ function velocity:listplayers(e)
 			local in_portalgun = portalgun_mode[ip]
 			local prefix
 			if (in_lurker) and not (in_portalgun) then 
-				prefix = seperator .. "|r[LURKER]"
+				prefix = "|r[LURKER]"
 			elseif (in_portalgun) and not (in_lurker) then 
-				prefix = seperator .. "|r[PGUN]"
+				prefix = "|r[PGUN]"
 			elseif (in_portalgun) and (in_lurker) then 
-				prefix = seperator .. "|r[PGUN] [LURKER]"
+				prefix = "|r[PGUN] [LURKER]"
 			else
 				prefix = ""
 			end
 			local sep = ".        "
             if not (ffa) then
-                str = id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
+                str = "  " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
-                str = id .. sep .. name .. seperator .. ip .. prefix
+                str = "  " .. id .. sep .. name .. seperator .. ip .. prefix
             end
             if not (isConsole(e)) then
                 rprint(e, "|" .. alignment .. " " .. str)
