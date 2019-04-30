@@ -1,0 +1,141 @@
+[2/22/19]
+1). Began Development of BGS (now known as Velocity)
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/23/19]
+1). Core functionality complete
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/24/19]
+1). First semi-stable Release (github: master -> INDEV)
+Script Released: v1.0
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/25/19]
+1). I have made some heavy tweaks to the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)
+in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner.
+
+The base command is the same. However, the command arguments have changed:
+
+Valid [id] inputs: [number range 1-16, me or *]
+/clean [id] 1 (cleans up 'Enter Vehicle' objects)
+/clean [id] 2 (cleans up 'Item Spawner' objects)
+/clean [id] * (cleans up 'everything')
+
+Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
+Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.
+Script Updated to v1.2
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/26/19]
+1). You can now use Lurker mode while Infinity Ammo is enabled, but you cannot manipulate damage multipliers.
+Script Updated to v1.3
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/27/19]
+1). Fixed a map check error relating to Respawn Time.
+Script Updated to v1.4
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/28/19]
+1). Fixed a bug relating to Anti Impersonator.
+The user table in the Anti Impersonator configuration table now supports multiple hashes per user.
+Script Updated to v1.5
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/1/19]
+1). Refactored Color Reservation
+2). OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed.
+3). Bug fix for Alias System and other minor bug fixes.
+Script Updated to v1.6
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/2/19]
+1). Completely Rewrote BGS and released under a new name: (Velocity - Multi Mod).
+Script Updated to v1.7
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/22/19]
+1). Updated Anti-Impersonator with optional IP Address scans
+If someone joins with a name found in the users table and their ip address (or hash)
+does not match any of the ip address (or hashes) for that name entry, action will be taken.
+Script Updated to v1.8
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/25/19]
+1). Fixed a bug relating to Alias System and a couple of documentation edits
+Script Updated to v1.9
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/27/19]
+1). Bug Fix relating to function 'OnPlayerDisconnect()'
+2). Bug Fix relating to function 'velocity:loadMute()'
+3). Bug Fix for Suggestion Box
+4). Minor Bug Fixes
+5). Began writing Private Messaging System
+Script Updated to v1.10
+6). Continued development on Private Messaging System
+Script Updated to v1.11
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/28/19]
+1). Added page browser to Private Messaging System (read command /readmail [page num])'.
+2). [Private Messaging System] Continued Developed.
+Script Updated to v1.12
+3). Bug Fix relating to function 'velocity:setLurker()'.
+Script Updated to v1.13
+4). [Private Messaging System] Continued Developed.
+5). [new] Added a new feature (Respawn On Demand).
+6). Respawn yourself or others on demand with /respawn [id] (no death penalty incurred).
+7). Bug Fix for Portalgun Gun.
+Script Updated to v1.14
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/29/19]
+1). Bug Fix for Alias System
+Script Updated to v1.15
+2). [new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all]
+3). Bug Fixes
+Script Updated to v1.16
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/30/19]
+1). Updated Documentation and Bug Fixes
+Script Updated to v1.17
+2). [new] Added Chat Censor feature.
+3). Small tweak to Mute System in function: OnPlayerChat()
+4). Bug Fixes for Alias System and Mute System
+Script Updated to v1.18
+5). Small Tweak to Player List
+Script Updated to v1.19
+6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]
+Script Updated to v1.20
+7). Tweaked Plugin List feature
+You can now view plugins by page: /plugins [page id] (max 10 results per page)
+You can change the max results in 'settings -> global -> max_results_per_page'
+Script Updated to v1.21
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/1/19]
+1). Added 'bomb' from camden_place to Item Spawner objects table.
+Item Keyword is 'bomb1'. (/spawn bomb1 me)
+2). New item spawner command parameter: [amount].
+You can now specify the amount of the <item> to spawn.
+For example, '/spawn hog me 5' will spawn 5 chain gun hogs.
+Script Updated to v1.22
