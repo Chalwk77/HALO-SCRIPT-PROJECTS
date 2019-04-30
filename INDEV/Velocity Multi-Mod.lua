@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.17), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.18), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -144,6 +144,37 @@ local function GameSettings()
             ["Chat Logging"] = {
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
+            },
+            -- # Chat Censor.
+            ["Chat Censor"] = {
+                enabled = true,
+                censor = "*",
+                words = {
+                    [1] = { "arsehole"},
+                    [2] = { "asshole"},
+                    [3] = { "bitch"},
+                    [4] = { "boner"},
+                    [5] = { "bs"},
+                    [5] = { "bullshit"},
+                    [6] = { "cum"},
+                    [7] = { "cunt"},
+                    [8] = { "cock"},
+                    [9] = { "dick"},
+                    [10] = { "dickhead"},
+                    [11] = { "fag"},
+                    [12] = { "faggot"},
+                    [13] = { "fatass"},
+                    [14] = { "fuck"},
+                    [15] = { "nigga"},
+                    [16] = { "nigger"},
+                    [17] = { "prick"},
+                    [18] = { "pussy"},
+                    [19] = { "slut"},
+                    [20] = { "bitch"},
+                    [21] = { "bitches"},
+                    [22] = { "wank"},
+                    [22] = { "wanker"},
+                }
             },
             -- Admins get notified when a player executes a command
             ["Command Spy"] = {
@@ -702,7 +733,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.17, -- << --- do not touch
+            script_version = 1.18, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -742,7 +773,7 @@ local function InitPlayers()
     }
 end
 -- String Library, Math Library, Table Library
-local sub, gsub, find, lower, format, match, gmatch = string.sub, string.gsub, string.find, string.lower, string.format, string.match, string.gmatch
+local sub, gsub, find, upper, lower, format, match, gmatch = string.sub, string.gsub, string.find, string.upper, string.lower, string.format, string.match, string.gmatch
 local floor = math.floor
 local concat = table.concat
 
@@ -2311,6 +2342,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local ip = getip(PlayerIndex, true)
     local response
 
+    -- #Mute System
     if modEnabled("Mute System") then
         if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
             if (mute_table[ip].duration == default_mute_time) then
@@ -2327,6 +2359,24 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local message = stringSplit(Message)
     if (#message == 0) then
         return nil
+    end
+
+    -- #Chat Censor
+    if modEnabled("Chat Censor") then    
+        local tab = settings.mod["Chat Censor"]
+        for i = 1,#tab.words do
+            if (tab.words[i] ~= nil) then
+                local swear_word = Message:match(lower(tab.words[i][1])) or Message:match(upper(tab.words[i][1]))
+                if (swear_word ~= nil) then
+                    local len = string.len(swear_word)
+                    local replaced_word = sub(swear_word, 1, 1)
+                    for i = 1,len-1 do
+                        replaced_word = replaced_word .. tab.censor
+                    end
+                    Message = gsub(Message, swear_word, replaced_word)
+                end
+            end
+        end
     end
 
     -- #Chat IDs & Admin Chat
@@ -2384,7 +2434,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
             local file = io.open(dir, "a+")
             if file ~= nil then
-                local str = string.format("%s\t%s\n", timestamp, tostring(msg))
+                local str = format("%s\t%s\n", timestamp, tostring(msg))
                 file:write(str)
                 file:close()
             end
@@ -5802,17 +5852,17 @@ function secondsToTime(seconds, places)
     seconds = seconds % 60
 
     if places == 6 then
-        return string.format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
+        return format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
     elseif places == 5 then
-        return string.format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
+        return format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
     elseif not places or places == 4 then
         return days, hours, minutes, seconds
     elseif places == 3 then
-        return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+        return format("%02d:%02d:%02d", hours, minutes, seconds)
     elseif places == 2 then
-        return string.format("%02d:%02d", minutes, seconds)
+        return format("%02d:%02d", minutes, seconds)
     elseif places == 1 then
-        return string.format("%02", seconds)
+        return format("%02", seconds)
     end
 end
 
@@ -5833,7 +5883,7 @@ function delete_from_file(dir, start_index, end_index, player)
     fp:close()
     fp = io.open(dir, "w+")
     for i = 1, #t do
-        fp:write(string.format("%s\n", t[i]))
+        fp:write(format("%s\n", t[i]))
     end
     fp:close()
 end
@@ -6042,6 +6092,8 @@ function RecordChanges()
     cl[#cl + 1] = "[4/30/19]"
     cl[#cl + 1] = "1). Updated Documentation and Bug Fixes"
     cl[#cl + 1] = "Script Updated to v1.17"
+    cl[#cl + 1] = "2). [new] Added Chat Censor feature."
+    cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
