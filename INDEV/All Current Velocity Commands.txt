@@ -61,7 +61,7 @@
 /pm [id | ip] {message}
 /readmail [page id]
 /delpm [#mail id]
--->> info: The [#mail id] is inserted 'before' the senders name on the /readmail page
+-->> info: The [#mail id] is inserted 'before' the senders name on the /readmail page.
 				
 -- Respawn:
 /respawn [me | id | */all]
@@ -85,7 +85,7 @@
 /clear
 
 -- Block Object Pickup
-/block [id]
-/unblock [id]
--->> info: Prevents players from picking up objects
+/block [me | id | */all]
+/unblock [me | id | */all]
+-->> info: Prevents players from picking up objects.
 
