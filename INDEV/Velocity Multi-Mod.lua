@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.19), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.20), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -733,7 +733,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.19, -- << --- do not touch
+            script_version = 1.20, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1692,14 +1692,16 @@ function OnTick()
             -- #Mute System
             if modEnabled("Mute System") then
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
-                    mute_table[ip].timer = mute_table[ip].timer + 0.030
-                    local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
-                    mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
-                    if (mute_table[ip].remaining <= 0) then
-                        local p = { }
-                        p.tip, p.name, p.tid = ip, name, tonumber(i)
-                        velocity:unmute(p)
-                    end
+                    -- mute_table[ip].timer = mute_table[ip].timer + 0.030
+                    -- local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
+                    
+                    -- print(mute_table[ip].remaining)
+                    -- mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
+                    -- if (mute_table[ip].remaining <= 0) then
+                        -- local p = { }
+                        -- p.tip, p.tn, p.tid = ip, name, tonumber(i)
+                        -- velocity:unmute(p)
+                    -- end
                 end
             end
         end
@@ -5258,7 +5260,15 @@ function alias:add(name, hash)
         end
         if containsExact(hash, v) and not containsExact(name, v) then
             found = true
-
+            
+            if string.find(name,'%[') then
+                name = gsub(name, '%[', "{")
+            end
+            
+            if string.find(name,'%]') then
+                name = gsub(name, '%]', "}")
+            end
+            
             local alias = v .. ", " .. name
 
             local fRead = io.open(dir, "r")
@@ -5427,8 +5437,7 @@ function velocity:loadMute(params)
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(ip)) then
-            content = v:match(v)
-            data = stringSplit(content, ",")
+            data = stringSplit(v, ",")
         end
     end
 
@@ -6097,6 +6106,8 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "3). Small tweak to Mute System in function: OnPlayerChat()"
     cl[#cl + 1] = "Script Updated to v1.19"
+    cl[#cl + 1] = "4). Bug Fixes for Alias System and Mute System"
+    cl[#cl + 1] = "Script Updated to v1.20"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
