@@ -159,30 +159,30 @@ local function GameSettings()
                 enabled = true,
                 censor = "*",
                 words = {
-                    [1] = { "arsehole"},
-                    [2] = { "asshole"},
-                    [3] = { "bitch"},
-                    [4] = { "boner"},
-                    [5] = { "bs"},
-                    [5] = { "bullshit"},
-                    [6] = { "cum"},
-                    [7] = { "cunt"},
-                    [8] = { "cock"},
-                    [9] = { "dick"},
-                    [10] = { "dickhead"},
-                    [11] = { "fag"},
-                    [12] = { "faggot"},
-                    [13] = { "fatass"},
-                    [14] = { "fuck"},
-                    [15] = { "nigga"},
-                    [16] = { "nigger"},
-                    [17] = { "prick"},
-                    [18] = { "pussy"},
-                    [19] = { "slut"},
-                    [20] = { "bitch"},
-                    [21] = { "bitches"},
-                    [22] = { "wank"},
-                    [22] = { "wanker"},
+                    [1] = { "arsehole" },
+                    [2] = { "asshole" },
+                    [3] = { "bitch" },
+                    [4] = { "boner" },
+                    [5] = { "bs" },
+                    [5] = { "bullshit" },
+                    [6] = { "cum" },
+                    [7] = { "cunt" },
+                    [8] = { "cock" },
+                    [9] = { "dick" },
+                    [10] = { "dickhead" },
+                    [11] = { "fag" },
+                    [12] = { "faggot" },
+                    [13] = { "fatass" },
+                    [14] = { "fuck" },
+                    [15] = { "nigga" },
+                    [16] = { "nigger" },
+                    [17] = { "prick" },
+                    [18] = { "pussy" },
+                    [19] = { "slut" },
+                    [20] = { "bitch" },
+                    [21] = { "bitches" },
+                    [22] = { "wank" },
+                    [22] = { "wanker" },
                 }
             },
             -- Admins get notified when a player executes a command
@@ -403,9 +403,9 @@ local function GameSettings()
                     [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" }, -- Quad Bike
                     [45] = { "wraith", "vehi", "vehicles\\wraith\\wraith" },
                     [46] = { "pelican", "vehi", "vehicles\\pelican\\pelican" },
-                    
+
                     -- Custom Weapons ...
-					[47] = { "bomb1", "weap", "weapons\\bomb\\bomb" }, -- camden_place
+                    [47] = { "bomb1", "weap", "weapons\\bomb\\bomb" }, -- camden_place
                 }
             },
             -- # This is a spectator-like feature.
@@ -888,12 +888,12 @@ local getPage = function(params)
     if (page == nil) then
         page = 1
     end
-    
+
     local max_results = table.max_results_per_page
     local start = (max_results) * page
     local startpage = (start - max_results + 1)
     local endpage = start
-    
+
     return startpage, endpage
 end
 
@@ -1822,7 +1822,7 @@ function OnPlayerConnect(PlayerIndex)
         give_weapon[id] = false
         delete_weapon[id] = false
     end
-    
+
     -- #Block Object Pickup
     if modEnabled("Block Object Pickup") then
         if (block_table[ip]) then
@@ -2072,7 +2072,7 @@ function OnPlayerDisconnect(PlayerIndex)
         give_weapon[id] = false
         delete_weapon[id] = false
     end
-    
+
     -- #Block Object Pickup
     if modEnabled("Block Object Pickup") then
         local mod = settings.mod["Block Object Pickup"]
@@ -2410,15 +2410,15 @@ function OnPlayerChat(PlayerIndex, Message, type)
     end
 
     -- #Chat Censor
-    if modEnabled("Chat Censor") then    
+    if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
-        for i = 1,#tab.words do
+        for i = 1, #tab.words do
             if (tab.words[i] ~= nil) then
                 local swear_word = Message:match(lower(tab.words[i][1])) or Message:match(upper(tab.words[i][1]))
                 if (swear_word ~= nil) then
                     local len = string.len(swear_word)
                     local replaced_word = sub(swear_word, 1, 1)
-                    for i = 1,len-1 do
+                    for i = 1, len - 1 do
                         replaced_word = replaced_word .. tab.censor
                     end
                     Message = gsub(Message, swear_word, replaced_word)
@@ -3038,7 +3038,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Block Object Pickup [unblock]
+        -- #Block Object Pickup [unblock]
     elseif (command == settings.mod["Block Object Pickup"].unblock_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickup", executor) then
@@ -3061,7 +3061,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Respawn On Demand
+        -- #Respawn On Demand
     elseif (command == settings.mod["Respawn On Demand"].base_command) then
         if not gameover(executor) then
             if modEnabled("Respawn On Demand", executor) then
@@ -3635,13 +3635,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                     local count = 0
                     local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
-                    
+
                     local t = {}
                     for k, _ in pairs(tab.mod) do
                         t[#t + 1] = k
                         count = count + 1
                     end
-                    
+
                     for page_num = startpage, endpage do
                         if (t[page_num]) then
                             for k, v in pairs(t) do
@@ -3651,7 +3651,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     end
-                    
+
                     if (#table > 0) then
                         for _, v in pairs(table) do
                             local data = stringSplit(v, "|")
@@ -4000,21 +4000,21 @@ function velocity:listplayers(e)
             end
             player_count = player_count + 1
             local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
-			
-			local in_lurker = lurker[i]
-			local in_portalgun = portalgun_mode[ip]
-			local prefix
-			if (in_lurker) and not (in_portalgun) then 
-				prefix = "|r[LURKER]"
-			elseif (in_portalgun) and not (in_lurker) then 
-				prefix = "|r[PGUN]"
-			elseif (in_portalgun) and (in_lurker) then 
-				prefix = "|r[PGUN] [LURKER]"
-			else
-				prefix = ""
-			end
-            
-			local sep, seperator = ".         ", " | "
+
+            local in_lurker = lurker[i]
+            local in_portalgun = portalgun_mode[ip]
+            local prefix
+            if (in_lurker) and not (in_portalgun) then
+                prefix = "|r[LURKER]"
+            elseif (in_portalgun) and not (in_lurker) then
+                prefix = "|r[PGUN]"
+            elseif (in_portalgun) and (in_lurker) then
+                prefix = "|r[PGUN] [LURKER]"
+            else
+                prefix = ""
+            end
+
+            local sep, seperator = ".         ", " | "
             if isConsole(e) then
                 prefix = gsub(prefix, "|r", "   ")
             end
@@ -4347,7 +4347,7 @@ function velocity:spawnItem(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local item = params.item or nil
-	local amount = params.amount or nil
+    local amount = params.amount or nil
 
     local tab = settings.mod["Item Spawner"]
 
@@ -4363,15 +4363,15 @@ function velocity:spawnItem(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
-	if (amount ~= nil) then
-		if (amount:match("%d+") and not amount:match("[A-Za-z]")) then
-			amount = tonumber(amount)
-		else
-			respond(eid, "Invalid Command Parameter. [numbers only]", "rcon", 4+8)
-		end
-	else
-		amount = 1
-	end
+    if (amount ~= nil) then
+        if (amount:match("%d+") and not amount:match("[A-Za-z]")) then
+            amount = tonumber(amount)
+        else
+            respond(eid, "Invalid Command Parameter. [numbers only]", "rcon", 4 + 8)
+        end
+    else
+        amount = 1
+    end
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Item Spawner")) then
         if (tLvl >= 1) then
@@ -4404,18 +4404,18 @@ function velocity:spawnItem(params)
                                     end
                                 end
                             end
-							for i = 1,amount do
-								SpawnObject(tid, tag_type, tag_name)
-							end
-							if (valid) then
-								local char = getChar(amount)
-								if not (is_self) then
-									respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char .. " for " .. tn, "rcon", 4 + 8)
-									respond(tid, en .. " spawned (" .. amount .. ") " .. objects_table[i][1] .. char .. " for you", "rcon", 4 + 8)
-								else
-									respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char, "rcon", 4 + 8)
-								end
-							end
+                            for i = 1, amount do
+                                SpawnObject(tid, tag_type, tag_name)
+                            end
+                            if (valid) then
+                                local char = getChar(amount)
+                                if not (is_self) then
+                                    respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char .. " for " .. tn, "rcon", 4 + 8)
+                                    respond(tid, en .. " spawned (" .. amount .. ") " .. objects_table[i][1] .. char .. " for you", "rcon", 4 + 8)
+                                else
+                                    respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char, "rcon", 4 + 8)
+                                end
+                            end
                         else
                             err = true
                             respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
@@ -5273,7 +5273,7 @@ function privateMessage:read(params)
             local p = { }
             p.table, p.page = tab, page
             local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
-            
+
             for page_num = startpage, endpage do
                 if (list[page_num]) then
                     for k, v in pairs(list) do
@@ -5470,7 +5470,7 @@ function alias:align(player, table, target, total, pirated, name, alignment)
     else
         alignment = ""
     end
-    
+
     local function formatResults()
         local placeholder, row = { }
 
@@ -5545,15 +5545,15 @@ function alias:add(name, hash)
         end
         if containsExact(hash, v) and not containsExact(name, v) then
             found = true
-            
-            if string.find(name,'%[') then
+
+            if string.find(name, '%[') then
                 name = gsub(name, '%[', "{")
             end
-            
-            if string.find(name,'%]') then
+
+            if string.find(name, '%]') then
                 name = gsub(name, '%]', "}")
             end
-            
+
             local alias = v .. ", " .. name
 
             local fRead = io.open(dir, "r")
