@@ -3761,6 +3761,9 @@ function velocity:listplayers(e)
 				prefix = ""
 			end
 			local sep, seperator = ".         ", " | "
+            if isConsole(e) then
+                prefix = gsub(prefix, "|r", "   ")
+            end
             if not (ffa) then
                 str = "    " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
