@@ -3688,11 +3688,11 @@ function velocity:blockpickup(params)
 
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
             local status = ""
-            if (option == "1") then
+            if (option == "on") or (option == "1") or (option == "true") then
                 block_table[tip] = true
                 status, proceed = "Disabling", true
                 execute_command("block_all_objects " .. tid .. " 1")
-            elseif (option == "0") then
+            elseif (option == "off") or (option == "0") or (option == "false") then
                 block_table[tip] = false
                 status, proceed = "Enabling", true
                 execute_command("block_all_objects " .. tid .. " 0")
