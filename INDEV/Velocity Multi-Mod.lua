@@ -3761,8 +3761,8 @@ function velocity:listplayers(e)
 			else
 				prefix = ""
 			end
+			local sep = ".        "
             if not (ffa) then
-				local sep = ".        "
                 str = id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
                 str = id .. sep .. name .. seperator .. ip .. prefix
