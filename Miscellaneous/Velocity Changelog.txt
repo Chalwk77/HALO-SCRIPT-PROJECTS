@@ -100,7 +100,7 @@ Script Updated to v1.13
 4). [Private Messaging System] Continued Developed.
 5). [new] Added a new feature (Respawn On Demand).
 Respawn yourself or others on demand with /respawn [id] (no death penalty incurred).
-7). Bug Fix for Portalgun Gun.
+6). Bug Fix for Portalgun Gun.
 Script Updated to v1.14
 -------------------------------------------------------------------------------------------------------------------------------
 
