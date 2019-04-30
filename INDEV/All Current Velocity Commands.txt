@@ -26,7 +26,7 @@
 /delwarp [warp id]
 
 -- Item Spawner:
-/spawn <item> [me | id | */all]
+/spawn <item> [me | id | */all] [amount]
 /itemlist
 -->> info: /itemlist shows a list of valid items for the current map.
 
