@@ -19,9 +19,9 @@ Combined Scripts:
     - Chat Censor
 
     Special Commands:
-    /plugins, /enable [id], /disable [id]
+    /plugins [page id], /enable [id], /disable [id]
     
-    "/plugins" shows you a list of all features and tells you which ones are enabled or disabled.
+    "/plugins [page id]" shows you a list of all features and tells you which ones are enabled or disabled.
     You can enable or disable any feature at any time with /enable [id], /disable [id].
    
     /clean (command syntax info) for Enter Vehicle & Item Spawner:
@@ -2452,11 +2452,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
         if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
             local hidden_messages, hidden = cSpy.commands_to_hide
-            for k, _ in pairs(hidden_messages) do
-                if (command == k) then
+            for _, v in pairs(hidden_messages) do
+                if (command == v) then
                     hidden = true
                 end
-                break
             end
             local hide_commands = cSpy.hide_commands
             if (hide_commands and hidden) then
