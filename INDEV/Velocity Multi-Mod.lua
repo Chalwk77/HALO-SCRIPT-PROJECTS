@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.18), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.19), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -733,7 +733,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.18, -- << --- do not touch
+            script_version = 1.19, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2345,6 +2345,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Mute System
     if modEnabled("Mute System") then
         if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+            cprint('[MUTED] ' .. name .. ": " .. Message)
             if (mute_table[ip].duration == default_mute_time) then
                 rprint(PlayerIndex, "[muted] You are muted permanently.")
             else
@@ -6094,6 +6095,8 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.17"
     cl[#cl + 1] = "2). [new] Added Chat Censor feature."
     cl[#cl + 1] = "Script Updated to v1.18"
+    cl[#cl + 1] = "3). Small tweak to Mute System in function: OnPlayerChat()"
+    cl[#cl + 1] = "Script Updated to v1.19"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
