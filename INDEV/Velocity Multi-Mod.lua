@@ -6264,7 +6264,7 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "5). Small Tweak to Player List"
     cl[#cl + 1] = "Script Updated to v1.19"
-    cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all] [0|1]"
+    cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]"
     cl[#cl + 1] = "Script Updated to v1.20"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
