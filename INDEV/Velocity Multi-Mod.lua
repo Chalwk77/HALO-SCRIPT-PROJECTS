@@ -747,6 +747,7 @@ local function GameSettings()
             beepOnJoin = true,
             check_for_updates = false,
             server_prefix = "**SERVER** ",
+            max_results_per_page = 10,
             plugin_commands = {
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
@@ -876,6 +877,22 @@ local function adjust_ammo(p)
         execute_command("mag " .. tonumber(p) .. " 100 " .. i)
         execute_command("battery " .. tonumber(p) .. " 100 " .. i)
     end
+end
+
+local getPage = function(params)
+    local params = params or {}
+    local table = params.table or nil
+    local page = tonumber(params.page) or nil
+    if (page == nil) then
+        page = 1
+    end
+    
+    local max_results = table.max_results_per_page
+    local start = (max_results) * page
+    local startpage = (start - max_results + 1)
+    local endpage = start
+    
+    return startpage, endpage
 end
 
 local function DisableInfAmmo(TargetID)
@@ -3012,6 +3029,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Block Object Pickup' not enabled!")
             end
         end
         return false
@@ -3033,6 +3052,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Block Object Pickup' not enabled!")
             end
         end
         return false
@@ -3054,6 +3075,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Respawn On Demand' not enabled!")
             end
         end
         return false
@@ -3074,6 +3097,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item> [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Give' not enabled!")
             end
         end
         return false
@@ -3096,6 +3121,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.send_command .. " [user id] {message}", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
             end
         end
         return false
@@ -3114,6 +3141,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command .. " [page num]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
             end
         end
         return false
@@ -3132,6 +3161,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.mark_as_read_command .. " [message id]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
             end
         end
         return false
@@ -3153,6 +3184,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [me | id | */all] <time diff>", "rcon", 2 + 8)
                 end
             end
+        else
+            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
         end
         return false
         -- #Mute System
@@ -3173,6 +3206,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [me | id | */all]", "rcon", 2 + 8)
                 end
             end
+        else
+            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
         end
         return false
         -- #Mute System
@@ -3184,6 +3219,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 p.flag = args[1]
                 velocity:mutelist(p)
             end
+        else
+            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
         end
         return false
         -- #Cute
@@ -3202,6 +3239,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                 end
             end
+        else
+            rprint(executor, "Error. Plugin: 'Cute' not enabled!")
         end
         return false
         -- #Infinity Ammo
@@ -3221,6 +3260,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Infinity Ammo' not enabled!")
             end
         end
         return false
@@ -3242,6 +3283,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
                 end
             end
+        else
+            rprint(executor, "Error. Plugin: 'Alias System' not enabled!")
         end
         return false
         -- #Item Spawner
@@ -3261,6 +3304,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Item Spawner' not enabled!")
             end
         end
         return false
@@ -3286,6 +3331,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 else
                     rprint(executor, "Error. Plugin: 'Item Spawner' needs to be enabled for this to work.")
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Enter Vehicle' not enabled!")
             end
         end
         return false
@@ -3306,6 +3353,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Garbage Collection' not enabled!")
             end
         end
         return false
@@ -3326,6 +3375,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] <time diff>", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Respawn Time' not enabled!")
             end
         end
         return false
@@ -3346,6 +3397,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on/off", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Admin Chat' not enabled!")
             end
         end
         return false
@@ -3366,6 +3419,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Lurker' not enabled!")
             end
         end
         return false
@@ -3385,6 +3440,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Suggestions Box' not enabled!")
             end
         end
         return false
@@ -3405,6 +3462,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Portal Gun' not enabled!")
             end
         end
         return false
@@ -3423,6 +3482,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3443,6 +3504,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[2] .. " [warp name] [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3463,6 +3526,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[3] .. " [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3480,6 +3545,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[4] .. " or /" .. tab.commands[5], "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3497,6 +3564,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[5] .. " or /" .. tab.commands[4], "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3515,6 +3584,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[6] .. " [warp id]", "rcon", 4 + 8)
                     end
                 end
+            else
+                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3551,21 +3622,57 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == pCMD.list[1]) then
         if not gameover(executor) then
             if hasAccess(executor, pCMD.list[2]) then
-                local t = {}
-                for k, _ in pairs(settings.mod) do
-                    t[#t + 1] = k
-                end
-                for k, v in pairs(t) do
-                    if v then
-                        if (settings.mod[v].enabled) then
-                            respond(executor, "[" .. k .. "] " .. v .. " is enabled", "rcon", 2 + 8)
-                        else
-                            respond(executor, "[" .. k .. "] " .. v .. " is disabled", "rcon", 4 + 8)
+                local page = args[1]
+                local len = string.len
+                if (page ~= nil) and (len(page) > 0) and (args[2] == nil) then
+                    local tab = settings
+                    local p, table = { }, { }
+                    p.table, p.page = tab.global, page
+
+                    local count = 0
+                    local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
+                    
+                    local t = {}
+                    for k, _ in pairs(tab.mod) do
+                        t[#t + 1] = k
+                        count = count + 1
+                    end
+                    
+                    for page_num = startpage, endpage do
+                        if (t[page_num]) then
+                            for k, v in pairs(t) do
+                                if (k == page_num) then
+                                    table[#table + 1] = (t[page_num] .. "|" .. k)
+                                end
+                            end
                         end
                     end
-                end
-                for _ in pairs(t) do
-                    t[_] = nil
+                    
+                    if (#table > 0) then
+                        for _, v in pairs(table) do
+                            local data = stringSplit(v, "|")
+                            if (data) then
+                                local result, i = { }, 1
+                                for j = 1, 2 do
+                                    if (data[j] ~= nil) then
+                                        result[i] = data[j]
+                                        i = i + 1
+                                    end
+                                end
+                                if (result ~= nil) then
+                                    local plugin_name = result[1]
+                                    local index = result[2]
+                                    local seperator = "|c"
+                                    respond(executor, "[#" .. index .. "] " .. plugin_name, "rcon", 2 + 8)
+                                end
+                            end
+                        end
+                        respond(executor, "Viewing Page (" .. page .. "). Total Plugins: " .. count, "rcon", 5 + 8)
+                    else
+                        respond(executor, "Nothing to show", "rcon", 5 + 8)
+                    end
+                else
+                    respond(executor, "Invalid Syntax. Usage: /" .. pCMD.list[1] .. " [page num]", "rcon", 4 + 8)
                 end
             end
         end
@@ -5140,16 +5247,13 @@ function privateMessage:read(params)
         end
 
         if (#mail > 0) then
-            local max_results = tab.max_results_per_page
-
-            local start = (max_results) * page
-            local startpage = (start - max_results + 1)
-            local endpage = start
 
             local table = { }
-
             local list = privateMessage:getMailList()
-
+            local p = { }
+            p.table, p.page = tab, page
+            local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
+            
             for page_num = startpage, endpage do
                 if (list[page_num]) then
                     for k, v in pairs(list) do
@@ -6085,7 +6189,7 @@ function getCurrentVersion(bool)
     ]]
     http_client = ffi.load("lua_http_client")
 
-    local function GetPage(URL)
+    local function httpRequest(URL)
         local response = http_client.http_get(URL, false)
         local returning = nil
         if http_client.http_response_is_null(response) ~= true then
@@ -6097,7 +6201,7 @@ function getCurrentVersion(bool)
     end
 
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
-    local version = GetPage(url):match("script_version = (%d+.%d+)")
+    local version = httpRequest(url):match("script_version = (%d+.%d+)")
 
     if (bool == true) then
         if (tonumber(version) ~= settings.global.script_version) then
