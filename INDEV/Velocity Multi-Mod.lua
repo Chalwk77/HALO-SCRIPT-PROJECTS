@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.21), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.20), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -15,7 +15,7 @@ Combined Scripts:
     - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
     - Suggestions Box (request by Cyser@)       Enter Vehicle
     - Mute System 			Private Messaging System
-    - Respawn On Demand     Give
+    - Respawn On Demand     Give                Block Object Pickup
 
     Special Commands:
     /plugins, /enable [id], /disable [id]
@@ -101,6 +101,13 @@ local function GameSettings()
 
                     -- You do not need both ip and hash but it adds a bit more security.
                 },
+            },
+            ["Block Object Pickup"] = {
+                enabled = true,
+                permission_level = 1,
+                execute_on_others = 4,
+                base_command = "block", -- /base_command [me | id | */all] 0|1)
+                enable_on_disconnect = false,
             },
             ["Chat IDs"] = {
                 --[[
@@ -733,7 +740,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.21, -- << --- do not touch
+            script_version = 1.20, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -851,6 +858,9 @@ local privateMessage, unread_mail = { }, { }
 
 -- #Give
 local check_available_slots, give_weapon, delete_weapon = { }, { }, { }
+
+-- #Block Object Pickup
+local block_table = { }
 
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
@@ -1791,6 +1801,13 @@ function OnPlayerConnect(PlayerIndex)
         give_weapon[id] = false
         delete_weapon[id] = false
     end
+    
+    -- #Block Object Pickup
+    if modEnabled("Block Object Pickup") then
+        if (block_table[ip]) then
+            execute_command("block_all_objects " .. PlayerIndex .. " 1")
+        end
+    end
 
     -- #Private Messaging System
     if modEnabled("Private Messaging System") then
@@ -2033,6 +2050,15 @@ function OnPlayerDisconnect(PlayerIndex)
         check_available_slots[id] = false
         give_weapon[id] = false
         delete_weapon[id] = false
+    end
+    
+    -- #Block Object Pickup
+    if modEnabled("Block Object Pickup") then
+        local mod = settings.mod["Block Object Pickup"]
+        if (block_table[ip]) and (mod.enable_on_disconnect) then
+            block_table[ip] = false
+            execute_command("block_all_objects " .. id .. " 0")
+        end
     end
 
     -- #Portal Gun
@@ -2929,6 +2955,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:give(params)
                     end
+                    -- #Block Object Pickup
+                elseif (parameter == "blockpickup") then
+                    if (args[2] ~= nil) then
+                        params.option = args[2]
+                    end
+                    if (target_all_players) then
+                        velocity:blockpickup(params)
+                    end
                 end
             end
         end
@@ -2951,8 +2985,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    -- #Block Object Pickup
+    if (command == settings.mod["Block Object Pickup"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Block Object Pickup", executor) then
+                if (checkAccess(executor, true, "Block Object Pickup")) then
+                    local tab = settings.mod["Block Object Pickup"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        validate_params("blockpickup", 1) --/base_command [me | id | */all] [0|1]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:blockpickup(params)
+                            end
+                        end
+
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [0|1]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
     -- #Respawn On Demand
-    if (command == settings.mod["Respawn On Demand"].base_command) then
+    elseif (command == settings.mod["Respawn On Demand"].base_command) then
         if not gameover(executor) then
             if modEnabled("Respawn On Demand", executor) then
                 if (checkAccess(executor, true, "Respawn On Demand")) then
@@ -3550,6 +3605,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
+-- #Portal Gun
 function velocity:portalgun(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -3610,6 +3666,52 @@ function velocity:portalgun(params)
     return false
 end
 
+-- #Block Object Pickup
+function velocity:blockpickup(params)
+    local params = params or {}
+    local eid = params.eid or nil
+
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    
+    local option = params.option or nil
+    
+    if (option ~= nil) then
+    
+        local is_self
+        if (eid == tid) then
+            is_self = true
+        end
+
+        local eLvl = tonumber(get_var(eid, "$lvl"))
+
+        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Respawn On Demand")) then
+            local status = ""
+            if (option == "1") then
+                block_table[tip] = true
+                status, proceed = "Disabling", true
+                execute_command("block_all_objects " .. tid .. " 1")
+            elseif (option == "0") then
+                block_table[tip] = false
+                status, proceed = "Enabling", true
+                execute_command("block_all_objects " .. tid .. " 0")
+            end
+            if (proceed) then
+                if not (is_self) then
+                    respond(eid, status .. " objects for " .. tn, "rcon", 2 + 8)
+                else
+                    respond(eid, status .. " objects", "rcon", 2 + 8)
+                end
+            else
+                respond(eid, "Invalid Command Parameter", "rcon", 2 + 8)
+            end
+        end
+    end
+    return false
+end
+
+-- #Respawn
 function velocity:respawn(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -3641,6 +3743,7 @@ function velocity:respawn(params)
     return false
 end
 
+-- #Give
 function velocity:give(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -6118,13 +6221,13 @@ function RecordChanges()
     cl[#cl + 1] = "1). Updated Documentation and Bug Fixes"
     cl[#cl + 1] = "Script Updated to v1.17"
     cl[#cl + 1] = "2). [new] Added Chat Censor feature."
-    cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "3). Small tweak to Mute System in function: OnPlayerChat()"
-    cl[#cl + 1] = "Script Updated to v1.19"
     cl[#cl + 1] = "4). Bug Fixes for Alias System and Mute System"
-    cl[#cl + 1] = "Script Updated to v1.20"
+    cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "5). Small Tweak to Player List"
-    cl[#cl + 1] = "Script Updated to v1.21"
+    cl[#cl + 1] = "Script Updated to v1.19"
+    cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all] [0|1]"
+    cl[#cl + 1] = "Script Updated to v1.20"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     file:write(concat(cl, "\n"))
