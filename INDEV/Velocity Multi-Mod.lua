@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.21), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.22), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -313,7 +313,7 @@ local function GameSettings()
             -- Used for Item Spawner and Enter Vehicle
             ["Garbage Collection"] = {
                 enabled = true,
-                base_command = "clean", -- /base_command <item> [me | id | */all] (opt height/distance)
+                base_command = "clean", -- /base_command <item> [me | id | */all]
                 permission_level = 1,
                 execute_on_others = 4,
             },
@@ -334,7 +334,7 @@ local function GameSettings()
             },
             ["Item Spawner"] = {
                 enabled = true,
-                base_command = "spawn", -- /base_command <item> [me | id | */all]
+                base_command = "spawn", -- /base_command <item> [me | id | */all] [amount]
                 permission_level = 1,
                 execute_on_others = 4,
                 -- Destroy objects spawned:
@@ -403,7 +403,9 @@ local function GameSettings()
                     [44] = { "slap2", "vehi", "deathstar\\1\\vehicle\\tag_3215" }, -- Quad Bike
                     [45] = { "wraith", "vehi", "vehicles\\wraith\\wraith" },
                     [46] = { "pelican", "vehi", "vehicles\\pelican\\pelican" },
+                    
                     -- Custom Weapons ...
+					[47] = { "bomb1", "weap", "weapons\\bomb\\bomb" }, -- camden_place
                 }
             },
             -- # This is a spectator-like feature.
@@ -742,7 +744,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.21, -- << --- do not touch
+            script_version = 1.22, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2920,6 +2922,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] ~= nil) then
                         params.item = args[1] -- object
                     end
+                    if (args[3] ~= nil) then
+                        params.amount = args[3] -- amount
+                    end
                     if (target_all_players) then
                         velocity:spawnItem(params)
                     end
@@ -3300,7 +3305,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all] [opt: amount]", "rcon", 4 + 8)
                     end
                 end
             else
@@ -4342,6 +4347,7 @@ function velocity:spawnItem(params)
     local tid = params.tid or nil
     local tn = params.tn or nil
     local item = params.item or nil
+	local amount = params.amount or nil
 
     local tab = settings.mod["Item Spawner"]
 
@@ -4356,6 +4362,16 @@ function velocity:spawnItem(params)
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
+
+	if (amount ~= nil) then
+		if (amount:match("%d+") and not amount:match("[A-Za-z]")) then
+			amount = tonumber(amount)
+		else
+			respond(eid, "Invalid Command Parameter. [numbers only]", "rcon", 4+8)
+		end
+	else
+		amount = 1
+	end
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Item Spawner")) then
         if (tLvl >= 1) then
@@ -4381,12 +4397,6 @@ function velocity:spawnItem(params)
                                     local obj_y = y + tab.distance_from_playerY * sin(y_aim)
                                     local obj_z = z + 0.3 * sin(z_aim) + 0.5
                                     item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
-                                    if not (is_self) then
-                                        respond(eid, "Spawning " .. objects_table[i][1] .. " for " .. tn, "rcon", 4 + 8)
-                                        respond(tid, en .. " spawned " .. objects_table[i][1] .. " for you", "rcon", 4 + 8)
-                                    else
-                                        respond(eid, "Spawning " .. objects_table[i][1], "rcon", 4 + 8)
-                                    end
                                     valid = true
                                     if (item_objects[tid]) ~= nil then
                                         IS_drone_table[tid] = IS_drone_table[tid] or {}
@@ -4394,7 +4404,18 @@ function velocity:spawnItem(params)
                                     end
                                 end
                             end
-                            SpawnObject(tid, tag_type, tag_name)
+							for i = 1,amount do
+								SpawnObject(tid, tag_type, tag_name)
+							end
+							if (valid) then
+								local char = getChar(amount)
+								if not (is_self) then
+									respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char .. " for " .. tn, "rcon", 4 + 8)
+									respond(tid, en .. " spawned (" .. amount .. ") " .. objects_table[i][1] .. char .. " for you", "rcon", 4 + 8)
+								else
+									respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char, "rcon", 4 + 8)
+								end
+							end
                         else
                             err = true
                             respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
@@ -6380,6 +6401,14 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/1/19]"
+    cl[#cl + 1] = "1). Added 'bomb' from camden_place to Item Spawner objects table."
+    cl[#cl + 1] = "Item Keyword is 'bomb1'. (/spawn bomb1 me)"
+    cl[#cl + 1] = "2). New item spawner command parameter: [amount]."
+    cl[#cl + 1] = "You can now specify the amount of the <item> to spawn."
+    cl[#cl + 1] = "For example, '/spawn hog me 5' will spawn 5 chain gun hogs."
+    cl[#cl + 1] = "Script Updated to v1.22"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
