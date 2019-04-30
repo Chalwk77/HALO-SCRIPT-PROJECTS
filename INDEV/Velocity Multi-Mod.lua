@@ -6121,7 +6121,7 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.19"
     cl[#cl + 1] = "4). Bug Fixes for Alias System and Mute System"
     cl[#cl + 1] = "Script Updated to v1.20"
-    cl[#cl + 1] = "Small Tweak to Player List"
+    cl[#cl + 1] = "5). Small Tweak to Player List"
     cl[#cl + 1] = "Script Updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
