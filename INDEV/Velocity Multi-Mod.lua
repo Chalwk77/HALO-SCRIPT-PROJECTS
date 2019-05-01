@@ -3849,6 +3849,9 @@ function velocity:unblockpickups(params)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
+    
+    -- TO DO:
+    -- Check if already blocking
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
         block_table[tip] = false
@@ -6209,36 +6212,32 @@ function getCurrentVersion(bool)
         uint32_t http_response_length(const http_response *);
     ]]
     http_client = ffi.load("lua_http_client")
-	if (http_client) then
-		local function httpRequest(URL)
-			local response = http_client.http_get(URL, false)
-			local returning = nil
-			if http_client.http_response_is_null(response) ~= true then
-				local response_text_ptr = http_client.http_read_response(response)
-				returning = ffi.string(response_text_ptr)
-			end
-			http_client.http_destroy_response(response)
-			return returning
-		end
 
-		local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
-		local version = httpRequest(url):match("script_version = (%d+.%d+)")
+    local function httpRequest(URL)
+        local response = http_client.http_get(URL, false)
+        local returning = nil
+        if http_client.http_response_is_null(response) ~= true then
+            local response_text_ptr = http_client.http_read_response(response)
+            returning = ffi.string(response_text_ptr)
+        end
+        http_client.http_destroy_response(response)
+        return returning
+    end
 
-		if (bool == true) then
-			if (tonumber(version) ~= settings.global.script_version) then
-				cprint("============================================================================", 5 + 8)
-				cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
-				cprint("Current version: v" .. settings.global.script_version, 5 + 8)
-				cprint("============================================================================", 5 + 8)
-			else
-				cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
-			end
-		end
-		return tonumber(version)
-	else
-		cprint("[VELOCITY] Something went wrong. Unable to check for updates")
-		cprint("[VELOCITY] Current Version " .. settings.global.script_version, 2 + 8)
-	end
+    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
+    local version = httpRequest(url):match("script_version = (%d+.%d+)")
+
+    if (bool == true) then
+        if (tonumber(version) ~= settings.global.script_version) then
+            cprint("============================================================================", 5 + 8)
+            cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
+            cprint("Current version: v" .. settings.global.script_version, 5 + 8)
+            cprint("============================================================================", 5 + 8)
+        else
+            cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
+        end
+    end
+    return tonumber(version)
 end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
