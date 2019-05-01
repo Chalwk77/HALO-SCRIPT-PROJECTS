@@ -48,6 +48,7 @@
 
 -- Suggestion Box
 /suggestion {message}
+-->> info: Players can suggest features or maps (or report bugs) with this command.
 
 -- Mute System:
 /mute [id | */all] ( optional: <time diff> )
