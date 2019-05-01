@@ -139,3 +139,7 @@ Item Keyword is 'bomb1'. (/spawn bomb1 me)
 You can now specify the amount of the <item> to spawn.
 For example, '/spawn hog me 5' will spawn 5 chain gun hogs.
 Script Updated to v1.22
+3). Small Tweak to function 'OnPlayerChat().
+Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly.
+Previously only 'skip' in lowercase would trigger this.
+Script Updated to v1.23
