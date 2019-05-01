@@ -1,5 +1,9 @@
 [2/22/19]
 1). Began Development of BGS (now known as Velocity)
+Velocity is an all-in-one package that combines many of my scripts.
+ALL combined scripts have been heavily refatored, refined and improved for Velocity,
+with the addition of many new features not found in the standalone versions,
+as well as many 'special' features unique to Velocity that do not come in standalone scripts.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -148,3 +152,5 @@ Script Updated to v1.23
 6). Added missing /item command logic for Item Spawner
 This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map.
 Script Updated to v1.24
+Tweaked Chat Censor feature + 1 documentation edit.
+Script Updated to v1.25
