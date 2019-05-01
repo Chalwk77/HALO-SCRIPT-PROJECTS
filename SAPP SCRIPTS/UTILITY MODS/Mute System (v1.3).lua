@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Mute System (v 1.2), for SAPP (PC & CE)
+Script Name: Mute System (v 1.3), for SAPP (PC & CE)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -22,7 +22,7 @@ local privilege_level = 1
 -- Configuration [ENDS] --
 
 local mod, mute_table = { }, { }
-local script_version = 1.2
+local script_version = 1.3
 local function getip(p)
     return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
 end
@@ -78,6 +78,16 @@ function OnGameEnd()
     end
 end
 
+local function getChar(input)
+    local char = ""
+    if (tonumber(input) > 1) then
+        char = "s"
+    elseif (tonumber(input) <= 1) then
+        char = ""
+    end
+    return char
+end
+
 local function isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -130,10 +140,12 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     local ip = getip(PlayerIndex)
     if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+        cprint('[MUTED] ' .. name .. ": " .. Message)
         if (mute_table[ip].duration == default_mute_time) then
             rprint(PlayerIndex, "[muted] You are muted permanently.")
         else
-            rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute(s)")
+            local char = getChar(mute_table[ip].duration)
+            rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" .. char)
         end
         return false
     end
@@ -284,6 +296,7 @@ function mod:save(params, bool, showMessage)
     local ip = params.ip or nil
     local name = params.name or nil
     local eid = params.eid or nil
+    local en = params.en or nil
     local tid = params.tid or nil
     local time = params.time or nil
 
@@ -315,14 +328,25 @@ function mod:save(params, bool, showMessage)
     end
     if (bool) and (showMessage) then
         if (mute_table[ip].duration == default_mute_time) then
-            respond(tid, "You are muted permanently", "rcon", 2+8)
+            respond(tid, "You are muted permanently", "rcon", 2 + 8)
             if (eid ~= nil) then
-                respond(eid, name .. " was muted permanently", "rcon", 2+8)
+                respond(eid, name .. " was muted permanently", "rcon", 2 + 8)
+                for i = 1, 16 do
+                    if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
+                        respond(i, name .. " was muted permanently by " .. en, "rcon", 2 + 8)
+                    end
+                end
             end
         else
-            respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute(s)", "rcon", 2+8)
+            local char = getChar(mute_table[ip].duration)
+            respond(tid, "You were muted! Time remaining: " .. mute_table[ip].duration .. " minute" .. char, "rcon", 2 + 8)
             if (eid ~= nil) then
-                respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minutes(s)", "rcon", 2+8)
+                respond(eid, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char, "rcon", 2 + 8)
+                for i = 1, 16 do
+                    if tonumber(get_var(i, "$lvl")) >= 1 and (i ~= eid) then
+                        respond(i, name .. " was muted for " .. mute_table[ip].duration .. " minute" .. char .. " by " .. en, "rcon", 2 + 8)
+                    end
+                end
             end
         end
     end
@@ -412,7 +436,8 @@ function mod:mutelist(params)
                         local ip = getip(i)
                         local muted = mod:load(ip)
                         if (ip == muted[1]) then
-                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minutes left", "rcon", 7+8)
+                            local char = getChar(muted[3])
+                            respond(eid, get_var(i, "$name") .. " [" .. tonumber(i) .. "]: " .. muted[3] .. " minute" .. char .. " left", "rcon", 7 + 8)
                         end
                     end
                 end
