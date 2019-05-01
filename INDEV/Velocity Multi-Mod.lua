@@ -6511,7 +6511,7 @@ function RecordChanges()
     cl[#cl + 1] = "6). Added missing /item command logic for Item Spawner"
     cl[#cl + 1] = "This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map."
     cl[#cl + 1] = "Script Updated to v1.24"
-    cl[#cl + 1] = "Tweaked Chat Censor feature + 1 documentation edit."
+    cl[#cl + 1] = "7). Tweaked Chat Censor feature + 1 documentation edit."
     cl[#cl + 1] = "Script Updated to v1.25"
     file:write(concat(cl, "\n"))
     file:close()
