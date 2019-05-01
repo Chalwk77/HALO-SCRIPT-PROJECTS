@@ -6501,6 +6501,7 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.23"
     cl[#cl + 1] = "5). Small tweak to '/block, /unblock' feature"
     cl[#cl + 1] = "6). Added missing /item command logic for Item Spawner"
+    cl[#cl + 1] = "This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map."
     cl[#cl + 1] = "Script Updated to v1.24"
     file:write(concat(cl, "\n"))
     file:close()
