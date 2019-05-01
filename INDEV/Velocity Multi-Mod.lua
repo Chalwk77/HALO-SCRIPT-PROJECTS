@@ -1,9 +1,10 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.24), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.25), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines many of my scripts.
-             ALL combined scripts have been heavily refined and improved for Velocity,
-             with the addition of many new features not found in the standalone versions.
+             ALL combined scripts have been heavily refatored, refined and improved for Velocity,
+             with the addition of many new features not found in the standalone versions,
+             as well as many "special" features unique to Velocity that do not come in standalone scripts.
 
 Combined Scripts:
     - Admin Chat            Chat IDs            Message Board
@@ -159,26 +160,26 @@ local function GameSettings()
                 enabled = true,
                 censor = "*",
                 words = {
-                    [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole"},
-                    [2] = { "bitch", "b!tch", "b17ch", "b1tch"},
+                    [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
+                    [2] = { "bitch", "b!tch", "b17ch", "b1tch" },
                     [3] = { "boner" },
                     [4] = { "bs", "bullshit" },
                     [5] = { "clit" },
                     [6] = { "^cum$" }, -- Lua pattern match
                     [7] = { "cunt" },
-                    [8] = { "cock", "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck"},
+                    [8] = { "cock", "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck" },
                     [9] = { "dick", "dickhead" },
                     [10] = { "fag", "faggot" },
                     [11] = { "fatass" },
-                    [12] = { "fuck", "fucker"},
+                    [12] = { "fuck", "fucker" },
                     [13] = { "nigga", "nigger" },
                     [14] = { "prick" },
                     [15] = { "pussy" },
                     [16] = { "slut" },
-                    [17] = { "shit", "sh!+", "sh!t", "sh1t", "s-h-1-t", "s-h-i-t", "5h1t", "5hit"},
+                    [17] = { "shit", "sh!+", "sh!t", "sh1t", "s-h-1-t", "s-h-i-t", "5h1t", "5hit" },
                     [18] = { "bitch", "bitches" },
                     [19] = { "wank", "wanker" },
-                    [20] = { "whore",  "wh0re", "wh0reface"},
+                    [20] = { "whore", "wh0re", "wh0reface" },
                 }
             },
             -- Admins get notified when a player executes a command
@@ -741,7 +742,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.24, -- << --- do not touch
+            script_version = 1.25, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -882,11 +883,11 @@ local getPage = function(params)
     local params = params or {}
     local table = params.table or nil
     local page = tonumber(params.page) or nil
-    
+
     if (page == nil) then
         page = 1
     end
-    
+
     local max_results = table.max_results_per_page
     local start = (max_results) * page
     local startpage = (start - max_results + 1)
@@ -2447,24 +2448,24 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat Censor
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
-		local table = tab.words
+        local table = tab.words
         for i = 1, #table do
             if (table[i] ~= nil) then
-				for j = 1,#table[i] do
-					if (table[i][j] ~= nil) then 
-						local words = table[i][j]
-						local swear_word = Message:match(lower(words)) or Message:match(upper(words))
-						if (swear_word ~= nil) then
-							local len = string.len(swear_word)
-							local replaced_word = sub(swear_word, 1, 1)
-							for i = 1, len - 1 do
-								replaced_word = replaced_word .. tab.censor
-							end
-							Message = gsub(Message, swear_word, replaced_word)
-							break
-						end
-					end
-				end
+                for j = 1, #table[i] do
+                    if (table[i][j] ~= nil) then
+                        local words = table[i][j]
+                        local swear_word = Message:match(lower(words)) or Message:match(upper(words))
+                        if (swear_word ~= nil) then
+                            local len = string.len(swear_word)
+                            local replaced_word = sub(swear_word, 1, 1)
+                            for i = 1, len - 1 do
+                                replaced_word = replaced_word .. tab.censor
+                            end
+                            Message = gsub(Message, swear_word, replaced_word)
+                            break
+                        end
+                    end
+                end
             end
         end
     end
@@ -2473,7 +2474,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local keyword
     if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
         local ignore = settings.mod["Chat IDs"].ignore_list
-		local word = lower(message[1]) or upper(message[1])
+        local word = lower(message[1]) or upper(message[1])
         if (table.match(ignore, word)) then
             keyword = true
         else
@@ -3886,16 +3887,16 @@ function velocity:blockpickup(params)
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
         if (block_table[tip] ~= true) then
-			block_table[tip] = true
-			execute_command("block_all_objects " .. tid .. " 1")
-			if not (is_self) then
-				respond(eid, "Blocking object pickups for " .. tn, "rcon", 2 + 8)
-			else
-				respond(eid, "[SERVER] -> you: Blocking object pickups", "rcon", 2 + 8)
-			end
-		else
-			respond(eid, "Objects already blocked for " .. tn, "rcon", 2 + 8)
-		end
+            block_table[tip] = true
+            execute_command("block_all_objects " .. tid .. " 1")
+            if not (is_self) then
+                respond(eid, "Blocking object pickups for " .. tn, "rcon", 2 + 8)
+            else
+                respond(eid, "[SERVER] -> you: Blocking object pickups", "rcon", 2 + 8)
+            end
+        else
+            respond(eid, "Objects already blocked for " .. tn, "rcon", 2 + 8)
+        end
     end
     return false
 end
@@ -3917,16 +3918,16 @@ function velocity:unblockpickups(params)
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
         if (block_table[tip] ~= false) then
-			block_table[tip] = false
-			execute_command("block_all_objects " .. tid .. " 0")
-			if not (is_self) then
-				respond(eid, "Unblocking object pickups for " .. tn, "rcon", 2 + 8)
-			else
-				respond(eid, "[SERVER] -> you: Unblocking object pickups", "rcon", 2 + 8)
-			end
-		else
-			respond(eid, "Objects already unblocked for " .. tn, "rcon", 2 + 8)
-		end
+            block_table[tip] = false
+            execute_command("block_all_objects " .. tid .. " 0")
+            if not (is_self) then
+                respond(eid, "Unblocking object pickups for " .. tn, "rcon", 2 + 8)
+            else
+                respond(eid, "[SERVER] -> you: Unblocking object pickups", "rcon", 2 + 8)
+            end
+        else
+            respond(eid, "Objects already unblocked for " .. tn, "rcon", 2 + 8)
+        end
     end
     return false
 end
@@ -4513,14 +4514,14 @@ end
 function velocity:itemSpawnerList(params)
     local params = params or {}
     local eid = params.eid or nil
-    
+
     local tab = params.table
     local item_list = tab.objects
-    
+
     local max_columns, max_results = 5, 100
     local startIndex, endIndex = 1, max_columns
     local spaces = 2
-        
+
     local t, count, total_count = { }, 0, 0
     for k, v in pairs(item_list) do
         local command = item_list[k][1]
@@ -4532,7 +4533,7 @@ function velocity:itemSpawnerList(params)
         end
         total_count = total_count + 1
     end
-    
+
     local function formatResults()
         local placeholder, row = { }
 
@@ -4544,7 +4545,7 @@ function velocity:itemSpawnerList(params)
         end
 
         if (row ~= nil) then
-            respond(eid, row, "rcon", 2+8)
+            respond(eid, row, "rcon", 2 + 8)
         end
 
         for a in pairs(placeholder) do
@@ -4563,7 +4564,7 @@ function velocity:itemSpawnerList(params)
     if (startIndex >= max_results) then
         startIndex = 1
         endIndex = max_columns
-        respond(eid, "Objects available: (" .. count .. "/" .. total_count .. ")", "rcon", 2+8)
+        respond(eid, "Objects available: (" .. count .. "/" .. total_count .. ")", "rcon", 2 + 8)
     end
 end
 
@@ -6358,6 +6359,10 @@ function RecordChanges()
     local cl = {}
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)"
+    cl[#cl + 1] = "Velocity is an all-in-one package that combines many of my scripts."
+    cl[#cl + 1] = "ALL combined scripts have been heavily refatored, refined and improved for Velocity,"
+    cl[#cl + 1] = "with the addition of many new features not found in the standalone versions,"
+    cl[#cl + 1] = "as well as many 'special' features unique to Velocity that do not come in standalone scripts."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
@@ -6497,15 +6502,17 @@ function RecordChanges()
     cl[#cl + 1] = "You can now specify the amount of the <item> to spawn."
     cl[#cl + 1] = "For example, '/spawn hog me 5' will spawn 5 chain gun hogs."
     cl[#cl + 1] = "Script Updated to v1.22"
-    cl[#cl + 1] = "3). Small Tweak to function 'OnPlayerChat()."	
+    cl[#cl + 1] = "3). Small Tweak to function 'OnPlayerChat()."
     cl[#cl + 1] = "Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly."
-    cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."	
+    cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."
     cl[#cl + 1] = "4). Small tweak to 'Give' feature command output"
     cl[#cl + 1] = "Script Updated to v1.23"
     cl[#cl + 1] = "5). Small tweak to '/block, /unblock' feature"
     cl[#cl + 1] = "6). Added missing /item command logic for Item Spawner"
     cl[#cl + 1] = "This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map."
     cl[#cl + 1] = "Script Updated to v1.24"
+    cl[#cl + 1] = "Tweaked Chat Censor feature + 1 documentation edit."
+    cl[#cl + 1] = "Script Updated to v1.25"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
