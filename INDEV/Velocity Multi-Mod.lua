@@ -1088,7 +1088,7 @@ end
 function messageBoard:hide(PlayerIndex, ip)
     players["Message Board"][ip] = nil
     m_board[ip] = nil
-    cls(PlayerIndex)
+    cls(PlayerIndex, 25)
 end
 --------------------------------------------------------------
 -- #Admin Chat
@@ -1595,9 +1595,9 @@ function OnTick()
                         if (getLurkerWarnings(ip) <= 0) then
                             lurker[i] = false
                             LTab.lurker_warn = false
-                            cls(i)
+                            cls(i, 25)
                             say(i, "Lurker mode was disabled!")
-                            cls(i)
+                            cls(i, 25)
                             -- No warnings left: Turn off lurker and reset counters
                             local params = { }
                             params.tid = tonumber(i)
@@ -1610,7 +1610,7 @@ function OnTick()
                             write_dword(get_player(i) + 0x2C, 0 * 33)
                         end
 
-                        cls(i)
+                        cls(i, 25)
                         local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
                         rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
                         local char = getChar(tab.time_until_death - floor(seconds))
@@ -1625,7 +1625,7 @@ function OnTick()
                             players["Lurker"][ip].lurker_warn = false
                             killSilently(i)
                             write_dword(get_player(i) + 0x2C, 0 * 33)
-                            cls(i)
+                            cls(i, 25)
                             rprint(i, "|c=========================================================")
                             rprint(i, "|cYou were killed!")
                             rprint(i, "|c=========================================================")
@@ -1699,7 +1699,7 @@ function OnTick()
             if modEnabled("Message Board") then
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
                     players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
-                    cls(i)
+                    cls(i, 25)
                     for j = 1, #m_board[ip] do
                         respond(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][j], "rcon")
                     end
@@ -5001,7 +5001,7 @@ function velocity:setLurker(params)
         end
         killSilently(tid)
         mod.lurker_warnings = warnings
-        cls(tid)
+        cls(tid, 25)
         if (mod.announcer) then
             announce(tid, tn .. " is no longer in lurker mode! [spectator]")
         end
@@ -5467,7 +5467,7 @@ end
 -- #Alias System
 function alias:align(player, table, target, total, pirated, name, alignment)
     if not isConsole(player) then
-        cls(player)
+        cls(player, 25)
     else
         alignment = ""
     end
@@ -5804,7 +5804,7 @@ function OnWeaponDrop(PlayerIndex)
     -- #Lurker
     if modEnabled("Lurker", PlayerIndex) then
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
-            cls(PlayerIndex)
+            cls(PlayerIndex, 25)
             has_objective[PlayerIndex] = false
             local ip = getip(PlayerIndex, true)
             local mod = players["Lurker"][ip]
@@ -5978,9 +5978,9 @@ function checkFile(directory)
     end
 end
 
-function cls(PlayerIndex)
+function cls(PlayerIndex, count)
     if (PlayerIndex) then
-        for _ = 1, 25 do
+        for _ = 1, count do
             respond(PlayerIndex, " ", "rcon")
         end
     end
@@ -6126,7 +6126,7 @@ function getPlayer(PlayerIndex)
     if tonumber(PlayerIndex) then
         if tonumber(PlayerIndex) ~= 0 then
             local player = get_player(PlayerIndex)
-            if player ~= 0 then
+            if (player ~= 0) then
                 return player
             end
         end
@@ -6147,17 +6147,17 @@ function secondsToTime(seconds, places)
     local minutes = floor(seconds / 60)
     seconds = seconds % 60
 
-    if places == 6 then
+    if (places == 6) then
         return format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
-    elseif places == 5 then
+    elseif (places == 5) then
         return format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
-    elseif not places or places == 4 then
+    elseif not (places) or (places == 4) then
         return days, hours, minutes, seconds
-    elseif places == 3 then
+    elseif (places == 3) then
         return format("%02d:%02d:%02d", hours, minutes, seconds)
-    elseif places == 2 then
+    elseif (places == 2) then
         return format("%02d:%02d", minutes, seconds)
-    elseif places == 1 then
+    elseif (places == 1) then
         return format("%02", seconds)
     end
 end
@@ -6209,32 +6209,36 @@ function getCurrentVersion(bool)
         uint32_t http_response_length(const http_response *);
     ]]
     http_client = ffi.load("lua_http_client")
+	if (http_client) then
+		local function httpRequest(URL)
+			local response = http_client.http_get(URL, false)
+			local returning = nil
+			if http_client.http_response_is_null(response) ~= true then
+				local response_text_ptr = http_client.http_read_response(response)
+				returning = ffi.string(response_text_ptr)
+			end
+			http_client.http_destroy_response(response)
+			return returning
+		end
 
-    local function httpRequest(URL)
-        local response = http_client.http_get(URL, false)
-        local returning = nil
-        if http_client.http_response_is_null(response) ~= true then
-            local response_text_ptr = http_client.http_read_response(response)
-            returning = ffi.string(response_text_ptr)
-        end
-        http_client.http_destroy_response(response)
-        return returning
-    end
+		local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
+		local version = httpRequest(url):match("script_version = (%d+.%d+)")
 
-    local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
-    local version = httpRequest(url):match("script_version = (%d+.%d+)")
-
-    if (bool == true) then
-        if (tonumber(version) ~= settings.global.script_version) then
-            cprint("============================================================================", 5 + 8)
-            cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
-            cprint("Current version: v" .. settings.global.script_version, 5 + 8)
-            cprint("============================================================================", 5 + 8)
-        else
-            cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
-        end
-    end
-    return tonumber(version)
+		if (bool == true) then
+			if (tonumber(version) ~= settings.global.script_version) then
+				cprint("============================================================================", 5 + 8)
+				cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
+				cprint("Current version: v" .. settings.global.script_version, 5 + 8)
+				cprint("============================================================================", 5 + 8)
+			else
+				cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
+			end
+		end
+		return tonumber(version)
+	else
+		cprint("[VELOCITY] Something went wrong. Unable to check for updates")
+		cprint("[VELOCITY] Current Version " .. settings.global.script_version, 2 + 8)
+	end
 end
 
 -- Prints enabled scripts | Called by OnScriptLoad()
