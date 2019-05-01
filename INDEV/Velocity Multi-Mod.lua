@@ -6411,7 +6411,8 @@ function RecordChanges()
     cl[#cl + 1] = "For example, '/spawn hog me 5' will spawn 5 chain gun hogs."
     cl[#cl + 1] = "Script Updated to v1.22"
     cl[#cl + 1] = "3). Small Tweak to function 'OnPlayerChat()."	
-    cl[#cl + 1] = "SKIP written capitals will now trigger properly (previously only skip in lowercase would trigger)."	
+    cl[#cl + 1] = "Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly."
+    cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."	
     cl[#cl + 1] = "Script Updated to v1.23"
     file:write(concat(cl, "\n"))
     file:close()
