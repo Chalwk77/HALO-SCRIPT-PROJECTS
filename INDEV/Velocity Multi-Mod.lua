@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.23), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.24), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -343,6 +343,7 @@ local function GameSettings()
                     on_disconnect = true,
                 },
                 list = "itemlist",
+                max_results_per_page = 20,
                 distance_from_playerX = 2.5,
                 distance_from_playerY = 2.5,
                 objects = {
@@ -744,7 +745,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.23, -- << --- do not touch
+            script_version = 1.24, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -885,10 +886,11 @@ local getPage = function(params)
     local params = params or {}
     local table = params.table or nil
     local page = tonumber(params.page) or nil
+    
     if (page == nil) then
         page = 1
     end
-
+    
     local max_results = table.max_results_per_page
     local start = (max_results) * page
     local startpage = (start - max_results + 1)
@@ -1002,6 +1004,43 @@ local function announce(PlayerIndex, message)
             say(i, message)
         end
     end
+end
+
+local function spacing(n, sep)
+    sep = sep or ""
+    local String, Seperator = "", ","
+    for i = 1, n do
+        if i == floor(n / 2) then
+            String = String .. sep
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
+end
+
+local function FormatTable(table, rowlen, space, delimiter)
+    local longest = 0
+    for _, v in ipairs(table) do
+        local len = string.len(v)
+        if len > longest then
+            longest = len
+        end
+    end
+    local rows = {}
+    local row = 1
+    local count = 1
+    for k, v in ipairs(table) do
+        if count % rowlen == 0 or k == #table then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
+        end
+        if count % rowlen == 0 then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
 end
 
 -- #Alias System ---------------------------------------------
@@ -3314,6 +3353,25 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+        -- #Item Spawner
+    elseif (command == settings.mod["Item Spawner"].list) then
+        if not gameover(executor) then
+            if modEnabled("Item Spawner", executor) then
+                if (checkAccess(executor, true, "Item Spawner")) then
+                    local tab = settings.mod["Item Spawner"]
+                    if (args[1] == nil) then
+                        local p = { }
+                        p.eid, p.table = executor, tab
+                        velocity:itemSpawnerList(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.list .. " [page id]", "rcon", 4 + 8)
+                    end
+                end
+            else
+                rprint(executor, "Error. Plugin: 'Item Spawner' not enabled!")
+            end
+        end
+        return false
         -- #Enter Vehicle
     elseif (command == settings.mod["Enter Vehicle"].base_command) then
         if not gameover(executor) then
@@ -4449,6 +4507,63 @@ function velocity:spawnItem(params)
     return false
 end
 
+function velocity:itemSpawnerList(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    
+    local tab = params.table
+    local item_list = tab.objects
+    
+    local max_columns, max_results = 5, 100
+    local startIndex, endIndex = 1, max_columns
+    local spaces = 2
+        
+    local t, count, total_count = { }, 0, 0
+    for k, v in pairs(item_list) do
+        local command = item_list[k][1]
+        local tag_type = item_list[k][2]
+        local tag_name = item_list[k][3]
+        if TagInfo(tag_type, tag_name) then
+            t[#t + 1] = command
+            count = count + 1
+        end
+        total_count = total_count + 1
+    end
+    
+    local function formatResults()
+        local placeholder, row = { }
+
+        for i = tonumber(startIndex), tonumber(endIndex) do
+            if (t) then
+                placeholder[#placeholder + 1] = t[i]
+                row = FormatTable(placeholder, max_columns, spaces)
+            end
+        end
+
+        if (row ~= nil) then
+            respond(eid, row, "rcon", 2+8)
+        end
+
+        for a in pairs(placeholder) do
+            placeholder[a] = nil
+        end
+
+        startIndex = (endIndex + 1)
+        endIndex = (endIndex + (max_columns))
+    end
+    if (#t > 0) then
+        while (endIndex < max_results + max_columns) do
+            formatResults()
+        end
+    end
+
+    if (startIndex >= max_results) then
+        startIndex = 1
+        endIndex = max_columns
+        respond(eid, "Objects available: (" .. count .. "/" .. total_count .. ")", "rcon", 2+8)
+    end
+end
+
 function velocity:clean(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -5434,45 +5549,6 @@ function resetAliasParams()
 end
 
 -- #Alias System
-local function spacing(n, sep)
-    sep = sep or ""
-    local String, Seperator = "", ","
-    for i = 1, n do
-        if i == floor(n / 2) then
-            String = String .. sep
-        end
-        String = String .. " "
-    end
-    return Seperator .. String
-end
-
--- #Alias System
-local function FormatTable(table, rowlen, space, delimiter)
-    local longest = 0
-    for _, v in ipairs(table) do
-        local len = string.len(v)
-        if len > longest then
-            longest = len
-        end
-    end
-    local rows = {}
-    local row = 1
-    local count = 1
-    for k, v in ipairs(table) do
-        if count % rowlen == 0 or k == #table then
-            rows[row] = (rows[row] or "") .. v
-        else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
-        end
-        if count % rowlen == 0 then
-            row = row + 1
-        end
-        count = count + 1
-    end
-    return concat(rows)
-end
-
--- #Alias System
 function alias:align(player, table, target, total, pirated, name, alignment)
     if not isConsole(player) then
         cls(player, 25)
@@ -6421,8 +6497,12 @@ function RecordChanges()
     cl[#cl + 1] = "3). Small Tweak to function 'OnPlayerChat()."	
     cl[#cl + 1] = "Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly."
     cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."	
-    cl[#cl + 1] = "Script Updated to v1.23"
     cl[#cl + 1] = "4). Small tweak to 'Give' feature command output"
+    cl[#cl + 1] = "Script Updated to v1.23"
+    cl[#cl + 1] = "5). Small tweak to '/block, /unblock' feature"
+    cl[#cl + 1] = "6). Added missing /item command logic for Item Spawner"
+    cl[#cl + 1] = "6). Added missing /item command logic for Item Spawner"
+    cl[#cl + 1] = "Script Updated to v1.24"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
