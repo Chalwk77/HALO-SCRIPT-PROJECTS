@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.22), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.23), for SAPP (PC & CE)
 Description: An all-in-one package that combines many of my scripts into one place.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
@@ -744,7 +744,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.22, -- << --- do not touch
+            script_version = 1.23, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2431,7 +2431,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local keyword
     if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
         local ignore = settings.mod["Chat IDs"].ignore_list
-        if (table.match(ignore, message[1])) then
+		local word = lower(message[1]) or upper(message[1])
+        if (table.match(ignore, word)) then
             keyword = true
         else
             keyword = false
@@ -6409,6 +6410,9 @@ function RecordChanges()
     cl[#cl + 1] = "You can now specify the amount of the <item> to spawn."
     cl[#cl + 1] = "For example, '/spawn hog me 5' will spawn 5 chain gun hogs."
     cl[#cl + 1] = "Script Updated to v1.22"
+    cl[#cl + 1] = "3). Small Tweak to function 'OnPlayerChat()."	
+    cl[#cl + 1] = "SKIP written capitals will now trigger properly (previously only skip in lowercase would trigger)."	
+    cl[#cl + 1] = "Script Updated to v1.23"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
