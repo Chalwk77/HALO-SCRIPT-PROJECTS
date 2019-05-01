@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Velocity Multi-Mod (v 1.24), for SAPP (PC & CE)
-Description: An all-in-one package that combines many of my scripts into one place.
+Description: Velocity is an all-in-one package that combines many of my scripts.
              ALL combined scripts have been heavily refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions.
 
@@ -159,30 +159,26 @@ local function GameSettings()
                 enabled = true,
                 censor = "*",
                 words = {
-                    [1] = { "arsehole" },
-                    [2] = { "asshole" },
-                    [3] = { "bitch" },
-                    [4] = { "boner" },
-                    [5] = { "bs" },
-                    [5] = { "bullshit" },
-                    [6] = { "cum" },
+                    [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole"},
+                    [2] = { "bitch", "b!tch", "b17ch", "b1tch"},
+                    [3] = { "boner" },
+                    [4] = { "bs", "bullshit" },
+                    [5] = { "clit" },
+                    [6] = { "^cum$" }, -- Lua pattern match
                     [7] = { "cunt" },
-                    [8] = { "cock" },
-                    [9] = { "dick" },
-                    [10] = { "dickhead" },
-                    [11] = { "fag" },
-                    [12] = { "faggot" },
-                    [13] = { "fatass" },
-                    [14] = { "fuck" },
-                    [15] = { "nigga" },
-                    [16] = { "nigger" },
-                    [17] = { "prick" },
-                    [18] = { "pussy" },
-                    [19] = { "slut" },
-                    [20] = { "bitch" },
-                    [21] = { "bitches" },
-                    [22] = { "wank" },
-                    [22] = { "wanker" },
+                    [8] = { "cock", "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck"},
+                    [9] = { "dick", "dickhead" },
+                    [10] = { "fag", "faggot" },
+                    [11] = { "fatass" },
+                    [12] = { "fuck", "fucker"},
+                    [13] = { "nigga", "nigger" },
+                    [14] = { "prick" },
+                    [15] = { "pussy" },
+                    [16] = { "slut" },
+                    [17] = { "shit", "sh!+", "sh!t", "sh1t", "s-h-1-t", "s-h-i-t", "5h1t", "5hit"},
+                    [18] = { "bitch", "bitches" },
+                    [19] = { "wank", "wanker" },
+                    [20] = { "whore",  "wh0re", "wh0reface"},
                 }
             },
             -- Admins get notified when a player executes a command
@@ -2451,17 +2447,24 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat Censor
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
-        for i = 1, #tab.words do
-            if (tab.words[i] ~= nil) then
-                local swear_word = Message:match(lower(tab.words[i][1])) or Message:match(upper(tab.words[i][1]))
-                if (swear_word ~= nil) then
-                    local len = string.len(swear_word)
-                    local replaced_word = sub(swear_word, 1, 1)
-                    for i = 1, len - 1 do
-                        replaced_word = replaced_word .. tab.censor
-                    end
-                    Message = gsub(Message, swear_word, replaced_word)
-                end
+		local table = tab.words
+        for i = 1, #table do
+            if (table[i] ~= nil) then
+				for j = 1,#table[i] do
+					if (table[i][j] ~= nil) then 
+						local words = table[i][j]
+						local swear_word = Message:match(lower(words)) or Message:match(upper(words))
+						if (swear_word ~= nil) then
+							local len = string.len(swear_word)
+							local replaced_word = sub(swear_word, 1, 1)
+							for i = 1, len - 1 do
+								replaced_word = replaced_word .. tab.censor
+							end
+							Message = gsub(Message, swear_word, replaced_word)
+							break
+						end
+					end
+				end
             end
         end
     end
