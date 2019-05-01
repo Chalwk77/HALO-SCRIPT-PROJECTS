@@ -142,4 +142,8 @@ Script Updated to v1.22
 3). Small Tweak to function 'OnPlayerChat().
 Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly.
 Previously only 'skip' in lowercase would trigger this.
+4). Small tweak to 'Give' feature command output
 Script Updated to v1.23
+5). Small tweak to '/block, /unblock' feature
+6). Added missing /item command logic for Item Spawner
+Script Updated to v1.24
