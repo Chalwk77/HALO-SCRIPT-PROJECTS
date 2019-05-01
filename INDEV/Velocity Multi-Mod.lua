@@ -167,7 +167,7 @@ local function GameSettings()
                     [5] = { "clit" },
                     [6] = { "^cum$" }, -- Lua pattern match
                     [7] = { "cunt" },
-                    [8] = { "cock", "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck" },
+                    [8] = { "cock"--[[, "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck"]] },
                     [9] = { "dick", "dickhead" },
                     [10] = { "fag", "faggot" },
                     [11] = { "fatass" },
@@ -754,6 +754,17 @@ local function GameSettings()
                 disable = { "disable", 1 }, -- /disable [id]
                 list = { "plugins", 1 }, -- /pluigns
                 clearchat = { "clear", 1 }, -- /clear
+                rules = { -- /rules [page id]
+					permission = -1,
+					[1] = { -- page 1
+					"1). No negative or derogatory behavior towards other players.",
+					"2). Swearing and vulgar remarks in excess will not be tolerated",
+					"and will result in a temporary or permanent ban (server ban or chat ban).",
+					"3). No cheating, hacking, glitching, etc. Keep the game play fair and fun for everyone.",
+					"4). No team stacking. Server or admin balance/auto-balance will be done if necessary.",
+					"5). Any form of intentional team killing or disruptive play will not be allowed.",
+					},
+				}, 
             },
             -- Do not Touch...
             player_data = {
