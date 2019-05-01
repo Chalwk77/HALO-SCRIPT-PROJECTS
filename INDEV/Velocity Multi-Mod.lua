@@ -3824,13 +3824,17 @@ function velocity:blockpickup(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
-        block_table[tip] = true
-        execute_command("block_all_objects " .. tid .. " 1")
-        if not (is_self) then
-            respond(eid, "Blocking object pickups for " .. tn, "rcon", 2 + 8)
-        else
-            respond(eid, "Blocking object pickups", "rcon", 2 + 8)
-        end
+        if (block_table[tip] ~= true) then
+			block_table[tip] = true
+			execute_command("block_all_objects " .. tid .. " 1")
+			if not (is_self) then
+				respond(eid, "Blocking object pickups for " .. tn, "rcon", 2 + 8)
+			else
+				respond(eid, "[SERVER] -> you: Blocking object pickups", "rcon", 2 + 8)
+			end
+		else
+			respond(eid, "Objects already blocked for " .. tn, "rcon", 2 + 8)
+		end
     end
     return false
 end
@@ -3849,18 +3853,19 @@ function velocity:unblockpickups(params)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
-    
-    -- TO DO:
-    -- Check if already blocking
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
-        block_table[tip] = false
-        execute_command("block_all_objects " .. tid .. " 0")
-        if not (is_self) then
-            respond(eid, "Unblocking object pickups for " .. tn, "rcon", 2 + 8)
-        else
-            respond(eid, "Unblocking object pickups", "rcon", 2 + 8)
-        end
+        if (block_table[tip] ~= false) then
+			block_table[tip] = false
+			execute_command("block_all_objects " .. tid .. " 0")
+			if not (is_self) then
+				respond(eid, "Unblocking object pickups for " .. tn, "rcon", 2 + 8)
+			else
+				respond(eid, "[SERVER] -> you: Unblocking object pickups", "rcon", 2 + 8)
+			end
+		else
+			respond(eid, "Objects already unblocked for " .. tn, "rcon", 2 + 8)
+		end
     end
     return false
 end
@@ -6417,6 +6422,7 @@ function RecordChanges()
     cl[#cl + 1] = "Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly."
     cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."	
     cl[#cl + 1] = "Script Updated to v1.23"
+    cl[#cl + 1] = "4). Small tweak to 'Give' feature command output"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
