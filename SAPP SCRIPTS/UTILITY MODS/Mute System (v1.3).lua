@@ -140,6 +140,7 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     local ip = getip(PlayerIndex)
     if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+        local name = get_var(PlayerIndex, "$name")
         cprint('[MUTED] ' .. name .. ": " .. Message)
         if (mute_table[ip].duration == default_mute_time) then
             rprint(PlayerIndex, "[muted] You are muted permanently.")
