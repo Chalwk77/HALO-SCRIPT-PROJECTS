@@ -2513,7 +2513,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         if string.find(message[i], swear_word) then
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
-                            for i = 1, len - 1 do
+                            for w = 1, len - 1 do
                                 replaced_word = replaced_word .. tab.censor
                             end
                             Message = gsub(Message, swear_word, replaced_word)
