@@ -6605,13 +6605,15 @@ function RecordChanges()
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.27"
     cl[#cl + 1] = "3). Another tweak to Chat Censor."
+    cl[#cl + 1] = "Script Updated to v1.28"
+    cl[#cl + 1] = "4). More tweaks to Chat Censor and a couple of documentation edits."
     cl[#cl + 1] = "Script Updated to v1.29"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/3/19]"
     cl[#cl + 1] = "1). Bug fix for List Players feature."
-    cl[#cl + 1] = "2). Other minor tweaks and documentation edits."
+    cl[#cl + 1] = "2). Other minor tweaks and a few documentation edits."
     cl[#cl + 1] = "Script Updated to v1.30"
     file:write(concat(cl, "\n"))
     file:close()
