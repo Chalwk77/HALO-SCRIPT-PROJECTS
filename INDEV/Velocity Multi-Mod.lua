@@ -6602,6 +6602,8 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.26"
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.27"
+    cl[#cl + 1] = "3). Another tweak to Chat Censor."
+    cl[#cl + 1] = "Script Updated to v1.28"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
