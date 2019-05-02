@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.26), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.27), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines many of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -158,27 +158,33 @@ local function GameSettings()
             -- # Chat Censor.
             ["Chat Censor"] = {
                 -- work in progress [works but a little bit buggy]
-                enabled = false,
+                enabled = true,
                 censor = "*",
                 words = {
+                
+                    --[[ Lua Pattern Matching:
+                        Punctuation characters: !-/:-@%[\\%]^_`{|}~
+                        [%p] to match all punctuation
+                    ]]--
+                    
                     [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
-                    [2] = { "bitch", "b!tch", "b17ch", "b1tch" },
+                    [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
                     [3] = { "boner" },
-                    [4] = { "bs", "bullshit" },
-                    [5] = { "clit" },
-                    [6] = { "^cum$" }, -- Lua pattern match
+                    [4] = { "bs", "bullshit", "bullsh[%p]t"},
+                    [5] = { "clit", "cl[%p]t"},
+                    [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock"--[[, "c%-o%-c%-k", "c.0.c.k", "c0ck", "c.o.c.k", "cOck"]] },
+                    [8] = { "cock", "c0ck", "cOck" },
                     [9] = { "dick", "dickhead" },
                     [10] = { "fag", "faggot" },
                     [11] = { "fatass" },
                     [12] = { "fuck", "fucker" },
-                    [13] = { "nigga", "nigger" },
+                    [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
                     [14] = { "prick" },
                     [15] = { "pussy" },
                     [16] = { "slut" },
-                    [17] = { "shit", "sh!+", "sh!t", "sh1t", "s-h-1-t", "s-h-i-t", "5h1t", "5hit" },
-                    [18] = { "bitch", "bitches" },
+                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit"},
+                    [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
                     [19] = { "wank", "wanker" },
                     [20] = { "whore", "wh0re", "wh0reface" },
                 }
@@ -743,7 +749,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.26, -- << --- do not touch
+            script_version = 1.27, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -6593,8 +6599,10 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
     cl[#cl + 1] = "[new] Command: /info [page id]."
-    cl[#cl + 1] = "This command displays server rules and information."
+    cl[#cl + 1] = "1). This command displays server rules and information."
     cl[#cl + 1] = "Script Updated to v1.26"
+    cl[#cl + 1] = "2). Small Tweak for Chat Censor"
+    cl[#cl + 1] = "Script Updated to v1.27"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
