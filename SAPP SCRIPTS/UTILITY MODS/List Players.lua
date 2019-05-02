@@ -18,6 +18,7 @@ local command_aliases = { "pl", "players", "playerlist", "playerslist" }
 local permission_level = 1 -- <<- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
 -- CONFIG (ends) -------------------------------------------------------------------
 
+local script_version = 1.2
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
@@ -26,33 +27,24 @@ function OnScriptUnload()
     --
 end
 
-local function checkAccess(e, level)
-    if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl"))) >= level then
-            return true
-        else
-            rprint(e, "Command failed. Insufficient Permission.")
-            return false
-        end
-    else
-        return true
-    end
-end
-
-local isConsole = function(e)
-    if (e) then
-        if (e ~= -1 and e >= 1 and e < 16) then
-            return false
-        else
-            return true
-        end
-    end
-end
-
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
+    
+    local function checkAccess(e, level)
+        if (e ~= -1 and e >= 1 and e < 16) then
+            if (tonumber(get_var(e, "$lvl"))) >= level then
+                return true
+            else
+                respond(e, "Command failed. Insufficient Permission.", "rcon", 4+8)
+                return false
+            end
+        else
+            return true
+        end
+    end
+
     for i = 1, #command_aliases do
         if (command == command_aliases[i]) then
             if (checkAccess(executor, level)) then
@@ -67,9 +59,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-local isTeamPlay = function()
-    if (get_var(0, "$ffa") == "0") then
-        return true
+local function isConsole(e)
+    if (e) then
+        if (e ~= -1 and e >= 1 and e < 16) then
+            return false
+        else
+            return true
+        end
     end
 end
 
@@ -77,6 +73,12 @@ function showlist(e)
     local header, cheader, ffa
     local player_count = 0
     local bool = true
+    
+    local isTeamPlay = function()
+        if (get_var(0, "$ffa") == "0") then
+            return true
+        end
+    end
     
     if (isTeamPlay) then
         header = "[ ID.    -    Name.    -    Team.    -    IP. ]"
@@ -193,6 +195,15 @@ function cmdsplit(str)
     return cmd, args
 end
 
-function OnError(Message)
-    print(debug.traceback())
+function report()
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
 end
