@@ -10,7 +10,7 @@ Combined Scripts:
     - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator
     - Block Object Pickup
     - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
-    - Command Spy               Console Logo                Custom Weapons
+    - Command Spy               Console Logo                Custom Weapons		 Cute
     - Enter Vehicle
     - Garbage Collection        Give
     - Infinity Ammo             Item Spawner
@@ -20,7 +20,6 @@ Combined Scripts:
     - Respawn On Demand         Respawn Time                Spawn From Sky
     - Suggestions Box
     - Teleport Manager
-    - Cute
 
     ## Special Commands:
     `/plugins [page id]`
@@ -769,9 +768,6 @@ local function GameSettings()
                     cmd = "lore", -- /cmd [page id]
                     permission_level = -1,
                     data = {
-                        -- Rule numbers: 1). 2). 3). etc, are automatically inserted at the beginning of the rule.
-                        -- If the line is too long and is being cut off, insert a new line character '/n' (without quotes).
-
                         [1] = { -- page 1
                             "[ SERVER RULES ]",
                             "1). No negative or derogatory behavior towards other players.",
@@ -788,10 +784,7 @@ local function GameSettings()
                         },
                         [3] = { -- page 3
                             "[ STAFF ]",
-                            "Shoo",
-                            "Jess",
-                            "Chalwk",
-                            "RoadHog",
+                            "nothing to show",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
                             "[ MISC ]",
@@ -6603,8 +6596,9 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
-    cl[#cl + 1] = "[new] Command: /lore [page id]."
-    cl[#cl + 1] = "1). This command displays server rules and information."
+    cl[#cl + 1] = "1). [new] Command: /lore [page id]."
+    cl[#cl + 1] = "This command displays a custom list of information (by page)."
+    cl[#cl + 1] = "You can change the messages in 'settings -> global -> information'"
     cl[#cl + 1] = "Script Updated to v1.26"
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.27"
