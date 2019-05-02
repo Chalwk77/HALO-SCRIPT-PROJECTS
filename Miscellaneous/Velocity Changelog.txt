@@ -158,10 +158,12 @@ Script Updated to v1.25
 
 
 [5/2/19]
-[new] Command: /lore [page id].
-1). This command displays server rules and information.
+1). [new] Command: /lore [page id].
+This command displays a list of player cmds, rules and general info (by page).
 Script Updated to v1.26
 2). Small tweak to Chat Censor.
 Script Updated to v1.27
 3). Another tweak to Chat Censor.
 Script Updated to v1.28
+4). A few tweaks to Private Messaging System.
+Script Updated to v1.29
