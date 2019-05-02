@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.28), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.29), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines many of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -161,17 +161,17 @@ local function GameSettings()
                 enabled = true,
                 censor = "*",
                 words = {
-                
+
                     --[[ Lua Pattern Matching:
                         Punctuation characters: !-/:-@%[\\%]^_`{|}~
                         [%p] to match all punctuation
                     ]]--
-                    
+
                     [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
                     [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
                     [3] = { "boner" },
-                    [4] = { "bs", "bullshit", "bullsh[%p]t"},
-                    [5] = { "clit", "cl[%p]t"},
+                    [4] = { "bs", "bullshit", "bullsh[%p]t" },
+                    [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
                     [8] = { "cock", "c0ck", "cOck" },
@@ -183,7 +183,7 @@ local function GameSettings()
                     [14] = { "prick" },
                     [15] = { "pussy" },
                     [16] = { "slut" },
-                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit"},
+                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit" },
                     [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
                     [19] = { "wank", "wanker" },
                     [20] = { "whore", "wh0re", "wh0reface" },
@@ -443,6 +443,7 @@ local function GameSettings()
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
                     "Welcome to %server_name%",
+                    "For a list of player cmds, rules and general info type /lore [page id]",
                     -- repeat the structure to add more entries
                 }
             },
@@ -486,12 +487,19 @@ local function GameSettings()
                 read_command = "readmail", -- /read_command [page num]
                 new_mail = "You have (%count%) unread private messages",
                 delete_command = "delpm", -- /delete_command [message id]
-                send_response = "Message Sent",
-                read_format = {
-                    "%index%",
-                    "Sender: %sender_name%",
-                    "Date & Time: %time_stamp%",
+
+                -- Message feedback to the sender
+                send_response = {
+                    "[you] -> %recipient%",
                     "%msg%",
+                },
+
+                -- Message feedback to the recipient
+                read_format = {
+                    "%index%", -- mail id
+                    "Sender: %sender_name%", -- sender name
+                    "Date & Time: %time_stamp%", -- date & time the message was sent
+                    "%msg%", -- message
                 },
                 -- do not touch these unless you know what you're doing
                 max_characters = 78,
@@ -749,7 +757,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.28, -- << --- do not touch
+            script_version = 1.29, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -765,9 +773,6 @@ local function GameSettings()
                     cmd = "lore", -- /cmd [page id]
                     permission_level = -1,
                     data = {
-                        -- Rule numbers: 1). 2). 3). etc, are automatically inserted at the beginning of the rule.
-                        -- If the line is too long and is being cut off, insert a new line character '/n' (without quotes).
-
                         [1] = { -- page 1
                             "[ SERVER RULES ]",
                             "1). No negative or derogatory behavior towards other players.",
@@ -778,16 +783,13 @@ local function GameSettings()
                             "Server or admin balance/auto-balance will be done if necessary.",
                             "5). Any form of intentional team killing or disruptive play will not be allowed.",
                         },
-                        [2] = { -- page 2
+                        [2] = { -- page 2 (example page)
                             "[ SERVER INFORMATION ]",
                             "nothing to show",
                         },
-                        [3] = { -- page 3
+                        [3] = { -- page 3 (example page)
                             "[ STAFF ]",
-                            "Shoo",
-                            "Jess",
-                            "Chalwk",
-                            "RoadHog",
+                            "nothing to show",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
                             "[ MISC ]",
@@ -1874,22 +1876,22 @@ function OnPlayerConnect(PlayerIndex)
     local id = tonumber(get_var(PlayerIndex, "$n"))
     local ip = getip(PlayerIndex, true)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
+
     -- for i = 1,16 do
-        -- if player_present(i) then 
-            -- local o_name = get_var(i, "$name") 
-            -- if (name ~= "Chalwk") and (o_name == "Chalwk") then
-                -- local o_index = tonumber(i)
-                -- local chatFormat = settings.mod["Chat IDs"].global_format[1]
-                -- local welcome_msg = "Welcome back, " .. name
-                -- local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
-                -- execute_command("msg_prefix \"\"")
-                -- say_all(formattedString)
-                -- execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-            -- end
-        -- end
+    -- if player_present(i) then
+    -- local o_name = get_var(i, "$name")
+    -- if (name ~= "Chalwk") and (o_name == "Chalwk") then
+    -- local o_index = tonumber(i)
+    -- local chatFormat = settings.mod["Chat IDs"].global_format[1]
+    -- local welcome_msg = "Welcome back, " .. name
+    -- local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
+    -- execute_command("msg_prefix \"\"")
+    -- say_all(formattedString)
+    -- execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     -- end
-    
+    -- end
+    -- end
+
     -- #CONSOLE OUTPUT
     if (player_info[id] ~= nil or player_info[id] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
@@ -2507,7 +2509,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local table = tab.words
         for i = 0, #message do
             if (message[i]) then
-                for j = 1,#table do
+                for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
                         if string.find(message[i], swear_word) then
@@ -5400,6 +5402,27 @@ function privateMessage:send(params)
                 end
             end
 
+            local tab = tab.send_response
+            local a, b
+            for k = 1, #tab do
+                if tab[k]:match("%%recipient%%") then
+                    a = gsub(tab[k], "%%recipient%%", get_var(player_id, "$name"))
+                elseif tab[k]:match("%%msg%%") then
+                    b = gsub(tab[k], "%%msg%%", message)
+                end
+            end
+            local temp = {}
+            temp[#temp + 1] = { ["recipient"] = a, ["msg"] = b }
+
+            local function get(ID)
+                for key, _ in ipairs(temp) do
+                    return temp[key][ID]
+                end
+            end
+
+            local recipient_name = get("recipient")
+            local msg = get("msg")
+
             if (ip_match) then
                 local dir = params.dir or nil
                 local file = io.open(dir, "a+")
@@ -5416,8 +5439,8 @@ function privateMessage:send(params)
                 respond(player_id, "New Private Message from: " .. en, "rcon", 7 + 8)
                 respond(player_id, message, "rcon", 7 + 8)
 
-                respond(eid, "Message Sent to " .. get_var(player_id, "$name"), "rcon", 7 + 8)
-                respond(eid, message, "rcon", 7 + 8)
+                respond(eid, recipient_name, "rcon", 7 + 8)
+                respond(eid, msg, "rcon", 7 + 8)
             end
             tellAdmins()
         end
@@ -6597,13 +6620,15 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
-    cl[#cl + 1] = "[new] Command: /lore [page id]."
-    cl[#cl + 1] = "1). This command displays server rules and information."
+    cl[#cl + 1] = "1). [new] Command: /lore [page id]."
+    cl[#cl + 1] = "This command displays a list of player cmds, rules and general info (by page)."
     cl[#cl + 1] = "Script Updated to v1.26"
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.27"
     cl[#cl + 1] = "3). Another tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.28"
+    cl[#cl + 1] = "4). A few tweaks to Private Messaging System."
+    cl[#cl + 1] = "Script Updated to v1.29"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
