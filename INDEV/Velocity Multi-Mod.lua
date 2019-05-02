@@ -773,13 +773,19 @@ local function GameSettings()
                         "5). Any form of intentional team killing or disruptive play will not be allowed.",
                         },
                         [2] = { -- page 2
-                            "[SERVER INFORMATION]"
+                            "[ SERVER INFORMATION ]",
+                            "nothing to show",
                         },
                         [3] = { -- page 3
-                            "[OTHER]"
+                            "[ STAFF ]",
+                            "Shoo",
+                            "Jess",
+                            "Chalwk",
+                            "RoadHog",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
-                            "" -- <-- write something here
+                           "[ MISC ]",
+                           "nothing to show",
                         },
                     },
 				}, 
@@ -6567,7 +6573,12 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.24"
     cl[#cl + 1] = "7). Tweaked Chat Censor feature + 1 documentation edit."
     cl[#cl + 1] = "Script Updated to v1.25"
-    cl[#cl + 1] = "[new] Command: /info [page id]. This command displays server rules and information"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/2/19]"
+    cl[#cl + 1] = "[new] Command: /info [page id]."
+    cl[#cl + 1] = "This command displays server rules and information."
     cl[#cl + 1] = "Script Updated to v1.26"
     file:write(concat(cl, "\n"))
     file:close()
