@@ -1,42 +1,46 @@
 --[[
 --=====================================================================================================--
 Script Name: Velocity Multi-Mod (v 1.29), for SAPP (PC & CE)
-Description: Velocity is an all-in-one package that combines many of my scripts.
+Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
-             as well as many "special" features unique to Velocity that do not come in standalone scripts.
+             as well as a ton of "special" features unique to Velocity that do not come in standalone scripts.
 
 Combined Scripts:
-    - Admin Chat            Chat IDs            Message Board
-    - Chat Logging          Command Spy         Custom Weapons
-    - Anti Impersonator     Console Logo        Player List
-    - Alias System          Respawn Time        Teleport Manager
-    - Get Coords            Spawn From Sky      Admin Join Messages
-    - Color Reservation     Item Spawner        What cute things did you do today? (request by Shoo)
-    - Lurker                Infinity Ammo       Portal Gun (request by Shoo)
-    - Suggestions Box (request by Cyser@)       Enter Vehicle
-    - Mute System 			Private Messaging System
-    - Respawn On Demand     Give                Block Object Pickup
-    - Chat Censor
+    - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator
+    - Block Object Pickup
+    - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
+    - Command Spy               Console Logo                Custom Weapons
+    - Enter Vehicle
+    - Garbage Collection        Give
+    - Infinity Ammo             Item Spawner
+    - Lurker
+    - Message Board             Mute System
+    - Player List               Portal Gun                  Private Messaging System
+    - Respawn On Demand         Respawn Time                Spawn From Sky
+    - Suggestions Box
+    - Teleport Manager
+    - Cute
 
-    Special Commands:
-    /plugins [page id], /enable [id], /disable [id]
+    ## Special Commands:
+    `/plugins [page id]`
+    `/enable [id]` & `/disable [id]`
+    > /plugins [page id] will display a list of all individual features indicating which ones are enabled or disabled.
+    > You can enable or disable any feature at any time with /enable [id], /disable [id].
+
+    `/clean [me | id | */all] 1`                `/clean [me | id | */all] 2`                `/clean [me | id | */all] *`
+    ^ Cleans up "Enter Vehicle" objects         ^ (cleans up "Item Spawner" objects         ^ Cleans up "everything
+
+    `/clear`
+    > Clears the chat (useful if someone says something negative or derogatory)
     
-    "/plugins [page id]" shows you a list of all features and tells you which ones are enabled or disabled.
-    You can enable or disable any feature at any time with /enable [id], /disable [id].
+    `/velocity`
+    > If update checking is disabled this command will only display the current script version.
+    > If update checking is enabled this command will send an http query to the Velocity GitHub page and return the latest version if an update is available.
    
-    /clean (command syntax info) for Enter Vehicle & Item Spawner:
-    
-    ~ Valid [id] inputs: [number range 1-16, me or *] 
-        * /clean [id] 1 (cleans up "Enter Vehicle" objects)
-        * /clean [id] 2 (cleans up "Item Spawner" objects)
-        * /clean [id] * (cleans up "everything")
-        Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
-    --
-    
-To enable update checking, this script requires that the following plugin is installed:
-https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-Credits to Kavawuvi (002) for HTTP client functionality.
+    > To enable update checking, this script requires that the following plugin is installed:
+    https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+    Credits to Kavawuvi (002) for HTTP client functionality.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -63,16 +67,6 @@ local function GameSettings()
                 -- Message Format
                 message_format = { "%prefix% %sender_name% [%index%] %message%" }
             },
-            -- # Query a player's hash to check what aliases have been used with it.
-            ["Alias System"] = {
-                enabled = true,
-                base_command = "alias", -- /base_command [id | me ]
-                dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
-                permission_level = 1,
-                use_timer = true,
-                duration = 5, -- How long should the alias results be displayed for? (in seconds)
-                alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
-            },
             -- # Custom (separate) join messages for staff on a per-level basis
             ["Admin Join Messages"] = {
                 enabled = true,
@@ -83,6 +77,16 @@ local function GameSettings()
                     [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
                     [4] = { "[SENIOR-ADMIN] ", " joined the server." },
                 }
+            },
+            -- # Query a player's hash to check what aliases have been used with it.
+            ["Alias System"] = {
+                enabled = true,
+                base_command = "alias", -- /base_command [id | me ]
+                dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
+                permission_level = 1,
+                use_timer = true,
+                duration = 5, -- How long should the alias results be displayed for? (in seconds)
+                alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
             },
             ["Anti Impersonator"] = {
                 enabled = true,
@@ -111,6 +115,40 @@ local function GameSettings()
                 block_command = "block", -- /block_command [me | id | */all]
                 unblock_command = "unblock", -- /unblock_command [me | id | */all]
                 enable_on_disconnect = false,
+            },
+            -- # Chat Censor.
+            ["Chat Censor"] = {
+                -- work in progress [works but a little bit buggy]
+                enabled = true,
+                censor = "*",
+                words = {
+                
+                    --[[ Lua Pattern Matching:
+                        Punctuation characters: !-/:-@%[\\%]^_`{|}~
+                        [%p] to match all punctuation
+                    ]]--
+                    
+                    [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
+                    [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
+                    [3] = { "boner" },
+                    [4] = { "bs", "bullshit", "bullsh[%p]t"},
+                    [5] = { "clit", "cl[%p]t"},
+                    [6] = { "^cum$" },
+                    [7] = { "cunt" },
+                    [8] = { "cock", "c0ck", "cOck" },
+                    [9] = { "dick", "dickhead" },
+                    [10] = { "fag", "faggot" },
+                    [11] = { "fatass" },
+                    [12] = { "fuck", "fucker" },
+                    [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
+                    [14] = { "prick" },
+                    [15] = { "pussy" },
+                    [16] = { "slut" },
+                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit"},
+                    [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
+                    [19] = { "wank", "wanker" },
+                    [20] = { "whore", "wh0re", "wh0reface" },
+                }
             },
             ["Chat IDs"] = {
                 --[[
@@ -155,60 +193,6 @@ local function GameSettings()
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
             },
-            -- # Chat Censor.
-            ["Chat Censor"] = {
-                -- work in progress [works but a little bit buggy]
-                enabled = true,
-                censor = "*",
-                words = {
-
-                    --[[ Lua Pattern Matching:
-                        Punctuation characters: !-/:-@%[\\%]^_`{|}~
-                        [%p] to match all punctuation
-                    ]]--
-
-                    [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
-                    [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
-                    [3] = { "boner" },
-                    [4] = { "bs", "bullshit", "bullsh[%p]t" },
-                    [5] = { "clit", "cl[%p]t" },
-                    [6] = { "^cum$" },
-                    [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck" },
-                    [9] = { "dick", "dickhead" },
-                    [10] = { "fag", "faggot" },
-                    [11] = { "fatass" },
-                    [12] = { "fuck", "fucker" },
-                    [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
-                    [14] = { "prick" },
-                    [15] = { "pussy" },
-                    [16] = { "slut" },
-                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit" },
-                    [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
-                    [19] = { "wank", "wanker" },
-                    [20] = { "whore", "wh0re", "wh0reface" },
-                }
-            },
-            -- Admins get notified when a player executes a command
-            ["Command Spy"] = {
-                enabled = true,
-                permission_level = 1,
-                prefix = "[SPY]",
-                hide_commands = true,
-                commands_to_hide = {
-                    "/accept",
-                    "/deny",
-                    -- "/afk",
-                    -- "/lead",
-                    -- "/stfu",
-                    -- "/unstfu",
-                    -- "/skip",
-                    -- repeat the structure to add more entries
-                }
-            },
-            ["Console Logo"] = { -- A nifty console logo (ascii: 'kban')
-                enabled = true
-            },
             ["Color Reservation"] = {
                 enabled = true, -- Enabled = true, Disabled = false
                 color_table = {
@@ -232,22 +216,25 @@ local function GameSettings()
                     [18] = { "available" } -- salmon
                 }
             },
-            ["Cute"] = {
-                -- # What cute things did you do today? (requested by Shoo)
+            -- Admins get notified when a player executes a command
+            ["Command Spy"] = {
                 enabled = true,
-                base_command = "cute", -- /base_command [me | id | */all]
-
-                -- Use %executors_name% (optional) variable to output the executor's name.
-                -- Use %target_name% (optional) variable to output the target's name.
-
-                messages = {
-                    -- Target sees this message
-                    "%target_name%, what cute things did you do today?",
-                    -- Command response (to executor)
-                    "[you] -> %target_name%, what cute things did you do today?",
-                },
-                permission_level = -1,
-                environment = "chat" -- Valid environments: "rcon", "chat".
+                permission_level = 1,
+                prefix = "[SPY]",
+                hide_commands = true,
+                commands_to_hide = {
+                    "/accept",
+                    "/deny",
+                    -- "/afk",
+                    -- "/lead",
+                    -- "/stfu",
+                    -- "/unstfu",
+                    -- "/skip",
+                    -- repeat the structure to add more entries
+                }
+            },
+            ["Console Logo"] = { -- A nifty console logo (ascii: 'kban')
+                enabled = true
             },
             ["Custom Weapons"] = {
                 enabled = true, -- Enabled = true, Disabled = false
@@ -301,6 +288,23 @@ local function GameSettings()
                     ["alice_gulch"] = { pistol, nil, nil, nil, 00, 00, true },
                     ["snowdrop"] = { battle_rifle, pistol, nil, nil, 00, 00, true },
                 },
+            },
+            ["Cute"] = {
+                -- # What cute things did you do today? (requested by Shoo)
+                enabled = true,
+                base_command = "cute", -- /base_command [me | id | */all]
+
+                -- Use %executors_name% (optional) variable to output the executor's name.
+                -- Use %target_name% (optional) variable to output the target's name.
+
+                messages = {
+                    -- Target sees this message
+                    "%target_name%, what cute things did you do today?",
+                    -- Command response (to executor)
+                    "[you] -> %target_name%, what cute things did you do today?",
+                },
+                permission_level = -1,
+                environment = "chat" -- Valid environments: "rcon", "chat".
             },
             ["Enter Vehicle"] = {
                 enabled = true,
@@ -443,7 +447,6 @@ local function GameSettings()
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
                     "Welcome to %server_name%",
-                    "For a list of player cmds, rules and general info type /lore [page id]",
                     -- repeat the structure to add more entries
                 }
             },
@@ -457,13 +460,6 @@ local function GameSettings()
                 mutelist_command = "mutelist",
                 default_mute_time = 525600,
             },
-            ["Portal Gun"] = {
-                enabled = true,
-                base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
-                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
-                permission_level = 1,
-                execute_on_others = 4,
-            },
             -- # An alternative player list mod. Overrides SAPP's built in /pl command.
             ["Player List"] = {
                 enabled = true,
@@ -476,6 +472,13 @@ local function GameSettings()
                     "playerslist"
                 }
             },
+            ["Portal Gun"] = {
+                enabled = true,
+                base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
+                permission_level = 1,
+                execute_on_others = 4,
+            },
             -- # Private Messaging System
             -- Send private mesages to players both online and offline
             ["Private Messaging System"] = {
@@ -487,19 +490,12 @@ local function GameSettings()
                 read_command = "readmail", -- /read_command [page num]
                 new_mail = "You have (%count%) unread private messages",
                 delete_command = "delpm", -- /delete_command [message id]
-
-                -- Message feedback to the sender
-                send_response = {
-                    "[you] -> %recipient%",
-                    "%msg%",
-                },
-
-                -- Message feedback to the recipient
+                send_response = "Message Sent",
                 read_format = {
-                    "%index%", -- mail id
-                    "Sender: %sender_name%", -- sender name
-                    "Date & Time: %time_stamp%", -- date & time the message was sent
-                    "%msg%", -- message
+                    "%index%",
+                    "Sender: %sender_name%",
+                    "Date & Time: %time_stamp%",
+                    "%msg%",
                 },
                 -- do not touch these unless you know what you're doing
                 max_characters = 78,
@@ -605,15 +601,6 @@ local function GameSettings()
                     ["sledding02"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["train.station"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
-            },
-            ["Suggestions Box"] = {
-                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = true,
-                base_command = "suggestion", -- /base_command {message}
-                permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
-                dir = "sapp\\suggestions.txt", -- file directory
-                msg_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
-                response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
             },
             ["Spawn From Sky"] = {
                 enabled = false,
@@ -734,6 +721,15 @@ local function GameSettings()
                     }
                 }
             },
+            ["Suggestions Box"] = {
+                -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
+                enabled = true,
+                base_command = "suggestion", -- /base_command {message}
+                permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
+                dir = "sapp\\suggestions.txt", -- file directory
+                msg_format = "[%time_stamp%] %player_name%: %message%", -- Message format saved to suggestions.txt
+                response = "Thank you for your suggestion, %player_name%" -- Message sent to the player when they execute /suggestion
+            },
             ["Teleport Manager"] = {
                 enabled = true,
                 dir = "sapp\\teleports.txt",
@@ -773,6 +769,9 @@ local function GameSettings()
                     cmd = "lore", -- /cmd [page id]
                     permission_level = -1,
                     data = {
+                        -- Rule numbers: 1). 2). 3). etc, are automatically inserted at the beginning of the rule.
+                        -- If the line is too long and is being cut off, insert a new line character '/n' (without quotes).
+
                         [1] = { -- page 1
                             "[ SERVER RULES ]",
                             "1). No negative or derogatory behavior towards other players.",
@@ -783,13 +782,16 @@ local function GameSettings()
                             "Server or admin balance/auto-balance will be done if necessary.",
                             "5). Any form of intentional team killing or disruptive play will not be allowed.",
                         },
-                        [2] = { -- page 2 (example page)
+                        [2] = { -- page 2
                             "[ SERVER INFORMATION ]",
                             "nothing to show",
                         },
-                        [3] = { -- page 3 (example page)
+                        [3] = { -- page 3
                             "[ STAFF ]",
-                            "nothing to show",
+                            "Shoo",
+                            "Jess",
+                            "Chalwk",
+                            "RoadHog",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
                             "[ MISC ]",
@@ -1876,22 +1878,22 @@ function OnPlayerConnect(PlayerIndex)
     local id = tonumber(get_var(PlayerIndex, "$n"))
     local ip = getip(PlayerIndex, true)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-
+    
     -- for i = 1,16 do
-    -- if player_present(i) then
-    -- local o_name = get_var(i, "$name")
-    -- if (name ~= "Chalwk") and (o_name == "Chalwk") then
-    -- local o_index = tonumber(i)
-    -- local chatFormat = settings.mod["Chat IDs"].global_format[1]
-    -- local welcome_msg = "Welcome back, " .. name
-    -- local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
-    -- execute_command("msg_prefix \"\"")
-    -- say_all(formattedString)
-    -- execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+        -- if player_present(i) then 
+            -- local o_name = get_var(i, "$name") 
+            -- if (name ~= "Chalwk") and (o_name == "Chalwk") then
+                -- local o_index = tonumber(i)
+                -- local chatFormat = settings.mod["Chat IDs"].global_format[1]
+                -- local welcome_msg = "Welcome back, " .. name
+                -- local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
+                -- execute_command("msg_prefix \"\"")
+                -- say_all(formattedString)
+                -- execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+            -- end
+        -- end
     -- end
-    -- end
-    -- end
-
+    
     -- #CONSOLE OUTPUT
     if (player_info[id] ~= nil or player_info[id] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
@@ -2509,7 +2511,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local table = tab.words
         for i = 0, #message do
             if (message[i]) then
-                for j = 1, #table do
+                for j = 1,#table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
                         if string.find(message[i], swear_word) then
@@ -3735,12 +3737,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Clear Chat Command
     elseif (command == pCMD.clearchat[1]) then
         if hasAccess(executor, pCMD.clearchat[2]) then
-            for _ = 1, 20 do
+            for i = 1, 20 do
                 execute_command("msg_prefix \"\"")
                 say_all(" ")
                 execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                if player_present(i) and (tonumber(get_var(i, "$lvl")) >= 1) then
+                    respond(i, "Chat was cleared by " .. name, "rcon", 5 + 8)
+                end
             end
-            respond(executor, "Chat was cleared!", "rcon", 5 + 8)
         end
         return false
         -- #Rules and Information
@@ -5402,27 +5406,6 @@ function privateMessage:send(params)
                 end
             end
 
-            local tab = tab.send_response
-            local a, b
-            for k = 1, #tab do
-                if tab[k]:match("%%recipient%%") then
-                    a = gsub(tab[k], "%%recipient%%", get_var(player_id, "$name"))
-                elseif tab[k]:match("%%msg%%") then
-                    b = gsub(tab[k], "%%msg%%", message)
-                end
-            end
-            local temp = {}
-            temp[#temp + 1] = { ["recipient"] = a, ["msg"] = b }
-
-            local function get(ID)
-                for key, _ in ipairs(temp) do
-                    return temp[key][ID]
-                end
-            end
-
-            local recipient_name = get("recipient")
-            local msg = get("msg")
-
             if (ip_match) then
                 local dir = params.dir or nil
                 local file = io.open(dir, "a+")
@@ -5439,8 +5422,8 @@ function privateMessage:send(params)
                 respond(player_id, "New Private Message from: " .. en, "rcon", 7 + 8)
                 respond(player_id, message, "rcon", 7 + 8)
 
-                respond(eid, recipient_name, "rcon", 7 + 8)
-                respond(eid, msg, "rcon", 7 + 8)
+                respond(eid, "Message Sent to " .. get_var(player_id, "$name"), "rcon", 7 + 8)
+                respond(eid, message, "rcon", 7 + 8)
             end
             tellAdmins()
         end
@@ -6462,10 +6445,10 @@ function RecordChanges()
     local cl = {}
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)"
-    cl[#cl + 1] = "Velocity is an all-in-one package that combines many of my scripts."
+    cl[#cl + 1] = "Velocity is an all-in-one package that combines a multitude of my scripts."
     cl[#cl + 1] = "ALL combined scripts have been heavily refatored, refined and improved for Velocity,"
     cl[#cl + 1] = "with the addition of many new features not found in the standalone versions,"
-    cl[#cl + 1] = "as well as many 'special' features unique to Velocity that do not come in standalone scripts."
+    cl[#cl + 1] = "as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
@@ -6620,14 +6603,12 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
-    cl[#cl + 1] = "1). [new] Command: /lore [page id]."
-    cl[#cl + 1] = "This command displays a list of player cmds, rules and general info (by page)."
+    cl[#cl + 1] = "[new] Command: /lore [page id]."
+    cl[#cl + 1] = "1). This command displays server rules and information."
     cl[#cl + 1] = "Script Updated to v1.26"
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.27"
     cl[#cl + 1] = "3). Another tweak to Chat Censor."
-    cl[#cl + 1] = "Script Updated to v1.28"
-    cl[#cl + 1] = "4). A few tweaks to Private Messaging System."
     cl[#cl + 1] = "Script Updated to v1.29"
     file:write(concat(cl, "\n"))
     file:close()
