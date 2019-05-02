@@ -757,20 +757,20 @@ local function GameSettings()
                 clearchat = { "clear", 1 }, -- /clear
                 rules_and_information = {
                     cmd = "info", -- /cmd [page id]
-					permission_level = -1,
-					data = { 
+                    permission_level = -1,
+                    data = {
                         -- Rule numbers: 1). 2). 3). etc, are automatically inserted at the beginning of the rule.
                         -- If the line is too long and is being cut off, insert a new line character '/n' (without quotes).
 
                         [1] = { -- page 1
-                        "[ SERVER RULES ]",
-                        "1). No negative or derogatory behavior towards other players.",
-                        "2). Swearing and vulgar remarks in excess will not be tolerated",
-                        "and will result in a temporary or permanent ban (server ban or chat ban).",
-                        "3). No cheating, hacking, glitching, etc.",
-                        "4). No team stacking.",
-                        "Server or admin balance/auto-balance will be done if necessary.",
-                        "5). Any form of intentional team killing or disruptive play will not be allowed.",
+                            "[ SERVER RULES ]",
+                            "1). No negative or derogatory behavior towards other players.",
+                            "2). Swearing and vulgar remarks in excess will not be tolerated",
+                            "and will result in a temporary or permanent ban (server ban or chat ban).",
+                            "3). No cheating, hacking, glitching, etc.",
+                            "4). No team stacking.",
+                            "Server or admin balance/auto-balance will be done if necessary.",
+                            "5). Any form of intentional team killing or disruptive play will not be allowed.",
                         },
                         [2] = { -- page 2
                             "[ SERVER INFORMATION ]",
@@ -784,11 +784,11 @@ local function GameSettings()
                             "RoadHog",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
-                           "[ MISC ]",
-                           "nothing to show",
+                            "[ MISC ]",
+                            "nothing to show",
                         },
                     },
-				}, 
+                },
             },
             -- [!] Do not Touch unless you know what you are doing!
             player_data = {
@@ -3732,12 +3732,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         for i = 1, #table do
                             local content = table[i]
                             if (content) then
-                                respond(executor, content, "rcon", 2+8)
+                                respond(executor, content, "rcon", 2 + 8)
                             end
                         end
-                        respond(executor, "Viewing Page (" .. page .. "/" .. #help_cmd.data .. ")", "rcon", 4+8)
+                        respond(executor, "Viewing Page (" .. page .. "/" .. #help_cmd.data .. ")", "rcon", 4 + 8)
                     else
-                        respond(executor, "[SERVER] -> you: Invalid Page Number", "rcon", 4+8)
+                        respond(executor, "[SERVER] -> you: Invalid Page Number", "rcon", 4 + 8)
                     end
                 else
                     respond(executor, "Invalid Syntax. Usage: /" .. help_cmd.cmd .. " [page num]", "rcon", 4 + 8)
