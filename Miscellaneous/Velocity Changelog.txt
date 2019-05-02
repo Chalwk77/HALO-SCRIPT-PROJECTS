@@ -154,3 +154,10 @@ This command shows you a list of all available objects that you can /spawn, /ent
 Script Updated to v1.24
 7). Tweaked Chat Censor feature + 1 documentation edit.
 Script Updated to v1.25
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/2/19]
+[new] Command: /info [page id].
+This command displays server rules and information.
+Script Updated to v1.26
