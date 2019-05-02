@@ -1,5 +1,5 @@
 ## Admin Chat:
-/achat on|off|status|-s [me | id */all]
+`/achat on|off|status|-s [me | id */all]`
 >  'status' or '-s' tells you whether the target's achat is enabled/disabled.
 
 ## Player List (4 command aliases):
@@ -76,7 +76,7 @@
 > Prevents players from picking up objects.
 
 ## Special Commands:
-/plugins [page id]
+`/plugins [page id]`
 /enable [id]
 /disable [id]
 > "/plugins [page id]" will show you a list of all individual features and tells you which ones are enabled or disabled.
