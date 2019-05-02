@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.27), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.28), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines many of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -749,7 +749,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.27, -- << --- do not touch
+            script_version = 1.28, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -761,8 +761,8 @@ local function GameSettings()
                 disable = { "disable", 1 }, -- /disable [id]
                 list = { "plugins", 1 }, -- /pluigns
                 clearchat = { "clear", 1 }, -- /clear
-                rules_and_information = {
-                    cmd = "info", -- /cmd [page id]
+                information = {
+                    cmd = "lore", -- /cmd [page id]
                     permission_level = -1,
                     data = {
                         -- Rule numbers: 1). 2). 3). etc, are automatically inserted at the beginning of the rule.
@@ -2505,13 +2505,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
         local table = tab.words
-        for i = 1, #table do
-            if (table[i] ~= nil) then
-                for j = 1, #table[i] do
-                    if (table[i][j] ~= nil) then
-                        local words = table[i][j]
-                        local swear_word = Message:match(lower(words)) or Message:match(upper(words))
-                        if (swear_word ~= nil) then
+        for i = 0, #message do
+            if (message[i]) then
+                for j = 1,#table do
+                    for k = 1, #table[j] do
+                        local swear_word = table[j][k]
+                        if string.find(message[i], swear_word) then
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
                             for i = 1, len - 1 do
@@ -2865,7 +2864,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local name, hash = get_var(executor, "$name"), get_var(executor, "$hash")
 
     local pCMD = settings.global.special_commands
-    local help_cmd = pCMD.rules_and_information
+    local lore_cmd = pCMD.information
 
     local function hasAccess(e, lvl_req)
         if isConsole(e) then
@@ -3743,12 +3742,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
         return false
         -- #Rules and Information
-    elseif (command == help_cmd.cmd) then
+    elseif (command == lore_cmd.cmd) then
         if not gameover(executor) then
-            if hasAccess(executor, help_cmd.permission_level) then
+            if hasAccess(executor, lore_cmd.permission_level) then
                 if (args[1] ~= nil) and args[1]:match("%d+") and not args[1]:match("[A-Za-z]") then
                     local page = tonumber(args[1])
-                    local table = help_cmd.data[page]
+                    local table = lore_cmd.data[page]
                     if (table) then
                         for i = 1, #table do
                             local content = table[i]
@@ -3756,12 +3755,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 respond(executor, content, "rcon", 2 + 8)
                             end
                         end
-                        respond(executor, "Viewing Page (" .. page .. "/" .. #help_cmd.data .. ")", "rcon", 4 + 8)
+                        respond(executor, "Viewing Page (" .. page .. "/" .. #lore_cmd.data .. ")", "rcon", 4 + 8)
                     else
                         respond(executor, "[SERVER] -> you: Invalid Page Number", "rcon", 4 + 8)
                     end
                 else
-                    respond(executor, "Invalid Syntax. Usage: /" .. help_cmd.cmd .. " [page num]", "rcon", 4 + 8)
+                    respond(executor, "Invalid Syntax. Usage: /" .. lore_cmd.cmd .. " [page num]", "rcon", 4 + 8)
                 end
             end
         end
@@ -6598,7 +6597,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
-    cl[#cl + 1] = "[new] Command: /info [page id]."
+    cl[#cl + 1] = "[new] Command: /lore [page id]."
     cl[#cl + 1] = "1). This command displays server rules and information."
     cl[#cl + 1] = "Script Updated to v1.26"
     cl[#cl + 1] = "2). Small tweak to Chat Censor."
