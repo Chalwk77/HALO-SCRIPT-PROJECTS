@@ -1,9 +1,9 @@
 [2/22/19]
-1). Began Development of BGS (now known as Velocity)
-Velocity is an all-in-one package that combines many of my scripts.
+1). Began Development of BGS (now known as Velocity).
+Velocity is an all-in-one package that combines a multitude of my scripts.
 ALL combined scripts have been heavily refatored, refined and improved for Velocity,
 with the addition of many new features not found in the standalone versions,
-as well as many 'special' features unique to Velocity that do not come in standalone scripts.
+as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -119,13 +119,13 @@ Script Updated to v1.16
 
 
 [4/30/19]
-1). Updated Documentation and Bug Fixes
+1). Updated Documentation and Bug Fixes.
 Script Updated to v1.17
 2). [new] Added Chat Censor feature.
-3). Small tweak to Mute System in function: OnPlayerChat()
-4). Bug Fixes for Alias System and Mute System
+3). Small tweak to Mute System in function: OnPlayerChat().
+4). Bug Fix for Alias System.
 Script Updated to v1.18
-5). Small tweak to Player List
+5). Small tweak to Player List.
 Script Updated to v1.19
 6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]
 Script Updated to v1.20
@@ -159,11 +159,10 @@ Script Updated to v1.25
 
 [5/2/19]
 1). [new] Command: /lore [page id].
-This command displays a list of player cmds, rules and general info (by page).
+This command displays a custom list of information (by page).
+You can change the messages in 'settings -> global -> information'
 Script Updated to v1.26
 2). Small tweak to Chat Censor.
 Script Updated to v1.27
 3). Another tweak to Chat Censor.
-Script Updated to v1.28
-4). A few tweaks to Private Messaging System.
 Script Updated to v1.29
