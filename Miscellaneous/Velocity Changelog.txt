@@ -1,9 +1,9 @@
 [2/22/19]
 1). Began Development of BGS (now known as Velocity)
-Velocity is an all-in-one package that combines many of my scripts.
+Velocity is an all-in-one package that combines a multitude of my scripts.
 ALL combined scripts have been heavily refatored, refined and improved for Velocity,
 with the addition of many new features not found in the standalone versions,
-as well as many 'special' features unique to Velocity that do not come in standalone scripts.
+as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -158,12 +158,10 @@ Script Updated to v1.25
 
 
 [5/2/19]
-1). [new] Command: /lore [page id].
-This command displays a list of player cmds, rules and general info (by page).
+[new] Command: /lore [page id].
+1). This command displays server rules and information.
 Script Updated to v1.26
 2). Small tweak to Chat Censor.
 Script Updated to v1.27
 3). Another tweak to Chat Censor.
-Script Updated to v1.28
-4). A few tweaks to Private Messaging System.
 Script Updated to v1.29
