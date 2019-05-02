@@ -93,5 +93,5 @@
 > If update checking is disabled this command will only display the current version.
 > If update checking is enabled this command will send an http query to the gitpage for Velocity and tell you if an update is available. (returns current version of both version match)
 
-/clear
+`/clear`
 > Clears the chat (useful if someone says something negative or derogatory)
