@@ -166,3 +166,10 @@ Script Updated to v1.26
 Script Updated to v1.27
 3). Another tweak to Chat Censor.
 Script Updated to v1.29
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/3/19]
+1). Bug fix for List Players feature.
+2). Other minor tweaks and documentation edits.
+Script Updated to v1.30
