@@ -9,24 +9,24 @@
 `/alias [me | id]`
 
 ## Enter Vehicle:
-`/enter <item> [me | id | */all] (optional: height/distance)`
+`/enter <<item>> [me | id | */all] (optional: height/distance)`
 >  Optional Flags: 'height' = height from ground, 'distance' = distance from player
 >  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 
 ## Respawn Time:
-`/setrespawn [me | id | */all] <time diff>`
->  If <time diff> parameter is not specified, it will show you the target's current respawn time setting.
+`/setrespawn [me | id | */all] <<time diff>>`
+>  If <<time diff>> parameter is not specified, it will show you the target's current respawn time setting.
 
 ## Teleport Manager:
-`/setwarp <warp name>`
-`/warp <warp name>`
+`/setwarp <<warp name>>`
+`/warp <<warp name>>`
 `/back`
 `/warplist`
 `/warplistall`
 `/delwarp [warp id]`
 
 ## Item Spawner:
-`/spawn <item> [me | id | */all] [amount]`
+`/spawn <<item>> [me | id | */all] [amount]`
 `/itemlist`
 >  /itemlist shows a list of valid items for the current map.
 
@@ -51,8 +51,8 @@
 >  Players can suggest features or maps (or report bugs) with this command.
 
 ## Mute System:
-`/mute [id | */all] ( optional: <time diff> )`
-> If '<time diff>' parameter is not specified, the player will be muted permanently.
+`/mute [id | */all] ( optional: <<time diff>> )`
+> If '<<time diff>>' parameter is not specified, the player will be muted permanently.
 > You cannot execute /mute or /unmute on yourself.
 
 `/unmute [id | */all]`
@@ -69,7 +69,7 @@
 `/respawn [me | id | */all]`
 
 ## Give:
-`/give <item> [me | id | */all]`			
+`/give <<item>> [me | id | */all]`			
 				
 ## Block Object Pickup
 `/block [me | id | */all]`
