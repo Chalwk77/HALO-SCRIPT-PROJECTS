@@ -2507,7 +2507,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 for j = 1,#table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
-                        if string.find(message[i], swear_word) then
+                        if find(message[i], swear_word) then
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
                             for w = 1, len - 1 do
@@ -4137,7 +4137,6 @@ function velocity:listplayers(e)
         header = "|" .. alignment .. " [ ID.    -    Name.    -    IP.    -    Mode ]"
         cheader = "ID.        Name.        IP"
     end
-    local str
     for i = 1, 16 do
         if player_present(i) then
             if (bool) then
@@ -4168,6 +4167,9 @@ function velocity:listplayers(e)
             if isConsole(e) then
                 prefix = gsub(prefix, "|r", "   ")
             end
+            
+            local str = ""
+            
             if not (ffa) then
                 str = "    " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
