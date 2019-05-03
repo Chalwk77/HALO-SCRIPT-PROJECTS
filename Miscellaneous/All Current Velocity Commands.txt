@@ -6,7 +6,7 @@
 `/pl, players, playerlist, playeslist`
 
 ## Alias System:
-`/alias [me | id]`
+`/alias [me | id] [page id]`
 
 ## Enter Vehicle:
 `/enter <<item>> [me | id | */all] (optional: height/distance)`
