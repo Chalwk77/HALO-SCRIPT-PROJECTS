@@ -184,18 +184,15 @@ The command feedback for /plugins [page id] now correctly displays the status of
 8). For performance reasons I had to refactor a large amount of the Alias System....
 The command syntax has changed from /alias [id] to /alias [id] [page id]
 There were two reasons for this change.
-
 Reason #1:
 Most people have pirated copies of Halo nowadays.
-Eventually the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them.
+Eventually, the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them.
 Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer.
-A way around this was to split the names into pages - where in by, a certain number of lines (rows & columns) will be shown per page.
+A way around this was to split the names into pages - wherein by, a certain number of lines (rows & columns) will be shown per page.
 This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases.
-
 Reason #2:
-With so many names registered to a pirated key, it is difficult (without comparing ip address to names) to determine what names the
-target player has actually used. For this reason, I plan on implementing an /ipalias command feature at a later date.
-In the mean time, the system is perfect for determining what names have been used with (legit) copies of Halo.
+With so many names registered to a pirated key, it is difficult (without comparing IP address to names) to determine what names the
+target player has actually used. For this reason, I plan on implementing an /ipalias command feature at a later 
 -------------------------------------------------------------------------------------------------------------------------------
 
 
