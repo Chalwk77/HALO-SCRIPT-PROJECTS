@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.31), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.32), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -753,7 +753,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.31, -- << --- do not touch
+            script_version = 1.32, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -6732,23 +6732,28 @@ function RecordChanges()
     cl[#cl + 1] = "5). Bug fix for command: /plugins [page id]"
     cl[#cl + 1] = "The command feedback for /plugins [page id] now correctly displays the status of each individual plugin."
     cl[#cl + 1] = "6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
-    cl[#cl + 1] = "8). Bug fix for Item Spawner, Enter Vehicle and Give"
-    cl[#cl + 1] = "7). For performance reasons I had to refactor a large amount of the Alias System...."
+    cl[#cl + 1] = "7). Bug fix for Item Spawner, Enter Vehicle and Give"
+    cl[#cl + 1] = "8). For performance reasons I had to refactor a large amount of the Alias System...."
     cl[#cl + 1] = "The command syntax has changed from /alias [id] to /alias [id] [page id]"
     cl[#cl + 1] = "There were two reasons for this change."
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "#1)."
+    cl[#cl + 1] = "Reason #1:"
     cl[#cl + 1] = "Most people have pirated copies of Halo nowadays."
     cl[#cl + 1] = "Eventually the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them."
     cl[#cl + 1] = "Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer."
     cl[#cl + 1] = "A way around this was to split the names into pages - where in by, a certain number of lines (rows & columns) will be shown per page."
     cl[#cl + 1] = "This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases."
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "#2)."
+    cl[#cl + 1] = "Reason #2:"
     cl[#cl + 1] = "With so many names registered to a pirated key, it is difficult (without comparing ip address to names) to determine what names the"
     cl[#cl + 1] = "target player has actually used. For this reason, I plan on implementing an /ipalias command feature at a later date."
     cl[#cl + 1] = "In the mean time, the system is perfect for determining what names have been used with (legit) copies of Halo."
-    cl[#cl + 1] = "Script Updated to v1.31"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/4/19]"
+    cl[#cl + 1] = "Couple of minor tweaks."
+    cl[#cl + 1] = "Script Updated to v1.32"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
