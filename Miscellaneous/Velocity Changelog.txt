@@ -199,5 +199,7 @@ target player has actually used. For this reason, I plan on implementing an /ipa
 
 
 [5/4/19]
-Couple of minor tweaks.
+1). Couple of minor tweaks.
 Script Updated to v1.32
+2). Tweaked Console Logo.
+Script Updated to v1.33
