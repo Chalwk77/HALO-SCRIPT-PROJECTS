@@ -4148,11 +4148,11 @@ function velocity:give(params)
                                     end
                                     giveObject(tid, tag_type, tag_name)
                                 else
-                                    respond(eid, "Unable to give that object!", "rcon", 4 + 8)
+									respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                                 end
                             else
+								respond(eid, "Unable to give that object!", "rcon", 4 + 8)
                                 err = true
-                                respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                             end
                             break
                         end
