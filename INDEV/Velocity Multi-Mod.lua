@@ -5732,13 +5732,11 @@ function alias:align(tab)
         else
             alignment = ""
         end
-        
-        -- info: table = alias_results[ip]
 
         local function formatResults()
             local placeholder, row = { }
             
-            for i = tonumber(startIndex), tonumber(endIndex) do
+            for i = tonumber(startIndex), tonumber(max_results) do
                 if (results) then
                     placeholder[#placeholder + 1] = results[i]
                     row = FormatTable(placeholder, max_columns, spaces)
