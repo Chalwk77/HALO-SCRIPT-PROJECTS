@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.32), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.33), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -8,7 +8,7 @@ Description: Velocity is an all-in-one package that combines a multitude of my s
 
 Combined Scripts:
     - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator
-    - Block Object Pickup
+    - Block Object Pickups
     - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
     - Command Spy               Console Logo                Custom Weapons		 Cute
     - Enter Vehicle
@@ -108,13 +108,14 @@ local function GameSettings()
                     -- You do not need both ip and hash but it adds a bit more security.
                 },
             },
-            ["Block Object Pickup"] = {
+            -- Prevent players from picking up objects (weapons, powerups etc)
+            ["Block Object Pickups"] = {
                 enabled = true,
                 permission_level = 1,
                 execute_on_others = 4,
                 block_command = "block", -- /block_command [me | id | */all]
                 unblock_command = "unblock", -- /unblock_command [me | id | */all]
-                enable_on_disconnect = false,
+                enable_on_disconnect = false, -- Reanable pickups for player if they quit (means it will be reenabled if they rejoin)
             },
             -- # Chat Censor.
             ["Chat Censor"] = {
@@ -122,17 +123,11 @@ local function GameSettings()
                 enabled = true,
                 censor = "*",
                 words = {
-                
-                    --[[ Lua Pattern Matching:
-                        Punctuation characters: !-/:-@%[\\%]^_`{|}~
-                        [%p] to match all punctuation
-                    ]]--
-                    
                     [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
                     [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
                     [3] = { "boner" },
-                    [4] = { "bs", "bullshit", "bullsh[%p]t"},
-                    [5] = { "clit", "cl[%p]t"},
+                    [4] = { "bs", "bullshit", "bullsh[%p]t" },
+                    [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
                     [8] = { "cock", "c0ck", "cOck" },
@@ -144,7 +139,7 @@ local function GameSettings()
                     [14] = { "prick" },
                     [15] = { "pussy" },
                     [16] = { "slut" },
-                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit"},
+                    [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit" },
                     [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
                     [19] = { "wank", "wanker" },
                     [20] = { "whore", "wh0re", "wh0reface" },
@@ -234,7 +229,23 @@ local function GameSettings()
                 }
             },
             ["Console Logo"] = { -- A nifty console logo (ascii: 'kban')
-                enabled = true
+                enabled = true,
+                logo = {
+                    -- MESSAGE | COLOR
+                    { "================================================================================", 2 + 8 },
+                    { "%date_and_time%", 6 },
+                    { "" },
+                    { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 4 + 8 },
+                    { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 4 + 8 },
+                    { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 4 + 8 },
+                    { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8 },
+                    { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8 },
+                    { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+                    { "                               %server_name%", 7 + 8 },
+                    { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+                    { "" },
+                    { "================================================================================", 2 + 8 },
+                }
             },
             ["Custom Weapons"] = {
                 enabled = true, -- Enabled = true, Disabled = false
@@ -753,7 +764,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.32, -- << --- do not touch
+            script_version = 1.33, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -917,7 +928,7 @@ local privateMessage, unread_mail = { }, { }
 -- #Give
 local check_available_slots, give_weapon, delete_weapon = { }, { }, { }
 
--- #Block Object Pickup
+-- #Block Object Pickups
 local block_table = { }
 
 local function getServerName()
@@ -953,10 +964,10 @@ end
 
 local getPageCount = function(total, max_results)
     local pages = total / (max_results)
-    if ( (pages) ~= floor(pages) ) then
+    if ((pages) ~= floor(pages)) then
         pages = floor(pages) + 1
     end
-	return pages
+    return pages
 end
 
 local function DisableInfAmmo(TargetID)
@@ -1372,25 +1383,21 @@ function OnScriptLoad()
 
     -- #Console Logo
     if modEnabled("Console Logo") then
-        --noinspection GlobalCreationOutsideO
         function consoleLogo()
-            -- Logo: ascii: 'kban'
-            cprint("================================================================================", 2 + 8)
-            cprint(os.date("%A, %d %B %Y - %X"), 6)
-            cprint("")
-            cprint("     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 4 + 8)
-            cprint("      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 4 + 8)
-            cprint("      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 4 + 8)
-            cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 4 + 8)
-            cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 4 + 8)
-            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("                     " .. getServerName(), 0 + 8)
-            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-")
-            cprint("")
-            cprint("================================================================================", 2 + 8)
+            local tab = settings.mod["Console Logo"].logo
+            if (#tab > 0) then
+                local servername, date = getServerName(), os.date("%A, %d %B %Y - %X")
+                for i = 1, #tab do
+                    local str = tab[i][1] or ""
+                    local color = tab[i][2] or 0
+                    str = (gsub(gsub(str, "%%date_and_time%%", date), "%%server_name%%", servername))
+                    cprint(str, color)
+                end
+            end
         end
         timer(50, "consoleLogo")
     end
+
     local rcon = sig_scan("B8????????E8??000000A1????????55")
     if (rcon ~= 0) then
         console_address_patch = read_dword(rcon + 1)
@@ -1901,11 +1908,11 @@ function OnPlayerConnect(PlayerIndex)
     local id = tonumber(get_var(PlayerIndex, "$n"))
     local ip = getip(PlayerIndex, true)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
-    
-	-- Forces me (Chalwk) to welcome the new player (because reasons).
-	-- Disabled because reasons also.
-	
-	--[[
+
+    -- Forces me (Chalwk) to welcome the new player (because reasons).
+    -- Disabled because reasons also.
+
+    --[[
     for i = 1,16 do
         if player_present(i) then 
             local o_name = get_var(i, "$name") 
@@ -1919,7 +1926,7 @@ function OnPlayerConnect(PlayerIndex)
         end
     end
     ]]
-	
+
     -- #CONSOLE OUTPUT
     if (player_info[id] ~= nil or player_info[id] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
@@ -1945,8 +1952,8 @@ function OnPlayerConnect(PlayerIndex)
         delete_weapon[id] = false
     end
 
-    -- #Block Object Pickup
-    if modEnabled("Block Object Pickup") then
+    -- #Block Object Pickups
+    if modEnabled("Block Object Pickups") then
         if (block_table[ip]) then
             execute_command("block_all_objects " .. PlayerIndex .. " 1")
         end
@@ -2210,9 +2217,9 @@ function OnPlayerDisconnect(PlayerIndex)
         delete_weapon[id] = false
     end
 
-    -- #Block Object Pickup
-    if modEnabled("Block Object Pickup") then
-        local mod = settings.mod["Block Object Pickup"]
+    -- #Block Object Pickups
+    if modEnabled("Block Object Pickups") then
+        local mod = settings.mod["Block Object Pickups"]
         if (block_table[ip]) and (mod.enable_on_disconnect) then
             block_table[ip] = false
             execute_command("block_all_objects " .. id .. " 0")
@@ -2552,7 +2559,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local table = tab.words
         for i = 0, #message do
             if (message[i]) then
-                for j = 1,#table do
+                for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
                         if find(message[i], swear_word) then
@@ -3002,14 +3009,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     else
                         bool = settings.mod["Alias System"].use_timer
                     end
-                    
+
                     if (args[2] ~= nil) then
                         params.page = args[2]
                     end
-                    
+
                     params.timer = bool
                     alias:reset(params.eip)
-                    
+
                     -- #Admin Chat
                 elseif (parameter == "achat") then
                     if (args[1] ~= nil) then
@@ -3120,7 +3127,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:give(params)
                     end
-                    -- #Block Object Pickup
+                    -- #Block Object Pickups
                 elseif (parameter == "blockpickup") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
@@ -3157,12 +3164,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    -- #Block Object Pickup [block]
-    if (command == settings.mod["Block Object Pickup"].block_command) then
+    -- #Block Object Pickups [block]
+    if (command == settings.mod["Block Object Pickups"].block_command) then
         if not gameover(executor) then
-            if modEnabled("Block Object Pickup", executor) then
-                if (checkAccess(executor, true, "Block Object Pickup")) then
-                    local tab = settings.mod["Block Object Pickup"]
+            if modEnabled("Block Object Pickups", executor) then
+                if (checkAccess(executor, true, "Block Object Pickups")) then
+                    local tab = settings.mod["Block Object Pickups"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("blockpickup", 1) --/base_command [me | id | */all]
                         if not (target_all_players) then
@@ -3176,16 +3183,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Error. Plugin: 'Block Object Pickup' not enabled!")
+                rprint(executor, "Error. Plugin: 'Block Object Pickups' not enabled!")
             end
         end
         return false
-        -- #Block Object Pickup [unblock]
-    elseif (command == settings.mod["Block Object Pickup"].unblock_command) then
+        -- #Block Object Pickups [unblock]
+    elseif (command == settings.mod["Block Object Pickups"].unblock_command) then
         if not gameover(executor) then
-            if modEnabled("Block Object Pickup", executor) then
-                if (checkAccess(executor, true, "Block Object Pickup")) then
-                    local tab = settings.mod["Block Object Pickup"]
+            if modEnabled("Block Object Pickups", executor) then
+                if (checkAccess(executor, true, "Block Object Pickups")) then
+                    local tab = settings.mod["Block Object Pickups"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("blockpickup", 1) --/base_command [me | id | */all]
                         if not (target_all_players) then
@@ -3199,7 +3206,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                rprint(executor, "Error. Plugin: 'Block Object Pickup' not enabled!")
+                rprint(executor, "Error. Plugin: 'Block Object Pickups' not enabled!")
             end
         end
         return false
@@ -3859,9 +3866,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local status = result[3]
                                     local seperator = "|c"
                                     if (status == "[enabled]") then
-                                        color = 2+8
+                                        color = 2 + 8
                                     else
-                                        color = 4+8
+                                        color = 4 + 8
                                     end
                                     respond(executor, "[#" .. index .. "] " .. plugin_name .. " " .. status, "rcon", color)
                                 end
@@ -4003,7 +4010,7 @@ function velocity:portalgun(params)
     return false
 end
 
--- #Block Object Pickup [block]
+-- #Block Object Pickups [block]
 function velocity:blockpickup(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -4018,7 +4025,7 @@ function velocity:blockpickup(params)
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
 
-    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickups")) then
         if (block_table[tip] ~= true) then
             block_table[tip] = true
             execute_command("block_all_objects " .. tid .. " 1")
@@ -4034,7 +4041,7 @@ function velocity:blockpickup(params)
     return false
 end
 
--- #Block Object Pickup [unblock]
+-- #Block Object Pickups [unblock]
 function velocity:unblockpickups(params)
     local params = params or {}
     local eid = params.eid or nil
@@ -4049,7 +4056,7 @@ function velocity:unblockpickups(params)
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
 
-    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickup")) then
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickups")) then
         if (block_table[tip] ~= false) then
             block_table[tip] = false
             execute_command("block_all_objects " .. tid .. " 0")
@@ -4152,10 +4159,10 @@ function velocity:give(params)
                                     end
                                     giveObject(tid, tag_type, tag_name)
                                 else
-									respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
+                                    respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                                 end
                             else
-								respond(eid, "Unable to give that object!", "rcon", 4 + 8)
+                                respond(eid, "Unable to give that object!", "rcon", 4 + 8)
                                 err = true
                             end
                             break
@@ -4221,9 +4228,9 @@ function velocity:listplayers(e)
             if isConsole(e) then
                 prefix = gsub(prefix, "|r", "   ")
             end
-            
+
             local str = ""
-            
+
             if not (ffa) then
                 str = "    " .. id .. sep .. name .. seperator .. team .. seperator .. ip .. prefix
             else
@@ -4587,7 +4594,7 @@ function velocity:spawnItem(params)
                 local sin = math.sin
                 for i = 1, #objects_table do
                     if (item == objects_table[i][1]) then
-                    --if (item:match(objects_table[i][1])) then
+                        --if (item:match(objects_table[i][1])) then
                         local tag_type = objects_table[i][2]
                         local tag_name = objects_table[i][3]
                         if TagInfo(tag_type, tag_name) then
@@ -4680,9 +4687,9 @@ function velocity:itemSpawnerList(params)
             end
         end
 
-		if (row == "") or (row == " ") then
-			row = nil -- just in case
-		end
+        if (row == "") or (row == " ") then
+            row = nil -- just in case
+        end
 
         if (row ~= nil) then
             respond(eid, row, "rcon", 2 + 8)
@@ -4695,7 +4702,7 @@ function velocity:itemSpawnerList(params)
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
-	
+
     if (#t > 0) then
         while (endIndex < count + max_columns) do
             formatResults()
@@ -5643,9 +5650,9 @@ function velocity:aliasCmdRoutine(params)
     local use_timer = params.timer or nil
     local current_page = params.page or nil
 
-	if (current_page == nil) then 
-		current_page = 1
-	end
+    if (current_page == nil) then
+        current_page = 1
+    end
 
     local tab = players["Alias System"][eip]
     local settings = settings.mod["Alias System"]
@@ -5665,19 +5672,19 @@ function velocity:aliasCmdRoutine(params)
             alias_results[eip][#alias_results[eip] + 1] = content
         end
     end
-    
+
     for i = 1, #known_pirated_hashes do
         if (tab.target_hash == known_pirated_hashes[i]) then
             tab.shared = true
         end
     end
-    
+
     for i = 1, #alias_results[eip][1] do
         if (alias_results[eip][1][i]) then
             tab.total_count = tab.total_count + 1
         end
     end
-    
+
     local p, table = { }, { }
     p.table, p.page = settings, current_page
     local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
@@ -5687,15 +5694,15 @@ function velocity:aliasCmdRoutine(params)
         end
     end
 
-	local pages = getPageCount(tab.total_count, max_results)
-    
+    local pages = getPageCount(tab.total_count, max_results)
+
     if (#table > 0) then
         alias_results[eip][1] = { }
-        
+
         for k, v in pairs(table) do
             alias_results[eip][1][k] = v
         end
-        
+
         for i = 1, max_results do
             if (alias_results[eip][1][i]) then
                 tab.current_count = tab.current_count + 1
@@ -5706,7 +5713,7 @@ function velocity:aliasCmdRoutine(params)
         tab.total_pages = pages
         tab.results = alias_results[eip][1]
         tab.max_results = max_results
-        
+
         if (use_timer) then
             tab.trigger = true
             tab.bool = true
@@ -5729,14 +5736,14 @@ function alias:align(tab)
     if (tab) then
 
         local executor = tab.eid
-        
+
         local current_page = tab.current_page
         local total_pages = tab.total_pages
         local total_aliases = tab.total_aliases
-        
+
         local current_count = tab.current_count
         local total_count = tab.total_count
-        
+
         local target_hash = tab.target_hash
         local target_name = tab.target_name
         local pirated = tab.shared
@@ -5744,7 +5751,7 @@ function alias:align(tab)
         local max_results = tab.max_results
 
         local alignment = settings.mod["Alias System"].alignment
-        
+
         if not isConsole(executor) then
             cls(executor, 25)
         else
@@ -5753,18 +5760,18 @@ function alias:align(tab)
 
         local function formatResults()
             local placeholder, row = { }
-            
+
             for i = tonumber(startIndex), tonumber(endIndex) do
                 if (results) then
                     placeholder[#placeholder + 1] = results[i]
                     row = FormatTable(placeholder, max_columns, spaces)
                 end
             end
-            
+
             if (row == "") or (row == " ") then
                 row = nil -- just in case
             end
-            
+
             if (row ~= nil) then
                 respond(executor, alignment .. " " .. row, "rcon")
             end
@@ -5776,21 +5783,21 @@ function alias:align(tab)
             startIndex = (endIndex + 1)
             endIndex = (endIndex + (max_columns))
         end
-        
+
         while (endIndex < total_count + max_columns) do
             formatResults()
         end
-        
+
         if (startIndex >= total_count) then
             startIndex = initialStartIndex
             endIndex = max_columns
         end
-        
-        respond(executor, " ", "rcon", 2+8)
+
+        respond(executor, " ", "rcon", 2 + 8)
         --[Page X/X] Showing (X/X) aliases for xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-        respond(executor, alignment .. " " .. '[Page ' .. current_page .. '/' .. total_pages .. '] Showing (' .. current_count .. '/' .. total_count .. ') aliases for: "' .. target_hash .. '"', "rcon", 2+8)
+        respond(executor, alignment .. " " .. '[Page ' .. current_page .. '/' .. total_pages .. '] Showing (' .. current_count .. '/' .. total_count .. ') aliases for: "' .. target_hash .. '"', "rcon", 2 + 8)
         if (pirated) then
-            respond(player, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2+8)
+            respond(player, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2 + 8)
         end
     end
 end
@@ -6751,8 +6758,10 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/4/19]"
-    cl[#cl + 1] = "Couple of minor tweaks."
+    cl[#cl + 1] = "1). Couple of minor tweaks."
     cl[#cl + 1] = "Script Updated to v1.32"
+    cl[#cl + 1] = "2). Tweaked Console Logo."
+    cl[#cl + 1] = "Script Updated to v1.33"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
