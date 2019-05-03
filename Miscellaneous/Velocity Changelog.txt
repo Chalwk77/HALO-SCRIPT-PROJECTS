@@ -180,20 +180,25 @@ Script Updated to v1.30
 5). Bug fix for command: /plugins [page id]
 The command feedback for /plugins [page id] now correctly displays the status of each individual plugin.
 6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil.
-8). Bug fix for Item Spawner, Enter Vehicle and Give
-7). For performance reasons I had to refactor a large amount of the Alias System....
+7). Bug fix for Item Spawner, Enter Vehicle and Give
+8). For performance reasons I had to refactor a large amount of the Alias System....
 The command syntax has changed from /alias [id] to /alias [id] [page id]
 There were two reasons for this change.
 
-#1).
+Reason #1:
 Most people have pirated copies of Halo nowadays.
 Eventually the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them.
 Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer.
 A way around this was to split the names into pages - where in by, a certain number of lines (rows & columns) will be shown per page.
 This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases.
 
-#2).
+Reason #2:
 With so many names registered to a pirated key, it is difficult (without comparing ip address to names) to determine what names the
 target player has actually used. For this reason, I plan on implementing an /ipalias command feature at a later date.
 In the mean time, the system is perfect for determining what names have been used with (legit) copies of Halo.
-Script Updated to v1.31
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/4/19]
+Couple of minor tweaks.
+Script Updated to v1.32
