@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Velocity Multi-Mod (v 1.32), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
-             ALL combined scripts have been heavily refatored, refined and improved for Velocity,
+             ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
              as well as a ton of "special" features unique to Velocity that do not come in standalone scripts.
 
@@ -6553,7 +6553,7 @@ function RecordChanges()
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)."
     cl[#cl + 1] = "Velocity is an all-in-one package that combines a multitude of my scripts."
-    cl[#cl + 1] = "ALL combined scripts have been heavily refatored, refined and improved for Velocity,"
+    cl[#cl + 1] = "ALL combined scripts have been heavily refactored, refined and improved for Velocity,"
     cl[#cl + 1] = "with the addition of many new features not found in the standalone versions,"
     cl[#cl + 1] = "as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts."
     cl[#cl + 1] = ""
