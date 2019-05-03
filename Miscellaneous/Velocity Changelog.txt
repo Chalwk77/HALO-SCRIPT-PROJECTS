@@ -1,7 +1,7 @@
 [2/22/19]
 1). Began Development of BGS (now known as Velocity).
 Velocity is an all-in-one package that combines a multitude of my scripts.
-ALL combined scripts have been heavily refatored, refined and improved for Velocity,
+ALL combined scripts have been heavily refactored, refined and improved for Velocity,
 with the addition of many new features not found in the standalone versions,
 as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts.
 
