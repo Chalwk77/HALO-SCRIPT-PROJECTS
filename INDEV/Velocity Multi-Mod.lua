@@ -83,7 +83,7 @@ local function GameSettings()
                 base_command = "alias", -- /base_command [id | me ] [page id]
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
-                max_results_per_page = 30,
+                max_results_per_page = 50,
                 use_timer = true,
                 duration = 5, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
@@ -5754,7 +5754,7 @@ function alias:align(tab)
         local function formatResults()
             local placeholder, row = { }
             
-            for i = tonumber(startIndex), tonumber(max_results) do
+            for i = tonumber(startIndex), tonumber(endIndex) do
                 if (results) then
                     placeholder[#placeholder + 1] = results[i]
                     row = FormatTable(placeholder, max_columns, spaces)
@@ -5762,7 +5762,7 @@ function alias:align(tab)
             end
             
             if (row == "") or (row == " ") then
-                row = nil
+                row = nil -- just in case
             end
             
             if (row ~= nil) then
