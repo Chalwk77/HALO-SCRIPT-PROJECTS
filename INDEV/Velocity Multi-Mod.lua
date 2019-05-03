@@ -1867,6 +1867,7 @@ function determineWeapon()
     return primary, secondary, tertiary, quaternary, Slot
 end
 
+-- #Anti Impersonator
 local function takeAction(tab, id, name)
     local action, reason, bantime = tab.action, tab.reason, tab.bantime
     if (action == "kick") then
@@ -1901,21 +1902,24 @@ function OnPlayerConnect(PlayerIndex)
     local ip = getip(PlayerIndex, true)
     local level = getPlayerInfo(PlayerIndex, "level"):match("%d+")
     
-    -- for i = 1,16 do
-        -- if player_present(i) then 
-            -- local o_name = get_var(i, "$name") 
-            -- if (name ~= "Chalwk") and (o_name == "Chalwk") then
-                -- local o_index = tonumber(i)
-                -- local chatFormat = settings.mod["Chat IDs"].global_format[1]
-                -- local welcome_msg = "Welcome back, " .. name
-                -- local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
-                -- execute_command("msg_prefix \"\"")
-                -- say_all(formattedString)
-                -- execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
-            -- end
-        -- end
-    -- end
-    
+	-- Forces me (Chalwk) to welcome the new player (because reasons).
+	-- Disabled because reasons also.
+	
+	--[[
+    for i = 1,16 do
+        if player_present(i) then 
+            local o_name = get_var(i, "$name") 
+            if (name ~= "Chalwk") and (o_name == "Chalwk") then
+                local o_index = tonumber(i)
+                local chatFormat = settings.mod["Chat IDs"].global_format[1]
+                local welcome_msg = "Welcome back, " .. name
+                local formattedString = (gsub(gsub(gsub(chatFormat, "%%sender_name%%", "Chalwk"), "%%index%%", o_index), "%%message%%", welcome_msg))
+                SayAll(formattedString)
+            end
+        end
+    end
+    ]]
+	
     -- #CONSOLE OUTPUT
     if (player_info[id] ~= nil or player_info[id] ~= {}) then
         cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
