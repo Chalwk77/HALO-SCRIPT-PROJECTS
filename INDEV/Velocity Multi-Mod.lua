@@ -951,6 +951,14 @@ local getPage = function(params)
     return startpage, endpage
 end
 
+local getPageCount = function(total, max_results)
+    local pages = total / (max_results)
+    if ( (pages) ~= floor(pages) ) then
+        pages = floor(pages) + 1
+    end
+	return pages
+end
+
 local function DisableInfAmmo(TargetID)
     infammo[TargetID] = false
     frag_check[TargetID] = false
@@ -3404,7 +3412,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
                 local tab = settings.mod["Alias System"]
-                if (args[1] ~= nil) and (args[2] ~= nil) then
+                if (args[1] ~= nil) then
                     validate_params("alias", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
@@ -4574,7 +4582,8 @@ function velocity:spawnItem(params)
                 local valid, err
                 local sin = math.sin
                 for i = 1, #objects_table do
-                    if (item:match(objects_table[i][1])) then
+                    if (item == objects_table[i][1]) then
+                    --if (item:match(objects_table[i][1])) then
                         local tag_type = objects_table[i][2]
                         local tag_name = objects_table[i][3]
                         if TagInfo(tag_type, tag_name) then
@@ -4667,6 +4676,10 @@ function velocity:itemSpawnerList(params)
             end
         end
 
+		if (row == "") or (row == " ") then
+			row = nil -- just in case
+		end
+
         if (row ~= nil) then
             respond(eid, row, "rcon", 2 + 8)
         end
@@ -4678,13 +4691,14 @@ function velocity:itemSpawnerList(params)
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
+	
     if (#t > 0) then
-        while (endIndex < max_results + max_columns) do
+        while (endIndex < count + max_columns) do
             formatResults()
         end
     end
 
-    if (startIndex >= max_results) then
+    if (startIndex >= count) then
         startIndex = 1
         endIndex = max_columns
         respond(eid, "Objects available: (" .. count .. "/" .. total_count .. ")", "rcon", 2 + 8)
@@ -5625,6 +5639,10 @@ function velocity:aliasCmdRoutine(params)
     local use_timer = params.timer or nil
     local current_page = params.page or nil
 
+	if (current_page == nil) then 
+		current_page = 1
+	end
+
     local tab = players["Alias System"][eip]
     local settings = settings.mod["Alias System"]
     local max_results = settings.max_results_per_page
@@ -5644,7 +5662,6 @@ function velocity:aliasCmdRoutine(params)
         end
     end
     
-
     for i = 1, #known_pirated_hashes do
         if (tab.target_hash == known_pirated_hashes[i]) then
             tab.shared = true
@@ -5665,11 +5682,8 @@ function velocity:aliasCmdRoutine(params)
             table[#table + 1] = alias_results[eip][1][page_num]
         end
     end
-    
-    local pages = tab.total_count / (max_results)
-    if ( (pages) ~= floor(pages) ) then
-        pages = floor(pages) + 1
-    end
+
+	local pages = getPageCount(tab.total_count, max_results)
     
     if (#table > 0) then
         alias_results[eip][1] = { }
@@ -5696,7 +5710,7 @@ function velocity:aliasCmdRoutine(params)
             alias:show(tab)
         end
     else
-        respond(eid, "Invalid Page ID. Valid pages: 1-" .. pages, "rcon", 2 + 8)
+        respond(eid, "Invalid Page ID. Valid pages: 1 to " .. pages, "rcon", 2 + 8)
     end
 end
 
@@ -6715,8 +6729,8 @@ function RecordChanges()
     cl[#cl + 1] = "The command feedback for /plugins [page id] now correctly displays the status of each individual plugin."
     cl[#cl + 1] = "6). Bug Fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
     cl[#cl + 1] = "7). For performance reasons I had to refactor a large amount of the Alias System...."
+    cl[#cl + 1] = "8). Bug fix for Item Spawner."
     cl[#cl + 1] = "The command syntax has changed from /alias [id] to /alias [id] [page id]"
-    cl[#cl + 1] = ""
     cl[#cl + 1] = "There were two reasons for this change."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "#1)."
