@@ -4124,7 +4124,7 @@ function velocity:give(params)
                     local table = settings.mod["Item Spawner"].objects
                     local valid, err
                     for i = 1, #table do
-                        if (item:match(table[i][1])) then
+                        if (item == table[i][1]) then
                             local tag_type = table[i][2]
                             if (tag_type == "weap" or tag_type == "eqip") then
                                 if (delete_weapon[tid]) and (tag_type == "weap") then
@@ -4451,7 +4451,7 @@ function velocity:enterVehicle(params)
                     local objects_table = settings.mod["Item Spawner"].objects
                     local player_object = get_dynamic_player(tid)
                     for i = 1, #objects_table do
-                        if item:match(objects_table[i][1]) and (objects_table[i][2] == "vehi") then
+                        if (item == objects_table[i][1]) and (objects_table[i][2] == "vehi") then
                             if TagInfo(objects_table[i][2], objects_table[i][3]) then
                                 if PlayerInVehicle(tid) then
                                     local VehicleID = read_dword(player_object + 0x11C)
@@ -6727,9 +6727,9 @@ function RecordChanges()
     cl[#cl + 1] = "4). Bug fix in function 'OnPlayerChat()' - Empty messages will now return false."
     cl[#cl + 1] = "5). Bug fix for command: /plugins [page id]"
     cl[#cl + 1] = "The command feedback for /plugins [page id] now correctly displays the status of each individual plugin."
-    cl[#cl + 1] = "6). Bug Fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
+    cl[#cl + 1] = "6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
+    cl[#cl + 1] = "8). Bug fix for Item Spawner, Enter Vehicle and Give"
     cl[#cl + 1] = "7). For performance reasons I had to refactor a large amount of the Alias System...."
-    cl[#cl + 1] = "8). Bug fix for Item Spawner."
     cl[#cl + 1] = "The command syntax has changed from /alias [id] to /alias [id] [page id]"
     cl[#cl + 1] = "There were two reasons for this change."
     cl[#cl + 1] = ""
