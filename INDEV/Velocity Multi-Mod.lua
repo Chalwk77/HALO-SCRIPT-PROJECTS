@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.30), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.31), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refatored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -80,9 +80,10 @@ local function GameSettings()
             -- # Query a player's hash to check what aliases have been used with it.
             ["Alias System"] = {
                 enabled = true,
-                base_command = "alias", -- /base_command [id | me ]
+                base_command = "alias", -- /base_command [id | me ] [page id]
                 dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
                 permission_level = 1,
+                max_results_per_page = 30,
                 use_timer = true,
                 duration = 5, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
@@ -752,7 +753,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.30, -- << --- do not touch
+            script_version = 1.31, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -830,6 +831,22 @@ local function getip(p, bool)
         return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
     else
         return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+:%d+)")
+    end
+end
+
+local SayAll = function(Message)
+    if (Message) then
+        execute_command("msg_prefix \"\"")
+        say_all(Message)
+        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+    end
+end
+
+local Say = function(Player, Message)
+    if (Player) and (Message) then
+        execute_command("msg_prefix \"\"")
+        say(Player, Message)
+        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     end
 end
 
@@ -1057,7 +1074,7 @@ local function FormatTable(table, rowlen, space, delimiter)
     local longest = 0
     for _, v in ipairs(table) do
         local len = string.len(v)
-        if len > longest then
+        if (len > longest) then
             longest = len
         end
     end
@@ -1065,12 +1082,12 @@ local function FormatTable(table, rowlen, space, delimiter)
     local row = 1
     local count = 1
     for k, v in ipairs(table) do
-        if count % rowlen == 0 or k == #table then
+        if (count % rowlen == 0) or (k == #table) then
             rows[row] = (rows[row] or "") .. v
         else
             rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
         end
-        if count % rowlen == 0 then
+        if (count % rowlen == 0) then
             row = row + 1
         end
         count = count + 1
@@ -1127,13 +1144,17 @@ function alias:reset(ip)
     players["Alias System"][ip] = {
         eid = 0,
         timer = 0,
-        total = 0,
+        current_page = 0,
+        total_pages = 0,
+        total_aliases = 0,
+        current_count = 0,
+        total_count = 0,
         bool = false,
         trigger = false,
         shared = false,
-        check_pirated_hash = false,
     }
 end
+
 --------------------------------------------------------------
 -- #Message Board
 local messageBoard = { }
@@ -1763,7 +1784,7 @@ function OnTick()
             if modEnabled("Alias System") then
                 if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
                     players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
-                    alias:show(i, ip, players["Alias System"][ip].total)
+                    alias:show(players["Alias System"][ip])
                     if players["Alias System"][ip].timer >= floor(settings.mod["Alias System"].duration) then
                         alias:reset(ip)
                     end
@@ -1971,6 +1992,21 @@ function OnPlayerConnect(PlayerIndex)
         if (tonumber(level) >= getPermLevel("Alias System", false)) then
             alias:reset(ip)
         end
+        --[[
+        
+        -- Remove from comment block if you want to use this.
+        
+        if (known_pirated_hashes ~= nil) then
+            for i = 1, #known_pirated_hashes do
+                if (hash == known_pirated_hashes[i]) then
+                    -- No need to create a new loop for players because the #known_pirated_hashes is greater than 16 anyway.
+                    if player_present(i) and isAdmin(i) then
+                        say(i, name .. " is using a pirated copy of Halo.")
+                    end
+                end
+            end
+        end
+        ]]
     end
 
     -- #Message Board
@@ -2495,7 +2531,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- Used throughout OnPlayerChat()
     local message = stringSplit(Message)
     if (#message == 0) then
-        return nil
+        return false
     end
 
     -- #Chat Censor
@@ -2602,9 +2638,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     if (environment == "rcon") then
                         respond(i, "|l" .. Message, "rcon")
                     elseif (environment == "chat") then
-                        execute_command("msg_prefix \"\"")
                         respond(i, Message, "chat")
-                        execute_command("msg_prefix \" *  * SERVER *  * \"")
                     end
                 end
             end
@@ -2661,7 +2695,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         for i = 1, 16 do
                             if player_present(i) and (get_var(i, "$team") == get_var(PlayerIndex, "$team")) then
                                 local formattedString = ""
-                                execute_command("msg_prefix \"\"")
                                 if (Global == true) then
                                     formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 elseif (Tmod == true) then
@@ -2673,8 +2706,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 elseif (sAdmin == true) then
                                     formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                                 end
-                                say(i, formattedString)
-                                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                                Say(i, formattedString)
                                 response = false
                             end
                         end
@@ -2682,7 +2714,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
                     local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
                         local formattedString = ""
-                        execute_command("msg_prefix \"\"")
                         if (Global == true) then
                             formattedString = (gsub(gsub(gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         elseif (Tmod == true) then
@@ -2694,8 +2725,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         elseif (sAdmin == true) then
                             formattedString = (gsub(gsub(gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
                         end
-                        say_all(formattedString)
-                        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                        SayAll(formattedString)
                         response = false
                     end
 
@@ -2960,11 +2990,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     else
                         bool = settings.mod["Alias System"].use_timer
                     end
+                    
+                    if (args[2] ~= nil) then
+                        params.page = args[2]
+                    end
+                    
                     params.timer = bool
                     alias:reset(params.eip)
-                    if (target_all_players) then
-                        velocity:aliasCmdRoutine(params)
-                    end
+                    
                     -- #Admin Chat
                 elseif (parameter == "achat") then
                     if (args[1] ~= nil) then
@@ -3371,7 +3404,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if modEnabled("Alias System", executor) then
             if (checkAccess(executor, true, "Alias System")) then
                 local tab = settings.mod["Alias System"]
-                if (args[1] ~= nil) then
+                if (args[1] ~= nil) and (args[2] ~= nil) then
                     validate_params("alias", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
@@ -3381,7 +3414,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Unable to check aliases from all players.", "rcon", 4 + 8)
                     end
                 else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ]", "rcon", 4 + 8)
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ] [page id]", "rcon", 4 + 8)
                 end
             end
         else
@@ -3506,7 +3539,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Admin Chat", executor) then
                 if (checkAccess(executor, true, "Admin Chat")) then
                     local tab = settings.mod["Admin Chat"]
-                    if (args[1] ~= nil) then
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
                         validate_params("achat", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3514,7 +3547,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] on/off", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on/off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
             else
@@ -3731,9 +3764,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == pCMD.clearchat[1]) then
         if hasAccess(executor, pCMD.clearchat[2]) then
             for i = 1, 20 do
-                execute_command("msg_prefix \"\"")
-                say_all(" ")
-                execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
+                SayAll(" ")
                 if player_present(i) and (tonumber(get_var(i, "$lvl")) >= 1) then
                     respond(i, "Chat was cleared by " .. name, "rcon", 5 + 8)
                 end
@@ -3783,12 +3814,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         t[#t + 1] = k
                         count = count + 1
                     end
-
+                    local status = ""
                     for page_num = startpage, endpage do
                         if (t[page_num]) then
                             for k, v in pairs(t) do
                                 if (k == page_num) then
-                                    table[#table + 1] = (t[page_num] .. "|" .. k)
+                                    if (tab.mod[v].enabled) then
+                                        status = "[enabled]"
+                                    else
+                                        status = "[disabled]"
+                                    end
+                                    table[#table + 1] = (t[page_num] .. "|" .. k .. "|" .. status)
                                 end
                             end
                         end
@@ -3799,7 +3835,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             local data = stringSplit(v, "|")
                             if (data) then
                                 local result, i = { }, 1
-                                for j = 1, 2 do
+                                for j = 1, 3 do
                                     if (data[j] ~= nil) then
                                         result[i] = data[j]
                                         i = i + 1
@@ -3808,8 +3844,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 if (result ~= nil) then
                                     local plugin_name = result[1]
                                     local index = result[2]
+                                    local status = result[3]
                                     local seperator = "|c"
-                                    respond(executor, "[#" .. index .. "] " .. plugin_name, "rcon", 2 + 8)
+                                    if (status == "[enabled]") then
+                                        color = 2+8
+                                    else
+                                        color = 4+8
+                                    end
+                                    respond(executor, "[#" .. index .. "] " .. plugin_name .. " " .. status, "rcon", color)
                                 end
                             end
                         end
@@ -4832,17 +4874,13 @@ function velocity:cute(params)
     local tStr = (gsub(gsub(tFormat, "%%executors_name%%", en), "%%target_name%%", tn))
 
     if (tab.environment == "chat") then
-        execute_command("msg_prefix \"\"")
         respond(tid, tStr, "chat", 2 + 8)
-        execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     else
         respond(tid, tStr, "rcon", 2 + 8)
     end
 
     local eStr = (gsub(gsub(eFormat, "%%executors_name%%", en), "%%target_name%%", tn))
-    execute_command("msg_prefix \"\"")
     respond(eid, eStr, "rcon", 2 + 8)
-    execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     return false
 end
 
@@ -5228,10 +5266,10 @@ function velocity:setLurker(params)
                     end
                 elseif (option == "off") or (option == "0") or (option == "false") then
                     if (lurker[tid] ~= false) then
-                        status, already_set, is_error = "Disable", false, false
+                        status, already_set, is_error = "Disabled", false, false
                         Disable(tid, tn)
                     else
-                        status, already_set, is_error = "Disable", true, false
+                        status, already_set, is_error = "Disabled", true, false
                     end
                 else
                     is_error = true
@@ -5585,39 +5623,159 @@ function velocity:aliasCmdRoutine(params)
     local eid = params.eid or nil
     local eip = params.eip or nil
     local use_timer = params.timer or nil
+    local current_page = params.page or nil
 
     local tab = players["Alias System"][eip]
+    local settings = settings.mod["Alias System"]
+    local max_results = settings.max_results_per_page
 
-    tab.tHash = params.th
-    tab.tName = params.tn
+    tab.target_hash = params.th
+    tab.target_name = params.tn
+    tab.eid = eid
 
     local aliases, content
-    local directory = settings.mod["Alias System"].dir
+    local directory = settings.dir
     local lines = lines_from(directory)
     for _, v in pairs(lines) do
-        if (v:match(tab.tHash)) then
+        if (v:match(tab.target_hash)) then
             aliases = v:match(":(.+)")
             content = stringSplit(aliases, ",")
             alias_results[eip][#alias_results[eip] + 1] = content
         end
     end
+    
 
-    tab.eid = eid
-    tab.shared = false
-    tab.check_pirated_hash = true
-
-    for i = 1, max_results do
-        if (alias_results[eip][1][i]) then
-            tab.total = tab.total + 1
+    for i = 1, #known_pirated_hashes do
+        if (tab.target_hash == known_pirated_hashes[i]) then
+            tab.shared = true
         end
     end
+    
+    for i = 1, #alias_results[eip][1] do
+        if (alias_results[eip][1][i]) then
+            tab.total_count = tab.total_count + 1
+        end
+    end
+    
+    local p, table = { }, { }
+    p.table, p.page = settings, current_page
+    local startpage, endpage = select(1, getPage(p)), select(2, getPage(p))
+    for page_num = startpage, endpage do
+        if (alias_results[eip][1][page_num]) then
+            table[#table + 1] = alias_results[eip][1][page_num]
+        end
+    end
+    
+    local pages = tab.total_count / (max_results)
+    if ( (pages) ~= floor(pages) ) then
+        pages = floor(pages) + 1
+    end
+    
+    if (#table > 0) then
+        alias_results[eip][1] = { }
+        
+        for k, v in pairs(table) do
+            alias_results[eip][1][k] = v
+        end
+        
+        for i = 1, max_results do
+            if (alias_results[eip][1][i]) then
+                tab.current_count = tab.current_count + 1
+            end
+        end
 
-    local total = tab.total
-    if (use_timer) then
-        tab.trigger = true
-        tab.bool = true
+        tab.current_page = current_page
+        tab.total_pages = pages
+        tab.results = alias_results[eip][1]
+        tab.max_results = max_results
+        
+        if (use_timer) then
+            tab.trigger = true
+            tab.bool = true
+        else
+            alias:show(tab)
+        end
     else
-        alias:show(eid, eip, total)
+        respond(eid, "Invalid Page ID. Valid pages: 1-" .. pages, "rcon", 2 + 8)
+    end
+end
+
+-- #Alias System
+function alias:show(tab)
+    alias:align(tab)
+end
+
+-- #Alias System
+function alias:align(tab)
+    local tab = tab or { }
+    if (tab) then
+
+        local executor = tab.eid
+        
+        local current_page = tab.current_page
+        local total_pages = tab.total_pages
+        local total_aliases = tab.total_aliases
+        
+        local current_count = tab.current_count
+        local total_count = tab.total_count
+        
+        local target_hash = tab.target_hash
+        local target_name = tab.target_name
+        local pirated = tab.shared
+        local results = tab.results
+        local max_results = tab.max_results
+
+        local alignment = settings.mod["Alias System"].alignment
+        
+        if not isConsole(executor) then
+            cls(executor, 25)
+        else
+            alignment = ""
+        end
+        
+        -- info: table = alias_results[ip]
+
+        local function formatResults()
+            local placeholder, row = { }
+            
+            for i = tonumber(startIndex), tonumber(endIndex) do
+                if (results) then
+                    placeholder[#placeholder + 1] = results[i]
+                    row = FormatTable(placeholder, max_columns, spaces)
+                end
+            end
+            
+            if (row == "") or (row == " ") then
+                row = nil
+            end
+            
+            if (row ~= nil) then
+                respond(executor, alignment .. " " .. row, "rcon")
+            end
+
+            for a in pairs(placeholder) do
+                placeholder[a] = nil
+            end
+
+            startIndex = (endIndex + 1)
+            endIndex = (endIndex + (max_columns))
+        end
+        
+        while (endIndex < total_count + max_columns) do
+            formatResults()
+        end
+        
+        if (startIndex >= total_count) then
+            startIndex = initialStartIndex
+            endIndex = max_columns
+        end
+        
+        respond(executor, " ", "rcon", 2+8)
+        --[Page X/X] Showing (X/X) aliases for xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+        respond(executor, alignment .. " " .. '[Page ' .. current_page .. '/' .. total_pages .. '] Showing (' .. current_count .. '/' .. total_count .. ') aliases for: "' .. target_hash .. '"', "rcon", 2+8)
+        if (pirated) then
+            respond(player, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2+8)
+        end
     end
 end
 
@@ -5633,68 +5791,6 @@ function resetAliasParams()
     end
 end
 
--- #Alias System
-function alias:align(player, table, target, total, pirated, name, alignment)
-    if not isConsole(player) then
-        cls(player, 25)
-    else
-        alignment = ""
-    end
-
-    local function formatResults()
-        local placeholder, row = { }
-
-        for i = tonumber(startIndex), tonumber(endIndex) do
-            if (table[1][i]) then
-                placeholder[#placeholder + 1] = table[1][i]
-                row = FormatTable(placeholder, max_columns, spaces)
-            end
-        end
-
-        if (row ~= nil) then
-            respond(player, alignment .. " " .. row, "rcon")
-        end
-
-        for a in pairs(placeholder) do
-            placeholder[a] = nil
-        end
-
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
-    end
-
-    while (endIndex < max_results + max_columns) do
-        formatResults()
-    end
-
-    if (startIndex >= max_results) then
-        startIndex = initialStartIndex
-        endIndex = max_columns
-    end
-    respond(player, " ", "rcon")
-    respond(player, alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"', "rcon")
-    if (pirated) then
-        respond(player, alignment .. " " .. name .. ' is using a pirated copy of Halo.', "rcon")
-    end
-end
-
--- #Alias System
-function alias:show(executor, ip, total)
-    local tab = players["Alias System"][ip]
-    local target = tab.tHash
-    local name = tab.tName
-    local check_pirated_hash = tab.check_pirated_hash
-    if (check_pirated_hash) then
-        tab.check_pirated_hash = false
-        for i = 1, #known_pirated_hashes do
-            if (target == known_pirated_hashes[i]) then
-                tab.shared = true
-            end
-        end
-    end
-    local alignment = settings.mod["Alias System"].alignment
-    alias:align(executor, alias_results[ip], target, total, tab.shared, name, alignment)
-end
 
 -- #Alias System
 function alias:add(name, hash)
@@ -6186,7 +6282,7 @@ function respond(executor, message, environment, color)
         color = color or 4 + 8
         if not (isConsole(executor)) then
             if (environment == "chat") then
-                say(executor, message)
+                Say(executor, message)
             elseif (environment == "rcon") then
                 rprint(executor, message)
             end
@@ -6614,7 +6710,29 @@ function RecordChanges()
     cl[#cl + 1] = "[5/3/19]"
     cl[#cl + 1] = "1). Bug fix for List Players feature."
     cl[#cl + 1] = "2). Other minor tweaks and a few documentation edits."
+    cl[#cl + 1] = "3). Tiny tweak in function 'velocity:setLurker()'"
     cl[#cl + 1] = "Script Updated to v1.30"
+    cl[#cl + 1] = "4). Bug fix in function 'OnPlayerChat()' - Empty messages will now return false."
+    cl[#cl + 1] = "5). Bug fix for command: /plugins [page id]"
+    cl[#cl + 1] = "The command feedback for /plugins [page id] now correctly displays the status of each individual plugin."
+    cl[#cl + 1] = "6). Bug Fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
+    cl[#cl + 1] = "7). For performance reasons I had to refactor a large amount of the Alias System...."
+    cl[#cl + 1] = "The command syntax has changed from /alias [id] to /alias [id] [page id]"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "There were two reasons for this change."
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "#1)."
+    cl[#cl + 1] = "Most people have pirated copies of Halo nowadays."
+    cl[#cl + 1] = "Eventually the number of aliases registered to a pirated key will result in the names being cut of the screen as you view them."
+    cl[#cl + 1] = "Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer."
+    cl[#cl + 1] = "A way around this was to split the names into pages - where in by, a certain number of lines (rows & columns) will be shown per page."
+    cl[#cl + 1] = "This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases."
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "#2)."
+    cl[#cl + 1] = "With so many names registered to a pirated key, it is difficult (without comparing ip address to names) to determine what names the"
+    cl[#cl + 1] = "target player has actually used. For this reason, I plan on implementing an /ipalias command feature at a later date."
+    cl[#cl + 1] = "In the mean time, the system is perfect for determining what names have been used with (legit) copies of Halo."
+    cl[#cl + 1] = "Script Updated to v1.31"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
