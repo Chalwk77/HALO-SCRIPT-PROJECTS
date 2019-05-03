@@ -6723,7 +6723,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "#1)."
     cl[#cl + 1] = "Most people have pirated copies of Halo nowadays."
-    cl[#cl + 1] = "Eventually the number of aliases registered to a pirated key will result in the names being cut of the screen as you view them."
+    cl[#cl + 1] = "Eventually the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them."
     cl[#cl + 1] = "Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer."
     cl[#cl + 1] = "A way around this was to split the names into pages - where in by, a certain number of lines (rows & columns) will be shown per page."
     cl[#cl + 1] = "This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases."
