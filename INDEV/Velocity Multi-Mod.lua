@@ -849,18 +849,22 @@ local function getip(p, bool)
     end
 end
 
+-- Receives a string and executes SAPP function 'say_all' without the **SERVER** prefix.
+-- Restores the prefix when done.
 local SayAll = function(Message)
     if (Message) then
         execute_command("msg_prefix \"\"")
-        say_all(Message)
+        say_all(Message) -- Sends a global message.
         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     end
 end
 
+-- Receives a string and Player ID (number) - executes SAPP function 'say' without the **SERVER** prefix.
+-- Restores the prefix when done.
 local Say = function(Player, Message)
     if (Player) and (Message) then
         execute_command("msg_prefix \"\"")
-        say(Player, Message)
+        say(Player, Message) -- Sends a private message to the target player.
         execute_command("msg_prefix \" " .. settings.global.server_prefix .. "\"")
     end
 end
@@ -935,14 +939,17 @@ local check_available_slots, give_weapon, delete_weapon = { }, { }, { }
 -- #Block Object Pickups
 local block_table = { }
 
+-- This function returns the name of the server.
 local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local sv_name = read_widestring(network_struct + 0x8, 0x42)
     return sv_name
 end
 
+-- Receives a number (PlayerIndex).
+-- Executes SAPP commands: 'ammo', 'mag' and 'battery' for the target player.
 local function adjust_ammo(p)
-    for i = 1, 4 do
+    for i = 1, 4 do -- Weapon slots 1 thru 4
         execute_command("ammo " .. tonumber(p) .. " 999 " .. i)
         execute_command("mag " .. tonumber(p) .. " 100 " .. i)
         execute_command("battery " .. tonumber(p) .. " 100 " .. i)
@@ -974,6 +981,7 @@ local getPageCount = function(total, max_results)
     return pages
 end
 
+-- Receives number (PlayerIndex) - disables infinity ammo for the Target Player.
 local function DisableInfAmmo(TargetID)
     infammo[TargetID] = false
     frag_check[TargetID] = false
@@ -981,12 +989,14 @@ local function DisableInfAmmo(TargetID)
     damage_multiplier[TargetID] = 0
 end
 
+-- Receives number (PlayerIndex) - Determines if the player is level 1 (at minimimum), or greater.
 local function isAdmin(p)
     if (tonumber(get_var(p, "$lvl")) >= 1) then
         return true
     end
 end
 
+-- Checks if the command was executed by a player or console - Retuns true if the latter.
 local function isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -1006,7 +1016,7 @@ local function modEnabled(script, e)
     end
 end
 
--- Returns the require permission level of the respective mod.
+-- Returns the required permission level of the respective mod.
 local function getPermLevel(script, bool, p)
     local p = p or nil
     if not (bool) and (p == nil) then
@@ -1027,11 +1037,12 @@ local function executeOnOthers(e, self, is_console, level, script)
             respond(e, "You are not allowed to executed this command on other players.", "rcon", 4 + 8)
             return false
         end
-    else
+    else -- Server should always be allowed to executed on others.
         return true
     end
 end
 
+-- Stores player information
 local function populateInfoTable(p)
     player_info[p] = { }
     if (halo_type == "PC") then
@@ -1073,10 +1084,12 @@ local function getPlayerInfo(Player, ID)
     end
 end
 
-local function announce(PlayerIndex, message)
+-- Receives two parameters: Number (PlayerIndex) & String (Message).
+-- Loops through all players and sends them a message (excluding PlayerIndex).
+local function announceExclude(PlayerIndex, message)
     for i = 1, 16 do
         if (player_present(i) and i ~= PlayerIndex) then
-            say(i, message)
+            say(i, message) -- SAPP function 'say'
         end
     end
 end
@@ -1195,6 +1208,7 @@ local function set(Player, ip)
     end
 end
 
+-- Trigger function for Message Board feature.
 function messageBoard:show(Player, ip)
     set(Player, ip)
     players["Message Board"][ip] = {
@@ -1247,6 +1261,8 @@ function velocity:ShowCurrentVersion()
     end
 end
 
+-- Receives number - determines whether to pluralize.
+-- Returns string 's' if the input is greater than 1.
 local function getChar(input)
     local char = ""
     if (tonumber(input) > 1) then
@@ -1258,10 +1274,10 @@ local function getChar(input)
 end
 
 function OnScriptLoad()
-    InitPlayers()
-    loadWeaponTags()
+    InitPlayers() -- Creates an array of arrays (table wherein each element is another table)
+    loadWeaponTags() -- preload weapon tag variables
     GameSettings()
-    printEnabled()
+    printEnabled() -- Loops through settings.mod -> prints mod name & status message (enabled or disabled)
     velocity:ShowCurrentVersion()
     register_callback(cb['EVENT_TICK'], "OnTick")
 
@@ -1333,7 +1349,7 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             populateInfoTable(i)
-            local ip = getip(i, true)
+            local ip = getip(i, true) -- returns ip (without port)
             local level = tonumber(get_var(i, "$lvl"))
 
             -- #Give
@@ -4842,7 +4858,7 @@ function velocity:infinityAmmo(params)
             else
                 respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
                 if (tab .. announcer) then
-                    announce(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
+                    announceExclude(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
                 end
             end
         end
@@ -4869,7 +4885,7 @@ function velocity:infinityAmmo(params)
             elseif (multiplier == "off") then
                 DisableInfAmmo(eid)
                 if (tab.announcer) then
-                    announce(eid, en .. " is no longer in Infinity Ammo Mode")
+                    announceExclude(eid, en .. " is no longer in Infinity Ammo Mode")
                 end
             end
         elseif not (is_self) then
@@ -4893,7 +4909,7 @@ function velocity:infinityAmmo(params)
                 DisableInfAmmo(tid)
                 respond(eid, "[cheat] Disabled infammo for " .. tn, "rcon", 4 + 8)
                 if (tab .. announcer) then
-                    announce(tid, tn .. " is no longer in Infinity Ammo Mode")
+                    announceExclude(tid, tn .. " is no longer in Infinity Ammo Mode")
                 end
             end
         end
@@ -5280,7 +5296,7 @@ function velocity:setLurker(params)
             execute_command("camo " .. tid)
         end
         if (mod.announcer) then
-            announce(tid, tn .. " is now in lurker mode! [spectator]")
+            announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
         end
     end
 
@@ -5299,7 +5315,7 @@ function velocity:setLurker(params)
         mod.lurker_warnings = warnings
         cls(tid, 25)
         if (mod.announcer) then
-            announce(tid, tn .. " is no longer in lurker mode! [spectator]")
+            announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
         end
     end
 
