@@ -15,7 +15,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- Configuration [starts]
+-- Configuration [starts] >> ----------------------------------------------
 local base_command = "alias"
 local dir = "sapp\\alias.lua" -- File is saved to root/sapp/dir.lua
 
@@ -35,9 +35,12 @@ local alignment = "|l"
 
 -- Maximum number of names shown per page.
 local max_results_per_page = 50
+-- Configuration [ends] << ----------------------------------------------
 
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
 local players, player_info, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
-
 local server_ip = "000.000.000.000"
 local function InitPlayers()
     players = {
@@ -64,12 +67,12 @@ local function getPlayerInfo(Player, ID)
                 return player_info[Player][key][ID]
             end
         else
-            return error('getPlayerInfo() -> Unable to get ' .. ID)
+            return error('ALIAS SYSTEM: getPlayerInfo() -> Unable to get ' .. ID)
         end
     end
 end
 
-local max_columns, max_results = 5, 100
+local max_columns, max_results = 5, 200
 local startIndex, endIndex = 1, max_columns
 local spaces = 2
 local alias, alias_results = { }, { }
