@@ -13,6 +13,8 @@
 ## Enter Vehicle:
 `/enter <<item>> [me | id | */all] (optional: height/distance)`
 >  Optional Flags: 'height' = height from ground, 'distance' = distance from player.
+
+
 >  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 
 ## Give:
@@ -33,9 +35,12 @@
 
 ## Mute System:
 `/mute [id | */all] ( optional: <<time diff>> )`
-> If '<<time diff>>' parameter is not specified, the player will be muted permanently.
+> If `[time diff]` parameter is not specified, the player will be muted permanently.
+
+
 > You cannot execute /mute or /unmute on yourself.
 `/unmute [id | */all]`
+
 `/mutelist ( optional: {flag} )`
 > If you specify the '-o' flag, this command will only show you muted players who are currently online.
 
