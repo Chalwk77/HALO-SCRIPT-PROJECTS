@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.34), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.35), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -64,7 +64,11 @@ local function GameSettings()
                 restore = true,
                 environment = "rcon", -- Valid environments: "rcon", "chat".
                 -- Message Format
-                message_format = { "%prefix% %sender_name% [%index%] %message%" }
+                message_format = {
+                    "%prefix% %sender_name% [%index%]:",
+                    "%message%",
+                }
+                
             },
             -- # Custom (separate) join messages for staff on a per-level basis
             ["Admin Join Messages"] = {
@@ -764,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.34, -- << --- do not touch
+            script_version = 1.35, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1046,10 +1050,10 @@ local function populateInfoTable(p)
             a = gsub(tab[i], "%%name%%", name)
         elseif tab[i]:match("%%hash%%") then
             b = gsub(tab[i], "%%hash%%", hash)
-        elseif tab[i]:match("%%index_id%%") then
-            d = gsub(tab[i], "%%index_id%%", id)
         elseif tab[i]:match("%%ip_address%%") then
             c = gsub(tab[i], "%%ip_address%%", ip)
+        elseif tab[i]:match("%%index_id%%") then
+            d = gsub(tab[i], "%%index_id%%", id)
         elseif tab[i]:match("%%level%%") then
             e = gsub(tab[i], "%%level%%", level)
         end
@@ -2654,15 +2658,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if modEnabled("Admin Chat", PlayerIndex) then
         local mod = players["Admin Chat"][ip]
         local environment = settings.mod["Admin Chat"].environment
-        local function AdminChat(Message)
+        local function AdminChat(table)
             for i = 1, 16 do
                 if player_present(i) then
                     if (level(i) >= getPermLevel("Admin Chat", false)) then
                         if (environment == "rcon") then
-                            respond(i, "|l" .. Message, "rcon")
+                            for j = 1, #table do
+                                respond(i, "|l" .. table[j], "rcon")
+                            end
                         elseif (environment == "chat") then
-                            respond(i, Message, "chat")
+                            for j = 1, #table do
+                                respond(i, table[j], "chat")
+                            end
                         end
+                        table = nil
                     end
                 end
             end
@@ -2676,10 +2685,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
                                 response = true
                             else
-                                local strFormat = settings.mod["Admin Chat"].message_format[1]
-                                local prefix = settings.mod["Admin Chat"].prefix
-                                local Format = (gsub(gsub(gsub(gsub(strFormat, "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                AdminChat(Format)
+                                local tab = settings.mod["Admin Chat"]
+                                local strFormat = tab.message_format
+                                local prefix = tab.prefix
+                                local temp = { }
+                                for i = 1, #strFormat do
+                                    if (strFormat[i]) then
+                                        temp[#temp + 1] = strFormat[i]
+                                    end
+                                end
+                                for j = 1, #temp do
+                                    temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
+                                    print(temp[j])
+                                end
+                                AdminChat(temp)
                                 response = false
                             end
                         end
@@ -6772,6 +6791,8 @@ function RecordChanges()
     cl[#cl + 1] = "3). Bug fix for Alias System - checks against pirated copies of Halo."
     cl[#cl + 1] = "4). Bug fix for Admin Chat - Fixed a problem with permission check."
     cl[#cl + 1] = "Script Updated to v1.34"
+    cl[#cl + 1] = "5). Small tweak to Admin Chat (again)"
+    cl[#cl + 1] = "Script Updated to v1.35"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
