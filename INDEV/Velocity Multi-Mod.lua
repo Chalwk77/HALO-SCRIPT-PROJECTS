@@ -513,7 +513,7 @@ local function GameSettings()
                     "%msg%",
                 },
                 -- do not touch these unless you know what you're doing
-                max_characters = 78,
+                max_characters = 78, -- maximum characters in message
                 seperator = "|",
             },
             -- Respawn yourself or others on demand (no death penalty incurred)
