@@ -2671,7 +2671,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 respond(i, table[j], "chat")
                             end
                         end
-                        table = nil
                         response = false
                     end
                 end
