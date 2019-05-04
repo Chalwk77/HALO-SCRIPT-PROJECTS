@@ -1809,6 +1809,7 @@ function OnTick()
                     end
                 end
             end
+            
             -- #Message Board
             if modEnabled("Message Board") then
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
@@ -5674,7 +5675,7 @@ function velocity:aliasCmdRoutine(params)
     local use_timer = params.timer or nil
     local current_page = params.page or nil
 
-    if (current_page == nil) then
+    if (current_page == nil) or (type(current_page) == "string")then
         current_page = 1
     end
 
