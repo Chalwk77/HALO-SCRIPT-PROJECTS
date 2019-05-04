@@ -5,6 +5,7 @@
 
 ## Alias System:
 `/alias [me | id] [page id]`
+> If you don't specify a page ID it will show you page 1 by default.
 - - - -
 
 ## Block Object Pickup:
