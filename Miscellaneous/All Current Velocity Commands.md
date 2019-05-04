@@ -44,7 +44,7 @@
 > If `[time diff]` parameter is not specified, the player will be muted permanently.<br/>
 > You cannot execute `/mute` or `/unmute` on yourself.<br/>
 `/unmute [id | */all]`<br/>
-`/mutelist ( optional: {flag} )`
+`/mutelist ( optional: {flag} )`<br/>
 > If you specify the '-o' flag, this command will only show you muted players who are currently online.
 - - - -
 
@@ -61,7 +61,7 @@
 `/pm [id | ip] {message}`<br/>
 `/readmail [page id]`<br/>
 `/delpm [#mail id]`
-> The `[#mail id]` is inserted 'before' the senders name on the `/readmail page`.
+> FYI: The `[#mail id]` is inserted 'before' the senders name on the `/readmail page`.
 - - - -
 
 ## Respawn Time:
@@ -81,12 +81,9 @@
 
 > You can enable or disable any feature at any time with /enable [id], /disable [id].
 
-`/clean [me | id | */all] 1`
-> (cleans up "Enter Vehicle" objects)<br/>
-`/clean [me | id | */all] 2`
-> (cleans up "Item Spawner" objects)<br/>
-`/clean [me | id | */all] *`
-> (cleans up "everything")
+`/clean [me | id | */all] 1` > (cleans up "Enter Vehicle" objects)<br/>
+`/clean [me | id | */all] 2` > (cleans up "Item Spawner" objects)<br/>
+`/clean [me | id | */all] *` > (cleans up "everything")<br/>
 
 `/velocity`
 > If update checking is disabled this command will only display the current version.<br/>
