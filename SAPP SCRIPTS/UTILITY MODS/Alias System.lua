@@ -3,7 +3,7 @@
 Script Name: Alias System, for SAPP (PC & CE)
 Description: Query a player's hash to check what aliases have been used with it.
 
-Command syntax: /alias [me | id | * | all]
+Command syntax: /alias ( 'me' or [number: 1-16] ) [page id]
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -17,8 +17,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 local base_command = "alias"
--- File is saved to root/sapp/dir.lua
-local dir = "sapp\\alias.lua"
+local dir = "sapp\\alias.lua" -- File is saved to root/sapp/dir.lua
 
 -- You can optionally display results for a specified amount of time. 
 -- Set 'use_timer' to true to enable this feature.
@@ -27,28 +26,57 @@ local use_timer = true
 -- How long should the alias results be displayed for? (in seconds) --
 local duration = 10
 
--- Message Alignment:
--- Left = l,    Right = r,    Center = c,    Tab: t
-local alignment = "l"
-
--- Minimum admin level required to use /base_command
+-- Minimum admin level required to use /base_command (-1 for all players, 1-4 for admins)
 local privilege_level = 1
 
-local max_columns, max_results = 5, 100
-local startIndex = 1
-local endIndex = max_columns
-local spaces = 2
--- Configuration [ends].
+-- Message Alignment:
+-- Left = l,    Right = r,    Center = c,    Tab: t
+local alignment = "|l"
 
-local ip_table, alias_results = { }, { }
-local mod, players, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
-local data = { }
-local initialStartIndex
-local check_pirated_hash
-local shared = { }
-local known_pirated_hashes
+-- Maximum number of names shown per page.
+local max_results_per_page = 50
+
+local players, player_info, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
+
+local server_ip = "000.000.000.000"
+local function InitPlayers()
+    players = {
+        ["Alias System"] = { },
+    }
+end
+
+local function getip(p)
+    if (p) then
+        return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    end
+end
+
+local function populateInfoTable(p)
+    player_info[p] = { }
+    local ip, level = getip(p), tonumber(get_var(p, "$lvl"))
+    table.insert(player_info[p], { ["ip"] = ip, ["level"] = level})
+end
+
+local function getPlayerInfo(Player, ID)
+    if player_present(Player) then
+        if (player_info[Player] ~= nil) or (player_info[Player] ~= {}) then
+            for key, _ in ipairs(player_info[Player]) do
+                return player_info[Player][key][ID]
+            end
+        else
+            return error('getPlayerInfo() -> Unable to get ' .. ID)
+        end
+    end
+end
+
+local max_columns, max_results = 5, 100
+local startIndex, endIndex = 1, max_columns
+local spaces = 2
+local alias, alias_results = { }, { }
+local initialStartIndex, known_pirated_hashes
 local function PreLoad()
     initialStartIndex = tonumber(startIndex)
+    known_pirated_hashes = { }
     known_pirated_hashes = {
         "388e89e69b4cc08b3441f25959f74103",
         "81f9c914b3402c2702a12dc1405247ee",
@@ -62,70 +90,98 @@ local function PreLoad()
         "c702226e783ea7e091c0bb44c2d0ec64",
         "f443106bd82fd6f3c22ba2df7c5e4094",
         "10440b462f6cbc3160c6280c2734f184",
+        "3d5cd27b3fa487b040043273fa00f51b",
+        "b661a51d4ccf44f5da2869b0055563cb",
+        "740da6bafb23c2fbdc5140b5d320edb1",
+        "7503dad2a08026fc4b6cfb32a940cfe0",
+        "4486253cba68da6786359e7ff2c7b467",
+        "f1d7c0018e1648d7d48f257dc35e9660",
+        "40da66d41e9c79172a84eef745739521",
+        "2863ab7e0e7371f9a6b3f0440c06c560",
+        "34146dc35d583f2b34693a83469fac2a",
+        "b315d022891afedf2e6bc7e5aaf2d357",
+        "63bf3d5a51b292cd0702135f6f566bd1",
+        "6891d0a75336a75f9d03bb5e51a53095",
+        "325a53c37324e4adb484d7a9c6741314",
+        "0e3c41078d06f7f502e4bb5bd886772a",
+        "fc65cda372eeb75fc1a2e7d19e91a86f",
+        "f35309a653ae6243dab90c203fa50000",
+        "50bbef5ebf4e0393016d129a545bd09d",
+        "a77ee0be91bd38a0635b65991bc4b686",
+        "3126fab3615a94119d5fe9eead1e88c1",
     }
 end
 
-local function resetParams()
+local function resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
             if (tonumber(get_var(i, "$lvl")) >= privilege_level) then
-                mod:reset(get_var(i, "$ip"))
+                local ip = getip(i)
+                alias:reset(ip)
             end
         end
     end
 end
 
+-- #Alias System
+function alias:reset(ip)
+    alias_results[ip] = { }
+    players["Alias System"][ip] = {
+        eid = 0,
+        timer = 0,
+        current_page = 0,
+        total_pages = 0,
+        total_aliases = 0,
+        current_count = 0,
+        total_count = 0,
+        bool = false,
+        trigger = false,
+        shared = false,
+    }
+end
+
 function OnScriptLoad()
+    InitPlayers()
+    
     if (use_timer) then
         register_callback(cb['EVENT_TICK'], "OnTick")
     end
 
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    checkFile()
-    resetParams()
+    
+
+    checkFile(dir)
+    resetAliasParams()
     PreLoad()
-end
-
-function OnScriptUnload()
-
-end
-
-function mod:reset(ip)
-    players[ip] = players[ip] or { }
-    players[ip].e = nil
-    players[ip].t = nil
-    players[ip].total = 0
-    if (use_timer) then
-        players[ip].timer = 0
-        players[ip].trigger = false
-        players[ip].bool = false
-    end
-end
-
-function OnNewGame()
-    PreLoad()
-    resetParams()
-    for i = 1,16 do 
-        if (shared[i] == true) then
-            shared[i] = false
+    alias:reset(server_ip)
+    for i = 1, 16 do
+        if player_present(i) then
+            populateInfoTable(i)
         end
     end
 end
 
+function OnScriptUnload()
+    --
+end
+
+function OnGameStart()
+    PreLoad()
+    resetAliasParams()
+end
+
 function OnGameEnd()
-    resetParams()
+    resetAliasParams()
 end
 
 local function stringSplit(inp, sep)
-    if (sep == nil) then
-        sep = "%s"
-    end
+    if (sep == nil) then sep = "%s" end
     local t, i = {}, 1
     for str in gmatch(inp, "([^" .. sep .. "]+)") do
         t[i] = str
@@ -134,128 +190,52 @@ local function stringSplit(inp, sep)
     return t
 end
 
-local function spacing(n, sep)
-    sep = sep or ""
-    local String, Seperator = "", ","
-    for i = 1, n do
-        if i == math.floor(n / 2) then
-            String = String .. sep
-        end
-        String = String .. " "
-    end
-    return Seperator .. String
-end
-
-local function FormatTable(table, rowlen, space, delimiter)
-    local longest = 0
-    for _, v in ipairs(table) do
-        local len = string.len(v)
-        if len > longest then
-            longest = len
-        end
-    end
-    local rows = {}
-    local row = 1
-    local count = 1
-    for k, v in ipairs(table) do
-        if count % rowlen == 0 or k == #table then
-            rows[row] = (rows[row] or "") .. v
-        else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space, delimiter)
-        end
-        if count % rowlen == 0 then
-            row = row + 1
-        end
-        count = count + 1
-    end
-    return concat(rows)
-end
-
-function data:align(player, table, target, total, shared, name)
-    cls(player)
-    local function formatResults()
-        local placeholder, row = { }
-
-        for i = tonumber(startIndex), tonumber(endIndex) do
-            if (table[1][i]) then
-                placeholder[#placeholder + 1] = table[1][i]
-                row = FormatTable(placeholder, max_columns, spaces)
-            end
-        end
-
-        if (row ~= nil) then
-            rprint(player, "|" .. alignment .. " " .. row)
-        end
-
-        for a in pairs(placeholder) do
-            placeholder[a] = nil
-        end
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
-    end
-
-    while (endIndex < max_results + max_columns) do
-        formatResults()
-    end
-
-    if (startIndex >= max_results) then
-        startIndex = initialStartIndex
-        endIndex = max_columns
-    end
-    rprint(player, " ")
-    rprint(player, "|" .. alignment .. " " .. 'Showing (' .. total .. ' aliases) for: "' .. target .. '"')
-    if (shared) then
-        rprint(player, "|" .. alignment .. " " .. name .. ' is using a pirated copy of Halo.')
-    end
-end
-
-function mod:showAliases(executor, ip, total)
-    local target = players[ip].t
-    local name = players[ip].name
-    if (check_pirated_hash) then
-        check_pirated_hash = false
-        for i = 1, #known_pirated_hashes do
-            if (target == known_pirated_hashes[i]) then
-                shared[executor] = true
-            end
-        end
-    end
-    data:align(executor, alias_results, target, total, shared[executor], name)
-end
-
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
-            local ip = get_var(i, "$ip")
-            if (players[ip] and players[ip].trigger == true) then
-                players[ip].timer = players[ip].timer + 0.030
-                mod:showAliases(i, ip, players[ip].total)
-                if players[ip].timer >= floor(duration) then
-                    mod:reset(get_var(i, "$ip"))
+            local ip = getip(i)
+            if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
+                players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
+                alias:show(players["Alias System"][ip])
+                if players["Alias System"][ip].timer >= floor(duration) then
+                    alias:reset(ip)
                 end
             end
         end
     end
 end
 
-function OnPlayerJoin(PlayerIndex)
-    local name, hash = get_var(PlayerIndex, "$name"), get_var(PlayerIndex, "$hash")
-    mod:addAlias(name, hash)
-    if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
-        ip_table[PlayerIndex] = {}
-        ip_table[PlayerIndex][#ip_table[PlayerIndex] + 1] = get_var(PlayerIndex, "$ip")
-        shared[PlayerIndex] = { }
+function OnPlayerConnect(PlayerIndex)
+    local p = tonumber(PlayerIndex)
+    local ip = getip(p)
+    local level = tonumber(get_var(p, "$lvl"))
+    
+    local name, hash = get_var(p, "$name"), get_var(p, "$hash")
+    alias:add(name, hash)
+    
+    populateInfoTable(PlayerIndex)
+    
+    if (level >= privilege_level) then
+        alias:reset(ip)
     end
 end
 
-function OnPlayerLeave(PlayerIndex)
-    if (tonumber(get_var(PlayerIndex, "$lvl")) >= privilege_level) then
-        shared[PlayerIndex] = false
-        if next(ip_table[PlayerIndex]) then
-            for _, v in ipairs(ip_table[PlayerIndex]) do
-                mod:reset(v)
-                ip_table[PlayerIndex] = nil
-            end
+function OnPlayerDisconnect(p)
+    local level = getPlayerInfo(p, "level")
+    local ip = getPlayerInfo(p, "ip")
+    if (tonumber(level) >= privilege_level) then
+        if (players["Alias System"][ip] ~= nil) then
+            alias:reset(ip)
+        end
+    end
+end
+
+local function isConsole(e)
+    if (e) then
+        if (e ~= -1 and e >= 1 and e < 16) then
+            return false
+        else
+            return true
         end
     end
 end
@@ -279,11 +259,11 @@ local function isOnline(t, e)
             if player_present(t) then
                 return true
             else
-                rprint(e, "Command failed. Player not online.")
+                respond(e, "Command failed. Player not online.", "rcon", 4 + 8)
                 return false
             end
         else
-            rprint(e, "Invalid player id. Please enter a number between 1-16")
+            respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4 + 8)
         end
     end
 end
@@ -293,29 +273,20 @@ function OnServerCommand(PlayerIndex, Command)
     local executor = tonumber(PlayerIndex)
 
     local TargetID, target_all_players, is_error
-    local ip = get_var(executor, "$ip")
-    local total = 0
-
-    local function validate_params()
-        cls(executor)
-        mod:reset(ip)
-        local function getplayers(arg, executor)
+    local ip = getip(PlayerIndex)
+    
+    local params = { }
+    local function validate_params(executor)
+        local function getplayer(arg, executor)
             local pl = { }
-            if arg == "me" then
+            if (arg == "me") then
                 TargetID = executor
                 table.insert(pl, executor)
-            elseif arg:match("%d+") then
-                TargetID = tonumber(args[1])
-                table.insert(pl, arg)
-            elseif arg == "*" or (arg == "all") then
-                for i = 1, 16 do
-                    if player_present(i) then
-                        target_all_players = true
-                        table.insert(pl, i)
-                    end
-                end
+            elseif (arg:match("%d+")) then
+                TargetID = tonumber(arg)
+                table.insert(pl, tonumber(arg))
             else
-                rprint(executor, "Invalid player id")
+                respond(executor, "Invalid player id. Usage: 'me' or [number: 1-16]", "rcon", 4 + 8)
                 is_error = true
                 return false
             end
@@ -325,69 +296,303 @@ function OnServerCommand(PlayerIndex, Command)
             pl = nil
             return false
         end
-
-        local pl = getplayers(args[1], executor)
-        local aliases
+        local pl = getplayer(args[1], executor)
         if pl then
-            local content
-            alias_results = { }
             for i = 1, #pl do
+            
                 if pl[i] == nil then
                     break
                 end
-                players[ip].t = get_var(pl[i], "$hash")
-                players[ip].name = get_var(pl[i], "$name")
-                local lines = lines_from(dir)
-                for _, v in pairs(lines) do
-                    if (v:match(players[ip].t)) then
-                        aliases = v:match(":(.+)")
-                        content = stringSplit(aliases, ",")
-                        alias_results[#alias_results + 1] = content
-                    end
+                
+                params.eid, params.eip = executor, ip
+                params.tid = tonumber(pl[i])
+                params.th, params.tn = get_var(pl[i], "$hash"), get_var(pl[i], "$name")
+
+                if (params.eip == nil) then
+                    params.eip = server_ip
                 end
-            end
-            if (pl ~= nil) then
-                players[ip].e = tonumber(get_var(executor, "$n"))
-                shared[executor] = false
-                check_pirated_hash = true
-                for i = 1, max_results do
-                    if (alias_results[1][i]) then
-                        players[ip].total = players[ip].total + 1
-                    end
+
+                local bool
+                if isConsole(executor) then
+                    bool = false
+                else
+                    bool = use_timer
                 end
-                total = players[ip].total
-                if (target_all_players) then
-                    -- prototype
-                    if (use_timer) then
-                        players[ip].bool = true
-                        players[ip].trigger = true
-                    else
-                        mod:showAliases(executor, ip, total)
-                    end
+
+                if (args[2] ~= nil) then
+                    params.page = args[2]
                 end
+
+                params.timer = bool
+                alias:reset(params.eip)
             end
         end
     end
-    if (command == lower(base_command)) then
+
+    if (command == base_command) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil) then
-                is_error = false
-                validate_params()
-                if not (target_all_players) then
-                    if not (is_error) and isOnline(TargetID, executor) then
-                        if (use_timer) then
-                            players[ip].bool = true
-                            players[ip].trigger = true
-                        else
-                            mod:showAliases(executor, ip, total)
-                        end
-                    end
+                validate_params(executor)
+                if not (is_error) and isOnline(TargetID, executor) then
+                    alias:cmdRoutine(params)
                 end
             else
-                rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [id | me | * | all]")
+                respond(executor, "Invalid syntax. Usage: /" .. base_command .. " ( 'me' or [number: 1-16] ) [page id]", "rcon", 4 + 8)
             end
         end
         return false
+    end
+end
+
+local getPageCount = function(total, max_results)
+    local pages = total / (max_results)
+    if ((pages) ~= floor(pages)) then
+        pages = floor(pages) + 1
+    end
+    return pages
+end
+
+function alias:cmdRoutine(params)
+    local params = params or {}
+    
+    local eid = params.eid or nil
+    local eip = params.eip or nil
+
+    local use_timer = params.timer or nil
+    local current_page = params.page or nil
+
+    if (current_page == nil) then
+        current_page = 1
+    end
+
+    local tab = players["Alias System"][eip]
+    local max_results = max_results_per_page
+
+    tab.target_hash = params.th
+    tab.target_name = params.tn
+    tab.eid = eid
+
+    local aliases, content
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(tab.target_hash)) then
+            aliases = v:match(":(.+)")
+            content = stringSplit(aliases, ",")
+            alias_results[eip][#alias_results[eip] + 1] = content
+        end
+    end
+
+    for i = 1, #known_pirated_hashes do
+        if (tab.target_hash == known_pirated_hashes[i]) then
+            tab.shared = true
+        end
+    end
+
+    for i = 1, #alias_results[eip][1] do
+        if (alias_results[eip][1][i]) then
+            tab.total_count = tab.total_count + 1
+        end
+    end
+
+    if (current_page == nil) or (type(current_page) == "string")then
+        current_page = 1
+    end
+
+    local start = (max_results) * current_page
+    local startpage = (start - max_results + 1)
+    local endpage = start
+
+    local table = { }
+    for page_num = startpage, endpage do
+        if (alias_results[eip][1][page_num]) then
+            table[#table + 1] = alias_results[eip][1][page_num]
+        end
+    end
+
+    local pages = getPageCount(tab.total_count, max_results)
+
+    if (#table > 0) then
+    
+        alias_results[eip][1] = { }
+
+        for k, v in pairs(table) do
+            alias_results[eip][1][k] = v
+        end
+
+        for i = 1, max_results do
+            if (alias_results[eip][1][i]) then
+                tab.current_count = tab.current_count + 1
+            end
+        end
+
+        tab.current_page = current_page
+        tab.total_pages = pages
+        tab.results = alias_results[eip][1]
+        tab.max_results = max_results
+
+        if (use_timer) then
+            tab.trigger = true
+            tab.bool = true
+        else
+            alias:show(tab)
+        end
+    else
+        respond(eid, "Invalid Page ID. Valid pages: 1 to " .. pages, "rcon", 2 + 8)
+    end
+end
+
+function alias:show(tab)
+    alias:align(tab)
+end
+
+local function spacing(n)
+    local String, Seperator = "", ","
+    for i = 1, n do
+        if i == floor(n / 2) then
+            String = String .. ""
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
+end
+
+local function FormatTable(table, rowlen, space)
+    local longest = 0
+    for _, v in ipairs(table) do
+        local len = string.len(v)
+        if (len > longest) then
+            longest = len
+        end
+    end
+    local rows = {}
+    local row = 1
+    local count = 1
+    for k, v in ipairs(table) do
+        if (count % rowlen == 0) or (k == #table) then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space)
+        end
+        if (count % rowlen == 0) then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
+end
+
+function alias:align(tab)
+    local tab = tab or { }
+    if (tab) then
+
+        local executor = tab.eid
+
+        local current_page = tab.current_page
+        local total_pages = tab.total_pages
+        local total_aliases = tab.total_aliases
+
+        local current_count = tab.current_count
+        local total_count = tab.total_count
+
+        local target_hash = tab.target_hash
+        local target_name = tab.target_name
+        local pirated = tab.shared
+        local results = tab.results
+        local max_results = tab.max_results
+
+        if not isConsole(executor) then
+            cls(executor, 25)
+        else
+            alignment = ""
+        end
+
+        local function formatResults()
+            local placeholder, row = { }
+
+            for i = tonumber(startIndex), tonumber(endIndex) do
+                if (results) then
+                    placeholder[#placeholder + 1] = results[i]
+                    row = FormatTable(placeholder, max_columns, spaces)
+                end
+            end
+
+            if (row == "") or (row == " ") then
+                row = nil -- just in case
+            end
+
+            if (row ~= nil) then
+                respond(executor, alignment .. " " .. row, "rcon")
+            end
+
+            for a in pairs(placeholder) do
+                placeholder[a] = nil
+            end
+
+            startIndex = (endIndex + 1)
+            endIndex = (endIndex + (max_columns))
+        end
+
+        while (endIndex < total_count + max_columns) do
+            formatResults()
+        end
+
+        if (startIndex >= total_count) then
+            startIndex = initialStartIndex
+            endIndex = max_columns
+        end
+
+        respond(executor, " ", "rcon", 2 + 8)
+        --[Page X/X] Showing (X/X) aliases for xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+        respond(executor, alignment .. " " .. '[Page ' .. current_page .. '/' .. total_pages .. '] Showing (' .. current_count .. '/' .. total_count .. ') aliases for: "' .. target_hash .. '"', "rcon", 2 + 8)
+        if (pirated) then
+            respond(executor, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2 + 8)
+        end
+    end
+end
+
+function alias:add(name, hash)
+
+    local function containsExact(w, s)
+        return select(2, s:gsub('^' .. w .. '%W+', '')) +
+                select(2, s:gsub('%W+' .. w .. '$', '')) +
+                select(2, s:gsub('^' .. w .. '$', '')) +
+                select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
+    end
+
+    local found, proceed
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if containsExact(hash, v) and containsExact(name, v) then
+            proceed = true
+        end
+        if containsExact(hash, v) and not containsExact(name, v) then
+            found = true
+
+            if string.find(name, '%[') then
+                name = gsub(name, '%[', "{")
+            end
+
+            if string.find(name, '%]') then
+                name = gsub(name, '%]', "}")
+            end
+
+            local alias = v .. ", " .. name
+
+            local fRead = io.open(dir, "r")
+            local content = fRead:read("*all")
+            fRead:close()
+
+            content = gsub(content, v, alias)
+
+            local fWrite = io.open(dir, "w")
+            fWrite:write(content)
+            fWrite:close()
+        end
+    end
+    if not (found) and not (proceed) then
+        local file = assert(io.open(dir, "a+"))
+        file:write(hash .. ":" .. name .. "\n")
+        file:close()
     end
 end
 
@@ -413,41 +618,18 @@ function checkFile()
     end
 end
 
-local function containsExact(w, s)
-    return select(2, s:gsub('^' .. w .. '%W+', '')) +
-            select(2, s:gsub('%W+' .. w .. '$', '')) +
-            select(2, s:gsub('^' .. w .. '$', '')) +
-            select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
-end
-
-function mod:addAlias(name, hash)
-    checkFile()
-    local found, proceed
-    local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(hash, v) and containsExact(name, v) then
-            proceed = true
+function respond(executor, message, environment, color)
+    if (executor) then
+        color = color or 4 + 8
+        if not (isConsole(executor)) then
+            if (environment == "chat") then
+                Say(executor, message)
+            elseif (environment == "rcon") then
+                rprint(executor, message)
+            end
+        else
+            cprint(message, color)
         end
-        if containsExact(hash, v) and not containsExact(name, v) then
-            found = true
-
-            local alias = v .. ", " .. name
-
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-
-            content = gsub(content, v, alias)
-
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
-        end
-    end
-    if not (found) and not (proceed) then
-        local file = assert(io.open(dir, "a+"))
-        file:write(hash .. ":" .. name .. "\n")
-        file:close()
     end
 end
 
@@ -508,8 +690,10 @@ function cmdsplit(str)
     return cmd, args
 end
 
-function cls(PlayerIndex)
-    for _ = 1, 25 do
-        rprint(PlayerIndex, " ")
+function cls(PlayerIndex, count)
+    if (PlayerIndex) then
+        for _ = 1, count do
+            respond(PlayerIndex, " ", "rcon")
+        end
     end
 end
