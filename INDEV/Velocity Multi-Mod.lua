@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.33), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.34), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -764,7 +764,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.33, -- << --- do not touch
+            script_version = 1.34, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2528,10 +2528,13 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local id = tonumber(PlayerIndex)
-    local level = tonumber(get_var(id, "$lvl"))
     local name = get_var(PlayerIndex, "$name")
     local ip = getip(PlayerIndex, true)
     local response
+    
+    local level = function(p)
+        return tonumber(get_var(p, "$lvl"))
+    end
 
     -- #Mute System
     if modEnabled("Mute System") then
@@ -2653,18 +2656,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local environment = settings.mod["Admin Chat"].environment
         local function AdminChat(Message)
             for i = 1, 16 do
-                if player_present(i) and (level >= getPermLevel("Admin Chat", false)) then
-                    if (environment == "rcon") then
-                        respond(i, "|l" .. Message, "rcon")
-                    elseif (environment == "chat") then
-                        respond(i, Message, "chat")
+                if player_present(i) then
+                    if (level(i) >= getPermLevel("Admin Chat", false)) then
+                        if (environment == "rcon") then
+                            respond(i, "|l" .. Message, "rcon")
+                        elseif (environment == "chat") then
+                            respond(i, Message, "chat")
+                        end
                     end
                 end
             end
         end
         if (mod.adminchat) then
             -- attempt to index local 'mod' (a nil value) - when script is reloaded
-            if (level >= getPermLevel("Admin Chat", false)) then
+            if (level(id) >= getPermLevel("Admin Chat", false)) then
                 for c = 0, #message do
                     if message[c] then
                         if not (keyword) or (keyword == nil) then
@@ -2754,13 +2759,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 if (getTeamPlay()) then
                                     if (type == 0 or type == 2) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
-                                            if (level == tmod_perm) then
+                                            if (level(id) == tmod_perm) then
                                                 SendToAll(Message, nil, true, nil, nil, nil)
-                                            elseif (level == mod_perm) then
+                                            elseif (level(id) == mod_perm) then
                                                 SendToAll(Message, nil, nil, true, nil, nil)
-                                            elseif (level == admin_perm) then
+                                            elseif (level(id) == admin_perm) then
                                                 SendToAll(Message, nil, nil, nil, true, nil)
-                                            elseif (level == sadmin_perm) then
+                                            elseif (level(id) == sadmin_perm) then
                                                 SendToAll(Message, nil, nil, nil, nil, true)
                                             else
                                                 SendToAll(Message, true, nil, nil, nil, nil)
@@ -2770,13 +2775,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         end
                                     elseif (type == 1) then
                                         if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
-                                            if (level == tmod_perm) then
+                                            if (level(id) == tmod_perm) then
                                                 SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
-                                            elseif (level == mod_perm) then
+                                            elseif (level(id) == mod_perm) then
                                                 SendToTeam(Message, PlayerIndex, nil, nil, true, nil, nil)
-                                            elseif (level == admin_perm) then
+                                            elseif (level(id) == admin_perm) then
                                                 SendToTeam(Message, PlayerIndex, nil, nil, nil, true, nil)
-                                            elseif (level == sadmin_perm) then
+                                            elseif (level(id) == sadmin_perm) then
                                                 SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
                                             else
                                                 SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
@@ -2787,13 +2792,13 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     end
                                 else
                                     if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
-                                        if (level == tmod_perm) then
+                                        if (level(id) == tmod_perm) then
                                             SendToAll(Message, nil, true, nil, nil, nil)
-                                        elseif (level == mod_perm) then
+                                        elseif (level(id) == mod_perm) then
                                             SendToAll(Message, nil, nil, true, nil, nil)
-                                        elseif (level == admin_perm) then
+                                        elseif (level(id) == admin_perm) then
                                             SendToAll(Message, nil, nil, nil, true, nil)
-                                        elseif (level == sadmin_perm) then
+                                        elseif (level(id) == sadmin_perm) then
                                             SendToAll(Message, nil, nil, nil, nil, true)
                                         else
                                             SendToAll(Message, true, nil, nil, nil, nil)
@@ -5797,7 +5802,7 @@ function alias:align(tab)
         --[Page X/X] Showing (X/X) aliases for xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
         respond(executor, alignment .. " " .. '[Page ' .. current_page .. '/' .. total_pages .. '] Showing (' .. current_count .. '/' .. total_count .. ') aliases for: "' .. target_hash .. '"', "rcon", 2 + 8)
         if (pirated) then
-            respond(player, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2 + 8)
+            respond(executor, alignment .. " " .. target_name .. ' is using a pirated copy of Halo.', "rcon", 2 + 8)
         end
     end
 end
@@ -6764,6 +6769,9 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.32"
     cl[#cl + 1] = "2). Tweaked Console Logo."
     cl[#cl + 1] = "Script Updated to v1.33"
+    cl[#cl + 1] = "3). Bug fix for Alias System - checks against pirated copies of Halo."
+    cl[#cl + 1] = "4). Bug fix for Admin Chat - Fixed a problem with permission check."
+    cl[#cl + 1] = "Script Updated to v1.34"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
