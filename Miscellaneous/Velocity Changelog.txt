@@ -205,3 +205,6 @@ In the meantime, the system is perfect for viewing names used with (legit) copie
 Script Updated to v1.32
 2). Tweaked Console Logo.
 Script Updated to v1.33
+3). Bug fix for Alias System - checks against pirated copies of Halo.
+4). Bug fix for Admin Chat - Fixed a problem with permission check.
+Script Updated to v1.34
