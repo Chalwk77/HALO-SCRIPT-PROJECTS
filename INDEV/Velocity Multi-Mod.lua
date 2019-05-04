@@ -115,7 +115,7 @@ local function GameSettings()
                 execute_on_others = 4,
                 block_command = "block", -- /block_command [me | id | */all]
                 unblock_command = "unblock", -- /unblock_command [me | id | */all]
-                enable_on_disconnect = false, -- Reanable pickups for player if they quit (means it will be reenabled if they rejoin)
+                enable_on_disconnect = false, -- Reenable pickups for player if they quit (means it will be reenabled if they rejoin)
             },
             -- # Chat Censor.
             ["Chat Censor"] = {
@@ -491,7 +491,7 @@ local function GameSettings()
                 execute_on_others = 4,
             },
             -- # Private Messaging System
-            -- Send private mesages to players both online and offline
+            -- Send private messages to players both online and offline
             ["Private Messaging System"] = {
                 enabled = true,
                 dir = "sapp\\private_messages.txt",
