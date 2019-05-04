@@ -8,17 +8,14 @@
 - - - -
 
 ## Block Object Pickup:
-`/block [me | id | */all]`
-<br/>
+`/block [me | id | */all]`<br/>
 `/unblock [me | id | */all]`
 > Prevents players from picking up objects.
 - - - -
 
 ## Enter Vehicle:
 `/enter <<item>> [me | id | */all] (optional: height/distance)`
->  Optional Flags: 'height' = height from ground, 'distance' = distance from player.
-
-
+>  Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
 >  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 - - - -
 
@@ -32,7 +29,7 @@
 - - - -
 
 ## Item Spawner:
-`/spawn <<item>> [me | id | */all] [amount]`
+`/spawn <<item>> [me | id | */all] [amount]`<br/>
 `/itemlist`
 >  /itemlist shows a list of valid items for the current map.
 - - - -
@@ -44,11 +41,9 @@
 
 ## Mute System:
 `/mute [id | */all] ( optional: [time diff] )`
-> If `[time diff]` parameter is not specified, the player will be muted permanently.
-
-> You cannot execute `/mute` or `/unmute` on yourself.
-`/unmute [id | */all]`
-
+> If `[time diff]` parameter is not specified, the player will be muted permanently.<br/>
+> You cannot execute `/mute` or `/unmute` on yourself.<br/>
+`/unmute [id | */all]`<br/>
 `/mutelist ( optional: {flag} )`
 > If you specify the '-o' flag, this command will only show you muted players who are currently online.
 - - - -
@@ -63,8 +58,8 @@
 - - - -
 
 ## Private Messaging System:
-`/pm [id | ip] {message}`
-`/readmail [page id]`
+`/pm [id | ip] {message}`<br/>
+`/readmail [page id]`<br/>
 `/delpm [#mail id]`
 > The `[#mail id]` is inserted 'before' the senders name on the `/readmail page`.
 - - - -
@@ -79,27 +74,22 @@
 - - - -
 
 ## Special Commands:
-`/plugins [page id]`
-
-`/enable [id]`
-
+`/plugins [page id]`<br/>
+`/enable [id]`<br/>
 `/disable [id]`
 > "/plugins [page id]" will show you a list of all individual features and tells you which ones are enabled or disabled.
 
 > You can enable or disable any feature at any time with /enable [id], /disable [id].
 
 `/clean [me | id | */all] 1`
-> (cleans up "Enter Vehicle" objects)
-
+> (cleans up "Enter Vehicle" objects)<br/>
 `/clean [me | id | */all] 2`
-> (cleans up "Item Spawner" objects)
-
+> (cleans up "Item Spawner" objects)<br/>
 `/clean [me | id | */all] *`
 > (cleans up "everything")
 
 `/velocity`
-> If update checking is disabled this command will only display the current version.
-
+> If update checking is disabled this command will only display the current version.<br/>
 > If update checking is enabled this command will send an http query to the gitpage for Velocity and tell you if an update is available. (returns current version of both version match)
 
 `/clear`
@@ -112,11 +102,11 @@
 - - - -
 
 ## Teleport Manager:
-`/setwarp <<warp name>>`
-`/warp <<warp name>>`
-`/back`
-`/warplist`
-`/warplistall`
+`/setwarp <<warp name>>`<br/>
+`/warp <<warp name>>`<br/>
+`/back`<br/>
+`/warplist`<br/>
+`/warplistall`<br/>
 `/delwarp [warp id]`
 - - - -
 
