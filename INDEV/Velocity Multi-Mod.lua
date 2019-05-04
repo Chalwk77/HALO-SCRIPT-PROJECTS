@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.35), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.36), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -130,13 +130,13 @@ local function GameSettings()
                     [1] = { "arsehole", "asshole", "a$$", "a$$hole", "a_s_s", "a55", "a55hole", "ahole" },
                     [2] = { "bitch", "b[%p]tch", "b17ch", "b1tch" },
                     [3] = { "boner" },
-                    [4] = { "bs", "bullshit", "bullsh[%p]t" },
+                    [4] = { "^bs$", "bullshit", "bullsh[%p]t" },
                     [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck" },
+                    [8] = { "cock", "c0ck", "cOck"},
                     [9] = { "dick", "dickhead" },
-                    [10] = { "fag", "faggot" },
+                    [10] = { "^fag$", "faggot", "^fagg$"},
                     [11] = { "fatass" },
                     [12] = { "fuck", "fucker" },
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
@@ -768,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.35, -- << --- do not touch
+            script_version = 1.36, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1429,7 +1429,7 @@ function OnScriptLoad()
     -- Register Server Console to Table
     alias:reset(server_ip)
 
-    if checkFile("sapp\\bgs_changelog.txt") then
+    if checkFile("sapp\\changelog.txt") then
         RecordChanges()
     end
 end
@@ -2581,12 +2581,25 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
         local table = tab.words
+		local function checkForChar(word)
+			local chars = { -- wip
+				"^",
+				"$",
+			}
+			for i = 1,#chars do
+				if find(word, chars[i]) then
+					word = gsub(word, "%" .. chars[i], "")
+				end
+			end
+			return word
+		end
         for i = 0, #message do
             if (message[i]) then
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
                         if find(message[i], swear_word) then
+							swear_word = checkForChar(swear_word)
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
                             for w = 1, len - 1 do
@@ -6810,6 +6823,12 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.34"
     cl[#cl + 1] = "5). Small tweak to Admin Chat (again)"
     cl[#cl + 1] = "Script Updated to v1.35"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/5/19]"
+    cl[#cl + 1] = "1). Small tweak to Chat Censor."
+    cl[#cl + 1] = "Script Updated to v1.36"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
