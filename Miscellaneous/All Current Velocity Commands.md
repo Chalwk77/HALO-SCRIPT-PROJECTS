@@ -44,7 +44,6 @@
 ## Mute System:
 `/mute [id | */all] ( optional: [time diff] )`
 > If `[time diff]` parameter is not specified, the player will be muted permanently.
-- - - -
 
 > You cannot execute `/mute` or `/unmute` on yourself.
 `/unmute [id | */all]`
@@ -59,14 +58,14 @@
 
 ## Portal Gun:
 `/portalgun on|off [me | id | */all]`
-> If 'on|off' parameter is not specified, it will show you the target's current portalgun setting (enabled/disabled).
+> If `on|off` parameter is not specified, it will show you the target's current portalgun setting (enabled/disabled).
 - - - -
 
 ## Private Messaging System:
 `/pm [id | ip] {message}`
 `/readmail [page id]`
 `/delpm [#mail id]`
-> The [#mail id] is inserted 'before' the senders name on the `/readmail page`.
+> The `[#mail id]` is inserted 'before' the senders name on the `/readmail page`.
 - - - -
 
 ## Respawn Time:
@@ -90,13 +89,16 @@
 
 `/clean [me | id | */all] 1`
 > (cleans up "Enter Vehicle" objects)
+
 `/clean [me | id | */all] 2`
 > (cleans up "Item Spawner" objects)
+
 `/clean [me | id | */all] *`
 > (cleans up "everything")
 
 `/velocity`
 > If update checking is disabled this command will only display the current version.
+
 > If update checking is enabled this command will send an http query to the gitpage for Velocity and tell you if an update is available. (returns current version of both version match)
 
 `/clear`
