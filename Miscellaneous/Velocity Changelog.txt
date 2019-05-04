@@ -210,3 +210,9 @@ Script Updated to v1.33
 Script Updated to v1.34
 5). Small tweak to Admin Chat (again)
 Script Updated to v1.35
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/5/19]
+1). Small tweak to Chat Censor.
+Script Updated to v1.36
