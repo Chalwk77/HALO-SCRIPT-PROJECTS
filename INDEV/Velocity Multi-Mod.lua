@@ -2672,6 +2672,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             end
                         end
                         table = nil
+                        return false
                     end
                 end
             end
