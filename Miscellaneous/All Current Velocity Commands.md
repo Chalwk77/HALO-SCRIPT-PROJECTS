@@ -9,6 +9,7 @@
 
 ## Block Object Pickup:
 `/block [me | id | */all]`
+<br/>
 `/unblock [me | id | */all]`
 > Prevents players from picking up objects.
 - - - -
