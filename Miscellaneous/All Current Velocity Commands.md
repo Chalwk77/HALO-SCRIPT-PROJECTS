@@ -34,11 +34,11 @@
 >  If 'on|off' parameter is not specified, it will show you the target's current lurker setting (enabled/disabled).
 
 ## Mute System:
-`/mute [id | */all] ( optional: <<time diff>> )`
+`/mute [id | */all] ( optional: [time diff] )`
 > If `[time diff]` parameter is not specified, the player will be muted permanently.
 
 
-> You cannot execute /mute or /unmute on yourself.
+> You cannot execute `/mute` or `/unmute` on yourself.
 `/unmute [id | */all]`
 
 `/mutelist ( optional: {flag} )`
@@ -55,20 +55,23 @@
 `/pm [id | ip] {message}`
 `/readmail [page id]`
 `/delpm [#mail id]`
-> The [#mail id] is inserted 'before' the senders name on the /readmail page.
+> The [#mail id] is inserted 'before' the senders name on the `/readmail page`.
 
 ## Respawn Time:
-`/setrespawn [me | id | */all] <<time diff>>`
->  If <<time diff>> parameter is not specified, it will show you the target's current respawn time setting.
+`/setrespawn [me | id | */all] [time diff]`
+>  If `[time diff]` parameter is not specified, it will show you the target's current respawn time setting.
 
 ## Respawn:
 `/respawn [me | id | */all]`
 
 ## Special Commands:
 `/plugins [page id]`
+
 `/enable [id]`
+
 `/disable [id]`
 > "/plugins [page id]" will show you a list of all individual features and tells you which ones are enabled or disabled.
+
 > You can enable or disable any feature at any time with /enable [id], /disable [id].
 
 `/clean [me | id | */all] 1`
