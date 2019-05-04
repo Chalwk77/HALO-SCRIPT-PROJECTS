@@ -46,10 +46,8 @@
 > If `[time diff]` parameter is not specified, the player will be muted permanently.
 - - - -
 
-
 > You cannot execute `/mute` or `/unmute` on yourself.
 `/unmute [id | */all]`
-- - - -
 
 `/mutelist ( optional: {flag} )`
 > If you specify the '-o' flag, this command will only show you muted players who are currently online.
