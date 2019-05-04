@@ -12,7 +12,7 @@
 
 ## Enter Vehicle:
 `/enter <<item>> [me | id | */all] (optional: height/distance)`
->  Optional Flags: 'height' = height from ground, 'distance' = distance from player
+>  Optional Flags: 'height' = height from ground, 'distance' = distance from player.
 >  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 
 ## Give:
