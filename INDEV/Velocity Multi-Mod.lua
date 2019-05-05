@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.36), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.37), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -768,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.36, -- << --- do not touch
+            script_version = 1.37, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -956,6 +956,7 @@ local function adjust_ammo(p)
     end
 end
 
+-- Detremines what element indexes should be returned.
 local getPage = function(params)
     local params = params or {}
     local table = params.table or nil
@@ -973,6 +974,7 @@ local getPage = function(params)
     return startpage, endpage
 end
 
+-- Returns the total #pages.
 local getPageCount = function(total, max_results)
     local pages = total / (max_results)
     if ((pages) ~= floor(pages)) then
@@ -1085,7 +1087,7 @@ local function getPlayerInfo(Player, ID)
 end
 
 -- Receives two parameters: Number (PlayerIndex) & String (Message).
--- Loops through all players and sends them a message (excluding PlayerIndex).
+-- Loops through all players (i) and sends them a message (excludes PlayerIndex).
 local function announceExclude(PlayerIndex, message)
     for i = 1, 16 do
         if (player_present(i) and i ~= PlayerIndex) then
@@ -1094,6 +1096,7 @@ local function announceExclude(PlayerIndex, message)
     end
 end
 
+-- Returns the desired spacing.
 local function spacing(n, sep)
     sep = sep or ""
     local String, Seperator = "", ","
@@ -2990,10 +2993,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local params = { }
     local function validate_params(parameter, pos)
         local function getplayers(arg, executor)
+            local players = { }
             if (arg == nil) then
                 arg = executor
+				--table.insert(players, arg)
             end
-            local players = { }
             if (arg == "me") then
                 TargetID = executor
                 table.insert(players, executor)
@@ -3067,7 +3071,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[2] ~= nil) then
                         params.page = args[2]
                     end
-
+					
                     params.timer = bool
                     alias:reset(params.eip)
 
@@ -3481,7 +3485,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     validate_params("alias", 1) --/base_command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:aliasCmdRoutine(params)
+                            velocity:cmdRoutine(params)
                         end
                     else
                         respond(executor, "Unable to check aliases from all players.", "rcon", 4 + 8)
@@ -3634,7 +3638,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Lurker", executor) then
                 if (checkAccess(executor, true, "Lurker")) then
                     local tab = settings.mod["Lurker"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("lurker", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -5273,7 +5277,6 @@ function velocity:setLurker(params)
     local params = params or { }
     local eid = params.eid or nil
     local en = params.en or nil
-
     local tid = params.tid or nil
     local tip = params.tip or nil
     local tn = params.tn or nil
@@ -5281,6 +5284,10 @@ function velocity:setLurker(params)
     local CmdTrigger = params.CmdTrigger or nil
     local option = params.option or nil
     local warnings = params.warnings or nil
+	
+	if (tid == nil and eid ~= nil) then
+		tid = eid
+	end
 
     if isConsole(eid) then
         en = "SERVER"
@@ -5697,14 +5704,14 @@ function privateMessage:delete(params)
 end
 
 -- #Alias System
-function velocity:aliasCmdRoutine(params)
+function velocity:cmdRoutine(params)
     local params = params or {}
     local eid = params.eid or nil
     local eip = params.eip or nil
     local use_timer = params.timer or nil
     local current_page = params.page or nil
 
-    if (current_page == nil) or (type(current_page) == "string")then
+    if (current_page == nil) then
         current_page = 1
     end
 
@@ -6829,6 +6836,8 @@ function RecordChanges()
     cl[#cl + 1] = "[5/5/19]"
     cl[#cl + 1] = "1). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.36"
+    cl[#cl + 1] = "2). Bug fix for Alias System - page browser."
+    cl[#cl + 1] = "Script Updated to v1.37"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
