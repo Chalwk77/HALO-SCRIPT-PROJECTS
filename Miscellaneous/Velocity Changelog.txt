@@ -216,3 +216,5 @@ Script Updated to v1.35
 [5/5/19]
 1). Small tweak to Chat Censor.
 Script Updated to v1.36
+2). Bug fix for Alias System - page browser.
+Script Updated to v1.37
