@@ -217,4 +217,5 @@ Script Updated to v1.35
 1). Small tweak to Chat Censor.
 Script Updated to v1.36
 2). Bug fix for Alias System - page browser.
+3). Bug fix for Lurker - Command: '/lurker on me' no longer throws an error if executed from console.
 Script Updated to v1.37
