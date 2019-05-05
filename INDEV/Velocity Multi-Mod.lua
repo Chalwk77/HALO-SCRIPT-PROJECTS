@@ -1431,6 +1431,7 @@ function OnScriptLoad()
 
     -- Register Server Console to Table
     alias:reset(server_ip)
+	velocity:LurkerReset(server_ip)
 
     if checkFile("sapp\\changelog.txt") then
         RecordChanges()
@@ -2698,10 +2699,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         if (environment == "rcon") then
                             for j = 1, #table do
                                 respond(i, "|l" .. table[j], "rcon")
+                                cprint(table[j], 2+8)
                             end
                         elseif (environment == "chat") then
                             for j = 1, #table do
                                 respond(i, table[j], "chat")
+                                cprint(table[j], 2+8)
                             end
                         end
                         response = false
@@ -2729,7 +2732,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 end
                                 for j = 1, #temp do
                                     temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
-                                    print(temp[j])
                                 end
                                 AdminChat(temp)
                                 response = false
@@ -2996,7 +2998,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local players = { }
             if (arg == nil) then
                 arg = executor
-				--table.insert(players, arg)
             end
             if (arg == "me") then
                 TargetID = executor
@@ -3031,13 +3032,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                 params.eid = executor
                 params.eip = ip
-                params.en = name
-                params.eh = hash
+                params.en, params.eh = name, hash
 
                 params.tid = tonumber(pl[i])
                 params.tip = getip(pl[i], true)
-                params.tn = get_var(pl[i], "$name")
-                params.th = get_var(pl[i], "$hash")
+                params.tn, params.th = get_var(pl[i], "$name"), get_var(pl[i], "$hash")
 
                 if (params.eip == nil) then
                     params.eip = server_ip
@@ -3638,7 +3637,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Lurker", executor) then
                 if (checkAccess(executor, true, "Lurker")) then
                     local tab = settings.mod["Lurker"]
-                    if (args[1] ~= nil) then
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
                         validate_params("lurker", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -5284,14 +5283,10 @@ function velocity:setLurker(params)
     local CmdTrigger = params.CmdTrigger or nil
     local option = params.option or nil
     local warnings = params.warnings or nil
-	
+			
 	if (tid == nil and eid ~= nil) then
 		tid = eid
 	end
-
-    if isConsole(eid) then
-        en = "SERVER"
-    end
 
     if (eid == nil) then
         eid = 0
@@ -5302,94 +5297,98 @@ function velocity:setLurker(params)
         is_self = true
     end
 
-    local eLvl = tonumber(get_var(eid, "$lvl"))
-
-    local mod = settings.mod["Lurker"]
-    local function Enable()
-        scores[tid] = scores[tid] or { }
-        scores[tid] = tonumber(get_var(tid, "$score"))
-        lurker[tid] = true
-        if (mod.god) then
-            execute_command("god " .. tid)
-        end
-        if (mod.camouflage) then
-            execute_command("camo " .. tid)
-        end
-        if (mod.announcer) then
-            announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
-        end
+    if isConsole(eid) then
+        en = "SERVER"
     end
+	
+	local eLvl = tonumber(get_var(eid, "$lvl"))
 
-    local function Disable(tid)
-        lurker[tid] = false
-        if (scores[tid] ~= nil) then
-            scores[tid] = 0
-        end
-        if (mod.speed) then
-            execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
-        end
-        if (mod.god == true) then
-            execute_command("ungod " .. tid)
-        end
-        killSilently(tid)
-        mod.lurker_warnings = warnings
-        cls(tid, 25)
-        if (mod.announcer) then
-            announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
-        end
-    end
+	local mod = settings.mod["Lurker"]
+	local function Enable()
+		scores[tid] = scores[tid] or { }
+		scores[tid] = tonumber(get_var(tid, "$score"))
+		lurker[tid] = true
+		if (mod.god) then
+			execute_command("god " .. tid)
+		end
+		if (mod.camouflage) then
+			execute_command("camo " .. tid)
+		end
+		if (mod.announcer) then
+			announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
+		end
+	end
 
-    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
-        if (CmdTrigger) and (option) then
-            if (tonumber(warnings) > 0) then
-                local status, already_set, is_error
-                if (option == "on") or (option == "1") or (option == "true") then
-                    if (lurker[tid] ~= true) then
-                        status, already_set, is_error = "Enabled", false, false
-                        Enable(tid, tn)
-                    else
-                        status, already_set, is_error = "Enabled", true, false
-                    end
-                elseif (option == "off") or (option == "0") or (option == "false") then
-                    if (lurker[tid] ~= false) then
-                        status, already_set, is_error = "Disabled", false, false
-                        Disable(tid, tn)
-                    else
-                        status, already_set, is_error = "Disabled", true, false
-                    end
-                else
-                    is_error = true
-                    respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
-                end
-                ------------------------- [ ON ENABLE | DISABLE ] --------------------------------------------------
-                if not (is_error) and not (already_set) then
-                    if not (is_self) then
-                        respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
-                        respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
-                    else
-                        respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
-                    end
-                elseif (already_set) then
-                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
-                end
-            else
-                if not (is_self) then
-                    respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
-                else
-                    respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
-                end
-            end
-            ----------------------------------------------------------------------------------------------------------------------------------
-        else
-            if (bool) then
-                Enable(tid)
-                respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
-            else
-                Disable(tid)
-                respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
-            end
-        end
-    end
+	local function Disable(tid)
+		lurker[tid] = false
+		if (scores[tid] ~= nil) then
+			scores[tid] = 0
+		end
+		if (mod.speed) then
+			execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
+		end
+		if (mod.god == true) then
+			execute_command("ungod " .. tid)
+		end
+		killSilently(tid)
+		mod.lurker_warnings = warnings
+		cls(tid, 25)
+		if (mod.announcer) then
+			announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
+		end
+	end
+
+	if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
+		if (CmdTrigger) and (option) then
+			if (tonumber(warnings) > 0) then
+				local status, already_set, is_error
+				if (option == "on") or (option == "1") or (option == "true") then
+					if (lurker[tid] ~= true) then
+						status, already_set, is_error = "Enabled", false, false
+						Enable(tid, tn)
+					else
+						status, already_set, is_error = "Enabled", true, false
+					end
+				elseif (option == "off") or (option == "0") or (option == "false") then
+					if (lurker[tid] ~= false) then
+						status, already_set, is_error = "Disabled", false, false
+						Disable(tid, tn)
+					else
+						status, already_set, is_error = "Disabled", true, false
+					end
+				else
+					is_error = true
+					respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
+				end
+				------------------------- [ ON ENABLE | DISABLE ] --------------------------------------------------
+				if not (is_error) and not (already_set) then
+					if not (is_self) then
+						respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
+						respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
+					else
+						respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
+					end
+				elseif (already_set) then
+					respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
+				end
+			else
+				if not (is_self) then
+					respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
+				else
+					respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
+				end
+			end
+			----------------------------------------------------------------------------------------------------------------------------------
+		else
+			if (bool) then
+				Enable(tid)
+				respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
+			else
+				Disable(tid)
+				respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
+			end
+		end
+	end
     return false
 end
 
@@ -6837,6 +6836,7 @@ function RecordChanges()
     cl[#cl + 1] = "1). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.36"
     cl[#cl + 1] = "2). Bug fix for Alias System - page browser."
+    cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/lurker on me' no longer throws an error if executed from console."
     cl[#cl + 1] = "Script Updated to v1.37"
     file:write(concat(cl, "\n"))
     file:close()
