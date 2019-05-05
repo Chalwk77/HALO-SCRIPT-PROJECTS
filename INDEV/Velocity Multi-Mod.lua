@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.37), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.38), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -768,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.37, -- << --- do not touch
+            script_version = 1.38, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -4032,37 +4032,35 @@ function velocity:portalgun(params)
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
         local base_command = settings.mod["Portal Gun"].base_command
-        if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
-            local status, already_set, is_error
-            if (option == "on") or (option == "1") or (option == "true") then
-                if (portalgun_mode[tip] ~= true) then
-                    portalgun_mode[tip] = true
-                    status, already_set, is_error = "Enabled", false, false
-                else
-                    status, already_set, is_error = "Enabled", true, false
-                end
-            elseif (option == "off") or (option == "0") or (option == "false") then
-                if (portalgun_mode[tip] ~= false) then
-                    portalgun_mode[tip] = false
-                    status, already_set, is_error = "Disabled", false, false
-                else
-                    status, already_set, is_error = "Disabled", true, false
-                end
-            else
-                is_error = true
-                respond(eid, "Invalid Syntax: Type /" .. base_command .. " on|off [id]", "rcon", 4 + 8)
-            end
-            if not (is_error) and not (already_set) then
-                if not (is_self) then
-                    respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
-                    respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
-                else
-                    respond(eid, "Portal Gun " .. status, "rcon")
-                end
-            elseif (already_set) then
-                respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
-            end
-        end
+		local status, already_set, is_error
+		if (option == "on") or (option == "1") or (option == "true") then
+			if (portalgun_mode[tip] ~= true) then
+				portalgun_mode[tip] = true
+				status, already_set, is_error = "Enabled", false, false
+			else
+				status, already_set, is_error = "Enabled", true, false
+			end
+		elseif (option == "off") or (option == "0") or (option == "false") then
+			if (portalgun_mode[tip] ~= false) then
+				portalgun_mode[tip] = false
+				status, already_set, is_error = "Disabled", false, false
+			else
+				status, already_set, is_error = "Disabled", true, false
+			end
+		else
+			is_error = true
+			respond(eid, "Invalid Syntax: Type /" .. base_command .. " on|off [id]", "rcon", 4 + 8)
+		end
+		if not (is_error) and not (already_set) then
+			if not (is_self) then
+				respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
+				respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
+			else
+				respond(eid, "Portal Gun " .. status, "rcon")
+			end
+		elseif (already_set) then
+			respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+		end
     end
     return false
 end
@@ -6838,6 +6836,12 @@ function RecordChanges()
     cl[#cl + 1] = "2). Bug fix for Alias System - page browser."
     cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/lurker on me' no longer throws an error if executed from console."
     cl[#cl + 1] = "Script Updated to v1.37"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/6/19]"
+    cl[#cl + 1] = "1). Removed duplicated perm-check in function 'velocity:portalgun()'."
+    cl[#cl + 1] = "Script Updated to v1.38"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
