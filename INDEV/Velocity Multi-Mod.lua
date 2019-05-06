@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.38), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.39), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -68,7 +68,7 @@ local function GameSettings()
                     "%prefix% %sender_name% [%index%]:",
                     "%message%",
                 }
-                
+
             },
             -- # Custom (separate) join messages for staff on a per-level basis
             ["Admin Join Messages"] = {
@@ -134,9 +134,9 @@ local function GameSettings()
                     [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck"},
+                    [8] = { "cock", "c0ck", "cOck" },
                     [9] = { "dick", "dickhead" },
-                    [10] = { "^fag$", "faggot", "^fagg$"},
+                    [10] = { "^fag$", "faggot", "^fagg$" },
                     [11] = { "fatass" },
                     [12] = { "fuck", "fucker" },
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
@@ -768,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.38, -- << --- do not touch
+            script_version = 1.39, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -874,6 +874,8 @@ local ce
 local console_address_patch = nil
 local game_over
 
+local execute_on_others_error = { }
+
 -- #Color Reservation
 local colorres_bool = {}
 local can_use_colorres
@@ -949,7 +951,8 @@ end
 -- Receives a number (PlayerIndex).
 -- Executes SAPP commands: 'ammo', 'mag' and 'battery' for the target player.
 local function adjust_ammo(p)
-    for i = 1, 4 do -- Weapon slots 1 thru 4
+    for i = 1, 4 do
+        -- Weapon slots 1 thru 4
         execute_command("ammo " .. tonumber(p) .. " 999 " .. i)
         execute_command("mag " .. tonumber(p) .. " 100 " .. i)
         execute_command("battery " .. tonumber(p) .. " 100 " .. i)
@@ -1035,7 +1038,8 @@ local function executeOnOthers(e, self, is_console, level, script)
     if not (self) and not (is_console) then
         if tonumber(level) >= getPermLevel(script, true) then
             return true
-        else
+        elseif (execute_on_others_error[e]) then
+            execute_on_others_error[e] = false
             respond(e, "You are not allowed to executed this command on other players.", "rcon", 4 + 8)
             return false
         end
@@ -1431,7 +1435,7 @@ function OnScriptLoad()
 
     -- Register Server Console to Table
     alias:reset(server_ip)
-	velocity:LurkerReset(server_ip)
+    velocity:LurkerReset(server_ip)
 
     if checkFile("sapp\\changelog.txt") then
         RecordChanges()
@@ -1829,7 +1833,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Message Board
             if modEnabled("Message Board") then
                 if players["Message Board"][ip] and (players["Message Board"][ip].show) then
@@ -2556,7 +2560,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local name = get_var(PlayerIndex, "$name")
     local ip = getip(PlayerIndex, true)
     local response
-    
+
     local level = function(p)
         return tonumber(get_var(p, "$lvl"))
     end
@@ -2585,25 +2589,25 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
         local table = tab.words
-		local function checkForChar(word)
-			local chars = { -- wip
-				"^",
-				"$",
-			}
-			for i = 1,#chars do
-				if find(word, chars[i]) then
-					word = gsub(word, "%" .. chars[i], "")
-				end
-			end
-			return word
-		end
+        local function checkForChar(word)
+            local chars = { -- wip
+                "^",
+                "$",
+            }
+            for i = 1, #chars do
+                if find(word, chars[i]) then
+                    word = gsub(word, "%" .. chars[i], "")
+                end
+            end
+            return word
+        end
         for i = 0, #message do
             if (message[i]) then
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
                         if find(message[i], swear_word) then
-							swear_word = checkForChar(swear_word)
+                            swear_word = checkForChar(swear_word)
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
                             for w = 1, len - 1 do
@@ -2699,12 +2703,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         if (environment == "rcon") then
                             for j = 1, #table do
                                 respond(i, "|l" .. table[j], "rcon")
-                                cprint(table[j], 2+8)
+                                cprint(table[j], 2 + 8)
                             end
                         elseif (environment == "chat") then
                             for j = 1, #table do
                                 respond(i, table[j], "chat")
-                                cprint(table[j], 2+8)
+                                cprint(table[j], 2 + 8)
                             end
                         end
                         response = false
@@ -3017,6 +3021,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 is_error = true
                 return false
             end
+            for i = 1, #players do
+                if (executor ~= tonumber(players[i])) then
+                    execute_on_others_error[executor] = { }
+                    execute_on_others_error[executor] = true
+                end
+            end
             if players[1] then
                 return players
             end
@@ -3070,7 +3080,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[2] ~= nil) then
                         params.page = args[2]
                     end
-					
+
                     params.timer = bool
                     alias:reset(params.eip)
 
@@ -4032,35 +4042,35 @@ function velocity:portalgun(params)
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
         local base_command = settings.mod["Portal Gun"].base_command
-		local status, already_set, is_error
-		if (option == "on") or (option == "1") or (option == "true") then
-			if (portalgun_mode[tip] ~= true) then
-				portalgun_mode[tip] = true
-				status, already_set, is_error = "Enabled", false, false
-			else
-				status, already_set, is_error = "Enabled", true, false
-			end
-		elseif (option == "off") or (option == "0") or (option == "false") then
-			if (portalgun_mode[tip] ~= false) then
-				portalgun_mode[tip] = false
-				status, already_set, is_error = "Disabled", false, false
-			else
-				status, already_set, is_error = "Disabled", true, false
-			end
-		else
-			is_error = true
-			respond(eid, "Invalid Syntax: Type /" .. base_command .. " on|off [id]", "rcon", 4 + 8)
-		end
-		if not (is_error) and not (already_set) then
-			if not (is_self) then
-				respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
-				respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
-			else
-				respond(eid, "Portal Gun " .. status, "rcon")
-			end
-		elseif (already_set) then
-			respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
-		end
+        local status, already_set, is_error
+        if (option == "on") or (option == "1") or (option == "true") then
+            if (portalgun_mode[tip] ~= true) then
+                portalgun_mode[tip] = true
+                status, already_set, is_error = "Enabled", false, false
+            else
+                status, already_set, is_error = "Enabled", true, false
+            end
+        elseif (option == "off") or (option == "0") or (option == "false") then
+            if (portalgun_mode[tip] ~= false) then
+                portalgun_mode[tip] = false
+                status, already_set, is_error = "Disabled", false, false
+            else
+                status, already_set, is_error = "Disabled", true, false
+            end
+        else
+            is_error = true
+            respond(eid, "Invalid Syntax: Type /" .. base_command .. " on|off [id]", "rcon", 4 + 8)
+        end
+        if not (is_error) and not (already_set) then
+            if not (is_self) then
+                respond(eid, "Portal Gun " .. status .. " for " .. tn, "rcon", 2 + 8)
+                respond(tid, "Your Portal Gun was " .. status .. " by " .. en, "rcon")
+            else
+                respond(eid, "Portal Gun " .. status, "rcon")
+            end
+        elseif (already_set) then
+            respond(eid, "[SERVER] -> " .. tn .. ", Portal Gun is already " .. status, "rcon")
+        end
     end
     return false
 end
@@ -5281,10 +5291,10 @@ function velocity:setLurker(params)
     local CmdTrigger = params.CmdTrigger or nil
     local option = params.option or nil
     local warnings = params.warnings or nil
-			
-	if (tid == nil and eid ~= nil) then
-		tid = eid
-	end
+
+    if (tid == nil and eid ~= nil) then
+        tid = eid
+    end
 
     if (eid == nil) then
         eid = 0
@@ -5298,95 +5308,95 @@ function velocity:setLurker(params)
     if isConsole(eid) then
         en = "SERVER"
     end
-	
-	local eLvl = tonumber(get_var(eid, "$lvl"))
 
-	local mod = settings.mod["Lurker"]
-	local function Enable()
-		scores[tid] = scores[tid] or { }
-		scores[tid] = tonumber(get_var(tid, "$score"))
-		lurker[tid] = true
-		if (mod.god) then
-			execute_command("god " .. tid)
-		end
-		if (mod.camouflage) then
-			execute_command("camo " .. tid)
-		end
-		if (mod.announcer) then
-			announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
-		end
-	end
+    local eLvl = tonumber(get_var(eid, "$lvl"))
 
-	local function Disable(tid)
-		lurker[tid] = false
-		if (scores[tid] ~= nil) then
-			scores[tid] = 0
-		end
-		if (mod.speed) then
-			execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
-		end
-		if (mod.god == true) then
-			execute_command("ungod " .. tid)
-		end
-		killSilently(tid)
-		mod.lurker_warnings = warnings
-		cls(tid, 25)
-		if (mod.announcer) then
-			announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
-		end
-	end
+    local mod = settings.mod["Lurker"]
+    local function Enable()
+        scores[tid] = scores[tid] or { }
+        scores[tid] = tonumber(get_var(tid, "$score"))
+        lurker[tid] = true
+        if (mod.god) then
+            execute_command("god " .. tid)
+        end
+        if (mod.camouflage) then
+            execute_command("camo " .. tid)
+        end
+        if (mod.announcer) then
+            announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
+        end
+    end
 
-	if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
-		if (CmdTrigger) and (option) then
-			if (tonumber(warnings) > 0) then
-				local status, already_set, is_error
-				if (option == "on") or (option == "1") or (option == "true") then
-					if (lurker[tid] ~= true) then
-						status, already_set, is_error = "Enabled", false, false
-						Enable(tid, tn)
-					else
-						status, already_set, is_error = "Enabled", true, false
-					end
-				elseif (option == "off") or (option == "0") or (option == "false") then
-					if (lurker[tid] ~= false) then
-						status, already_set, is_error = "Disabled", false, false
-						Disable(tid, tn)
-					else
-						status, already_set, is_error = "Disabled", true, false
-					end
-				else
-					is_error = true
-					respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
-				end
-				------------------------- [ ON ENABLE | DISABLE ] --------------------------------------------------
-				if not (is_error) and not (already_set) then
-					if not (is_self) then
-						respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
-						respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
-					else
-						respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
-					end
-				elseif (already_set) then
-					respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
-				end
-			else
-				if not (is_self) then
-					respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
-				else
-					respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
-				end
-			end
-			----------------------------------------------------------------------------------------------------------------------------------
-		else
-			if (bool) then
-				Enable(tid)
-				respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
-			else
-				Disable(tid)
-				respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
-			end
-		end
-	end
+    local function Disable(tid)
+        lurker[tid] = false
+        if (scores[tid] ~= nil) then
+            scores[tid] = 0
+        end
+        if (mod.speed) then
+            execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
+        end
+        if (mod.god == true) then
+            execute_command("ungod " .. tid)
+        end
+        killSilently(tid)
+        mod.lurker_warnings = warnings
+        cls(tid, 25)
+        if (mod.announcer) then
+            announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
+        end
+    end
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
+        if (CmdTrigger) and (option) then
+            if (tonumber(warnings) > 0) then
+                local status, already_set, is_error
+                if (option == "on") or (option == "1") or (option == "true") then
+                    if (lurker[tid] ~= true) then
+                        status, already_set, is_error = "Enabled", false, false
+                        Enable(tid, tn)
+                    else
+                        status, already_set, is_error = "Enabled", true, false
+                    end
+                elseif (option == "off") or (option == "0") or (option == "false") then
+                    if (lurker[tid] ~= false) then
+                        status, already_set, is_error = "Disabled", false, false
+                        Disable(tid, tn)
+                    else
+                        status, already_set, is_error = "Disabled", true, false
+                    end
+                else
+                    is_error = true
+                    respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                end
+                ------------------------- [ ON ENABLE | DISABLE ] --------------------------------------------------
+                if not (is_error) and not (already_set) then
+                    if not (is_self) then
+                        respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
+                        respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
+                    else
+                        respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
+                    end
+                elseif (already_set) then
+                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
+                end
+            else
+                if not (is_self) then
+                    respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
+                else
+                    respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
+                end
+            end
+            ----------------------------------------------------------------------------------------------------------------------------------
+        else
+            if (bool) then
+                Enable(tid)
+                respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
+            else
+                Disable(tid)
+                respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
+            end
+        end
+    end
     return false
 end
 
@@ -6842,6 +6852,8 @@ function RecordChanges()
     cl[#cl + 1] = "[5/6/19]"
     cl[#cl + 1] = "1). Removed duplicated perm-check in function 'velocity:portalgun()'."
     cl[#cl + 1] = "Script Updated to v1.38"
+    cl[#cl + 1] = "2). Fixed a small problem with command per-check errors spamming the executor."
+    cl[#cl + 1] = "Script Updated to v1.39"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
