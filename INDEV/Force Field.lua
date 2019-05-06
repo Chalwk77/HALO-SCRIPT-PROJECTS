@@ -163,7 +163,7 @@ end
 
 function OnPlayerDisconnect(p)
     -- todo: Store player IP in an array...
-    -- because SAPP cannot get the player IP on 'even_leave' when playing on PC.
+    -- because SAPP cannot get the player IP on 'event_leave' when playing on PC.
     local ip = getip(p) -- << temp
     forcefield = { [ip] = {} }
 end
