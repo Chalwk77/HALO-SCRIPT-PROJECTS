@@ -49,42 +49,43 @@ forcefield.announce = true
 -- 3). Someone attempts to shoot through your forcefield.
 forcefield.particle_effects = false -- not yet implemented.
 
+-- Projectile Tag IDs used for particle effects.
+forcefield.particles = { "" } -- not yet implemented
+
 -- Force Field Configuration [ends] --
 
-local execute_on_others_error = { }
-
-local function getip(p)
-	if (p) then
-		return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
-	end
-end
-
 function OnScriptLoad()
-	register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-	
+
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
-	
+
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-	
-	register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
 local gameover
 function OnGameStart()
-	gameover = false
+    gameover = false
+end
+
+local function getip(p)
+    if (p) then
+        return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    end
 end
 
 function OnGameEnd()
-	gameover = true
-	for i = 1,16 do
-		if player_present(i) then
-			local ip = getip(i)
-			forcefield = {[ip] = {}}
-		end
-	end
+    gameover = true
+    for i = 1, 16 do
+        if player_present(i) then
+            local ip = getip(i)
+            forcefield = { [ip] = {} }
+        end
+    end
 end
 
 local function gameover(p)
@@ -105,6 +106,7 @@ local function isConsole(e)
     end
 end
 
+local execute_on_others_error = { }
 local function executeOnOthers(e, self, is_console, level)
     if not (self) and not (is_console) then
         if tonumber(level) >= forcefield.execute_on_others then
@@ -151,81 +153,81 @@ local function respond(executor, message, environment, color)
 end
 
 function OnPlayerConnect(p)
-	local ip = getip(p)
-	forcefield = {[ip] = {}}
-	forcefield = {[ip] = {enabled = false}}
+    local ip = getip(p)
+    forcefield = { [ip] = {} }
+    forcefield = { [ip] = { enabled = false } }
 end
 
 function OnPlayerDisconnect(p)
-	-- todo: Store player IP in an array...
-	-- because SAPP cannot get the player IP on 'even_leave' when playing on PC.
-	local ip = getip(p) -- << temp
-	forcefield = {[ip] = {}}
+    -- todo: Store player IP in an array...
+    -- because SAPP cannot get the player IP on 'even_leave' when playing on PC.
+    local ip = getip(p) -- << temp
+    forcefield = { [ip] = {} }
 end
 
 function OnTick()
-	for i = 1,16 do
-		if ( player_present(i) ) and ( player_alive(i) ) then
-			-- WORK IN PROGRESS (30% implemented)
-			local ip = getip(i)
-			local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id) -- player 1, player 2
-			if (p1 ~= 0) and (p2 ~= 0) then
-				local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
-				if forcefield:insphere(p2_id, z, y, z, forcefield.range) then
-					local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
-					write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 4)
-				end
-			end
-		end
-	end
+    for i = 1, 16 do
+        if (player_present(i)) and (player_alive(i)) then
+            -- WORK IN PROGRESS (30% implemented)
+            local ip = getip(i)
+            local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id) -- player 1, player 2
+            if (p1 ~= 0) and (p2 ~= 0) then
+                local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
+                if forcefield:insphere(p2_id, z, y, z, forcefield.range) then
+                    local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
+                    write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 4)
+                end
+            end
+        end
+    end
 end
 
 function forcefield:insphere(player, x, y, z, r)
-	-- player 1, player 2
+    -- player 1, player 2
     local pX, pY, pZ = read_vector3d(get_dynamic_player(player) + 0x5C)
-    if ( (x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 <= r ) then
+    if ((x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 <= r) then
         return true
-    elseif ( (x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 > r + 1) then
+    elseif ((x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 > r + 1) then
         return false
     else
-		-- do nothing
+        -- do nothing
     end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
-	
-	local function checkAccess(e)
-		local access
-		if not isConsole(e) then
-			if (tonumber(get_var(e, "$lvl")) >= forcefield.permission_level) then
-				access = true
-			else
-				rprint(e, "Command failed. Insufficient Permission.")
-				access = false
-			end
-		else
-			access = true
-		end
-		return access
-	end
-	
-	local function isOnline(t, e)
-		if (t) then
-			if (t > 0 and t < 17) then
-				if player_present(t) then
-					return true
-				else
-					respond(e, "Command failed. Player not online.", "rcon", 4 + 8)
-					return false
-				end
-			else
-				respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4 + 8)
-			end
-		end
-	end
-	
+
+    local function checkAccess(e)
+        local access
+        if not isConsole(e) then
+            if (tonumber(get_var(e, "$lvl")) >= forcefield.permission_level) then
+                access = true
+            else
+                rprint(e, "Command failed. Insufficient Permission.")
+                access = false
+            end
+        else
+            access = true
+        end
+        return access
+    end
+
+    local function isOnline(t, e)
+        if (t) then
+            if (t > 0 and t < 17) then
+                if player_present(t) then
+                    return true
+                else
+                    respond(e, "Command failed. Player not online.", "rcon", 4 + 8)
+                    return false
+                end
+            else
+                respond(e, "Invalid player id. Please enter a number between 1-16", "rcon", 4 + 8)
+            end
+        end
+    end
+
     local params = { }
     local function validate_params()
         local function getplayers(arg, executor)
@@ -269,61 +271,61 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if pl[i] == nil then
                     break
                 end
-				
+
                 params.eid = executor
                 params.en = name
                 params.tid, params.tn = tonumber(pl[i]), get_var(pl[i], "$name")
                 params.tip = getip(executor)
 
-				if (args[2] ~= nil) then
-					params.option = args[2]
-				end
-				
-				if (target_all_players) then
-					forcefield:enable(params)
+                if (args[2] ~= nil) then
+                    params.option = args[2]
+                end
+
+                if (target_all_players) then
+                    forcefield:enable(params)
                 end
             end
         end
     end
-	
+
     if (command == forcefield.command) then
         if not gameover(executor) then
-			if (checkAccess(executor)) then
-				if (args[1] ~= nil) then
-					validate_params()
-					if not (target_all_players) then
-						if not (is_error) and isOnline(TargetID, executor) then
-							forcefield:enable(params)
-						end
-					end
-				else
-					respond(executor, "Invalid Syntax: Usage: /" .. forcefield.command .. " on|off [me | id | */all]", "rcon", 4 + 8)
-				end
-			end
+            if (checkAccess(executor)) then
+                if (args[1] ~= nil) then
+                    validate_params()
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            forcefield:enable(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid Syntax: Usage: /" .. forcefield.command .. " on|off [me | id | */all]", "rcon", 4 + 8)
+                end
+            end
         end
         return false
-	end
+    end
 end
 
 function forcefield:enable(params)
     local params = params or { }
-    
+
     local en = params.en or nil
-	local eid = params.eid or nil
+    local eid = params.eid or nil
     if (eid == nil) then
         eid = 0
     end
-    
+
     local tn = params.tn or nil
     local tip = params.tip or nil
-	
-	local tid = params.tid or nil
+
+    local tid = params.tid or nil
     if (tid == nil and eid ~= nil) then
         tid = eid
     end
-	
+
     local option = params.option or nil
-	
+
     local is_self
     if (eid == tid) then
         is_self = true
@@ -334,14 +336,14 @@ function forcefield:enable(params)
     end
 
     local function Enable()
-		forcefield[tip].enabled = true
+        forcefield[tip].enabled = true
         if (forcefield.announce) then
             announceExclude(tid, tn .. " is now in force field mode!")
         end
     end
 
     local function Disable(tid)
-		forcefield[tip].enabled = false
+        forcefield[tip].enabled = false
         if (forcefield.announce) then
             announceExclude(tid, tn .. " is no longer in force field mode!")
         end
@@ -349,45 +351,45 @@ function forcefield:enable(params)
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl)) then
-		local status, already_set, is_error
-		if (option == "on") or (option == "1") or (option == "true") then
-			if (forcefield[tip].enabled ~= true) then
-				status, already_set, is_error = "Enabled", false, false
-				Enable(tid, tn)
-			else
-				status, already_set, is_error = "Enabled", true, false
-			end
-		elseif (option == "off") or (option == "0") or (option == "false") then
-			if (forcefield[tip].enabled ~= false) then
-				status, already_set, is_error = "Disabled", false, false
-				Disable(tid, tn)
-			else
-				status, already_set, is_error = "Disabled", true, false
-			end
-		else
-			is_error = true
-			respond(eid, "Invalid Syntax: Type /" .. forcefield.command .. " [id] on|off.", "rcon", 4 + 8)
-		end
-		if not (is_error) and not (already_set) then
-			if not (is_self) then
-				respond(eid, "Force Field " .. status .. " for " .. tn, "rcon", 2 + 8)
-				respond(tid, "Your Force Field Mode was " .. status .. " by " .. en, "rcon")
-			else
-				respond(eid, "Force Field Mode " .. status, "rcon", 2 + 8)
-			end
-		elseif (already_set) then
-			respond(eid, "[SERVER] -> " .. tn .. ", Force Field already " .. status, "rcon", 4 + 8)
-		end
-	end
+        local status, already_set, is_error
+        if (option == "on") or (option == "1") or (option == "true") then
+            if (forcefield[tip].enabled ~= true) then
+                status, already_set, is_error = "Enabled", false, false
+                Enable(tid, tn)
+            else
+                status, already_set, is_error = "Enabled", true, false
+            end
+        elseif (option == "off") or (option == "0") or (option == "false") then
+            if (forcefield[tip].enabled ~= false) then
+                status, already_set, is_error = "Disabled", false, false
+                Disable(tid, tn)
+            else
+                status, already_set, is_error = "Disabled", true, false
+            end
+        else
+            is_error = true
+            respond(eid, "Invalid Syntax: Type /" .. forcefield.command .. " [id] on|off.", "rcon", 4 + 8)
+        end
+        if not (is_error) and not (already_set) then
+            if not (is_self) then
+                respond(eid, "Force Field " .. status .. " for " .. tn, "rcon", 2 + 8)
+                respond(tid, "Your Force Field Mode was " .. status .. " by " .. en, "rcon")
+            else
+                respond(eid, "Force Field Mode " .. status, "rcon", 2 + 8)
+            end
+        elseif (already_set) then
+            respond(eid, "[SERVER] -> " .. tn .. ", Force Field already " .. status, "rcon", 4 + 8)
+        end
+    end
     return false
 end
 
-function forcefield:showparticles(x,y,z)
-	-- not yet implement
+function forcefield:showparticles(x, y, z)
+    -- not yet implement
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-	-- not yet implemented
+    -- not yet implemented
 end
 
 function cmdsplit(str)
