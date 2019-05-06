@@ -40,9 +40,6 @@ forcefield.serverprefix = "**SERVER**"
 -- Let players know when someone goes into Force Field mode:
 forcefield.announce = true
 
--- All Force Field Messages:
-forcefield.messages = { "" } -- not yet implemented 
-
 -- Particle Effects:
 -- 1). Simulated with non-inflicting bullet projectiles. 
 -- 2). Propagate outward in a 360 degree radius from the player's standing position.
