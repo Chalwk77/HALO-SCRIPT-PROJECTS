@@ -52,9 +52,9 @@ forcefield.particle_effects = false -- not yet implemented.
 
 -- Projectile Tag IDs used for particle effects.
 forcefield.particles = { -- not yet implemented 
-	"weapons\\needler\\mp_needle", 
-	"weapons\\flamethrower\\flame", 
-	"weapons\\plasma rifle\\charged bolt", 
+    "weapons\\needler\\mp_needle",
+    "weapons\\flamethrower\\flame",
+    "weapons\\plasma rifle\\charged bolt",
 }
 
 -- Force Field Configuration [ends] --
@@ -77,9 +77,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
-local gameover
+local game_over
 function OnGameStart()
-    gameover = false
+    game_over = false
 end
 
 local function getip(p)
@@ -89,20 +89,12 @@ local function getip(p)
 end
 
 function OnGameEnd()
-    gameover = true
+    game_over = true
     for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i)
             forcefield = { [ip] = {} }
         end
-    end
-end
-
-local function gameover(p)
-    if (game_over) then
-        rprint(p, "Command Failed -> Game has Ended.")
-        rprint(p, "Please wait until the next game has started.")
-        return true
     end
 end
 
@@ -164,32 +156,32 @@ end
 
 function OnPlayerConnect(p)
     local ip = getip(p)
-	
+
     -- Stores Player IP to an array...
     -- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
-	ip_table[p] = ip_table[p] or { }
-	ip_table[p] = ip
-	
+    ip_table[p] = ip_table[p] or { }
+    ip_table[p] = ip
+
     forcefield = { [ip] = {} }
     forcefield = { [ip] = { enabled = false } }
 end
 
 function OnPlayerDisconnect(p)
 
-	local ip = function(pid)
-		if (pid) then
-			local ip_address
-			if (halo_type == "PC") then
-				ip_address = ip_table[pid]
-			else
-				ip_address = getip(pid)
-			end
-			return ip_address
-		end
-	end
+    local ip = function(pid)
+        if (pid) then
+            local ip_address
+            if (halo_type == "PC") then
+                ip_address = ip_table[pid]
+            else
+                ip_address = getip(pid)
+            end
+            return ip_address
+        end
+    end
 
     forcefield = { [ip(p)] = {} }
-	ip_table[p] = nil
+    ip_table[p] = nil
 end
 
 function OnTick()
@@ -200,9 +192,9 @@ function OnTick()
             local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id) -- player 1, player 2
             if (p1 ~= 0) and (p2 ~= 0) then
                 local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
-                if forcefield:insphere(p2_id, z, y, z, forcefield.range) then
+                if forcefield:insphere(p2_id, x, y, z, forcefield.range) then
                     local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
-					local strength = forcefield.strength -- not yet implemented
+                    local strength = forcefield.strength -- not yet implemented
                     write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 0.5)
                 end
             end
@@ -217,14 +209,16 @@ function forcefield:insphere(player, x, y, z, r)
         return true
     elseif ((x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 > r + 1) then
         return false
-    else
-        -- do nothing
+        --else
+        --    -- do nothing
     end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
+    local TargetID, target_all_players, is_error
+    local name = get_var(executor, "$name")
 
     local function checkAccess(e)
         local access
@@ -258,7 +252,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local params = { }
     local function validate_params()
-        local function getplayers(arg, executor)
+        local function getplayers(arg)
             local players = { }
             if (arg == nil) then
                 arg = executor
@@ -293,7 +287,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             players = nil
             return false
         end
-        local pl = getplayers(args[1], executor)
+        local pl = getplayers(args[1])
         if pl then
             for i = 1, #pl do
                 if pl[i] == nil then
@@ -316,8 +310,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
+    local gameover = function()
+        if (game_over) then
+            rprint(executor, "Command Failed -> Game has Ended.")
+            rprint(executor, "Please wait until the next game has started.")
+            return true
+        end
+    end
+
     if (command == forcefield.command) then
-        if not gameover(executor) then
+        if not gameover() then
             if (checkAccess(executor)) then
                 if (args[1] ~= nil) then
                     validate_params()
