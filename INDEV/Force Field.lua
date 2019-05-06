@@ -77,6 +77,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 end
 
+local lower, upper = string.lower, string.upper
+
 local game_over
 function OnGameStart()
     game_over = false
@@ -155,6 +157,7 @@ local function respond(executor, message, environment, color)
 end
 
 function OnPlayerConnect(p)
+
     local ip = getip(p)
 
     -- Stores Player IP to an array...
@@ -162,8 +165,8 @@ function OnPlayerConnect(p)
     ip_table[p] = ip_table[p] or { }
     ip_table[p] = ip
 
-    forcefield = { [ip] = {} }
-    forcefield = { [ip] = { enabled = false } }
+    forcefield[ip] = {}
+    forcefield[ip] = { enabled = false }
 end
 
 function OnPlayerDisconnect(p)
@@ -180,49 +183,50 @@ function OnPlayerDisconnect(p)
         end
     end
 
-    forcefield = { [ip(p)] = {} }
+    forcefield[ip(p)] = { }
     ip_table[p] = nil
 end
 
+-- This function returns the total number of players currently online.
+local player_count = function()
+    return tonumber(get_var(0, "$pn"))
+end
+
 function OnTick()
-    for i = 1, 16 do
-        if (player_present(i)) and (player_alive(i)) then
-            -- WORK IN PROGRESS (30% implemented)
+    -- WORK IN PROGRESS (20% implemented)
+    local proceed
+    if (player_count() > 1) then
+        for i = 1, 16 do
+            if (player_present(i)) and (player_alive(i)) then
 
 
-
-            --
-            local ip = getip(i)
-            local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id) -- player 1, player 2
+            end
+        end
+        if (proceed) then
+            local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id)
             if (p1 ~= 0) and (p2 ~= 0) then
-                local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
-                if forcefield:insphere(p2_id, x, y, z, forcefield.range) then
-                    local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
-                    forcefield:pushback(p2_id, p2X, p2Y, p2Z)
+                local x1, y1, z1, x2, y2, z2 = read_vector3d(p1 + 0x5C), read_vector3d(p2 + 0x5C)
+                if forcefield:insphere(x1, y1, z1, x2, y2, z2, forcefield.range) then
+                    forcefield:pushback(p2, x2, y2, z2)
                 end
             end
         end
     end
+    --
 end
 
-function forcefield:insphere(player, x, y, z, r)
-    -- player 1, player 2
-    local pX, pY, pZ = read_vector3d(get_dynamic_player(player) + 0x5C)
-    if ((x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 <= r) then
+function forcefield:insphere(x1, y1, z1, x2, y2, z2, r)
+    if ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2 <= radius) then
         return true
-    elseif ((x - pX) ^ 2 + (y - pY) ^ 2 + (z - pZ) ^ 2 > r + 1) then
+    elseif ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2 > r + 1) then
         return false
-        --else
-        --    -- do nothing
     end
 end
 
-function forcefield:pushback(p2_id, p2X, p2Y, p2Z)
+function forcefield:pushback(PlayerObject, x2, y2, z2)
     -- WIP
-
     local strength = forcefield.strength -- not yet implemented
-    write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 0.5)
-
+    write_vector3d(PlayerObject + 0x5C, x2 + 0.50, y2 + 0.50, z2 + 0.5)
     --
 end
 
@@ -231,6 +235,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local executor = tonumber(PlayerIndex)
     local TargetID, target_all_players, is_error
     local name = get_var(executor, "$name")
+    command = lower(command) or upper(command)
 
     local function checkAccess(e)
         local access
@@ -263,7 +268,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     local params = { }
-    local function validate_params()
+    local function validate_params(pos)
         local function getplayers(arg)
             local players = { }
             if (arg == nil) then
@@ -299,7 +304,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             players = nil
             return false
         end
-        local pl = getplayers(args[1])
+        local pl = getplayers(args[tonumber(pos)])
         if pl then
             for i = 1, #pl do
                 if pl[i] == nil then
@@ -311,8 +316,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 params.tid, params.tn = tonumber(pl[i]), get_var(pl[i], "$name")
                 params.tip = getip(executor)
 
-                if (args[2] ~= nil) then
-                    params.option = args[2]
+                if (args[1] ~= nil) then
+                    params.option = args[1]
                 end
 
                 if (target_all_players) then
@@ -334,7 +339,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not gameover() then
             if (checkAccess(executor)) then
                 if (args[1] ~= nil) then
-                    validate_params()
+                    validate_params(2) -- 2 = /command <args> id | 2 = /command id <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             forcefield:enable(params)
