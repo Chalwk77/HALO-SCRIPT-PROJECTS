@@ -188,17 +188,17 @@ function OnTick()
     for i = 1, 16 do
         if (player_present(i)) and (player_alive(i)) then
             -- WORK IN PROGRESS (30% implemented)
-			
-			
-			
-			--
+
+
+
+            --
             local ip = getip(i)
             local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id) -- player 1, player 2
             if (p1 ~= 0) and (p2 ~= 0) then
                 local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
                 if forcefield:insphere(p2_id, x, y, z, forcefield.range) then
                     local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
-					forcefield:pushback(p2_id, p2X, p2Y, p2Z)
+                    forcefield:pushback(p2_id, p2X, p2Y, p2Z)
                 end
             end
         end
@@ -218,12 +218,12 @@ function forcefield:insphere(player, x, y, z, r)
 end
 
 function forcefield:pushback(p2_id, p2X, p2Y, p2Z)
-	-- WIP
-	
-	local strength = forcefield.strength -- not yet implemented
-	write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 0.5)
-	
-	--
+    -- WIP
+
+    local strength = forcefield.strength -- not yet implemented
+    write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 0.5)
+
+    --
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
