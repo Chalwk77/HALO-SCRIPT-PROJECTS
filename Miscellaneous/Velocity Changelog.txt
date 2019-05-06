@@ -225,3 +225,5 @@ Script Updated to v1.37
 [5/6/19]
 1). Removed duplicated perm-check in function 'velocity:portalgun()'.
 Script Updated to v1.38
+2). Fixed a small problem with command per-check errors spamming the executor.
+Script Updated to v1.39
