@@ -20,6 +20,7 @@ local forcefield = {}
 
 -- Base Command: 
 forcefield.command = "ff" -- /command on|off [me | id | */all]
+-- If Player ID parameter ([me | id | */all]) is not specified, Force Field will target the executor.
 
 -- Maximum forcefield range - FYI: (forcefield is a sphere)
 forcefield.range = 10 -- world units (1 world unit = 10 feet or ~3.048 meters)
