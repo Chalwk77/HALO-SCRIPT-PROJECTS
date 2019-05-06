@@ -15,13 +15,13 @@
 - - - -
 
 ## Enter Vehicle:
-`/enter <<item>> [me | id | */all] (optional: height/distance)`
+`/enter [item] [me | id | */all] (optional: height/distance)`
 >  Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
 >  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 - - - -
 
 ## Give:
-`/give <<item>> [me | id | */all]`
+`/give [item] [me | id | */all]`
 - - - -
 
 ## Infinity Ammo:
@@ -30,7 +30,7 @@
 - - - -
 
 ## Item Spawner:
-`/spawn <<item>> [me | id | */all] [amount]`<br/>
+`/spawn [item] [me | id | */all] [amount]`<br/>
 `/itemlist`
 >  /itemlist shows a list of valid items for the current map.
 - - - -
