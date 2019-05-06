@@ -4363,7 +4363,7 @@ function velocity:determineAchat(params)
     if (proceed) then
         local base_command = settings.mod["Admin Chat"].base_command
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Admin Chat")) then
-            if (tLvl >= 1) then
+            if (tLvl >= 1) then -- Check if the target is an admin (only admins can use this command)
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
                     if (mod.boolean ~= true) then
@@ -4499,7 +4499,7 @@ function velocity:enterVehicle(params)
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Enter Vehicle")) then
-        if (tLvl >= 1) then
+        if (tLvl >= 1) then -- Check if the target is an admin (only admins can use this command)
             if not (is_error) then
 
                 if (distance) then
@@ -4652,68 +4652,64 @@ function velocity:spawnItem(params)
     end
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Item Spawner")) then
-        if (tLvl >= 1) then
-            if player_alive(tid) then
-                local objects_table = tab.objects
-                local valid, err
-                local sin = math.sin
-                for i = 1, #objects_table do
-                    if (item == objects_table[i][1]) then
-                        --if (item:match(objects_table[i][1])) then
-                        local tag_type = objects_table[i][2]
-                        local tag_name = objects_table[i][3]
-                        if TagInfo(tag_type, tag_name) then
-                            local function SpawnObject(tid, tag_type, tag_name)
-                                local player_object = get_dynamic_player(tid)
-                                if player_object ~= 0 then
-                                    local x_aim = read_float(player_object + 0x230)
-                                    local y_aim = read_float(player_object + 0x234)
-                                    local z_aim = read_float(player_object + 0x238)
-                                    local x = read_float(player_object + 0x5C)
-                                    local y = read_float(player_object + 0x60)
-                                    local z = read_float(player_object + 0x64)
-                                    local obj_x = x + tab.distance_from_playerX * sin(x_aim)
-                                    local obj_y = y + tab.distance_from_playerY * sin(y_aim)
-                                    local obj_z = z + 0.3 * sin(z_aim) + 0.5
-                                    item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
-                                    valid = true
-                                    if (item_objects[tid]) ~= nil then
-                                        IS_drone_table[tid] = IS_drone_table[tid] or {}
-                                        table.insert(IS_drone_table[tid], item_objects[tid])
-                                    end
+        if player_alive(tid) then
+            local objects_table = tab.objects
+            local valid, err
+            local sin = math.sin
+            for i = 1, #objects_table do
+                if (item == objects_table[i][1]) then
+                    --if (item:match(objects_table[i][1])) then
+                    local tag_type = objects_table[i][2]
+                    local tag_name = objects_table[i][3]
+                    if TagInfo(tag_type, tag_name) then
+                        local function SpawnObject(tid, tag_type, tag_name)
+                            local player_object = get_dynamic_player(tid)
+                            if player_object ~= 0 then
+                                local x_aim = read_float(player_object + 0x230)
+                                local y_aim = read_float(player_object + 0x234)
+                                local z_aim = read_float(player_object + 0x238)
+                                local x = read_float(player_object + 0x5C)
+                                local y = read_float(player_object + 0x60)
+                                local z = read_float(player_object + 0x64)
+                                local obj_x = x + tab.distance_from_playerX * sin(x_aim)
+                                local obj_y = y + tab.distance_from_playerY * sin(y_aim)
+                                local obj_z = z + 0.3 * sin(z_aim) + 0.5
+                                item_objects[tid] = spawn_object(tag_type, tag_name, obj_x, obj_y, obj_z)
+                                valid = true
+                                if (item_objects[tid]) ~= nil then
+                                    IS_drone_table[tid] = IS_drone_table[tid] or {}
+                                    table.insert(IS_drone_table[tid], item_objects[tid])
                                 end
                             end
-                            for i = 1, amount do
-                                SpawnObject(tid, tag_type, tag_name)
-                            end
-                            if (valid) then
-                                local char = getChar(amount)
-                                if not (is_self) then
-                                    respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char .. " for " .. tn, "rcon", 4 + 8)
-                                    respond(tid, en .. " spawned (" .. amount .. ") " .. objects_table[i][1] .. char .. " for you", "rcon", 4 + 8)
-                                else
-                                    respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char, "rcon", 4 + 8)
-                                end
-                            end
-                        else
-                            err = true
-                            respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                         end
-                        break
+                        for i = 1, amount do
+                            SpawnObject(tid, tag_type, tag_name)
+                        end
+                        if (valid) then
+                            local char = getChar(amount)
+                            if not (is_self) then
+                                respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char .. " for " .. tn, "rcon", 4 + 8)
+                                respond(tid, en .. " spawned (" .. amount .. ") " .. objects_table[i][1] .. char .. " for you", "rcon", 4 + 8)
+                            else
+                                respond(eid, "Spawning (" .. amount .. ") " .. objects_table[i][1] .. char, "rcon", 4 + 8)
+                            end
+                        end
+                    else
+                        err = true
+                        respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
                     end
-                end
-                if not (valid) and not (err) then
-                    respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
-                end
-            else
-                if not (is_self) then
-                    respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4 + 8)
-                else
-                    respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4 + 8)
+                    break
                 end
             end
+            if not (valid) and not (err) then
+                respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
+            end
         else
-            respond(eid, "Failed to spawn item for " .. tn .. " - [player not admin]", "rcon", 4 + 8)
+            if not (is_self) then
+                respond(eid, "Command Failed. " .. tn .. " is dead!", "rcon", 4 + 8)
+            else
+                respond(eid, "Command failed. You are dead. [wait until you respawn]", "rcon", 4 + 8)
+            end
         end
     end
     return false
@@ -4803,40 +4799,36 @@ function velocity:clean(params)
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Garbage Collection")) then
-        if (tLvl >= 1) then
-            local object, proceed
-            if identifier:match("%d+") then
-                identifier = tonumber(identifier)
-                if (identifier > 0) and (identifier < 3) then
-                    if (identifier == 1) then
-                        object = "Enter Vehicle"
-                    else
-                        object = "Item Spawner"
-                    end
-                end
-            elseif (identifier == "*" or identifier == "all") then
-                identifier = tostring(identifier)
-                object = "Enter Vehicle & Item Spawner"
-            else
-                respond(eid, "Invalid Table ID!", "rcon", 4 + 8)
-            end
-
-            if (ev_NewVehicle[tid] ~= nil) or (item_objects[tid] ~= nil) then
-                proceed = true
-            else
-                respond(tid, tn .. " has nothing to clean up", "rcon", 4 + 8)
-            end
-
-            if (proceed) then
-                CleanUpDrones(tid, identifier)
-                if (is_self) then
-                    respond(eid, "Cleaning up " .. object .. " objects", "rcon", 4 + 8)
+        local object, proceed
+        if identifier:match("%d+") then
+            identifier = tonumber(identifier)
+            if (identifier > 0) and (identifier < 3) then
+                if (identifier == 1) then
+                    object = "Enter Vehicle"
                 else
-                    respond(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects", "rcon", 4 + 8)
+                    object = "Item Spawner"
                 end
             end
+        elseif (identifier == "*" or identifier == "all") then
+            identifier = tostring(identifier)
+            object = "Enter Vehicle & Item Spawner"
         else
-            respond(eid, "Failed to clean objects for " .. tn .. " - [player not admin]", "rcon", 4 + 8)
+            respond(eid, "Invalid Table ID!", "rcon", 4 + 8)
+        end
+
+        if (ev_NewVehicle[tid] ~= nil) or (item_objects[tid] ~= nil) then
+            proceed = true
+        else
+            respond(tid, tn .. " has nothing to clean up", "rcon", 4 + 8)
+        end
+
+        if (proceed) then
+            CleanUpDrones(tid, identifier)
+            if (is_self) then
+                respond(eid, "Cleaning up " .. object .. " objects", "rcon", 4 + 8)
+            else
+                respond(eid, "Cleaning up " .. tn .. "'s " .. object .. " objects", "rcon", 4 + 8)
+            end
         end
     end
     return false
