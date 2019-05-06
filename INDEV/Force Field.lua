@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Force Field, for SAPP (PC & CE)
-Description: Force Field, when activated, will propel enemines backward if they enter your force-field bubble.
+Description: Force Field, when activated, will propel enemies backward if they enter your force-field bubble.
 			 Force Field will also prevent harm from small-arms projectiles, however, will be temporarily deactivated 
 			 if hit by, for example, a rocket.
 				
