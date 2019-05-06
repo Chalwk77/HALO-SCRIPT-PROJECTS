@@ -51,9 +51,18 @@ forcefield.announce = true
 forcefield.particle_effects = false -- not yet implemented.
 
 -- Projectile Tag IDs used for particle effects.
-forcefield.particles = { "" } -- not yet implemented
+forcefield.particles = { -- not yet implemented 
+	"weapons\\needler\\mp_needle", 
+	"weapons\\flamethrower\\flame", 
+	"weapons\\plasma rifle\\charged bolt", 
+}
 
 -- Force Field Configuration [ends] --
+
+-- Stores Player IP to an array...
+-- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
+-- This table is only accessed when 'event_leave' is called.
+local ip_table = { }
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -155,15 +164,32 @@ end
 
 function OnPlayerConnect(p)
     local ip = getip(p)
+	
+    -- Stores Player IP to an array...
+    -- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
+	ip_table[p] = ip_table[p] or { }
+	ip_table[p] = ip
+	
     forcefield = { [ip] = {} }
     forcefield = { [ip] = { enabled = false } }
 end
 
 function OnPlayerDisconnect(p)
-    -- todo: Store player IP in an array...
-    -- because SAPP cannot retrieve the player IP on 'event_leave'.
-    local ip = getip(p) -- << temp
-    forcefield = { [ip] = {} }
+
+	local ip = function(pid)
+		if (pid) then
+			local ip_address
+			if (halo_type == "PC") then
+				ip_address = ip_table[pid]
+			else
+				ip_address = getip(pid)
+			end
+			return ip_address
+		end
+	end
+
+    forcefield = { [ip(p)] = {} }
+	ip_table[p] = nil
 end
 
 function OnTick()
@@ -176,7 +202,8 @@ function OnTick()
                 local x, y, z = read_vector3d(p1 + 0x5C) -- player 1
                 if forcefield:insphere(p2_id, z, y, z, forcefield.range) then
                     local p2X, p2Y, p2Z = read_vector3d(p2 + 0x5C)
-                    write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 4)
+					local strength = forcefield.strength -- not yet implemented
+                    write_vector3d(p2 + 0x5C, p2X + 0.50, p2Y + 0.50, p2Z + 0.5)
                 end
             end
         end
