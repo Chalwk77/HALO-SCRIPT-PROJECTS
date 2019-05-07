@@ -160,8 +160,6 @@ function OnPlayerConnect(p)
 
     local ip = getip(p)
 
-    -- Stores Player IP to an array...
-    -- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
     ip_table[p] = ip_table[p] or { }
     ip_table[p] = ip
 
@@ -347,7 +345,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not gameover() then
             if (checkAccess(executor)) then
                 if (args[1] ~= nil) then
-                    validate_params(2) -- 2 = /command <args> id | 2 = /command id <args>
+                    validate_params(2) -- 2 = /command <args> [id] | 1 = /command [id] <args>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             forcefield:enable(params)
