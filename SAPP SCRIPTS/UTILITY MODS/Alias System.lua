@@ -37,10 +37,9 @@ local alignment = "|l"
 local max_results_per_page = 50
 -- Configuration [ends] << ----------------------------------------------
 
-
-
 ---------------------------------------------------------------------------------------------------------------------------------------------
 local players, player_info, lower, concat, floor, gsub, gmatch = { }, { }, string.lower, table.concat, math.floor, string.gsub, string.gmatch
+local format = string.format
 local server_ip = "000.000.000.000"
 local function InitPlayers()
     players = {
@@ -555,41 +554,27 @@ end
 
 function alias:add(name, hash)
 
-    local function containsExact(w, s)
+    local function contains(w, s)
         return select(2, s:gsub('^' .. w .. '%W+', '')) +
                 select(2, s:gsub('%W+' .. w .. '$', '')) +
                 select(2, s:gsub('^' .. w .. '$', '')) +
                 select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
     end
-
+       
     local found, proceed
     local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(hash, v) and containsExact(name, v) then
+    for line, v in pairs(lines) do
+        if contains(hash, v) and contains(name, v) then
             proceed = true
         end
-        if containsExact(hash, v) and not containsExact(name, v) then
+        if contains(hash, v) and not contains(name, v) then
             found = true
-
-            if string.find(name, '%[') then
-                name = gsub(name, '%[', "{")
-            end
-
-            if string.find(name, '%]') then
-                name = gsub(name, '%]', "}")
-            end
-
             local alias = v .. ", " .. name
-
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-
-            content = gsub(content, v, alias)
-
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
+            delete(dir, line, 1)
+            local file = assert(io.open(dir, "a+"))
+            file:write(alias .. "\n")
+            file:close()
+            break
         end
     end
     if not (found) and not (proceed) then
@@ -634,6 +619,27 @@ function respond(executor, message, environment, color)
             cprint(message, color)
         end
     end
+end
+
+function delete(dir, start_index, end_index)
+    local fp = io.open(dir, "r")
+    local t = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < start_index or i >= start_index + end_index then
+            t[#t + 1] = line
+        end
+        i = i + 1
+    end
+    if i > start_index and i < start_index + end_index then
+        cprint("Warning: End of File! No entries to delete.")
+    end
+    fp:close()
+    fp = io.open(dir, "w+")
+    for i = 1, #t do
+        fp:write(format("%s\n", t[i]))
+    end
+    fp:close()
 end
 
 function cmdsplit(str)
