@@ -6898,8 +6898,8 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/7/19]"
     cl[#cl + 1] = "1). Lurker will now tell you if someone is in Lurker Mode by aiming at them."
-    cl[#cl + 1] = "2). Small tweak to Portalun Mode"
-    cl[#cl + 1] = "3). All Velocity Commands are now case-insensitive"
+    cl[#cl + 1] = "2). Small tweak to Portalun Mode."
+    cl[#cl + 1] = "3). All Velocity Commands are now case-insensitive."
     cl[#cl + 1] = "4). A few more minor tweaks here and there."
     cl[#cl + 1] = "Script Updated to v1.40"
     file:write(concat(cl, "\n"))
