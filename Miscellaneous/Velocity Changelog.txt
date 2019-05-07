@@ -227,3 +227,12 @@ Script Updated to v1.37
 Script Updated to v1.38
 2). Fixed a small problem with command per-check errors spamming the executor.
 Script Updated to v1.39
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/7/19]
+1). Lurker will now tell you if someone is in Lurker Mode by aiming at them.
+2). Small tweak to Portalun Mode.
+3). All Velocity Commands are now case-insensitive.
+4). A few more minor tweaks here and there.
+Script Updated to v1.40
