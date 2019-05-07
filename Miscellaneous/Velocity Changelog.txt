@@ -236,3 +236,11 @@ Script Updated to v1.39
 3). All Velocity Commands are now case-insensitive.
 4). A few more minor tweaks here and there.
 Script Updated to v1.40
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/8/19]
+1). Fixed a major problem with Alias System.
+2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all].
+3). Tidied up some code.
+Script Updated to v1.41
