@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.39), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.40), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -768,7 +768,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.39, -- << --- do not touch
+            script_version = 1.40, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -874,8 +874,6 @@ local ce
 local console_address_patch = nil
 local game_over
 
-local execute_on_others_error = { }
-
 -- #Color Reservation
 local colorres_bool = {}
 local can_use_colorres
@@ -958,6 +956,10 @@ local function adjust_ammo(p)
         execute_command("battery " .. tonumber(p) .. " 100 " .. i)
     end
 end
+-- This function returns the total number of players currently online.
+local player_count = function()
+    return tonumber(get_var(0, "$pn"))
+end
 
 -- Detremines what element indexes should be returned.
 local getPage = function(params)
@@ -1034,6 +1036,7 @@ local function getPermLevel(script, bool, p)
 end
 
 -- Checks if the player can execute this command on others
+local execute_on_others_error = { }
 local function executeOnOthers(e, self, is_console, level, script)
     if not (self) and not (is_console) then
         if tonumber(level) >= getPermLevel(script, true) then
@@ -1043,7 +1046,8 @@ local function executeOnOthers(e, self, is_console, level, script)
             respond(e, "You are not allowed to executed this command on other players.", "rcon", 4 + 8)
             return false
         end
-    else -- Server should always be allowed to executed on others.
+    else
+        -- Server should always be allowed to execute on others.
         return true
     end
 end
@@ -1095,7 +1099,7 @@ end
 local function announceExclude(PlayerIndex, message)
     for i = 1, 16 do
         if (player_present(i) and i ~= PlayerIndex) then
-            say(i, message) -- SAPP function 'say'
+            Say(i, message) -- SAPP function 'say'
         end
     end
 end
@@ -1725,6 +1729,39 @@ function OnTick()
             -- #Lurker
             if modEnabled("Lurker") then
                 local tab = settings.mod["Lurker"]
+
+                for j = 1, 16 do
+                    if (i ~= j) then
+                        if (player_alive(i)) and (player_alive(j)) then
+                            local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
+                            if (P1Object ~= 0) and (P2Object ~= 0) then
+                                local playerX, playerY, playerZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
+                                local couching = read_float(P1Object + 0x50C)
+                                local px, py, pz = read_vector3d(P1Object + 0x5c)
+                                if (couching == 0) then
+                                    pz = pz + 0.65
+                                else
+                                    pz = pz + (0.35 * couching)
+                                end
+                                local ignore_player = read_dword(get_player(i) + 0x34)
+                                local success, _, _, _, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
+                                local player_2 = target and read_dword(get_player(j) + 0x34)
+                                if (success == true and target ~= nil) then
+                                    if (target == player_2) then
+                                        if (lurker[j]) then
+                                            cls(i, 25)
+                                            respond(i, "|c" .. get_var(j, "$name") .. " is in lurker mode!", "rcon")
+                                            for _ = 1, 5 do
+                                                rprint(i, " ")
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
                 if (lurker[i] == true) then
                     if (players["Lurker"][ip].lurker_warn == true) then
                         local LTab = players["Lurker"][ip]
@@ -2931,7 +2968,21 @@ local function checkAccess(e, console_allowed, script, others, alt, params)
     return access
 end
 
--- Used in OnServerCommand()
+local gameover = function(e)
+    if (game_over) then
+        rprint(e, "Command Failed -> Game has Ended.")
+        rprint(e, "Please wait until the next game has started.")
+        return true
+    end
+end
+
+local function cmdself(t, e)
+    if (t) and (tonumber(t) == tonumber(e)) then
+        rprint(e, "You cannot execute this command on yourself.")
+        return true
+    end
+end
+
 local function isOnline(t, e)
     if (t) then
         if (t > 0 and t < 17) then
@@ -2947,25 +2998,10 @@ local function isOnline(t, e)
     end
 end
 
-local function cmdself(t, e)
-    if (t) then
-        if tonumber(t) == tonumber(e) then
-            rprint(e, "You cannot execute this command on yourself.")
-            return true
-        end
-    end
-end
-
-local function gameover(p)
-    if (game_over) then
-        rprint(p, "Command Failed -> Game has Ended.")
-        rprint(p, "Please wait until the next game has started.")
-        return true
-    end
-end
-
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
+    command = lower(command) or upper(command)
+
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
     local ip = getip(PlayerIndex, true)
@@ -4038,21 +4074,30 @@ function velocity:portalgun(params)
         is_self = true
     end
 
-    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local function Enable(tip)
+        portalgun_mode[tip] = true
+        announceExclude(tid, tn .. " is now in Portal Gun mode!")
+    end
 
+    local function Disable(tid)
+        portalgun_mode[tip] = true
+        announceExclude(tid, tn .. " is no longer in Portal Gun mode!")
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Portal Gun")) then
         local base_command = settings.mod["Portal Gun"].base_command
         local status, already_set, is_error
         if (option == "on") or (option == "1") or (option == "true") then
             if (portalgun_mode[tip] ~= true) then
-                portalgun_mode[tip] = true
+                Enable(tip)
                 status, already_set, is_error = "Enabled", false, false
             else
                 status, already_set, is_error = "Enabled", true, false
             end
         elseif (option == "off") or (option == "0") or (option == "false") then
             if (portalgun_mode[tip] ~= false) then
-                portalgun_mode[tip] = false
+                Disable(tip)
                 status, already_set, is_error = "Disabled", false, false
             else
                 status, already_set, is_error = "Disabled", true, false
@@ -4363,7 +4408,8 @@ function velocity:determineAchat(params)
     if (proceed) then
         local base_command = settings.mod["Admin Chat"].base_command
         if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Admin Chat")) then
-            if (tLvl >= 1) then -- Check if the target is an admin (only admins can use this command)
+            if (tLvl >= 1) then
+                -- Check if the target is an admin (only admins can use this command)
                 local status, already_set, is_error
                 if (option == "on") or (option == "1") or (option == "true") then
                     if (mod.boolean ~= true) then
@@ -4499,7 +4545,8 @@ function velocity:enterVehicle(params)
     local tLvl = tonumber(get_var(tid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Enter Vehicle")) then
-        if (tLvl >= 1) then -- Check if the target is an admin (only admins can use this command)
+        if (tLvl >= 1) then
+            -- Check if the target is an admin (only admins can use this command)
             if not (is_error) then
 
                 if (distance) then
@@ -6846,6 +6893,15 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.38"
     cl[#cl + 1] = "2). Fixed a small problem with command per-check errors spamming the executor."
     cl[#cl + 1] = "Script Updated to v1.39"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/7/19]"
+    cl[#cl + 1] = "1). Lurker will now tell you if someone is in Lurker Mode by aiming at them."
+    cl[#cl + 1] = "2). Small tweak to Portalun Mode"
+    cl[#cl + 1] = "3). All Velocity Commands are now case-insensitive"
+    cl[#cl + 1] = "4). A few more minor tweaks here and there."
+    cl[#cl + 1] = "Script Updated to v1.40"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
