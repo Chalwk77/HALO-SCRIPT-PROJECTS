@@ -24,7 +24,7 @@ forcefield.command = "ff" -- /command on|off [me | id | */all]
 
 -- Maximum forcefield range - FYI: (forcefield is a sphere)
 forcefield.range = 10 -- world units (1 world unit = 10 feet or ~3.048 meters)
-forcefield.strength = 5 -- not yet implemented
+forcefield.strength = 0.2 -- not yet implemented
 
 -- Minimum Permission level required to execute /forcefield.command
 forcefield.permission_level = 1
@@ -80,7 +80,7 @@ end
 local lower, upper = string.lower, string.upper
 
 local game_over
-function OnGameStart()
+function OnGameStart()  
     game_over = false
 end
 
@@ -136,7 +136,7 @@ end
 local function announceExclude(PlayerIndex, message)
     for i = 1, 16 do
         if (player_present(i) and i ~= PlayerIndex) then
-            say(i, message)
+            Say(i, message)
         end
     end
 end
@@ -193,30 +193,31 @@ local player_count = function()
 end
 
 function OnTick()
-    -- WORK IN PROGRESS (20% implemented)
-    local proceed
     if (player_count() > 1) then
-        for i = 1, 16 do
-            if (player_present(i)) and (player_alive(i)) then
-
-
-            end
-        end
-        if (proceed) then
-            local p1, p2 = get_dynamic_player(p1_id), get_dynamic_player(p2_id)
-            if (p1 ~= 0) and (p2 ~= 0) then
-                local x1, y1, z1, x2, y2, z2 = read_vector3d(p1 + 0x5C), read_vector3d(p2 + 0x5C)
-                if forcefield:insphere(x1, y1, z1, x2, y2, z2, forcefield.range) then
-                    forcefield:pushback(p2, x2, y2, z2)
+        for i = 1,player_count() do
+            for j = 1,player_count() do        
+                if (i ~= j) then
+                    if (player_alive(i)) and (player_alive(j)) then
+                        local ip1, ip2 = getip(i), getip(j)
+                        if (forcefield[ip1].enabled) and not (forcefield[ip2].enabled) then
+                            local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)            
+                            if (P1Object ~= 0) and (P2Object ~= 0) then
+                                local x1, y1, z1 = read_vector3d(P1Object + 0x5C)
+                                local x2, y2, z2 = read_vector3d(P2Object + 0x5C)
+                                if forcefield:insphere(x1, y1, z1, x2, y2, z2, forcefield.range) then
+                                    forcefield:pushback(P2Object, x2, y2, z2)
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end
     end
-    --
 end
 
 function forcefield:insphere(x1, y1, z1, x2, y2, z2, r)
-    if ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2 <= radius) then
+    if ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2 <= r) then
         return true
     elseif ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2 > r + 1) then
         return false
@@ -224,10 +225,17 @@ function forcefield:insphere(x1, y1, z1, x2, y2, z2, r)
 end
 
 function forcefield:pushback(PlayerObject, x2, y2, z2)
-    -- WIP
-    local strength = forcefield.strength -- not yet implemented
-    write_vector3d(PlayerObject + 0x5C, x2 + 0.50, y2 + 0.50, z2 + 0.5)
-    --
+    local strength = forcefield.strength
+    
+    local x_aim = read_float(PlayerObject + 0x230)
+    local y_aim = read_float(PlayerObject + 0x234)
+    local z_aim = read_float(PlayerObject + 0x238)
+ 
+    local x = x2 + strength * math.sin(x_aim)
+    local y = y2 + strength * math.sin(y_aim)
+    local z = z2 + strength * math.sin(z_aim)
+    
+    write_vector3d(PlayerObject + 0x5C, x, y, z)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -385,14 +393,14 @@ function forcefield:enable(params)
     local function Enable()
         forcefield[tip].enabled = true
         if (forcefield.announce) then
-            announceExclude(tid, tn .. " is now in force field mode!")
+            announceExclude(tid, tn .. " is now in Force Field mode!")
         end
     end
 
     local function Disable(tid)
         forcefield[tip].enabled = false
         if (forcefield.announce) then
-            announceExclude(tid, tn .. " is no longer in force field mode!")
+            announceExclude(tid, tn .. " is no longer in Force Field mode!")
         end
     end
 
