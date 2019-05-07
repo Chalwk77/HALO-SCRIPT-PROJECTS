@@ -440,6 +440,7 @@ local function GameSettings()
                 permission_level = -1,
                 execute_on_others = 4, -- Permission level needed to set for others.
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
+                screen_notifications = true, -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
                 speed = true,
                 god = true,
                 camouflage = true,
@@ -1729,26 +1730,25 @@ function OnTick()
             -- #Lurker
             if modEnabled("Lurker") then
                 local tab = settings.mod["Lurker"]
-
-                for j = 1, 16 do
-                    if (i ~= j) then
-                        if (player_alive(i)) and (player_alive(j)) then
-                            local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
-                            if (P1Object ~= 0) and (P2Object ~= 0) then
-                                local playerX, playerY, playerZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
-                                local couching = read_float(P1Object + 0x50C)
-                                local px, py, pz = read_vector3d(P1Object + 0x5c)
-                                if (couching == 0) then
-                                    pz = pz + 0.65
-                                else
-                                    pz = pz + (0.35 * couching)
-                                end
-                                local ignore_player = read_dword(get_player(i) + 0x34)
-                                local success, _, _, _, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
-                                local player_2 = target and read_dword(get_player(j) + 0x34)
-                                if (success == true and target ~= nil) then
-                                    if (target == player_2) then
-                                        if (lurker[j]) then
+                if (tab.screen_notifications) then
+                    for j = 1, 16 do
+                        if (i ~= j) then
+                            if (player_alive(i)) and (player_alive(j)) then
+                                local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
+                                if (P1Object ~= 0) and (P2Object ~= 0) then
+                                    local camX, camY, camZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
+                                    local couching = read_float(P1Object + 0x50C)
+                                    local px, py, pz = read_vector3d(P1Object + 0x5c)
+                                    if (couching == 0) then
+                                        pz = pz + 0.65
+                                    else
+                                        pz = pz + (0.35 * couching)
+                                    end
+                                    local player_1 = read_dword(get_player(i) + 0x34)
+                                    local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
+                                    local player_2 = Object and read_dword(get_player(j) + 0x34)
+                                    if (success == true and Object ~= nil) then
+                                        if (Object == player_2 and lurker[j]) then
                                             cls(i, 25)
                                             respond(i, "|c" .. get_var(j, "$name") .. " is in lurker mode!", "rcon")
                                             for _ = 1, 5 do
