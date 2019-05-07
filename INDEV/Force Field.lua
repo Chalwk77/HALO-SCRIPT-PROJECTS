@@ -24,7 +24,7 @@ forcefield.command = "ff" -- /command on|off [me | id | */all]
 
 -- Maximum forcefield range - FYI: (forcefield is a sphere)
 forcefield.range = 10 -- world units (1 world unit = 10 feet or ~3.048 meters)
-forcefield.strength = 0.2 -- not yet implemented
+forcefield.strength = 0.2
 
 -- Minimum Permission level required to execute /forcefield.command
 forcefield.permission_level = 1
