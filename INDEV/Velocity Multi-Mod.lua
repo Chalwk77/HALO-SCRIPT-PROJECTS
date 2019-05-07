@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.40), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.41), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -337,6 +337,12 @@ local function GameSettings()
             ["Garbage Collection"] = {
                 enabled = true,
                 base_command = "clean", -- /base_command <item> [me | id | */all]
+                permission_level = 1,
+                execute_on_others = 4,
+            },
+            ["Get Coords"] = {
+                enabled = true,
+                base_command = "gc", -- /base_command
                 permission_level = 1,
                 execute_on_others = 4,
             },
@@ -769,7 +775,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.40, -- << --- do not touch
+            script_version = 1.41, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3230,6 +3236,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:give(params)
                     end
+                    -- #Give
+                elseif (parameter == "getcoords") then
+                    if (target_all_players) then
+                        velocity:getcoords(params)
+                    end
                     -- #Block Object Pickups
                 elseif (parameter == "blockpickup") then
                     if (args[1] ~= nil) then
@@ -3355,6 +3366,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             else
                 rprint(executor, "Error. Plugin: 'Give' not enabled!")
+            end
+        end
+        return false
+        -- #Get Coords
+    elseif (command == settings.mod["Get Coords"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Get Coords", executor) then
+                if (checkAccess(executor, true, "Get Coords")) then
+                    local tab = settings.mod["Get Coords"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("getcoords", 1) --/base_command [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:getcoords(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            else
+                rprint(executor, "Error. Plugin: 'Get Coords' not enabled!")
             end
         end
         return false
@@ -4292,6 +4325,27 @@ function velocity:give(params)
         end
         check_available_slots[tid] = true
         timer(100, "delay_add")
+    end
+end
+
+-- Get Coords
+function velocity:getcoords(params)
+    local params = params or {}
+    local eid = params.eid or nil
+
+    local tid = params.tid or nil
+    local tn = params.tn or nil
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Get Coords")) then
+        local coords = getXYZ(eid, tid)
+        local x,y,z = coords.x, coords.y, coords.z
+        respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2+8)
     end
 end
 
@@ -5925,42 +5979,28 @@ end
 -- #Alias System
 function alias:add(name, hash)
 
-    local function containsExact(w, s)
+    local function contains(w, s)
         return select(2, s:gsub('^' .. w .. '%W+', '')) +
                 select(2, s:gsub('%W+' .. w .. '$', '')) +
                 select(2, s:gsub('^' .. w .. '$', '')) +
                 select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
     end
-
+       
     local found, proceed
     local dir = settings.mod["Alias System"].dir
     local lines = lines_from(dir)
-    for _, v in pairs(lines) do
-        if containsExact(hash, v) and containsExact(name, v) then
+    for line, v in pairs(lines) do
+        if contains(hash, v) and contains(name, v) then
             proceed = true
         end
-        if containsExact(hash, v) and not containsExact(name, v) then
+        if contains(hash, v) and not contains(name, v) then
             found = true
-
-            if string.find(name, '%[') then
-                name = gsub(name, '%[', "{")
-            end
-
-            if string.find(name, '%]') then
-                name = gsub(name, '%]', "}")
-            end
-
             local alias = v .. ", " .. name
-
-            local fRead = io.open(dir, "r")
-            local content = fRead:read("*all")
-            fRead:close()
-
-            content = gsub(content, v, alias)
-
-            local fWrite = io.open(dir, "w")
-            fWrite:write(content)
-            fWrite:close()
+            delete_from_file(dir, line, 1)
+            local file = assert(io.open(dir, "a+"))
+            file:write(alias .. "\n")
+            file:close()
+            break
         end
     end
     if not (found) and not (proceed) then
@@ -6442,6 +6482,30 @@ function loadWeaponTags()
     battle_rifle = "halo3\\weapons\\battle rifle\\tactical battle rifle"
 end
 
+function getXYZ(e, t)
+    local x,y,z
+    local player_object = get_dynamic_player(t)
+    if (player_object ~= 0) then
+        if player_alive(t) then
+            local coords = { }
+            if PlayerInVehicle(t) then
+                local VehicleID = read_dword(player_object + 0x11C)
+                if (VehicleID == 0xFFFFFFFF) then
+                    return false
+                end
+                local vehicle = get_object_memory(VehicleID)
+                x, y, z = read_vector3d(vehicle + 0x5c)
+            else
+                x, y, z = read_vector3d(player_object + 0x5c)
+            end
+            coords.x, coords.y, coords.z = x,y,z
+            return coords
+        else
+            respond(e, get_var(t,"$name") .. " is dead! Please wait until they respawn.", "rcon", 4 + 8)
+        end
+    end
+end
+
 function cmdsplit(str)
     local subs = {}
     local sub = ""
@@ -6557,7 +6621,7 @@ function secondsToTime(seconds, places)
     end
 end
 
-function delete_from_file(dir, start_index, end_index, player)
+function delete_from_file(dir, start_index, end_index)
     local fp = io.open(dir, "r")
     local t = {}
     i = 1;
@@ -6568,7 +6632,6 @@ function delete_from_file(dir, start_index, end_index, player)
         i = i + 1
     end
     if i > start_index and i < start_index + end_index then
-        rprint(player, "Warning: End of File! No entries to delete.")
         cprint("Warning: End of File! No entries to delete.")
     end
     fp:close()
@@ -6902,6 +6965,14 @@ function RecordChanges()
     cl[#cl + 1] = "3). All Velocity Commands are now case-insensitive."
     cl[#cl + 1] = "4). A few more minor tweaks here and there."
     cl[#cl + 1] = "Script Updated to v1.40"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/8/19]"
+    cl[#cl + 1] = "1). Fixed a major problem with Alias System."
+    cl[#cl + 1] = "2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all]."
+    cl[#cl + 1] = "3). Tidied up some code."
+    cl[#cl + 1] = "Script Updated to v1.41"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
