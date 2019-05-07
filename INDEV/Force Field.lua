@@ -197,7 +197,7 @@ function OnTick()
                 if (i ~= j) then
                     if (player_alive(i)) and (player_alive(j)) then
                         local ip1, ip2 = getip(i), getip(j)
-                        if (forcefield[ip1].enabled) and not (forcefield[ip2].enabled) then
+                        if (forcefield[ip1].enabled) then
                             local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)            
                             if (P1Object ~= 0) and (P2Object ~= 0) then
                                 local x1, y1, z1 = read_vector3d(P1Object + 0x5C)
