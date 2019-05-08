@@ -1757,7 +1757,7 @@ function OnTick()
                                     if (success == true and Object ~= nil) then
                                         if (Object == player_2 and lurker[j]) then
                                             cls(i, 25)
-                                            respond(i, "|c" .. get_var(j, "$name") .. " is in lurker mode!", "rcon")
+                                            respond(i, "|c" .. get_var(j, "$name") .. " is in spectator mode!", "rcon")
                                             for _ = 1, 5 do
                                                 rprint(i, " ")
                                             end
