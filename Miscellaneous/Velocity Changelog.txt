@@ -243,4 +243,5 @@ Script Updated to v1.40
 1). Fixed a major problem with Alias System.
 2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all].
 3). Tidied up some code.
+4). Bug fix for command '/velocity'. Output will now correctly display the version string to two decimal places.
 Script Updated to v1.41
