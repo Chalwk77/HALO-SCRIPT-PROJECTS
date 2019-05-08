@@ -12,7 +12,7 @@ Combined Scripts:
     - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
     - Command Spy               Console Logo                Custom Weapons		 Cute
     - Enter Vehicle
-    - Garbage Collection        Give
+    - Garbage Collection        Give                        Get Coords
     - Infinity Ammo             Item Spawner
     - Lurker
     - Message Board             Mute System
