@@ -1275,7 +1275,8 @@ function velocity:ShowCurrentVersion()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
-        cprint("[VELOCITY] Current Version: " .. settings.global.script_version, 2 + 8)
+        local script_version = string.format("%0.2f", settings.global.script_version)
+        cprint("[VELOCITY] Current Version: " .. script_version, 2 + 8)
     end
 end
 
@@ -3901,17 +3902,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
         if hasAccess(executor, pCMD.velocity[2]) then
+            local script_version = string.format("%0.2f", settings.global.script_version)
             if (settings.global.check_for_updates) then
-                if (getCurrentVersion(false) ~= settings.global.script_version) then
+                if (getCurrentVersion(false) ~= script_version) then
                     respond(executor, "============================================================================", "rcon", 7 + 8)
                     respond(executor, "[VELOCITY] Version " .. getCurrentVersion(false) .. " is available for download.", "rcon", 5 + 8)
-                    respond(executor, "Current version: v" .. settings.global.script_version, "rcon", 5 + 8)
+                    respond(executor, "Current version: v" .. script_version, "rcon", 5 + 8)
                     respond(executor, "============================================================================", "rcon", 7 + 8)
                 else
-                    respond(executor, "Velocity Version " .. settings.global.script_version, "rcon", 5 + 8)
+                    respond(executor, "Velocity Version " .. script_version, "rcon", 5 + 8)
                 end
             else
-                respond(executor, "Update Checking disabled. Current version: " .. settings.global.script_version, "rcon", 5 + 8)
+                respond(executor, "Update Checking disabled. Current version: " .. script_version, "rcon", 5 + 8)
             end
         end
         return false
@@ -5975,7 +5977,6 @@ function resetAliasParams()
     end
 end
 
-
 -- #Alias System
 function alias:add(name, hash)
 
@@ -6681,15 +6682,15 @@ function getCurrentVersion(bool)
 
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
     local version = httpRequest(url):match("script_version = (%d+.%d+)")
-
+    local script_version = string.format("%0.2f", settings.global.script_version)
     if (bool == true) then
-        if (tonumber(version) ~= settings.global.script_version) then
+        if (tonumber(version) ~= script_version) then
             cprint("============================================================================", 5 + 8)
             cprint("[VELOCITY] Version " .. tostring(version) .. " is available for download.")
-            cprint("Current version: v" .. settings.global.script_version, 5 + 8)
+            cprint("Current version: v" .. script_version, 5 + 8)
             cprint("============================================================================", 5 + 8)
         else
-            cprint("[VELOCITY] Version " .. settings.global.script_version, 2 + 8)
+            cprint("[VELOCITY] Version " .. script_version, 2 + 8)
         end
     end
     return tonumber(version)
@@ -6710,10 +6711,11 @@ end
 
 -- In the event of an error, the script will trigger these two functions: OnError(), report()
 function report()
+    local script_version = string.format("%0.2f", settings.global.script_version)
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. settings.global.script_version, 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
@@ -6972,6 +6974,7 @@ function RecordChanges()
     cl[#cl + 1] = "1). Fixed a major problem with Alias System."
     cl[#cl + 1] = "2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all]."
     cl[#cl + 1] = "3). Tidied up some code."
+    cl[#cl + 1] = "4). Bug fix for command '/velocity'. Output will now correctly display the version string to two decimal places."
     cl[#cl + 1] = "Script Updated to v1.41"
     file:write(concat(cl, "\n"))
     file:close()
