@@ -1,3 +1,5 @@
+#### Command Count: 37
+
 ## Admin Chat:
 `/achat on|off|status|-s [me | id */all]`
 >  'status' or '-s' tells you whether the target's achat is enabled/disabled.
