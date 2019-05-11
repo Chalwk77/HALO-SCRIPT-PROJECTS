@@ -3449,7 +3449,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         p.mail = privateMessage:load(p)
                         privateMessage:delete(p)
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.mark_as_read_command .. " [message id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.delete_command .. " [message id]", "rcon", 4 + 8)
                     end
                 end
             else
@@ -5696,8 +5696,8 @@ function privateMessage:read(params)
     if (proceed) then
         local has_mail
         local function hasMail(has_mail)
-            if (has_mail) and (#unread_mail[eip] > 0) then
-                local count = #unread_mail[eip]
+            local count = #unread_mail[eip]
+            if (has_mail) and (count > 0) then
                 respond(eid, "Viewing Page (" .. page .. "). Total Messages: " .. count, "rcon", 2 + 8)
             end
         end
@@ -5779,6 +5779,7 @@ function privateMessage:read(params)
     end
 end
 
+-- #Private Messaging System
 function privateMessage:delete(params)
     local params = params or {}
     local mail = params.mail or nil
@@ -5793,15 +5794,18 @@ function privateMessage:delete(params)
         local found
         for k, v in pairs(lines) do
             if (k ~= nil) then
-                if (mail_id == k) and v:find(eip) then
-                    found = true
+                if (mail_id == k) and v:match(eip) then
+                    found, _error_ = true, false
                     delete_from_file(tab.dir, k, 1, eid)
-                    respond(eid, "Message [" .. k .. "] deleted", "rcon", 2 + 8)
+                    respond(eid, "Message [#" .. k .. "] deleted", "rcon", 2 + 8)
+                else
+                    respond(eid, "Invalid Mail ID", "rcon", 2 + 8)
+                    break
                 end
+            else
+                found, _error_ = true, true
+                respond(eid, "Nothing to delete!", "rcon", 2 + 8)
             end
-        end
-        if not (found) then
-            respond(eid, "Invalid mail id", "rcon", 2 + 8)
         end
     end
 end
