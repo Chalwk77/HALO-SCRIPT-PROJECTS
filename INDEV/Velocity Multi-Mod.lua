@@ -5698,7 +5698,8 @@ function privateMessage:read(params)
         local function hasMail(has_mail)
             local count = #unread_mail[eip]
             if (has_mail) and (count > 0) then
-                respond(eid, "Viewing Page (" .. page .. "). Total Messages: " .. count, "rcon", 2 + 8)
+                local maxpages = getPageCount(count, tab.max_results_per_page)
+                respond(eid, "Viewing Page (" .. page .. "/" .. maxpages .. "). Total Messages: " .. count, "rcon", 2 + 8)
             end
         end
 
@@ -6999,6 +7000,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/12/19]"
     cl[#cl + 1] = "1). Fixed a bug with Alias System."
+    cl[#cl + 1] = "2). A few tweaks to Private Messaging System."
     cl[#cl + 1] = "Script Updated to v1.42"
     file:write(concat(cl, "\n"))
     file:close()
