@@ -6993,9 +6993,9 @@ function RecordChanges()
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/12/19]"
     cl[#cl + 1] = "1). Fixed a bug with Alias System."
     cl[#cl + 1] = "Script Updated to v1.42"
-    cl[#cl + 1] = "[5/12/19]"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
