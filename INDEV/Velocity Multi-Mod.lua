@@ -5985,7 +5985,7 @@ function alias:add(name, hash)
     local data, alias, name_found, index
     for k, v in pairs(lines) do
         if (v:match(hash)) then
-            data = stringSplit(gsub(v, hash .. ":", ""), ", ")
+            data = stringSplit(gsub(v, hash .. ":", ""), ",")
             alias = v .. "," .. name
             index, value = k, v
         end
