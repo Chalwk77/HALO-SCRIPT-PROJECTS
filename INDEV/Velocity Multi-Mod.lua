@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.41), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.42), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -775,7 +775,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.41, -- << --- do not touch
+            script_version = 1.42, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -963,6 +963,7 @@ local function adjust_ammo(p)
         execute_command("battery " .. tonumber(p) .. " 100 " .. i)
     end
 end
+
 -- This function returns the total number of players currently online.
 local player_count = function()
     return tonumber(get_var(0, "$pn"))
@@ -1275,7 +1276,7 @@ function velocity:ShowCurrentVersion()
     if (settings.global.check_for_updates) then
         getCurrentVersion(true)
     else
-        local script_version = string.format("%0.2f", settings.global.script_version)
+        local script_version = format("%0.2f", settings.global.script_version)
         cprint("[VELOCITY] Current Version: " .. script_version, 2 + 8)
     end
 end
@@ -3902,7 +3903,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Velocity Version command
     elseif (command == pCMD.velocity[1]) then
         if hasAccess(executor, pCMD.velocity[2]) then
-            local script_version = string.format("%0.2f", settings.global.script_version)
+            local script_version = format("%0.2f", settings.global.script_version)
             if (settings.global.check_for_updates) then
                 if (getCurrentVersion(false) ~= script_version) then
                     respond(executor, "============================================================================", "rcon", 7 + 8)
@@ -4346,8 +4347,8 @@ function velocity:getcoords(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Get Coords")) then
         local coords = getXYZ(eid, tid)
-        local x,y,z = coords.x, coords.y, coords.z
-        respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2+8)
+        local x, y, z = coords.x, coords.y, coords.z
+        respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2 + 8)
     end
 end
 
@@ -5979,32 +5980,45 @@ end
 
 -- #Alias System
 function alias:add(name, hash)
-
-    local function contains(w, s)
-        return select(2, s:gsub('^' .. w .. '%W+', '')) +
-                select(2, s:gsub('%W+' .. w .. '$', '')) +
-                select(2, s:gsub('^' .. w .. '$', '')) +
-                select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
-    end
-       
-    local found, proceed
     local dir = settings.mod["Alias System"].dir
     local lines = lines_from(dir)
-    for line, v in pairs(lines) do
-        if contains(hash, v) and contains(name, v) then
-            proceed = true
-        end
-        if contains(hash, v) and not contains(name, v) then
-            found = true
-            local alias = v .. ", " .. name
-            delete_from_file(dir, line, 1)
-            local file = assert(io.open(dir, "a+"))
-            file:write(alias .. "\n")
-            file:close()
-            break
+    local data, alias, name_found, index
+    for k, v in pairs(lines) do
+        if (v:match(hash)) then
+            data = stringSplit(gsub(v, hash .. ":", ""), ", ")
+            alias = v .. "," .. name
+            index, value = k, v
         end
     end
-    if not (found) and not (proceed) then
+
+    if (data) then
+        local result, i = { }, 1
+        for j = 1, #data do
+            if (data[j] ~= nil) then
+                result[i] = data[j]
+                i = i + 1
+            end
+        end
+        if (result ~= nil) then
+
+            for i = 1, #result do
+                if (name == result[i]) then
+                    -- Name entry already exists for this hash: (do nothing).
+                    name_found = true
+                    break
+                end
+            end
+
+            if not (name_found) then
+                -- Name entry does not eist for this hash: (create new name entry).
+                delete_from_file(dir, index, 1)
+                local file = assert(io.open(dir, "a+"))
+                file:write(alias .. "\n")
+                file:close()
+            end
+        end
+    else
+        -- Hash entry does not exist in the database: (create entry).
         local file = assert(io.open(dir, "a+"))
         file:write(hash .. ":" .. name .. "\n")
         file:close()
@@ -6484,7 +6498,7 @@ function loadWeaponTags()
 end
 
 function getXYZ(e, t)
-    local x,y,z
+    local x, y, z
     local player_object = get_dynamic_player(t)
     if (player_object ~= 0) then
         if player_alive(t) then
@@ -6499,10 +6513,10 @@ function getXYZ(e, t)
             else
                 x, y, z = read_vector3d(player_object + 0x5c)
             end
-            coords.x, coords.y, coords.z = x,y,z
+            coords.x, coords.y, coords.z = x, y, z
             return coords
         else
-            respond(e, get_var(t,"$name") .. " is dead! Please wait until they respawn.", "rcon", 4 + 8)
+            respond(e, get_var(t, "$name") .. " is dead! Please wait until they respawn.", "rcon", 4 + 8)
         end
     end
 end
@@ -6682,7 +6696,7 @@ function getCurrentVersion(bool)
 
     local url = 'https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/INDEV/Velocity%20Multi-Mod.lua'
     local version = httpRequest(url):match("script_version = (%d+.%d+)")
-    local script_version = string.format("%0.2f", settings.global.script_version)
+    local script_version = format("%0.2f", settings.global.script_version)
     if (bool == true) then
         if (tonumber(version) ~= script_version) then
             cprint("============================================================================", 5 + 8)
@@ -6711,7 +6725,7 @@ end
 
 -- In the event of an error, the script will trigger these two functions: OnError(), report()
 function report()
-    local script_version = string.format("%0.2f", settings.global.script_version)
+    local script_version = format("%0.2f", settings.global.script_version)
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
@@ -6976,6 +6990,12 @@ function RecordChanges()
     cl[#cl + 1] = "3). Tidied up some code."
     cl[#cl + 1] = "4). Bug fix for command '/velocity'. Output will now correctly display the version string to two decimal places."
     cl[#cl + 1] = "Script Updated to v1.41"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "1). Fixed a bug with Alias System."
+    cl[#cl + 1] = "Script Updated to v1.42"
+    cl[#cl + 1] = "[5/12/19]"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
