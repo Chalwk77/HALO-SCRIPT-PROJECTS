@@ -88,7 +88,7 @@ Script Updated to v1.9
 2). Bug Fix relating to function 'velocity:loadMute()'
 3). Bug Fix for Suggestion Box
 4). Other Minor Bug Fixes
-5). Began writing Private Messaging System
+5). Began writing Private Messaging System.
 Script Updated to v1.10
 6). Continued development on Private Messaging System
 Script Updated to v1.11
@@ -255,3 +255,11 @@ Script Updated to v1.41
 New Command: /delpm [message id | */all]
 You can delete emails individually or all at once with this command.
 Script Updated to v1.42
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/13/19]
+1). [new] Added 'Auto Message' feature.
+This mod will cycle (in order -> first-to-last) through a list of pre-defined messages and broadcast them every x seconds.
+You can broadcast a message on demand with /broadcast [id].
+Script Updated to v1.43
