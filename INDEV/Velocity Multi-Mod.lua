@@ -510,7 +510,7 @@ local function GameSettings()
                 max_results_per_page = 5, -- max emails per page
                 send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
                 read_command = "readmail", -- /read_command [page num]
-                new_mail = "You have (%count%) unread private messages",
+                new_mail = "You have (%count%) private messages",
                 delete_command = "delpm", -- /delete_command [message id | */all]
                 send_response = "Message Sent",
                 read_format = {
@@ -5800,29 +5800,38 @@ function privateMessage:delete(params)
         local tab = settings.mod["Private Messaging System"]
         local dir = tab.dir
 
-        local lines = lines_from(dir)
-        local found
-        for k, v in pairs(lines) do
-            if (k ~= nil) then
-                if not (delete_all) then
+        local found, _error_
+        if not (delete_all) then
+            for k, v in pairs(lines_from(dir)) do
+                if (k ~= nil) then
                     if (mail_id == k) and (v:match(eip)) then
                         respond(eid, "Message [#" .. k .. "] deleted", "rcon", 2 + 8)
                         delete_from_file(dir, k, 1, eid)
-                        found = true
+                        found, _error_ = true, false
                         break
                     end
-                elseif (v:match(eip)) then
-                    found = true -- < temp
-                    respond(eid, "This feature is not yet implemented!", "rcon", 2 + 8)
-                    respond(eid, "Please delete each email individually with /" .. tab.delete_command .. " [#Mail ID]", "rcon", 2 + 8)
-                    break
-                    -- todo: Delete all entries from file.
                 end
-            else
-                respond(eid, "Nothing to delete!", "rcon", 2 + 8)
             end
+        elseif (#unread_mail[eip] > 0) then
+            local function delete()
+                for k, v in pairs(lines_from(dir)) do
+                    if (k ~= nil) and (v:match(eip)) then
+                        delete_from_file(dir, k, 1, eid)
+                        found, _error_ = true, false
+                        break
+                    end
+                end
+            end
+            for i = 1,#unread_mail[eip] do
+                delete()
+            end
+            respond(eid, "Deleted (" .. #unread_mail[eip] .. ") messages", "rcon", 2 + 8)
+            unread_mail[eip] = nil
+        else
+            respond(eid, "Nothing to Delete!", "rcon", 2 + 8)
         end
-        if not (found) then
+        
+        if not (found) and not (_error_) then
             respond(eid, "Invalid #Mail ID", "rcon", 2 + 8)
         end
     end
