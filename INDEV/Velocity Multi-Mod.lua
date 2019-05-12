@@ -7165,7 +7165,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/12/19]"
-    cl[#cl + 1] = "1). Fixed a bug with Alias System."
+    cl[#cl + 1] = "1). Fixed a bug with Alias System (requires regenerating alias.txt)."
     cl[#cl + 1] = "2). A few tweaks to Private Messaging System:"
     cl[#cl + 1] = "New Command: /" .. delpm_cmd .. " [message id | */all]"
     cl[#cl + 1] = "You can delete emails individually or all at once with this command."
