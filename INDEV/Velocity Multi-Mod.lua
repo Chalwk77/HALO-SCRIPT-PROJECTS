@@ -511,7 +511,7 @@ local function GameSettings()
                 send_command = "pm", -- /send_command [recipient id (index or ip)] {message}
                 read_command = "readmail", -- /read_command [page num]
                 new_mail = "You have (%count%) unread private messages",
-                delete_command = "delpm", -- /delete_command [message id]
+                delete_command = "delpm", -- /delete_command [message id | */all]
                 send_response = "Message Sent",
                 read_format = {
                     "%index%",
@@ -3449,7 +3449,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         p.mail = privateMessage:load(p)
                         privateMessage:delete(p)
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.delete_command .. " [message id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.delete_command .. " [message id | */all]", "rcon", 4 + 8)
                     end
                 end
             else
@@ -5787,26 +5787,41 @@ function privateMessage:delete(params)
     if (#mail > 0) then
         local eid = params.eid or nil
         local eip = params.eip or nil
+        
+        local mail_id = params.mail_id or nil
+        local delete_all
 
-        local mail_id = tonumber(params.mail_id) or nil
+        if (mail_id == "*" or mail_id == "all") then
+            delete_all = true
+        else
+            mail_id = tonumber(mail_id)
+        end
+
         local tab = settings.mod["Private Messaging System"]
+        local dir = tab.dir
 
-        local lines = lines_from(tab.dir)
+        local lines = lines_from(dir)
         local found
         for k, v in pairs(lines) do
             if (k ~= nil) then
-                if (mail_id == k) and v:match(eip) then
-                    found, _error_ = true, false
-                    delete_from_file(tab.dir, k, 1, eid)
-                    respond(eid, "Message [#" .. k .. "] deleted", "rcon", 2 + 8)
-                else
-                    respond(eid, "Invalid Mail ID", "rcon", 2 + 8)
-                    break
+                if not (delete_all) then
+                    if (mail_id == k) and (v:match(eip)) then
+                        respond(eid, "Message [#" .. k .. "] deleted", "rcon", 2 + 8)
+                        delete_from_file(dir, k, 1, eid)
+                        found = true
+                        break
+                    end
+                elseif (v:match(eip)) then
+                    found = true -- < temp
+                    respond(eid, "This feature is not yet implemented!", "rcon", 2 + 8)
+                    -- todo: Delete all entries from file.
                 end
             else
-                found, _error_ = true, true
                 respond(eid, "Nothing to delete!", "rcon", 2 + 8)
             end
+        end
+        if not (found) then
+            respond(eid, "Invalid #Mail ID", "rcon", 2 + 8)
         end
     end
 end
