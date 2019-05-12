@@ -458,7 +458,7 @@ local function GameSettings()
                 -- Warnings are given immediately upon picking up the objective.
                 -- If the player has no warnings left their Lurker will be disabled (however, not revoked).
                 -- ...
-                time_until_death = 10, -- Time (in seconds) until the player is killed after picking up the objective.
+                time_until_death = 5, -- Time (in seconds) until the player is killed after picking up the objective.
                 warnings = 4,
             },
             ["Welcome Messages"] = { -- Messages shown to the player on join.
@@ -6786,6 +6786,28 @@ end
 function RecordChanges()
     local file = io.open("sapp\\changelog.txt", "w")
     local cl = {}
+    
+    local mod = settings.mod
+    local global_cmd = settings.global.special_commands
+    --
+    local spawn_cmd = mod["Item Spawner"].base_command
+    local itemlist_cmd = mod["Item Spawner"].list
+    local block_cmd = mod["Block Object Pickups"].block_command 
+    local unblock_cmd = mod["Block Object Pickups"].unblock_command
+    local alias_cmd = mod["Alias System"].base_command
+    local lurker_cmd = mod["Lurker"].base_command
+    local coords_cmd = mod["Get Coords"].base_command
+    local delpm_cmd = mod["Private Messaging System"].delete_command
+    local pmread_cmd = mod["Private Messaging System"].read_command
+    local clean_cmd = mod["Garbage Collection"].base_command
+    local give_cmd = mod["Give"].base_command
+    local enter_cmd = mod["Enter Vehicle"].base_command
+    local respawn_cmd = mod["Respawn On Demand"].base_command
+    --
+    local plugins_cmd = global_cmd.list[1]
+    local version_cmd = global_cmd.velocity[1]
+    local lore_cmd = global_cmd.information.cmd
+
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)."
     cl[#cl + 1] = "Velocity is an all-in-one package that combines a multitude of my scripts."
@@ -6808,17 +6830,17 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[2/25/19]"
-    cl[#cl + 1] = "1). I have made some heavy tweaks to the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)"
+    cl[#cl + 1] = "1). I have made some heavy tweaks to the /" .. clean_cmd .. " command (which was previously exclusive to the 'Enter Vehicle' mod)"
     cl[#cl + 1] = "in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "The base command is the same. However, the command arguments have changed:"
     cl[#cl + 1] = ""
     cl[#cl + 1] = "Valid [id] inputs: [number range 1-16, me or *]"
-    cl[#cl + 1] = "/clean [id] 1 (cleans up 'Enter Vehicle' objects)"
-    cl[#cl + 1] = "/clean [id] 2 (cleans up 'Item Spawner' objects)"
-    cl[#cl + 1] = "/clean [id] * (cleans up 'everything')"
+    cl[#cl + 1] = "/" .. clean_cmd .. " [id] 1 (cleans up 'Enter Vehicle' objects)"
+    cl[#cl + 1] = "/" .. clean_cmd .. " [id] 2 (cleans up 'Item Spawner' objects)"
+    cl[#cl + 1] = "/" .. clean_cmd .. " [id] * (cleans up 'everything')"
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody."
+    cl[#cl + 1] = "Also, to clear up any confusion should there be any, /" .. clean_cmd .. " * * is valid - This will clean everything for everybody."
     cl[#cl + 1] = "Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods."
     cl[#cl + 1] = "Script Updated to v1.2"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
@@ -6884,14 +6906,14 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[4/28/19]"
-    cl[#cl + 1] = "1). Added page browser to Private Messaging System (read command /readmail [page num])'."
+    cl[#cl + 1] = "1). Added page browser to Private Messaging System (read command /" .. pmread_cmd .. " [page num])'."
     cl[#cl + 1] = "2). [Private Messaging System] Continued Developed."
     cl[#cl + 1] = "Script Updated to v1.12"
     cl[#cl + 1] = "3). Bug Fix relating to function 'velocity:setLurker()'."
     cl[#cl + 1] = "Script Updated to v1.13"
     cl[#cl + 1] = "4). [Private Messaging System] Continued Developed."
     cl[#cl + 1] = "5). [new] Added a new feature (Respawn On Demand)."
-    cl[#cl + 1] = "Respawn yourself or others on demand with /respawn [id] (no death penalty incurred)."
+    cl[#cl + 1] = "Respawn yourself or others on demand with /" .. respawn_cmd .. " [id] (no death penalty incurred)."
     cl[#cl + 1] = "6). Bug Fix for Portalgun Gun."
     cl[#cl + 1] = "Script Updated to v1.14"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
@@ -6900,7 +6922,7 @@ function RecordChanges()
     cl[#cl + 1] = "[4/29/19]"
     cl[#cl + 1] = "1). Bug Fix for Alias System"
     cl[#cl + 1] = "Script Updated to v1.15"
-    cl[#cl + 1] = "2). [new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all]"
+    cl[#cl + 1] = "2). [new] Added GIVE feature. Command Syntax: /" .. give_cmd .. " <item> [me | id | */all]"
     cl[#cl + 1] = "3). More Bug Fixes"
     cl[#cl + 1] = "Script Updated to v1.16"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
@@ -6915,10 +6937,10 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.18"
     cl[#cl + 1] = "5). Small tweak to Player List."
     cl[#cl + 1] = "Script Updated to v1.19"
-    cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]"
+    cl[#cl + 1] = "6). [new] Added Block-Object-Pickup feature. Command Syntax: /" .. block_cmd .. " [me | id | */all], /" .. unblock_cmd .. " [me | id | */all]"
     cl[#cl + 1] = "Script Updated to v1.20"
     cl[#cl + 1] = "7). Tweaked Plugin List feature"
-    cl[#cl + 1] = "You can now view plugins by page: /plugins [page id] (max 10 results per page)"
+    cl[#cl + 1] = "You can now view plugins by page: /" .. plugins_cmd .. " [page id] (max 10 results per page)"
     cl[#cl + 1] = "You can change the max results in 'settings -> global -> max_results_per_page'"
     cl[#cl + 1] = "Script Updated to v1.21"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
@@ -6926,19 +6948,19 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/1/19]"
     cl[#cl + 1] = "1). Added 'bomb' from camden_place to Item Spawner objects table."
-    cl[#cl + 1] = "Item Keyword is 'bomb1'. (/spawn bomb1 me)"
+    cl[#cl + 1] = "Item Keyword is 'bomb1'. (/" .. spawn_cmd .. " bomb1 me)"
     cl[#cl + 1] = "2). New item spawner command parameter: [amount]."
     cl[#cl + 1] = "You can now specify the amount of the <item> to spawn."
-    cl[#cl + 1] = "For example, '/spawn hog me 5' will spawn 5 chain gun hogs."
+    cl[#cl + 1] = "For example, '/" .. spawn_cmd .. " hog me 5' will spawn 5 chain gun hogs."
     cl[#cl + 1] = "Script Updated to v1.22"
     cl[#cl + 1] = "3). Small tweak to function 'OnPlayerChat()."
     cl[#cl + 1] = "Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly."
     cl[#cl + 1] = "Previously only 'skip' in lowercase would trigger this."
     cl[#cl + 1] = "4). Small tweak to 'Give' feature command output"
     cl[#cl + 1] = "Script Updated to v1.23"
-    cl[#cl + 1] = "5). Small tweak to '/block, /unblock' feature"
-    cl[#cl + 1] = "6). Added missing /itemlist command logic for Item Spawner."
-    cl[#cl + 1] = "This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map."
+    cl[#cl + 1] = "5). Small tweak to /" .. block_cmd .. ", /" .. unblock_cmd .. " feature"
+    cl[#cl + 1] = "6). Added missing /" .. itemlist_cmd .. " command logic for Item Spawner."
+    cl[#cl + 1] = "This command shows you a list of all available objects that you can /" .. spawn_cmd .. ", /" .. enter_cmd .. " or /" .. give_cmd .. " for the current map."
     cl[#cl + 1] = "Script Updated to v1.24"
     cl[#cl + 1] = "7). Tweaked Chat Censor feature + 1 documentation edit."
     cl[#cl + 1] = "Script Updated to v1.25"
@@ -6946,7 +6968,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/2/19]"
-    cl[#cl + 1] = "1). [new] Command: /lore [page id]."
+    cl[#cl + 1] = "1). [new] Command: /" .. lore_cmd .. " [page id]."
     cl[#cl + 1] = "This command displays a custom list of information (by page)."
     cl[#cl + 1] = "You can change the messages in 'settings -> global -> information'"
     cl[#cl + 1] = "Script Updated to v1.26"
@@ -6965,12 +6987,12 @@ function RecordChanges()
     cl[#cl + 1] = "3). Tiny tweak in function 'velocity:setLurker()'"
     cl[#cl + 1] = "Script Updated to v1.30"
     cl[#cl + 1] = "4). Bug fix in function 'OnPlayerChat()' - Empty messages will now return false."
-    cl[#cl + 1] = "5). Bug fix for command: /plugins [page id]"
-    cl[#cl + 1] = "The command feedback for /plugins [page id] now correctly displays the status of each individual plugin."
+    cl[#cl + 1] = "5). Bug fix for command: /" .. plugins_cmd .. " [page id]"
+    cl[#cl + 1] = "The command feedback now correctly displays the status of each individual plugin."
     cl[#cl + 1] = "6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil."
     cl[#cl + 1] = "7). Bug fix for Item Spawner, Enter Vehicle and Give"
     cl[#cl + 1] = "8). For performance reasons, I had to refactor a large amount of the Alias System."
-    cl[#cl + 1] = "The command syntax has changed from '/alias [id]' to '/alias [id] [page id]'."
+    cl[#cl + 1] = "The command syntax has changed from '/" .. alias_cmd .. " [id]' to '/" .. alias_cmd .. " [id] [page id]'."
     cl[#cl + 1] = ""
     cl[#cl + 1] = "There were two reasons for this change."
     cl[#cl + 1] = ""
@@ -7005,7 +7027,7 @@ function RecordChanges()
     cl[#cl + 1] = "1). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.36"
     cl[#cl + 1] = "2). Bug fix for Alias System - page browser."
-    cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/lurker on me' no longer throws an error if executed from console."
+    cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/" .. lurker_cmd .. " on me' no longer throws an error if executed from console."
     cl[#cl + 1] = "Script Updated to v1.37"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
@@ -7029,16 +7051,19 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/8/19]"
     cl[#cl + 1] = "1). Fixed a major problem with Alias System."
-    cl[#cl + 1] = "2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all]."
+    cl[#cl + 1] = "2). [new] Added new 'Get Coords' feature. Command syntax: /" .. coords_cmd .. " [me | id | */all]."
     cl[#cl + 1] = "3). Tidied up some code."
-    cl[#cl + 1] = "4). Bug fix for command '/velocity'. Output will now correctly display the version string to two decimal places."
+    cl[#cl + 1] = "4). Bug fix for command /" .. version_cmd .. ":"
+    cl[#cl + 1] = "Output will now correctly display the version string with two decimal places."
     cl[#cl + 1] = "Script Updated to v1.41"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/12/19]"
     cl[#cl + 1] = "1). Fixed a bug with Alias System."
-    cl[#cl + 1] = "2). A few tweaks to Private Messaging System."
+    cl[#cl + 1] = "2). A few tweaks to Private Messaging System:"
+    cl[#cl + 1] = "New Command: /" .. delpm_cmd .. " [message id | */all]"
+    cl[#cl + 1] = "You can delete emails individually or all at once with this command."
     cl[#cl + 1] = "Script Updated to v1.42"
     file:write(concat(cl, "\n"))
     file:close()
