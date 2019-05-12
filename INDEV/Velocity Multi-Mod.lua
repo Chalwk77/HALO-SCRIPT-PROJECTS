@@ -1023,9 +1023,10 @@ local function isConsole(e)
 end
 
 -- Checks if the MOD being called is enabled in settings.
-local function modEnabled(script, e)
+local function modEnabled(script, e, bool)
     if (settings.mod[script].enabled) then
         return true
+    elseif (bool) then return
     elseif (e) then
         respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4 + 8)
     end
@@ -3262,14 +3263,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if modEnabled("Alias System", executor) then
+    if modEnabled("Alias System", executor, true) then
         if (players["Alias System"][ip].trigger) then
             players["Alias System"][ip].trigger = false
             cls(executor, 25)
         end
     end
     
-    if modEnabled("Welcome Messages", executor) then
+    if modEnabled("Welcome Messages", executor, true) then
         if (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
         end
