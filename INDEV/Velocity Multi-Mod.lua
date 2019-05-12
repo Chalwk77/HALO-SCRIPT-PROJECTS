@@ -15,7 +15,7 @@ Combined Scripts:
     - Garbage Collection        Give                        Get Coords
     - Infinity Ammo             Item Spawner
     - Lurker
-    - Message Board             Mute System
+    - Welcome Messages             Mute System
     - Player List               Portal Gun                  Private Messaging System
     - Respawn On Demand         Respawn Time                Spawn From Sky
     - Suggestions Box
@@ -461,9 +461,9 @@ local function GameSettings()
                 time_until_death = 10, -- Time (in seconds) until the player is killed after picking up the objective.
                 warnings = 4,
             },
-            ["Message Board"] = {
+            ["Welcome Messages"] = { -- Messages shown to the player on join.
                 enabled = false,
-                duration = 5, -- How long should the message be displayed on screen for? (in seconds)
+                duration = 5, -- How long should the message(s) be displayed on screen for? (in seconds)
                 alignment = "l", -- Left = l, Right = r, Center = c, Tab: t
                 -- Use %server_name% variable to output the server name.
                 -- Use %player_name% variable to output the joining player's name.
@@ -837,7 +837,7 @@ local server_ip = "000.000.000.000"
 local function InitPlayers()
     players = {
         ["Alias System"] = { },
-        ["Message Board"] = { },
+        ["Welcome Messages"] = { },
         ["Admin Chat"] = { },
         ["Lurker"] = { },
         ["Spawn From Sky"] = { },
@@ -1211,34 +1211,34 @@ function alias:reset(ip)
 end
 
 --------------------------------------------------------------
--- #Message Board
-local messageBoard = { }
-local m_board = { }
+-- #Welcome Messages
+local welcomeMessages = { }
+local welcome_board = { }
 local function set(Player, ip)
-    m_board[ip] = { }
-    local tab = settings.mod["Message Board"].messages
+    welcome_board[ip] = { }
+    local tab = settings.mod["Welcome Messages"].messages
     for i = 1, #tab do
         if (tab[i]) then
-            table.insert(m_board[ip], tab[i])
+            table.insert(welcome_board[ip], tab[i])
         end
     end
-    for j = 1, #m_board[ip] do
-        m_board[ip][j] = gsub(gsub(m_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
+    for j = 1, #welcome_board[ip] do
+        welcome_board[ip][j] = gsub(gsub(welcome_board[ip][j], "%%server_name%%", getServerName()), "%%player_name%%", get_var(Player, "$name"))
     end
 end
 
--- Trigger function for Message Board feature.
-function messageBoard:show(Player, ip)
+-- Trigger function for Welcome Messages feature.
+function welcomeMessages:show(Player, ip)
     set(Player, ip)
-    players["Message Board"][ip] = {
+    players["Welcome Messages"][ip] = {
         timer = 0,
         show = true,
     }
 end
 
-function messageBoard:hide(PlayerIndex, ip)
-    players["Message Board"][ip] = nil
-    m_board[ip] = nil
+function welcomeMessages:hide(PlayerIndex, ip)
+    players["Welcome Messages"][ip] = nil
+    welcome_board[ip] = nil
     cls(PlayerIndex, 25)
 end
 --------------------------------------------------------------
@@ -1412,10 +1412,10 @@ function OnScriptLoad()
                 end
             end
 
-            -- #Message Board
-            if modEnabled("Message Board") then
-                if (players["Message Board"][ip] ~= nil) then
-                    messageBoard:hide(i, ip)
+            -- #Welcome Messages
+            if modEnabled("Welcome Messages") then
+                if (players["Welcome Messages"][ip] ~= nil) then
+                    welcomeMessages:hide(i, ip)
                 end
             end
         end
@@ -1502,10 +1502,10 @@ function OnGameStart()
             local ip = getip(i, true)
             local level = tonumber(get_var(i, "$lvl"))
 
-            -- #Message Board
-            if modEnabled("Message Board") then
-                if (players["Message Board"][ip] ~= nil) then
-                    messageBoard:hide(i, ip)
+            -- #Welcome Messages
+            if modEnabled("Welcome Messages") then
+                if (players["Welcome Messages"][ip] ~= nil) then
+                    welcomeMessages:hide(i, ip)
                 end
             end
 
@@ -1600,10 +1600,10 @@ function OnGameEnd()
                 end
             end
 
-            -- #Message Board
-            if modEnabled("Message Board") then
-                if (players["Message Board"][ip] ~= nil) then
-                    messageBoard:hide(i, ip)
+            -- #Welcome Messages
+            if modEnabled("Welcome Messages") then
+                if (players["Welcome Messages"][ip] ~= nil) then
+                    welcomeMessages:hide(i, ip)
                 end
             end
 
@@ -1879,16 +1879,16 @@ function OnTick()
                 end
             end
 
-            -- #Message Board
-            if modEnabled("Message Board") then
-                if players["Message Board"][ip] and (players["Message Board"][ip].show) then
-                    players["Message Board"][ip].timer = players["Message Board"][ip].timer + 0.030
+            -- #Welcome Messages
+            if modEnabled("Welcome Messages") then
+                if players["Welcome Messages"][ip] and (players["Welcome Messages"][ip].show) then
+                    players["Welcome Messages"][ip].timer = players["Welcome Messages"][ip].timer + 0.030
                     cls(i, 25)
-                    for j = 1, #m_board[ip] do
-                        respond(i, "|" .. settings.mod["Message Board"].alignment .. " " .. m_board[ip][j], "rcon")
+                    for j = 1, #welcome_board[ip] do
+                        respond(i, "|" .. settings.mod["Welcome Messages"].alignment .. " " .. welcome_board[ip][j], "rcon")
                     end
-                    if players["Message Board"][ip].timer >= math.floor(settings.mod["Message Board"].duration) then
-                        messageBoard:hide(i, ip)
+                    if players["Welcome Messages"][ip].timer >= math.floor(settings.mod["Welcome Messages"].duration) then
+                        welcomeMessages:hide(i, ip)
                     end
                 end
             end
@@ -2102,9 +2102,9 @@ function OnPlayerConnect(PlayerIndex)
         ]]
     end
 
-    -- #Message Board
-    if modEnabled("Message Board") then
-        messageBoard:show(id, ip)
+    -- #Welcome Messages
+    if modEnabled("Welcome Messages") then
+        welcomeMessages:show(id, ip)
     end
 
     -- #Admin Chat
@@ -2322,9 +2322,9 @@ function OnPlayerDisconnect(PlayerIndex)
         end
     end
 
-    -- #Message Board
-    if modEnabled("Message Board") then
-        messageBoard:hide(id, ip)
+    -- #Welcome Messages
+    if modEnabled("Welcome Messages") then
+        welcomeMessages:hide(id, ip)
     end
 
     -- #Teleport Manager
@@ -2748,12 +2748,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         if (environment == "rcon") then
                             for j = 1, #table do
                                 respond(i, "|l" .. table[j], "rcon")
-                                cprint(table[j], 2 + 8)
                             end
                         elseif (environment == "chat") then
                             for j = 1, #table do
                                 respond(i, table[j], "chat")
-                                cprint(table[j], 2 + 8)
                             end
                         end
                         response = false
@@ -3065,6 +3063,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 is_error = true
                 return false
             end
+            
             for i = 1, #players do
                 if (executor ~= tonumber(players[i])) then
                     execute_on_others_error[executor] = { }
@@ -3260,6 +3259,19 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             end
+        end
+    end
+
+    if modEnabled("Alias System", executor) then
+        if (players["Alias System"][ip].trigger) then
+            players["Alias System"][ip].trigger = false
+            cls(executor, 25)
+        end
+    end
+    
+    if modEnabled("Welcome Messages", executor) then
+        if (players["Welcome Messages"][ip].show) then
+            welcomeMessages:hide(executor, ip)
         end
     end
 
@@ -5862,8 +5874,7 @@ function velocity:cmdRoutine(params)
     local lines = lines_from(directory)
     for _, v in pairs(lines) do
         if (v:match(tab.target_hash)) then
-            aliases = v:match(":(.+)")
-            content = stringSplit(aliases, ",")
+            content = stringSplit(v:match(":(.+)"), ",")
             alias_results[eip][#alias_results[eip] + 1] = content
         end
     end
