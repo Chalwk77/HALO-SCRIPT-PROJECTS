@@ -1,13 +1,13 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.42), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.43), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
              as well as a ton of "special" features unique to Velocity that do not come in standalone scripts.
 
 Combined Scripts:
-    - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator
+    - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator         Auto Message
     - Block Object Pickups
     - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
     - Command Spy               Console Logo                Custom Weapons		 Cute
@@ -110,6 +110,22 @@ local function GameSettings()
                     { ["name_here"] = { "ip 1", "ip 2", "hash1", "hash2", "hash3", "etc..." } },
 
                     -- You do not need both ip and hash but it adds a bit more security.
+                },
+            },
+            ["Auto Message"] = {
+                enabled = false,
+                permission_level = 1,
+                base_command = "broadcast",
+                -- How often should messages be displayed? (in seconds)
+                time_between_messages = 180, -- 300 = 5 minutes
+                announcements = {
+                    "Like us on Facebook | facebook.com/page_id",
+                    "Follow us on Twitter | twitter.com/twitter_id",
+                    "We are recruiting. Sign up on our website | website url",
+                    "Rules / Server Information",
+                    "announcement 5",
+                    "other information here",
+                    -- Repeat the structure to add more entries.
                 },
             },
             -- Prevent players from picking up objects (weapons, powerups etc)
@@ -775,7 +791,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.42, -- << --- do not touch
+            script_version = 1.43, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -884,6 +900,11 @@ local game_over
 -- #Color Reservation
 local colorres_bool = {}
 local can_use_colorres
+
+-- #Auto Message
+local autoMessage = { }
+local auto_msg_init_timer
+local auto_msg_countdown = 0
 
 -- #Item Spawner
 local temp_objects_table = {}
@@ -1023,10 +1044,9 @@ local function isConsole(e)
 end
 
 -- Checks if the MOD being called is enabled in settings.
-local function modEnabled(script, e, bool)
+local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
         return true
-    elseif (bool) then return
     elseif (e) then
         respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4 + 8)
     end
@@ -1551,6 +1571,12 @@ function OnGameStart()
         end
     end
 
+    -- #Auto Message
+    if modEnabled("Auto Message") then
+        auto_msg_startindex = 1
+        auto_msg_init_timer = true
+    end
+    
     -- #Item Spawner
     if modEnabled("Item Spawner") then
         local objects_table = settings.mod["Item Spawner"].objects
@@ -1654,6 +1680,12 @@ function OnGameEnd()
             file:write(data)
             file:close()
         end
+    end
+    
+    -- #Auto Message
+    if modEnabled("Auto Message") then
+        auto_msg_init_timer = false
+        auto_msg_countdown = 0
     end
     cprint("The Game Has Ended | Showing: POST GAME CARNAGE REPORT.", 4 + 8)
 end
@@ -1920,6 +1952,34 @@ function OnTick()
             end
         end
     end
+    -- Auto Message
+    if modEnabled("Auto Message") and (auto_msg_init_timer) then
+        timeUntilNext()
+    end
+end
+
+-- Auto Message
+function timeUntilNext()
+    local tab = settings.mod["Auto Message"]
+    auto_msg_countdown = auto_msg_countdown + 0.030
+    if (auto_msg_countdown >= (tab.time_between_messages)) then
+        auto_msg_countdown = 0
+        automessage:broadcast()
+    end
+end
+
+-- Auto Message
+function automessage:broadcast()
+    local tab = settings.mod["Auto Message"]
+    for i = 1, #tab.announcements do
+        if (auto_msg_startindex == #tab.announcements + 1) then
+            auto_msg_startindex = 1
+        end
+        local msg = tab.announcements[auto_msg_startindex]
+        SayAll(msg)
+        break
+    end
+    auto_msg_startindex = auto_msg_startindex + 1
 end
 
 function determineWeapon()
@@ -3266,14 +3326,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if modEnabled("Alias System", executor, true) then
+    if modEnabled("Alias System") then
         if (players["Alias System"][ip].trigger) then
             players["Alias System"][ip].trigger = false
             cls(executor, 25)
         end
     end
     
-    if modEnabled("Welcome Messages", executor, true) then
+    if modEnabled("Welcome Messages") then
         if (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
         end
@@ -3295,9 +3355,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-
+    -- #Auto Message
+    if (command == settings.mod["Auto Message"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Auto Message", executor) then
+                if (checkAccess(executor, true, "Auto Message")) then
+                    local tab = settings.mod["Auto Message"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        local p = { }
+                        p.eid, p.args, p.tab = executor, args[1], tab
+                        autoMessage:broadcastManually(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [broadcast id]", "rcon", 4 + 8)
+                    end
+                end
+            else
+                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
+            end
+        end
+        return false
     -- #Block Object Pickups [block]
-    if (command == settings.mod["Block Object Pickups"].block_command) then
+    elseif (command == settings.mod["Block Object Pickups"].block_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickups", executor) then
                 if (checkAccess(executor, true, "Block Object Pickups")) then
@@ -4172,6 +4250,29 @@ function velocity:portalgun(params)
     return false
 end
 
+-- #Auto Message
+function autoMessage:broadcastManually(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local args = params.args
+    local tab = params.tab
+    if (args == "list") then
+        respond(eid, "-------- MESSAGES --------", "rcon", 2+8)
+        for i = 1, #tab.announcements do
+            respond(eid, "[" .. i .. "] " .. tab.announcements[i], "rcon", 2+8)
+        end
+    elseif args:match("^%d+$") then
+        if (tab.announcements[tonumber(args)] ~= nil) then
+            SayAll(tab.announcements[tonumber(args)])
+        else
+            respond(eid, "Invalid Broacast ID", "rcon", 2+8)
+        end
+    else
+        respond(eid, "Invalid Syntax: Usage: /" .. tab.base_command .. " [broadcast id]", "rcon", 4 + 8)
+    end
+    return false
+end
+ 
 -- #Block Object Pickups [block]
 function velocity:blockpickup(params)
     local params = params or {}
@@ -6806,6 +6907,7 @@ function RecordChanges()
     local give_cmd = mod["Give"].base_command
     local enter_cmd = mod["Enter Vehicle"].base_command
     local respawn_cmd = mod["Respawn On Demand"].base_command
+    local broadcast_cmd = mod["Auto Message"].base_command
     --
     local plugins_cmd = global_cmd.list[1]
     local version_cmd = global_cmd.velocity[1]
@@ -6901,7 +7003,7 @@ function RecordChanges()
     cl[#cl + 1] = "2). Bug Fix relating to function 'velocity:loadMute()'"
     cl[#cl + 1] = "3). Bug Fix for Suggestion Box"
     cl[#cl + 1] = "4). Other Minor Bug Fixes"
-    cl[#cl + 1] = "5). Began writing Private Messaging System"
+    cl[#cl + 1] = "5). Began writing Private Messaging System."
     cl[#cl + 1] = "Script Updated to v1.10"
     cl[#cl + 1] = "6). Continued development on Private Messaging System"
     cl[#cl + 1] = "Script Updated to v1.11"
@@ -7068,6 +7170,14 @@ function RecordChanges()
     cl[#cl + 1] = "New Command: /" .. delpm_cmd .. " [message id | */all]"
     cl[#cl + 1] = "You can delete emails individually or all at once with this command."
     cl[#cl + 1] = "Script Updated to v1.42"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/13/19]"
+    cl[#cl + 1] = "1). [new] Added 'Auto Message' feature."
+    cl[#cl + 1] = "This mod will cycle (in order -> first-to-last) through a list of pre-defined messages and broadcast them every x seconds."
+    cl[#cl + 1] = "You can broadcast a message on demand with /" .. broadcast_cmd .. " [id]."
+    cl[#cl + 1] = "Script Updated to v1.43"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
