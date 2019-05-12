@@ -5814,6 +5814,8 @@ function privateMessage:delete(params)
                 elseif (v:match(eip)) then
                     found = true -- < temp
                     respond(eid, "This feature is not yet implemented!", "rcon", 2 + 8)
+                    respond(eid, "Please delete each email individually with /" .. tab.delete_command .. " [#Mail ID]", "rcon", 2 + 8)
+                    break
                     -- todo: Delete all entries from file.
                 end
             else
