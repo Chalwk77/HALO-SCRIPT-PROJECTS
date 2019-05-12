@@ -1964,12 +1964,12 @@ function timeUntilNext()
     auto_msg_countdown = auto_msg_countdown + 0.030
     if (auto_msg_countdown >= (tab.time_between_messages)) then
         auto_msg_countdown = 0
-        automessage:broadcast()
+        autoMessage:broadcast()
     end
 end
 
 -- Auto Message
-function automessage:broadcast()
+function autoMessage:broadcast()
     local tab = settings.mod["Auto Message"]
     for i = 1, #tab.announcements do
         if (auto_msg_startindex == #tab.announcements + 1) then
