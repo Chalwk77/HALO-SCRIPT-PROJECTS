@@ -116,15 +116,20 @@ local function GameSettings()
                 enabled = false,
                 permission_level = 1,
                 base_command = "broadcast",
-                -- How often should messages be displayed? (in seconds)
-                time_between_messages = 180, -- 300 = 5 minutes
+                time_between_messages = 300, -- 300 = 5 minutes
                 announcements = {
-                    "Like us on Facebook | facebook.com/page_id",
-                    "Follow us on Twitter | twitter.com/twitter_id",
-                    "We are recruiting. Sign up on our website | website url",
-                    "Rules / Server Information",
-                    "announcement 5",
-                    "other information here",
+                    { -- Message #1:
+                        "Like us on Facebook | facebook.com/page_id",
+                        "Get updates on special events and other shenanigans.",
+                    },
+                    { -- Message #2:
+                        "Follow us on Twitter | twitter.com/twitter_id",
+                        "Share your favourite game screenshots with us!",
+                    },
+                    { -- Message #3:
+                        "Interested in becomming an official member of our community?",
+                        "We are recruiting! Sign up on our website | website url",
+                    },
                     -- Repeat the structure to add more entries.
                 },
             },
@@ -1970,15 +1975,20 @@ end
 
 -- Auto Message
 function autoMessage:broadcast()
-    local tab = settings.mod["Auto Message"]
-    for i = 1, #tab.announcements do
-        if (auto_msg_startindex == #tab.announcements + 1) then
-            auto_msg_startindex = 1
-        end
-        local msg = tab.announcements[auto_msg_startindex]
-        SayAll(msg)
-        break
+    local announcements = settings.mod["Auto Message"].announcements
+    
+    if (auto_msg_startindex == #announcements + 1) then
+        auto_msg_startindex = 1
     end
+    
+    for i = 1,#announcements[auto_msg_startindex] do
+        if (announcements[auto_msg_startindex][i] ~= nil) then
+            local msg = announcements[auto_msg_startindex][i]
+            SayAll(msg)
+            cprint(msg)
+        end
+    end
+    
     auto_msg_startindex = auto_msg_startindex + 1
 end
 
@@ -7174,9 +7184,10 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/13/19]"
-    cl[#cl + 1] = "1). [new] Added 'Auto Message' feature."
-    cl[#cl + 1] = "This mod will cycle (in order -> first-to-last) through a list of pre-defined messages and broadcast them every x seconds."
-    cl[#cl + 1] = "You can broadcast a message on demand with /" .. broadcast_cmd .. " [id]."
+    cl[#cl + 1] = "1). [new] Added 'Auto Message' feature:"
+    cl[#cl + 1] = "This mod will automatically broadcast messages every x seconds."
+    cl[#cl + 1] = "You can manually broadcast a message on demand with /" .. broadcast_cmd .. " [id]."
+    cl[#cl + 1] = "To get the broadcast Message ID, type /" .. broadcast_cmd .. " list."
     cl[#cl + 1] = "Script Updated to v1.43"
     file:write(concat(cl, "\n"))
     file:close()
