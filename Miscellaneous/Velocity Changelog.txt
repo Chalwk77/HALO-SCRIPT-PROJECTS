@@ -250,7 +250,7 @@ Script Updated to v1.41
 
 
 [5/12/19]
-1). Fixed a bug with Alias System.
+1). Fixed a bug with Alias System (requires regenerating alias.txt).
 2). A few tweaks to Private Messaging System:
 New Command: /delpm [message id | */all]
 You can delete emails individually or all at once with this command.
