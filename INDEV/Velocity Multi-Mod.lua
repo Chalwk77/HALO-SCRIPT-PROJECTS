@@ -3012,6 +3012,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
     local ip = getip(PlayerIndex, true)
+    if (ip == nil) then
+        ip = server_ip
+    end
     local TargetID, target_all_players, is_error
     local name, hash = get_var(executor, "$name"), get_var(executor, "$hash")
 
