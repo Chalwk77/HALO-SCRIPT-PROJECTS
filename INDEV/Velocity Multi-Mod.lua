@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.43), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.44), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -10,12 +10,12 @@ Combined Scripts:
     - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator         Auto Message
     - Block Object Pickups
     - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
-    - Command Spy               Console Logo                Custom Weapons		 Cute
+    - Command Spy               Console Logo                Custom Weapons       Cute
     - Enter Vehicle
-    - Garbage Collection        Give                        Get Coords
+    - Garbage Collection        Get Coords                  Give
     - Infinity Ammo             Item Spawner
     - Lurker
-    - Welcome Messages             Mute System
+    - Welcome Messages          Mute System
     - Player List               Portal Gun                  Private Messaging System
     - Respawn On Demand         Respawn Time                Spawn From Sky
     - Suggestions Box
@@ -796,7 +796,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.43, -- << --- do not touch
+            script_version = 1.44, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1581,7 +1581,7 @@ function OnGameStart()
         auto_msg_startindex = 1
         auto_msg_init_timer = true
     end
-    
+
     -- #Item Spawner
     if modEnabled("Item Spawner") then
         local objects_table = settings.mod["Item Spawner"].objects
@@ -1686,7 +1686,7 @@ function OnGameEnd()
             file:close()
         end
     end
-    
+
     -- #Auto Message
     if modEnabled("Auto Message") then
         auto_msg_init_timer = false
@@ -1976,19 +1976,19 @@ end
 -- Auto Message
 function autoMessage:broadcast()
     local announcements = settings.mod["Auto Message"].announcements
-    
+
     if (auto_msg_startindex == #announcements + 1) then
         auto_msg_startindex = 1
     end
-    
-    for i = 1,#announcements[auto_msg_startindex] do
+
+    for i = 1, #announcements[auto_msg_startindex] do
         if (announcements[auto_msg_startindex][i] ~= nil) then
             local msg = announcements[auto_msg_startindex][i]
             SayAll(msg)
             cprint(msg)
         end
     end
-    
+
     auto_msg_startindex = auto_msg_startindex + 1
 end
 
@@ -3116,10 +3116,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local function validate_params(parameter, pos)
         local function getplayers(arg, executor)
             local players = { }
-            if (arg == nil) then
-                arg = executor
-            end
-            if (arg == "me") then
+            if (arg == nil) or (arg == "me") then
                 TargetID = executor
                 table.insert(players, executor)
             elseif (arg:match("%d+")) then
@@ -3137,14 +3134,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 is_error = true
                 return false
             end
-            
+
             for i = 1, #players do
                 if (executor ~= tonumber(players[i])) then
                     execute_on_others_error[executor] = { }
                     execute_on_others_error[executor] = true
                 end
             end
-            if players[1] then
+
+            if (players[1]) then
                 return players
             end
             players = nil
@@ -3153,7 +3151,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         local pl = getplayers(args[tonumber(pos)], executor)
         if pl then
             for i = 1, #pl do
-                if pl[i] == nil then
+                if (pl[i] == nil) then
                     break
                 end
 
@@ -3342,7 +3340,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             cls(executor, 25)
         end
     end
-    
+
     if modEnabled("Welcome Messages") then
         if (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
@@ -3384,7 +3382,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-    -- #Block Object Pickups [block]
+        -- #Block Object Pickups [block]
     elseif (command == settings.mod["Block Object Pickups"].block_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickups", executor) then
@@ -3459,7 +3457,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Give", executor) then
                 if (checkAccess(executor, true, "Give")) then
                     local tab = settings.mod["Give"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("give", 2) --/base_command <item> [me | id | */all]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3688,7 +3686,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Item Spawner", executor) then
                 if (checkAccess(executor, true, "Item Spawner")) then
                     local tab = settings.mod["Item Spawner"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("itemspawner", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3730,7 +3728,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if modEnabled("Item Spawner", executor) then
                     if (checkAccess(executor, true, "Enter Vehicle")) then
                         local tab = settings.mod["Enter Vehicle"]
-                        if (args[1] ~= nil) and (args[2] ~= nil) then
+                        if (args[1] ~= nil) then
                             validate_params("entervehicle", 2) --/base_command <args> [id]
                             if not (target_all_players) then
                                 if not (is_error) and isOnline(TargetID, executor) then
@@ -3800,7 +3798,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Admin Chat", executor) then
                 if (checkAccess(executor, true, "Admin Chat")) then
                     local tab = settings.mod["Admin Chat"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("achat", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3822,7 +3820,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Lurker", executor) then
                 if (checkAccess(executor, true, "Lurker")) then
                     local tab = settings.mod["Lurker"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("lurker", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3865,7 +3863,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Portal Gun", executor) then
                 if (checkAccess(executor, true, "Portal Gun")) then
                     local tab = settings.mod["Portal Gun"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("portalgun", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -3907,7 +3905,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Teleport Manager", executor) then
                 if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
                     local tab = settings.mod["Teleport Manager"]
-                    if (args[1] ~= nil and args[2] ~= nil) then
+                    if (args[1] ~= nil) then
                         validate_params("warp", 2) --/commands[2] <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
@@ -4076,6 +4074,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         t[#t + 1] = k
                         count = count + 1
                     end
+
                     local status = ""
                     for page_num = startpage, endpage do
                         if (t[page_num]) then
@@ -4117,7 +4116,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         end
-                        respond(executor, "Viewing Page (" .. page .. "). Total Plugins: " .. count, "rcon", 5 + 8)
+                        local maxpages = getPageCount(count, 10) -- 10 pages hardcoded
+                        respond(executor, "Viewing Page (" .. page .. "/" .. maxpages .. "). Total Plugins: " .. count, "rcon", 5 + 8)
                     else
                         respond(executor, "Nothing to show", "rcon", 5 + 8)
                     end
@@ -4219,8 +4219,8 @@ function velocity:portalgun(params)
         announceExclude(tid, tn .. " is now in Portal Gun mode!")
     end
 
-    local function Disable(tid)
-        portalgun_mode[tip] = true
+    local function Disable(tip)
+        portalgun_mode[tip] = false
         announceExclude(tid, tn .. " is no longer in Portal Gun mode!")
     end
 
@@ -4267,22 +4267,22 @@ function autoMessage:broadcastManually(params)
     local args = params.args
     local tab = params.tab
     if (args == "list") then
-        respond(eid, "-------- MESSAGES --------", "rcon", 2+8)
+        respond(eid, "-------- MESSAGES --------", "rcon", 2 + 8)
         for i = 1, #tab.announcements do
-            respond(eid, "[" .. i .. "] " .. tab.announcements[i], "rcon", 2+8)
+            respond(eid, "[" .. i .. "] " .. tab.announcements[i], "rcon", 2 + 8)
         end
     elseif args:match("^%d+$") then
         if (tab.announcements[tonumber(args)] ~= nil) then
             SayAll(tab.announcements[tonumber(args)])
         else
-            respond(eid, "Invalid Broacast ID", "rcon", 2+8)
+            respond(eid, "Invalid Broacast ID", "rcon", 2 + 8)
         end
     else
         respond(eid, "Invalid Syntax: Usage: /" .. tab.base_command .. " [broadcast id]", "rcon", 4 + 8)
     end
     return false
 end
- 
+
 -- #Block Object Pickups [block]
 function velocity:blockpickup(params)
     local params = params or {}
@@ -4474,8 +4474,15 @@ function velocity:getcoords(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Get Coords")) then
         local coords = getXYZ(eid, tid)
-        local x, y, z = coords.x, coords.y, coords.z
-        respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2 + 8)
+        if (coords) then
+            local x, y, z, invehicle = coords.x, coords.y, coords.z, coords.invehicle
+            respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2 + 8)
+            if (coords.invehicle) then
+                respond(eid, tn .. " is in a vehicle.", "rcon", 2 + 8)
+            else
+                respond(eid, tn .. " is not in a vehicle.", "rcon", 2 + 8)
+            end
+        end
     end
 end
 
@@ -5914,7 +5921,7 @@ function privateMessage:delete(params)
     if (#mail > 0) then
         local eid = params.eid or nil
         local eip = params.eip or nil
-        
+
         local mail_id = params.mail_id or nil
         local delete_all
 
@@ -5949,7 +5956,7 @@ function privateMessage:delete(params)
                     end
                 end
             end
-            for i = 1,#unread_mail[eip] do
+            for i = 1, #unread_mail[eip] do
                 delete()
             end
             respond(eid, "Deleted (" .. #unread_mail[eip] .. ") messages", "rcon", 2 + 8)
@@ -5957,7 +5964,7 @@ function privateMessage:delete(params)
         else
             respond(eid, "Nothing to Delete!", "rcon", 2 + 8)
         end
-        
+
         if not (found) and not (_error_) then
             respond(eid, "Invalid #Mail ID", "rcon", 2 + 8)
         end
@@ -6661,6 +6668,7 @@ function getXYZ(e, t)
         if player_alive(t) then
             local coords = { }
             if PlayerInVehicle(t) then
+                coords.invehicle = true
                 local VehicleID = read_dword(player_object + 0x11C)
                 if (VehicleID == 0xFFFFFFFF) then
                     return false
@@ -6668,8 +6676,10 @@ function getXYZ(e, t)
                 local vehicle = get_object_memory(VehicleID)
                 x, y, z = read_vector3d(vehicle + 0x5c)
             else
+                coords.invehicle = false
                 x, y, z = read_vector3d(player_object + 0x5c)
             end
+            x, y, z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
             coords.x, coords.y, coords.z = x, y, z
             return coords
         else
@@ -6900,13 +6910,13 @@ end
 function RecordChanges()
     local file = io.open("sapp\\changelog.txt", "w")
     local cl = {}
-    
+
     local mod = settings.mod
     local global_cmd = settings.global.special_commands
     --
     local spawn_cmd = mod["Item Spawner"].base_command
     local itemlist_cmd = mod["Item Spawner"].list
-    local block_cmd = mod["Block Object Pickups"].block_command 
+    local block_cmd = mod["Block Object Pickups"].block_command
     local unblock_cmd = mod["Block Object Pickups"].unblock_command
     local alias_cmd = mod["Alias System"].base_command
     local lurker_cmd = mod["Lurker"].base_command
@@ -7167,6 +7177,7 @@ function RecordChanges()
     cl[#cl + 1] = "[5/8/19]"
     cl[#cl + 1] = "1). Fixed a major problem with Alias System."
     cl[#cl + 1] = "2). [new] Added new 'Get Coords' feature. Command syntax: /" .. coords_cmd .. " [me | id | */all]."
+    cl[#cl + 1] = "Use this command to retrieve the current x,y,z coordinates of the target player."
     cl[#cl + 1] = "3). Tidied up some code."
     cl[#cl + 1] = "4). Bug fix for command /" .. version_cmd .. ":"
     cl[#cl + 1] = "Output will now correctly display the version string with two decimal places."
@@ -7189,6 +7200,16 @@ function RecordChanges()
     cl[#cl + 1] = "You can manually broadcast a message on demand with /" .. broadcast_cmd .. " [id]."
     cl[#cl + 1] = "To get the broadcast Message ID, type /" .. broadcast_cmd .. " list."
     cl[#cl + 1] = "Script Updated to v1.43"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/14/19]"
+    cl[#cl + 1] = "1). Various minor bug fixes."
+    cl[#cl + 1] = "2). There has been a small but significant change to the (now optional) 'Target ID' command parameter for:"
+    cl[#cl + 1] = "portalgun, admin chat, lurker, give, item spawner, enter vehicle and other similar features."
+    cl[#cl + 1] = "This change means that if the Target ID parameter is not specified, the executor will become the default target."
+    cl[#cl + 1] = "For instance, '/lurker on' will trigger Lurker for the executor."
+    cl[#cl + 1] = "Script Updated to v1.44"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
