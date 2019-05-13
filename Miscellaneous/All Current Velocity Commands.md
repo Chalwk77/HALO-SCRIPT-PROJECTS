@@ -1,4 +1,4 @@
-#### Command Count: 37<br/><br/><br/><br/>
+#### Command Count: 40<br/><br/><br/><br/>
 
 
 ## Admin Chat:
@@ -9,6 +9,12 @@
 ## Alias System:
 `/alias [me | id] [page id]`
 > If you don't specify a page ID it will show you page 1 by default.
+- - - -
+
+## Auto Message:
+`/broadcast [announcement id]`<br/>
+`/broadcast [list]`
+>  'status' or '-s' tells you whether the target's achat is enabled/disabled.
 - - - -
 
 ## Block Object Pickup:
@@ -69,7 +75,7 @@
 ## Private Messaging System:
 `/pm [id | ip] {message}`<br/>
 `/readmail [page id]`<br/>
-`/delpm [#mail id]`
+`/delpm [#mail id | */all]`
 > FYI: The `[#mail id]` is inserted 'before' the senders name on the `/readmail page`.
 - - - -
 
