@@ -36,6 +36,7 @@
 
 ## Give:
 `/give [item] [me | id | */all]`
+> Give yourself (or others) weapons and powerups.
 - - - -
 
 ## Infinity Ammo:
@@ -46,7 +47,7 @@
 ## Item Spawner:
 `/spawn [item] [me | id | */all] [amount]`<br/>
 `/itemlist`
->  /itemlist shows a list of valid items for the current map.
+> `/itemlist` shows a list of valid items for the current map.
 - - - -
 
 ## Lurker:
