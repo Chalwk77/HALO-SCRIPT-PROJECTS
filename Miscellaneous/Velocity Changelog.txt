@@ -242,6 +242,7 @@ Script Updated to v1.40
 [5/8/19]
 1). Fixed a major problem with Alias System.
 2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all].
+Use this command to retrieve the current x,y,z coordinates of the target player.
 3). Tidied up some code.
 4). Bug fix for command /velocity:
 Output will now correctly display the version string with two decimal places.
@@ -264,3 +265,13 @@ This mod will automatically broadcast messages every x seconds.
 You can manually broadcast a message on demand with /broadcast [id].
 To get the broadcast Message ID, type /broadcast list.
 Script Updated to v1.43
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/14/19]
+1). Various minor bug fixes.
+2). There has been a small but significant change to the (now optional) 'Target ID' command parameter for:
+portalgun, admin chat, lurker, give, item spawner, enter vehicle and other similar features.
+This change means that if the Target ID parameter is not specified, the executor will become the default target.
+For instance, '/lurker on' will trigger Lurker for the executor.
+Script Updated to v1.44
