@@ -3,7 +3,7 @@
 
 ## Admin Chat:
 `/achat on|off|status|-s [me | id */all]`
->  'status' or '-s' tells you whether the target's achat is enabled/disabled.
+> 'status' or '-s' tells you whether the target's achat is enabled/disabled.
 - - - -
 
 ## Alias System:
@@ -14,7 +14,7 @@
 ## Auto Message:
 `/broadcast [announcement id]`<br/>
 `/broadcast [list]`
->  'status' or '-s' tells you whether the target's achat is enabled/disabled.
+> 'status' or '-s' tells you whether the target's achat is enabled/disabled.
 - - - -
 
 ## Block Object Pickup:
@@ -25,8 +25,8 @@
 
 ## Enter Vehicle:
 `/enter [item] [me | id | */all] (optional: height/distance)`
->  Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
->  You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
+> Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
+> You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 - - - -
 
 ## Get Coords:
@@ -41,7 +41,7 @@
 
 ## Infinity Ammo:
 `/infammo [me | id | */all] [multiplier or off] ( optional: {flag} )`
->  You can optionally execute this command silently for other players by specifying the '-s' command parameter.
+> You can optionally execute this command silently for other players by specifying the '-s' command parameter.
 - - - -
 
 ## Item Spawner:
@@ -52,16 +52,16 @@
 
 ## Lurker:
 `/lurker [me | id | */all] on|off`
->  If 'on|off' parameter is not specified, it will show you the target's current lurker setting (enabled/disabled).
+> If 'on|off' parameter is not specified, it will show you the target's current lurker setting (enabled/disabled).
 - - - -
 
 ## Mute System:
 `/mute [id | */all] ( optional: [time diff] )`
-> If `[time diff]` parameter is not specified, the player will be muted permanently.<br/>
-> You cannot execute `/mute` or `/unmute` on yourself.<br/><br/>
+> If `[time diff]` parameter is not specified, the player will be muted permanently.<br/><br/>
 `/unmute [id | */all]`<br/>
-`/mutelist ( optional: {flag} )`<br/><br/>
-> If you specify the '-o' flag, this command will only show you muted players who are currently online.
+`/mutelist ( optional: {flag} )`<br/>
+> If you specify the '-o' flag, this command will only show you muted players who are currently online.<br/>
+> Note: You cannot execute `/mute` or `/unmute` on yourself.
 - - - -
 
 ## Player List (4 command aliases):
@@ -82,7 +82,7 @@
 
 ## Respawn Time:
 `/setrespawn [me | id | */all] [time diff]`
->  If `[time diff]` parameter is not specified, it will show you the target's current respawn time setting.
+> If `[time diff]` parameter is not specified, it will show you the target's current respawn time setting.
 - - - -
 
 ## Respawn:
@@ -111,7 +111,7 @@
 
 ## Suggestion Box:
 `/suggestion {message}`
->  Players can suggest features or maps (or report bugs) with this command.
+> Players can suggest features or maps (or report bugs) with this command.
 - - - -
 
 ## Teleport Manager:
@@ -125,5 +125,5 @@
 
 ## What Cute Things Did You Do Today:
 `/cute [id */all]`
->  You cannot execute this command on yourself.
+> You cannot execute this command on yourself.
 - - - -
