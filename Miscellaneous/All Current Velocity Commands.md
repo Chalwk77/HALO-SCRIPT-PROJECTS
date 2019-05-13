@@ -1,6 +1,5 @@
 #### Command Count: 40<br/><br/><br/><br/>
 
-
 ## Admin Chat:
 `/achat on|off|status|-s [me | id */all]`
 > 'status' or '-s' tells you whether the target's achat is enabled/disabled.
@@ -89,6 +88,7 @@
 
 ## Respawn:
 `/respawn [me | id | */all]`
+> Respawn yourself or others on demand (no death penalty incurred).
 - - - -
 
 ## Special Commands:
