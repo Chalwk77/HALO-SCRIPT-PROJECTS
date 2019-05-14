@@ -3334,16 +3334,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
     end
 
-    if modEnabled("Alias System") then
+    if modEnabled("Alias System") or modEnabled("Welcome Messages") then
         if (players["Alias System"][ip].trigger) then
-            players["Alias System"][ip].trigger = false
+            alias:reset(ip)
             cls(executor, 25)
         end
-    end
-
-    if modEnabled("Welcome Messages") then
+        
         if (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
+            cls(executor, 25)
         end
     end
 
@@ -7187,9 +7186,8 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/12/19]"
     cl[#cl + 1] = "1). Fixed a bug with Alias System (requires regenerating alias.txt)."
-    cl[#cl + 1] = "2). A few tweaks to Private Messaging System:"
-    cl[#cl + 1] = "New Command: /" .. delpm_cmd .. " [message id | */all]"
-    cl[#cl + 1] = "You can delete emails individually or all at once with this command."
+    cl[#cl + 1] = "2). A few tweaks to Private Messaging System + New Command: /" .. delpm_cmd .. " [message id | */all]"
+    cl[#cl + 1] = "With this command, you can delete emails individually or all at once."
     cl[#cl + 1] = "Script Updated to v1.42"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
