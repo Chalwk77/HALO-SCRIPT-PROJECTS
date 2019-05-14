@@ -330,7 +330,6 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
     end
-
     if (command == base_command) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil) then
@@ -343,6 +342,10 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
+    elseif (players["Alias System"][ip].trigger) then
+        alias:reset(ip)
+        cls(executor, 25)
+        return true
     end
 end
 
@@ -553,31 +556,45 @@ function alias:align(tab)
 end
 
 function alias:add(name, hash)
-
-    local function contains(w, s)
-        return select(2, s:gsub('^' .. w .. '%W+', '')) +
-                select(2, s:gsub('%W+' .. w .. '$', '')) +
-                select(2, s:gsub('^' .. w .. '$', '')) +
-                select(2, s:gsub('%W+' .. w .. '%W+', '')) > 0
-    end
-       
-    local found, proceed
     local lines = lines_from(dir)
-    for line, v in pairs(lines) do
-        if contains(hash, v) and contains(name, v) then
-            proceed = true
-        end
-        if contains(hash, v) and not contains(name, v) then
-            found = true
-            local alias = v .. ", " .. name
-            delete(dir, line, 1)
-            local file = assert(io.open(dir, "a+"))
-            file:write(alias .. "\n")
-            file:close()
-            break
+    local data, alias, name_found, index
+    
+    for k, v in pairs(lines) do
+        if (v:match(hash)) then
+            data = stringSplit(gsub(v, hash .. ":", ""), ",")
+            alias = v .. "," .. name
+            index = k
         end
     end
-    if not (found) and not (proceed) then
+
+    if (data) then
+        local result, i = { }, 1
+        for j = 1, #data do
+            if (data[j] ~= nil) then
+                result[i] = data[j]
+                i = i + 1
+            end
+        end
+        if (result ~= nil) then
+
+            for i = 1, #result do
+                if (name == result[i]) then
+                    -- Name entry already exists for this hash: (do nothing).
+                    name_found = true
+                    break
+                end
+            end
+
+            if not (name_found) then
+                -- Name entry does not eist for this hash: (create new name entry).
+                delete_from_file(dir, index, 1)
+                local file = assert(io.open(dir, "a+"))
+                file:write(alias .. "\n")
+                file:close()
+            end
+        end
+    else
+        -- Hash entry does not exist in the database: (create entry).
         local file = assert(io.open(dir, "a+"))
         file:write(hash .. ":" .. name .. "\n")
         file:close()
@@ -697,6 +714,27 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function delete_from_file(dir, start_index, end_index)
+    local fp = io.open(dir, "r")
+    local t = {}
+    i = 1;
+    for line in fp:lines() do
+        if i < start_index or i >= start_index + end_index then
+            t[#t + 1] = line
+        end
+        i = i + 1
+    end
+    if i > start_index and i < start_index + end_index then
+        cprint("Warning: End of File! No entries to delete.")
+    end
+    fp:close()
+    fp = io.open(dir, "w+")
+    for i = 1, #t do
+        fp:write(format("%s\n", t[i]))
+    end
+    fp:close()
 end
 
 function cls(PlayerIndex, count)
