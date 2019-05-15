@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.44), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.45), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -54,24 +54,30 @@ local settings = { }
 -- Configuration [STARTS] ---------------------------------------
 local function GameSettings()
     settings = {
+    
+        --[[
+            1). enabled: Enabled = true, Disabled = false
+            2). permission_level: Minimum level required to execute a command.
+            3). execute_on_others: Minimum level required to execute a command on others.
+        
+        ]]
+    
         mod = {
-            ["Admin Chat"] = {
-                enabled = true, -- Enabled = true, Disabled = false
+            ["Admin Chat"] = { -- Chat privately with other admins.
+                enabled = true,
                 base_command = "achat", -- /base_command [me | id | */all] [on|off|0|1|true|false)
-                permission_level = 1, -- Minimum level required to execute /base_command
+                permission_level = 1,
                 execute_on_others = 4,
                 prefix = "[ADMIN CHAT]",
                 restore = true,
                 environment = "rcon", -- Valid environments: "rcon", "chat".
-                -- Message Format
                 message_format = {
                     "%prefix% %sender_name% [%index%]:",
                     "%message%",
                 }
 
             },
-            -- # Custom (separate) join messages for staff on a per-level basis
-            ["Admin Join Messages"] = {
+            ["Admin Join Messages"] = { -- Custom join messages for staff on a per-level basis.
                 enabled = true,
                 messages = {
                     -- [prefix] [message] (note: the joining player's name is automatically inserted between [prefix] and [message])
@@ -81,18 +87,17 @@ local function GameSettings()
                     [4] = { "[SENIOR-ADMIN] ", " joined the server." },
                 }
             },
-            -- # Query a player's hash to check what aliases have been used with it.
-            ["Alias System"] = {
+            ["Alias System"] = { -- Query a player's hash to check what aliases have been used with it.
                 enabled = true,
                 base_command = "alias", -- /base_command [id | me ] [page id]
-                dir = "sapp\\alias.lua", -- Command Syntax: /base_command [id]
+                dir = "sapp\\alias.lua",
                 permission_level = 1,
                 max_results_per_page = 50,
                 use_timer = true,
                 duration = 5, -- How long should the alias results be displayed for? (in seconds)
                 alignment = "|l", -- Left = l, Right = r, Center = c, Tab: t
             },
-            ["Anti Impersonator"] = {
+            ["Anti Impersonator"] = { -- Prevent other players from impersonating your clan/community members.
                 enabled = true,
                 action = "kick", -- Valid actions, "kick", "ban"
                 reason = "impersonating",
@@ -105,14 +110,15 @@ local function GameSettings()
                     -- does not match any of the ip address (or hashes) for that name entry, action will be taken.
                     { ["example_name"] = { "127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
 
-
-                    -- repeat the structure to add more entries
+                    -- repeat the structure to add more entries...
                     { ["name_here"] = { "ip 1", "ip 2", "hash1", "hash2", "hash3", "etc..." } },
-
                     -- You do not need both ip and hash but it adds a bit more security.
                 },
             },
-            ["Auto Message"] = {
+            ["Auto Message"] = { 
+                -- This feature will automatically broadcast messages every 'time_between_messages' seconds.
+                -- You can manually broadcast a message on demand with /base_command [message id].
+                -- To get the message id, type "/base_command list".
                 enabled = false,
                 permission_level = 1,
                 base_command = "broadcast",
@@ -133,8 +139,8 @@ local function GameSettings()
                     -- Repeat the structure to add more entries.
                 },
             },
-            -- Prevent players from picking up objects (weapons, powerups etc)
             ["Block Object Pickups"] = {
+                -- Prevent players from picking up objects (weapons & powerups etc)
                 enabled = true,
                 permission_level = 1,
                 execute_on_others = 4,
@@ -144,7 +150,6 @@ local function GameSettings()
             },
             -- # Chat Censor.
             ["Chat Censor"] = {
-                -- work in progress [works but a little bit buggy]
                 enabled = true,
                 censor = "*",
                 words = {
@@ -796,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.44, -- << --- do not touch
+            script_version = 1.45, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3335,12 +3340,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if modEnabled("Alias System") or modEnabled("Welcome Messages") then
-        if (players["Alias System"][ip].trigger) then
+        if (players["Alias System"][ip] ~= nil) and (players["Alias System"][ip].trigger) then
             alias:reset(ip)
             cls(executor, 25)
         end
         
-        if (players["Welcome Messages"][ip].show) then
+        if (players["Welcome Messages"][ip] ~= nil) and (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
             cls(executor, 25)
         end
@@ -7208,6 +7213,12 @@ function RecordChanges()
     cl[#cl + 1] = "This change means that if the Target ID parameter is not specified, the executor will become the default target."
     cl[#cl + 1] = "For instance, '/lurker on' will trigger Lurker for the executor."
     cl[#cl + 1] = "Script Updated to v1.44"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/15/19]"
+    cl[#cl + 1] = "Bug fix for nil-check error in function 'OnServerCommand()'."
+    cl[#cl + 1] = "Script Updated to v1.45"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
