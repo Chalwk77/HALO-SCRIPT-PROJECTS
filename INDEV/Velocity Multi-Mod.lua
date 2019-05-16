@@ -7232,13 +7232,13 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/15/19]"
-    cl[#cl + 1] = "Bug fix for nil-check error in function 'OnServerCommand()'."
+    cl[#cl + 1] = "1). Bug fix for nil-check error in function 'OnServerCommand()'."
     cl[#cl + 1] = "Script Updated to v1.45"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/16/19]"    
-    cl[#cl + 1] = "Fixed a couple of potential crashes."
+    cl[#cl + 1] = "1). Fixed a couple of potential crashes."
     cl[#cl + 1] = "Script Updated to v1.46"
     file:write(concat(cl, "\n"))
     file:close()
