@@ -278,11 +278,11 @@ Script Updated to v1.44
 
 
 [5/15/19]
-Bug fix for nil-check error in function 'OnServerCommand()'.
+1). Bug fix for nil-check error in function 'OnServerCommand()'.
 Script Updated to v1.45
 -------------------------------------------------------------------------------------------------------------------------------
 
 
 [5/16/19]
-Fixed a couple of potential crashes.
+1). Fixed a couple of potential crashes.
 Script Updated to v1.46
