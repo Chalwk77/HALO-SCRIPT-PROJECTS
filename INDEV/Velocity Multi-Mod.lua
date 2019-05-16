@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.45), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.46), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -801,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.45, -- << --- do not touch
+            script_version = 1.46, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1653,21 +1653,23 @@ function OnGameEnd()
             -- #Admin Chat
             if modEnabled("Admin Chat") then
                 local mod = players["Admin Chat"][ip]
-                local restore = settings.mod["Admin Chat"].restore
-                if (level) >= getPermLevel("Admin Chat", false) then
-                    if (restore) then
-                        local bool
-                        if (mod.adminchat) then
-                            bool = "true"
+                if (mod ~= nil) then
+                    local restore = settings.mod["Admin Chat"].restore
+                    if (level) >= getPermLevel("Admin Chat", false) then
+                        if (restore) then
+                            local bool
+                            if (mod.adminchat) then
+                                bool = "true"
+                            else
+                                bool = "false"
+                            end
+                            achat_status[ip] = bool
+                            achat_data[achat_status] = achat_data[achat_status] or {}
+                            table.insert(achat_data[achat_status], tostring(achat_status[ip]))
                         else
-                            bool = "false"
+                            mod.adminchat = false
+                            mod.boolean = false
                         end
-                        achat_status[ip] = bool
-                        achat_data[achat_status] = achat_data[achat_status] or {}
-                        table.insert(achat_data[achat_status], tostring(achat_status[ip]))
-                    else
-                        mod.adminchat = false
-                        mod.boolean = false
                     end
                 end
             end
@@ -2189,21 +2191,23 @@ function OnPlayerConnect(PlayerIndex)
         if (tonumber(level) >= getPermLevel("Admin Chat", false)) then
             adminchat:set(ip)
             local mod = players["Admin Chat"][ip]
-            if (restore) then
-                local args = stringSplit(tostring(achat_status[ip]), "|")
-                if (args[2] ~= nil) then
-                    if (args[2] == "true") then
-                        respond(id, "[reminder] Your admin chat is on!", "rcon")
-                        mod.adminchat = true
-                        mod.boolean = true
-                    else
-                        mod.adminchat = false
-                        mod.boolean = false
+            if (mod ~= nil) then
+                if (restore) then
+                    local args = stringSplit(tostring(achat_status[ip]), "|")
+                    if (args[2] ~= nil) then
+                        if (args[2] == "true") then
+                            respond(id, "[reminder] Your admin chat is on!", "rcon")
+                            mod.adminchat = true
+                            mod.boolean = true
+                        else
+                            mod.adminchat = false
+                            mod.boolean = false
+                        end
                     end
+                else
+                    players["Admin Chat"][ip].adminchat = false
+                    players["Admin Chat"][ip].boolean = false
                 end
-            else
-                players["Admin Chat"][ip].adminchat = false
-                players["Admin Chat"][ip].boolean = false
             end
         end
     end
@@ -2415,20 +2419,22 @@ function OnPlayerDisconnect(PlayerIndex)
     if modEnabled("Admin Chat") then
         local restore = settings.mod["Admin Chat"].restore
         local mod = players["Admin Chat"][ip]
-        if tonumber(level) >= getPermLevel("Admin Chat", false) then
-            if (restore) and (mod ~= nil) then
-                local bool
-                if (mod.adminchat) then
-                    bool = "true"
+        if (mod ~= nil) then
+            if tonumber(level) >= getPermLevel("Admin Chat", false) then
+                if (restore) and (mod ~= nil) then
+                    local bool
+                    if (mod.adminchat) then
+                        bool = "true"
+                    else
+                        bool = "false"
+                    end
+                    achat_status[ip] = bool
+                    achat_data[achat_status] = achat_data[achat_status] or {}
+                    table.insert(achat_data[achat_status], tostring(achat_status[ip]))
                 else
-                    bool = "false"
+                    mod.adminchat = false -- attempt to index local 'mod' (a nil value) - when script is reloaded
+                    mod.boolean = false
                 end
-                achat_status[ip] = bool
-                achat_data[achat_status] = achat_data[achat_status] or {}
-                table.insert(achat_data[achat_status], tostring(achat_status[ip]))
-            else
-                mod.adminchat = false -- attempt to index local 'mod' (a nil value) - when script is reloaded
-                mod.boolean = false
             end
         end
     end
@@ -2655,8 +2661,10 @@ function OnPlayerKill(PlayerIndex)
                 scores[PlayerIndex] = 0
             end
             local mod = players["Lurker"][ip]
-            mod.lurker_warn = false
-            mod.lurker_timer = 0
+            if (mod ~= nil) then
+                mod.lurker_warn = false
+                mod.lurker_timer = 0
+            end
         end
     end
 
@@ -2724,6 +2732,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         end
         for i = 0, #message do
             if (message[i]) then
+                message[i] = lower(message[i]) or upper(message[i])
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
@@ -2816,51 +2825,53 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Admin Chat
     if modEnabled("Admin Chat", PlayerIndex) then
         local mod = players["Admin Chat"][ip]
-        local environment = settings.mod["Admin Chat"].environment
-        local function AdminChat(table)
-            for i = 1, 16 do
-                if player_present(i) then
-                    if (level(i) >= getPermLevel("Admin Chat", false)) then
-                        if (environment == "rcon") then
-                            for j = 1, #table do
-                                respond(i, "|l" .. table[j], "rcon")
+        if (mod ~= nil) then
+            local environment = settings.mod["Admin Chat"].environment
+            local function AdminChat(table)
+                for i = 1, 16 do
+                    if player_present(i) then
+                        if (level(i) >= getPermLevel("Admin Chat", false)) then
+                            if (environment == "rcon") then
+                                for j = 1, #table do
+                                    respond(i, "|l" .. table[j], "rcon")
+                                end
+                            elseif (environment == "chat") then
+                                for j = 1, #table do
+                                    respond(i, table[j], "chat")
+                                end
                             end
-                        elseif (environment == "chat") then
-                            for j = 1, #table do
-                                respond(i, table[j], "chat")
-                            end
+                            response = false
                         end
-                        response = false
                     end
                 end
             end
-        end
-        if (mod.adminchat) then
-            -- attempt to index local 'mod' (a nil value) - when script is reloaded
-            if (level(id) >= getPermLevel("Admin Chat", false)) then
-                for c = 0, #message do
-                    if message[c] then
-                        if not (keyword) or (keyword == nil) then
-                            if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
-                                response = true
-                            else
-                                local tab = settings.mod["Admin Chat"]
-                                local strFormat = tab.message_format
-                                local prefix = tab.prefix
-                                local temp = { }
-                                for i = 1, #strFormat do
-                                    if (strFormat[i]) then
-                                        temp[#temp + 1] = strFormat[i]
+            if (mod.adminchat) then
+                -- attempt to index local 'mod' (a nil value) - when script is reloaded
+                if (level(id) >= getPermLevel("Admin Chat", false)) then
+                    for c = 0, #message do
+                        if message[c] then
+                            if not (keyword) or (keyword == nil) then
+                                if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
+                                    response = true
+                                else
+                                    local tab = settings.mod["Admin Chat"]
+                                    local strFormat = tab.message_format
+                                    local prefix = tab.prefix
+                                    local temp = { }
+                                    for i = 1, #strFormat do
+                                        if (strFormat[i]) then
+                                            temp[#temp + 1] = strFormat[i]
+                                        end
                                     end
+                                    for j = 1, #temp do
+                                        temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
+                                    end
+                                    AdminChat(temp)
+                                    response = false
                                 end
-                                for j = 1, #temp do
-                                    temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
-                                end
-                                AdminChat(temp)
-                                response = false
                             end
+                            break
                         end
-                        break
                     end
                 end
             end
@@ -6426,8 +6437,10 @@ function OnWeaponDrop(PlayerIndex)
             has_objective[PlayerIndex] = false
             local ip = getip(PlayerIndex, true)
             local mod = players["Lurker"][ip]
-            mod.lurker_warn = false
-            mod.lurker_timer = 0
+            if (mod ~= nil) then
+                mod.lurker_warn = false
+                mod.lurker_timer = 0
+            end
         end
     end
 end
@@ -6455,11 +6468,13 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                     end
                     local ip = getip(PlayerIndex, true)
                     local mod = players["Lurker"][ip]
-                    mod.lurker_warnings = (mod.lurker_warnings - 1)
-                    mod.lurker_warn = true
-                    has_objective[PlayerIndex] = true
-                    if (mod.lurker_warnings <= 0) then
-                        mod.lurker_warnings = 0
+                    if (mod ~= nil) then
+                        mod.lurker_warnings = (mod.lurker_warnings - 1)
+                        mod.lurker_warn = true
+                        has_objective[PlayerIndex] = true
+                        if (mod.lurker_warnings <= 0) then
+                            mod.lurker_warnings = 0
+                        end
                     end
                 end
             end
@@ -7219,6 +7234,12 @@ function RecordChanges()
     cl[#cl + 1] = "[5/15/19]"
     cl[#cl + 1] = "Bug fix for nil-check error in function 'OnServerCommand()'."
     cl[#cl + 1] = "Script Updated to v1.45"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "Fixed a couple of potential crashes."
+    cl[#cl + 1] = "Script Updated to v1.46"
+    cl[#cl + 1] = "[5/16/19]"    
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
