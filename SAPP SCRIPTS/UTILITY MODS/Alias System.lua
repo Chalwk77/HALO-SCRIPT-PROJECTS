@@ -342,7 +342,7 @@ function OnServerCommand(PlayerIndex, Command)
             end
         end
         return false
-    elseif (players["Alias System"][ip].trigger) then
+    elseif (players["Alias System"][ip] ~= nil) and (players["Alias System"][ip].trigger) then
         alias:reset(ip)
         cls(executor, 25)
         return true
