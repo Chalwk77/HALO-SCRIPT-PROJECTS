@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.46), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.47), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -9,7 +9,7 @@ Description: Velocity is an all-in-one package that combines a multitude of my s
 Combined Scripts:
     - Admin Chat                Admin Join Messages         Alias System         Anti Impersonator         Auto Message
     - Block Object Pickups
-    - Chat Censor               Chat IDs                    Chat Logging         Color Reservation
+    - Chat Censor               Chat IDs                    Chat Logging         Color Changer             Color Reservation
     - Command Spy               Console Logo                Custom Weapons       Cute
     - Enter Vehicle
     - Garbage Collection        Get Coords                  Give
@@ -54,14 +54,14 @@ local settings = { }
 -- Configuration [STARTS] ---------------------------------------
 local function GameSettings()
     settings = {
-    
+
         --[[
             1). enabled: Enabled = true, Disabled = false
             2). permission_level: Minimum level required to execute a command.
             3). execute_on_others: Minimum level required to execute a command on others.
         
         ]]
-    
+
         mod = {
             ["Admin Chat"] = { -- Chat privately with other admins.
                 enabled = true,
@@ -115,7 +115,7 @@ local function GameSettings()
                     -- You do not need both ip and hash but it adds a bit more security.
                 },
             },
-            ["Auto Message"] = { 
+            ["Auto Message"] = {
                 -- This feature will automatically broadcast messages every 'time_between_messages' seconds.
                 -- You can manually broadcast a message on demand with /base_command [message id].
                 -- To get the message id, type "/base_command list".
@@ -217,6 +217,12 @@ local function GameSettings()
             ["Chat Logging"] = {
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
+            },
+            ["Color Changer"] = { -- # Change any player's armor color on demand.
+                enabled = true,
+                permission_level = 1,
+                execute_on_others = 4,
+                base_command = "setcolor",
             },
             ["Color Reservation"] = {
                 enabled = true, -- Enabled = true, Disabled = false
@@ -801,7 +807,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.46, -- << --- do not touch
+            script_version = 1.47, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -813,6 +819,9 @@ local function GameSettings()
                 disable = { "disable", 1 }, -- /disable [id]
                 list = { "plugins", 1 }, -- /pluigns
                 clearchat = { "clear", 1 }, -- /clear
+
+                -- CUSTOM INFO COMMAND: /cmd [page id].
+                -- Example: /lore 1, will show the server rules.
                 information = {
                     cmd = "lore", -- /cmd [page id]
                     permission_level = -1,
@@ -910,6 +919,9 @@ local game_over
 -- #Color Reservation
 local colorres_bool = {}
 local can_use_colorres
+
+-- #Color Changer
+local colorspawn = {}
 
 -- #Auto Message
 local autoMessage = { }
@@ -1058,7 +1070,7 @@ local function modEnabled(script, e)
     if (settings.mod[script].enabled) then
         return true
     elseif (e) then
-        respond(e, "Command Failed. " .. script .. " is disabled", "rcon", 4 + 8)
+        respond(e, "Command Failed. (Feature: '" .. script .. "' is disabled).", "rcon", 4 + 8)
     end
 end
 
@@ -1078,11 +1090,13 @@ end
 local execute_on_others_error = { }
 local function executeOnOthers(e, self, is_console, level, script)
     if not (self) and not (is_console) then
-        if tonumber(level) >= getPermLevel(script, true) then
+        local req_lvl = getPermLevel(script, true)
+        if tonumber(level) >= req_lvl then
             return true
         elseif (execute_on_others_error[e]) then
             execute_on_others_error[e] = false
             respond(e, "You are not allowed to executed this command on other players.", "rcon", 4 + 8)
+            respond(e, "You need to be level (" .. req_lvl .. ") at minimum. You are level (" .. level .. ")", "rcon", 4 + 8)
             return false
         end
     else
@@ -1369,6 +1383,7 @@ function OnScriptLoad()
         checkFile(settings.mod["Private Messaging System"].dir)
     end
 
+    -- Teleport Manager
     if modEnabled("Teleport Manager") then
         checkFile(settings.mod["Teleport Manager"].dir)
     end
@@ -1447,6 +1462,13 @@ function OnScriptLoad()
             if modEnabled("Welcome Messages") then
                 if (players["Welcome Messages"][ip] ~= nil) then
                     welcomeMessages:hide(i, ip)
+                end
+            end
+
+            -- #Color Changer
+            if modEnabled("Color Changer") then
+                if colorspawn[ip] then
+                    colorspawn[ip] = false
                 end
             end
         end
@@ -2560,6 +2582,17 @@ function OnPlayerSpawn(PlayerIndex)
             end
         end
     end
+    -- #Color Changer
+    if modEnabled("Color Changer") then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if (player_object) then
+            local ip = getip(PlayerIndex, true)
+            if (player_object ~= 0) and (colorspawn[ip] ~= nil) and (colorspawn[ip][1]) then
+                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[ip][1], colorspawn[ip][2], colorspawn[ip][3])
+                colorspawn[ip] = { }
+            end
+        end
+    end
     -- #Color Reservation
     if modEnabled("Color Reservation") then
         if (can_use_colorres == true) then
@@ -3183,21 +3216,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     params.eip = server_ip
                 end
 
-                -- #Mute System
-                if (parameter == "mute") then
-                    if (args[2] ~= nil) then
-                        params.time = args[2]
+                    -- #Admin Chat
+                if (parameter == "achat") then
+                    if (args[1] ~= nil) then
+                        params.option = args[1] -- on|off
                     end
                     if (target_all_players) then
-                        if not cmdself(params.tid, executor) then
-                            velocity:saveMute(params, true, true)
-                        end
-                    end
-                elseif (parameter == "unmute") then
-                    if (target_all_players) then
-                        if not cmdself(params.tid, executor) then
-                            velocity:unmute(params)
-                        end
+                        velocity:determineAchat(params)
                     end
                     -- #Alias System
                 elseif (parameter == "alias") then
@@ -3207,48 +3232,34 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     else
                         bool = settings.mod["Alias System"].use_timer
                     end
-
                     if (args[2] ~= nil) then
-                        params.page = args[2]
+                        params.page = args[2] -- page id
                     end
-
                     params.timer = bool
                     alias:reset(params.eip)
-
-                    -- #Admin Chat
-                elseif (parameter == "achat") then
+                    -- #Block Object Pickups
+                elseif (parameter == "blockpickup") then
+                    if (target_all_players) then
+                        velocity:blockpickup(params)
+                    end
+                elseif (parameter == "unblock") then
+                    if (target_all_players) then
+                        velocity:unblockpickups(params)
+                    end
+                    -- #Color Changer
+                elseif (parameter == "colorchanger") then
                     if (args[1] ~= nil) then
-                        params.option = args[1]
+                        params.color = args[1] -- color id
                     end
                     if (target_all_players) then
-                        velocity:determineAchat(params)
+                        velocity:setcolor(params)
                     end
-                    -- #Portal Gun
-                elseif (parameter == "portalgun") then
-                    if (args[1] ~= nil) then
-                        params.option = args[1]
-                    end
+                    -- #Cute
+                elseif (parameter == "cute") then
                     if (target_all_players) then
-                        velocity:portalgun(params)
-                    end
-                    -- #Lurker
-                elseif (parameter == "lurker") then
-                    params.bool = true
-                    params.CmdTrigger = true
-                    params.warnings = getLurkerWarnings(params.eip)
-                    if (args[1] ~= nil) then
-                        params.option = args[1]
-                    end
-                    if (target_all_players) then
-                        velocity:setLurker(params)
-                    end
-                    -- #Respawn Time
-                elseif (parameter == "setrespawn") then
-                    if (args[2] ~= nil) then
-                        params.time = args[2]
-                    end
-                    if (target_all_players) then
-                        velocity:setRespawnTime(params)
+                        if not cmdself(params.tid, executor) then
+                            velocity:cute(params)
+                        end
                     end
                     -- #Enter Vehicle
                 elseif (parameter == "entervehicle") then
@@ -3264,6 +3275,35 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:enterVehicle(params)
                     end
+                    -- #Garbage Collection
+                elseif (parameter == "garbagecollection") then
+                    if (args[1] ~= nil) then
+                        params.table = args[2] -- table id
+                    end
+                    if (target_all_players) then
+                        velocity:clean(params)
+                    end
+                    -- #Get Coords
+                elseif (parameter == "getcoords") then
+                    if (target_all_players) then
+                        velocity:getcoords(params)
+                    end
+                    -- #Give
+                elseif (parameter == "give") then
+                    if (args[1] ~= nil) then
+                        params.object = args[1]
+                    end
+                    if (target_all_players) then
+                        velocity:give(params)
+                    end
+                    -- #Infinity Ammo
+                elseif (parameter == "infinityammo") then
+                    if (args[2] ~= nil) then
+                        params.multiplier = args[2] -- multipler
+                    end
+                    if (target_all_players) then
+                        velocity:infinityAmmo(params)
+                    end
                     -- #Item Spawner
                 elseif (parameter == "itemspawner") then
                     if (args[1] ~= nil) then
@@ -3275,29 +3315,53 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:spawnItem(params)
                     end
-                    -- #Garbage Collection
-                elseif (parameter == "garbagecollection") then
+                    -- #Lurker
+                elseif (parameter == "lurker") then
+                    params.bool = true
+                    params.CmdTrigger = true
+                    params.warnings = getLurkerWarnings(params.eip)
                     if (args[1] ~= nil) then
-                        params.table = args[2] -- table id
+                        params.option = args[1]
                     end
                     if (target_all_players) then
-                        velocity:clean(params)
+                        velocity:setLurker(params)
                     end
-                    -- #Infinity Ammo
-                elseif (parameter == "infinityammo") then
-                    if (args[1] ~= nil) then
-                        params.off = args[3] -- off
-                        params.multiplier = args[2] -- multipler
+                -- #Mute System
+                elseif (parameter == "mute") then
+                    if (args[2] ~= nil) then
+                        params.time = args[2] -- time diff
                     end
-                    if (target_all_players) then
-                        velocity:infinityAmmo(params)
-                    end
-                    -- #Cute
-                elseif (parameter == "cute") then
                     if (target_all_players) then
                         if not cmdself(params.tid, executor) then
-                            velocity:cute(params)
+                            velocity:saveMute(params, true, true)
                         end
+                    end
+                elseif (parameter == "unmute") then
+                    if (target_all_players) then
+                        if not cmdself(params.tid, executor) then
+                            velocity:unmute(params)
+                        end
+                    end
+                    -- #Portal Gun
+                elseif (parameter == "portalgun") then
+                    if (args[1] ~= nil) then
+                        params.option = args[1]
+                    end
+                    if (target_all_players) then
+                        velocity:portalgun(params)
+                    end
+                    -- #Respawn Time
+                elseif (parameter == "setrespawn") then
+                    if (args[2] ~= nil) then
+                        params.time = args[2]
+                    end
+                    if (target_all_players) then
+                        velocity:setRespawnTime(params)
+                    end
+                    -- #Respawn On Demand
+                elseif (parameter == "respawn") then
+                    if (target_all_players) then
+                        velocity:respawn(params)
                     end
                     -- #Teleport Manager | warp
                 elseif (parameter == "warp") then
@@ -3312,39 +3376,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:warpback(params)
                     end
-                    -- #Respawn On Demand
-                elseif (parameter == "respawn") then
-                    if (target_all_players) then
-                        velocity:respawn(params)
-                    end
-                    -- #Give
-                elseif (parameter == "give") then
-                    if (args[1] ~= nil) then
-                        params.object = args[1]
-                    end
-                    if (target_all_players) then
-                        velocity:give(params)
-                    end
-                    -- #Give
-                elseif (parameter == "getcoords") then
-                    if (target_all_players) then
-                        velocity:getcoords(params)
-                    end
-                    -- #Block Object Pickups
-                elseif (parameter == "blockpickup") then
-                    if (args[1] ~= nil) then
-                        params.option = args[1]
-                    end
-                    if (target_all_players) then
-                        velocity:blockpickup(params)
-                    end
-                elseif (parameter == "unblock") then
-                    if (args[1] ~= nil) then
-                        params.option = args[1]
-                    end
-                    if (target_all_players) then
-                        velocity:unblockpickups(params)
-                    end
                 end
             end
         end
@@ -3355,7 +3386,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             alias:reset(ip)
             cls(executor, 25)
         end
-        
+
         if (players["Welcome Messages"][ip] ~= nil) and (players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
             cls(executor, 25)
@@ -3378,298 +3409,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    -- #Auto Message
-    if (command == settings.mod["Auto Message"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Auto Message", executor) then
-                if (checkAccess(executor, true, "Auto Message")) then
-                    local tab = settings.mod["Auto Message"]
-                    if (args[1] ~= nil) and (args[2] == nil) then
-                        local p = { }
-                        p.eid, p.args, p.tab = executor, args[1], tab
-                        autoMessage:broadcastManually(p)
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [broadcast id]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
-            end
-        end
-        return false
-        -- #Block Object Pickups [block]
-    elseif (command == settings.mod["Block Object Pickups"].block_command) then
-        if not gameover(executor) then
-            if modEnabled("Block Object Pickups", executor) then
-                if (checkAccess(executor, true, "Block Object Pickups")) then
-                    local tab = settings.mod["Block Object Pickups"]
-                    if (args[1] ~= nil) and (args[2] == nil) then
-                        validate_params("blockpickup", 1) --/base_command [me | id | */all]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:blockpickup(params)
-                            end
-                        end
 
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Block Object Pickups' not enabled!")
-            end
-        end
-        return false
-        -- #Block Object Pickups [unblock]
-    elseif (command == settings.mod["Block Object Pickups"].unblock_command) then
+    -- #Admin Chat
+    if (command == settings.mod["Admin Chat"].base_command) then
         if not gameover(executor) then
-            if modEnabled("Block Object Pickups", executor) then
-                if (checkAccess(executor, true, "Block Object Pickups")) then
-                    local tab = settings.mod["Block Object Pickups"]
-                    if (args[1] ~= nil) and (args[2] == nil) then
-                        validate_params("blockpickup", 1) --/base_command [me | id | */all]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:unblockpickups(params)
-                            end
-                        end
-
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Block Object Pickups' not enabled!")
-            end
-        end
-        return false
-        -- #Respawn On Demand
-    elseif (command == settings.mod["Respawn On Demand"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Respawn On Demand", executor) then
-                if (checkAccess(executor, true, "Respawn On Demand")) then
-                    local tab = settings.mod["Respawn On Demand"]
-                    if (args[1] ~= nil) and (args[2] == nil) then
-                        validate_params("respawn", 1) --/base_command [me | id | */all]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:respawn(params)
-                            end
-                        end
-
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Respawn On Demand' not enabled!")
-            end
-        end
-        return false
-        -- #Give
-    elseif (command == settings.mod["Give"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Give", executor) then
-                if (checkAccess(executor, true, "Give")) then
-                    local tab = settings.mod["Give"]
+            if modEnabled("Admin Chat", executor) then
+                if (checkAccess(executor, true, "Admin Chat")) then
+                    local tab = settings.mod["Admin Chat"]
                     if (args[1] ~= nil) then
-                        validate_params("give", 2) --/base_command <item> [me | id | */all]
+                        validate_params("achat", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:give(params)
+                                velocity:determineAchat(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item> [me | id | */all]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on/off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Give' not enabled!")
-            end
-        end
-        return false
-        -- #Get Coords
-    elseif (command == settings.mod["Get Coords"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Get Coords", executor) then
-                if (checkAccess(executor, true, "Get Coords")) then
-                    local tab = settings.mod["Get Coords"]
-                    if (args[1] ~= nil) and (args[2] == nil) then
-                        validate_params("getcoords", 1) --/base_command [me | id | */all]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:getcoords(params)
-                            end
-                        end
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Get Coords' not enabled!")
-            end
-        end
-        return false
-        -- #Private Messaging System
-    elseif (command == settings.mod["Private Messaging System"].send_command) then
-        if not gameover(executor) then
-            if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, true, "Private Messaging System")) then
-                    local tab = settings.mod["Private Messaging System"]
-                    if (args[1] ~= nil) and (args[2] ~= nil) then
-                        local p = { }
-                        local content = Command:match(args[1] .. "(.+)")
-                        if Command:find(tab.seperator) then
-                            content = gsub(content, tab.seperator, "")
-                        end
-                        p.eid, p.en, p.eip, p.message, p.recipient_id = executor, name, ip, content, args[1]
-                        p.dir = tab.dir
-                        privateMessage:send(p)
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.send_command .. " [user id] {message}", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
-            end
-        end
-        return false
-        -- #Private Messaging System
-    elseif (command == settings.mod["Private Messaging System"].read_command) then
-        if not gameover(executor) then
-            if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, false, "Private Messaging System")) then
-                    local tab = settings.mod["Private Messaging System"]
-                    if (args[1] ~= nil) then
-                        local p = { }
-                        p.eid, p.eip, p.page = executor, ip, args[1]
-                        p.mail = privateMessage:load(p)
-                        privateMessage:read(p)
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command .. " [page num]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
-            end
-        end
-        return false
-        -- #Private Messaging System
-    elseif (command == settings.mod["Private Messaging System"].delete_command) then
-        if not gameover(executor) then
-            if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, false, "Private Messaging System")) then
-                    local tab = settings.mod["Private Messaging System"]
-                    if (args[1] ~= nil) then
-                        local p = { }
-                        p.eid, p.eip, p.mail_id = executor, ip, args[1]
-                        p.mail = privateMessage:load(p)
-                        privateMessage:delete(p)
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.delete_command .. " [message id | */all]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Private Messaging System' not enabled!")
-            end
-        end
-        return false
-        -- #Mute System
-    elseif (command == settings.mod["Mute System"].mute_command) then
-        if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
-                local tab = settings.mod["Mute System"]
-                if (args[1] ~= nil) and (args[2] ~= nil) then
-                    validate_params("mute", 1) --/mute_command [id] <args>
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            if not cmdself(params.tid, executor) then
-                                velocity:saveMute(params, true, true)
-                            end
-                        end
-                    end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [me | id | */all] <time diff>", "rcon", 2 + 8)
-                end
-            end
-        else
-            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
-        end
-        return false
-        -- #Mute System
-    elseif (command == settings.mod["Mute System"].unmute_command) then
-        if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
-                local tab = settings.mod["Mute System"]
-                if (args[1] ~= nil) then
-                    validate_params("unmute", 1) --/unmute_command [id] <args>
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            if not cmdself(params.tid, executor) then
-                                velocity:unmute(params)
-                            end
-                        end
-                    end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [me | id | */all]", "rcon", 2 + 8)
-                end
-            end
-        else
-            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
-        end
-        return false
-        -- #Mute System
-    elseif (command == settings.mod["Mute System"].mutelist_command) then
-        if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
-                local p = { }
-                p.eid = executor
-                p.flag = args[1]
-                velocity:mutelist(p)
-            end
-        else
-            rprint(executor, "Error. Plugin: 'Mute System' not enabled!")
-        end
-        return false
-        -- #Cute
-    elseif (command == settings.mod["Cute"].base_command) then
-        if modEnabled("Cute", executor) then
-            if (checkAccess(executor, true, "Cute")) then
-                local tab = settings.mod["Cute"]
-                if (args[1] ~= nil) then
-                    validate_params("cute", 1) --/base_command [id]
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            velocity:cute(params)
-                        end
-                    end
-                else
-                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
-                end
-            end
-        else
-            rprint(executor, "Error. Plugin: 'Cute' not enabled!")
-        end
-        return false
-        -- #Infinity Ammo
-    elseif (command == settings.mod["Infinity Ammo"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Infinity Ammo", executor) then
-                if (checkAccess(executor, true, "Infinity Ammo")) then
-                    local tab = settings.mod["Infinity Ammo"]
-                    if (args[1] ~= nil and args[2] ~= nil) then
-                        validate_params("infinityammo", 1) --/base_command [id] <args>
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:infinityAmmo(params)
-                            end
-                        end
-                    else
-                        respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
-                    end
-                end
-            else
-                rprint(executor, "Error. Plugin: 'Infinity Ammo' not enabled!")
             end
         end
         return false
@@ -3691,48 +3448,105 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [id | me ] [page id]", "rcon", 4 + 8)
                 end
             end
-        else
-            rprint(executor, "Error. Plugin: 'Alias System' not enabled!")
         end
         return false
-        -- #Item Spawner
-    elseif (command == settings.mod["Item Spawner"].base_command) then
+        -- #Auto Message
+    elseif (command == settings.mod["Auto Message"].base_command) then
         if not gameover(executor) then
-            if modEnabled("Item Spawner", executor) then
-                if (checkAccess(executor, true, "Item Spawner")) then
-                    local tab = settings.mod["Item Spawner"]
-                    if (args[1] ~= nil) then
-                        validate_params("itemspawner", 2) --/base_command <args> [id]
-                        if not (target_all_players) then
-                            if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:spawnItem(params)
-                            end
-                        end
+            if modEnabled("Auto Message", executor) then
+                if (checkAccess(executor, true, "Auto Message")) then
+                    local tab = settings.mod["Auto Message"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        local p = { }
+                        p.eid, p.args, p.tab = executor, args[1], tab
+                        autoMessage:broadcastManually(p)
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all] [opt: amount]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [broadcast id]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Item Spawner' not enabled!")
             end
         end
         return false
-        -- #Item Spawner
-    elseif (command == settings.mod["Item Spawner"].list) then
+        -- #Block Object Pickups [block]
+    elseif (command == settings.mod["Block Object Pickups"].block_command) then
         if not gameover(executor) then
-            if modEnabled("Item Spawner", executor) then
-                if (checkAccess(executor, true, "Item Spawner")) then
-                    local tab = settings.mod["Item Spawner"]
-                    if (args[1] == nil) then
-                        local p = { }
-                        p.eid, p.table = executor, tab
-                        velocity:itemSpawnerList(p)
+            if modEnabled("Block Object Pickups", executor) then
+                if (checkAccess(executor, true, "Block Object Pickups")) then
+                    local tab = settings.mod["Block Object Pickups"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("blockpickup", 1) --/block_command [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:blockpickup(params)
+                            end
+                        end
+
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.list .. " [page id]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.block_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Item Spawner' not enabled!")
+            end
+        end
+        return false
+        -- #Block Object Pickups [unblock]
+    elseif (command == settings.mod["Block Object Pickups"].unblock_command) then
+        if not gameover(executor) then
+            if modEnabled("Block Object Pickups", executor) then
+                if (checkAccess(executor, true, "Block Object Pickups")) then
+                    local tab = settings.mod["Block Object Pickups"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("blockpickup", 1) --/unblock_command [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:unblockpickups(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.unblock_command .. " [me | id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Color Changer
+    elseif (command == settings.mod["Color Changer"].base_command) then
+        if (getTeamPlay()) then
+            if not gameover(executor) then
+                if modEnabled("Color Changer", executor) then
+                    if (checkAccess(executor, true, "Color Changer")) then
+                        local tab = settings.mod["Color Changer"]
+                        if (args[1] ~= nil) then
+                            validate_params("colorchanger", 2) --/base_command <args> [me | id | */all]
+                            if not (target_all_players) then
+                                if not (is_error) and isOnline(TargetID, executor) then
+                                    velocity:setcolor(params)
+                                end
+                            end
+                        else
+                            respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [color id] [me | id | */all]", "rcon", 4 + 8)
+                        end
+                    end
+                end
+            end
+        else
+            respond(executor, "This command only works on Team-Based games.", "rcon", 4 + 8)
+        end
+        return false
+        -- #Cute
+    elseif (command == settings.mod["Cute"].base_command) then
+        if modEnabled("Cute", executor) then
+            if (checkAccess(executor, true, "Cute")) then
+                local tab = settings.mod["Cute"]
+                if (args[1] ~= nil) then
+                    validate_params("cute", 1) --/base_command [id]
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            velocity:cute(params)
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                end
             end
         end
         return false
@@ -3758,8 +3572,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 else
                     rprint(executor, "Error. Plugin: 'Item Spawner' needs to be enabled for this to work.")
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Enter Vehicle' not enabled!")
             end
         end
         return false
@@ -3780,52 +3592,103 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] [type]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Garbage Collection' not enabled!")
             end
         end
         return false
-        -- #Respawn Time
-    elseif (command == settings.mod["Respawn Time"].base_command) then
+        -- #Get Coords
+    elseif (command == settings.mod["Get Coords"].base_command) then
         if not gameover(executor) then
-            if modEnabled("Respawn Time", executor) then
-                if (checkAccess(executor, true, "Respawn Time")) then
-                    local tab = settings.mod["Respawn Time"]
-                    if (args[1] ~= nil) then
-                        validate_params("setrespawn", 1) --/base_command [id] <args>
+            if modEnabled("Get Coords", executor) then
+                if (checkAccess(executor, true, "Get Coords")) then
+                    local tab = settings.mod["Get Coords"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("getcoords", 1) --/base_command [me | id | */all]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:setRespawnTime(params)
+                                velocity:getcoords(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] <time diff>", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Respawn Time' not enabled!")
             end
         end
         return false
-        -- #Admin Chat
-    elseif (command == settings.mod["Admin Chat"].base_command) then
+        -- #Give
+    elseif (command == settings.mod["Give"].base_command) then
         if not gameover(executor) then
-            if modEnabled("Admin Chat", executor) then
-                if (checkAccess(executor, true, "Admin Chat")) then
-                    local tab = settings.mod["Admin Chat"]
+            if modEnabled("Give", executor) then
+                if (checkAccess(executor, true, "Give")) then
+                    local tab = settings.mod["Give"]
                     if (args[1] ~= nil) then
-                        validate_params("achat", 2) --/base_command <args> [id]
+                        validate_params("give", 2) --/base_command <item> [me | id | */all]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:determineAchat(params)
+                                velocity:give(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on/off [me | id | */all]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item> [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Admin Chat' not enabled!")
+            end
+        end
+        return false
+        -- #Infinity Ammo
+    elseif (command == settings.mod["Infinity Ammo"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Infinity Ammo", executor) then
+                if (checkAccess(executor, true, "Infinity Ammo")) then
+                    local tab = settings.mod["Infinity Ammo"]
+                    if (args[1] ~= nil) then
+                        validate_params("infinityammo", 1) --/base_command [id] <args>
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:infinityAmmo(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid syntax. Usage: /" .. tab.base_command .. " [me | id | */all] [multiplier]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Item Spawner
+    elseif (command == settings.mod["Item Spawner"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Item Spawner", executor) then
+                if (checkAccess(executor, true, "Item Spawner")) then
+                    local tab = settings.mod["Item Spawner"]
+                    if (args[1] ~= nil) then
+                        validate_params("itemspawner", 2) --/base_command <args> [id]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:spawnItem(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " <item name> [me | id | */all] [opt: amount]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Item Spawner
+    elseif (command == settings.mod["Item Spawner"].list) then
+        if not gameover(executor) then
+            if modEnabled("Item Spawner", executor) then
+                if (checkAccess(executor, true, "Item Spawner")) then
+                    local tab = settings.mod["Item Spawner"]
+                    if (args[1] == nil) then
+                        local p = { }
+                        p.eid, p.table = executor, tab
+                        velocity:itemSpawnerList(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.list .. " [page id]", "rcon", 4 + 8)
+                    end
+                end
             end
         end
         return false
@@ -3846,29 +3709,57 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Lurker' not enabled!")
             end
         end
         return false
-        -- #Suggestions Box
-    elseif (command == settings.mod["Suggestions Box"].base_command) then
-        if not gameover(executor) then
-            if modEnabled("Suggestions Box", executor) then
-                if (checkAccess(executor, true, "Suggestions Box")) then
-                    local tab = settings.mod["Suggestions Box"]
-                    if (args[1] ~= nil) then
-                        local p = { }
-                        local content = gsub(Command, tab.base_command, "")
-                        p.eid, p.en, p.message = executor, name, content
-                        p.format, p.dir = tab.msg_format, tab.dir
-                        velocity:suggestion(p)
-                    else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
+        -- #Mute System
+    elseif (command == settings.mod["Mute System"].mute_command) then
+        if modEnabled("Mute System", executor) then
+            if (checkAccess(executor, true, "Mute System")) then
+                local tab = settings.mod["Mute System"]
+                if (args[1] ~= nil) and (args[2] ~= nil) then
+                    validate_params("mute", 1) --/mute_command [id] <args>
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            if not cmdself(params.tid, executor) then
+                                velocity:saveMute(params, true, true)
+                            end
+                        end
                     end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.mute_command .. " [me | id | */all] <time diff>", "rcon", 2 + 8)
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Suggestions Box' not enabled!")
+            end
+        end
+        return false
+        -- #Mute System
+    elseif (command == settings.mod["Mute System"].unmute_command) then
+        if modEnabled("Mute System", executor) then
+            if (checkAccess(executor, true, "Mute System")) then
+                local tab = settings.mod["Mute System"]
+                if (args[1] ~= nil) then
+                    validate_params("unmute", 1) --/unmute_command [id] <args>
+                    if not (target_all_players) then
+                        if not (is_error) and isOnline(TargetID, executor) then
+                            if not cmdself(params.tid, executor) then
+                                velocity:unmute(params)
+                            end
+                        end
+                    end
+                else
+                    respond(executor, "Invalid syntax. Usage: /" .. tab.unmute_command .. " [me | id | */all]", "rcon", 2 + 8)
+                end
+            end
+        end
+        return false
+        -- #Mute System
+    elseif (command == settings.mod["Mute System"].mutelist_command) then
+        if modEnabled("Mute System", executor) then
+            if (checkAccess(executor, true, "Mute System")) then
+                local p = { }
+                p.eid = executor
+                p.flag = args[1]
+                velocity:mutelist(p)
             end
         end
         return false
@@ -3889,8 +3780,124 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Portal Gun' not enabled!")
+            end
+        end
+        return false
+        -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].send_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, true, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] ~= nil) and (args[2] ~= nil) then
+                        local p = { }
+                        local content = Command:match(args[1] .. "(.+)")
+                        if Command:find(tab.seperator) then
+                            content = gsub(content, tab.seperator, "")
+                        end
+                        p.eid, p.en, p.eip, p.message, p.recipient_id = executor, name, ip, content, args[1]
+                        p.dir = tab.dir
+                        privateMessage:send(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.send_command .. " [user id] {message}", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].read_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, false, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        p.eid, p.eip, p.page = executor, ip, args[1]
+                        p.mail = privateMessage:load(p)
+                        privateMessage:read(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.read_command .. " [page num]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Private Messaging System
+    elseif (command == settings.mod["Private Messaging System"].delete_command) then
+        if not gameover(executor) then
+            if modEnabled("Private Messaging System", executor) then
+                if (checkAccess(executor, false, "Private Messaging System")) then
+                    local tab = settings.mod["Private Messaging System"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        p.eid, p.eip, p.mail_id = executor, ip, args[1]
+                        p.mail = privateMessage:load(p)
+                        privateMessage:delete(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.delete_command .. " [message id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Respawn Time
+    elseif (command == settings.mod["Respawn Time"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Respawn Time", executor) then
+                if (checkAccess(executor, true, "Respawn Time")) then
+                    local tab = settings.mod["Respawn Time"]
+                    if (args[1] ~= nil) then
+                        validate_params("setrespawn", 1) --/base_command [id] <args>
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:setRespawnTime(params)
+                            end
+                        end
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all] <time diff>", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Respawn On Demand
+    elseif (command == settings.mod["Respawn On Demand"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Respawn On Demand", executor) then
+                if (checkAccess(executor, true, "Respawn On Demand")) then
+                    local tab = settings.mod["Respawn On Demand"]
+                    if (args[1] ~= nil) and (args[2] == nil) then
+                        validate_params("respawn", 1) --/base_command [me | id | */all]
+                        if not (target_all_players) then
+                            if not (is_error) and isOnline(TargetID, executor) then
+                                velocity:respawn(params)
+                            end
+                        end
+
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
+                    end
+                end
+            end
+        end
+        return false
+        -- #Suggestions Box
+    elseif (command == settings.mod["Suggestions Box"].base_command) then
+        if not gameover(executor) then
+            if modEnabled("Suggestions Box", executor) then
+                if (checkAccess(executor, true, "Suggestions Box")) then
+                    local tab = settings.mod["Suggestions Box"]
+                    if (args[1] ~= nil) then
+                        local p = { }
+                        local content = gsub(Command, tab.base_command, "")
+                        p.eid, p.en, p.message = executor, name, content
+                        p.format, p.dir = tab.msg_format, tab.dir
+                        velocity:suggestion(p)
+                    else
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " {message}", "rcon", 4 + 8)
+                    end
+                end
             end
         end
         return false
@@ -3909,8 +3916,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[1] .. " <warp name>", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3931,8 +3936,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[2] .. " [warp name] [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3953,8 +3956,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[3] .. " [me | id | */all] ", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3972,8 +3973,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[4] .. " or /" .. tab.commands[5], "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -3991,8 +3990,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[5] .. " or /" .. tab.commands[4], "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -4011,8 +4008,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.commands[6] .. " [warp id]", "rcon", 4 + 8)
                     end
                 end
-            else
-                rprint(executor, "Error. Plugin: 'Teleport Manager' not enabled!")
             end
         end
         return false
@@ -4355,6 +4350,97 @@ function velocity:unblockpickups(params)
             end
         else
             respond(eid, "Objects already unblocked for " .. tn, "rcon", 2 + 8)
+        end
+    end
+    return false
+end
+
+
+-- #Color Changer
+function velocity:setcolor(params)
+    local params = params or {}
+    local eid = params.eid or nil
+    local tid = params.tid or nil
+    local tip = params.tip or nil
+    local tn = params.tn or nil
+    local en = params.en or nil
+
+    local target_name = params.tn or nil
+    local color = params.color or nil
+
+    print(color)
+
+    local is_self
+    if (eid == tid) then
+        is_self = true
+    end
+
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickups")) then
+        if player_alive(tid) then
+            local player_object = get_dynamic_player(tid)
+            local player_obj_id = read_dword(get_player(tid) + 0x34)
+            local player = getPlayer(tid)
+            if (player_object) then
+                local ERROR
+                if (color == "white" or color == "0") then
+                    write_byte(player + 0x60, 0)
+                elseif (color == "black" or color == "1") then
+                    write_byte(player + 0x60, 1)
+                elseif (color == "red" or color == "2") then
+                    write_byte(player + 0x60, 2)
+                elseif (color == "blue" or color == "3") then
+                    write_byte(player + 0x60, 3)
+                elseif (color == "gray" or color == "4") then
+                    write_byte(player + 0x60, 4)
+                elseif (color == "yellow" or color == "5") then
+                    write_byte(player + 0x60, 5)
+                elseif (color == "green" or color == "6") then
+                    write_byte(player + 0x60, 6)
+                elseif (color == "pink" or color == "7") then
+                    write_byte(player + 0x60, 7)
+                elseif (color == "purple" or color == "8") then
+                    write_byte(player + 0x60, 8)
+                elseif (color == "cyan" or color == "9") then
+                    write_byte(player + 0x60, 9)
+                elseif (color == "cobalt" or color == "10") then
+                    write_byte(player + 0x60, 10)
+                elseif (color == "orange" or color == "11") then
+                    write_byte(player + 0x60, 11)
+                elseif (color == "teal" or color == "12") then
+                    write_byte(player + 0x60, 12)
+                elseif (color == "sage" or color == "13") then
+                    write_byte(player + 0x60, 13)
+                elseif (color == "brown" or color == "14") then
+                    write_byte(player + 0x60, 14)
+                elseif (color == "tan" or color == "15") then
+                    write_byte(player + 0x60, 15)
+                elseif (color == "maroon" or color == "16") then
+                    write_byte(player + 0x60, 16)
+                elseif (color == "salmon" or color == "17") then
+                    write_byte(player + 0x60, 17)
+                else
+                    respond(eid, "Invalid Color", "rcon", 4 + 8)
+                    ERROR = true
+                end
+                if not (ERROR) and (player_obj_id ~= nil) then
+                    if (colorspawn[tip] == nil) then
+                        colorspawn[tip] = { }
+                    end
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    colorspawn[tip][1], colorspawn[tip][2], colorspawn[tip][3] = x, y, z
+                    destroy_object(player_obj_id)
+                    if not (is_self) then
+                        respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
+                        respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
+                    else
+                        respond(eid, "Color changed to " .. color, "rcon", 4 + 8)
+                    end
+                end
+            end
+        else
+            respond(eid, get_var(tid, "$name") .. " is dead! Please wait until they respawn.", "rcon", 4 + 8)
         end
     end
     return false
@@ -5096,8 +5182,6 @@ function velocity:infinityAmmo(params)
     local tn = params.tn or nil
     local multiplier = params.multiplier or nil
 
-    local tab = settings.mod["Infinity Ammo"]
-
     if isConsole(eid) then
         en = "SERVER"
     end
@@ -5110,6 +5194,7 @@ function velocity:infinityAmmo(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
 
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Infinity Ammo")) then
+        local tab = settings.mod["Infinity Ammo"]
         local function EnableInfAmmo(TargetID, specified, multiplier)
             infammo[TargetID] = true
             frag_check[TargetID] = true
@@ -5126,7 +5211,7 @@ function velocity:infinityAmmo(params)
                 end
             else
                 respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
-                if (tab .. announcer) then
+                if (tab.announcer) then
                     announceExclude(TargetID, get_var(TargetID, "$name") .. " is now in Infinity Ammo mode.")
                 end
             end
@@ -5151,8 +5236,9 @@ function velocity:infinityAmmo(params)
                 if validate_multiplier(multiplier) then
                     EnableInfAmmo(eid, true, multiplier)
                 end
-            elseif (multiplier == "off") then
+            elseif (multiplier == "off" or multiplier == "false") then
                 DisableInfAmmo(eid)
+                respond(eid, "Infinity Ammo disabled.", "rcon", 2 + 8)
                 if (tab.announcer) then
                     announceExclude(eid, en .. " is no longer in Infinity Ammo Mode")
                 end
@@ -5161,7 +5247,7 @@ function velocity:infinityAmmo(params)
             if (multiplier == nil) then
                 if player_present(tid) then
                     EnableInfAmmo(tid, false, 0)
-                    respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4 + 8)
+                    respond(eid, "[cheat] Infinity Ammo enabled for " .. tn, "rcon", 4 + 8)
                 else
                     respond(eid, "Player not present", "rcon", 4 + 8)
                 end
@@ -5169,14 +5255,14 @@ function velocity:infinityAmmo(params)
                 if player_present(tid) then
                     if validate_multiplier(multiplier) then
                         EnableInfAmmo(tid, true, multiplier)
-                        respond(eid, "[cheat] Enabled infammo for " .. tn, "rcon", 4 + 8)
+                        respond(eid, "[cheat] Infinity Ammo enabled for " .. tn, "rcon", 4 + 8)
                     end
                 else
                     respond(eid, "Command failed. Player not online", "rcon", 4 + 8)
                 end
             elseif (multiplier == "off") then
                 DisableInfAmmo(tid)
-                respond(eid, "[cheat] Disabled infammo for " .. tn, "rcon", 4 + 8)
+                respond(eid, "[cheat] Infinity Ammo disabled for " .. tn, "rcon", 4 + 8)
                 if (tab .. announcer) then
                     announceExclude(tid, tn .. " is no longer in Infinity Ammo Mode")
                 end
@@ -5767,9 +5853,9 @@ function privateMessage:send(params)
             local str = recipient_id .. tab.seperator .. " " .. time_stamp .. tab.seperator .. " " .. en .. tab.seperator .. message
 
             local function tellAdmins()
-                for i = 1, 16 do
+                for i = 0, 16 do
                     if player_present(i) and isAdmin(i) then
-                        if (i ~= eid) then
+                        if (i ~= eid) and (i ~= player_id) then
                             rprint(i, "[PM SPY] " .. en .. " ->" .. recipient_id)
                             rprint(i, message)
                         end
@@ -6947,6 +7033,7 @@ function RecordChanges()
     local enter_cmd = mod["Enter Vehicle"].base_command
     local respawn_cmd = mod["Respawn On Demand"].base_command
     local broadcast_cmd = mod["Auto Message"].base_command
+    local colorchanger_cmd = mod["Color Changer"].base_command
     --
     local plugins_cmd = global_cmd.list[1]
     local version_cmd = global_cmd.velocity[1]
@@ -7237,9 +7324,19 @@ function RecordChanges()
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
-    cl[#cl + 1] = "[5/16/19]"    
+    cl[#cl + 1] = "[5/16/19]"
     cl[#cl + 1] = "1). Fixed a couple of potential crashes."
     cl[#cl + 1] = "Script Updated to v1.46"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/18/19]"
+    cl[#cl + 1] = "1). [new] Color Changer feature: (Change any player's armor color on demand)."
+    cl[#cl + 1] = "Command Syntax: /" .. colorchanger_cmd .. " [color id] [me | id | */all]"
+    cl[#cl + 1] = "2). Bug fix for Private Messaging System (pm spy was visible to the recipient)."
+    cl[#cl + 1] = "3). Other minor bug fixes, tweaks and code clean ups."
+    cl[#cl + 1] = "4). Bug fix for Infinity Ammo."
+    cl[#cl + 1] = "Script Updated to v1.47"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
