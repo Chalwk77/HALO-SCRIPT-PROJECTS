@@ -22,6 +22,11 @@
 > Prevents players from picking up objects.
 - - - -
 
+## Color Changer:
+`/setcolor [me | id | */all]`<br/>
+> Change any player's armor color on demand.
+- - - -
+
 ## Enter Vehicle:
 `/enter [item] [me | id | */all] (optional: height/distance)`
 > Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
