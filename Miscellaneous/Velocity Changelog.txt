@@ -32,12 +32,14 @@ Valid [id] inputs: [number range 1-16, me or *]
 
 Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
 Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.
-Script Updated to v1.2
+Script Updated to v1.1
 -------------------------------------------------------------------------------------------------------------------------------
 
 
 [2/26/19]
-1). You can now use Lurker mode while Infinity Ammo is enabled, but you cannot manipulate damage multipliers.
+1). A few tweaks to Alias System.
+Script Updated to v1.2
+2). You can now use Lurker mode while Infinity Ammo is enabled, but you cannot manipulate damage multipliers.
 Script Updated to v1.3
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +182,8 @@ Script Updated to v1.30
 5). Bug fix for command: /plugins [page id]
 The command feedback now correctly displays the status of each individual plugin.
 6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil.
-7). Bug fix for Item Spawner, Enter Vehicle and Give
+7). Bug fix for Item Spawner, Enter Vehicle and Give.
+Script Updated to v1.31
 8). For performance reasons, I had to refactor a large amount of the Alias System.
 The command syntax has changed from '/alias [id]' to '/alias [id] [page id]'.
 
