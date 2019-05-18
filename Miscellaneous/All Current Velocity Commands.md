@@ -27,6 +27,11 @@
 > Change any player's armor color on demand.
 - - - -
 
+## Cute:
+`/cute [id */all]`
+> You cannot execute this command on yourself.
+- - - -
+
 ## Enter Vehicle:
 `/enter [item] [me | id | */all] (optional: height/distance)`
 > Optional Flags: 'height' = height from ground, 'distance' = distance from player.<br/>
@@ -128,9 +133,4 @@
 `/warplist`<br/>
 `/warplistall`<br/>
 `/delwarp [warp id]`
-- - - -
-
-## What Cute Things Did You Do Today:
-`/cute [id */all]`
-> You cannot execute this command on yourself.
 - - - -
