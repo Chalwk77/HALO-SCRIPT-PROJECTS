@@ -286,3 +286,13 @@ Script Updated to v1.45
 [5/16/19]
 1). Fixed a couple of potential crashes.
 Script Updated to v1.46
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/18/19]
+1). [new] Color Changer feature: (Change any player's armor color on demand).
+Command Syntax: /setcolor [color id] [me | id | */all]
+2). Bug fix for Private Messaging System (pm spy was visible to the recipient).
+3). Other minor bug fixes, tweaks and code clean ups.
+4). Bug fix for Infinity Ammo.
+Script Updated to v1.47
