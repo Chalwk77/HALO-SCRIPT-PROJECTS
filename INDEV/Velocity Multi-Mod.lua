@@ -657,7 +657,7 @@ local function GameSettings()
                 }
             },
             ["Spawn From Sky"] = {
-                enabled = false,
+                enabled = true,
                 maps = {
                     ["bloodgulch"] = {
                         height = 35,
@@ -963,10 +963,9 @@ local respawn_cmd_override = { }
 local respawn_time = { }
 
 -- #Lurker
-local lurker = {}
-local object_picked_up = {}
-local has_objective = {}
-local scores = { }
+local lurker, scores = { }, { }
+local object_picked_up, has_objective = { }, { }
+local lurker_coords, lurker_tp_back = { }, { }
 
 -- #Teleport Manager
 local canset = {}
@@ -1300,6 +1299,7 @@ end
 -- #Lurker
 function velocity:LurkerReset(ip)
     players["Lurker"][ip] = {
+        teleport = false,
         lurker_warn = false,
         lurker_timer = 0,
         lurker_warnings = settings.mod["Lurker"].warnings,
@@ -1838,27 +1838,12 @@ function OnTick()
                 end
 
                 if (lurker[i] == true) then
+                    if (tab.speed) then
+                        execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
+                    end
                     if (players["Lurker"][ip].lurker_warn == true) then
                         local LTab = players["Lurker"][ip]
                         LTab.lurker_timer = LTab.lurker_timer + 0.030
-
-                        if (getLurkerWarnings(ip) <= 0) then
-                            lurker[i] = false
-                            LTab.lurker_warn = false
-                            cls(i, 25)
-                            say(i, "Lurker mode was disabled!")
-                            cls(i, 25)
-                            -- No warnings left: Turn off lurker and reset counters
-                            local params = { }
-                            params.tid = tonumber(i)
-                            params.tip = ip
-                            params.tn = name
-                            params.warnings = 0
-                            params.bool = false
-                            params.CmdTrigger = false
-                            velocity:setLurker(params)
-                            write_dword(get_player(i) + 0x2C, 0 * 33)
-                        end
 
                         cls(i, 25)
                         local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
@@ -1871,10 +1856,19 @@ function OnTick()
                         rprint(i, "|c ")
                         rprint(i, "|c ")
 
+                        if (getLurkerWarnings(ip) <= 0) then
+                            -- No warnings left: Turn off lurker and reset counters.
+                            lurker[i] = false -- redundant but meh!
+                            LTab.lurker_warn = false
+                            local p = { }
+                            p.tid, p.tip, p.tn, p.warnings, p.bool, p.CmdTrigger, p.teleport = tonumber(i), ip, name, 0, false, false, false
+                            velocity:setLurker(p)
+                        end
+
                         if (LTab.lurker_timer >= tab.time_until_death) then
-                            players["Lurker"][ip].lurker_warn = false
+                            LTab.lurker_warn = false
+                            LTab.teleport = false
                             killSilently(i)
-                            write_dword(get_player(i) + 0x2C, 0 * 33)
                             cls(i, 25)
                             rprint(i, "|c=========================================================")
                             rprint(i, "|cYou were killed!")
@@ -1893,9 +1887,6 @@ function OnTick()
                             -- In the event scores goes into the negatives, this will set it back to what it should be.
                             execute_command("score " .. tonumber(i) .. " " .. scores[i])
                         end
-                    end
-                    if (tab.speed) then
-                        execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
                     end
                 end
             end
@@ -2520,24 +2511,34 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
+
+    local function Teleport(TargetID, x, y, z, height)
+        write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z + height)
+    end
+
     -- #Spawn From Sky
-    if modEnabled("Spawn From Sky") then
-        if (first_join[PlayerIndex] == true) then
-            first_join[PlayerIndex] = false
-            local team = get_var(PlayerIndex, "$team")
-            local function Teleport(PlayerIndex, id)
-                local height = settings.mod["Spawn From Sky"].maps[mapname].height
-                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
-                        settings.mod["Spawn From Sky"].maps[mapname][id][1],
-                        settings.mod["Spawn From Sky"].maps[mapname][id][2],
-                        settings.mod["Spawn From Sky"].maps[mapname][id][3] + floor(height))
-                execute_command("god " .. tonumber(PlayerIndex))
-            end
-            if (team == "red") then
-                Teleport(PlayerIndex, 1)
-            elseif (team == "blue") then
-                Teleport(PlayerIndex, 2)
-            end
+    if modEnabled("Spawn From Sky") and (first_join[PlayerIndex]) then
+        first_join[PlayerIndex] = false
+        local team = get_var(PlayerIndex, "$team")
+        local coords = settings.mod["Spawn From Sky"].maps[mapname]
+        local x,y,z, height
+        if (team == "red") then
+            x, y, z, height = coords[1][1], coords[1][2], coords[1][3], coords.height
+        elseif (team == "blue") then
+            x, y, z, height = coords[2][1], coords[2][2], coords[2][3], coords.height
+        end
+        Teleport(PlayerIndex, x, y, z, height)
+        execute_command("god " .. tonumber(PlayerIndex))
+    end
+
+    -- #Lurker
+    if modEnabled("Lurker") then
+        local ip = getip(PlayerIndex, true)
+        if (lurker_tp_back[ip] ~= nil and lurker_tp_back[ip] == true) then
+            lurker_tp_back[ip] = false
+            local XYZ = lurker_coords[ip]
+            local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
+            Teleport(PlayerIndex, x, y, z, height)
         end
     end
 end
@@ -2617,6 +2618,7 @@ function OnPlayerSpawn(PlayerIndex)
             mod.lurker_warnings = mod.lurker_warnings
             mod.lurker_warn = false
             mod.timer = 0
+            mod.teleport = true
 
             local params = { }
             params.tid = tonumber(PlayerIndex)
@@ -2624,6 +2626,7 @@ function OnPlayerSpawn(PlayerIndex)
             params.tn = get_var(PlayerIndex, "$name")
             params.bool = true
             params.CmdTrigger = false
+            params.teleport = mod.teleport
             velocity:setLurker(params)
         end
     end
@@ -3217,7 +3220,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     params.eip = server_ip
                 end
 
-                    -- #Admin Chat
+                -- #Admin Chat
                 if (parameter == "achat") then
                     if (args[1] ~= nil) then
                         params.option = args[1] -- on|off
@@ -3327,7 +3330,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
-                -- #Mute System
+                    -- #Mute System
                 elseif (parameter == "mute") then
                     if (args[2] ~= nil) then
                         params.time = args[2] -- time diff
@@ -3875,7 +3878,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 velocity:respawn(params)
                             end
                         end
-
                     else
                         respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " [me | id | */all]", "rcon", 4 + 8)
                     end
@@ -4072,7 +4074,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if hasAccess(executor, pCMD.list[2]) then
                 local page, len = args[1], string.len
                 if (page == nil) then
-                    page = 1 
+                    page = 1
                 end
                 if (page ~= nil) and (len(page) > 0) and (args[2] == nil) then
                     local tab = settings
@@ -5625,6 +5627,7 @@ function velocity:setLurker(params)
     local CmdTrigger = params.CmdTrigger or nil
     local option = params.option or nil
     local warnings = params.warnings or nil
+    local tp_back = params.teleport or nil
 
     if (tid == nil and eid ~= nil) then
         tid = eid
@@ -5632,6 +5635,10 @@ function velocity:setLurker(params)
 
     if (eid == nil) then
         eid = 0
+    end
+
+    if (tip == nil) then
+        tip = getip(tid, true)
     end
 
     local is_self
@@ -5646,6 +5653,12 @@ function velocity:setLurker(params)
     local eLvl = tonumber(get_var(eid, "$lvl"))
 
     local mod = settings.mod["Lurker"]
+    local LTab = players["Lurker"][tip]
+
+    if (tp_back == nil) then
+        tp_back = LTab.teleport
+    end
+
     local function Enable()
         scores[tid] = scores[tid] or { }
         scores[tid] = tonumber(get_var(tid, "$score"))
@@ -5657,7 +5670,9 @@ function velocity:setLurker(params)
             execute_command("camo " .. tid)
         end
         if (mod.announcer) then
-            announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
+            if (CmdTrigger) then
+                announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
+            end
         end
     end
 
@@ -5666,17 +5681,28 @@ function velocity:setLurker(params)
         if (scores[tid] ~= nil) then
             scores[tid] = 0
         end
-        if (mod.speed) then
-            execute_command("s " .. tid .. " " .. tonumber(mod.default_running_speed))
-        end
-        if (mod.god == true) then
+        if (mod.god) then
             execute_command("ungod " .. tid)
         end
-        killSilently(tid)
-        mod.lurker_warnings = warnings
-        cls(tid, 25)
+        if (mod.speed) then
+            execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
+        end
+        local coords = getXYZ(eid, tid)
+        if (coords) and (tp_back) then
+            local x, y, z = coords.x, coords.y, coords.z, coords.invehicle
+            killSilently(tid)
+            lurker_coords[tip], lurker_tp_back[tip] = { }, { }
+            lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
+            lurker_tp_back[tip] = true
+        else
+            killSilently(tid)
+        end
         if (mod.announcer) then
-            announceExclude(tid, tn .. " is no longer in lurker mode! [spectator]")
+            if (tonumber(warnings) <= 0) then
+                announceExclude(tid, tn .. "'s Lurker (spectator) privileges have been revoked! Shame on them!")
+            else
+                announceExclude(tid, tn .. " is no longer in lurker (spectator) mode!")
+            end
         end
     end
 
@@ -5693,6 +5719,7 @@ function velocity:setLurker(params)
                     end
                 elseif (option == "off") or (option == "0") or (option == "false") then
                     if (lurker[tid] ~= false) then
+                        tp_back = true
                         status, already_set, is_error = "Disabled", false, false
                         Disable(tid, tn)
                     else
@@ -5724,10 +5751,15 @@ function velocity:setLurker(params)
         else
             if (bool) then
                 Enable(tid)
-                respond(tid, "Lurker mode enabled!", "rcon", 2 + 8)
+                respond(tid, "Lurker Auto-Enable. Warnings left: (" .. warnings .. "/" .. mod.warnings .. ").", "rcon", 2 + 8)
             else
+                cls(tid, 25)
+                if (tonumber(warnings) <= 0) then
+                    respond(tid, "Your lurker mode was revoked! [no warnings left].", "rcon", 2 + 8)
+                else
+                    respond(tid, "Lurker Auto-Disable.", "rcon", 2 + 8)
+                end
                 Disable(tid)
-                respond(tid, "Lurker mode disabled!", "rcon", 2 + 8)
             end
         end
     end
@@ -6535,7 +6567,7 @@ function OnWeaponDrop(PlayerIndex)
 end
 
 function TeleportPlayer(ObjectID, x, y, z)
-    if get_object_memory(ObjectID) ~= 0 then
+    if (get_object_memory(ObjectID) ~= 0) then
         local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
@@ -6587,7 +6619,7 @@ end
 -- #Infinity Ammo
 function getFrags(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    if player_object ~= 0 and player_present(PlayerIndex) then
+    if (player_object ~= 0) and player_present(PlayerIndex) then
         safe_read(true)
         local frags = read_byte(player_object + 0x31E)
         local plasmas = read_byte(player_object + 0x31F)
@@ -6609,6 +6641,7 @@ function killSilently(PlayerIndex)
     safe_write(true)
     write_dword(kill_message_addresss, original)
     safe_write(false)
+    write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
     -- Deduct one death
     local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
     execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
@@ -6790,7 +6823,7 @@ function getXYZ(e, t)
             x, y, z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
             coords.x, coords.y, coords.z = x, y, z
             return coords
-        else
+        elseif (e) then
             respond(e, get_var(t, "$name") .. " is dead! Please wait until they respawn.", "rcon", 4 + 8)
         end
     end
@@ -7350,6 +7383,7 @@ function RecordChanges()
     cl[#cl + 1] = "1). Bug fix in function 'OnServerCommand()'."
     cl[#cl + 1] = "Script Updated to v1.48"
     cl[#cl + 1] = "2). Small fix for command /" .. plugins_cmd .. ". If the page ID is not specified, it will now default to page 1."
+    cl[#cl + 1] = "3). Tweaked Lurker a little bit: When disabling Lurker, you will now teleport to your previous location."
     cl[#cl + 1] = "Script Updated to v1.49"
     file:write(concat(cl, "\n"))
     file:close()
