@@ -299,3 +299,9 @@ Command Syntax: /setcolor [color id] [me | id | */all]
 3). Other minor bug fixes, tweaks and code clean ups.
 4). Bug fix for Infinity Ammo.
 Script Updated to v1.47
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/19/19]
+1). Bug fix in function 'OnServerCommand()'.
+Script Updated to v1.48
