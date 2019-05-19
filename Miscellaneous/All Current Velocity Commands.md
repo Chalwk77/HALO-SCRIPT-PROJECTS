@@ -23,7 +23,7 @@
 - - - -
 
 ## Color Changer:
-`/setcolor [me | id | */all]`<br/>
+`/setcolor [color id] [me | id | */all]`<br/>
 > Change any player's armor color on demand.
 - - - -
 
