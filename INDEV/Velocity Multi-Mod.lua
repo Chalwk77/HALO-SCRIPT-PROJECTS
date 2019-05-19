@@ -657,7 +657,7 @@ local function GameSettings()
                 }
             },
             ["Spawn From Sky"] = {
-                enabled = true,
+                enabled = false,
                 maps = {
                     ["bloodgulch"] = {
                         height = 35,
