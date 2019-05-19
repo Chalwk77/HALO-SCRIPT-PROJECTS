@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.47), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.48), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -807,7 +807,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.47, -- << --- do not touch
+            script_version = 1.48, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3126,7 +3126,10 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
-    command = lower(command) or upper(command)
+    if (command == nil) then
+        return
+    end
+    command = lower(command) or upper(command) or ""
 
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
@@ -3153,11 +3156,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     -- #Command Spy
     if modEnabled("Command Spy") then
-        if (Environment == 1) then
-            if (level == -1) then
-                local cSpy = settings.mod["Command Spy"]
-                velocity:commandspy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
-            end
+        if (Environment == 1 and level == -1) then
+            local cSpy = settings.mod["Command Spy"]
+            velocity:commandspy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
         end
     end
 
@@ -3382,12 +3383,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if modEnabled("Alias System") or modEnabled("Welcome Messages") then
-        if (players["Alias System"][ip] ~= nil) and (players["Alias System"][ip].trigger) then
+        if (players["Alias System"][ip] ~= nil and players["Alias System"][ip].trigger) then
             alias:reset(ip)
             cls(executor, 25)
         end
 
-        if (players["Welcome Messages"][ip] ~= nil) and (players["Welcome Messages"][ip].show) then
+        if (players["Welcome Messages"][ip] ~= nil and players["Welcome Messages"][ip].show) then
             welcomeMessages:hide(executor, ip)
             cls(executor, 25)
         end
@@ -7340,6 +7341,12 @@ function RecordChanges()
     cl[#cl + 1] = "3). Other minor bug fixes, tweaks and code clean ups."
     cl[#cl + 1] = "4). Bug fix for Infinity Ammo."
     cl[#cl + 1] = "Script Updated to v1.47"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/19/19]"
+    cl[#cl + 1] = "1). Bug fix in function 'OnServerCommand()'."
+    cl[#cl + 1] = "Script Updated to v1.48"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
