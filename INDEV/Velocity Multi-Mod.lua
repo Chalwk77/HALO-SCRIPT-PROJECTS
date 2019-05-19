@@ -5695,6 +5695,7 @@ function velocity:setLurker(params)
         if (mod.speed) then
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
         end
+        DeleteWeapons(tid)
         local coords = getXYZ(eid, tid)
         if (coords) and (tp_back) then
             local x, y, z = coords.x, coords.y, coords.z
@@ -6906,6 +6907,21 @@ end
 function DestroyObject(object)
     if object then
         destroy_object(object)
+    end
+end
+
+function DeleteWeapons(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local weaponId = read_dword(player_object + 0x118)
+        write_word(player_object + 0x31E, 0)
+        write_word(player_object + 0x31F, 0)
+        if (weaponId ~= 0) then
+            for j = 0, 3 do
+                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
+                destroy_object(m_weapon)
+            end
+        end
     end
 end
 
