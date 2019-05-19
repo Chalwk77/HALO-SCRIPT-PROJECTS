@@ -306,4 +306,5 @@ Script Updated to v1.47
 1). Bug fix in function 'OnServerCommand()'.
 Script Updated to v1.48
 2). Small fix for command /plugins. If the page ID is not specified, it will now default to page 1.
+3). Tweaked Lurker a little bit: When disabling Lurker, you will now teleport to your previous location.
 Script Updated to v1.49
