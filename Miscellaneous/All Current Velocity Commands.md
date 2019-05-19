@@ -1,4 +1,4 @@
-#### Command Count: 40<br/><br/><br/><br/>
+#### Command Count: 41<br/><br/><br/><br/>
 
 ## Admin Chat:
 `/achat on|off|status|-s [me | id */all]`
