@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.49), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.50), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -807,7 +807,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.49, -- << --- do not touch
+            script_version = 1.50, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -966,6 +966,7 @@ local respawn_time = { }
 local lurker, scores = { }, { }
 local object_picked_up, has_objective = { }, { }
 local lurker_coords, lurker_tp_back = { }, { }
+local lurker_vehicle_table = { }
 
 -- #Teleport Manager
 local canset = {}
@@ -1835,6 +1836,13 @@ function OnTick()
                             end
                         end
                     end
+                end
+                
+                local vTab = lurker_vehicle_table[ip]
+                if (player_alive(i) and vTab ~= nil and vTab.enter) then
+                    local vehicle, seat = vTab.vehicle, vTab.seat
+                    enter_vehicle(vehicle, i, seat)
+                    lurker_vehicle_table[ip] = nil
                 end
 
                 if (lurker[i] == true) then
@@ -5689,11 +5697,15 @@ function velocity:setLurker(params)
         end
         local coords = getXYZ(eid, tid)
         if (coords) and (tp_back) then
-            local x, y, z = coords.x, coords.y, coords.z, coords.invehicle
+            local x, y, z = coords.x, coords.y, coords.z
             killSilently(tid)
-            lurker_coords[tip], lurker_tp_back[tip] = { }, { }
-            lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
-            lurker_tp_back[tip] = true
+            if not (coords.invehicle) then
+                lurker_coords[tip], lurker_tp_back[tip] = { }, { }
+                lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
+                lurker_tp_back[tip] = true
+            elseif (coords.invehicle) then
+                lurker_vehicle_table[tip].enter = true
+            end
         else
             killSilently(tid)
         end
@@ -6811,11 +6823,15 @@ function getXYZ(e, t)
             if PlayerInVehicle(t) then
                 coords.invehicle = true
                 local VehicleID = read_dword(player_object + 0x11C)
-                if (VehicleID == 0xFFFFFFFF) then
-                    return false
-                end
                 local vehicle = get_object_memory(VehicleID)
                 x, y, z = read_vector3d(vehicle + 0x5c)
+                if modEnabled("Lurker") then
+                    local ip = getip(t, true)
+                    local seat = read_word(player_object + 0x2F0)
+                    lurker_vehicle_table[ip] = { }
+                    lurker_vehicle_table[ip].vehicle = VehicleID
+                    lurker_vehicle_table[ip].seat = seat
+                end
             else
                 coords.invehicle = false
                 x, y, z = read_vector3d(player_object + 0x5c)
@@ -6828,6 +6844,7 @@ function getXYZ(e, t)
         end
     end
 end
+
 
 function cmdsplit(str)
     local subs = {}
@@ -7385,6 +7402,12 @@ function RecordChanges()
     cl[#cl + 1] = "2). Small fix for command /" .. plugins_cmd .. ". If the page ID is not specified, it will now default to page 1."
     cl[#cl + 1] = "3). Tweaked Lurker a little bit: When disabling Lurker, you will now teleport to your previous location."
     cl[#cl + 1] = "Script Updated to v1.49"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/20/19]"
+    cl[#cl + 1] = "1). Another tweak for Lurker: If you were in a vehicle when disabling Lurker, you will be automatically re-entered into it."
+    cl[#cl + 1] = "Script Updated to v1.50"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
