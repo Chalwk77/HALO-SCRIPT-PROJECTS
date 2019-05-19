@@ -308,3 +308,9 @@ Script Updated to v1.48
 2). Small fix for command /plugins. If the page ID is not specified, it will now default to page 1.
 3). Tweaked Lurker a little bit: When disabling Lurker, you will now teleport to your previous location.
 Script Updated to v1.49
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/20/19]
+1). Another tweak for Lurker: If you were in a vehicle when disabling Lurker, you will be automatically re-entered into it.
+Script Updated to v1.50
