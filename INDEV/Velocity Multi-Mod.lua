@@ -7422,7 +7422,10 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/20/19]"
-    cl[#cl + 1] = "1). Another tweak for Lurker: If you were in a vehicle when disabling Lurker, you will be automatically re-entered into it."
+    cl[#cl + 1] = "1). As you know, Lurker silently kills the player when it is disabled - either manually, or from holding the flag too long."
+    cl[#cl + 1] = "Well now, when disabling manually with command /" .. lurker_cmd .. " off, it will teleport you back to your previous location instead of respawning you back to base."
+    cl[#cl + 1] = "Furthermore, if you were in a vehicle when it was disabled, Lurker will now re-enter you back into that exact same vehicle (in the same seat),"
+    cl[#cl + 1] = "with the exception of vehicles spawned with /spawn or /enter, because garbage collection removes them from the game when you die."
     cl[#cl + 1] = "Script Updated to v1.50"
     file:write(concat(cl, "\n"))
     file:close()
