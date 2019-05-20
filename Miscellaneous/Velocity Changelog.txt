@@ -312,5 +312,6 @@ Script Updated to v1.49
 
 
 [5/20/19]
-1). Another tweak for Lurker: If you were in a vehicle when disabling Lurker, you will be automatically re-entered into it.
+1). Another tweak for Lurker:
+If you were in a vehicle when disabling Lurker, you will now be automatically re-entered into that exact same vehicle (in the same seat).
 Script Updated to v1.50
