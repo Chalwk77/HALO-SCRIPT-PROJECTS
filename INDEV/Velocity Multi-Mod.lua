@@ -5712,7 +5712,7 @@ function velocity:setLurker(params)
         end
         if (mod.announcer) then
             if (tonumber(warnings) <= 0) then
-                announceExclude(tid, tn .. "'s Lurker (spectator) privileges have been revoked! Shame on them!")
+                announceExclude(tid, tn .. "'s Lurker (spectator) privileges have been auto-revoked.")
             else
                 announceExclude(tid, tn .. " is no longer in lurker (spectator) mode!")
             end
@@ -5757,7 +5757,7 @@ function velocity:setLurker(params)
                 if not (is_self) then
                     respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
                 else
-                    respond(tid, "Your lurker mode was revoked! [no warnings left]", "rcon", 2 + 8)
+                    respond(tid, "Your lurker mode was auto-revoked! [no warnings left]", "rcon", 2 + 8)
                 end
             end
             ----------------------------------------------------------------------------------------------------------------------------------
@@ -5768,7 +5768,7 @@ function velocity:setLurker(params)
             else
                 cls(tid, 25)
                 if (tonumber(warnings) <= 0) then
-                    respond(tid, "Your lurker mode was revoked! [no warnings left].", "rcon", 2 + 8)
+                    respond(tid, "Your lurker mode was auto-revoked! [no warnings left].", "rcon", 2 + 8)
                 else
                     respond(tid, "Lurker Auto-Disable.", "rcon", 2 + 8)
                 end
