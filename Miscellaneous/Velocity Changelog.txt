@@ -315,3 +315,9 @@ Script Updated to v1.49
 1). Another tweak for Lurker:
 If you were in a vehicle when disabling Lurker, you will now be automatically re-entered into that exact same vehicle (in the same seat).
 Script Updated to v1.50
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/22/19]
+Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode. (And unfreeze when you drop it)
+Script Updated to v1.51
