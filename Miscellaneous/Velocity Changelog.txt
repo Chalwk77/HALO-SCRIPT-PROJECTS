@@ -319,5 +319,7 @@ Script Updated to v1.50
 
 
 [5/22/19]
-Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode. (And unfreeze when you drop it)
+1). Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode and unfreeze when you drop it.
+The reason for this change is because people were exploiting the speed-boost that Lurker gives you.
+On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out.
 Script Updated to v1.51
