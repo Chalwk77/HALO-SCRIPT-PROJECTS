@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.51), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.52), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -801,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.51, -- << --- do not touch
+            script_version = 1.52, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2867,7 +2867,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
 
 
     -- #Admin Chat
-    if modEnabled("Admin Chat", PlayerIndex) then
+    if modEnabled("Admin Chat") then
         local mod = players["Admin Chat"][ip]
         if (mod ~= nil) then
             local environment = settings.mod["Admin Chat"].environment
@@ -2922,7 +2922,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
         end
     end
     -- #Chat IDs
-    if modEnabled("Chat IDs", PlayerIndex) then
+    if modEnabled("Chat IDs") then
         if not (game_over) then
 
             -- GLOBAL FORMAT
@@ -6546,7 +6546,7 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     -- #Lurker
-    if modEnabled("Lurker", PlayerIndex) then
+    if modEnabled("Lurker") then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (lurker[CauserIndex] == true) then
                 return false
@@ -6554,7 +6554,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         end
     end
     -- #Infinity Ammo
-    if modEnabled("Infinity Ammo", PlayerIndex) then
+    if modEnabled("Infinity Ammo") then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             if (modify_damage[CauserIndex] == true) then
                 return true, Damage * tonumber(damage_multiplier[CauserIndex])
@@ -6565,7 +6565,7 @@ end
 
 function OnWeaponDrop(PlayerIndex)
     -- #Lurker
-    if modEnabled("Lurker", PlayerIndex) then
+    if modEnabled("Lurker") then
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
             cls(PlayerIndex, 25)
             has_objective[PlayerIndex] = false
@@ -6592,7 +6592,7 @@ end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     -- #Lurker
-    if modEnabled("Lurker", PlayerIndex) then
+    if modEnabled("Lurker") then
         if (lurker[PlayerIndex] == true) then
             if (tonumber(Type) == 1) then
                 local PlayerObj = get_dynamic_player(PlayerIndex)
@@ -6620,7 +6620,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         end
     end
     -- #Infinity Ammo
-    if (modEnabled("Infinity Ammo", PlayerIndex) and infammo[PlayerIndex]) then
+    if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
         adjust_ammo(PlayerIndex)
     end
 end
@@ -6628,7 +6628,7 @@ end
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (PlayerIndex) then
         -- #Infinity Ammo
-        if (modEnabled("Infinity Ammo", PlayerIndex) and infammo[PlayerIndex]) then
+        if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
             adjust_ammo(PlayerIndex)
         end
     end
@@ -7438,6 +7438,12 @@ function RecordChanges()
     cl[#cl + 1] = "The reason for this change is because people were exploiting the speed-boost that Lurker gives you."
     cl[#cl + 1] = "On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out."
     cl[#cl + 1] = "Script Updated to v1.51"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/23/19]"
+    cl[#cl + 1] = "1). Minor bug fix for potential crash."
+    cl[#cl + 1] = "Script Updated to v1.52"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
