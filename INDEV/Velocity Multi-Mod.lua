@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.50), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.51), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -26,12 +26,6 @@ Combined Scripts:
     `/enable [id]` & `/disable [id]`
     > /plugins [page id] will display a list of all individual features indicating which ones are enabled or disabled.
     > You can enable or disable any feature at any time with /enable [id], /disable [id].
-
-    `/clean [me | id | */all] 1`                `/clean [me | id | */all] 2`                `/clean [me | id | */all] *`
-    ^ Cleans up "Enter Vehicle" objects         ^ (cleans up "Item Spawner" objects         ^ Cleans up "everything
-
-    `/clear`
-    > Clears the chat (useful if someone says something negative or derogatory)
     
     `/velocity`
     > If update checking is disabled this command will only display the current script version.
@@ -807,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.50, -- << --- do not touch
+            script_version = 1.51, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -817,7 +811,11 @@ local function GameSettings()
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
+                
+                
                 list = { "plugins", 1 }, -- /pluigns
+                
+                -- Clears the chat (useful if someone says something negative or derogatory).
                 clearchat = { "clear", 1 }, -- /clear
 
                 -- CUSTOM INFO COMMAND: /cmd [page id].
@@ -1846,8 +1844,10 @@ function OnTick()
                 end
 
                 if (lurker[i] == true) then
-                    if (tab.speed) then
-                        execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
+                    if not (players["Lurker"][ip].lurker_warn) then
+                        if (tab.speed) then
+                            execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
+                        end
                     end
                     if (players["Lurker"][ip].lurker_warn == true) then
                         local LTab = players["Lurker"][ip]
@@ -4443,7 +4443,7 @@ function velocity:setcolor(params)
                     end
                     local x, y, z = read_vector3d(player_object + 0x5C)
                     colorspawn[tip][1], colorspawn[tip][2], colorspawn[tip][3] = x, y, z
-                    destroy_object(player_obj_id)
+                    DestroyObject(player_obj_id)
                     if not (is_self) then
                         respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
                         respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
@@ -6574,6 +6574,10 @@ function OnWeaponDrop(PlayerIndex)
             if (mod ~= nil) then
                 mod.lurker_warn = false
                 mod.lurker_timer = 0
+                local tab = settings.mod["Lurker"]
+                if (tab.speed) then
+                    execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(tab.running_speed))
+                end
             end
         end
     end
@@ -6606,6 +6610,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
                         mod.lurker_warnings = (mod.lurker_warnings - 1)
                         mod.lurker_warn = true
                         has_objective[PlayerIndex] = true
+                        execute_command("s " .. tonumber(PlayerIndex) .. " 0")
                         if (mod.lurker_warnings <= 0) then
                             mod.lurker_warnings = 0
                         end
@@ -6667,7 +6672,7 @@ function CleanUpDrones(TargetID, TableID)
             for k, v in pairs(EV_drone_table[TargetID]) do
                 if EV_drone_table[TargetID][k] > 0 then
                     if v then
-                        destroy_object(v)
+                        DestroyObject(v)
                         EV_drone_table[TargetID][k] = nil
                     end
                 end
@@ -6683,7 +6688,7 @@ function CleanUpDrones(TargetID, TableID)
             for k, v in pairs(IS_drone_table[TargetID]) do
                 if IS_drone_table[TargetID][k] > 0 then
                     if v then
-                        destroy_object(v)
+                        DestroyObject(v)
                         IS_drone_table[TargetID][k] = nil
                     end
                 end
@@ -6905,7 +6910,7 @@ function cmdsplit(str)
 end
 
 function DestroyObject(object)
-    if object then
+    if (object) then
         destroy_object(object)
     end
 end
@@ -6919,7 +6924,7 @@ function DeleteWeapons(PlayerIndex)
         if (weaponId ~= 0) then
             for j = 0, 3 do
                 local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-                destroy_object(m_weapon)
+                DestroyObject(m_weapon)
             end
         end
     end
@@ -7425,6 +7430,12 @@ function RecordChanges()
     cl[#cl + 1] = "1). Another tweak for Lurker:"
     cl[#cl + 1] = "If you were in a vehicle when disabling Lurker, you will now be automatically re-entered into that exact same vehicle (in the same seat)."
     cl[#cl + 1] = "Script Updated to v1.50"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/22/19]"
+    cl[#cl + 1] = "Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode. (And unfreeze when you drop it)"
+    cl[#cl + 1] = "Script Updated to v1.51"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
