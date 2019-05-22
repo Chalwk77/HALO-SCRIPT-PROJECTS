@@ -327,5 +327,5 @@ Script Updated to v1.51
 
 
 [5/23/19]
-1). Minor bug fix for potential crash.
+1). Minor bug fixes.
 Script Updated to v1.52
