@@ -7434,7 +7434,9 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/22/19]"
-    cl[#cl + 1] = "Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode. (And unfreeze when you drop it)"
+    cl[#cl + 1] = "1). Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode and unfreeze when you drop it."
+    cl[#cl + 1] = "The reason for this change is because people were exploiting the speed-boost that Lurker gives you."
+    cl[#cl + 1] = "On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out."
     cl[#cl + 1] = "Script Updated to v1.51"
     file:write(concat(cl, "\n"))
     file:close()
