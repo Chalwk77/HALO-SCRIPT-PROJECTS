@@ -7442,7 +7442,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/23/19]"
-    cl[#cl + 1] = "1). Minor bug fix for potential crash."
+    cl[#cl + 1] = "1). Minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.52"
     file:write(concat(cl, "\n"))
     file:close()
