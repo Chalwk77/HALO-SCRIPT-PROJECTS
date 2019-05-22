@@ -323,3 +323,9 @@ Script Updated to v1.50
 The reason for this change is because people were exploiting the speed-boost that Lurker gives you.
 On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out.
 Script Updated to v1.51
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/23/19]
+1). Minor bug fix for potential crash.
+Script Updated to v1.52
