@@ -329,3 +329,6 @@ Script Updated to v1.51
 [5/23/19]
 1). Minor bug fixes.
 Script Updated to v1.52
+2). Major bug fix for Lurker:
+The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill).
+Script Updated to v1.53
