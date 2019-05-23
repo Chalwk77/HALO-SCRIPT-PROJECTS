@@ -7483,7 +7483,9 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/24/19]"
     cl[#cl + 1] = "1). Small fix for Color Changer. Made a correction to gametype-check-logic."
-    cl[#cl + 1] = "2). Other minor bug fixes."
+    cl[#cl + 1] = "2). The Objective-Check routines for Lurker will now work on protected maps."
+    cl[#cl + 1] = "This means, for example, if you pickup the flag or oddball on a protected map,"
+    cl[#cl + 1] = "lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally."
     cl[#cl + 1] = "Script Updated to v1.54"
     file:write(concat(cl, "\n"))
     file:close()
