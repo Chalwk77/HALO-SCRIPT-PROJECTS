@@ -336,7 +336,9 @@ Script Updated to v1.53
 
 
 [5/24/19]
-1). Small fix for Color Changer. Made a correction to gametype-check-logic.
+1). Bug fix (and one tweak) for Color Changer:
+A: Made a correction to gametype-check-logic.
+B: If you were in a vehicle when you set your color, you will now re enter into that exact same vehicle (in the same seat), just like Lurker.
 2). The Objective-Check routines for Lurker will now work on protected maps.
 This means, for example, if you pickup the flag or oddball on a protected map,
 lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally.
