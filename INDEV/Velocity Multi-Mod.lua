@@ -811,10 +811,10 @@ local function GameSettings()
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
-                
-                
+
+
                 list = { "plugins", 1 }, -- /pluigns
-                
+
                 -- Clears the chat (useful if someone says something negative or derogatory).
                 clearchat = { "clear", 1 }, -- /clear
 
@@ -1491,7 +1491,7 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
-    
+
     local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if (gp == 3) then
         return
@@ -1730,11 +1730,11 @@ function OnTick()
             local player = get_dynamic_player(i)
             local name = get_var(i, "$name")
 
-            local vTab = entervehicle[ip]
+            local vTab = entervehicle[i]
             if (player_alive(i) and vTab ~= nil and vTab.enter) then
                 local vehicle, seat = vTab.vehicle, vTab.seat
                 enter_vehicle(vehicle, i, seat)
-                entervehicle[ip] = nil
+                entervehicle[i] = nil
             end
 
             -- #Custom Weapons
@@ -1783,10 +1783,10 @@ function OnTick()
             if modEnabled("Give") then
                 if (check_available_slots[i]) then
                     check_available_slots[i] = false
-                    if (player_object ~= 0) then
+                    if (player ~= 0) then
                         local weapon
                         for j = 0, 3 do
-                            weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                            weapon = get_object_memory(read_dword(player + 0x2F8 + j * 4))
                             if (weapon ~= 0) then
                                 if (j < 2) then
                                     give_weapon[i] = true
@@ -1799,7 +1799,7 @@ function OnTick()
                     end
                 end
             end
-            
+
             -- #Color Changer
             if modEnabled("Color Changer") then
                 if (player ~= 0) and (colorspawn[ip] ~= nil) and (vTab ~= nil) and not (vTab.enter) then
@@ -2536,7 +2536,7 @@ function OnPlayerPrespawn(PlayerIndex)
         first_join[PlayerIndex] = false
         local team = get_var(PlayerIndex, "$team")
         local coords = settings.mod["Spawn From Sky"].maps[mapname]
-        local x,y,z, height
+        local x, y, z, height
         if (team == "red") then
             x, y, z, height = coords[1][1], coords[1][2], coords[1][3], coords.height
         elseif (team == "blue") then
@@ -4376,7 +4376,7 @@ function velocity:setcolor(params)
 
     local target_name = params.tn or nil
     local color = params.color or nil
-    
+
     local is_self
     if (eid == tid) then
         is_self = true
@@ -4432,20 +4432,16 @@ function velocity:setcolor(params)
                 end
                 if not (ERROR) then
                     colorspawn[tip] = { }
-                    
-                    
-                    
-                    
                     local coords = getXYZ(eid, tid)
                     if (coords) then
                         local x, y, z = coords.x, coords.y, coords.z
                         colorspawn[tip][1], colorspawn[tip][2], colorspawn[tip][3] = x, y, z
                         killSilently(tid)
-                        
+
                         if (coords.invehicle) then
-                            entervehicle[tip].enter = true
+                            entervehicle[tid].enter = true
                         end
-                        
+
                         if not (is_self) then
                             respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
                             respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
@@ -4522,44 +4518,50 @@ function velocity:give(params)
             if (give_weapon[tid]) then
                 give_weapon[tid] = false
                 if player_alive(tid) then
-                    local table = settings.mod["Item Spawner"].objects
-                    local valid, err
-                    for i = 1, #table do
-                        if (item == table[i][1]) then
-                            local tag_type = table[i][2]
-                            if (tag_type == "weap" or tag_type == "eqip") then
-                                if (delete_weapon[tid]) and (tag_type == "weap") then
-                                    execute_command('wdel ' .. tid .. ' 0')
-                                end
-                                local tag_name = table[i][3]
-                                if TagInfo(tag_type, tag_name) then
-                                    local function giveObject(tid, tag_type, tag_name)
-                                        local player_object = get_dynamic_player(tid)
-                                        if (player_object ~= 0) then
-                                            local x, y, z = read_vector3d(player_object + 0x5C)
-                                            assign_weapon(spawn_object(tag_type, tag_name, x, y, z), tid)
-                                            if not (is_self) then
-                                                respond(eid, "Giving " .. tn .. " " .. table[i][1], "rcon", 2 + 8)
-                                                respond(tid, en .. " gave you " .. table[i][1], "rcon", 2 + 8)
-                                            else
-                                                respond(eid, "Received " .. table[i][1], "rcon", 2 + 8)
-                                            end
-                                            valid = true
-                                        end
+                    if not PlayerInVehicle(tid) then
+                        local table = settings.mod["Item Spawner"].objects
+                        local valid, err
+                        for i = 1, #table do
+                            if (item == table[i][1]) then
+                                local tag_type = table[i][2]
+                                if (tag_type == "weap" or tag_type == "eqip") then
+                                    if (delete_weapon[tid]) and (tag_type == "weap") then
+                                        execute_command('wdel ' .. tid .. ' 0')
                                     end
-                                    giveObject(tid, tag_type, tag_name)
+                                    local tag_name = table[i][3]
+                                    if TagInfo(tag_type, tag_name) then
+                                        local function giveObject(tid, tag_type, tag_name)
+                                            local player_object = get_dynamic_player(tid)
+                                            if (player_object ~= 0) then
+                                                local x, y, z = read_vector3d(player_object + 0x5C)
+                                                assign_weapon(spawn_object(tag_type, tag_name, x, y, z), tid)
+                                                if not (is_self) then
+                                                    respond(eid, "Giving " .. tn .. " " .. table[i][1], "rcon", 2 + 8)
+                                                    respond(tid, en .. " gave you " .. table[i][1], "rcon", 2 + 8)
+                                                else
+                                                    respond(eid, "Received " .. table[i][1], "rcon", 2 + 8)
+                                                end
+                                                valid = true
+                                            end
+                                        end
+                                        giveObject(tid, tag_type, tag_name)
+                                    else
+                                        respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
+                                    end
                                 else
-                                    respond(eid, "Error: Missing tag id for '" .. item .. "' in 'objects' table", "rcon", 4 + 8)
+                                    respond(eid, "Unable to give that object!", "rcon", 4 + 8)
+                                    err = true
                                 end
-                            else
-                                respond(eid, "Unable to give that object!", "rcon", 4 + 8)
-                                err = true
+                                break
                             end
-                            break
                         end
-                    end
-                    if not (valid) and not (err) then
-                        respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
+                        if not (valid) and not (err) then
+                            respond(tid, "'" .. item .. "' is not a valid object or it is missing in the 'objects' table", "rcon", 4 + 8)
+                        end
+                    elseif not (is_self) then
+                        respond(eid, "Command Failed. " .. tn .. " must not be in a vehicle!", "rcon", 4 + 8)
+                    else
+                        respond(eid, "Command Failed. You must not be in a vehicle!", "rcon", 4 + 8)
                     end
                 else
                     if not (is_self) then
@@ -5707,7 +5709,7 @@ function velocity:setLurker(params)
                 lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
                 lurker_tp_back[tip] = true
             elseif (coords.invehicle) then
-                entervehicle[tip].enter = true
+                entervehicle[tid].enter = true
             end
         else
             killSilently(tid)
@@ -6852,11 +6854,10 @@ function getXYZ(e, t)
                 local VehicleID = read_dword(player_object + 0x11C)
                 local vehicle = get_object_memory(VehicleID)
                 x, y, z = read_vector3d(vehicle + 0x5c)
-                local ip = getip(t, true)
                 local seat = read_word(player_object + 0x2F0)
-                entervehicle[ip] = { }
-                entervehicle[ip].vehicle = VehicleID
-                entervehicle[ip].seat = seat
+                entervehicle[t] = { }
+                entervehicle[t].vehicle = VehicleID
+                entervehicle[t].seat = seat
             else
                 coords.invehicle = false
                 x, y, z = read_vector3d(player_object + 0x5c)
@@ -6869,7 +6870,6 @@ function getXYZ(e, t)
         end
     end
 end
-
 
 function cmdsplit(str)
     local subs = {}
@@ -6937,7 +6937,7 @@ end
 function DeleteWeapons(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        
+
         -- Set grenades to 0
         write_word(player_object + 0x31E, 0)
         write_word(player_object + 0x31F, 0)
@@ -6953,7 +6953,7 @@ function DeleteWeapons(PlayerIndex)
                 end
             end
         end
-        
+
         return true
     end
 end
