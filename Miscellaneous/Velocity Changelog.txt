@@ -332,3 +332,9 @@ Script Updated to v1.52
 2). Major bug fix for Lurker:
 The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill).
 Script Updated to v1.53
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/24/19]
+1). Small fix for Color Changer. Made a correction to gametype-check-logic.
+Script Updated to v1.54
