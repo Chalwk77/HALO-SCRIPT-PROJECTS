@@ -6593,21 +6593,37 @@ function TeleportPlayer(ObjectID, x, y, z)
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
 end
+function hasObjective(PlayerIndex, WeaponIndex)
+    local player_object, flag = get_dynamic_player(PlayerIndex), { }
+    local weaponId = read_dword(player_object + 0x118)
+    if (weaponId ~= 0) then
+        local bool
+        local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
+        for j = 0, 3 do
+            local weapon = read_dword(player_object + 0x2F8 + 4 * j)
+            if (weapon == red_flag) or (weapon == blue_flag) then
+                object_picked_up[PlayerIndex] = "flag"
+                bool = true
+                return true
+            end
+        end
+        if not (bool) then
+            local weapon = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+            local name = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+            if (name == "weapons\\ball\\ball") then
+                object_picked_up[PlayerIndex] = "oddball"
+                return true
+            end
+        end
+    end
+end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     -- #Lurker
     if modEnabled("Lurker") then
         if (lurker[PlayerIndex] == true) then
             if (tonumber(Type) == 1) then
-                local PlayerObj = get_dynamic_player(PlayerIndex)
-                local WeaponObj = get_object_memory(read_dword(PlayerObj + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
-                local name = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
-                if (name == "weapons\\flag\\flag" or name == "weapons\\ball\\ball") then
-                    if (name == "weapons\\flag\\flag") then
-                        object_picked_up[PlayerIndex] = "flag"
-                    elseif (name == "weapons\\ball\\ball") then
-                        object_picked_up[PlayerIndex] = "oddball"
-                    end
+                if hasObjective(PlayerIndex, WeaponIndex) then
                     local ip = getip(PlayerIndex, true)
                     local mod = players["Lurker"][ip]
                     if (mod ~= nil) then
@@ -7467,6 +7483,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/24/19]"
     cl[#cl + 1] = "1). Small fix for Color Changer. Made a correction to gametype-check-logic."
+    cl[#cl + 1] = "2). Other minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.54"
     file:write(concat(cl, "\n"))
     file:close()
