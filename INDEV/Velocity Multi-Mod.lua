@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.52), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.53), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -801,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.52, -- << --- do not touch
+            script_version = 1.53, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -867,6 +867,7 @@ end
 local velocity, player_info = { }, { }
 local players
 local server_ip = "000.000.000.000"
+local globals = nil
 local function InitPlayers()
     players = {
         ["Alias System"] = { },
@@ -1497,6 +1498,12 @@ function OnScriptLoad()
         write_byte(console_address_patch, 0)
         safe_write(false)
     end
+    
+    local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
+    if (gp == 3) then
+        return
+    end
+    globals = read_dword(gp)
 
     -- Register Server Console to Table
     alias:reset(server_ip)
@@ -5695,7 +5702,6 @@ function velocity:setLurker(params)
         if (mod.speed) then
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
         end
-        DeleteWeapons(tid)
         local coords = getXYZ(eid, tid)
         if (coords) and (tp_back) then
             local x, y, z = coords.x, coords.y, coords.z
@@ -6567,8 +6573,8 @@ function OnWeaponDrop(PlayerIndex)
     -- #Lurker
     if modEnabled("Lurker") then
         if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
-            cls(PlayerIndex, 25)
             has_objective[PlayerIndex] = false
+            cls(PlayerIndex, 25)
             local ip = getip(PlayerIndex, true)
             local mod = players["Lurker"][ip]
             if (mod ~= nil) then
@@ -6650,19 +6656,21 @@ function getFrags(PlayerIndex)
 end
 
 function killSilently(PlayerIndex)
-    local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-    local original = read_dword(kill_message_addresss)
-    safe_write(true)
-    write_dword(kill_message_addresss, 0x03EB01B1)
-    safe_write(false)
-    execute_command("kill " .. tonumber(PlayerIndex))
-    safe_write(true)
-    write_dword(kill_message_addresss, original)
-    safe_write(false)
-    write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
-    -- Deduct one death
-    local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
-    execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
+    if DeleteWeapons(PlayerIndex) then
+        local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+        local original = read_dword(kill_message_addresss)
+        safe_write(true)
+        write_dword(kill_message_addresss, 0x03EB01B1)
+        safe_write(false)
+        execute_command("kill " .. tonumber(PlayerIndex))
+        safe_write(true)
+        write_dword(kill_message_addresss, original)
+        safe_write(false)
+        write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
+        -- Deduct one death
+        local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
+        execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
+    end
 end
 
 function CleanUpDrones(TargetID, TableID)
@@ -6918,15 +6926,24 @@ end
 function DeleteWeapons(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        local weaponId = read_dword(player_object + 0x118)
+        
+        -- Set grenades to 0
         write_word(player_object + 0x31E, 0)
         write_word(player_object + 0x31F, 0)
+
+        -- Iterate thru player inventory and destroy all weapons this player holds (excluding objective)
+        local weaponId = read_dword(player_object + 0x118)
         if (weaponId ~= 0) then
+            local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
             for j = 0, 3 do
-                local m_weapon = read_dword(player_object + 0x2F8 + j * 4)
-                DestroyObject(m_weapon)
+                local weapon = read_dword(player_object + 0x2F8 + 4 * j)
+                if (weapon ~= red_flag) and (weapon ~= blue_flag) then
+                    DestroyObject(weapon)
+                end
             end
         end
+        
+        return true
     end
 end
 
@@ -7444,6 +7461,9 @@ function RecordChanges()
     cl[#cl + 1] = "[5/23/19]"
     cl[#cl + 1] = "1). Minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.52"
+    cl[#cl + 1] = "2). Major bug fix for Lurker:"
+    cl[#cl + 1] = "The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill)."
+    cl[#cl + 1] = "Script Updated to v1.53"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
