@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.53), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.54), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -801,7 +801,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.53, -- << --- do not touch
+            script_version = 1.54, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -3529,7 +3529,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
         -- #Color Changer
     elseif (command == settings.mod["Color Changer"].base_command) then
-        if (getTeamPlay()) then
+        if not getTeamPlay() then
             if not gameover(executor) then
                 if modEnabled("Color Changer", executor) then
                     if (checkAccess(executor, true, "Color Changer")) then
@@ -3548,7 +3548,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         else
-            respond(executor, "This command only works on Team-Based games.", "rcon", 4 + 8)
+            respond(executor, "This command doesn't work on Team-Based games.", "rcon", 4 + 8)
         end
         return false
         -- #Cute
@@ -4387,9 +4387,7 @@ function velocity:setcolor(params)
 
     local target_name = params.tn or nil
     local color = params.color or nil
-
-    print(color)
-
+    
     local is_self
     if (eid == tid) then
         is_self = true
@@ -7464,6 +7462,12 @@ function RecordChanges()
     cl[#cl + 1] = "2). Major bug fix for Lurker:"
     cl[#cl + 1] = "The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill)."
     cl[#cl + 1] = "Script Updated to v1.53"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/24/19]"
+    cl[#cl + 1] = "1). Small fix for Color Changer. Made a correction to gametype-check-logic."
+    cl[#cl + 1] = "Script Updated to v1.54"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
