@@ -965,7 +965,7 @@ local respawn_time = { }
 local lurker, scores = { }, { }
 local object_picked_up, has_objective = { }, { }
 local lurker_coords, lurker_tp_back = { }, { }
-local lurker_vehicle_table = { }
+local entervehicle = { }
 
 -- #Teleport Manager
 local canset = {}
@@ -1464,13 +1464,6 @@ function OnScriptLoad()
                     welcomeMessages:hide(i, ip)
                 end
             end
-
-            -- #Color Changer
-            if modEnabled("Color Changer") then
-                if colorspawn[ip] then
-                    colorspawn[ip] = false
-                end
-            end
         end
     end
 
@@ -1737,6 +1730,13 @@ function OnTick()
             local player = get_dynamic_player(i)
             local name = get_var(i, "$name")
 
+            local vTab = entervehicle[ip]
+            if (player_alive(i) and vTab ~= nil and vTab.enter) then
+                local vehicle, seat = vTab.vehicle, vTab.seat
+                enter_vehicle(vehicle, i, seat)
+                entervehicle[ip] = nil
+            end
+
             -- #Custom Weapons
             local wTab = settings.mod["Custom Weapons"]
             if modEnabled("Custom Weapons") and (wTab.assign_weapons) then
@@ -1783,7 +1783,6 @@ function OnTick()
             if modEnabled("Give") then
                 if (check_available_slots[i]) then
                     check_available_slots[i] = false
-                    local player_object = get_dynamic_player(i)
                     if (player_object ~= 0) then
                         local weapon
                         for j = 0, 3 do
@@ -1798,6 +1797,14 @@ function OnTick()
                             end
                         end
                     end
+                end
+            end
+            
+            -- #Color Changer
+            if modEnabled("Color Changer") then
+                if (player ~= 0) and (colorspawn[ip] ~= nil) and (vTab ~= nil) and not (vTab.enter) then
+                    write_vector3d(player + 0x5C, colorspawn[ip][1], colorspawn[ip][2], colorspawn[ip][3])
+                    colorspawn[ip] = nil
                 end
             end
 
@@ -1841,13 +1848,6 @@ function OnTick()
                             end
                         end
                     end
-                end
-                
-                local vTab = lurker_vehicle_table[ip]
-                if (player_alive(i) and vTab ~= nil and vTab.enter) then
-                    local vehicle, seat = vTab.vehicle, vTab.seat
-                    enter_vehicle(vehicle, i, seat)
-                    lurker_vehicle_table[ip] = nil
                 end
 
                 if (lurker[i] == true) then
@@ -2595,17 +2595,6 @@ function OnPlayerSpawn(PlayerIndex)
                         end
                     end
                 end
-            end
-        end
-    end
-    -- #Color Changer
-    if modEnabled("Color Changer") then
-        local player_object = get_dynamic_player(PlayerIndex)
-        if (player_object) then
-            local ip = getip(PlayerIndex, true)
-            if (player_object ~= 0) and (colorspawn[ip] ~= nil) and (colorspawn[ip][1]) then
-                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[ip][1], colorspawn[ip][2], colorspawn[ip][3])
-                colorspawn[ip] = { }
             end
         end
     end
@@ -4398,7 +4387,6 @@ function velocity:setcolor(params)
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickups")) then
         if player_alive(tid) then
             local player_object = get_dynamic_player(tid)
-            local player_obj_id = read_dword(get_player(tid) + 0x34)
             local player = getPlayer(tid)
             if (player_object) then
                 local ERROR
@@ -4442,18 +4430,28 @@ function velocity:setcolor(params)
                     respond(eid, "Invalid Color", "rcon", 4 + 8)
                     ERROR = true
                 end
-                if not (ERROR) and (player_obj_id ~= nil) then
-                    if (colorspawn[tip] == nil) then
-                        colorspawn[tip] = { }
-                    end
-                    local x, y, z = read_vector3d(player_object + 0x5C)
-                    colorspawn[tip][1], colorspawn[tip][2], colorspawn[tip][3] = x, y, z
-                    DestroyObject(player_obj_id)
-                    if not (is_self) then
-                        respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
-                        respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
-                    else
-                        respond(eid, "Color changed to " .. color, "rcon", 4 + 8)
+                if not (ERROR) then
+                    colorspawn[tip] = { }
+                    
+                    
+                    
+                    
+                    local coords = getXYZ(eid, tid)
+                    if (coords) then
+                        local x, y, z = coords.x, coords.y, coords.z
+                        colorspawn[tip][1], colorspawn[tip][2], colorspawn[tip][3] = x, y, z
+                        killSilently(tid)
+                        
+                        if (coords.invehicle) then
+                            entervehicle[tip].enter = true
+                        end
+                        
+                        if not (is_self) then
+                            respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
+                            respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
+                        else
+                            respond(eid, "Color changed to " .. color, "rcon", 4 + 8)
+                        end
                     end
                 end
             end
@@ -5709,7 +5707,7 @@ function velocity:setLurker(params)
                 lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
                 lurker_tp_back[tip] = true
             elseif (coords.invehicle) then
-                lurker_vehicle_table[tip].enter = true
+                entervehicle[tip].enter = true
             end
         else
             killSilently(tid)
@@ -6607,6 +6605,7 @@ function hasObjective(PlayerIndex, WeaponIndex)
                 return true
             end
         end
+        -- to do: 
         if not (bool) then
             local weapon = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
             local name = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
@@ -6853,13 +6852,11 @@ function getXYZ(e, t)
                 local VehicleID = read_dword(player_object + 0x11C)
                 local vehicle = get_object_memory(VehicleID)
                 x, y, z = read_vector3d(vehicle + 0x5c)
-                if modEnabled("Lurker") then
-                    local ip = getip(t, true)
-                    local seat = read_word(player_object + 0x2F0)
-                    lurker_vehicle_table[ip] = { }
-                    lurker_vehicle_table[ip].vehicle = VehicleID
-                    lurker_vehicle_table[ip].seat = seat
-                end
+                local ip = getip(t, true)
+                local seat = read_word(player_object + 0x2F0)
+                entervehicle[ip] = { }
+                entervehicle[ip].vehicle = VehicleID
+                entervehicle[ip].seat = seat
             else
                 coords.invehicle = false
                 x, y, z = read_vector3d(player_object + 0x5c)
@@ -7482,7 +7479,9 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/24/19]"
-    cl[#cl + 1] = "1). Small fix for Color Changer. Made a correction to gametype-check-logic."
+    cl[#cl + 1] = "1). Bug fix (and one tweak) for Color Changer:"
+    cl[#cl + 1] = "A: Made a correction to gametype-check-logic."
+    cl[#cl + 1] = "B: If you were in a vehicle when you set your color, you will now re enter into that exact same vehicle (in the same seat), just like Lurker."
     cl[#cl + 1] = "2). The Objective-Check routines for Lurker will now work on protected maps."
     cl[#cl + 1] = "This means, for example, if you pickup the flag or oddball on a protected map,"
     cl[#cl + 1] = "lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally."
