@@ -4387,50 +4387,51 @@ function velocity:setcolor(params)
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Block Object Pickups")) then
         if player_alive(tid) then
             local player_object = get_dynamic_player(tid)
-            local player = getPlayer(tid)
-            if (player_object) then
-                local ERROR
+            if (player_object ~= 0) then
+                local player, color, _error_= getPlayer(tid)
                 if (color == "white" or color == "0") then
-                    write_byte(player + 0x60, 0)
+                    color = 0
                 elseif (color == "black" or color == "1") then
-                    write_byte(player + 0x60, 1)
+                    color = 1
                 elseif (color == "red" or color == "2") then
-                    write_byte(player + 0x60, 2)
+                    color = 2
                 elseif (color == "blue" or color == "3") then
-                    write_byte(player + 0x60, 3)
+                    color = 3
                 elseif (color == "gray" or color == "4") then
-                    write_byte(player + 0x60, 4)
+                    color = 4
                 elseif (color == "yellow" or color == "5") then
-                    write_byte(player + 0x60, 5)
+                    color = 5
                 elseif (color == "green" or color == "6") then
-                    write_byte(player + 0x60, 6)
+                    color = 6
                 elseif (color == "pink" or color == "7") then
-                    write_byte(player + 0x60, 7)
+                    color = 7
                 elseif (color == "purple" or color == "8") then
-                    write_byte(player + 0x60, 8)
+                    color = 8
                 elseif (color == "cyan" or color == "9") then
-                    write_byte(player + 0x60, 9)
+                    color = 9
                 elseif (color == "cobalt" or color == "10") then
-                    write_byte(player + 0x60, 10)
+                    color = 10
                 elseif (color == "orange" or color == "11") then
-                    write_byte(player + 0x60, 11)
+                    color = 11
                 elseif (color == "teal" or color == "12") then
-                    write_byte(player + 0x60, 12)
+                    color = 12
                 elseif (color == "sage" or color == "13") then
-                    write_byte(player + 0x60, 13)
+                    color = 13
                 elseif (color == "brown" or color == "14") then
-                    write_byte(player + 0x60, 14)
+                    color = 14
                 elseif (color == "tan" or color == "15") then
-                    write_byte(player + 0x60, 15)
+                    color = 15
                 elseif (color == "maroon" or color == "16") then
-                    write_byte(player + 0x60, 16)
+                    color = 16
                 elseif (color == "salmon" or color == "17") then
-                    write_byte(player + 0x60, 17)
+                    color = 17
                 else
                     respond(eid, "Invalid Color", "rcon", 4 + 8)
-                    ERROR = true
+                    _error_ = true
                 end
-                if not (ERROR) then
+                if not (_error_) then
+                    color = color or 0 -- just in case
+                    write_byte(player + 0x60, color)
                     colorspawn[tip] = { }
                     local coords = getXYZ(eid, tid)
                     if (coords) then
