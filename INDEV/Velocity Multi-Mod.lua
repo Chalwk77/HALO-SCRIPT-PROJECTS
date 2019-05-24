@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.54), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.55), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -475,7 +475,8 @@ local function GameSettings()
                 screen_notifications = true, -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
                 speed = true,
                 god = true,
-                camouflage = true,
+                camouflage = false,
+                hide = true, -- if enabled, camouflage must be false! This will completely hide the player from others.
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -801,7 +802,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.54, -- << --- do not touch
+            script_version = 1.55, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1819,28 +1820,30 @@ function OnTick()
             if modEnabled("Lurker") then
                 local tab = settings.mod["Lurker"]
                 if (tab.screen_notifications) then
-                    for j = 1, 16 do
-                        if (i ~= j) then
-                            if (player_alive(i)) and (player_alive(j)) then
-                                local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
-                                if (P1Object ~= 0) and (P2Object ~= 0) then
-                                    local camX, camY, camZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
-                                    local couching = read_float(P1Object + 0x50C)
-                                    local px, py, pz = read_vector3d(P1Object + 0x5c)
-                                    if (couching == 0) then
-                                        pz = pz + 0.65
-                                    else
-                                        pz = pz + (0.35 * couching)
-                                    end
-                                    local player_1 = read_dword(get_player(i) + 0x34)
-                                    local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
-                                    local player_2 = Object and read_dword(get_player(j) + 0x34)
-                                    if (success == true and Object ~= nil) then
-                                        if (Object == player_2 and lurker[j]) then
-                                            cls(i, 25)
-                                            respond(i, "|c" .. get_var(j, "$name") .. " is in spectator mode!", "rcon")
-                                            for _ = 1, 5 do
-                                                rprint(i, " ")
+                    if not (tab.hide) then
+                        for j = 1, 16 do
+                            if (i ~= j) then
+                                if (player_alive(i)) and (player_alive(j)) then
+                                    local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
+                                    if (P1Object ~= 0) and (P2Object ~= 0) then
+                                        local camX, camY, camZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
+                                        local couching = read_float(P1Object + 0x50C)
+                                        local px, py, pz = read_vector3d(P1Object + 0x5c)
+                                        if (couching == 0) then
+                                            pz = pz + 0.65
+                                        else
+                                            pz = pz + (0.35 * couching)
+                                        end
+                                        local player_1 = read_dword(get_player(i) + 0x34)
+                                        local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
+                                        local player_2 = Object and read_dword(get_player(j) + 0x34)
+                                        if (success == true and Object ~= nil) then
+                                            if (Object == player_2 and lurker[j]) then
+                                                cls(i, 25)
+                                                respond(i, "|c" .. get_var(j, "$name") .. " is in spectator mode!", "rcon")
+                                                for _ = 1, 5 do
+                                                    rprint(i, " ")
+                                                end
                                             end
                                         end
                                     end
@@ -1854,6 +1857,12 @@ function OnTick()
                     if not (players["Lurker"][ip].lurker_warn) then
                         if (tab.speed) then
                             execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
+                        end
+                    end
+                    if (tab.hide) and not (tab.camouflage) then
+                        local coords = getXYZ(0, i)
+                        if (coords) then
+                            write_float(get_player(i) + 0x100, coords.z - 1000)
                         end
                     end
                     if (players["Lurker"][ip].lurker_warn == true) then
@@ -5680,7 +5689,7 @@ function velocity:setLurker(params)
         if (mod.god) then
             execute_command("god " .. tid)
         end
-        if (mod.camouflage) then
+        if (mod.camouflage) and not (mod.hide) then
             execute_command("camo " .. tid)
         end
         if (mod.announcer) then
@@ -7487,6 +7496,9 @@ function RecordChanges()
     cl[#cl + 1] = "This means, for example, if you pickup the flag or oddball on a protected map,"
     cl[#cl + 1] = "lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally."
     cl[#cl + 1] = "Script Updated to v1.54"
+    cl[#cl + 1] = "3). New setting ('hide') for LURKER:"
+    cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled)."
+    cl[#cl + 1] = "Script Updated to v1.55"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
