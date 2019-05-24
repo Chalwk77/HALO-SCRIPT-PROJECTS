@@ -999,11 +999,11 @@ end
 -- Receives a number (PlayerIndex).
 -- Executes SAPP commands: 'ammo', 'mag' and 'battery' for the target player.
 local function adjust_ammo(p)
-    for i = 1, 4 do
+    for w = 1, 4 do
         -- Weapon slots 1 thru 4
-        execute_command("ammo " .. tonumber(p) .. " 999 " .. i)
-        execute_command("mag " .. tonumber(p) .. " 100 " .. i)
-        execute_command("battery " .. tonumber(p) .. " 100 " .. i)
+        execute_command("ammo " .. tonumber(p) .. " 999 " .. w)
+        execute_command("mag " .. tonumber(p) .. " 100 " .. w)
+        execute_command("battery " .. tonumber(p) .. " 100 " .. w)
     end
 end
 
@@ -7490,7 +7490,7 @@ function RecordChanges()
     cl[#cl + 1] = "3). New setting ('hide') for LURKER:"
     cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled)."
     cl[#cl + 1] = "Script Updated to v1.55"
-    cl[#cl + 1] = "4). A couple of minor performance tweaks."
+    cl[#cl + 1] = "4). A couple of minor tweaks."
     cl[#cl + 1] = "Script Updated to v1.56"
     file:write(concat(cl, "\n"))
     file:close()
