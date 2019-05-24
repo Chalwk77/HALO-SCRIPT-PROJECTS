@@ -1,7 +1,16 @@
 --[[
 --=====================================================================================================--
-Script Name: Player Vanish, for SAPP (PC & CE)
-Description: N/A
+Script Name: Player Vanish (v 1.0), for SAPP (PC & CE)
+Description: Vanish yourself (or others) on demand!
+
+Command syntax: /vanish.command on|off [me | id | */all]
+
+Features:
+* God Mode (option to toggle on|off)
+* Speed Boost (option to toggle on|off)
+* Boost (option to toggle on|off)
+* Customizable Messages
+* Optionally save vanish-status on quit (vanish upon return)
 
 [!] [!] [!]  IN DEVELOPMENT [!] [!] [!]
 				
@@ -54,8 +63,13 @@ vanish.running_speed = 2
 -- Speed the player returns to when they exit out of Vanish Mode:
 vanish.default_running_speed = 1
 
--- =============== JOIN SETTINGS =============== --
+-- =============== ENABLE | DISABLE Messages =============== --
+vanish.onEnableMsg = "%name% is now invisible. Poof!"
+vanish.onDisabeMsg = "%name% is no longer invisible!"
+--==================================================================================================--
 
+
+-- =============== JOIN SETTINGS =============== --
 -- Keep vanish on quit? (When the player returns, they will still be in vanish).
 vanish.keep = true
 
@@ -66,7 +80,8 @@ vanish.join_msg = "%name%, You have joined vanished."
 
 -- Tell other players that PlayerX joined in vanish? (requires vanish.keep to be enabled) 
 vanish.join_tell_others = true
-vanish.join_others_msg = "%name% joined vanished"
+vanish.join_others_msg = "%name% joined vanished!"
+--==================================================================================================--
 -- Force Field Configuration [ends] --
 
 function OnScriptLoad()
@@ -86,6 +101,7 @@ function OnScriptLoad()
     end
 end
 
+script_version = 1.0
 local weapon_status = { }
 local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
 
@@ -427,6 +443,7 @@ function vanish:set(params)
         end
         if (vanish.announce) then
             announceExclude(tid, tn .. " is now invisible! Poof!")
+            announceExclude(tid, gsub(vanish.onEnableMsg, "%%name%%", tn))
         end
     end
 
@@ -436,7 +453,7 @@ function vanish:set(params)
             execute_command("ungod " .. tid)
         end
         if (vanish.announce) then
-            announceExclude(tid, tn .. " is no longer invisible!")
+            announceExclude(tid, gsub(vanish.onDisabeMsg, "%%name%%", tn))
         end
         if (vanish.speed_boost) then
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(vanish.default_running_speed))
@@ -566,4 +583,21 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report()
+    local script_version = format("%0.2f", script_version)
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
 end
