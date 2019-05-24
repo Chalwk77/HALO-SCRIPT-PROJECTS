@@ -12,7 +12,6 @@ Features:
 * Customizable Messages
 * Optionally save vanish-status on quit (vanish upon return)
 
-[!] [!] [!]  IN DEVELOPMENT [!] [!] [!]
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
