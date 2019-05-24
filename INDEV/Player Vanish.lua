@@ -432,6 +432,9 @@ function vanish:set(params)
 
     local function Disable(tid)
         vanish[tip].enabled = false
+        if (vanish.invincibility) then
+            execute_command("ungod " .. tid)
+        end
         if (vanish.announce) then
             announceExclude(tid, tn .. " is no longer invisible!")
         end
