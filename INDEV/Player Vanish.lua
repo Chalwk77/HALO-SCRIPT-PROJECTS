@@ -4,7 +4,6 @@ Script Name: Player Vanish, for SAPP (PC & CE)
 Description: N/A
 
 [!] [!] [!]  IN DEVELOPMENT [!] [!] [!]
-PHASOR COMPATIBILITY STILL WORK IN PROGRESS
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -494,10 +493,4 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
-end
-
--- WORK IN PROGRESS
--- ================= PHASOR COMPATIBILITY ================= --
-function GetRequiredVersion()
-	return 200
 end
