@@ -36,6 +36,24 @@ vanish.serverprefix = "**SERVER**"
 -- Let players know when someone goes into Player Vanish mode:
 vanish.announce = true
 
+-- If this is enabled, you will teleport to the nearest object that you are aiming directly at:
+vanish.boost = true
+-- What action triggers boost? (see below for a list of valid actions):
+vanish.boost_trigger = "crouch_and_shoot"
+-- VALID ACTIONS:
+-- crouch_and_shoot  (crouch and shoot to activate boost)
+-- crouch            (crouch only, to activate boost)
+
+-- If this is true, the player will have invincibility:
+vanish.invincibility = true
+
+-- If this is true, the player wlll have a speed boost:
+vanish.speed_boost = true
+-- Speed boost applied (default running speed is 1):
+vanish.running_speed = 2
+-- Speed the player returns to when they exit out of Vanish Mode:
+vanish.default_running_speed = 1
+
 -- =============== JOIN SETTINGS =============== --
 
 -- Keep vanish on quit? (When the player returns, they will still be in vanish).
@@ -63,10 +81,12 @@ function OnScriptLoad()
     for i = 1, 16 do
         if player_present(i) then
             vanish = { [getip(i)] = nil }
+            weapon_status[i] = nil
         end
     end
 end
 
+local weapon_status = { }
 local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
 
 -- Stores Player IP to an array...
@@ -90,6 +110,7 @@ function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
             vanish = { [getip(i)] = nil }
+            weapon_status[i] = nil
         end
     end
 end
@@ -186,9 +207,16 @@ function OnPlayerDisconnect(p)
     if (vanish[ip(p)] ~= nil) then
         if not (vanish[ip(p)].enabled) or not (vanish.keep) then
             vanish[ip(p)] = { }
+            weapon_status[p] = nil
         end
     end
     ip_table[p] = nil
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    if (weapon_status[PlayerIndex] ~= nil) then
+        weapon_status[PlayerIndex] = 0
+    end
 end
 
 function OnTick()
@@ -199,6 +227,42 @@ function OnTick()
                 local coords = getXYZ(i)
                 if (coords) then
                     write_float(get_player(i) + 0x100, coords.z - 1000)
+                end
+                
+                -- Speed seems to decrease over time on SAPP, so continuously updating player speed here seems to fix that.
+                if (vanish.speed_boost) then
+                    execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.running_speed))
+                end
+                
+                if (vanish.boost) then
+                    local player = get_dynamic_player(i)
+                    if (player ~= 0) then
+                        local camX, camY, camZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
+                        local couching = read_float(player + 0x50C)
+                        local px, py, pz = read_vector3d(player + 0x5c)
+                        local is_crouching
+                        if (couching == 0) then
+                            pz = pz + 0.65
+                            is_crouching = false
+                        else
+                            pz = pz + (0.35 * couching)
+                            is_crouching = true
+                        end
+                        local ignore_player = read_dword(get_player(i) + 0x34)
+                        local success, _, _, _, target = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, ignore_player)
+                        if (success == true and target ~= nil) then
+                            local boost, shot_fired
+                            if (vanish.boost_trigger == "crouch_and_shoot") then
+                                shot_fired = read_float(player + 0x490)
+                                if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                                    execute_command("boost " .. i)
+                                end
+                                weapon_status[i] = shot_fired
+                            elseif (vanish.boost_trigger == "crouch" and is_crouching) then
+                                execute_command("boost " .. i)
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -358,6 +422,9 @@ function vanish:set(params)
 
     local function Enable()
         vanish[tip].enabled = true
+        if (vanish.invincibility) then
+            execute_command("god " .. tid)
+        end
         if (vanish.announce) then
             announceExclude(tid, tn .. " is now invisible! Poof!")
         end
@@ -367,6 +434,9 @@ function vanish:set(params)
         vanish[tip].enabled = false
         if (vanish.announce) then
             announceExclude(tid, tn .. " is no longer invisible!")
+        end
+        if (vanish.speed_boost) then
+            execute_command("s " .. tonumber(tid) .. " " .. tonumber(vanish.default_running_speed))
         end
     end
 
