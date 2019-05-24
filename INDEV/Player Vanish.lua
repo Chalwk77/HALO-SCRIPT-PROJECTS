@@ -117,7 +117,7 @@ end
 
 local function getip(p)
     if (p) then
-        return get_var(p, "$ip"):match("(%d+.%d+.%d+.%d+)")
+        return get_var(p, "$ip")--:match("(%d+.%d+.%d+.%d+)")
     end
 end
 
@@ -442,7 +442,6 @@ function vanish:set(params)
             execute_command("god " .. tid)
         end
         if (vanish.announce) then
-            announceExclude(tid, tn .. " is now invisible! Poof!")
             announceExclude(tid, gsub(vanish.onEnableMsg, "%%name%%", tn))
         end
     end
