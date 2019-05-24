@@ -195,8 +195,7 @@ end
 function OnTick()
     for i = 1,16 do
         if player_present(i) and player_alive(i) then
-           local ip = getip(i)
-           local status = vanish[ip]
+           local status = vanish[getip(i)]
            if (status ~= nil) and (status.enabled) then
                 local coords = getXYZ(i)
                 if (coords) then
