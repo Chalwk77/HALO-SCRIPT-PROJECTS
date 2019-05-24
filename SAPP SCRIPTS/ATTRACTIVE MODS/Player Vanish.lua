@@ -252,30 +252,21 @@ function OnTick()
                 if (vanish.boost) then
                     local player = get_dynamic_player(i)
                     if (player ~= 0) then
-                        local camX, camY, camZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
                         local couching = read_float(player + 0x50C)
-                        local px, py, pz = read_vector3d(player + 0x5c)
-                        local is_crouching
+                        local is_crouching, shot_fired
                         if (couching == 0) then
-                            pz = pz + 0.65
                             is_crouching = false
                         else
-                            pz = pz + (0.35 * couching)
                             is_crouching = true
                         end
-                        local ignore_player = read_dword(get_player(i) + 0x34)
-                        local success, _, _, _, target = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, ignore_player)
-                        if (success == true and target ~= nil) then
-                            local boost, shot_fired
-                            if (vanish.boost_trigger == "crouch_and_shoot") then
-                                shot_fired = read_float(player + 0x490)
-                                if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
-                                    execute_command("boost " .. i)
-                                end
-                                weapon_status[i] = shot_fired
-                            elseif (vanish.boost_trigger == "crouch" and is_crouching) then
+                        if (vanish.boost_trigger == "crouch_and_shoot") then
+                            shot_fired = read_float(player + 0x490)
+                            if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
                                 execute_command("boost " .. i)
                             end
+                            weapon_status[i] = shot_fired
+                        elseif (vanish.boost_trigger == "crouch" and is_crouching) then
+                            execute_command("boost " .. i)
                         end
                     end
                 end
