@@ -343,3 +343,6 @@ B: If you were in a vehicle when you set your color, you will now re enter into 
 This means, for example, if you pickup the flag or oddball on a protected map,
 lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally.
 Script Updated to v1.54
+3). New setting ('hide') for LURKER:
+Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled).
+Script Updated to v1.55
