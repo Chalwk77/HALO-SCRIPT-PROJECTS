@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.55), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.56), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -476,7 +476,7 @@ local function GameSettings()
                 speed = true,
                 god = true,
                 camouflage = true,
-                hide = true, -- This will completely hide the player from others
+                hide = false, -- This will completely hide the player from others
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -802,7 +802,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.55, -- << --- do not touch
+            script_version = 1.56, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1926,26 +1926,18 @@ function OnTick()
             if modEnabled("Portal Gun") then
                 if player_alive(i) and (portalgun_mode[ip] == true) then
                     if (player ~= 0) then
-                        local playerX, playerY, playerZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
                         local shot_fired, is_crouching
                         local couching = read_float(player + 0x50C)
-                        local px, py, pz = read_vector3d(player + 0x5c)
                         if (couching == 0) then
-                            pz = pz + 0.65
                             is_crouching = false
                         else
-                            pz = pz + (0.35 * couching)
                             is_crouching = true
                         end
-                        local ignore_player = read_dword(get_player(i) + 0x34)
-                        local success, _, _, _, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
-                        if (success == true and target ~= nil) then
-                            shot_fired = read_float(player + 0x490)
-                            if (shot_fired ~= weapon_status[ip] and shot_fired == 1 and is_crouching) then
-                                execute_command("boost " .. i)
-                            end
-                            weapon_status[ip] = shot_fired
+                        shot_fired = read_float(player + 0x490)
+                        if (shot_fired ~= weapon_status[ip] and shot_fired == 1 and is_crouching) then
+                            execute_command("boost " .. i)
                         end
+                        weapon_status[ip] = shot_fired
                     end
                 end
             end
@@ -3340,6 +3332,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] ~= nil) then
                         params.option = args[1]
                     end
+                    -- if (args[2] ~= nil) then
+                        -- params.flag = args[2]
+                    -- end
                     if (target_all_players) then
                         velocity:setLurker(params)
                     end
@@ -5646,11 +5641,8 @@ function velocity:setLurker(params)
     local tid = params.tid or nil
     local tip = params.tip or nil
     local tn = params.tn or nil
-    local bool = params.bool or nil
-    local CmdTrigger = params.CmdTrigger or nil
-    local option = params.option or nil
-    local warnings = params.warnings or nil
-    local tp_back = params.teleport or nil
+    
+    --local flag = params.flag or nil
 
     if (tid == nil and eid ~= nil) then
         tid = eid
@@ -5678,10 +5670,12 @@ function velocity:setLurker(params)
     local mod = settings.mod["Lurker"]
     local LTab = players["Lurker"][tip]
 
+    local tp_back = params.teleport or nil
     if (tp_back == nil) then
         tp_back = LTab.teleport
     end
 
+    local CmdTrigger = params.CmdTrigger or nil
     local function Enable()
         scores[tid] = scores[tid] or { }
         scores[tid] = tonumber(get_var(tid, "$score"))
@@ -5699,6 +5693,7 @@ function velocity:setLurker(params)
         end
     end
 
+    local warnings = params.warnings or nil
     local function Disable(tid)
         lurker[tid] = false
         if (scores[tid] ~= nil) then
@@ -5733,7 +5728,9 @@ function velocity:setLurker(params)
         end
     end
 
+    local bool = params.bool or nil
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
+        local option = params.option or nil
         if (CmdTrigger) and (option) then
             if (tonumber(warnings) > 0) then
                 local status, already_set, is_error
@@ -5775,19 +5772,17 @@ function velocity:setLurker(params)
                 end
             end
             ----------------------------------------------------------------------------------------------------------------------------------
+        elseif (bool) then
+            Enable(tid)
+            respond(tid, "Lurker Auto-Enable. Warnings left: (" .. warnings .. "/" .. mod.warnings .. ").", "rcon", 2 + 8)
         else
-            if (bool) then
-                Enable(tid)
-                respond(tid, "Lurker Auto-Enable. Warnings left: (" .. warnings .. "/" .. mod.warnings .. ").", "rcon", 2 + 8)
+            cls(tid, 25)
+            if (tonumber(warnings) <= 0) then
+                respond(tid, "Your lurker mode was auto-revoked! [no warnings left].", "rcon", 2 + 8)
             else
-                cls(tid, 25)
-                if (tonumber(warnings) <= 0) then
-                    respond(tid, "Your lurker mode was auto-revoked! [no warnings left].", "rcon", 2 + 8)
-                else
-                    respond(tid, "Lurker Auto-Disable.", "rcon", 2 + 8)
-                end
-                Disable(tid)
+                respond(tid, "Lurker Auto-Disable.", "rcon", 2 + 8)
             end
+            Disable(tid)
         end
     end
     return false
@@ -6603,25 +6598,21 @@ function TeleportPlayer(ObjectID, x, y, z)
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
     end
 end
+
 function hasObjective(PlayerIndex, WeaponIndex)
     local player_object, flag = get_dynamic_player(PlayerIndex), { }
     local weaponId = read_dword(player_object + 0x118)
     if (weaponId ~= 0) then
-        local bool
         local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
         for j = 0, 3 do
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
+            local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+            local name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+            print(name)
             if (weapon == red_flag) or (weapon == blue_flag) then
                 object_picked_up[PlayerIndex] = "flag"
-                bool = true
                 return true
-            end
-        end
-        -- to do: 
-        if not (bool) then
-            local weapon = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
-            local name = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
-            if (name == "weapons\\ball\\ball") then
+            elseif (name ~= nil and name == "weapons\\ball\\ball") then
                 object_picked_up[PlayerIndex] = "oddball"
                 return true
             end
@@ -7499,6 +7490,8 @@ function RecordChanges()
     cl[#cl + 1] = "3). New setting ('hide') for LURKER:"
     cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled)."
     cl[#cl + 1] = "Script Updated to v1.55"
+    cl[#cl + 1] = "4). A couple of minor performance tweaks."
+    cl[#cl + 1] = "Script Updated to v1.56"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
