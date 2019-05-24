@@ -475,8 +475,8 @@ local function GameSettings()
                 screen_notifications = true, -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
                 speed = true,
                 god = true,
-                camouflage = false,
-                hide = true, -- if enabled, camouflage must be false! This will completely hide the player from others.
+                camouflage = true,
+                hide = true, -- This will completely hide the player from others
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -1859,7 +1859,7 @@ function OnTick()
                             execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
                         end
                     end
-                    if (tab.hide) and not (tab.camouflage) then
+                    if (tab.hide) then
                         local coords = getXYZ(0, i)
                         if (coords) then
                             write_float(get_player(i) + 0x100, coords.z - 1000)
@@ -5689,7 +5689,7 @@ function velocity:setLurker(params)
         if (mod.god) then
             execute_command("god " .. tid)
         end
-        if (mod.camouflage) and not (mod.hide) then
+        if (mod.camouflage) then
             execute_command("camo " .. tid)
         end
         if (mod.announcer) then
