@@ -262,13 +262,12 @@ function OnTick()
                     local player = get_dynamic_player(i)
                     if (player ~= 0) then
                         local couching = read_float(player + 0x50C)
-                        local is_crouching
+                        local is_crouching, shot_fired
                         if (couching == 0) then
                             is_crouching = false
                         else
                             is_crouching = true
                         end
-                        local shot_fired
                         if (vanish.boost_trigger == "crouch_and_shoot") then
                             shot_fired = read_float(player + 0x490)
                             if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
