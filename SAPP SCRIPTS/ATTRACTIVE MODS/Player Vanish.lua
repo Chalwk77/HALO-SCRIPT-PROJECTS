@@ -100,8 +100,13 @@ end
 local function reset()
     for i = 1, 16 do
         if player_present(i) then
-            vanish[getip(i)] = nil
-            weapon_status[i] = nil
+            if (vanish[getip(i)] ~= nil) then
+                vanish[getip(i)] = nil
+                weapon_status[i] = nil
+                if (vanish.speed_boost) then
+                    execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed))
+                end
+            end
         end
     end
 end
