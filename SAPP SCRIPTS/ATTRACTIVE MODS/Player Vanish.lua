@@ -300,6 +300,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local executor = tonumber(PlayerIndex)
     local TargetID, target_all_players, is_error
     local name = get_var(executor, "$name")
+    if (command == nil) then
+        return
+    end
     command = lower(command) or upper(command)
 
     local function checkAccess(e)
