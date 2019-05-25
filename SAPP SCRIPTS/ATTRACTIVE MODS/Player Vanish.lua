@@ -124,7 +124,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    reset()
 end
 
 -- Stores Player IP to an array...
