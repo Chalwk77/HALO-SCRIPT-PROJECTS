@@ -5,6 +5,8 @@ Description: Query a player's hash to check what aliases have been used with it.
 
 Command syntax: /alias ( 'me' or [number: 1-16] ) [page id]
 
+IMPORTANT: If you have downloaded this mod prior to 17th May 2019, you will need to delete alias.txt and let this mod regenerate it.
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
