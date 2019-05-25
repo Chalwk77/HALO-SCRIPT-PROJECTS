@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Player Vanish (v 1.0), for SAPP (PC & CE)
+Script Name: Player Vanish (v 1.2), for SAPP (PC & CE)
 Description: Vanish yourself (or others) on demand!
 
 Command syntax: /vanish.command on|off [me | id | */all]
@@ -55,6 +55,10 @@ vanish.boost_trigger = "crouch_and_shoot"
 -- If this is true, the player will have invincibility:
 vanish.invincibility = true
 
+-- If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
+-- They will have to turn it back on.
+vanish.auto_off = false
+
 -- If this is true, the player wlll have a speed boost:
 vanish.speed_boost = true
 -- Speed boost applied (default running speed is 1):
@@ -63,6 +67,7 @@ vanish.running_speed = 2
 vanish.default_running_speed = 1
 
 -- =============== ENABLE | DISABLE Messages =============== --
+-- (optional) -> Use "%name%" variable to output the joining players name.
 vanish.onEnableMsg = "%name% is now invisible. Poof!"
 vanish.onDisabeMsg = "%name% is no longer invisible!"
 --==================================================================================================--
@@ -81,7 +86,25 @@ vanish.join_msg = "%name%, You have joined vanished."
 vanish.join_tell_others = true
 vanish.join_others_msg = "%name% joined vanished!"
 --==================================================================================================--
--- Force Field Configuration [ends] --
+-- Vanish Configuration [ends] --
+
+local script_version, weapon_status = 1.2, { }
+local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
+
+local function getip(p)
+    if (p) then
+        return get_var(p, "$ip")--:match("(%d+.%d+.%d+.%d+)")
+    end
+end
+
+local function reset()
+    for i = 1, 16 do
+        if player_present(i) then
+            vanish[getip(i)] = nil
+            weapon_status[i] = nil
+        end
+    end
+end
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -92,17 +115,12 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    for i = 1, 16 do
-        if player_present(i) then
-            vanish = { [getip(i)] = nil }
-            weapon_status[i] = nil
-        end
-    end
+    reset()
 end
 
-script_version = 1.0
-local weapon_status = { }
-local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
+function OnScriptUnload()
+
+end
 
 -- Stores Player IP to an array...
 -- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
@@ -114,19 +132,10 @@ function OnGameStart()
     game_over = false
 end
 
-local function getip(p)
-    if (p) then
-        return get_var(p, "$ip")--:match("(%d+.%d+.%d+.%d+)")
-    end
-end
-
 function OnGameEnd()
     game_over = true
-    for i = 1, 16 do
-        if player_present(i) then
-            vanish = { [getip(i)] = nil }
-            weapon_status[i] = nil
-        end
+    if (vanish.auto_off) then
+        reset()
     end
 end
 
@@ -252,21 +261,30 @@ function OnTick()
                 if (vanish.boost) then
                     local player = get_dynamic_player(i)
                     if (player ~= 0) then
+                        local camX, camY, camZ = read_float(player + 0x230), read_float(player + 0x234), read_float(player + 0x238)
                         local couching = read_float(player + 0x50C)
-                        local is_crouching, shot_fired
+                        local px, py, pz = read_vector3d(player + 0x5c)
+                        local is_crouching
                         if (couching == 0) then
+                            pz = pz + 0.65
                             is_crouching = false
                         else
+                            pz = pz + (0.35 * couching)
                             is_crouching = true
                         end
-                        if (vanish.boost_trigger == "crouch_and_shoot") then
-                            shot_fired = read_float(player + 0x490)
-                            if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                        local ignore_player = read_dword(get_player(i) + 0x34)
+                        local success, _, _, _, target = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, ignore_player)
+                        if (success == true and target ~= nil) then
+                            local boost, shot_fired
+                            if (vanish.boost_trigger == "crouch_and_shoot") then
+                                shot_fired = read_float(player + 0x490)
+                                if (shot_fired ~= weapon_status[i] and shot_fired == 1 and is_crouching) then
+                                    execute_command("boost " .. i)
+                                end
+                                weapon_status[i] = shot_fired
+                            elseif (vanish.boost_trigger == "crouch" and is_crouching) then
                                 execute_command("boost " .. i)
                             end
-                            weapon_status[i] = shot_fired
-                        elseif (vanish.boost_trigger == "crouch" and is_crouching) then
-                            execute_command("boost " .. i)
                         end
                     end
                 end
@@ -590,3 +608,12 @@ function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
 end
+--[[ =================== Change Log ===================
+[24/05/19]
+1). First release (v1.0)
+
+[25/05/19]
+1). Bug fixes
+2). New setting: 'vanish.auto_off' (toggle this setting on or off with 'true' or 'false'.)
+If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
+]]
