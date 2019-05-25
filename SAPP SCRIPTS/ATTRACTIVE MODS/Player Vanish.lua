@@ -97,6 +97,7 @@ local function getip(p)
     end
 end
 
+local game_over
 local function reset()
     for i = 1, 16 do
         if player_present(i) then
@@ -106,6 +107,12 @@ local function reset()
                 if (vanish.speed_boost) then
                     execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed))
                 end
+                if not (game_over) then
+                    rprint(i, "SAPP Reloaded.", "rcon", 4 + 8)
+                else
+                    rprint(i, "GAME OVER.", "rcon", 4 + 8)
+                end
+                rprint(i, "Your vanish has been deactivated.", "rcon", 4 + 8)
             end
         end
     end
@@ -132,7 +139,6 @@ end
 -- This table is only accessed when 'event_leave' is called.
 local ip_table = { }
 
-local game_over
 function OnGameStart()  
     game_over = false
 end
