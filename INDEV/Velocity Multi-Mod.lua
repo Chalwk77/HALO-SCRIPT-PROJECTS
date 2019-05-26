@@ -2540,7 +2540,7 @@ end
 local function Teleport(TargetID, x, y, z, height)
     local player_object = get_dynamic_player(TargetID)
     if (player_object ~= 0) then
-        write_vector3d(get_dynamic_player(TargetID) + 0x5C, x, y, z + height)
+        write_vector3d(player_object + 0x5C, x, y, z + height)
     end
 end
 
