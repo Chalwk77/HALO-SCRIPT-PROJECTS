@@ -346,3 +346,11 @@ Script Updated to v1.54
 3). New setting ('hide') for LURKER:
 Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled).
 Script Updated to v1.55
+4). A couple of minor tweaks.
+Script Updated to v1.56
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/26/19]
+1). Small tweak to Lurker.
+Script Updated to v1.57
