@@ -98,7 +98,6 @@ vanish.join_others_msg = "%name% joined vanished!"
 local script_version, weapon_status = 1.4, { }
 local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
 local dir = 'sapp\\vanish.tmp'
-local tp_back, entervehicle = { }, { }
 local globals = nil
 
 local function getip(p)
@@ -124,7 +123,7 @@ function reset()
                 else
                     rprint(i, "GAME OVER.", "rcon", 4 + 8)
                 end
-                reset_player(i)
+                remove_data_log(i)
                 rprint(i, "Your vanish has been deactivated.", "rcon", 4 + 8)
             end
         end
@@ -148,8 +147,7 @@ function OnScriptLoad()
         register_callback(cb['EVENT_GAME_START'], "OnGameStart")
         register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
 
-        register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
-        if (get_var(0, "$pn") > 0) then
+        if (tonumber(get_var(0, "$pn")) > 0) then
             reset()
         end
     end
@@ -170,7 +168,7 @@ end
 
 function OnGameEnd()
     game_over = true
-    if (vanish.auto_off) and (get_var(0, "$pn") > 0)then
+    if (vanish.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
         reset()
     end
 end
@@ -267,22 +265,6 @@ function OnPlayerConnect(p)
     end
 end
 
-local function Teleport(TargetID, x, y, z, height)
-    local player_object = get_dynamic_player(TargetID)
-    if (player_object ~= 0) then
-        write_vector3d(player_object + 0x5C, x, y, z + height)
-    end
-end
-
-function OnPlayerPrespawn(PlayerIndex)
-    if (tp_back[PlayerIndex] ~= nil) then
-        local XYZ = tp_back[PlayerIndex]
-        local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
-        tp_back[PlayerIndex] = nil
-        Teleport(PlayerIndex, x, y, z, height)
-    end
-end
-
 function OnPlayerSpawn(PlayerIndex)
     if (weapon_status[PlayerIndex] ~= nil) then
         weapon_status[PlayerIndex] = 0
@@ -320,15 +302,7 @@ end
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
-            local status, vTab = vanish[getip(i)], entervehicle[i]
-            local vTab = entervehicle[i]
-
-            if (vTab ~= nil and vTab.enter) then
-                local vehicle, seat = vTab.vehicle, vTab.seat
-                enter_vehicle(vehicle, i, seat)
-                entervehicle[i] = nil
-            end
-
+            local status = vanish[getip(i)]
             if (status ~= nil) and (status.enabled) then
 
                 local coords = getXYZ(i)
@@ -339,7 +313,7 @@ function OnTick()
                 end
 
                 if (vanish.camouflage) then
-                    execute_command("camo " .. i)
+                    execute_command("camo " .. i .. " 1")
                 end
 
                 -- Speed seems to decrease over time on SAPP, so continuously updating player speed here seems to fix that.
@@ -497,20 +471,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-function reset_player(p)
-    local coords = getXYZ(p)
-    if (coords) then
-        local x, y, z = coords.x, coords.y, coords.z
-        killSilently(p)
-        if not (coords.invehicle) then
-            tp_back[p] = tp_back[p] or { }
-            tp_back[p][1], tp_back[p][2], tp_back[p][3], tp_back[p][4] = x, y, z, 0.5
-        elseif (coords.invehicle) then
-            entervehicle[p].enter = true
-        end
-    else
-        killSilently(p)
-    end
+function remove_data_log(p)
     local params = { }
     local ip = getip(p)
     params.ip, params.save = ip, nil
@@ -545,7 +506,7 @@ function vanish:set(params)
         en = "SERVER"
     end
 
-    vanish[tip] = vanish[tip] or {}
+    vanish[tip] = vanish[tip] or { }
 
     local function Enable()
         vanish[tip].enabled = true
@@ -571,7 +532,7 @@ function vanish:set(params)
         if (vanish.speed_boost) then
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(vanish.default_running_speed))
         end
-        reset_player(tid)
+        remove_data_log(tid)
     end
 
     local eLvl = tonumber(get_var(eid, "$lvl"))
@@ -612,6 +573,7 @@ end
 function getXYZ(p)
     local player_object = get_dynamic_player(p)
     if (player_object ~= 0) and player_alive(p) then
+
         local function isInVehicle(p)
             if (player_object) then
                 local VehicleID = read_dword(player_object + 0x11C)
@@ -629,12 +591,8 @@ function getXYZ(p)
         if isInVehicle(p) then
             coords.invehicle = true
             local VehicleID = read_dword(player_object + 0x11C)
-            local vehicle, seat = get_object_memory(VehicleID), read_word(player_object + 0x2F0)
+            local vehicle = get_object_memory(VehicleID)
             x, y, z = read_vector3d(vehicle + 0x5c)
-            local seat = read_word(player_object + 0x2F0)
-            entervehicle[p] = entervehicle[p] or { }
-            entervehicle[p].vehicle = VehicleID
-            entervehicle[p].seat = seat
         else
             coords.invehicle = false
             x, y, z = read_vector3d(player_object + 0x5c)
@@ -645,53 +603,6 @@ function getXYZ(p)
     end
 end
 
-local function DestroyObject(object)
-    if (object) then
-        destroy_object(object)
-    end
-end
-
-local function DeleteWeapons(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-
-        -- Set grenades to 0
-        write_word(player_object + 0x31E, 0)
-        write_word(player_object + 0x31F, 0)
-
-        -- Iterate thru player inventory and destroy all weapons this player holds (excluding objective)
-        local weaponId = read_dword(player_object + 0x118)
-        if (weaponId ~= 0) then
-            local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
-            for j = 0, 3 do
-                local weapon = read_dword(player_object + 0x2F8 + 4 * j)
-                if (weapon ~= red_flag) and (weapon ~= blue_flag) then
-                    DestroyObject(weapon)
-                end
-            end
-        end
-
-        return true
-    end
-end
-
-function killSilently(PlayerIndex)
-    if DeleteWeapons(PlayerIndex) then
-        local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-        local original = read_dword(kill_message_addresss)
-        safe_write(true)
-        write_dword(kill_message_addresss, 0x03EB01B1)
-        safe_write(false)
-        execute_command("kill " .. tonumber(PlayerIndex))
-        safe_write(true)
-        write_dword(kill_message_addresss, original)
-        safe_write(false)
-        write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
-        -- Deduct one death
-        local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
-        execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
-    end
-end
 
 function cmdsplit(str)
     local subs = {}
@@ -860,10 +771,6 @@ Script Updated to v1.3
 3). New setting: 'vanish.camouflage' -> If this is true, you will be camouflaged.
 Despite the fact that players won't be able to see you anyway, this feature doubles
 as a visual reminder to the player that they are vanished.
-
-4. This script will now kill the player silently (no death penalty + instant respawn) and reset a few parameters.
-You will teleport to your previous location, and if you were in a vehicle when Vanish was disabled,
-you will be inserted back into that exact same vehicle (in the same seat).
 
 5). Vanish status is now saved to a temp file called 'vanish.tmp', located in 'server root/sapp/vanish.tmp'.
 - The first reason for this: To overcome a problem when the script is reloaded.
