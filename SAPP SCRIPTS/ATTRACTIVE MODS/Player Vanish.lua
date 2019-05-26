@@ -858,7 +858,7 @@ Script Updated to v1.2
 Script Updated to v1.3
 
 3). New setting: 'vanish.camouflage' -> If this is true, you will be camouflaged.
-Despite the fact that players wont be able to see you anyway, this feature doubles
+Despite the fact that players won't be able to see you anyway, this feature doubles
 as a visual reminder to the player that they are vanished.
 
 4. This script will now kill the player silently (no death penalty + instant respawn) and reset a few parameters.
