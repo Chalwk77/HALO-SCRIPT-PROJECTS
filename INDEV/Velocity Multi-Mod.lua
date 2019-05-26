@@ -476,7 +476,7 @@ local function GameSettings()
                 speed = true,
                 god = true,
                 camouflage = true,
-                hide = false, -- This will completely hide the player from others
+                hide = true, -- This will completely hide the player from others
                 hide_vehicles = true, -- If this is true, your vehicle will disappear too! (requires hide to be true!)
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
@@ -1725,6 +1725,14 @@ function OnGameEnd()
     cprint("The Game Has Ended | Showing: POST GAME CARNAGE REPORT.", 4 + 8)
 end
 
+-- #Lurker:
+local function hide_player(p, coords)
+    local xOff, yOff, zOff = 1000,1000,1000
+    write_float(get_player(p) + 0xF8, coords.x - xOff)
+    write_float(get_player(p) + 0xFC, coords.y - yOff)
+    write_float(get_player(p) + 0x100, coords.z - zOff)                            
+end
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) then
@@ -1863,10 +1871,8 @@ function OnTick()
                     if (tab.hide) then
                         local coords = getXYZ(0, i)
                         if (coords) then
-                            if (coords.invehicle) and (tab.hide_vehicles) then
-                                write_float(get_player(i) + 0x100, coords.z - 1500)
-                            else
-                                write_float(get_player(i) + 0x100, coords.z - 1500)
+                            if ( (coords.invehicle and vanish.hide_vehicles) or not coords.invehicle ) then
+                                hide_player(i, coords)
                             end
                         end
                     end
@@ -7505,6 +7511,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/26/19]"
     cl[#cl + 1] = "1). Small tweak to Lurker."
+    cl[#cl + 1] = "If 'hide' is enabled, vanished players will now be hidden from the radar."
     cl[#cl + 1] = "Script Updated to v1.57"
     file:write(concat(cl, "\n"))
     file:close()
