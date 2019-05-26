@@ -170,7 +170,7 @@ end
 
 function OnGameEnd()
     game_over = true
-    if (vanish.auto_off) then
+    if (vanish.auto_off) and (get_var(0, "$pn") > 0)then
         reset()
     end
 end
