@@ -2537,11 +2537,14 @@ function OnPlayerDisconnect(PlayerIndex)
     player_info[id] = nil
 end
 
-function OnPlayerPrespawn(PlayerIndex)
-
-    local function Teleport(TargetID, x, y, z, height)
-        write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, x, y, z + height)
+local function Teleport(TargetID, x, y, z, height)
+    local player_object = get_dynamic_player(TargetID)
+    if (player_object ~= 0) then
+        write_vector3d(get_dynamic_player(TargetID) + 0x5C, x, y, z + height)
     end
+end
+
+function OnPlayerPrespawn(PlayerIndex)
 
     -- #Spawn From Sky
     if modEnabled("Spawn From Sky") and (first_join[PlayerIndex]) then
