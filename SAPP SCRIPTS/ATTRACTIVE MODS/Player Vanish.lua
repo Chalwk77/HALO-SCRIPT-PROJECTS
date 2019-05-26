@@ -866,6 +866,10 @@ You will teleport to your previous location, and if you were in a vehicle when V
 you will be inserted back into that exact same vehicle (in the same seat).
 
 5). Vanish status is now saved to a temp file called 'vanish.tmp', located in 'server root/sapp/vanish.tmp'.
+- The first reason for this: To overcome a problem when the script is reloaded.
+- The second reason: Should the server crash, returning players who were previously in vanish will have their vanish restored,
+because their vanish status was saved and loaded to/from that file.
+
 Script Updated to v1.4
 
 ]]
