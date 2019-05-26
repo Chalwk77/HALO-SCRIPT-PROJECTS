@@ -353,4 +353,5 @@ Script Updated to v1.56
 
 [5/26/19]
 1). Small tweak to Lurker.
+If 'hide' is enabled, vanished players will now be hidden from the radar.
 Script Updated to v1.57
