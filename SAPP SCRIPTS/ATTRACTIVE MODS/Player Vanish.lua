@@ -753,6 +753,7 @@ function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
 end
+
 --[[ =================== Change Log ===================
 [24/05/19]
 1). First release (v1.0)
