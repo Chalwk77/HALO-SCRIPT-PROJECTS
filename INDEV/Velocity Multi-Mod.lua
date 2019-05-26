@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.56), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.57), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -477,6 +477,7 @@ local function GameSettings()
                 god = true,
                 camouflage = true,
                 hide = false, -- This will completely hide the player from others
+                hide_vehicles = true, -- If this is true, your vehicle will disappear too! (requires hide to be true!)
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -802,7 +803,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.56, -- << --- do not touch
+            script_version = 1.57, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1862,7 +1863,11 @@ function OnTick()
                     if (tab.hide) then
                         local coords = getXYZ(0, i)
                         if (coords) then
-                            write_float(get_player(i) + 0x100, coords.z - 1000)
+                            if (coords.invehicle) and (tab.hide_vehicles) then
+                                write_float(get_player(i) + 0x100, coords.z - 1500)
+                            else
+                                write_float(get_player(i) + 0x100, coords.z - 1500)
+                            end
                         end
                     end
                     if (players["Lurker"][ip].lurker_warn == true) then
@@ -4601,6 +4606,9 @@ function velocity:getcoords(params)
         if (coords) then
             local x, y, z, invehicle = coords.x, coords.y, coords.z, coords.invehicle
             respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2 + 8)
+            if (eid > 0) then 
+                cprint(x .. ", " .. y .. ", " .. z)
+            end
             if (coords.invehicle) then
                 respond(eid, tn .. " is in a vehicle.", "rcon", 2 + 8)
             else
@@ -7492,6 +7500,12 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.55"
     cl[#cl + 1] = "4). A couple of minor tweaks."
     cl[#cl + 1] = "Script Updated to v1.56"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/26/19]"
+    cl[#cl + 1] = "1). Small tweak to Lurker."
+    cl[#cl + 1] = "Script Updated to v1.57"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
