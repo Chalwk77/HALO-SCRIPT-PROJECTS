@@ -109,11 +109,11 @@ end
 
 local game_over
 function reset()
-    for i = 1, 16 do    
+    for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i)
             local is_vanished = isVanished(ip)
-            if ( (vanish[ip] ~= nil) or is_vanished ) then
+            if ((vanish[ip] ~= nil) or is_vanished) then
                 vanish[ip] = nil
                 weapon_status[i] = nil
                 if (vanish.speed_boost) then
@@ -147,7 +147,7 @@ function OnScriptLoad()
 
         register_callback(cb['EVENT_GAME_START'], "OnGameStart")
         register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-        
+
         register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
         if (get_var(0, "$pn") > 0) then
             reset()
@@ -164,7 +164,7 @@ end
 -- This table is only accessed when 'event_leave' is called.
 local ip_table = { }
 
-function OnGameStart()  
+function OnGameStart()
     game_over = false
 end
 
@@ -237,20 +237,20 @@ function OnPlayerConnect(p)
 
     ip_table[p] = ip_table[p] or { }
     ip_table[p] = ip
-    
+
     local status = vanish[ip]
     local was_vanished = isVanished(ip)
- 
+
     local function tell(p, bool)
         vanish[ip] = vanish[ip] or {}
         if (vanish.join_tell) then
             local join_message = gsub(vanish.join_msg, "%%name%%", get_var(p, "$name"))
-            respond(p, join_message, "rcon", 2+8)
+            respond(p, join_message, "rcon", 2 + 8)
         end
-    
+
         if (vanish.join_tell_others) then
             local msg = gsub(vanish.join_others_msg, "%%name%%", get_var(p, "$name"))
-            announceExclude(p, msg, "rcon", 2+8)
+            announceExclude(p, msg, "rcon", 2 + 8)
         end
         if (bool) then
             vanish[ip].enabled = true
@@ -259,7 +259,7 @@ function OnPlayerConnect(p)
             end
         end
     end
- 
+
     if (status ~= nil and status.enabled) then
         tell(p)
     elseif (status == nil) and (was_vanished) then
@@ -311,42 +311,42 @@ function OnPlayerDisconnect(p)
 end
 
 local function hide_player(p, coords)
-    local xOff, yOff, zOff = 1000,1000,1000
+    local xOff, yOff, zOff = 1000, 1000, 1000
     write_float(get_player(p) + 0xF8, coords.x - xOff)
     write_float(get_player(p) + 0xFC, coords.y - yOff)
-    write_float(get_player(p) + 0x100, coords.z - zOff)                            
+    write_float(get_player(p) + 0x100, coords.z - zOff)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) and player_alive(i) then
             local status, vTab = vanish[getip(i)], entervehicle[i]
             local vTab = entervehicle[i]
-           
+
             if (vTab ~= nil and vTab.enter) then
                 local vehicle, seat = vTab.vehicle, vTab.seat
                 enter_vehicle(vehicle, i, seat)
                 entervehicle[i] = nil
             end
-           
-           if (status ~= nil) and (status.enabled) then
-           
+
+            if (status ~= nil) and (status.enabled) then
+
                 local coords = getXYZ(i)
                 if (coords) then
-                    if ( (coords.invehicle and vanish.hide_vehicles) or not coords.invehicle ) then
+                    if ((coords.invehicle and vanish.hide_vehicles) or not coords.invehicle) then
                         hide_player(i, coords)
                     end
                 end
-                
+
                 if (vanish.camouflage) then
                     execute_command("camo " .. i)
                 end
-                
+
                 -- Speed seems to decrease over time on SAPP, so continuously updating player speed here seems to fix that.
                 if (vanish.speed_boost) then
                     execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.running_speed))
                 end
-                
+
                 if (vanish.boost) then
                     local player = get_dynamic_player(i)
                     if (player ~= 0) then
@@ -624,7 +624,7 @@ function getXYZ(p)
                 return false
             end
         end
-        
+
         local coords, x, y, z = { }
         if isInVehicle(p) then
             coords.invehicle = true
