@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Player Vanish (v 1.2), for SAPP (PC & CE)
+Script Name: Player Vanish (v 1.3), for SAPP (PC & CE)
 Description: Vanish yourself (or others) on demand!
 
 Command syntax: /vanish.command on|off [me | id | */all]
@@ -59,6 +59,9 @@ vanish.invincibility = true
 -- They will have to turn it back on.
 vanish.auto_off = false
 
+-- If this is true, your vehicle will disappear too!
+vanish.hide_vehicles = true
+
 -- If this is true, the player wlll have a speed boost:
 vanish.speed_boost = true
 -- Speed boost applied (default running speed is 1):
@@ -88,7 +91,7 @@ vanish.join_others_msg = "%name% joined vanished!"
 --==================================================================================================--
 -- Vanish Configuration [ends] --
 
-local script_version, weapon_status = 1.2, { }
+local script_version, weapon_status = 1.3, { }
 local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
 
 local function getip(p)
@@ -254,14 +257,24 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 
+local function hide_player(p, coords)
+    local xOff, yOff, zOff = 1000,1000,1000
+    write_float(get_player(p) + 0xF8, coords.x - xOff)
+    write_float(get_player(p) + 0xFC, coords.y - yOff)
+    write_float(get_player(p) + 0x100, coords.z - zOff)                            
+end
+
 function OnTick()
     for i = 1,16 do
         if player_present(i) and player_alive(i) then
            local status = vanish[getip(i)]
            if (status ~= nil) and (status.enabled) then
+           
                 local coords = getXYZ(i)
                 if (coords) then
-                    write_float(get_player(i) + 0x100, coords.z - 1000)
+                    if ( (coords.invehicle and vanish.hide_vehicles) or not coords.invehicle ) then
+                        hide_player(i, coords)
+                    end
                 end
                 
                 -- Speed seems to decrease over time on SAPP, so continuously updating player speed here seems to fix that.
@@ -411,7 +424,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    respond(executor, "Invalid Syntax: Usage: /" .. vanish.command .. " on|off [me | id | */all]", "rcon", 4 + 8)
+                    respond(executor, "Invalid Syntax: Usage: /" .. vanish.command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
                 end
             end
         end
@@ -491,7 +504,7 @@ function vanish:set(params)
             end
         else
             is_error = true
-            respond(eid, "Invalid Syntax: Type /" .. vanish.command .. " [id] on|off.", "rcon", 4 + 8)
+            respond(eid, "Invalid Syntax: Usage: /" .. vanish.command .. " on|off [me | id | */all] ", "rcon", 4 + 8)
         end
         if not (is_error) and not (already_set) then
             if not (is_self) then
@@ -621,4 +634,11 @@ end
 1). Bug fixes
 2). New setting: 'vanish.auto_off' (toggle this setting on or off with 'true' or 'false'.)
 If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
+Script Updated to v1.2
+
+[26/05/19]
+1). New setting: 'vanish.hide_vehicles'
+If this is true, your vehicle will disappear too!
+2). You will now be hidden from the radar!
+Script Updated to v1.3
 ]]
