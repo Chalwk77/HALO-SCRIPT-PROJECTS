@@ -1,17 +1,15 @@
 --[[
 --=====================================================================================================--
-Script Name: Player Vanish (v 1.4), for SAPP (PC & CE)
+Script Name: Player Vanish (v 1.5), for SAPP (PC & CE)
 Description: Vanish yourself (or others) on demand!
 
 Command syntax: /vanish.command on|off [me | id | */all]
 
 Features:
-* God Mode (option to toggle on|off)
-* Speed Boost (option to toggle on|off)
-* Boost (option to toggle on|off)
+* Invincibility (God Mode)
+* Speed Boost
+* Boost
 * Customizable Messages
-* Optionally save vanish-status on quit (vanish upon return)
-
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -63,12 +61,16 @@ vanish.auto_off = false
 -- If this is true, your vehicle will disappear too!
 vanish.hide_vehicles = true
 
+-- If this is true, you will be hidden from radar.
+vanish.hide_from_radar = true
+
 -- If this is true, the player wlll have a speed boost:
 vanish.speed_boost = true
 -- Speed boost applied (default running speed is 1):
 vanish.running_speed = 2
 -- Speed the player returns to when they exit out of Vanish Mode:
 vanish.default_running_speed = 1
+
 
 -- =============== ENABLE | DISABLE Messages =============== --
 -- Let players know when someone goes into Player Vanish mode:
@@ -94,7 +96,7 @@ vanish.join_others_msg = "%name% joined vanished!"
 --==================================================================================================--
 -- Vanish Configuration [ends] --
 
-local script_version, weapon_status = 1.4, { }
+local script_version, weapon_status = 1.5, { }
 local lower, upper, format, gsub = string.lower, string.upper, string.format, string.gsub
 local dir = 'sapp\\vanish.tmp'
 local globals = nil
@@ -282,11 +284,11 @@ function OnPlayerDisconnect(p)
             return ip_address
         end
     end
-    if (vanish[ip(p)] ~= nil) then
-        if not (vanish[ip(p)].enabled) or not (vanish.keep) then
-            vanish[ip(p)] = { }
-            weapon_status[p] = nil
-        end
+        
+    if not (vanish[ip(p)].enabled) or not (vanish.keep) then
+        vanish[ip(p)] = { }
+        weapon_status[p] = nil
+        remove_data_log(p)
     end
     ip_table[p] = nil
 end
@@ -294,8 +296,10 @@ end
 local function hide_player(p, coords)
     local xOff, yOff, zOff = 1000, 1000, 1000
     write_float(get_player(p) + 0xF8, coords.x - xOff)
-    write_float(get_player(p) + 0xFC, coords.y - yOff)
-    write_float(get_player(p) + 0x100, coords.z - zOff)
+    if (vanish.hide_from_radar) then
+        write_float(get_player(p) + 0xFC, coords.y - yOff)
+        write_float(get_player(p) + 0x100, coords.z - zOff)
+    end
 end
 
 function OnTick()
@@ -761,12 +765,12 @@ end
 1). Bug fixes
 2). New setting: 'vanish.auto_off' (toggle this setting on or off with 'true' or 'false'.)
 If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
-Script Updated to v1.2
+Script Updated to (v1.2)
 
 [26/05/19]
 1). New setting: 'vanish.hide_vehicles' -> If this is true, your vehicle will disappear too!
 2). You will now be hidden from the radar!
-Script Updated to v1.3
+Script Updated to (v1.3)
 
 3). New setting: 'vanish.camouflage' -> If this is true, you will be camouflaged.
 Despite the fact that players won't be able to see you anyway, this feature doubles
@@ -776,7 +780,11 @@ as a visual reminder to the player that they are vanished.
 - The first reason for this: To overcome a problem when the script is reloaded.
 - The second reason: Should the server crash, returning players who were previously in vanish will have their vanish restored,
 because their vanish status was saved and loaded to/from that file.
+Script Updated to (v1.4)
 
-Script Updated to v1.4
+[28/05/19]
+1). New setting: 'vanish.hide_from_radar' -> If this is true, you will be hidden from radar.
+2). Documentation edits.
+Script Updated to (v1.5)
 
 ]]
