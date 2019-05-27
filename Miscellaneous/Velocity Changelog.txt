@@ -344,7 +344,7 @@ This means, for example, if you pickup the flag or oddball on a protected map,
 lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally.
 Script Updated to v1.54
 3). New setting ('hide') for LURKER:
-Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled).
+Toggle 'hide' on or off to completely hide the player from others.
 Script Updated to v1.55
 4). A couple of minor tweaks.
 Script Updated to v1.56
@@ -355,3 +355,11 @@ Script Updated to v1.56
 1). Small tweak to Lurker.
 If 'hide' is enabled, vanished players will now be hidden from the radar.
 Script Updated to v1.57
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/28/19]
+1). New option added to lurker: 'hide_from_radar'.
+Previously, if 'hide' was enabled, you would be hidden from radar regardless.
+You can now toggle this on or off with the new setting.
+Script Updated to v1.58
