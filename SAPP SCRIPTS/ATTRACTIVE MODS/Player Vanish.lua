@@ -284,11 +284,14 @@ function OnPlayerDisconnect(p)
             return ip_address
         end
     end
-        
-    if not (vanish[ip(p)].enabled) or not (vanish.keep) then
-        vanish[ip(p)] = { }
-        weapon_status[p] = nil
-        remove_data_log(p)
+
+    local status = vanish[ip(p)]
+    if (status ~= nil) then
+        if not (status.enabled) or not (vanish.keep) then
+            vanish[ip(p)] = { }
+            weapon_status[p] = nil
+            remove_data_log(p)
+        end
     end
     ip_table[p] = nil
 end
@@ -785,6 +788,7 @@ Script Updated to (v1.4)
 [28/05/19]
 1). New setting: 'vanish.hide_from_radar' -> If this is true, you will be hidden from radar.
 2). Documentation edits.
+3). Bug fix.
 Script Updated to (v1.5)
 
 ]]
