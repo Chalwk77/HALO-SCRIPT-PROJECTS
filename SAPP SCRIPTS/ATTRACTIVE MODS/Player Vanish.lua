@@ -299,7 +299,7 @@ function OnPlayerDisconnect(p)
     local status = vanish[ip(p)]
     if (status ~= nil) then
         if not (status.enabled) or not (vanish.keep) then
-            vanish[ip(p)] = { }
+            vanish[ip(p)] = nil
             weapon_status[p] = nil
             remove_data_log(p)
         end
