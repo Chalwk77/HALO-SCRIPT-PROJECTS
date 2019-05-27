@@ -478,6 +478,7 @@ local function GameSettings()
                 camouflage = true,
                 hide = true, -- This will completely hide the player from others
                 hide_vehicles = true, -- If this is true, your vehicle will disappear too! (requires hide to be true!)
+                hide_from_radar = true, -- If this is true, You will be hidden from radar.
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
 
@@ -1727,10 +1728,13 @@ end
 
 -- #Lurker:
 local function hide_player(p, coords)
-    local xOff, yOff, zOff = 1000,1000,1000
-    write_float(get_player(p) + 0xF8, coords.x - xOff)
-    write_float(get_player(p) + 0xFC, coords.y - yOff)
-    write_float(get_player(p) + 0x100, coords.z - zOff)                            
+    local tab = settings.mod["Lurker"]
+    local xOff, yOff, zOff = 1000, 1000, 1000
+    write_float(get_player(p) + 0x100, coords.z - zOff)
+    if (tab.hide_from_radar) then
+        write_float(get_player(p) + 0xF8, coords.x - xOff)
+        write_float(get_player(p) + 0xFC, coords.y - yOff)
+    end
 end
 
 function OnTick()
@@ -7505,7 +7509,7 @@ function RecordChanges()
     cl[#cl + 1] = "lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally."
     cl[#cl + 1] = "Script Updated to v1.54"
     cl[#cl + 1] = "3). New setting ('hide') for LURKER:"
-    cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others. (camouflage must be disabled)."
+    cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others."
     cl[#cl + 1] = "Script Updated to v1.55"
     cl[#cl + 1] = "4). A couple of minor tweaks."
     cl[#cl + 1] = "Script Updated to v1.56"
@@ -7516,6 +7520,12 @@ function RecordChanges()
     cl[#cl + 1] = "1). Small tweak to Lurker."
     cl[#cl + 1] = "If 'hide' is enabled, vanished players will now be hidden from the radar."
     cl[#cl + 1] = "Script Updated to v1.57"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/28/19]"
+    cl[#cl + 1] = "1). New option added to lurker: 'hide_from_radar'."
+    cl[#cl + 1] = "If this is true, you will be hidden from radar!"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
