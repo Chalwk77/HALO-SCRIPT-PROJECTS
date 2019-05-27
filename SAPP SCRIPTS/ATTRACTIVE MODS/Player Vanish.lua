@@ -6,10 +6,21 @@ Description: Vanish yourself (or others) on demand!
 Command syntax: /vanish.command on|off [me | id | */all]
 
 Features:
+* Invisibility
+    - Hidden from all players.
+    - Option to hide vehicles occupied by vanished players.
+    - Option to hide vanished players from radar.
+
 * Invincibility (God Mode)
+    - Complete invulnerability.
+
 * Speed Boost
+    - Option change given speed.
+    
 * Boost
-* Customizable Messages
+    - Teleports you to the nearest object that you are aiming directly.
+    
+* Customizable Messages.
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -766,7 +777,7 @@ end
 
 [25/05/19]
 1). Bug fixes
-2). New setting: 'vanish.auto_off' (toggle this setting on or off with 'true' or 'false'.)
+2). New setting: 'vanish.auto_off'.
 If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
 Script Updated to (v1.2)
 
