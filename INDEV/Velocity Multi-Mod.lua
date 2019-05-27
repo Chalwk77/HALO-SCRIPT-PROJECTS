@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.57), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.58), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -474,13 +474,14 @@ local function GameSettings()
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
                 screen_notifications = true, -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
                 speed = true,
-                god = true,
-                camouflage = true,
-                hide = true, -- This will completely hide the player from others
-                hide_vehicles = true, -- If this is true, your vehicle will disappear too! (requires hide to be true!)
-                hide_from_radar = true, -- If this is true, You will be hidden from radar.
                 running_speed = 2, -- Speed boost applied (default running speed is 1)
                 default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
+                god = true,
+                camouflage = true,
+                
+                hide = true, -- This will completely hide the player from others
+                hide_vehicles = true, -- If this is true, your vehicle will disappear too! (hide must be enabled)
+                hide_from_radar = true, -- If this is true, You will be hidden from radar. (hide must be enabled)
 
                 -- If the player picks up the oddball or flag, they receive a warning and are asked to drop the objective.
                 -- If they do not drop the objective before the timer reaches 0, they are killed automatically.
@@ -804,7 +805,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.57, -- << --- do not touch
+            script_version = 1.58, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -7525,7 +7526,9 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/28/19]"
     cl[#cl + 1] = "1). New option added to lurker: 'hide_from_radar'."
-    cl[#cl + 1] = "If this is true, you will be hidden from radar!"
+    cl[#cl + 1] = "Previously, if 'hide' was enabled, you would be hidden from radar regardless."
+    cl[#cl + 1] = "You can now toggle this on or off with the new setting."
+    cl[#cl + 1] = "Script Updated to v1.58"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
