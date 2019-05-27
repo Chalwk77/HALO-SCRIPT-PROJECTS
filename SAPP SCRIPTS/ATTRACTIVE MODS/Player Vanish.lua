@@ -248,9 +248,6 @@ function OnPlayerConnect(p)
     ip_table[p] = ip_table[p] or { }
     ip_table[p] = ip
 
-    local status = vanish[ip]
-    local was_vanished = isVanished(ip)
-
     local function tell(p, bool)
         vanish[ip] = vanish[ip] or {}
         if (vanish.join_tell) then
@@ -269,7 +266,10 @@ function OnPlayerConnect(p)
             end
         end
     end
-
+    
+    local status = vanish[ip]
+    local was_vanished = isVanished(ip)
+    
     if (status ~= nil and status.enabled) then
         tell(p)
     elseif (status == nil) and (was_vanished) then
