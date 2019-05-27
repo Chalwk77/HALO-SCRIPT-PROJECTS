@@ -41,9 +41,6 @@ vanish.execute_on_others = 4
 -- The prefix will be restored to 'vanish.serverprefix' when the relay has finished.
 vanish.serverprefix = "** SERVER ** "
 
--- Let players know when someone goes into Player Vanish mode:
-vanish.announce = true
-
 -- If this is enabled, you will teleport to the nearest object that you are aiming directly at:
 vanish.boost = true
 -- What action triggers boost? (see below for a list of valid actions):
@@ -52,7 +49,7 @@ vanish.boost_trigger = "crouch_and_shoot"
 -- crouch_and_shoot  (crouch and shoot to activate boost)
 -- crouch            (crouch only, to activate boost)
 
--- If this is true, the player will have invincibility:
+-- If this is true, the player will have invincibility (god mode):
 vanish.invincibility = true
 
 -- If this is true, you will be camouflaged.
@@ -74,13 +71,15 @@ vanish.running_speed = 2
 vanish.default_running_speed = 1
 
 -- =============== ENABLE | DISABLE Messages =============== --
+-- Let players know when someone goes into Player Vanish mode:
+vanish.announce = true
 -- (optional) -> Use "%name%" variable to output the joining players name.
 vanish.onEnableMsg = "%name% is now invisible. Poof!"
 vanish.onDisabeMsg = "%name% is no longer invisible!"
 --==================================================================================================--
 
 
--- =============== JOIN SETTINGS =============== --
+-- =============== JOIN/QUIT SETTINGS =============== --
 -- Keep vanish on quit? (When the player returns, they will still be in vanish).
 vanish.keep = true
 
