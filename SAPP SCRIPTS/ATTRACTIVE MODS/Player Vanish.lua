@@ -309,10 +309,10 @@ end
 
 local function hide_player(p, coords)
     local xOff, yOff, zOff = 1000, 1000, 1000
-    write_float(get_player(p) + 0xF8, coords.x - xOff)
+    write_float(get_player(p) + 0x100, coords.z - zOff)
     if (vanish.hide_from_radar) then
+        write_float(get_player(p) + 0xF8, coords.x - xOff)
         write_float(get_player(p) + 0xFC, coords.y - yOff)
-        write_float(get_player(p) + 0x100, coords.z - zOff)
     end
 end
 
