@@ -363,5 +363,7 @@ Script Updated to v1.57
 Previously, if 'hide' was enabled, you would be hidden from radar regardless.
 You can now toggle this on or off with the new setting.
 Script Updated to v1.58
-2). Bug fix for Color Changer.
+2). Bug fix for Color Changer. 
 Script Updated to v1.59
+3). Added new command to turn friendly fire on or off: /ff on|off.
+Script Updated to v1.60
