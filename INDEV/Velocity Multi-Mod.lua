@@ -895,7 +895,7 @@ local function getip(p, bool)
 end
 
 -- Receives a string and executes SAPP function 'say_all' without the **SERVER** prefix.
--- Restores the prefix when done.
+-- Restores the prefix when relay is done.
 local SayAll = function(Message)
     if (Message) then
         execute_command("msg_prefix \"\"")
@@ -920,30 +920,28 @@ local console_address_patch = nil
 local game_over
 
 -- #Color Reservation
-local colorres_bool = {}
+local colorres_bool = { }
 local can_use_colorres
 
 -- #Color Changer
-local colorspawn = {}
+local colorspawn = { }
 
 -- #Auto Message
 local autoMessage = { }
+local auto_msg_startindex = 1
 local auto_msg_init_timer
 local auto_msg_countdown = 0
 
 -- #Item Spawner
-local temp_objects_table = {}
+local temp_objects_table = { }
 
 -- #Enter Vehicle
-local ev = {}
-local ev_Status = {}
-local ev_NewVehicle = {}
-local ev_OldVehicle = {}
+local ev = { }
+local ev_Status = { }
+local ev_NewVehicle, ev_OldVehicle = { }, { }
 
 -- drones
-local EV_drone_table = {}
-local IS_drone_table = {}
-local item_objects = {}
+local EV_drone_table, IS_drone_table, item_objects = { }, { }, { }
 
 -- Mute Handler
 local mute_table = { }
@@ -954,16 +952,13 @@ local weapon = {}
 -- #Infinity Ammo
 local infammo = {}
 local frag_check = {}
-local modify_damage = {}
-local damage_multiplier = {}
+local modify_damage, damage_multiplier = { }, { }
 
 -- #Portal Gun
-local weapon_status = {}
-local portalgun_mode = {}
+local weapon_status, portalgun_mode = { }, { }
 
 -- #Respawn Time
-local respawn_cmd_override = { }
-local respawn_time = { }
+local respawn_cmd_override, respawn_time = { }, { }
 
 -- #Lurker
 local lurker, scores = { }, { }
@@ -972,16 +967,14 @@ local lurker_coords, lurker_tp_back = { }, { }
 local entervehicle = { }
 
 -- #Teleport Manager
-local canset = {}
-local wait_for_response = {}
-local previous_location = {}
+local canset = { }
+local wait_for_response, previous_location = { }, { }
 for i = 1, 16 do
     previous_location[i] = {}
 end
 
 -- #Spawn From Sky
-local init_timer = {}
-local first_join = {}
+local init_timer, first_join = { }, { }
 
 -- #Private Messaging System
 local privateMessage, unread_mail = { }, { }
@@ -1309,6 +1302,7 @@ function velocity:LurkerReset(ip)
         lurker_warnings = settings.mod["Lurker"].warnings,
     }
 end
+
 local function getLurkerWarnings(ip)
     return players["Lurker"][ip].lurker_warnings
 end
@@ -1876,7 +1870,7 @@ function OnTick()
                     if (tab.hide) then
                         local coords = getXYZ(0, i)
                         if (coords) then
-                            if ( (coords.invehicle and vanish.hide_vehicles) or not coords.invehicle ) then
+                            if ( (coords.invehicle and tab.hide_vehicles) or not coords.invehicle ) then
                                 hide_player(i, coords)
                             end
                         end
@@ -4411,43 +4405,43 @@ function velocity:setcolor(params)
         if player_alive(tid) then
             local player_object = get_dynamic_player(tid)
             if (player_object ~= 0) then
-                local player, color, _error_= getPlayer(tid)
+                local player, color_name, _error_= getPlayer(tid)
                 if (color == "white" or color == "0") then
-                    color = 0
+                    color, color_name = 0, "white"
                 elseif (color == "black" or color == "1") then
-                    color = 1
+                    color, color_name = 1, "white"
                 elseif (color == "red" or color == "2") then
-                    color = 2
+                    color, color_name = 2, "white"
                 elseif (color == "blue" or color == "3") then
-                    color = 3
+                    color, color_name = 3, "white"
                 elseif (color == "gray" or color == "4") then
-                    color = 4
+                    color, color_name = 4, "white"
                 elseif (color == "yellow" or color == "5") then
-                    color = 5
+                    color, color_name = 5, "white"
                 elseif (color == "green" or color == "6") then
-                    color = 6
+                    color, color_name = 6, "white"
                 elseif (color == "pink" or color == "7") then
-                    color = 7
+                    color, color_name = 7, "white"
                 elseif (color == "purple" or color == "8") then
-                    color = 8
+                    color, color_name = 8, "white"
                 elseif (color == "cyan" or color == "9") then
-                    color = 9
+                    color, color_name = 9, "white"
                 elseif (color == "cobalt" or color == "10") then
-                    color = 10
+                    color, color_name = 10, "white"
                 elseif (color == "orange" or color == "11") then
-                    color = 11
+                    color, color_name = 11, "white"
                 elseif (color == "teal" or color == "12") then
-                    color = 12
+                    color, color_name = 12, "white"
                 elseif (color == "sage" or color == "13") then
-                    color = 13
+                    color, color_name = 13, "white"
                 elseif (color == "brown" or color == "14") then
-                    color = 14
+                    color, color_name = 14, "white"
                 elseif (color == "tan" or color == "15") then
-                    color = 15
+                    color, color_name = 15, "white"
                 elseif (color == "maroon" or color == "16") then
-                    color = 16
+                    color, color_name = 16, "white"
                 elseif (color == "salmon" or color == "17") then
-                    color = 17
+                    color, color_name = 17, "salmon"
                 else
                     respond(eid, "Invalid Color", "rcon", 4 + 8)
                     _error_ = true
@@ -4467,10 +4461,10 @@ function velocity:setcolor(params)
                         end
 
                         if not (is_self) then
-                            respond(eid, tn .. "'s color was changed to " .. color, "rcon", 2 + 8)
-                            respond(tid, en .. " set your color to " .. color, "rcon", 2 + 8)
+                            respond(eid, tn .. "'s color was changed to " .. color_name, "rcon", 2 + 8)
+                            respond(tid, en .. " set your color to " .. color_name, "rcon", 2 + 8)
                         else
-                            respond(eid, "Color changed to " .. color, "rcon", 4 + 8)
+                            respond(eid, "Color changed to " .. color_name, "rcon", 4 + 8)
                         end
                     end
                 end
