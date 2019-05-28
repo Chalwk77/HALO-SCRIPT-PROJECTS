@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.60), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.59), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -805,14 +805,13 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.60, -- << --- do not touch
+            script_version = 1.59, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
             server_prefix = "**SERVER** ",
             max_results_per_page = 10,
             special_commands = {
-                friendly_fire = { "ff", 1 }, -- /ff on|off
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
@@ -873,7 +872,6 @@ local velocity, player_info = { }, { }
 local players
 local server_ip = "000.000.000.000"
 local globals = nil
-local friendly_fire
 
 local function InitPlayers()
     players = {
@@ -1506,9 +1504,6 @@ function OnScriptLoad()
     if checkFile("sapp\\changelog.txt") then
         RecordChanges()
     end
-    if (friendly_fire) then
-        friendly_fire = nil
-    end
 end
 
 function OnScriptUnload()
@@ -1625,7 +1620,6 @@ function OnGameEnd()
     -- Prevents displaying chat ids when the game is over.
     -- Otherwise map voting breaks.
     game_over = true
-    friendly_fire = nil
     resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
@@ -4063,24 +4057,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 SayAll(" ")
                 if player_present(i) and (tonumber(get_var(i, "$lvl")) >= 1) then
                     respond(i, "Chat was cleared by " .. name, "rcon", 5 + 8)
-                end
-            end
-        end
-        return false
-        -- #Friendly Fire Command
-    elseif (command == pCMD.friendly_fire[1]) then
-        if not gameover(executor) then
-            if hasAccess(executor, pCMD.friendly_fire[2]) then
-                if (args[1] ~= nil) and (args[1] == "on" or args[1] == "off") then
-                    if (args[1] == "on") then
-                        friendly_fire = true
-                        respond(executor, "Friendly Fire Enabled", "rcon", 5 + 8)
-                    else
-                        friendly_fire = false
-                        respond(executor, "Friendly Fire Disabled", "rcon", 5 + 8)
-                    end
-                else
-                    respond(executor, "Invalid Syntax. Usage: /" .. pCMD.friendly_fire[1] .. " on|off", "rcon", 4 + 8)
                 end
             end
         end
@@ -6606,19 +6582,6 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
         end
     end
-    -- Friendly Fire handler
-    if (friendly_fire ~= nil and getTeamPlay()) then
-        if not (friendly_fire) then
-            if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-                local vTeam, kTeam = get_var(PlayerIndex, "$team"), get_var(CauserIndex, "$team")
-                if (vTeam == kTeam) then                
-                    return false
-                end
-            end            
-        else
-            return true
-        end
-    end
 end
 
 function OnWeaponDrop(PlayerIndex)
@@ -7190,7 +7153,6 @@ function RecordChanges()
     local plugins_cmd = global_cmd.list[1]
     local version_cmd = global_cmd.velocity[1]
     local lore_cmd = global_cmd.information.cmd
-    local friendly_fire_cmd = global_cmd.friendly_fire[1]
 
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)."
@@ -7559,8 +7521,6 @@ function RecordChanges()
     cl[#cl + 1] = "Script Updated to v1.58"
     cl[#cl + 1] = "2). Bug fix for Color Changer. "
     cl[#cl + 1] = "Script Updated to v1.59"
-    cl[#cl + 1] = "3). Added new command to turn friendly fire on or off: /" .. friendly_fire_cmd .. " on|off."
-    cl[#cl + 1] = "Script Updated to v1.60"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
