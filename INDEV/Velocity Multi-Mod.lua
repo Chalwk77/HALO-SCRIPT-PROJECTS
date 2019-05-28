@@ -6627,7 +6627,6 @@ function hasObjective(PlayerIndex, WeaponIndex)
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
             local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
             local name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-            print(name)
             if (weapon == red_flag) or (weapon == blue_flag) then
                 object_picked_up[PlayerIndex] = "flag"
                 return true
