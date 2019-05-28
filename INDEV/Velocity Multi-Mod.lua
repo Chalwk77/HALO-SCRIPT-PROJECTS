@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.59), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.60), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -805,13 +805,14 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.59, -- << --- do not touch
+            script_version = 1.60, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
             server_prefix = "**SERVER** ",
             max_results_per_page = 10,
             special_commands = {
+                friendly_fire = { "ff", 1 }, -- /ff on|off
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
@@ -867,11 +868,13 @@ local function GameSettings()
 end
 -- Configuration [ENDS] -----------------------------------------
 
--- Tables used Globally
+-- Tables/variables used Globally
 local velocity, player_info = { }, { }
 local players
 local server_ip = "000.000.000.000"
 local globals = nil
+local friendly_fire
+
 local function InitPlayers()
     players = {
         ["Alias System"] = { },
@@ -1503,6 +1506,9 @@ function OnScriptLoad()
     if checkFile("sapp\\changelog.txt") then
         RecordChanges()
     end
+    if (friendly_fire) then
+        friendly_fire = nil
+    end
 end
 
 function OnScriptUnload()
@@ -1619,7 +1625,7 @@ function OnGameEnd()
     -- Prevents displaying chat ids when the game is over.
     -- Otherwise map voting breaks.
     game_over = true
-
+    friendly_fire = nil
     resetAliasParams()
     for i = 1, 16 do
         if player_present(i) then
@@ -1862,7 +1868,9 @@ function OnTick()
                 end
 
                 if (lurker[i] == true) then
-                    if not (players["Lurker"][ip].lurker_warn) then
+                    local LTab = players["Lurker"][ip]
+                    if LTab == nil then return end
+                    if not (LTab.lurker_warn) then
                         if (tab.speed) then
                             execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
                         end
@@ -1875,10 +1883,8 @@ function OnTick()
                             end
                         end
                     end
-                    if (players["Lurker"][ip].lurker_warn == true) then
-                        local LTab = players["Lurker"][ip]
+                    if (LTab.lurker_warn) then
                         LTab.lurker_timer = LTab.lurker_timer + 0.030
-
                         cls(i, 25)
                         local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
                         rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
@@ -1914,13 +1920,9 @@ function OnTick()
                             object_picked_up[i] = ""
                         end
                     end
-                    if (tonumber(scores[i]) ~= nil) then
+                    local score = tonumber(get_var(i, "$score"))
+                    if (tonumber(scores[i]) ~= nil) or (score < 0) then
                         execute_command("score " .. tonumber(i) .. " " .. scores[i])
-                        local score = get_var(i, "$score")
-                        if (tonumber(score) < 0) then
-                            -- In the event scores goes into the negatives, this will set it back to what it should be.
-                            execute_command("score " .. tonumber(i) .. " " .. scores[i])
-                        end
                     end
                 end
             end
@@ -2855,9 +2857,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             chat_type = "[TEAM]    "
         elseif type == 2 then
             chat_type = "[VEHICLE] "
-        end
-        if (chat_type == nil) then
-            chat_type = "UNKNOWN"
         end
         local dir = settings.mod["Chat Logging"].dir
         local function LogChat(dir, msg)
@@ -4064,6 +4063,24 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 SayAll(" ")
                 if player_present(i) and (tonumber(get_var(i, "$lvl")) >= 1) then
                     respond(i, "Chat was cleared by " .. name, "rcon", 5 + 8)
+                end
+            end
+        end
+        return false
+        -- #Friendly Fire Command
+    elseif (command == pCMD.friendly_fire[1]) then
+        if not gameover(executor) then
+            if hasAccess(executor, pCMD.friendly_fire[2]) then
+                if (args[1] ~= nil) and (args[1] == "on" or args[1] == "off") then
+                    if (args[1] == "on") then
+                        friendly_fire = true
+                        respond(executor, "Friendly Fire Enabled", "rcon", 5 + 8)
+                    else
+                        friendly_fire = false
+                        respond(executor, "Friendly Fire Disabled", "rcon", 5 + 8)
+                    end
+                else
+                    respond(executor, "Invalid Syntax. Usage: /" .. pCMD.friendly_fire[1] .. " on|off", "rcon", 4 + 8)
                 end
             end
         end
@@ -6589,6 +6606,19 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
         end
     end
+    -- Friendly Fire handler
+    if (friendly_fire ~= nil and getTeamPlay()) then
+        if not (friendly_fire) then
+            if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+                local vTeam, kTeam = get_var(PlayerIndex, "$team"), get_var(CauserIndex, "$team")
+                if (vTeam == kTeam) then                
+                    return false
+                end
+            end            
+        else
+            return true
+        end
+    end
 end
 
 function OnWeaponDrop(PlayerIndex)
@@ -6627,6 +6657,7 @@ function hasObjective(PlayerIndex, WeaponIndex)
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
             local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
             local name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+            print(name)
             if (weapon == red_flag) or (weapon == blue_flag) then
                 object_picked_up[PlayerIndex] = "flag"
                 return true
@@ -7159,6 +7190,7 @@ function RecordChanges()
     local plugins_cmd = global_cmd.list[1]
     local version_cmd = global_cmd.velocity[1]
     local lore_cmd = global_cmd.information.cmd
+    local friendly_fire_cmd = global_cmd.friendly_fire[1]
 
     cl[#cl + 1] = "[2/22/19]"
     cl[#cl + 1] = "1). Began Development of BGS (now known as Velocity)."
@@ -7525,9 +7557,10 @@ function RecordChanges()
     cl[#cl + 1] = "Previously, if 'hide' was enabled, you would be hidden from radar regardless."
     cl[#cl + 1] = "You can now toggle this on or off with the new setting."
     cl[#cl + 1] = "Script Updated to v1.58"
-    cl[#cl + 1] = "2). Bug fix for Color Changer."
-    cl[#cl + 1] = "3). Bug for in function 'OnServerChat()'."
+    cl[#cl + 1] = "2). Bug fix for Color Changer. "
     cl[#cl + 1] = "Script Updated to v1.59"
+    cl[#cl + 1] = "3). Added new command to turn friendly fire on or off: /" .. friendly_fire_cmd .. " on|off."
+    cl[#cl + 1] = "Script Updated to v1.60"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
