@@ -38,6 +38,11 @@
 > You can optionally specify how high off the ground the object spawns, and the distance it spawns from the player's standing position.
 - - - -
 
+## Friendly Fire:
+`/ff on|off`
+> Applies to team based games only.
+- - - -
+
 ## Get Coords:
 `/gc [me | id | */all]`
 > Use this command to retrieve the current x,y,z coordinates of the target player.
