@@ -2856,6 +2856,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
         elseif type == 2 then
             chat_type = "[VEHICLE] "
         end
+        if (chat_type == nil) then
+            chat_type = "UNKNOWN"
+        end
         local dir = settings.mod["Chat Logging"].dir
         local function LogChat(dir, msg)
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
@@ -7524,6 +7527,7 @@ function RecordChanges()
     cl[#cl + 1] = "You can now toggle this on or off with the new setting."
     cl[#cl + 1] = "Script Updated to v1.58"
     cl[#cl + 1] = "2). Bug fix for Color Changer."
+    cl[#cl + 1] = "3). Bug for in function 'OnServerChat()'."
     cl[#cl + 1] = "Script Updated to v1.59"
     file:write(concat(cl, "\n"))
     file:close()
