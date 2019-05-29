@@ -26,6 +26,9 @@ Features:
     - To enable with "camouflage only", vanish.camouflage must be enabled.
     - To enable with "both", vanish.hide and vanish.camouflage must both be enabled.
     
+* Toggle damage infliction on or off (vanish.block_damage).
+    - When enabled, players in vanish will not be able to inflict (or receive) damage.
+    
 * Customizable Messages.
 
 * Vanish status is recorded to a local file when you quit the server. This doubles as a backup solution should the server crash.
