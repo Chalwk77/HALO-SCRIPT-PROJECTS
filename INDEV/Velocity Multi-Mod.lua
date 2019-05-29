@@ -475,7 +475,7 @@ local function GameSettings()
                 -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
                 -- If neither are specified, the script will revert to default settings, i.e, 'hide', 'camouflage'
                 -- If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.                
-                permission_level = 1,
+                permission_level = -1,
                 execute_on_others = 4,
                 -- If this is true, the player will have invincibility (god mode):
                 invincibility = true,
@@ -515,7 +515,7 @@ local function GameSettings()
                 -- Let players know when someone goes into (or out of) Lurker mode:
                 announce = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
-                onEnableMsg = "%name% is now in Lurker Mode (Spectator) | MODE: [%mode%]",
+                onEnableMsg = "%name% is now in Lurker Mode (Spectator) | STATE: [%mode%]",
                 onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
                 --==================================================================================================--
 
@@ -534,7 +534,7 @@ local function GameSettings()
 
                 -- Tell other players that PlayerX joined in Lurker? (requires keep to be enabled) 
                 join_tell_others = true,
-                join_others_msg = "%name% joined in Lurker Mode (Spectator) | MODE: [%mode%]",
+                join_others_msg = "%name% joined in Lurker Mode (Spectator) | STATE: [%mode%]",
 
             },
             ["Welcome Messages"] = { -- Messages shown to the player on join.
