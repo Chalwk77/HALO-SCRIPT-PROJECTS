@@ -366,3 +366,10 @@ Script Updated to v1.58
 2). Bug fix for Color Changer. 
 3). Removed mod: 'Spawn From Sky'.
 Script Updated to v1.59
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/29/19]
+1). Completely rewrote Lurker. (See Lurker's config section for details)
+2). A couple of minor bug fixes.
+Script Updated to v1.60
