@@ -61,8 +61,12 @@
 
 ## Lurker:
 `/lurker on|off [me | id | */all] <flag>`
-> If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.                
-
+> If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.<br/>
+> Command flags: '-c', '-h' and '-ch'.<br/>
+> If '-c' (short for camouflage) command parameter is specified, you will only have camo!<br/>
+> If '-h' (short for hidden) command parameter is specified, you will only be hidden!<br/>
+> If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!<br/>
+> If neither are specified, the script will revert to default settings.
 - - - -
 
 ## Mute System:
