@@ -373,3 +373,9 @@ Script Updated to v1.59
 1). Completely rewrote Lurker. (See Lurker's config section for details)
 2). A couple of minor bug fixes.
 Script Updated to v1.60
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/30/19]
+Bug Fixes from the aftermath of rewriting Lurker.
+Script Updated to v1.61
