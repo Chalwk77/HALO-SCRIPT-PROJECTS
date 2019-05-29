@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.59), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.60), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -466,30 +466,76 @@ local function GameSettings()
             },
             -- # This is a spectator-like feature.
             ["Lurker"] = {
-                -- To enable a feature, set 'false' to 'true'
                 enabled = true,
-                base_command = "lurker", -- /base_command [me | id | */all] [on|off|0|1|true|false)
-                permission_level = -1,
-                execute_on_others = 4, -- Permission level needed to set for others.
-                announcer = true, -- If this is enabled then all players will be alerted when someone goes into lurker mode.
-                screen_notifications = true, -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
-                speed = true,
-                running_speed = 2, -- Speed boost applied (default running speed is 1)
-                default_running_speed = 1, -- Speed the player returns to when they exit out of Lurker Mode.
-                god = true,
+                dir = 'sapp\\lurker.tmp',
+                base_command = "lurker", -- /command on|off [me | id | */all] <cmd_flag>
+                cmd_flags = {"-c", "-h", "-ch"}, -- Command flag parameters.
+                -- If '-c' (short for camouflage) command parameter is specified, you will only have camo!
+                -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
+                -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
+                -- If neither are specified, the script will revert to default settings, i.e, 'hide', 'camouflage'
+                -- If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.                
+                permission_level = 1,
+                execute_on_others = 4,
+                -- If this is true, the player will have invincibility (god mode):
+                invincibility = true,
+                -- If this is true, you will be hidden from all players.
+                hide = true,
+                -- If this is true, you will be camouflaged:
                 camouflage = true,
-                
-                hide = true, -- This will completely hide the player from others
-                hide_vehicles = true, -- If this is true, your vehicle will disappear too! (hide must be enabled)
-                hide_from_radar = true, -- If this is true, You will be hidden from radar. (hide must be enabled)
+                -- If this is true, Lurker will be auto-disabled (for all players) when the game ends, thus, players will not be in Lurker when the next game begins.
+                -- They will have to turn it back on:
+                auto_off = false,
+                -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
+                screen_notifications = true,
+                -- If this is true, your vehicle will disappear too!
+                hide_vehicles = true,
+                -- If this is true, you will be hidden from radar.
+                hide_from_radar = true,
+                -- If this is true, players in Lurker will not be able to inflict (or receive) damage.
+                block_damage = true,
+                -- If this is true, the player wlll have a speed boost:
+                speed_boost = true,
+                -- If this is true, you will have permanent shield:
+                apply_shield = false,
+                -- Shield amount applied:
+                shield_amount = 100,
+                -- Speed boost applied (default running speed is 1):
+                running_speed = 2,
+                -- Speed the player returns to when they exit out of Lurker Mode:
+                default_running_speed = 1,
+                -- Time (in seconds) until the player is killed after picking up the objective (flag or oddball)
+                time_until_death = 5,
 
-                -- If the player picks up the oddball or flag, they receive a warning and are asked to drop the objective.
-                -- If they do not drop the objective before the timer reaches 0, they are killed automatically.
-                -- Warnings are given immediately upon picking up the objective.
-                -- If the player has no warnings left their Lurker will be disabled (however, not revoked).
-                -- ...
-                time_until_death = 5, -- Time (in seconds) until the player is killed after picking up the objective.
+                -- You lose one warning point every time you pick up the objective (flag or oddball).
+                -- If you have no warnings left, your Lurker privileges will be revoked (until the server is restarted)
                 warnings = 4,
+
+                -- =============== ENABLE | DISABLE Messages =============== --
+                -- Let players know when someone goes into (or out of) Lurker mode:
+                announce = true,
+                -- (optional) -> Use "%name%" variable to output the joining players name.
+                onEnableMsg = "%name% is now in Lurker Mode (Spectator). Poof!",
+                onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
+                --==================================================================================================--
+
+                -- =============== JOIN/QUIT SETTINGS =============== --
+                -- Keep Lurker on quit? (When the player returns, they will still be in Lurker).
+                keep = true,
+
+                -- Remind the newly joined player that they are in Lurker? (requires keep to be enabled) 
+                join_tell = true,
+                -- (optional) -> Use "%name%" variable to output the joining players name.
+                join_msg = "%name%, You have joined in Lurker Mode (Spectator).",
+
+                -- If this is true, the player will be informed of how many warnings remain.
+                announce_warnings = true,
+                join_warnings_left_msg = "Lurker Warnings left: %warnings%",
+
+                -- Tell other players that PlayerX joined in Lurker? (requires keep to be enabled) 
+                join_tell_others = true,
+                join_others_msg = "%name% joined in Lurker Mode (Spectator)",
+
             },
             ["Welcome Messages"] = { -- Messages shown to the player on join.
                 enabled = false,
@@ -686,7 +732,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.59, -- << --- do not touch
+            script_version = 1.60, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -696,8 +742,6 @@ local function GameSettings()
                 velocity = { "velocity", -1 }, -- /velocity
                 enable = { "enable", 1 }, -- /enable [id]
                 disable = { "disable", 1 }, -- /disable [id]
-
-
                 list = { "plugins", 1 }, -- /pluigns
 
                 -- Clears the chat (useful if someone says something negative or derogatory).
@@ -753,13 +797,14 @@ local velocity, player_info = { }, { }
 local players
 local server_ip = "000.000.000.000"
 local globals = nil
+local red_flag, blue_flag
+local entervehicle = { }
 
 local function InitPlayers()
     players = {
         ["Alias System"] = { },
         ["Welcome Messages"] = { },
         ["Admin Chat"] = { },
-        ["Lurker"] = { },
     }
 end
 -- String Library, Math Library, Table Library
@@ -799,6 +844,7 @@ local mapname = ""
 local ce
 local console_address_patch = nil
 local game_over
+local Lurker = { }
 
 -- #Color Reservation
 local colorres_bool = { }
@@ -842,10 +888,6 @@ local weapon_status, portalgun_mode = { }, { }
 local respawn_cmd_override, respawn_time = { }, { }
 
 -- #Lurker
-local lurker, scores = { }, { }
-local object_picked_up, has_objective = { }, { }
-local lurker_coords, lurker_tp_back = { }, { }
-local entervehicle = { }
 
 -- #Teleport Manager
 local canset = { }
@@ -1172,17 +1214,32 @@ function adminchat:set(ip)
 end
 --------------------------------------------------------------
 -- #Lurker
-function velocity:LurkerReset(ip)
-    players["Lurker"][ip] = {
-        teleport = false,
-        lurker_warn = false,
-        lurker_timer = 0,
-        lurker_warnings = settings.mod["Lurker"].warnings,
-    }
+-- Return the number of warnings this player has remaining.
+function getLurkerWarnings(ip)
+    local mod = settings.mod["Lurker"]
+    return ((Lurker[ip].warnings) or mod.warnings)
 end
-
-local function getLurkerWarnings(ip)
-    return players["Lurker"][ip].lurker_warnings
+function reset()
+    for i = 1, 16 do
+        if player_present(i) then
+            local ip = getip(i, true)
+            local is_in_lurker = isInLurker(ip)
+            local mod = settings.mod["Lurker"]
+            if ((Lurker[ip] ~= nil) or is_in_lurker) then
+                Lurker[ip] = nil
+                if (mod.speed_boost) then
+                    execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed))
+                end
+                if not (game_over) then
+                    rprint(i, "SAPP Reloaded.")
+                else
+                    rprint(i, "GAME OVER.")
+                end
+                remove_data_log(i)
+                rprint(i, "Your Lurker Mode has been deactivated.")
+            end
+        end
+    end
 end
 --------------------------------------------------------------
 
@@ -1281,6 +1338,14 @@ function OnScriptLoad()
         end
     end
 
+    -- #Lurker
+    if modEnabled("Lurker") then 
+        checkFile(settings.mod["Lurker"].dir)
+        if (tonumber(get_var(0, "$pn")) > 0) then
+            reset()
+        end
+    end
+
     for i = 1, 16 do
         if player_present(i) then
             populateInfoTable(i)
@@ -1298,13 +1363,6 @@ function OnScriptLoad()
             if modEnabled("Admin Chat") then
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     adminchat:set(ip)
-                end
-            end
-
-            -- #Lurker
-            if modEnabled("Lurker") then
-                if tonumber(level) >= getPermLevel("Lurker", false) then
-                    velocity:LurkerReset(ip)
                 end
             end
 
@@ -1369,7 +1427,6 @@ function OnScriptLoad()
 
     -- Register Server Console to Table
     alias:reset(server_ip)
-    velocity:LurkerReset(server_ip)
 
     if checkFile("sapp\\changelog.txt") then
         RecordChanges()
@@ -1418,6 +1475,7 @@ function OnGameStart()
     mapname = get_var(0, "$map")
     PreLoad()
     resetAliasParams()
+    red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
     for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i, true)
@@ -1435,13 +1493,6 @@ function OnGameStart()
                 if not (game_over) and tonumber(level) >= getPermLevel("Admin Chat", false) then
                     players["Admin Chat"][ip].adminchat = false
                     players["Admin Chat"][ip].boolean = false
-                end
-            end
-
-            -- #Lurker
-            if modEnabled("Lurker") then
-                if tonumber(level) >= getPermLevel("Lurker", false) then
-                    velocity:LurkerReset(ip)
                 end
             end
         end
@@ -1564,9 +1615,10 @@ function OnGameEnd()
             end
 
             -- #Lurker
-            if modEnabled("Lurker") then
-                if (level) >= getPermLevel("Lurker", false) then
-                    velocity:LurkerReset(ip)
+            if modEnabled("Lurker") then 
+                local mod = settings.mod["Lurker"]
+                if (mod.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
+                    reset()
                 end
             end
         end
@@ -1593,10 +1645,10 @@ end
 
 -- #Lurker:
 local function hide_player(p, coords)
-    local tab = settings.mod["Lurker"]
     local xOff, yOff, zOff = 1000, 1000, 1000
     write_float(get_player(p) + 0x100, coords.z - zOff)
-    if (tab.hide_from_radar) then
+    local mod = settings.mod["Lurker"]
+    if (mod.hide_from_radar) then
         write_float(get_player(p) + 0xF8, coords.x - xOff)
         write_float(get_player(p) + 0xFC, coords.y - yOff)
     end
@@ -1696,31 +1748,37 @@ function OnTick()
 
             -- #Lurker
             if modEnabled("Lurker") then
-                local tab = settings.mod["Lurker"]
-                if (tab.screen_notifications) then
-                    if not (tab.hide) then
-                        for j = 1, 16 do
-                            if (i ~= j) then
-                                if (player_alive(i)) and (player_alive(j)) then
-                                    local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
-                                    if (P1Object ~= 0) and (P2Object ~= 0) then
-                                        local camX, camY, camZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
-                                        local couching = read_float(P1Object + 0x50C)
-                                        local px, py, pz = read_vector3d(P1Object + 0x5c)
-                                        if (couching == 0) then
-                                            pz = pz + 0.65
-                                        else
-                                            pz = pz + (0.35 * couching)
-                                        end
-                                        local player_1 = read_dword(get_player(i) + 0x34)
-                                        local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
-                                        local player_2 = Object and read_dword(get_player(j) + 0x34)
-                                        if (success == true and Object ~= nil) then
-                                            if (Object == player_2 and lurker[j]) then
-                                                cls(i, 25)
-                                                respond(i, "|c" .. get_var(j, "$name") .. " is in spectator mode!", "rcon")
-                                                for _ = 1, 5 do
-                                                    rprint(i, " ")
+                local mod = settings.mod["Lurker"]
+                
+                local status = Lurker[ip]
+                if (status ~= nil) and (status.enabled) then
+
+                    if (mod.screen_notifications) then
+                        if not (mod.hide) then
+                            for j = 1, 16 do
+                                if (i ~= j) then
+                                    if (player_alive(i)) and (player_alive(j)) then
+                                        local P1Object, P2Object = get_dynamic_player(i), get_dynamic_player(j)
+                                        if (P1Object ~= 0) and (P2Object ~= 0) then
+                                            local camX, camY, camZ = read_float(P1Object + 0x230), read_float(P1Object + 0x234), read_float(P1Object + 0x238)
+                                            local couching = read_float(P1Object + 0x50C)
+                                            local px, py, pz = read_vector3d(P1Object + 0x5c)
+                                            if (couching == 0) then
+                                                pz = pz + 0.65
+                                            else
+                                                pz = pz + (0.35 * couching)
+                                            end
+                                            local player_1 = read_dword(get_player(i) + 0x34)
+                                            local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
+                                            local player_2 = Object and read_dword(get_player(j) + 0x34)
+                                            if (success == true and Object ~= nil) then
+                                                local lurker_p2 = Lurker[getip(j, true)]
+                                                if (Object == player_2 and lurker_p2 ~= nil and lurker_p2.enabled) then
+                                                    cls(i, 25)
+                                                    respond(i, "|c" .. get_var(j, "$name") .. " is in Lurker Mode (Spectator)", "rcon")
+                                                    for _ = 1, 5 do
+                                                        rprint(i, " ")
+                                                    end
                                                 end
                                             end
                                         end
@@ -1729,49 +1787,58 @@ function OnTick()
                             end
                         end
                     end
-                end
 
-                if (lurker[i] == true) then
-                    local LTab = players["Lurker"][ip]
-                    if LTab == nil then return end
-                    if not (LTab.lurker_warn) then
-                        if (tab.speed) then
-                            execute_command("s " .. tonumber(i) .. " " .. tonumber(tab.running_speed))
-                        end
-                    end
-                    if (tab.hide) then
+
+                    -- HIDE PLAYER
+                    if (mod.hide) and (status.mode == "hide" or status.mode == "camouflage_and_hide" or status.mode == "default") then
                         local coords = getXYZ(0, i)
                         if (coords) then
-                            if ( (coords.invehicle and tab.hide_vehicles) or not coords.invehicle ) then
+                            if ((coords.invehicle and mod.hide_vehicles) or not coords.invehicle) then
                                 hide_player(i, coords)
                             end
                         end
                     end
-                    if (LTab.lurker_warn) then
-                        LTab.lurker_timer = LTab.lurker_timer + 0.030
+
+                    -- APPLY CAMO
+                    if (mod.camouflage) and (status.mode == "camouflage" or status.mode == "camouflage_and_hide" or status.mode == "default") then
+                        execute_command("camo " .. i .. " 1")
+                    end
+                    
+                    if (mod.apply_shield) then
+                        execute_command("sh " .. tonumber(i) .. " " .. tonumber(mod.shield_amount))
+                    end
+
+                    -- APPLY SPEED
+                    if not (status.warn) and (mod.speed_boost) then
+                        execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.running_speed))
+                    
+                    -- WARN PLAYER
+                    elseif (status.warn) then
+                        status.timer = status.timer + 0.030
                         cls(i, 25)
-                        local days, hours, minutes, seconds = secondsToTime(LTab.lurker_timer, 4)
-                        rprint(i, "|cWarning! Drop the " .. object_picked_up[i])
-                        local char = getChar(tab.time_until_death - floor(seconds))
-                        rprint(i, "|cYou will be killed in " .. tab.time_until_death - floor(seconds) .. " second" .. char)
+                        local days, hours, minutes, seconds = secondsToTime(status.timer, 4)
+                        rprint(i, "|cWarning! Drop the " .. status.objective)
+                        local char = getChar(mod.time_until_death - floor(seconds))
+                        rprint(i, "|cYou will be killed in " .. mod.time_until_death - floor(seconds) .. " second" .. char)
                         rprint(i, "|c[ warnings left ] ")
-                        rprint(i, "|c" .. LTab.lurker_warnings)
+                        rprint(i, "|c" .. status.warnings)
                         rprint(i, "|c ")
                         rprint(i, "|c ")
                         rprint(i, "|c ")
 
+                        -- Check player warnings
                         if (getLurkerWarnings(ip) <= 0) then
-                            -- No warnings left: Turn off lurker and reset counters.
-                            lurker[i] = false -- redundant but meh!
-                            LTab.lurker_warn = false
-                            local p = { }
-                            p.tid, p.tip, p.tn, p.warnings, p.bool, p.CmdTrigger, p.teleport = tonumber(i), ip, name, 0, false, false, false
-                            velocity:setLurker(p)
+                            status.warn, status.enabled = false, false
+                            execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed ))
+                            killSilently(i) -- KILL PLAYER
+                            rprint(i, "Your Lurker mode was auto-revoked! [no warnings left]")
+                            if (mod.announce) then
+                                announceExclude(i, get_var(i, "$name") .. "'s Lurker (spectator) privileges have been auto-revoked.")
+                            end
                         end
 
-                        if (LTab.lurker_timer >= tab.time_until_death) then
-                            LTab.lurker_warn = false
-                            LTab.teleport = false
+                        if (status.timer >= mod.time_until_death) then
+                            status.warn, status.teleport, status.timer = false, false, 0
                             killSilently(i)
                             cls(i, 25)
                             rprint(i, "|c=========================================================")
@@ -1781,15 +1848,17 @@ function OnTick()
                             rprint(i, "|c ")
                             rprint(i, "|c ")
                             rprint(i, "|c ")
-                            object_picked_up[i] = ""
+                            status.object = "" -- just in case
                         end
                     end
+                    
                     local score = tonumber(get_var(i, "$score"))
-                    if (tonumber(scores[i]) ~= nil) or (score < 0) then
-                        execute_command("score " .. tonumber(i) .. " " .. scores[i])
+                    if (score < 0) then
+                        execute_command("score " .. tonumber(i) .. " " .. status.score)
                     end
                 end
             end
+
 
             -- #Portal Gun
             if modEnabled("Portal Gun") then
@@ -2037,9 +2106,48 @@ function OnPlayerConnect(PlayerIndex)
     -- #Lurker
     if modEnabled("Lurker") then
         if (tonumber(level) >= getPermLevel("Lurker", false)) then
-            velocity:LurkerReset(ip)
-            lurker[id] = false
-            has_objective[id] = false
+            Lurker[ip] = Lurker[ip] or nil
+            local status = Lurker[ip]
+            local score = get_var(id, "$score")
+            local mod = settings.mod["Lurker"]
+            
+            local function tell(id, bool)
+                if (bool) then
+                    Lurker[ip] = { } -- Initialize an array for this player.
+                    status = Lurker[ip]
+                    
+                    -- ENABLE LURKER
+                    status.enabled = true
+                    status.warnings = status.warnings or mod.warnings
+                end
+                
+                -- JOIN MESSAGES:
+                if (mod.join_tell) then
+                    local join_message_1 = gsub(mod.join_msg, "%%name%%", name)
+                    respond(id, join_message_1, "rcon", 2 + 8)
+                    if (mod.announce_warnings) then
+                        local join_message_2 = gsub(mod.join_warnings_left_msg, "%%warnings%%", status.warnings)
+                        respond(id, join_message_2, "rcon", 2+8)
+                    end
+                end
+
+                if (mod.join_tell_others) then
+                    local msg = gsub(mod.join_others_msg, "%%name%%", name)
+                    announceExclude(id, msg, "rcon", 2 + 8)
+                end
+            end
+            
+            local is_in_lurker = isInLurker(ip)
+            if (status ~= nil and status.enabled) then -- no need to declare `Lurker[ip].enable`
+                tell(id)
+            elseif (status == nil) and (is_in_lurker) then -- must declare `Lurker[ip] = {}` and `Lurker[ip].enable`
+                tell(id, true)
+            elseif (status == nil) and not (is_in_lurker) then
+                Lurker[ip] = { } -- Initialize an array for this player.
+                status = Lurker[ip]
+            end
+            
+            status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getLurkerWarnings(ip), "default"
         end
     end
 
@@ -2330,16 +2438,15 @@ function OnPlayerDisconnect(PlayerIndex)
 
     -- #Lurker
     if modEnabled("Lurker") then
-        if (tonumber(level) >= getPermLevel("Lurker", false)) then
-            velocity:LurkerReset(ip)
-            if tonumber(scores[id]) then
-                scores[id] = nil
+        local mod = settings.mod["Lurker"]
+        local status = Lurker[ip]
+        if (status ~= nil) then
+            if not (status.enabled) or not (mod.keep) then
+                remove_data_log(id)
             end
-            lurker[id] = false
-            has_objective[id] = false
         end
     end
-
+    
     -- #Infinity Ammo
     if (modEnabled("Lurker") and infammo[id]) then
         DisableInfAmmo(id)
@@ -2383,16 +2490,7 @@ local function Teleport(TargetID, x, y, z, height)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    -- #Lurker
-    if modEnabled("Lurker") then
-        local ip = getip(PlayerIndex, true)
-        if (lurker_tp_back[ip] ~= nil and lurker_tp_back[ip] == true) then
-            lurker_tp_back[ip] = false
-            local XYZ = lurker_coords[ip]
-            local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
-            Teleport(PlayerIndex, x, y, z, height)
-        end
-    end
+    --
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -2437,32 +2535,20 @@ function OnPlayerSpawn(PlayerIndex)
     if modEnabled("Portal Gun") then
         weapon_status[ip] = 0
     end
-    -- #Lurker
-    if modEnabled("Lurker") then
-        if (lurker[PlayerIndex] == true) then
-            local ip = getip(PlayerIndex, true)
-            has_objective[PlayerIndex] = false
 
-            local mod = players["Lurker"][ip]
-            mod.lurker_warnings = mod.lurker_warnings
-            mod.lurker_warn = false
-            mod.timer = 0
-            mod.teleport = true
-
-            local params = { }
-            params.tid = tonumber(PlayerIndex)
-            params.warnings = mod.lurker_warnings
-            params.tn = get_var(PlayerIndex, "$name")
-            params.bool = true
-            params.CmdTrigger = false
-            params.teleport = mod.teleport
-            velocity:setLurker(params)
-        end
-    end
     -- #Infinity Ammo
     if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
         frag_check[PlayerIndex] = true
         adjust_ammo(PlayerIndex)
+    end
+    
+    -- #Lurker
+    if modEnabled("Lurker") then
+        local mod = settings.mod["Lurker"]
+        local status = Lurker[ip]
+        if (status ~= nil) and (status.enabled) and (mod.invincibility) then
+            execute_command("god " .. PlayerIndex)
+        end
     end
 end
 
@@ -2518,18 +2604,12 @@ function OnPlayerKill(PlayerIndex)
             write_dword(player + 0x2C, respawn_time[ip] * 33)
         end
     end
+    
     -- #Lurker
     if modEnabled("Lurker") then
-        if (level >= getPermLevel("Lurker", false)) then
-            has_objective[PlayerIndex] = false
-            if tonumber(scores[PlayerIndex]) then
-                scores[PlayerIndex] = 0
-            end
-            local mod = players["Lurker"][ip]
-            if (mod ~= nil) then
-                mod.lurker_warn = false
-                mod.lurker_timer = 0
-            end
+        local status = Lurker[ip]
+        if (status ~= nil) and (status.enabled) then
+            status.scores, status.timer, status.warn, status.has_objective = 0,0, false, false
         end
     end
 
@@ -2883,7 +2963,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if Message == ("yes") then
                 local dir = settings.mod["Teleport Manager"].dir
                 local warp_num = tonumber(getWarp())
-                delete_from_file(dir, warp_num, 1, PlayerIndex)
+                delete_from_file(dir, warp_num, 1)
                 rprint(PlayerIndex, "Successfully deleted teleport id #" .. warp_num)
                 wait_for_response[PlayerIndex] = false
             elseif Message == ("no") then
@@ -3150,17 +3230,16 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                     -- #Lurker
                 elseif (parameter == "lurker") then
-                    params.bool = true
-                    params.CmdTrigger = true
-                    params.warnings = getLurkerWarnings(params.eip)
                     if (args[1] ~= nil) then
                         params.option = args[1]
                     end
-                    -- if (args[2] ~= nil) then
-                        -- params.flag = args[2]
-                    -- end
+                    
+                    if (args[3] ~= nil) then
+                        params.flag = args[3]
+                    end
+
                     if (target_all_players) then
-                        velocity:setLurker(params)
+                        Lurker:set(params)
                     end
                     -- #Mute System
                 elseif (parameter == "mute") then
@@ -3538,11 +3617,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         validate_params("lurker", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
-                                velocity:setLurker(params)
+                                Lurker:set(params)
                             end
                         end
                     else
-                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all]", "rcon", 4 + 8)
+                        respond(executor, "Invalid Syntax: Usage: /" .. tab.base_command .. " on|off [me | id | */all] <flag>", "rcon", 4 + 8)
                     end
                 end
             end
@@ -4463,7 +4542,13 @@ function velocity:listplayers(e)
             player_count = player_count + 1
             local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
 
-            local in_lurker = lurker[i]
+            local in_lurker = Lurker[ip]
+            if (in_lurker ~= nil) then
+                in_lurker = in_lurker.enabled
+            else
+                in_lurker = false
+            end
+            
             local in_portalgun = portalgun_mode[ip]
             local prefix
             if (in_lurker) and not (in_portalgun) then
@@ -5050,15 +5135,15 @@ function velocity:infinityAmmo(params)
             frag_check[TargetID] = true
             adjust_ammo(TargetID)
             if specified then
-                if not (lurker[TargetID]) then
+                --if not (lurker[TargetID]) then
                     local mult = tonumber(multiplier)
                     modify_damage[TargetID] = true
                     damage_multiplier[TargetID] = mult
                     respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
                     respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4 + 8)
-                else
-                    respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
-                end
+                --else
+                    --respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
+                --end
             else
                 respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
                 if (tab.announcer) then
@@ -5440,7 +5525,7 @@ function velocity:delwarp(params)
                 if (warpid == v:match(k)) then
                     found = true
                     if find(v, mapname) then
-                        delete_from_file(dir, k, 1, eid)
+                        delete_from_file(dir, k, 1)
                         respond(eid, "Successfully deleted teleport id #" .. k, "rcon", 2 + 8)
                     else
                         wait_for_response[eid] = true
@@ -5461,28 +5546,33 @@ function velocity:delwarp(params)
     end
 end
 
-function velocity:setLurker(params)
+function remove_data_log(p)
+    local params = { }
+    local ip = getip(p, true)
+    params.ip, params.save = ip, nil
+    Lurker:savetofile(params)
+end
+
+function Lurker:set(params)
     local params = params or { }
-    local eid = params.eid or nil
+
     local en = params.en or nil
-    local tid = params.tid or nil
-    local tip = params.tip or nil
-    local tn = params.tn or nil
-    
-    --local flag = params.flag or nil
-
-    if (tid == nil and eid ~= nil) then
-        tid = eid
-    end
-
+    local eid = params.eid or nil
     if (eid == nil) then
         eid = 0
     end
 
-    if (tip == nil) then
-        tip = getip(tid, true)
+    local tn = params.tn or nil
+    local tip = params.tip or nil
+
+    local tid = params.tid or nil
+    if (tid == nil and eid ~= nil) then
+        tid = eid
     end
 
+    local option = params.option or nil
+    local flag = params.flag or nil
+    local mod = settings.mod["Lurker"]
     local is_self
     if (eid == tid) then
         is_self = true
@@ -5492,124 +5582,125 @@ function velocity:setLurker(params)
         en = "SERVER"
     end
 
-    local eLvl = tonumber(get_var(eid, "$lvl"))
-
-    local mod = settings.mod["Lurker"]
-    local LTab = players["Lurker"][tip]
-
-    local tp_back = params.teleport or nil
-    if (tp_back == nil) then
-        tp_back = LTab.teleport
-    end
-
-    local CmdTrigger = params.CmdTrigger or nil
+    Lurker[tip] = Lurker[tip] or { }
+    local status = Lurker[tip]
+    status.warnings = (status.warnings) or getLurkerWarnings(tip)
+    local warnings = status.warnings
+    
     local function Enable()
-        scores[tid] = scores[tid] or { }
-        scores[tid] = tonumber(get_var(tid, "$score"))
-        lurker[tid] = true
-        if (mod.god) then
+        status.enabled, status.teleport, status.warn = true, false, false
+        status.score, status.timer = get_var(tid, "$score"), 0
+        
+        local p = { }
+        p.ip, p.save = tip, true
+        Lurker:savetofile(p)
+        
+        if (mod.invincibility) then
             execute_command("god " .. tid)
         end
-        if (mod.camouflage) then
-            execute_command("camo " .. tid)
-        end
-        if (mod.announcer) then
-            if (CmdTrigger) then
-                announceExclude(tid, tn .. " is now in lurker mode! [spectator]")
-            end
+        if (mod.announce) then
+            announceExclude(tid, gsub(mod.onEnableMsg, "%%name%%", tn))
         end
     end
 
-    local warnings = params.warnings or nil
     local function Disable(tid)
-        lurker[tid] = false
-        if (scores[tid] ~= nil) then
-            scores[tid] = 0
-        end
-        if (mod.god) then
+        status.enabled = false
+        if (mod.invincibility) then
             execute_command("ungod " .. tid)
         end
-        if (mod.speed) then
+        if (mod.announce) then
+            announceExclude(tid, gsub(mod.onDisabeMsg, "%%name%%", tn))
+        end
+        if (mod.speed_boost) then
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
         end
-        local coords = getXYZ(eid, tid)
-        if (coords) and (tp_back) then
-            local x, y, z = coords.x, coords.y, coords.z
-            killSilently(tid)
-            if not (coords.invehicle) then
-                lurker_coords[tip], lurker_tp_back[tip] = { }, { }
-                lurker_coords[tip][1], lurker_coords[tip][2], lurker_coords[tip][3], lurker_coords[tip][4] = x, y, z, 0.5
-                lurker_tp_back[tip] = true
-            elseif (coords.invehicle) then
-                entervehicle[tid].enter = true
+        remove_data_log(tid)
+        killSilently(tid)
+    end
+    
+    local cmd_flags, is_error, on_off = mod.cmd_flags
+    local function flag_check()    
+        local disabled_error, _error_
+        if (flag ~= nil) then
+            if (flag == cmd_flags[1]) then -- camo only
+                if (mod.camouflage) then
+                    status.mode = "camouflage"
+                    on_off = "Enabled (with Camouflage)"
+                else
+                    disabled_error, _error_ = true, "Lurker.camouflage is disabled internally"
+                end
+            elseif (flag == cmd_flags[2]) then -- hidden only
+                if (mod.hide) then
+                    status.mode = "hide"
+                    on_off = "Enabled (hidden only)"
+                else
+                    disabled_error, _error_ = true, "Lurker.hide is disabled internally"
+                end
+            elseif (flag == cmd_flags[3]) then -- camouflage + hidden
+                if (mod.camouflage) and (mod.hide) then
+                    status.mode = "camouflage_and_hide"
+                    on_off = "Enabled (Hidden with Camouflage)"
+                else
+                    disabled_error, _error_ = true, "Lurker.camouflage & Lurker.hide are disabled internally"
+                end
+            else
+                is_error, disabled_error = true, true
+                respond(eid, "Invalid Syntax: Usage: /" .. mod.base_command .. " on|off [me | id | */all] <flag>", "rcon", 4 + 8)
+            end
+            if not (disabled_error) then
+                return true
+            elseif not (is_error) then
+                is_error = true
+                respond(eid, "Command failed! (" .. _error_ .. ")", "rcon", 4+8)
+                return false
             end
         else
-            killSilently(tid)
-        end
-        if (mod.announcer) then
-            if (tonumber(warnings) <= 0) then
-                announceExclude(tid, tn .. "'s Lurker (spectator) privileges have been auto-revoked.")
-            else
-                announceExclude(tid, tn .. " is no longer in lurker (spectator) mode!")
-            end
+            status.mode = "default"
+            on_off = "Enabled"
+            return true
         end
     end
 
-    local bool = params.bool or nil
+    local eLvl = tonumber(get_var(eid, "$lvl"))
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
-        local option = params.option or nil
-        if (CmdTrigger) and (option) then
-            if (tonumber(warnings) > 0) then
-                local status, already_set, is_error
-                if (option == "on") or (option == "1") or (option == "true") then
-                    if (lurker[tid] ~= true) then
-                        status, already_set, is_error = "Enabled", false, false
+        if (tonumber(warnings) > 0) then
+            local already_set
+            if (option == "on") or (option == "1") or (option == "true") then     
+                if (status.enabled ~= true) then
+                    if flag_check() then
+                        already_set, is_error = false, false
                         Enable(tid, tn)
-                    else
-                        status, already_set, is_error = "Enabled", true, false
-                    end
-                elseif (option == "off") or (option == "0") or (option == "false") then
-                    if (lurker[tid] ~= false) then
-                        tp_back = true
-                        status, already_set, is_error = "Disabled", false, false
-                        Disable(tid, tn)
-                    else
-                        status, already_set, is_error = "Disabled", true, false
                     end
                 else
-                    is_error = true
-                    respond(eid, "Invalid Syntax: Type /" .. mod.base_command .. " [id] on|off.", "rcon", 4 + 8)
+                    on_off, already_set, is_error = "Enabled", true, false
                 end
-                ------------------------- [ ON ENABLE | DISABLE ] --------------------------------------------------
-                if not (is_error) and not (already_set) then
-                    if not (is_self) then
-                        respond(eid, "Lurker " .. status .. " for " .. tn, "rcon", 2 + 8)
-                        respond(tid, "Your Lurker Mode was " .. status .. " by " .. en, "rcon")
-                    else
-                        respond(eid, "Lurker Mode " .. status, "rcon", 2 + 8)
-                    end
-                elseif (already_set) then
-                    respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. status, "rcon", 4 + 8)
+            elseif (option == "off") or (option == "0") or (option == "false") then
+                if (status.enabled ~= false and status.enabled ~= nil) then
+                    on_off, already_set, is_error = "Disabled", false, false
+                    Disable(tid, tn)
+                else
+                    on_off, already_set, is_error = "Disabled", true, false
                 end
             else
+                is_error = true
+                respond(eid, "Invalid Syntax: Usage: /" .. mod.base_command .. " on|off [me | id | */all] <flag>", "rcon", 4 + 8)
+            end
+            if not (is_error) and not (already_set) then
                 if not (is_self) then
-                    respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
+                    respond(eid, "Lurker " .. on_off .. " for " .. tn, "rcon", 2 + 8)
+                    respond(tid, "Lurker Mode was " .. on_off .. " by " .. en, "rcon")
                 else
-                    respond(tid, "Your lurker mode was auto-revoked! [no warnings left]", "rcon", 2 + 8)
+                    respond(eid, "Lurker Mode " .. on_off, "rcon", 2 + 8)
                 end
+            elseif (already_set) then
+                respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. on_off, "rcon", 4 + 8)
             end
-            ----------------------------------------------------------------------------------------------------------------------------------
-        elseif (bool) then
-            Enable(tid)
-            respond(tid, "Lurker Auto-Enable. Warnings left: (" .. warnings .. "/" .. mod.warnings .. ").", "rcon", 2 + 8)
         else
-            cls(tid, 25)
-            if (tonumber(warnings) <= 0) then
-                respond(tid, "Your lurker mode was auto-revoked! [no warnings left].", "rcon", 2 + 8)
+            if not (is_self) then
+                respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
             else
-                respond(tid, "Lurker Auto-Disable.", "rcon", 2 + 8)
+                respond(tid, "Your Lurker Mode was auto-revoked! [no warnings left]", "rcon", 2 + 8)
             end
-            Disable(tid)
         end
     end
     return false
@@ -5925,7 +6016,7 @@ function privateMessage:delete(params)
                 if (k ~= nil) then
                     if (mail_id == k) and (v:match(eip)) then
                         respond(eid, "Message [#" .. k .. "] deleted", "rcon", 2 + 8)
-                        delete_from_file(dir, k, 1, eid)
+                        delete_from_file(dir, k, 1)
                         found, _error_ = true, false
                         break
                     end
@@ -5935,7 +6026,7 @@ function privateMessage:delete(params)
             local function delete()
                 for k, v in pairs(lines_from(dir)) do
                     if (k ~= nil) and (v:match(eip)) then
-                        delete_from_file(dir, k, 1, eid)
+                        delete_from_file(dir, k, 1)
                         found, _error_ = true, false
                         break
                     end
@@ -6383,9 +6474,14 @@ end
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     -- #Lurker
     if modEnabled("Lurker") then
-        if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-            if (lurker[CauserIndex] == true) then
-                return false
+        local mod = settings.mod["Lurker"]
+        if (mod.block_damage) then
+            if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
+                local vip, kip = getip(PlayerIndex, true), getip(CauserIndex, true)
+                local v, k = Lurker[vip], Lurker[kip]
+                if (v ~= nil or k ~= nil) and (v.enabled or k.enabled) then
+                    return false
+                end
             end
         end
     end
@@ -6399,22 +6495,44 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
-function OnWeaponDrop(PlayerIndex)
-    -- #Lurker
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if modEnabled("Lurker") then
-        if (lurker[PlayerIndex] == true and has_objective[PlayerIndex] == true) then
-            has_objective[PlayerIndex] = false
-            cls(PlayerIndex, 25)
-            local ip = getip(PlayerIndex, true)
-            local mod = players["Lurker"][ip]
-            if (mod ~= nil) then
-                mod.lurker_warn = false
-                mod.lurker_timer = 0
-                local tab = settings.mod["Lurker"]
-                if (tab.speed) then
-                    execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(tab.running_speed))
+        local ip = getip(PlayerIndex, true)
+        local status = Lurker[ip]
+
+        if (status ~= nil and status.enabled) then
+            if (tonumber(Type) == 1) then
+                if hasObjective(PlayerIndex, WeaponIndex) then
+                
+                    -- Every time you pick up the flag, you will lose one warning point.
+                    status.warnings = (status.warnings - 1)
+                    status.warn = true
+                    execute_command("s " .. tonumber(PlayerIndex) .. " 0")
+
+                    if (status.warnings <= 0) then
+                        status.warnings = 0
+                    end
                 end
             end
+        end
+    end
+    -- #Infinity Ammo
+    if (modEnabled("Infinity Ammo", PlayerIndex) and infammo[PlayerIndex]) then
+        adjust_ammo(PlayerIndex)
+    end
+end
+
+function OnWeaponDrop(PlayerIndex)
+    if modEnabled("Lurker") then
+    
+        local ip = getip(PlayerIndex, true)
+        local status = Lurker[ip]
+        
+        if (status ~= nil and status.enabled) and (status.warn) then
+            local mod = settings.mod["Lurker"]
+            status.warn, status.timer = false, 0
+            -- APPLY SPEED - player was frozen when `OnWeaponPickup()` was called.
+            execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(mod.running_speed))
         end
     end
 end
@@ -6427,50 +6545,25 @@ function TeleportPlayer(ObjectID, x, y, z)
 end
 
 function hasObjective(PlayerIndex, WeaponIndex)
-    local player_object, flag = get_dynamic_player(PlayerIndex), { }
+    local player_object = get_dynamic_player(PlayerIndex)
     local weaponId = read_dword(player_object + 0x118)
     if (weaponId ~= 0) then
-        local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
-        for j = 0, 3 do
+        local ip = getip(PlayerIndex, true)
+        local status = Lurker[ip]
+        
+        local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
+        local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
+        
+        for j = 0, 3 do    
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
-            local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
-            local name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-            print(name)
             if (weapon == red_flag) or (weapon == blue_flag) then
-                object_picked_up[PlayerIndex] = "flag"
+                status.objective = "flag"
                 return true
-            elseif (name ~= nil and name == "weapons\\ball\\ball") then
-                object_picked_up[PlayerIndex] = "oddball"
+            elseif (tag_name ~= nil and tag_name == "weapons\\ball\\ball") then
+                status.objective = "oddball"
                 return true
             end
         end
-    end
-end
-
-function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-    -- #Lurker
-    if modEnabled("Lurker") then
-        if (lurker[PlayerIndex] == true) then
-            if (tonumber(Type) == 1) then
-                if hasObjective(PlayerIndex, WeaponIndex) then
-                    local ip = getip(PlayerIndex, true)
-                    local mod = players["Lurker"][ip]
-                    if (mod ~= nil) then
-                        mod.lurker_warnings = (mod.lurker_warnings - 1)
-                        mod.lurker_warn = true
-                        has_objective[PlayerIndex] = true
-                        execute_command("s " .. tonumber(PlayerIndex) .. " 0")
-                        if (mod.lurker_warnings <= 0) then
-                            mod.lurker_warnings = 0
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- #Infinity Ammo
-    if (modEnabled("Infinity Ammo") and infammo[PlayerIndex]) then
-        adjust_ammo(PlayerIndex)
     end
 end
 
@@ -6599,6 +6692,48 @@ function checkFile(directory)
             file:close()
             return true
         end
+    end
+end
+
+-- #Lurker
+function isInLurker(ip)
+    local dir = settings.mod["Lurker"].dir
+    local lines = lines_from(dir)
+    for _, v in pairs(lines) do
+        if (v:match(ip)) then
+            return true
+        end
+    end
+end
+
+-- #Lurker
+function Lurker:savetofile(params)
+    local params = params or { }
+    local ip = params.ip or nil
+    local save = params.save
+    local dir = settings.mod["Lurker"].dir
+    local lines, proceed = lines_from(dir), true
+    for k, v in pairs(lines) do
+        if (v:match(ip)) then
+            if not (save) then
+                delete_from_file(dir, k, 1)
+                proceed = false
+            else
+                proceed = false
+                local fRead = io.open(dir, "r")
+                local content = fRead:read("*all")
+                fRead:close()
+                content = gsub(content, v, ip)
+                local fWrite = io.open(dir, "w")
+                fWrite:write(content)
+                fWrite:close()
+            end
+        end
+    end
+    if (proceed) then
+        local file = assert(io.open(dir, "a+"))
+        file:write(ip .. "\n")
+        file:close()
     end
 end
 
@@ -6765,15 +6900,10 @@ end
 function DeleteWeapons(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-
-        -- Set grenades to 0
         write_word(player_object + 0x31E, 0)
         write_word(player_object + 0x31F, 0)
-
-        -- Iterate thru player inventory and destroy all weapons this player holds (excluding objective)
         local weaponId = read_dword(player_object + 0x118)
         if (weaponId ~= 0) then
-            local red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
             for j = 0, 3 do
                 local weapon = read_dword(player_object + 0x2F8 + 4 * j)
                 if (weapon ~= red_flag) and (weapon ~= blue_flag) then
@@ -6781,7 +6911,6 @@ function DeleteWeapons(PlayerIndex)
                 end
             end
         end
-
         return true
     end
 end
@@ -7337,6 +7466,13 @@ function RecordChanges()
     cl[#cl + 1] = "2). Bug fix for Color Changer. "
     cl[#cl + 1] = "3). Removed mod: 'Spawn From Sky'."
     cl[#cl + 1] = "Script Updated to v1.59"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/29/19]"
+    cl[#cl + 1] = "1). Completely rewrote Lurker. (See Lurker's config section for details)"
+    cl[#cl + 1] = "2). A couple of minor bug fixes."
+    cl[#cl + 1] = "Script Updated to v1.60"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
