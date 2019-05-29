@@ -515,7 +515,7 @@ local function GameSettings()
                 -- Let players know when someone goes into (or out of) Lurker mode:
                 announce = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
-                onEnableMsg = "%name% is now in Lurker Mode (Spectator). Poof!",
+                onEnableMsg = "%name% is now in Lurker Mode (Spectator) | MODE: [%mode%]",
                 onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
                 --==================================================================================================--
 
@@ -526,7 +526,7 @@ local function GameSettings()
                 -- Remind the newly joined player that they are in Lurker? (requires keep to be enabled) 
                 join_tell = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
-                join_msg = "%name%, You have joined in Lurker Mode (Spectator).",
+                join_msg = "%name%, You have joined in Lurker Mode (Spectator)",
 
                 -- If this is true, the player will be informed of how many warnings remain.
                 announce_warnings = true,
@@ -534,7 +534,7 @@ local function GameSettings()
 
                 -- Tell other players that PlayerX joined in Lurker? (requires keep to be enabled) 
                 join_tell_others = true,
-                join_others_msg = "%name% joined in Lurker Mode (Spectator)",
+                join_others_msg = "%name% joined in Lurker Mode (Spectator) | MODE: [%mode%]",
 
             },
             ["Welcome Messages"] = { -- Messages shown to the player on join.
@@ -1756,7 +1756,7 @@ function OnTick()
                     if (mod.screen_notifications) then
                     
                         local proceed
-                        if (status.mode == "default" and not mod.hide) or (status.mode == "camouflage") then
+                        if (status.mode == "default" and not mod.hide) or (status.mode == "camouflaged") then
                             proceed = true
                         end
                     
@@ -1796,7 +1796,7 @@ function OnTick()
 
 
                     -- HIDE PLAYER
-                    if (mod.hide) and (status.mode == "hide" or status.mode == "camouflage_and_hide" or status.mode == "default") then
+                    if (mod.hide) and (status.mode == "hidden" or status.mode == "camouflaged_and_hidden" or status.mode == "default") then
                         local coords = getXYZ(0, i)
                         if (coords) then
                             if ((coords.invehicle and mod.hide_vehicles) or not coords.invehicle) then
@@ -1806,7 +1806,7 @@ function OnTick()
                     end
 
                     -- APPLY CAMO
-                    if (mod.camouflage) and (status.mode == "camouflage" or status.mode == "camouflage_and_hide" or status.mode == "default") then
+                    if (mod.camouflage) and (status.mode == "camouflaged" or status.mode == "camouflaged_and_hidden" or status.mode == "default") then
                         execute_command("camo " .. i .. " 1")
                     end
                     
@@ -2139,7 +2139,15 @@ function OnPlayerConnect(PlayerIndex)
                 end
 
                 if (mod.join_tell_others) then
-                    local msg = gsub(mod.join_others_msg, "%%name%%", name)
+                    local mode = "UNKNOWN"
+                    if (mod.hide and mod.camouflage) then
+                        mode = "C/H"
+                    elseif (mod.hide and not mod.camouflage) then
+                        mode = "H"
+                    elseif (mod.camouflage and not mod.hide) then
+                        mode = "C"
+                    end
+                    local msg = gsub(gsub(mod.join_others_msg, "%%name%%", name), "%%mode%%", mode)
                     announceExclude(id, msg, "rcon", 2 + 8)
                 end
             end
@@ -5606,7 +5614,22 @@ function Lurker:set(params)
             execute_command("god " .. tid)
         end
         if (mod.announce) then
-            announceExclude(tid, gsub(mod.onEnableMsg, "%%name%%", tn))
+            local mode = "UNKNOWN"
+            if (status.mode == "default") then
+                if (mod.hide and mod.camouflage) then
+                    mode = "C/H"
+                elseif (mod.hide and not mod.camouflage) then
+                    mode = "H"
+                elseif (mod.camouflage and not mod.hide) then
+                    mode = "C"
+                end
+            elseif (status.mode == "hidden") then
+                mode = "H"
+            elseif (status.mode == "camouflaged") then
+                mode = "C"
+            end
+            local enable_msg = gsub(gsub(mod.onEnableMsg, "%%name%%", tn), "%%mode%%", mode)
+            announceExclude(tid, enable_msg)
         end
     end
 
@@ -5631,21 +5654,21 @@ function Lurker:set(params)
         if (flag ~= nil) then
             if (flag == cmd_flags[1]) then -- camo only
                 if (mod.camouflage) then
-                    status.mode = "camouflage"
+                    status.mode = "camouflaged"
                     on_off = "Enabled (with Camouflage)"
                 else
                     disabled_error, _error_ = true, "Lurker.camouflage is disabled internally"
                 end
             elseif (flag == cmd_flags[2]) then -- hidden only
                 if (mod.hide) then
-                    status.mode = "hide"
+                    status.mode = "hidden"
                     on_off = "Enabled (hidden only)"
                 else
                     disabled_error, _error_ = true, "Lurker.hide is disabled internally"
                 end
             elseif (flag == cmd_flags[3]) then -- camouflage + hidden
                 if (mod.camouflage) and (mod.hide) then
-                    status.mode = "camouflage_and_hide"
+                    status.mode = "camouflaged_and_hidden"
                     on_off = "Enabled (Hidden with Camouflage)"
                 else
                     disabled_error, _error_ = true, "Lurker.camouflage & Lurker.hide are disabled internally"
