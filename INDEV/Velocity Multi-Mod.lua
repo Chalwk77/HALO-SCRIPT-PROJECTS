@@ -5626,6 +5626,7 @@ function Lurker:set(params)
         if (mod.invincibility) then
             execute_command("god " .. tid)
         end
+        
         if (mod.announce) then
             local mode = "UNKNOWN"
             if (status.mode == "default") then
@@ -5659,7 +5660,7 @@ function Lurker:set(params)
         end
         remove_data_log(tid)
         
-        if (tLvl >= 1) then -- Only admins can TP back to where they were (trust issues)
+        if (tLvl >= 1) then -- Only admins can TP back to where they were (exploit prevention)
             local coords = getXYZ(eid, tid)
             if (coords) then
                 local x, y, z = coords.x, coords.y, coords.z
