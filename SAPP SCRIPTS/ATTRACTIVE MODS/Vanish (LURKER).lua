@@ -106,8 +106,9 @@ vanish.default_running_speed = 1
 
 -- Time (in seconds) until the player is killed after picking up the objective (flag or oddball)
 vanish.time_until_death = 5
--- Warnings the player gets before their Vanish is revoked.
--- You lose one warning point every time you pick up the objective.
+
+-- You lose one warning point every time you pick up the objective (flag or oddball).
+-- If you have no warnings left, your vanish privileges will be revoked (until the server is restarted)
 vanish.warnings = 4
 
 -- =============== ENABLE | DISABLE Messages =============== --
@@ -140,7 +141,12 @@ vanish.join_others_msg = "%name% joined vanished!"
 -- Vanish Configuration [ends] --
 
 local script_version, weapon_status = 1.5, { }
+
+-- Store Player IP to an array...
+-- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
+-- This table is only accessed when 'event_leave' is called.
 local ip_table = { }
+
 local lower, upper, format, gsub, floor = string.lower, string.upper, string.format, string.gsub, math.floor
 local dir = 'sapp\\vanish.tmp'
 local globals = nil
@@ -150,10 +156,6 @@ local function getip(p)
     if (p) then
         return get_var(p, "$ip")--:match("(%d+.%d+.%d+.%d+)")
     end
-end
-
-local function init_vanish(ip)
-
 end
 
 local function getChar(input)
@@ -166,6 +168,7 @@ local function getChar(input)
     return char
 end
 
+-- Return the number of warnings this player has remaining.
 local function getWarnings(ip)
     return ((vanish[ip].warnings) or vanish.warnings)
 end
@@ -183,12 +186,12 @@ function reset()
                     execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed))
                 end
                 if not (game_over) then
-                    rprint(i, "SAPP Reloaded.", "rcon", 4 + 8)
+                    rprint(i, "SAPP Reloaded.")
                 else
-                    rprint(i, "GAME OVER.", "rcon", 4 + 8)
+                    rprint(i, "GAME OVER.")
                 end
                 remove_data_log(i)
-                rprint(i, "Your vanish has been deactivated.", "rcon", 4 + 8)
+                rprint(i, "Your vanish has been deactivated.")
             end
         end
     end
@@ -238,6 +241,7 @@ function OnGameEnd()
     end
 end
 
+-- Check if the command was executed by a player or from server console.
 local function isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -279,6 +283,7 @@ local function announceExclude(PlayerIndex, message)
     end
 end
 
+-- Custom message handler.
 local function respond(executor, message, environment, color)
     if (executor) then
         color = color or 4 + 8
@@ -307,8 +312,10 @@ function OnPlayerConnect(p)
     
     local function tell(p, bool)
         if (bool) then
-            vanish[ip] = { }
+            vanish[ip] = { } -- Initialize an array for this player.
             status = vanish[ip]
+            
+            -- ENABLE VANISH
             status.enabled = true
             
             -- APPLY GOD MDOE
@@ -316,9 +323,8 @@ function OnPlayerConnect(p)
                 execute_command("god " .. p)
             end
         end
-        -- TO DO: record these variables to file.
-        status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getWarnings(ip), "default"
-                
+        
+        -- JOIN MESSAGES:
         if (vanish.join_tell) then
             local join_message_1 = gsub(vanish.join_msg, "%%name%%", get_var(p, "$name"))
             respond(p, join_message_1, "rcon", 2 + 8)
@@ -340,10 +346,11 @@ function OnPlayerConnect(p)
     elseif (status == nil) and (was_vanished) then -- must declare `vanish[ip] = {}` and `vanish[ip].enable`
         tell(p, true)
     elseif (status == nil) and not (was_vanished) then
-        vanish[ip] = { }
+        vanish[ip] = { } -- Initialize an array for this player.
         status = vanish[ip]
-        status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getWarnings(ip), "default"
     end
+    
+    status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getWarnings(ip), "default"
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -423,6 +430,7 @@ function OnTick()
                     rprint(i, "|c ")
                     rprint(i, "|c ")
 
+                    -- Check player warnings
                     if (getWarnings(ip) <= 0) then
                         status.warn, status.enabled = false, false
                         execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed ))
@@ -593,7 +601,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not gameover() then
             if (checkAccess(executor)) then
                 if (args[1] ~= nil) then
-                    validate_params(2) -- /command <args> [me | id | */all]
+                    validate_params(2) -- /command <args> [me | id | */all] <flag>
                     if not (target_all_players) then
                         if not (is_error) and isOnline(TargetID, executor) then
                             vanish:set(params)
@@ -832,6 +840,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if (tonumber(Type) == 1) then
             if hasObjective(PlayerIndex, WeaponIndex) then
             
+                -- Every time you pick up the flag, you will lose one warning point.
                 status.warnings = (status.warnings - 1)
                 status.warn = true
                 execute_command("s " .. tonumber(PlayerIndex) .. " 0")
