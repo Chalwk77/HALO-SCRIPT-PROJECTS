@@ -15,7 +15,7 @@ Features:
     - Complete invulnerability.
 
 * Speed Boost:
-    - Option change given speed.
+    - Option to change given speed.
     
 * Boost:
     - Teleports you to the nearest object that you are aiming directly.
