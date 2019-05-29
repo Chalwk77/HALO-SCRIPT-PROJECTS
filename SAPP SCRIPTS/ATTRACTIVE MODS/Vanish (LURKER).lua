@@ -702,7 +702,7 @@ function vanish:set(params)
             elseif (flag == cmd_flags[2]) then -- hidden only
                 if (vanish.hide) then
                     status.mode = "hide"
-                    on_off = "Enabled (hidden)"
+                    on_off = "Enabled (hidden only)"
                 else
                     disabled_error, _error_ = true, "vanish.hide is disabled internally"
                 end
