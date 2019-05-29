@@ -218,6 +218,8 @@ function OnScriptLoad()
         register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
         
         register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+        
+        register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
         if (tonumber(get_var(0, "$pn")) > 0) then
             reset()
@@ -1084,5 +1086,13 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
                 return false
             end
         end
+    end
+end
+
+function OnPlayerKill(PlayerIndex)
+    local ip = getip(PlayerIndex)
+    local status = vanish[ip]
+    if (status ~= nil) then
+        status.scores, status.timer, status.warn, status.has_objective = 0,0, false, false
     end
 end
