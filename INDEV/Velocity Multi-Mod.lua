@@ -14,7 +14,7 @@ Combined Scripts:
     - Enter Vehicle
     - Garbage Collection        Get Coords                  Give
     - Infinity Ammo             Item Spawner
-    - Lurker
+    - Vanish
     - Welcome Messages          Mute System
     - Player List               Portal Gun                  Private Messaging System
     - Respawn On Demand         Respawn Time
@@ -465,16 +465,16 @@ local function GameSettings()
                 }
             },
             -- # This is a spectator-like feature.
-            ["Lurker"] = {
+            ["Vanish"] = {
                 enabled = true,
-                dir = 'sapp\\lurker.tmp',
-                base_command = "lurker", -- /command on|off [me | id | */all] <cmd_flag>
+                dir = 'sapp\\vanish.tmp',
+                base_command = "vanish", -- /command on|off [me | id | */all] <cmd_flag>
                 cmd_flags = {"-c", "-h", "-ch"}, -- Command flag parameters.
                 -- If '-c' (short for camouflage) command parameter is specified, you will only have camo!
                 -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
                 -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
                 -- If neither are specified, the script will revert to default settings, i.e, 'hide', 'camouflage'
-                -- If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.                
+                -- If Player ID parameter ([me | id | */all]) is not specified, Vanish will default to the executor.                
                 permission_level = -1,
                 execute_on_others = 4,
                 -- If this is true, the player will have invincibility (god mode):
@@ -483,16 +483,16 @@ local function GameSettings()
                 hide = true,
                 -- If this is true, you will be camouflaged:
                 camouflage = true,
-                -- If this is true, Lurker will be auto-disabled (for all players) when the game ends, thus, players will not be in Lurker when the next game begins.
+                -- If this is true, Vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in Vanish when the next game begins.
                 -- They will have to turn it back on:
                 auto_off = false,
-                -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
+                -- If this is enabled then Vanish will tell you if someone is in Vanish mode if you aim at them.
                 screen_notifications = true,
                 -- If this is true, your vehicle will disappear too!
                 hide_vehicles = true,
                 -- If this is true, you will be hidden from radar.
                 hide_from_radar = true,
-                -- If this is true, players in Lurker will not be able to inflict (or receive) damage.
+                -- If this is true, players in Vanish will not be able to inflict (or receive) damage.
                 block_damage = true,
                 -- If this is true, the player wlll have a speed boost:
                 speed_boost = true,
@@ -502,39 +502,39 @@ local function GameSettings()
                 shield_amount = 100,
                 -- Speed boost applied (default running speed is 1):
                 running_speed = 2,
-                -- Speed the player returns to when they exit out of Lurker Mode:
+                -- Speed the player returns to when they exit out of Vanish Mode:
                 default_running_speed = 1,
                 -- Time (in seconds) until the player is killed after picking up the objective (flag or oddball)
                 time_until_death = 5,
 
                 -- You lose one warning point every time you pick up the objective (flag or oddball).
-                -- If you have no warnings left, your Lurker privileges will be revoked (until the server is restarted)
+                -- If you have no warnings left, your Vanish privileges will be revoked (until the server is restarted)
                 warnings = 4,
 
                 -- =============== ENABLE | DISABLE Messages =============== --
-                -- Let players know when someone goes into (or out of) Lurker mode:
+                -- Let players know when someone goes into (or out of) Vanish mode:
                 announce = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
-                onEnableMsg = "%name% is now in Lurker Mode (Spectator) | STATE: [%mode%]",
-                onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
+                onEnableMsg = "%name% is now in Vanish Mode (Spectator) | STATE: [%mode%]",
+                onDisabeMsg = "%name% is no longer in Vanish Mode (Spectator)",
                 --==================================================================================================--
 
                 -- =============== JOIN/QUIT SETTINGS =============== --
-                -- Keep Lurker on quit? (When the player returns, they will still be in Lurker).
+                -- Keep Vanish on quit? (When the player returns, they will still be in Vanish).
                 keep = true,
 
-                -- Remind the newly joined player that they are in Lurker? (requires 'keep' to be enabled) 
+                -- Remind the newly joined player that they are in Vanish? (requires 'keep' to be enabled) 
                 join_tell = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
-                join_msg = "%name%, You have joined in Lurker Mode (Spectator)",
+                join_msg = "%name%, You have joined in Vanish Mode (Spectator)",
 
                 -- If this is true, the player will be informed of how many warnings remain.
                 announce_warnings = true,
-                join_warnings_left_msg = "Lurker Warnings left: %warnings%",
+                join_warnings_left_msg = "Vanish Warnings left: %warnings%",
 
-                -- Tell other players that PlayerX joined in Lurker? (requires 'keep' to be enabled) 
+                -- Tell other players that PlayerX joined in Vanish? (requires 'keep' to be enabled) 
                 join_tell_others = true,
-                join_others_msg = "%name% joined in Lurker Mode (Spectator) | STATE: [%mode%]",
+                join_others_msg = "%name% joined in Vanish Mode (Spectator) | STATE: [%mode%]",
 
             },
             ["Welcome Messages"] = { -- Messages shown to the player on join.
@@ -844,7 +844,7 @@ local mapname = ""
 local ce
 local console_address_patch = nil
 local game_over
-local Lurker = { }
+local Vanish = { }
 
 -- #Color Reservation
 local colorres_bool = { }
@@ -886,8 +886,6 @@ local weapon_status, portalgun_mode = { }, { }
 
 -- #Respawn Time
 local respawn_cmd_override, respawn_time = { }, { }
-
--- #Lurker
 
 -- #Teleport Manager
 local canset = { }
@@ -1213,20 +1211,20 @@ function adminchat:set(ip)
     }
 end
 --------------------------------------------------------------
--- #Lurker
+-- #Vanish
 -- Return the number of warnings this player has remaining.
-function getLurkerWarnings(ip)
-    local mod = settings.mod["Lurker"]
-    return ((Lurker[ip].warnings) or mod.warnings)
+function getVanishWarnings(ip)
+    local mod = settings.mod["Vanish"]
+    return ((Vanish[ip].warnings) or mod.warnings)
 end
 function reset()
     for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i, true)
-            local is_in_lurker = isInLurker(ip)
-            local mod = settings.mod["Lurker"]
-            if ((Lurker[ip] ~= nil) or is_in_lurker) then
-                Lurker[ip] = nil
+            local is_in_vanish = isInVanish(ip)
+            local mod = settings.mod["Vanish"]
+            if ((Vanish[ip] ~= nil) or is_in_vanish) then
+                Vanish[ip] = nil
                 if (mod.speed_boost) then
                     execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed))
                 end
@@ -1236,7 +1234,7 @@ function reset()
                     rprint(i, "GAME OVER.")
                 end
                 remove_data_log(i)
-                rprint(i, "Your Lurker Mode has been deactivated.")
+                rprint(i, "Your Vanish Mode has been deactivated.")
             end
         end
     end
@@ -1338,9 +1336,9 @@ function OnScriptLoad()
         end
     end
 
-    -- #Lurker
-    if modEnabled("Lurker") then 
-        checkFile(settings.mod["Lurker"].dir)
+    -- #Vanish
+    if modEnabled("Vanish") then 
+        checkFile(settings.mod["Vanish"].dir)
         if (tonumber(get_var(0, "$pn")) > 0) then
             reset()
         end
@@ -1614,9 +1612,9 @@ function OnGameEnd()
                 end
             end
 
-            -- #Lurker
-            if modEnabled("Lurker") then 
-                local mod = settings.mod["Lurker"]
+            -- #Vanish
+            if modEnabled("Vanish") then 
+                local mod = settings.mod["Vanish"]
                 if (mod.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
                     reset()
                 end
@@ -1643,11 +1641,11 @@ function OnGameEnd()
     cprint("The Game Has Ended | Showing: POST GAME CARNAGE REPORT.", 4 + 8)
 end
 
--- #Lurker:
+-- #Vanish:
 local function hide_player(p, coords)
     local xOff, yOff, zOff = 1000, 1000, 1000
     write_float(get_player(p) + 0x100, coords.z - zOff)
-    local mod = settings.mod["Lurker"]
+    local mod = settings.mod["Vanish"]
     if (mod.hide_from_radar) then
         write_float(get_player(p) + 0xF8, coords.x - xOff)
         write_float(get_player(p) + 0xFC, coords.y - yOff)
@@ -1746,11 +1744,11 @@ function OnTick()
                 end
             end
 
-            -- #Lurker
-            if modEnabled("Lurker") then
-                local mod = settings.mod["Lurker"]
+            -- #Vanish
+            if modEnabled("Vanish") then
+                local mod = settings.mod["Vanish"]
                 
-                local status = Lurker[ip]
+                local status = Vanish[ip]
                 if (status ~= nil) and (status.enabled) then
 
                     if (mod.screen_notifications) then
@@ -1778,10 +1776,10 @@ function OnTick()
                                             local success, _, _, _, Object = intersect(px, py, pz, camX * 1000, camY * 1000, camZ * 1000, player_1)
                                             local player_2 = Object and read_dword(get_player(j) + 0x34)
                                             if (success == true and Object ~= nil) then
-                                                local lurker_p2 = Lurker[getip(j, true)]
-                                                if (Object == player_2 and lurker_p2 ~= nil and lurker_p2.enabled) then
+                                                local vanish_p2 = Vanish[getip(j, true)]
+                                                if (Object == player_2 and vanish_p2 ~= nil and vanish_p2.enabled) then
                                                     cls(i, 25)
-                                                    respond(i, "|c" .. get_var(j, "$name") .. " is in Lurker Mode (Spectator)", "rcon")
+                                                    respond(i, "|c" .. get_var(j, "$name") .. " is in Vanish Mode (Spectator)", "rcon")
                                                     for _ = 1, 5 do
                                                         rprint(i, " ")
                                                     end
@@ -1834,13 +1832,13 @@ function OnTick()
                         rprint(i, "|c ")
 
                         -- Check player warnings
-                        if (getLurkerWarnings(ip) <= 0) then
+                        if (getVanishWarnings(ip) <= 0) then
                             status.warn, status.enabled = false, false
                             execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed ))
                             killSilently(i) -- KILL PLAYER
-                            rprint(i, "Your Lurker mode was auto-revoked! [no warnings left]")
+                            rprint(i, "Your Vanish mode was auto-revoked! [no warnings left]")
                             if (mod.announce) then
-                                announceExclude(i, get_var(i, "$name") .. "'s Lurker (spectator) privileges have been auto-revoked.")
+                                announceExclude(i, get_var(i, "$name") .. "'s Vanish (spectator) privileges have been auto-revoked.")
                             end
                         end
 
@@ -2110,20 +2108,20 @@ function OnPlayerConnect(PlayerIndex)
         respawn_time[ip] = 0
     end
 
-    -- #Lurker
-    if modEnabled("Lurker") then
-        if (tonumber(level) >= getPermLevel("Lurker", false)) then
-            Lurker[ip] = Lurker[ip] or nil
-            local status = Lurker[ip]
+    -- #Vanish
+    if modEnabled("Vanish") then
+        if (tonumber(level) >= getPermLevel("Vanish", false)) then
+            Vanish[ip] = Vanish[ip] or nil
+            local status = Vanish[ip]
             local score = get_var(id, "$score")
-            local mod = settings.mod["Lurker"]
+            local mod = settings.mod["Vanish"]
             
             local function tell(id, bool)
                 if (bool) then
-                    Lurker[ip] = { } -- Initialize an array for this player.
-                    status = Lurker[ip]
+                    Vanish[ip] = { } -- Initialize an array for this player.
+                    status = Vanish[ip]
                     
-                    -- ENABLE LURKER
+                    -- ENABLE VANISH
                     status.enabled = true
                     status.warnings = status.warnings or mod.warnings
                 end
@@ -2152,17 +2150,17 @@ function OnPlayerConnect(PlayerIndex)
                 end
             end
             
-            local is_in_lurker = isInLurker(ip)
-            if (status ~= nil and status.enabled) then -- no need to declare `Lurker[ip].enable`
+            local is_in_vanish = isInVanish(ip)
+            if (status ~= nil and status.enabled) then -- no need to declare `Vanish[ip].enable`
                 tell(id)
-            elseif (status == nil) and (is_in_lurker) then -- must declare `Lurker[ip] = {}` and `Lurker[ip].enable`
+            elseif (status == nil) and (is_in_vanish) then -- must declare `Vanish[ip] = {}` and `Vanish[ip].enable`
                 tell(id, true)
-            elseif (status == nil) and not (is_in_lurker) then
-                Lurker[ip] = { } -- Initialize an array for this player.
-                status = Lurker[ip]
+            elseif (status == nil) and not (is_in_vanish) then
+                Vanish[ip] = { } -- Initialize an array for this player.
+                status = Vanish[ip]
             end
             
-            status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getLurkerWarnings(ip), "default"
+            status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getVanishWarnings(ip), "default"
         end
     end
 
@@ -2451,10 +2449,10 @@ function OnPlayerDisconnect(PlayerIndex)
         end
     end
 
-    -- #Lurker
-    if modEnabled("Lurker") then
-        local mod = settings.mod["Lurker"]
-        local status = Lurker[ip]
+    -- #Vanish
+    if modEnabled("Vanish") then
+        local mod = settings.mod["Vanish"]
+        local status = Vanish[ip]
         if (status ~= nil) then
             if not (status.enabled) or not (mod.keep) then
                 remove_data_log(id)
@@ -2463,7 +2461,7 @@ function OnPlayerDisconnect(PlayerIndex)
     end
     
     -- #Infinity Ammo
-    if (modEnabled("Lurker") and infammo[id]) then
+    if (modEnabled("Vanish") and infammo[id]) then
         DisableInfAmmo(id)
     end
 
@@ -2505,10 +2503,10 @@ local function Teleport(TargetID, x, y, z, height)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    -- #Lurker
-    if modEnabled("Lurker") then
+    -- #Vanish
+    if modEnabled("Vanish") then
         local ip = getip(PlayerIndex, true)
-        local status = Lurker[ip]
+        local status = Vanish[ip]
         if (status ~= nil) and (status.teleport ~= nil) and (status.teleport) then
             status.teleport = false
             local XYZ = status.spawn_coords
@@ -2567,10 +2565,10 @@ function OnPlayerSpawn(PlayerIndex)
         adjust_ammo(PlayerIndex)
     end
     
-    -- #Lurker
-    if modEnabled("Lurker") then
-        local mod = settings.mod["Lurker"]
-        local status = Lurker[ip]
+    -- #Vanish
+    if modEnabled("Vanish") then
+        local mod = settings.mod["Vanish"]
+        local status = Vanish[ip]
         if (status ~= nil) and (status.enabled) and (mod.invincibility) then
             execute_command("god " .. PlayerIndex)
         end
@@ -2630,9 +2628,9 @@ function OnPlayerKill(PlayerIndex)
         end
     end
     
-    -- #Lurker
-    if modEnabled("Lurker") then
-        local status = Lurker[ip]
+    -- #Vanish
+    if modEnabled("Vanish") then
+        local status = Vanish[ip]
         if (status ~= nil) and (status.enabled) then
             status.scores, status.timer, status.warn, status.has_objective = 0,0, false, false
         end
@@ -3253,8 +3251,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (target_all_players) then
                         velocity:spawnItem(params)
                     end
-                    -- #Lurker
-                elseif (parameter == "lurker") then
+                    -- #Vanish
+                elseif (parameter == "vanish") then
                     if (args[1] ~= nil) then
                         params.option = args[1]
                     end
@@ -3264,7 +3262,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
 
                     if (target_all_players) then
-                        Lurker:set(params)
+                        Vanish:set(params)
                     end
                     -- #Mute System
                 elseif (parameter == "mute") then
@@ -3348,6 +3346,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         end
+    end
+
+    -- #Temp Command to remind players that the command syntax for 'Lurker' has changed.
+    if (command == "lurker") then
+        if (args[1] ~= nil) or (args[2] ~= nil) or (args[3] ~= nil) then
+            local tab = settings.mod["Vanish"]
+            respond(executor, "NOTE: Command Syntax is now /" .. tab.base_command .. " on|off [me | id | */all] <flag>", "rcon", 4 + 8)
+        end
+        return false
     end
 
     -- #Admin Chat
@@ -3632,17 +3639,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
-        -- #Lurker
-    elseif (command == settings.mod["Lurker"].base_command) then
+        -- #Vanish
+    elseif (command == settings.mod["Vanish"].base_command) then
         if not gameover(executor) then
-            if modEnabled("Lurker", executor) then
-                if (checkAccess(executor, true, "Lurker")) then
-                    local tab = settings.mod["Lurker"]
+            if modEnabled("Vanish", executor) then
+                if (checkAccess(executor, true, "Vanish")) then
+                    local tab = settings.mod["Vanish"]
                     if (args[1] ~= nil) then
-                        validate_params("lurker", 2) --/base_command <args> [id]
+                        validate_params("vanish", 2) --/base_command <args> [id]
                         if not (target_all_players) then
                             if not (is_error) and isOnline(TargetID, executor) then
-                                Lurker:set(params)
+                                Vanish:set(params)
                             end
                         end
                     else
@@ -4567,21 +4574,21 @@ function velocity:listplayers(e)
             player_count = player_count + 1
             local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), getip(i, true)
 
-            local in_lurker = Lurker[ip]
-            if (in_lurker ~= nil) then
-                in_lurker = in_lurker.enabled
+            local in_vanish = Vanish[ip]
+            if (in_vanish ~= nil) then
+                in_vanish = in_vanish.enabled
             else
-                in_lurker = false
+                in_vanish = false
             end
             
             local in_portalgun = portalgun_mode[ip]
             local prefix
-            if (in_lurker) and not (in_portalgun) then
-                prefix = "|r[LURKER]"
-            elseif (in_portalgun) and not (in_lurker) then
+            if (in_vanish) and not (in_portalgun) then
+                prefix = "|r[VANISH]"
+            elseif (in_portalgun) and not (in_vanish) then
                 prefix = "|r[PGUN]"
-            elseif (in_portalgun) and (in_lurker) then
-                prefix = "|r[PGUN] [LURKER]"
+            elseif (in_portalgun) and (in_vanish) then
+                prefix = "|r[PGUN] [VANISH]"
             else
                 prefix = ""
             end
@@ -5160,15 +5167,20 @@ function velocity:infinityAmmo(params)
             frag_check[TargetID] = true
             adjust_ammo(TargetID)
             if specified then
-                --if not (lurker[TargetID]) then
+                local status = Vanish[ip]
+                local proceed
+                if (status == nil) or not (status.enabled) then
+                    proceed = true
+                end    
+                if (proceed) then
                     local mult = tonumber(multiplier)
                     modify_damage[TargetID] = true
                     damage_multiplier[TargetID] = mult
                     respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
                     respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4 + 8)
-                --else
-                    --respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
-                --end
+                else
+                    respond(eid, "Unable to set damage multipliers while in Vanish Mode", "rcon", 4 + 8)
+                end
             else
                 respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
                 if (tab.announcer) then
@@ -5575,10 +5587,10 @@ function remove_data_log(p)
     local params = { }
     local ip = getip(p, true)
     params.ip, params.save = ip, nil
-    Lurker:savetofile(params)
+    Vanish:savetofile(params)
 end
 
-function Lurker:set(params)
+function Vanish:set(params)
     local params = params or { }
 
     local en = params.en or nil
@@ -5597,7 +5609,7 @@ function Lurker:set(params)
 
     local option = params.option or nil
     local flag = params.flag or nil
-    local mod = settings.mod["Lurker"]
+    local mod = settings.mod["Vanish"]
     local is_self
     if (eid == tid) then
         is_self = true
@@ -5607,9 +5619,9 @@ function Lurker:set(params)
         en = "SERVER"
     end
 
-    Lurker[tip] = Lurker[tip] or { }
-    local status = Lurker[tip]
-    status.warnings = (status.warnings) or getLurkerWarnings(tip)
+    Vanish[tip] = Vanish[tip] or { }
+    local status = Vanish[tip]
+    status.warnings = (status.warnings) or getVanishWarnings(tip)
     local warnings = status.warnings
     
     local eLvl = tonumber(get_var(eid, "$lvl"))
@@ -5621,7 +5633,7 @@ function Lurker:set(params)
         
         local p = { }
         p.ip, p.save = tip, true
-        Lurker:savetofile(p)
+        Vanish:savetofile(p)
         
         if (mod.invincibility) then
             execute_command("god " .. tid)
@@ -5689,21 +5701,21 @@ function Lurker:set(params)
                     status.mode = "camouflaged"
                     on_off = "Enabled (with Camouflage)"
                 else
-                    disabled_error, _error_ = true, "Lurker.camouflage is disabled internally"
+                    disabled_error, _error_ = true, "vanish.camouflage is disabled internally"
                 end
             elseif (flag == cmd_flags[2]) then -- hidden only
                 if (mod.hide) then
                     status.mode = "hidden"
                     on_off = "Enabled (hidden only)"
                 else
-                    disabled_error, _error_ = true, "Lurker.hide is disabled internally"
+                    disabled_error, _error_ = true, "vanish.hide is disabled internally"
                 end
             elseif (flag == cmd_flags[3]) then -- camouflage + hidden
                 if (mod.camouflage) and (mod.hide) then
                     status.mode = "camouflaged_and_hidden"
                     on_off = "Enabled (Hidden with Camouflage)"
                 else
-                    disabled_error, _error_ = true, "Lurker.camouflage & Lurker.hide are disabled internally"
+                    disabled_error, _error_ = true, "vanish.camouflage & vanish.hide are disabled internally"
                 end
             else
                 is_error, disabled_error = true, true
@@ -5723,7 +5735,7 @@ function Lurker:set(params)
         end
     end
     
-    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
+    if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Vanish")) then
         if (tonumber(warnings) > 0) then
             local already_set
             if (option == "on") or (option == "1") or (option == "true") then     
@@ -5748,19 +5760,19 @@ function Lurker:set(params)
             end
             if not (is_error) and not (already_set) then
                 if not (is_self) then
-                    respond(eid, "Lurker " .. on_off .. " for " .. tn, "rcon", 2 + 8)
-                    respond(tid, "Lurker Mode was " .. on_off .. " by " .. en, "rcon")
+                    respond(eid, "Vanish " .. on_off .. " for " .. tn, "rcon", 2 + 8)
+                    respond(tid, "Vanish Mode was " .. on_off .. " by " .. en, "rcon")
                 else
-                    respond(eid, "Lurker Mode " .. on_off, "rcon", 2 + 8)
+                    respond(eid, "Vanish Mode " .. on_off, "rcon", 2 + 8)
                 end
             elseif (already_set) then
-                respond(eid, "[SERVER] -> " .. tn .. ", Lurker already " .. on_off, "rcon", 4 + 8)
+                respond(eid, "[SERVER] -> " .. tn .. ", Vanish already " .. on_off, "rcon", 4 + 8)
             end
         else
             if not (is_self) then
-                respond(eid, tn .. "'s Lurker has been revoked! [no warnings left]", "rcon", 2 + 8)
+                respond(eid, tn .. "'s Vanish has been revoked! [no warnings left]", "rcon", 2 + 8)
             else
-                respond(tid, "Your Lurker Mode was auto-revoked! [no warnings left]", "rcon", 2 + 8)
+                respond(tid, "Your Vanish Mode was auto-revoked! [no warnings left]", "rcon", 2 + 8)
             end
         end
     end
@@ -6533,13 +6545,13 @@ function velocity:mutelist(params)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    -- #Lurker
-    if modEnabled("Lurker") then
-        local mod = settings.mod["Lurker"]
+    -- #Vanish
+    if modEnabled("Vanish") then
+        local mod = settings.mod["Vanish"]
         if (mod.block_damage) then
             if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
                 local vip, kip = getip(PlayerIndex, true), getip(CauserIndex, true)
-                local v, k = Lurker[vip], Lurker[kip]
+                local v, k = Vanish[vip], Vanish[kip]
                 if (v ~= nil or k ~= nil) and (v.enabled or k.enabled) then
                     return false
                 end
@@ -6557,9 +6569,9 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-    if modEnabled("Lurker") then
+    if modEnabled("Vanish") then
         local ip = getip(PlayerIndex, true)
-        local status = Lurker[ip]
+        local status = Vanish[ip]
 
         if (status ~= nil and status.enabled) then
             if (tonumber(Type) == 1) then
@@ -6584,13 +6596,13 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
 end
 
 function OnWeaponDrop(PlayerIndex)
-    if modEnabled("Lurker") then
+    if modEnabled("Vanish") then
     
         local ip = getip(PlayerIndex, true)
-        local status = Lurker[ip]
+        local status = Vanish[ip]
         
         if (status ~= nil and status.enabled) and (status.warn) then
-            local mod = settings.mod["Lurker"]
+            local mod = settings.mod["Vanish"]
             status.warn, status.timer = false, 0
             -- APPLY SPEED - player was frozen when `OnWeaponPickup()` was called.
             execute_command("s " .. tonumber(PlayerIndex) .. " " .. tonumber(mod.running_speed))
@@ -6610,7 +6622,7 @@ function hasObjective(PlayerIndex, WeaponIndex)
     local weaponId = read_dword(player_object + 0x118)
     if (weaponId ~= 0) then
         local ip = getip(PlayerIndex, true)
-        local status = Lurker[ip]
+        local status = Vanish[ip]
         
         local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
         local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
@@ -6756,9 +6768,9 @@ function checkFile(directory)
     end
 end
 
--- #Lurker
-function isInLurker(ip)
-    local dir = settings.mod["Lurker"].dir
+-- #Vanish
+function isInVanish(ip)
+    local dir = settings.mod["Vanish"].dir
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(ip)) then
@@ -6767,12 +6779,12 @@ function isInLurker(ip)
     end
 end
 
--- #Lurker
-function Lurker:savetofile(params)
+-- #Vanish
+function Vanish:savetofile(params)
     local params = params or { }
     local ip = params.ip or nil
     local save = params.save
-    local dir = settings.mod["Lurker"].dir
+    local dir = settings.mod["Vanish"].dir
     local lines, proceed = lines_from(dir), true
     for k, v in pairs(lines) do
         if (v:match(ip)) then
@@ -7144,7 +7156,7 @@ function RecordChanges()
     local block_cmd = mod["Block Object Pickups"].block_command
     local unblock_cmd = mod["Block Object Pickups"].unblock_command
     local alias_cmd = mod["Alias System"].base_command
-    local lurker_cmd = mod["Lurker"].base_command
+    local vanish_cmd = mod["Vanish"].base_command
     local coords_cmd = mod["Get Coords"].base_command
     local delpm_cmd = mod["Private Messaging System"].delete_command
     local pmread_cmd = mod["Private Messaging System"].read_command
@@ -7381,7 +7393,7 @@ function RecordChanges()
     cl[#cl + 1] = "1). Small tweak to Chat Censor."
     cl[#cl + 1] = "Script Updated to v1.36"
     cl[#cl + 1] = "2). Bug fix for Alias System - page browser."
-    cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/" .. lurker_cmd .. " on me' no longer throws an error if executed from console."
+    cl[#cl + 1] = "3). Bug fix for Lurker - Command: '/" .. vanish_cmd .. " on me' no longer throws an error if executed from console."
     cl[#cl + 1] = "Script Updated to v1.37"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
@@ -7473,14 +7485,14 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/20/19]"
-    cl[#cl + 1] = "1). Another tweak for Lurker:"
+    cl[#cl + 1] = "1). Another tweak for Vanish:"
     cl[#cl + 1] = "If you were in a vehicle when disabling Lurker, you will now be automatically re-entered into that exact same vehicle (in the same seat)."
     cl[#cl + 1] = "Script Updated to v1.50"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/22/19]"
-    cl[#cl + 1] = "1). Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode and unfreeze when you drop it."
+    cl[#cl + 1] = "1). Tweak to Vanish: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode and unfreeze when you drop it."
     cl[#cl + 1] = "The reason for this change is because people were exploiting the speed-boost that Lurker gives you."
     cl[#cl + 1] = "On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out."
     cl[#cl + 1] = "Script Updated to v1.51"
@@ -7490,7 +7502,7 @@ function RecordChanges()
     cl[#cl + 1] = "[5/23/19]"
     cl[#cl + 1] = "1). Minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.52"
-    cl[#cl + 1] = "2). Major bug fix for Lurker:"
+    cl[#cl + 1] = "2). Major bug fix for Vanish:"
     cl[#cl + 1] = "The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill)."
     cl[#cl + 1] = "Script Updated to v1.53"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
@@ -7504,7 +7516,7 @@ function RecordChanges()
     cl[#cl + 1] = "This means, for example, if you pickup the flag or oddball on a protected map,"
     cl[#cl + 1] = "lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally."
     cl[#cl + 1] = "Script Updated to v1.54"
-    cl[#cl + 1] = "3). New setting ('hide') for LURKER:"
+    cl[#cl + 1] = "3). New setting ('hide') for Vanish:"
     cl[#cl + 1] = "Toggle 'hide' on or off to completely hide the player from others."
     cl[#cl + 1] = "Script Updated to v1.55"
     cl[#cl + 1] = "4). A couple of minor tweaks."
@@ -7520,7 +7532,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/28/19]"
-    cl[#cl + 1] = "1). New option added to lurker: 'hide_from_radar'."
+    cl[#cl + 1] = "1). New option added to Vanish: 'hide_from_radar'."
     cl[#cl + 1] = "Previously, if 'hide' was enabled, you would be hidden from radar regardless."
     cl[#cl + 1] = "You can now toggle this on or off with the new setting."
     cl[#cl + 1] = "Script Updated to v1.58"
@@ -7531,7 +7543,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/29/19]"
-    cl[#cl + 1] = "1). Completely rewrote Lurker. (See Lurker's config section for details)"
+    cl[#cl + 1] = "1). Completely rewrote Lurker. (Now called Vanish) - (See Vanish config section for details)"
     cl[#cl + 1] = "2). A couple of minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.60"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
