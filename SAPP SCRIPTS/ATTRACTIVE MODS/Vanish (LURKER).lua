@@ -7,21 +7,24 @@ Command syntax: /vanish.command on|off [me | id | */all] <flag>
 
 Features:
 * Invisibility:
-    - Hidden from all players.
-    - Option to hide vehicles occupied by vanished players.
-    - Option to hide vanished players from radar.
+    - Hidden from all players (optional).
+    - Setting to hide vehicles occupied by vanished players.
+    - Setting to hide vanished players from radar.
 
 * Invincibility (God Mode):
     - Complete invulnerability.
 
 * Speed Boost:
-    - Option to change given speed.
+    - Setting to change given speed.
     
-* Boost:
+* Boost (optional):
     - Teleports you to the nearest object that you are aiming directly.
     
 * Command Flags:
     - Enable Vanish with camouflage only, be hidden only, or both.
+    - To enable with "hidden only", vanish.hide must be enabled.
+    - To enable with "camouflage only", vanish.camouflage must be enabled.
+    - To enable with "both", vanish.hide and vanish.camouflage must both be enabled.
     
 * Customizable Messages.
 
@@ -47,7 +50,6 @@ vanish.cmd_flags = {"-c", "-h", "-ch"} -- Command flag parameters.
 -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
 -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
 -- If neither are specified, the script will revert to default settings, i.e, 'vanish.hide', 'vanish.camouflage'
-
 -- If Player ID parameter ([me | id | */all]) is not specified, Vanish will default to the executor.
 
 -- Minimum Permission level required to execute /vanish.command
@@ -672,6 +674,7 @@ function vanish:set(params)
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(vanish.default_running_speed))
         end
         remove_data_log(tid)
+        killSilently(tid)
     end
     
     local cmd_flags, is_error, on_off = vanish.cmd_flags
