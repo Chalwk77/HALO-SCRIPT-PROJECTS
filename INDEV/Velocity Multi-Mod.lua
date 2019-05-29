@@ -1754,7 +1754,15 @@ function OnTick()
                 if (status ~= nil) and (status.enabled) then
 
                     if (mod.screen_notifications) then
-                        if not (mod.hide) then
+                    
+                        local proceed
+                        if (status.mode == "default" and not (mod.hide) then
+                            proceed = true
+                        elseif (status.mode == "hide" or status.mode == "camouflage_and_hide") then
+                            proceed = false
+                        end
+                    
+                        if (proceed) then
                             for j = 1, 16 do
                                 if (i ~= j) then
                                     if (player_alive(i)) and (player_alive(j)) then
@@ -1804,6 +1812,7 @@ function OnTick()
                         execute_command("camo " .. i .. " 1")
                     end
                     
+                    -- APPLY OVERSHIELD
                     if (mod.apply_shield) then
                         execute_command("sh " .. tonumber(i) .. " " .. tonumber(mod.shield_amount))
                     end
