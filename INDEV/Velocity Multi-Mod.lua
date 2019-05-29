@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.60), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.61), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -523,7 +523,7 @@ local function GameSettings()
                 -- Keep Lurker on quit? (When the player returns, they will still be in Lurker).
                 keep = true,
 
-                -- Remind the newly joined player that they are in Lurker? (requires keep to be enabled) 
+                -- Remind the newly joined player that they are in Lurker? (requires 'keep' to be enabled) 
                 join_tell = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
                 join_msg = "%name%, You have joined in Lurker Mode (Spectator)",
@@ -532,7 +532,7 @@ local function GameSettings()
                 announce_warnings = true,
                 join_warnings_left_msg = "Lurker Warnings left: %warnings%",
 
-                -- Tell other players that PlayerX joined in Lurker? (requires keep to be enabled) 
+                -- Tell other players that PlayerX joined in Lurker? (requires 'keep' to be enabled) 
                 join_tell_others = true,
                 join_others_msg = "%name% joined in Lurker Mode (Spectator) | STATE: [%mode%]",
 
@@ -732,7 +732,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.60, -- << --- do not touch
+            script_version = 1.61, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1661,13 +1661,6 @@ function OnTick()
             local player = get_dynamic_player(i)
             local name = get_var(i, "$name")
 
-            local vTab = entervehicle[i]
-            if (player_alive(i) and vTab ~= nil and vTab.enter) then
-                local vehicle, seat = vTab.vehicle, vTab.seat
-                enter_vehicle(vehicle, i, seat)
-                entervehicle[i] = nil
-            end
-
             -- #Custom Weapons
             local wTab = settings.mod["Custom Weapons"]
             if modEnabled("Custom Weapons") and (wTab.assign_weapons) then
@@ -1729,6 +1722,13 @@ function OnTick()
                         end
                     end
                 end
+            end
+
+            local vTab = entervehicle[i]
+            if (player_alive(i) and vTab ~= nil and vTab.enter) then
+                local vehicle, seat = vTab.vehicle, vTab.seat
+                enter_vehicle(vehicle, i, seat)
+                entervehicle[i] = nil
             end
 
             -- #Color Changer
@@ -2505,7 +2505,17 @@ local function Teleport(TargetID, x, y, z, height)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    --
+    -- #Lurker
+    if modEnabled("Lurker") then
+        local ip = getip(PlayerIndex, true)
+        local status = Lurker[ip]
+        if (status ~= nil) and (status.teleport ~= nil) and (status.teleport) then
+            status.teleport = false
+            local XYZ = status.spawn_coords
+            local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
+            Teleport(PlayerIndex, x, y, z, height)
+        end
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -5602,6 +5612,9 @@ function Lurker:set(params)
     status.warnings = (status.warnings) or getLurkerWarnings(tip)
     local warnings = status.warnings
     
+    local eLvl = tonumber(get_var(eid, "$lvl"))
+    local tLvl = tonumber(get_var(tid, "$lvl"))
+    
     local function Enable()
         status.enabled, status.teleport, status.warn = true, false, false
         status.score, status.timer = get_var(tid, "$score"), 0
@@ -5645,7 +5658,25 @@ function Lurker:set(params)
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
         end
         remove_data_log(tid)
-        killSilently(tid)
+        
+        if (tLvl >= 1) then -- Only admins can TP back to where they were (trust issues)
+            local coords = getXYZ(eid, tid)
+            if (coords) then
+                local x, y, z = coords.x, coords.y, coords.z
+                killSilently(tid)
+                if not (coords.invehicle) then
+                    status.spawn_coords = { }
+                    status.spawn_coords[1], status.spawn_coords[2], status.spawn_coords[3], status.spawn_coords[4] = x, y, z, 0.5
+                    status.teleport = true
+                elseif (coords.invehicle) then
+                    entervehicle[tid].enter = true
+                end
+            else
+                killSilently(tid)
+            end
+        else
+            killSilently(tid)            
+        end
     end
     
     local cmd_flags, is_error, on_off = mod.cmd_flags
@@ -5690,8 +5721,7 @@ function Lurker:set(params)
             return true
         end
     end
-
-    local eLvl = tonumber(get_var(eid, "$lvl"))
+    
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
         if (tonumber(warnings) > 0) then
             local already_set
@@ -7503,6 +7533,12 @@ function RecordChanges()
     cl[#cl + 1] = "1). Completely rewrote Lurker. (See Lurker's config section for details)"
     cl[#cl + 1] = "2). A couple of minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.60"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/30/19]"
+    cl[#cl + 1] = "Bug Fixes from the aftermath of rewriting Lurker."
+    cl[#cl + 1] = "Script Updated to v1.61"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
