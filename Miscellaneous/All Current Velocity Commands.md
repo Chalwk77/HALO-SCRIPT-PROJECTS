@@ -60,8 +60,9 @@
 - - - -
 
 ## Lurker:
-`/lurker [me | id | */all] on|off`
-> If 'on|off' parameter is not specified, it will show you the target's current lurker setting (enabled/disabled).
+`/lurker on|off [me | id | */all] <flag>`
+> If Player ID parameter ([me | id | */all]) is not specified, Lurker will default to the executor.                
+
 - - - -
 
 ## Mute System:
