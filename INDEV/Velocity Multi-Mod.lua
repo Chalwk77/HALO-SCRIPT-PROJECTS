@@ -1756,7 +1756,7 @@ function OnTick()
                     if (mod.screen_notifications) then
                     
                         local proceed
-                        if (status.mode == "default" and not (mod.hide) then
+                        if (status.mode == "default" and not mod.hide) then
                             proceed = true
                         elseif (status.mode == "hide" or status.mode == "camouflage_and_hide") then
                             proceed = false
