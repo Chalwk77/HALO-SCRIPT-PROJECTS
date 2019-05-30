@@ -154,14 +154,14 @@ local function GameSettings()
                     [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck" },
-                    [9] = { "dick", "dickhead" },
+                    [8] = { "cock", "c0ck", "cOck", "cocksucker", "cock[%s]sucker"},
+                    [9] = { "dick", "dickhead", "d[%p]ckhead"},
                     [10] = { "^fag$", "faggot", "^fagg$" },
                     [11] = { "fatass" },
                     [12] = { "fuck", "fucker", "fucck", "fcucking", "fuccckcckkk"},
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
                     [14] = { "prick" },
-                    [15] = { "pussy", "p ussy"},
+                    [15] = { "pussy", "p[%s]ussy"},
                     [16] = { "slut" },
                     [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit" },
                     [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
@@ -7531,13 +7531,14 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/29/19]"
     cl[#cl + 1] = "1). Completely rewrote Lurker. (See Lurker's config section for details)"
-    cl[#cl + 1] = "2). A couple of minor bug fixes."
+    cl[#cl + 1] = "2). Bug fix for Chat Censor."
+    cl[#cl + 1] = "3). Other minor bug fixes."
     cl[#cl + 1] = "Script Updated to v1.60"
     cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
     cl[#cl + 1] = ""
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/30/19]"
-    cl[#cl + 1] = "Bug Fixes from the aftermath of rewriting Lurker."
+    cl[#cl + 1] = "1). Bug Fixes from the aftermath of rewriting Lurker."
     cl[#cl + 1] = "Script Updated to v1.61"
     file:write(concat(cl, "\n"))
     file:close()
