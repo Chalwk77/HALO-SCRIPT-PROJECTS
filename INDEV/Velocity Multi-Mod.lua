@@ -158,7 +158,7 @@ local function GameSettings()
                     [9] = { "dick", "dickhead", "d[%p]ckhead"},
                     [10] = { "^fag$", "faggot", "^fagg$" },
                     [11] = { "fatass" },
-                    [12] = { "fuck", "fucker", "fucck", "fcucking", "fuccckcckkk"},
+                    [12] = { "fuck", "fucker", "fucck", "fucccckkk", "fcucking", "fuccckcckkk"},
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
                     [14] = { "prick" },
                     [15] = { "pussy", "p[%s]ussy"},
@@ -2700,19 +2700,22 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
             return word
         end
+        local start, content = 1, ""
         for i = 0, #message do
-            if (message[i]) then
+            if (message[i]) then 
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
-                        if (lower(message[i]) == swear_word) then
+                        if find(message[i]:lower(), swear_word) then
+                        
                             swear_word = checkForChar(swear_word)
                             local len = string.len(swear_word)
                             local replaced_word = sub(swear_word, 1, 1)
                             for w = 1, len - 1 do
                                 replaced_word = replaced_word .. tab.censor
                             end
-                            Message = gsub(Message, message[i], replaced_word)
+
+                            Message = gsub(Message, swear_word, replaced_word)
                             break
                         end
                     end
