@@ -2683,7 +2683,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if (#message == 0) then
         return false
     end
-
+    
     -- #Chat Censor
     if modEnabled("Chat Censor") then
         local tab = settings.mod["Chat Censor"]
@@ -2714,7 +2714,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             for w = 1, len - 1 do
                                 replaced_word = replaced_word .. tab.censor
                             end
-
+                                                       
+                            -- Message = gsub(Message, message[i], replaced_word)
                             Message = gsub(Message, swear_word, replaced_word)
                             break
                         end
@@ -5299,6 +5300,9 @@ function velocity:setwarp(params)
         else
             x, y, z = read_vector3d(get_dynamic_player(eid) + 0x5C)
         end
+        
+        x,y,z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
+
         local file = io.open(dir, "a+")
         local str = warpname .. " [Map: " .. mapname .. "] X " .. x .. ", Y " .. y .. ", Z " .. z
         file:write(str, "\n")
