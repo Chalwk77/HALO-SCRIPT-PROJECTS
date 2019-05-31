@@ -31,6 +31,9 @@ mapvote.timeout = 10 -- Do not set to 0
 -- Map vote options are displayed in the console environment:
 mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
 
+-- Number of Map Vote entries to display per page:
+mapvote.maxresults = 10
+
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
     ["ratrace"] = {"ctf", "slayer"},
@@ -51,13 +54,10 @@ mapvote.maps = { -- Create map settings array
     ["putput"] = {"ctf", "slayer"},
     ["prisoner"] = {"ctf", "slayer"},
     ["wizard"] = {"ctf", "slayer"},
-    ["longest"] = {"ctf", "slayer", "Classic Team Slayer"},
+    ["longest"] = {"ctf", "slayer", "Classic Team Slayer"}, 
     
     -- Repeat the structure to add you own maps and gametypes.
 }
-
-
-mapvote.maxresults = 10 -- Number of results per page.
 
 -- mapvote config ends --
 
