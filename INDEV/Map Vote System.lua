@@ -20,16 +20,33 @@ local mapvote = { }
 
 -- mapvote config starts --
 mapvote.votetime = 10 -- In Seconds!
-mapvote.players_needed = 0 -- Players needed to vote.
+mapvote.players_needed = 1 -- Players needed to vote.
 
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
     ["ratrace"] = {"ctf", "slayer"},
-    ["bloodguch"] = {"ctf", "slayer"},
+    ["bloodgulch"] = {"ctf", "slayer"},
+    ["beavercreek"] = {"ctf", "slayer"},
+    ["boardingaction"] = {"ctf", "slayer"},
+    ["carousel"] = {"ctf", "slayer"},
+    ["dangercanyon"] = {"ctf", "slayer"},
+    ["deathisland"] = {"ctf", "slayer"},
+    ["gephyrophobia"] = {"ctf", "slayer"},
+    ["icefields"] = {"ctf", "slayer"},
+    ["infinity"] = {"ctf", "slayer"},
+    ["sidewinder"] = {"ctf", "slayer"},
+    ["timberland"] = {"ctf", "slayer"},
+    ["hangemhigh"] = {"ctf", "slayer"},
+    ["ratrace"] = {"ctf", "slayer"},
+    ["damnation"] = {"ctf", "slayer"},
+    ["putput"] = {"ctf", "slayer"},
+    ["prisoner"] = {"ctf", "slayer"},
+    ["wizard"] = {"ctf", "slayer"},
+    ["longest"] = {"ctf", "slayer"},
 }
 
-mapvote.maxresults = 10
-mapvote.server_prefix = "** SERVER ** "
+
+mapvote.maxresults = 10 -- Number of results per page.
 
 -- mapvote config ends --
 
