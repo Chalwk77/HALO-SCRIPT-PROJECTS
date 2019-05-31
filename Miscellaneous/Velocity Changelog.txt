@@ -353,7 +353,7 @@ Script Updated to v1.56
 
 [5/26/19]
 1). Small tweak to Lurker.
-If 'hide' is enabled, vanished players will now be hidden from the radar.
+If 'hide' is enabled, players in Lurker Mode will now be hidden from the radar.
 Script Updated to v1.57
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -371,11 +371,18 @@ Script Updated to v1.59
 
 [5/29/19]
 1). Completely rewrote Lurker. (See Lurker's config section for details)
-2). A couple of minor bug fixes.
+2). Bug fix for Chat Censor.
+3). Other minor bug fixes.
 Script Updated to v1.60
 -------------------------------------------------------------------------------------------------------------------------------
 
 
 [5/30/19]
-Bug Fixes from the aftermath of rewriting Lurker.
+1). Bug Fixes from the aftermath of rewriting Lurker.
 Script Updated to v1.61
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/31/19]
+1). Bug fix for Chat Censor.
+Script Updated to v1.62
