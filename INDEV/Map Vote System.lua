@@ -108,7 +108,9 @@ end
 function OnGameEnd()
     if ( tonumber(get_var(0, "$pn")) >= mapvote.players_needed ) then
         for i = 1,16 do
-            cur_page[i] = start_page
+            if player_present(i) then
+                cur_page[i] = start_page
+            end
         end
         for k, _ in pairs(mapvote.maps) do
             results[#results + 1] = k
@@ -138,6 +140,7 @@ function OnTick()
                     cls(i, 25)
                     mapvote:showResults(i)
                     rprint(i, '[Page ' .. cur_page[i] .. '/' .. total_pages .. ']')
+                    rprint(i, '______________________________________________________________________________________________')
                 end
             end            
         end
