@@ -17,32 +17,40 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 local mapvote = { }
-
 -- mapvote config starts --
-mapvote.votetime = 10 -- In Seconds!
-mapvote.players_needed = 1 -- Players needed to vote.
+
+-- Allocated vote time:
+mapvote.votetime = 10
+
+-- Players needed to vote.
+mapvote.players_needed = 1
+
+-- Left = l, Right = r, Center = c, Tab: t
+mapvote.alignment = "l" 
 
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
     ["ratrace"] = {"ctf", "slayer"},
-    ["bloodgulch"] = {"ctf", "slayer"},
-    ["beavercreek"] = {"ctf", "slayer"},
+    ["bloodgulch"] = {"ctf", "slayer", "oddball"},
+    ["beavercreek"] = {"ctf", "slayer", "Classic Team Slayer"},
     ["boardingaction"] = {"ctf", "slayer"},
     ["carousel"] = {"ctf", "slayer"},
     ["dangercanyon"] = {"ctf", "slayer"},
     ["deathisland"] = {"ctf", "slayer"},
     ["gephyrophobia"] = {"ctf", "slayer"},
-    ["icefields"] = {"ctf", "slayer"},
+    ["icefields"] = {"ctf", "slayer", "oddball"},
     ["infinity"] = {"ctf", "slayer"},
-    ["sidewinder"] = {"ctf", "slayer"},
+    ["sidewinder"] = {"ctf", "slayer", "oddball"},
     ["timberland"] = {"ctf", "slayer"},
-    ["hangemhigh"] = {"ctf", "slayer"},
+    ["hangemhigh"] = {"ctf", "slayer", "Classic Team Slayer", "Classic Team King"},
     ["ratrace"] = {"ctf", "slayer"},
     ["damnation"] = {"ctf", "slayer"},
     ["putput"] = {"ctf", "slayer"},
     ["prisoner"] = {"ctf", "slayer"},
     ["wizard"] = {"ctf", "slayer"},
-    ["longest"] = {"ctf", "slayer"},
+    ["longest"] = {"ctf", "slayer", "Classic Team Slayer"},
+    
+    -- Repeat the structure to add you own maps and gametypes.
 }
 
 
@@ -66,7 +74,7 @@ end
 
 local SayRcon = function(p, msg)
     if (msg) then
-        rprint(p, msg)
+        rprint(p, "|" .. mapvote.alignment .. " " .. msg)
     end
 end
 
