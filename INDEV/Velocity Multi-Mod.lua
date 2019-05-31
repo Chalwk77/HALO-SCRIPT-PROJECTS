@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.61), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.62), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -732,7 +732,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.61, -- << --- do not touch
+            script_version = 1.62, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2706,7 +2706,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
-                        if find(message[i]:lower(), swear_word) then
+                        if find(lower(message[i]), swear_word) then
                         
                             swear_word = checkForChar(swear_word)
                             local len = string.len(swear_word)
@@ -2714,9 +2714,26 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             for w = 1, len - 1 do
                                 replaced_word = replaced_word .. tab.censor
                             end
-                                                       
-                            -- Message = gsub(Message, message[i], replaced_word)
-                            Message = gsub(Message, swear_word, replaced_word)
+                            
+                            local start, text, len = 1, "", string.len(message[i])
+                            
+                            for w = 1, len - 1 do
+                                start = start + 1
+                                text = sub(message[i], 1, start)
+                                if (lower(text) == swear_word) then
+                                    break
+                                end
+                            end
+                            
+                            local first_letter = sub(text, 1, 1)
+                            if (first_letter == upper(first_letter)) then
+                                replaced_word = gsub(replaced_word, sub(replaced_word, 1, 1), upper(first_letter))
+                            end 
+                            
+                            -- Message = gsub(Message, swear_word, replaced_word)
+                            if (text ~= nil) then
+                                Message = gsub(Message, text, replaced_word)
+                            end
                             break
                         end
                     end
@@ -2853,26 +2870,27 @@ function OnPlayerChat(PlayerIndex, Message, type)
     -- #Chat IDs
     if modEnabled("Chat IDs") then
         if not (game_over) then
+            local c_tab = settings.mod["Chat IDs"]
 
             -- GLOBAL FORMAT
-            local GlobalDefault = settings.mod["Chat IDs"].global_format[1]
-            local Global_TModFormat = settings.mod["Chat IDs"].trial_moderator[1]
-            local Global_ModFormat = settings.mod["Chat IDs"].moderator[1]
-            local Global_AdminFormat = settings.mod["Chat IDs"].admin[1]
-            local Global_SAdminFormat = settings.mod["Chat IDs"].senior_admin[1]
+            local GlobalDefault = c_tab.global_format[1]
+            local Global_TModFormat = c_tab.trial_moderator[1]
+            local Global_ModFormat = c_tab.moderator[1]
+            local Global_AdminFormat = c_tab.admin[1]
+            local Global_SAdminFormat = c_tab.senior_admin[1]
 
             --TEAM FORMAT
-            local TeamDefault = settings.mod["Chat IDs"].team_format[1]
-            local Team_TModFormat = settings.mod["Chat IDs"].trial_moderator[2]
-            local Team_ModFormat = settings.mod["Chat IDs"].moderator[2]
-            local Team_AdminFormat = settings.mod["Chat IDs"].admin[2]
-            local Team_SAdminFormat = settings.mod["Chat IDs"].senior_admin[2]
+            local TeamDefault = c_tab.team_format[1]
+            local Team_TModFormat = c_tab.trial_moderator[2]
+            local Team_ModFormat = c_tab.moderator[2]
+            local Team_AdminFormat = c_tab.admin[2]
+            local Team_SAdminFormat = c_tab.senior_admin[2]
 
             -- Permission Levels
-            local tmod_perm = settings.mod["Chat IDs"].trial_moderator.lvl
-            local mod_perm = settings.mod["Chat IDs"].moderator.lvl
-            local admin_perm = settings.mod["Chat IDs"].admin.lvl
-            local sadmin_perm = settings.mod["Chat IDs"].senior_admin.lvl
+            local tmod_perm = c_tab.trial_moderator.lvl
+            local mod_perm = c_tab.moderator.lvl
+            local admin_perm = c_tab.admin.lvl
+            local sadmin_perm = c_tab.senior_admin.lvl
 
             if not (keyword) or (keyword == nil) then
                 local function ChatHandler(PlayerIndex, Message)
@@ -2919,7 +2937,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
                                 if (getTeamPlay()) then
                                     if (type == 0 or type == 2) then
-                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                        if (c_tab.use_admin_prefixes == true) then
                                             if (level(id) == tmod_perm) then
                                                 SendToAll(Message, nil, true, nil, nil, nil)
                                             elseif (level(id) == mod_perm) then
@@ -2935,7 +2953,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             SendToAll(Message, true, nil, nil, nil, nil)
                                         end
                                     elseif (type == 1) then
-                                        if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
+                                        if (c_tab.use_admin_prefixes == true) then
                                             if (level(id) == tmod_perm) then
                                                 SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
                                             elseif (level(id) == mod_perm) then
@@ -2951,22 +2969,20 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                             SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
                                         end
                                     end
-                                else
-                                    if (settings.mod["Chat IDs"].use_admin_prefixes == true) then
-                                        if (level(id) == tmod_perm) then
-                                            SendToAll(Message, nil, true, nil, nil, nil)
-                                        elseif (level(id) == mod_perm) then
-                                            SendToAll(Message, nil, nil, true, nil, nil)
-                                        elseif (level(id) == admin_perm) then
-                                            SendToAll(Message, nil, nil, nil, true, nil)
-                                        elseif (level(id) == sadmin_perm) then
-                                            SendToAll(Message, nil, nil, nil, nil, true)
-                                        else
-                                            SendToAll(Message, true, nil, nil, nil, nil)
-                                        end
+                                elseif (c_tab.use_admin_prefixes) then
+                                    if (level(id) == tmod_perm) then
+                                        SendToAll(Message, nil, true, nil, nil, nil)
+                                    elseif (level(id) == mod_perm) then
+                                        SendToAll(Message, nil, nil, true, nil, nil)
+                                    elseif (level(id) == admin_perm) then
+                                        SendToAll(Message, nil, nil, nil, true, nil)
+                                    elseif (level(id) == sadmin_perm) then
+                                        SendToAll(Message, nil, nil, nil, nil, true)
                                     else
                                         SendToAll(Message, true, nil, nil, nil, nil)
                                     end
+                                else
+                                    SendToAll(Message, true, nil, nil, nil, nil)
                                 end
                             else
                                 response = true
@@ -2976,7 +2992,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
                 end
                 if modEnabled("Admin Chat") then
-                    if (players["Admin Chat"][ip].adminchat ~= true) then
+                    local achat = players["Admin Chat"][ip]
+                    if (achat ~= nil) and (achat.adminchat ~= true) then
                         ChatHandler(PlayerIndex, Message)
                     end
                 else
@@ -7547,6 +7564,12 @@ function RecordChanges()
     cl[#cl + 1] = "[5/30/19]"
     cl[#cl + 1] = "1). Bug Fixes from the aftermath of rewriting Lurker."
     cl[#cl + 1] = "Script Updated to v1.61"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[5/31/19]"
+    cl[#cl + 1] = "1). Bug fix for Chat Censor."
+    cl[#cl + 1] = "Script Updated to v1.62"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
