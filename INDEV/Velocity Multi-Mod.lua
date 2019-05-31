@@ -4344,37 +4344,37 @@ function velocity:setcolor(params)
                 if (color == "white" or color == "0") then
                     color, color_name = 0, "white"
                 elseif (color == "black" or color == "1") then
-                    color, color_name = 1, "white"
+                    color, color_name = 1, "black"
                 elseif (color == "red" or color == "2") then
-                    color, color_name = 2, "white"
+                    color, color_name = 2, "red"
                 elseif (color == "blue" or color == "3") then
-                    color, color_name = 3, "white"
+                    color, color_name = 3, "blue"
                 elseif (color == "gray" or color == "4") then
-                    color, color_name = 4, "white"
+                    color, color_name = 4, "gray"
                 elseif (color == "yellow" or color == "5") then
-                    color, color_name = 5, "white"
+                    color, color_name = 5, "yellow"
                 elseif (color == "green" or color == "6") then
-                    color, color_name = 6, "white"
+                    color, color_name = 6, "green"
                 elseif (color == "pink" or color == "7") then
-                    color, color_name = 7, "white"
+                    color, color_name = 7, "pink"
                 elseif (color == "purple" or color == "8") then
-                    color, color_name = 8, "white"
+                    color, color_name = 8, "purple"
                 elseif (color == "cyan" or color == "9") then
-                    color, color_name = 9, "white"
+                    color, color_name = 9, "cyan"
                 elseif (color == "cobalt" or color == "10") then
-                    color, color_name = 10, "white"
+                    color, color_name = 10, "cobalt"
                 elseif (color == "orange" or color == "11") then
-                    color, color_name = 11, "white"
+                    color, color_name = 11, "orange"
                 elseif (color == "teal" or color == "12") then
-                    color, color_name = 12, "white"
+                    color, color_name = 12, "teal"
                 elseif (color == "sage" or color == "13") then
-                    color, color_name = 13, "white"
+                    color, color_name = 13, "sage"
                 elseif (color == "brown" or color == "14") then
-                    color, color_name = 14, "white"
+                    color, color_name = 14, "brown"
                 elseif (color == "tan" or color == "15") then
-                    color, color_name = 15, "white"
+                    color, color_name = 15, "tan"
                 elseif (color == "maroon" or color == "16") then
-                    color, color_name = 16, "white"
+                    color, color_name = 16, "maroon"
                 elseif (color == "salmon" or color == "17") then
                     color, color_name = 17, "salmon"
                 else
@@ -7569,6 +7569,7 @@ function RecordChanges()
     cl[#cl + 1] = ""
     cl[#cl + 1] = "[5/31/19]"
     cl[#cl + 1] = "1). Bug fix for Chat Censor."
+    cl[#cl + 1] = "2). Bug fix for Color Changer."
     cl[#cl + 1] = "Script Updated to v1.62"
     file:write(concat(cl, "\n"))
     file:close()
