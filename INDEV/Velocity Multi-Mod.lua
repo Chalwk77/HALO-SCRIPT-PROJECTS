@@ -2706,7 +2706,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 for j = 1, #table do
                     for k = 1, #table[j] do
                         local swear_word = table[j][k]
-                        if find(lower(message[i]), swear_word) then
+                        if find(message[i]:lower(), swear_word) then
                         
                             swear_word = checkForChar(swear_word)
                             local len = string.len(swear_word)
