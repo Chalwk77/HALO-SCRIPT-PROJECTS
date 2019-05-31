@@ -25,6 +25,9 @@ mapvote.votetime = 10
 -- Players needed to vote.
 mapvote.players_needed = 1
 
+-- Map Cycle timeout (in seconds) - time between games:
+mapvote.timeout = 10 -- Do not set to 0
+
 -- Map vote options are displayed in the console environment:
 mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
 
@@ -70,6 +73,7 @@ local concat = table.concat
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    execute_command("sv_mapcycle_timeout " .. tostring(mapvote.timeout))
 end
 
 local SayRcon = function(p, msg)
