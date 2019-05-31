@@ -25,8 +25,8 @@ mapvote.votetime = 10
 -- Players needed to vote.
 mapvote.players_needed = 1
 
--- Left = l, Right = r, Center = c, Tab: t
-mapvote.alignment = "l" 
+-- Map vote options are displayed in the console environment:
+mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
 
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
