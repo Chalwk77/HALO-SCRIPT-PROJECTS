@@ -133,11 +133,10 @@ function OnTick()
         mapvote.timer = mapvote.timer + 0.030
         if (mapvote.timer >= mapvote.votetime) then
             mapvote.start, mapvote.start = nil, nil
-        else 
-            for i = 1,16 do
+        else for i = 1,16 do
                 if player_present(i) then
                     cls(i, 25)
-                    showResults(i)
+                    mapvote:showResults(i)
                     rprint(i, '[Page ' .. cur_page[i] .. '/' .. total_pages .. ']')
                 end
             end            
@@ -157,7 +156,7 @@ local function spacing(n, sep)
     return sep .. String
 end
 
-function showResults(p)
+function mapvote:showResults(p)
     local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
     
     for i = startpage, endpage do
@@ -186,7 +185,7 @@ function showResults(p)
     end 
 end
 
-function OnPlayerChat(PlayerIndex, Message)
+function OnPlayerChat(PlayerIndex, Message, type)
     if (mapvote.start ~= nil) and (mapvote.start) then
         local message = stringSplit(Message)
         if (#message == 0) then
