@@ -19,20 +19,27 @@ api_version = "1.12.0.0"
 local mapvote = { }
 -- mapvote config starts --
 
--- Allocated vote time:
+-- Allocated vote time (In Seconds):
 mapvote.votetime = 10
 
--- Players needed to vote.
+-- Players needed to vote:
 mapvote.players_needed = 1
 
--- Map Cycle timeout (in seconds) - time between games:
-mapvote.timeout = 10 -- Do not set to 0
+-- Map Cycle timeout (In Seconds):
+mapvote.timeout = 10 -- Do not set to 0!
 
--- Map vote options are displayed in the console environment:
+-- If this is true, Map Vote options will be displayed in the Console Environment (mapvote.show_in_chat must be false):
+mapvote.show_in_console = true
+-- Voting Options screen alignment:
 mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
 
+-- If this is true, Map Voting options will be displayed in Chat (mapvote.show_in_console must be false)
+mapvote.show_in_chat = false
+
 -- Number of Map Vote entries to display per page:
-mapvote.maxresults = 10
+mapvote.maxresults = 5
+
+mapvote.serverprefix = "** SERVER ** "
 
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
@@ -61,9 +68,9 @@ mapvote.maps = { -- Create map settings array
 
 -- mapvote config ends --
 
-local results = { }
-local cur_page = { }
+local results, cur_page, votes = { }, { }, { }
 local start_page, map_count, total_pages = 1, 0, 0
+local vote_options = { }
 
 local sub, gsub, find = string.sub, string.gsub, string.find
 local match, gmatch = string.match, string.gmatch
@@ -73,12 +80,42 @@ local concat = table.concat
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     execute_command("sv_mapcycle_timeout " .. tostring(mapvote.timeout))
 end
 
-local SayRcon = function(p, msg)
-    if (msg) then
-        rprint(p, "|" .. mapvote.alignment .. " " .. msg)
+local sendToConsole = function()
+    if (mapvote.show_in_console) and not (mapvote.show_in_chat) then
+        return true
+    elseif not (mapvote.show_in_console) and (mapvote.show_in_chat) then
+        return false
+    end
+end
+
+local Say = function(p, message)
+    if (p) and (message) then
+        
+        local function send(m)
+            if (m ~= nil) then
+                if sendToConsole() then
+                    rprint(p, "|" .. mapvote.alignment .. " " .. m)
+                else
+                    execute_command("msg_prefix \"\"")
+                    say(p, m)
+                    execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
+                end
+            end
+        end
+        
+        if (type(message) == "table") then
+            for i = 1,#message do
+                if (message[i] ~= nil) then
+                    send(message[i])
+                end
+            end
+        else
+            send(message)
+        end
     end
 end
 
@@ -105,6 +142,12 @@ local getPageCount = function(total, max_results)
     return pages
 end
 
+function OnGameStart()
+    -- Clear all arrays and counts
+    results, votes, map_count = { }, { }, 0
+    vote_options = { }
+end
+
 function OnGameEnd()
     if ( tonumber(get_var(0, "$pn")) >= mapvote.players_needed ) then
         for i = 1,16 do
@@ -116,7 +159,9 @@ function OnGameEnd()
             results[#results + 1] = k
             map_count = map_count + 1
         end
+        
         total_pages = getPageCount(map_count, mapvote.maxresults)
+        
         -- Register a hook into SAPP's chat event.
         register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
         -- Register a hook into SAPP's tick event.
@@ -160,32 +205,37 @@ local function spacing(n, sep)
 end
 
 function mapvote:showResults(p)
-    local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
-    for i = startpage, endpage do
-        if (results[i]) then
-            for k, _ in pairs(results) do
-                if (k == i) then
-                
-                    local mapname, m = results[i], { }
-                    local gametypes = mapvote.maps[mapname]
-                
-                    local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1), ""
-
-                    for j = 1,#gametypes do
-                        if (gametypes[j] ~= nil) then
-                            m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
-                            part_two = concat(m, ", ")
-                        end
-                    end
+    vote_options[p] = vote_options[p] or { }
+    if (vote_options[p][1] == nil) then
+        local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
+        for i = startpage, endpage do
+            if (results[i]) then
+                for k, _ in pairs(results) do
+                    if (k == i) then
                     
-                    local vote_options = part_one .. spacing(1) .. part_two
-                    SayRcon(p, vote_options)
-                    m = nil
-                    break
+                        local mapname, m = results[i], { }
+                        local gametypes = mapvote.maps[mapname]
+                    
+                        local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1), ""
+
+                        for j = 1,#gametypes do
+                            if (gametypes[j] ~= nil) then
+                                m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
+                                part_two = concat(m, ", ")
+                            end
+                        end
+                        
+                        vote_options[p][#vote_options[p] + 1] = part_one .. spacing(1) .. part_two
+                        
+                    end
                 end
             end
         end
-    end 
+    end
+   
+    if (vote_options[p] ~= nil) then
+        Say(p, vote_options[p])
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
@@ -194,7 +244,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
         if (#message == 0) then
             return false
         elseif ( message[1]:match("%d+") ) then
+            
             cur_page[PlayerIndex] = tonumber(message[1])
+        
+            if (vote_options[PlayerIndex] ~= nil) then            
+                vote_options[PlayerIndex] = nil
+            end
             
             -- TODO: process votes...
             
@@ -207,7 +262,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
 end
 
 function mapvote:begin()
-    local votes = votes or { }
     mapvote.timer, mapvote.start = 0, true
 end
 
@@ -215,7 +269,13 @@ function cls(PlayerIndex, count)
     if (PlayerIndex) then
         count = count or 25
         for _ = 1, count do
-            rprint(PlayerIndex, " ")
+            if sendToConsole() then
+                rprint(PlayerIndex, " ")
+            else
+                execute_command("msg_prefix \"\"")
+                say(PlayerIndex, " ")
+                execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
+            end
         end
     end
 end
