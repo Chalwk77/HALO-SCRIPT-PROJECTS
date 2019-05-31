@@ -163,11 +163,11 @@ function mapvote:showResults(p)
             for k, _ in pairs(results) do
                 if (k == i) then
                 
-                    local mapname = results[i]
+                    local mapname, m = results[i], { }
                     local gametypes = mapvote.maps[mapname]
                 
                     local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1), ""
-                    local m = { }
+
                     for j = 1,#gametypes do
                         if (gametypes[j] ~= nil) then
                             m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
@@ -178,6 +178,7 @@ function mapvote:showResults(p)
                     local vote_options = part_one .. spacing(1) .. part_two
                     SayRcon(p, vote_options)
                     m = nil
+                    break
                 end
             end
         end
@@ -191,7 +192,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
             return false
         elseif ( message[1]:match("%d+") ) then
             cur_page[PlayerIndex] = tonumber(message[1])
-            -- add map vote entry:
+            
+            -- TODO: process votes...
+            
+            --
         end
 
         -- Prevent players from typing general messages in chat while voting is in progress.
