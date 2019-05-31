@@ -38,7 +38,7 @@ mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
     ["ratrace"] = {"ctf", "slayer"},
     ["bloodgulch"] = {"ctf", "slayer", "oddball"},
-    ["beavercreek"] = {"ctf", "slayer", "Classic Team Slayer"},
+    ["beavercreek"] = {"ctf", "slayer", "Team Slayer"},
     ["boardingaction"] = {"ctf", "slayer"},
     ["carousel"] = {"ctf", "slayer"},
     ["dangercanyon"] = {"ctf", "slayer"},
@@ -48,13 +48,13 @@ mapvote.maps = { -- Create map settings array
     ["infinity"] = {"ctf", "slayer"},
     ["sidewinder"] = {"ctf", "slayer", "oddball"},
     ["timberland"] = {"ctf", "slayer"},
-    ["hangemhigh"] = {"ctf", "slayer", "Classic Team Slayer", "Classic Team King"},
+    ["hangemhigh"] = {"ctf", "slayer", "Team Slayer", "Team King"},
     ["ratrace"] = {"ctf", "slayer"},
     ["damnation"] = {"ctf", "slayer"},
     ["putput"] = {"ctf", "slayer"},
     ["prisoner"] = {"ctf", "slayer"},
     ["wizard"] = {"ctf", "slayer"},
-    ["longest"] = {"ctf", "slayer", "Classic Team Slayer"}, 
+    ["longest"] = {"ctf", "slayer", "Team Slayer"}, 
     
     -- Repeat the structure to add you own maps and gametypes.
 }
@@ -158,7 +158,6 @@ end
 
 function mapvote:showResults(p)
     local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
-    
     for i = startpage, endpage do
         if (results[i]) then
             for k, _ in pairs(results) do
