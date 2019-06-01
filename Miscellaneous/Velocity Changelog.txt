@@ -384,5 +384,11 @@ Script Updated to v1.61
 
 
 [5/31/19]
-1). Bug fix for Chat Censor.
+1). Bug fixes for Chat Censor and Color Changer.
 Script Updated to v1.62
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/1/19]
+1). Bug fix for Lurker - Players were joining in Lurker Mode when they shouldn't have been.
+Script Updated to v1.63
