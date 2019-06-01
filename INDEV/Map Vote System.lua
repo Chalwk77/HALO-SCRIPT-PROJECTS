@@ -23,7 +23,7 @@ local mapvote = { }
 mapvote.players_needed = 1
 
 -- Map Cycle timeout (In Seconds):
-mapvote.timeout = 10 -- Do not set to 0!
+mapvote.timeout = 25 -- Do not set to 0!
 
 -- If this is true, Map Vote options will be displayed in the Console Environment (mapvote.show_in_chat must be false):
 mapvote.show_in_console = true
@@ -40,6 +40,12 @@ mapvote.next_page = "n"
 mapvote.previous_page = "p"
 
 mapvote.serverprefix = "** SERVER ** "
+
+
+mapvote.messages = { 
+    on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
+    already_voted = "You have already voted!",
+}
 
 mapvote.maps = { -- Create map settings array
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
@@ -70,7 +76,7 @@ mapvote.maps = { -- Create map settings array
 
 local results, cur_page, votes = { }, { }, { }
 local start_page, map_count, total_pages = 1, 0, 0
-local vote_options = { }
+local vote_options, has_voted = { }, { }
 
 local sub, gsub, find = string.sub, string.gsub, string.find
 local match, gmatch = string.match, string.gmatch
@@ -158,10 +164,10 @@ function OnGameStart()
             local gametype = mapvote.maps[mapname]
             
             for j = 1,#gametype do
-                if (gametype[j] ~= nil) then            
+                if (gametype[j] ~= nil) then
                     votes[#votes + 1] = {
                         [mapname] = {
-                            [gametype] = {
+                            [gametype[j]] = {
                                 map_id = tonumber(i),
                                 gametype_id = j,
                                 votes = 0,
@@ -176,6 +182,7 @@ end
 
 function OnGameEnd()
     if ( tonumber(get_var(0, "$pn")) >= mapvote.players_needed ) then
+    
         for i = 1,16 do
             if player_present(i) then
                 cur_page[i] = start_page
@@ -278,7 +285,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 cur_page[p] = cur_page[p] - 1
             end
             
-            if (cur_page[p] <= (start_page - 1) or cur_page[p] >= total_pages) then
+            if (cur_page[p] <= start_page - 1) or (cur_page[p] >= total_pages) then
                 cur_page[p] = start_page
             end
             
@@ -287,35 +294,50 @@ function OnPlayerChat(PlayerIndex, Message, type)
             end
             
             
-        elseif ( msg[1]:match("%d+") ) then
-            local mapID = tonumber(msg[3]:match("%d+")) or nil
-            local gametypeID = tonumber(msg[2]:match("%d+")) or nil
+        elseif (msg[1] ~= nil and msg[2] ~= nil) then
+            local messages = mapvote.messages
+            local name = get_var(p, "$name")
             
-            if (mapID ~= nil and gametypeID ~= nil) then 
-                local map_num, gametype_num = tonumber(msg[2]), tonumber(msg[3])
+            if not (has_voted[p]) then
+                local map_num = tonumber(msg[1]:match("%d+")) or nil
+                local gametype_num = tonumber(msg[2]:match("%d+")) or nil
             
-                local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
-                for i = startpage, endpage do
-                    if (results[i]) then
-                        for k, _ in pairs(results) do
-                            if (k == i) then
+                if (map_num and gametype_num) then 
+                
+                    local mapname = results[map_num]
+                    local gametype = mapvote.maps[mapname]
+                    
+                    if (gametype ~= nil and gametype[gametype_num] ~= nil) then
+                        for i = 1,#votes do
+                            if votes[i] then
+                                local option = votes[i][mapname][gametype[gametype_num]] or nil
+                                if (option ~= nil) then
                                 
-                                local map = results[map_num]
-                                local gametype = mapvote.maps[map]
-                                if (map_num == i) and (map ~= nil and gametype ~= nil) then
-                                    if (gametype[gametype_num] ~= nil) then
-                                        local cur_votes = votes[map][gametype].votes
-                                        for k,v in ipairs(votes) do
-                                            
-                                        end
-                                        break
-                                    end
+                                    local cur_votes = option.votes                                    
+                                    option.map_id = mapname
+                                    option.gametype_id = gametype[gametype_num]
+                                    option.votes = cur_votes + 1
+                                    local msg = gsub(gsub(gsub(gsub(messages.on_vote, 
+                                    "%%name%%", name), 
+                                    "%%mapname%%", mapname), 
+                                    "%%gametype%%", gametype[gametype_num]), 
+                                    "%%votes%%", option.votes)
+                                    say_all(msg)
+                                    has_voted[p] = has_voted[p] or { }
+                                    has_voted[p] = true
+                                    break
                                 end
                             end
                         end
+                    else
+                        -- to do ... [error handling]
                     end
                 end
-            end         
+            else
+                -- To Do: PAUSE TIMER FOR THIS PLAYER
+                local msg = gsub(messages.already_voted, "%%name%%", name)
+                rprint(p, msg)
+            end
         end
     end
     
