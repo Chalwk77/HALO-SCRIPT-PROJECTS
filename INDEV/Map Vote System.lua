@@ -38,6 +38,12 @@ mapvote.show_in_chat = false
 -- Number of Map Vote entries to display per page:
 mapvote.maxresults = 5
 
+-- If enabled, players will who are level 'mapvote.extrapower' (or greater) 
+-- will have extra power over their vote and will add 'mapvote.extra' votes to their selection.
+mapvote.extra_vote = true
+mapvote.extrapower = 4
+mapvote.extra = 2
+
 mapvote.next_page = "n"
 mapvote.previous_page = "p"
 
@@ -148,7 +154,28 @@ local getPageCount = function(total, max_results)
     return pages
 end
 
+local function spacing(n, sep)
+    sep = sep or ""
+    local String = ""
+    for i = 1, n do
+        if i == floor(n / 2) then
+            String = String .. ""
+        end
+        String = String .. " "
+    end
+    return sep .. String
+end
+
+
+local function hasExtraVotePower(p)
+    local level = tonumber(get_var(p, "$lvl"))
+    if (level >= mapvote.extrapower) then
+        return true
+    end
+end
+
 function OnGameStart()
+   
     -- Clear all arrays and counts
     results, votes, map_count = { }, { }, 0
     vote_options = { }
@@ -183,6 +210,35 @@ function OnGameStart()
     end
 end
 
+function mapvote:calculate_votes(p)
+    local final_results = { }
+    for i = 1, #results do
+        if (results[i]) then
+        
+            local mapname = results[i]
+            local gametype = mapvote.maps[mapname]
+            
+            for j = 1,#votes do
+                if (votes[j] ~= nil and votes[j][mapname] ~= nil) then
+                    for k = 1,#gametype do
+                        local tab = votes[j][mapname][gametype[k]]
+                        if (tab) then
+                            final_results[#final_results + 1] = (tab.votes .. "|" .. mapname .. "|" .. gametype[k])
+                        end
+                    end                    
+                end
+            end           
+        end
+    end
+    
+    if (#final_results > 0) then
+        table.sort(final_results)
+        
+        -- debug
+        print(final_results[#final_results])
+    end
+end
+
 function OnGameEnd()
     if ( tonumber(get_var(0, "$pn")) >= mapvote.players_needed ) then
         total_pages = getPageCount(map_count, mapvote.maxresults)
@@ -199,13 +255,11 @@ end
 function mapvote:begin()
     for i = 1,16 do
         if player_present(i) then
-            cur_page[i], has_voted[i] = start_page, false
-            
+            cur_page[i], has_voted[i] = start_page, false            
             vote_options[i] = { }
             mapvote.timer[i], mapvote.start[i] = 0, true
         end
     end
-
 end
 
 function OnScriptUnload()
@@ -229,20 +283,9 @@ function OnTick()
                     rprint(i, ' ')
                 end
             end
+            
         end
     end
-end
-
-local function spacing(n, sep)
-    sep = sep or ""
-    local String = ""
-    for i = 1, n do
-        if i == floor(n / 2) then
-            String = String .. ""
-        end
-        String = String .. " "
-    end
-    return sep .. String
 end
 
 function mapvote:showResults(p)
@@ -321,9 +364,18 @@ function OnPlayerChat(PlayerIndex, Message, type)
                             if votes[i] then
                                 local option = votes[i][mapname][gametype[gametype_num]] or nil
                                 if (option ~= nil) then
-                                
+                                    
                                     local cur_votes = option.votes
-                                    option.votes = cur_votes + 1
+                                    if (mapvote.extra_vote) then
+                                        if hasExtraVotePower(p) then
+                                            option.votes = cur_votes + mapvote.extra
+                                        else
+                                            option.votes = cur_votes + 1
+                                        end
+                                    else
+                                        option.votes = cur_votes + 1                                        
+                                    end
+                                    
                                     local msg = gsub(gsub(gsub(gsub(messages.on_vote, 
                                     "%%name%%", name), 
                                     "%%mapname%%", mapname),
@@ -333,6 +385,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     has_voted[p] = true
                                     mapvote.timer[p], mapvote.start[p] = 0, nil
                                     cls(p, 25)
+                                    mapvote:calculate_votes(p)
                                     break
                                 end
                             end
@@ -341,10 +394,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         -- to do ... [error handling]
                     end
                 end
+            else
+                local msg = gsub(messages.already_voted, "%%name%%", name)
+                rprint(p, msg)
             end
-        else
-            local msg = gsub(messages.already_voted, "%%name%%", name)
-            rprint(p, msg)
         end
         
         -- Prevent players from typing general messages in chat while voting is in progress.
