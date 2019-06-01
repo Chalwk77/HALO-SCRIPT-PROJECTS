@@ -146,32 +146,6 @@ function OnGameStart()
     results, votes, map_count = { }, { }, 0
     vote_options = { }
     
-        local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
-        for i = startpage, endpage do
-            if (results[i]) then
-                for k, _ in pairs(results) do
-                    if (k == i) then
-                    
-                        local mapname, m = results[i], { }
-                        local gametypes = mapvote.maps[mapname]
-                    
-                        local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1), ""
-
-                        for j = 1,#gametypes do
-                            if (gametypes[j] ~= nil) then
-                                m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
-                                part_two = concat(m, ", ")
-                            end
-                        end
-                        
-                        vote_options[p][#vote_options[p] + 1] = part_one .. spacing(1) .. part_two
-                        
-                    end
-                end
-            end
-        end
-    end
-    
     for k, _ in pairs(mapvote.maps) do
         results[#results + 1] = k
         map_count = map_count + 1
@@ -179,18 +153,24 @@ function OnGameStart()
     
     for i = 1, #results do
         if (results[i]) then
-            -- to do ... complete
+            local mapname = results[i]
+            local gametype = mapvote.maps[mapname]
+            
+            for j = 1,#gametype do
+                if (gametype[j] ~= nil) then            
+                    votes[#votes + 1] = {
+                        [mapname] = {
+                            [gametype] = {
+                                map_id = tonumber(i),
+                                gametype_id = j,
+                                votes = 0,
+                            },
+                        },
+                    }
+                end
+            end
         end
     end
-    
-    votes[#votes + 1] = {
-    [map] = {
-        [gametype] = {
-            map_num,
-            gametype_num,
-            votes = 0,
-        },
-    }
 end
 
 function OnGameEnd()
@@ -325,11 +305,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     if (gametype[gametype_num] ~= nil) then
                                         local cur_votes = votes[map][gametype].votes
                                         votes[#votes + 1] = {
-                                        [map] = {
-                                            [gametype] = {
-                                                map_num,
-                                                gametype_num,
-                                                votes = cur_votes + 1
+                                            [map] = {
+                                                [gametype] = {
+                                                    map_num,
+                                                    gametype_num,
+                                                    votes = cur_votes + 1,
+                                                },
                                             },
                                         }
                                         break
