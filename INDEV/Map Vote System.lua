@@ -221,8 +221,8 @@ function mapvote:calculate_votes(p)
             for j = 1,#votes do
                 if (votes[j] ~= nil and votes[j][mapname] ~= nil) then
                     for k = 1,#gametype do
-                        local tab = votes[j][mapname][gametype[k]]
-                        if (tab) then
+                        local votes = votes[j][mapname][gametype[k]]
+                        if (votes) then
                             final_results[#final_results + 1] = (tab.votes .. "|" .. mapname .. "|" .. gametype[k])
                         end
                     end                    
@@ -234,7 +234,7 @@ function mapvote:calculate_votes(p)
     if (#final_results > 0) then
         table.sort(final_results)
         
-        -- debug
+        -- debug ...
         print(final_results[#final_results])
     end
 end
