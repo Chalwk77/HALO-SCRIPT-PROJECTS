@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.62), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.63), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -154,11 +154,11 @@ local function GameSettings()
                     [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck", "cocksucker", "cock[%s]sucker"},
+                    [8] = { "cock", "c0ck", "cOck", "cocksucker"},
                     [9] = { "dick", "dickhead", "d[%p]ckhead"},
                     [10] = { "^fag$", "faggot", "^fagg$" },
                     [11] = { "fatass" },
-                    [12] = { "fuck", "fucker", "fucck", "fucccckkk", "fcucking", "fuccckcckkk"},
+                    [12] = { "fuck", "fcuk", "fucker", "fucck", "fucccckkk", "fcucking", "fuccckcckkk"},
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
                     [14] = { "prick" },
                     [15] = { "pussy", "p[%s]ussy"},
@@ -732,7 +732,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.62, -- << --- do not touch
+            script_version = 1.63, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -6814,7 +6814,7 @@ function Lurker:savetofile(params)
             end
         end
     end
-    if (proceed) then
+    if (proceed) and (save) then
         local file = assert(io.open(dir, "a+"))
         file:write(ip .. "\n")
         file:close()
@@ -7570,6 +7570,12 @@ function RecordChanges()
     cl[#cl + 1] = "[5/31/19]"
     cl[#cl + 1] = "1). Bug fixes for Chat Censor and Color Changer."
     cl[#cl + 1] = "Script Updated to v1.62"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[6/1/19]"
+    cl[#cl + 1] = "1). Bug fix for Lurker - Players were joining in Lurker Mode when they shouldn't have been."
+    cl[#cl + 1] = "Script Updated to v1.63"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
