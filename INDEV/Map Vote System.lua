@@ -7,6 +7,8 @@ IMPORTANT: SAPP's builtin map voting system must be disabled before using this s
 
 [!] [!] NOT READY FOR DOWNLOAD!
 
+TO DO: calculate and compare votes
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -204,12 +206,13 @@ function OnScriptUnload()
 end
 
 function OnTick()
-    if (mapvote.timer ~= nil) and (mapvote.start) then
-        mapvote.timer = mapvote.timer + 0.030
-        if (mapvote.timer >= mapvote.timeout) then
-            mapvote.start, mapvote.start = nil, nil
-        else for i = 1,16 do
-                if player_present(i) then
+    for i = 1,16 do
+        if player_present(i) then
+            if (mapvote.timer ~= nil) and (mapvote.start[i]) then
+                mapvote.timer[i] = mapvote.timer[i] + 0.030
+                if (mapvote.timer[i] >= mapvote.timeout) then
+                    mapvote.start[i], mapvote.start[i] = nil, nil
+                else
                     cls(i, 25)
                     mapvote:showResults(i)
                     rprint(i, ' ')
@@ -218,7 +221,7 @@ function OnTick()
                     rprint(i, ' ')
                     rprint(i, ' ')
                 end
-            end            
+            end
         end
     end
 end
@@ -271,7 +274,7 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
-    if (mapvote.start ~= nil) and (mapvote.start) then
+    if (mapvote.start[p] ~= nil) and (mapvote.start[p]) then
     
         local msg = stringSplit(Message)
         if (#msg == 0) then
@@ -324,6 +327,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     say_all(msg)
                                     has_voted[p] = has_voted[p] or { }
                                     has_voted[p] = true
+                                    mapvote.timer[p], mapvote.start[p] = 0, false
+                                    cls(p, 25)
                                     break
                                 end
                             end
@@ -333,7 +338,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     end
                 end
             else
-                -- To Do: PAUSE TIMER FOR THIS PLAYER
                 local msg = gsub(messages.already_voted, "%%name%%", name)
                 rprint(p, msg)
             end
@@ -345,7 +349,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
 end
 
 function mapvote:begin()
-    mapvote.timer, mapvote.start = 0, true
+    for i = 1, 16 do
+        if player_present(i) then
+            mapvote.timer, mapvote.start = { }, { }
+            mapvote.timer[i], mapvote.start[i] = 0, true
+        end
+    end
 end
 
 function cls(PlayerIndex, count)
