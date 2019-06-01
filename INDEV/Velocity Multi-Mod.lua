@@ -6783,9 +6783,11 @@ end
 function isInLurker(ip)
     local dir = settings.mod["Lurker"].dir
     local lines = lines_from(dir)
-    for _, v in pairs(lines) do
+    local p = { }
+    for k, v in pairs(lines) do
         if (v:match(ip)) then
-            return true
+            p.k, p.v = k, v
+            return p
         end
     end
 end
@@ -6796,25 +6798,22 @@ function Lurker:savetofile(params)
     local ip = params.ip or nil
     local save = params.save
     local dir = settings.mod["Lurker"].dir
-    local lines, proceed = lines_from(dir), true
-    for k, v in pairs(lines) do
-        if (v:match(ip)) then
-            if not (save) then
-                delete_from_file(dir, k, 1)
-                proceed = false
-            else
-                proceed = false
-                local fRead = io.open(dir, "r")
-                local content = fRead:read("*all")
-                fRead:close()
-                content = gsub(content, v, ip)
-                local fWrite = io.open(dir, "w")
-                fWrite:write(content)
-                fWrite:close()
-            end
+    
+    local p = isInLurker(ip)
+    
+    if (p) then
+        if not (save) then
+            delete_from_file(dir, p.k, 1)
+        else
+            local fRead = io.open(dir, "r")
+            local content = fRead:read("*all")
+            fRead:close()
+            content = gsub(content, p.v, ip)
+            local fWrite = io.open(dir, "w")
+            fWrite:write(content)
+            fWrite:close()
         end
-    end
-    if (proceed) and (save) then
+    elseif (save) then
         local file = assert(io.open(dir, "a+"))
         file:write(ip .. "\n")
         file:close()
