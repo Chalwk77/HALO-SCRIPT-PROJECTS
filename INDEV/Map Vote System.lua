@@ -304,15 +304,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 if (map_num == i) and (map ~= nil and gametype ~= nil) then
                                     if (gametype[gametype_num] ~= nil) then
                                         local cur_votes = votes[map][gametype].votes
-                                        votes[#votes + 1] = {
-                                            [map] = {
-                                                [gametype] = {
-                                                    map_num,
-                                                    gametype_num,
-                                                    votes = cur_votes + 1,
-                                                },
-                                            },
-                                        }
+                                        for k,v in ipairs(votes) do
+                                            
+                                        end
                                         break
                                     end
                                 end
