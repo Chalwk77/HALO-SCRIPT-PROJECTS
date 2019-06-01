@@ -271,7 +271,7 @@ end
 function OnTick()
     for i = 1,16 do
         if player_present(i) then
-            if (mapvote.start[i]) then
+            if (mapvote.start ~= nil and mapvote.start[i]) then
                 mapvote.timer[i] = mapvote.timer[i] + 0.030
                 if (mapvote.timer[i] >= mapvote.timeout) then
                     mapvote.start[i], mapvote.start[i] = nil, nil
@@ -389,7 +389,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                     has_voted[p] = true
                                     mapvote.timer[p], mapvote.start[p] = 0, nil
                                     cls(p, 25)
-                                    mapvote:calculate_votes(p)
                                     break
                                 end
                             end
