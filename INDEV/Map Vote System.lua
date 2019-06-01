@@ -308,7 +308,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             local name = get_var(p, "$name")
             
             if not (has_voted[p]) then
-                cprint('--------------------------- has not voted! ---------------------------', 2+8)
                 local map_num = tonumber(msg[1]:match("%d+")) or nil
                 local gametype_num = tonumber(msg[2]:match("%d+")) or nil
             
@@ -342,10 +341,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         -- to do ... [error handling]
                     end
                 end
-            else
-                local msg = gsub(messages.already_voted, "%%name%%", name)
-                rprint(p, msg)
             end
+        else
+            local msg = gsub(messages.already_voted, "%%name%%", name)
+            rprint(p, msg)
         end
         
         -- Prevent players from typing general messages in chat while voting is in progress.
