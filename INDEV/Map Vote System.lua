@@ -153,6 +153,7 @@ function OnGameStart()
     
     for i = 1, #results do
         if (results[i]) then
+        
             local mapname = results[i]
             local gametype = mapvote.maps[mapname]
             
