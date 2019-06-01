@@ -23,7 +23,7 @@ local mapvote = { }
 mapvote.players_needed = 1
 
 -- Map Cycle timeout (In Seconds):
-mapvote.timeout = 25 -- Do not set to 0!
+mapvote.timeout = 10 -- Do not set to 0!
 
 -- If this is true, Map Vote options will be displayed in the Console Environment (mapvote.show_in_chat must be false):
 mapvote.show_in_console = true
@@ -42,14 +42,24 @@ mapvote.extra_vote = true
 mapvote.extrapower = 4
 mapvote.extra = 2
 
+-- To navigate between pages, type 'mapvote.next_page' or 'mapvote.previous_page'.
 mapvote.next_page = "n"
 mapvote.previous_page = "p"
+--
 
-mapvote.serverprefix = "** SERVER ** "
+-- Global Server Prefix:
+-- Several functions temporarily removes the ** SERVER ** prefix when it announces messges.
+-- The prefix will be restored to 'mapvote.serverprefix' when the relay has finished.
+mapvote.serverprefix = "** SERVER ** " -- Leave a space after the last asterisk.
+--
 
 mapvote.messages = { 
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
     already_voted = "You have already voted!",
+    on_win_vote = "%mapname% [ %gametype% ] won the vote ",
+    
+    -- TODO: 
+    -- Add remaining custom messages.
 }
 
 mapvote.maps = { -- Create map settings array
@@ -129,6 +139,16 @@ local Say = function(p, message)
     end
 end
 
+-- Receives a string and executes SAPP function 'say_all' without the **SERVER** prefix.
+-- Restores the prefix when relay is done.
+local SayAll = function(Message)
+    if (Message) then
+        execute_command("msg_prefix \"\"")
+        say_all(Message) -- Sends a global message.
+        execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
+    end
+end
+
 local getPage = function(page)
     local page = tonumber(page) or nil
 
@@ -164,6 +184,17 @@ local function spacing(n, sep)
     return sep .. String
 end
 
+-- Receives number - determines whether to pluralize.
+-- Returns string 's' if the input is greater than 1.
+local function getChar(input)
+    local char = ""
+    if (tonumber(input) > 1) then
+        char = "s"
+    elseif (tonumber(input) <= 1) then
+        char = ""
+    end
+    return char
+end
 
 local function hasExtraVotePower(p)
     local level = tonumber(get_var(p, "$lvl"))
@@ -173,7 +204,7 @@ local function hasExtraVotePower(p)
 end
 
 function OnGameStart()
-   
+
     -- Clear all arrays and counts
     results, votes, map_count = { }, { }, 0
     vote_options = { }
@@ -206,25 +237,24 @@ function OnGameStart()
             end
         end
     end
-    
-    -- Debugging [temp]
-    mapvote:calculate_votes(p)
 end
 
-function mapvote:calculate_votes(p)
+function mapvote:calculate_votes()
     local final_results = { }
     for i = 1, #results do
         if (results[i]) then
         
             local mapname = results[i]
             local gametype = mapvote.maps[mapname]
-            
+
             for j = 1,#votes do
                 if (votes[j] ~= nil and votes[j][mapname] ~= nil) then
                     for k = 1,#gametype do
                         local tab = votes[j][mapname][gametype[k]]
                         if (tab) then
-                            final_results[#final_results + 1] = (tab.votes .. "|" .. mapname .. "|" .. gametype[k])
+                            if (tab.votes > 0) then
+                                final_results[#final_results + 1] = (tab.votes .. "|" .. mapname .. "|" .. gametype[k])
+                            end
                         end
                     end                    
                 end
@@ -234,10 +264,33 @@ function mapvote:calculate_votes(p)
     
     if (#final_results > 0) then
         table.sort(final_results)
-        
-        -- debug ...
-        local result = final_results[#final_results]
-        print(result)
+        local result = {}
+        result[#result + 1] = final_results[#final_results]
+        if (#result > 0) then
+            for _, v in pairs(result) do
+                local data = stringSplit(v, "|")
+                if (data) then
+                    local result, i = { }, 1
+                    for j = 1, 3 do
+                        if (data[j] ~= nil) then
+                            result[i] = data[j]
+                            i = i + 1
+                        end
+                    end
+                    if (result ~= nil) then
+                        local mapname, gametype = result[2], result[3]
+                        execute_command("map " .. mapname .. " " .. gametype)
+                        
+                        local messages = mapvote.messages
+                        local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
+                        SayAll(msg)
+                        break
+                    end
+                end
+            end
+        else
+            -- TODO: Choose a random map & gametype
+        end
     end
 end
 
@@ -262,6 +315,9 @@ function mapvote:begin()
             mapvote.timer[i], mapvote.start[i] = 0, true
         end
     end
+    
+    -- Map Cycle countdown
+    mapvote.timer[0], mapvote.start[0] = 0, true
 end
 
 function OnScriptUnload()
@@ -269,25 +325,45 @@ function OnScriptUnload()
 end
 
 function OnTick()
-    for i = 1,16 do
-        if player_present(i) then
-            if (mapvote.start ~= nil and mapvote.start[i]) then
-                mapvote.timer[i] = mapvote.timer[i] + 0.030
-                if (mapvote.timer[i] >= mapvote.timeout) then
-                    mapvote.start[i], mapvote.start[i] = nil, nil
-                else
-                    cls(i, 25)
-                    mapvote:showResults(i)
-                    rprint(i, ' ')
-                    rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
-                    rprint(i, ' ')
-                    rprint(i, ' ')
-                    rprint(i, ' ')
+    if (mapvote.start ~= nil) then
+    
+        for i = 1,16 do
+            if player_present(i) then
+                if (mapvote.start[i]) then
+                    mapvote.timer[i] = mapvote.timer[i] + 0.030
+                    if (mapvote.timer[i] >= mapvote.timeout) then
+                        mapvote.start[i], mapvote.start[i] = nil, nil
+                    else
+                        cls(i, 25)
+                        mapvote:showResults(i)
+                        rprint(i, ' ')
+                        rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
+                        
+                        local days, hours, minutes, seconds = secondsToTime(mapvote.timer[i], 4)
+                        local char = getChar(mapvote.timeout - floor(seconds))
+                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+
+                        rprint(i, ' ')
+                        rprint(i, ' ')
+                        rprint(i, ' ')
+                    end
                 end
             end
-            
-            -- to do:
-            -- Stop Timer & Calculate Results - Load Map/GameType
+        end
+        
+        if (mapvote.start[0]) then
+            mapvote.timer[0] = mapvote.timer[0] + 0.030
+            if (mapvote.timer[0] >= mapvote.timeout) then
+                mapvote.start[0], mapvote.start[0] = nil, nil
+                for i = 1,16 do
+                    if player_present(i) then
+                        mapvote.start[i], mapvote.start[i] = nil, nil
+                    end
+                end
+                mapvote:calculate_votes()
+            else
+                -- TODO: Show player the remaining time (again)
+            end
         end
     end
 end
@@ -433,4 +509,32 @@ function stringSplit(inp, sep)
         i = i + 1
     end
     return t
+end
+
+function secondsToTime(seconds, places)
+
+    local years = floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
+    local minutes = floor(seconds / 60)
+    seconds = seconds % 60
+
+    if (places == 6) then
+        return format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
+    elseif (places == 5) then
+        return format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
+    elseif not (places) or (places == 4) then
+        return days, hours, minutes, seconds
+    elseif (places == 3) then
+        return format("%02d:%02d:%02d", hours, minutes, seconds)
+    elseif (places == 2) then
+        return format("%02d:%02d", minutes, seconds)
+    elseif (places == 1) then
+        return format("%02", seconds)
+    end
 end
