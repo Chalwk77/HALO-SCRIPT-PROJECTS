@@ -7,8 +7,6 @@ IMPORTANT: SAPP's builtin map voting system must be disabled before using this s
 
 [!] [!] NOT READY FOR DOWNLOAD!
 
-TO DO: calculate and compare votes
-
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -288,6 +286,8 @@ function OnTick()
                 end
             end
             
+            -- to do:
+            -- Stop Timer & Calculate Results - Load Map/GameType
         end
     end
 end
