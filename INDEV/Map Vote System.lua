@@ -41,7 +41,6 @@ mapvote.previous_page = "p"
 
 mapvote.serverprefix = "** SERVER ** "
 
-
 mapvote.messages = { 
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
     already_voted = "You have already voted!",
@@ -69,7 +68,7 @@ mapvote.maps = { -- Create map settings array
     ["wizard"] = {"ctf", "slayer"},
     ["longest"] = {"ctf", "slayer", "Team Slayer"}, 
     
-    -- Repeat the structure to add you own maps and gametypes.
+    -- Repeat the structure to add your own maps and gametypes.
 }
 
 -- mapvote config ends --
