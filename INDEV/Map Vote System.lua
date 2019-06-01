@@ -19,9 +19,6 @@ api_version = "1.12.0.0"
 local mapvote = { }
 -- mapvote config starts --
 
--- Allocated vote time (In Seconds):
-mapvote.votetime = 10
-
 -- Players needed to vote:
 mapvote.players_needed = 1
 
@@ -38,6 +35,9 @@ mapvote.show_in_chat = false
 
 -- Number of Map Vote entries to display per page:
 mapvote.maxresults = 5
+
+mapvote.next_page = "n"
+mapvote.previous_page = "p"
 
 mapvote.serverprefix = "** SERVER ** "
 
@@ -92,29 +92,28 @@ local sendToConsole = function()
     end
 end
 
+local function Chat(p, m)
+    if (m ~= nil) then
+        if sendToConsole() then
+            rprint(p, "|" .. mapvote.alignment .. " " .. m)
+        else
+            execute_command("msg_prefix \"\"")
+            say(p, m)
+            execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
+        end
+    end
+end
+
 local Say = function(p, message)
     if (p) and (message) then
-        
-        local function send(m)
-            if (m ~= nil) then
-                if sendToConsole() then
-                    rprint(p, "|" .. mapvote.alignment .. " " .. m)
-                else
-                    execute_command("msg_prefix \"\"")
-                    say(p, m)
-                    execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
-                end
-            end
-        end
-        
         if (type(message) == "table") then
             for i = 1,#message do
                 if (message[i] ~= nil) then
-                    send(message[i])
+                    Chat(p, message[i])
                 end
             end
         else
-            send(message)
+            Chat(p, message)
         end
     end
 end
@@ -146,6 +145,52 @@ function OnGameStart()
     -- Clear all arrays and counts
     results, votes, map_count = { }, { }, 0
     vote_options = { }
+    
+        local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
+        for i = startpage, endpage do
+            if (results[i]) then
+                for k, _ in pairs(results) do
+                    if (k == i) then
+                    
+                        local mapname, m = results[i], { }
+                        local gametypes = mapvote.maps[mapname]
+                    
+                        local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1), ""
+
+                        for j = 1,#gametypes do
+                            if (gametypes[j] ~= nil) then
+                                m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
+                                part_two = concat(m, ", ")
+                            end
+                        end
+                        
+                        vote_options[p][#vote_options[p] + 1] = part_one .. spacing(1) .. part_two
+                        
+                    end
+                end
+            end
+        end
+    end
+    
+    for k, _ in pairs(mapvote.maps) do
+        results[#results + 1] = k
+        map_count = map_count + 1
+    end
+    
+    for i = 1, #results do
+        if (results[i]) then
+            -- to do ... complete
+        end
+    end
+    
+    votes[#votes + 1] = {
+    [map] = {
+        [gametype] = {
+            map_num,
+            gametype_num,
+            votes = 0,
+        },
+    }
 end
 
 function OnGameEnd()
@@ -154,10 +199,6 @@ function OnGameEnd()
             if player_present(i) then
                 cur_page[i] = start_page
             end
-        end
-        for k, _ in pairs(mapvote.maps) do
-            results[#results + 1] = k
-            map_count = map_count + 1
         end
         
         total_pages = getPageCount(map_count, mapvote.maxresults)
@@ -178,14 +219,17 @@ end
 function OnTick()
     if (mapvote.timer ~= nil) and (mapvote.start) then
         mapvote.timer = mapvote.timer + 0.030
-        if (mapvote.timer >= mapvote.votetime) then
+        if (mapvote.timer >= mapvote.timeout) then
             mapvote.start, mapvote.start = nil, nil
         else for i = 1,16 do
                 if player_present(i) then
                     cls(i, 25)
                     mapvote:showResults(i)
-                    rprint(i, '[Page ' .. cur_page[i] .. '/' .. total_pages .. ']')
-                    rprint(i, '______________________________________________________________________________________________')
+                    rprint(i, ' ')
+                    rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
+                    rprint(i, ' ')
+                    rprint(i, ' ')
+                    rprint(i, ' ')
                 end
             end            
         end
@@ -239,26 +283,68 @@ function mapvote:showResults(p)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
+    local p = tonumber(PlayerIndex)
     if (mapvote.start ~= nil) and (mapvote.start) then
-        local message = stringSplit(Message)
-        if (#message == 0) then
+    
+        local msg = stringSplit(Message)
+        if (#msg == 0) then
             return false
-        elseif ( message[1]:match("%d+") ) then
-            
-            cur_page[PlayerIndex] = tonumber(message[1])
+        elseif ( msg[1] == mapvote.next_page ) or ( msg[1] == mapvote.previous_page ) then
         
-            if (vote_options[PlayerIndex] ~= nil) then            
-                vote_options[PlayerIndex] = nil
+            if (msg[1] == mapvote.next_page) then
+                cur_page[p] = cur_page[p] + 1
+            elseif (msg[1] == mapvote.previous_page) then
+                cur_page[p] = cur_page[p] - 1
             end
             
-            -- TODO: process votes...
+            if (cur_page[p] <= (start_page - 1) or cur_page[p] >= total_pages) then
+                cur_page[p] = start_page
+            end
             
-            --
+            if (vote_options[p] ~= nil) then            
+                vote_options[p] = nil
+            end
+            
+            
+        elseif ( msg[1]:match("%d+") ) then
+            local mapID = tonumber(msg[3]:match("%d+")) or nil
+            local gametypeID = tonumber(msg[2]:match("%d+")) or nil
+            
+            if (mapID ~= nil and gametypeID ~= nil) then 
+                local map_num, gametype_num = tonumber(msg[2]), tonumber(msg[3])
+            
+                local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
+                for i = startpage, endpage do
+                    if (results[i]) then
+                        for k, _ in pairs(results) do
+                            if (k == i) then
+                                
+                                local map = results[map_num]
+                                local gametype = mapvote.maps[map]
+                                if (map_num == i) and (map ~= nil and gametype ~= nil) then
+                                    if (gametype[gametype_num] ~= nil) then
+                                        local cur_votes = votes[map][gametype].votes
+                                        votes[#votes + 1] = {
+                                        [map] = {
+                                            [gametype] = {
+                                                map_num,
+                                                gametype_num,
+                                                votes = cur_votes + 1
+                                            },
+                                        }
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end         
         end
-
-        -- Prevent players from typing general messages in chat while voting is in progress.
-        return false
     end
+    
+    -- Prevent players from typing general messages in chat while voting is in progress.
+    return false
 end
 
 function mapvote:begin()
