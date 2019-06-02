@@ -23,7 +23,7 @@ local mapvote = { }
 mapvote.players_needed = 1
 
 -- Map Cycle timeout (In Seconds):
-mapvote.timeout = 20 -- Do not set to 0!
+mapvote.timeout = 15 -- Do not set to 0!
 
 -- Voting Options screen alignment:
 mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
@@ -105,7 +105,7 @@ local match, gmatch = string.match, string.gmatch
 local upper, lower = string.upper, string.lower
 local floor = math.floor
 local concat = table.concat
-local global_message = { }
+local global_message
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -196,6 +196,13 @@ function OnGameStart()
     -- Clear all arrays and counts
     results, votes, map_count = { }, { }, 0
     vote_options = { }
+    
+    unregister_callback(cb['EVENT_TICK'])
+    unregister_callback(cb['EVENT_CHAT'])
+    
+    if (end_message ~= nil) then
+        end_message = nil
+    end
 
     mapvote.timer, mapvote.start = { }, { }
 
@@ -249,6 +256,9 @@ function mapvote:calculate_votes()
     global_message = nil
     
     local final_results = { }
+    end_message = end_message or { }
+    end_message.timer = 0
+    end_message.msg = ""
 
     local map_table = mapvote.maps
     for mapname, _ in pairs(map_table) do
@@ -285,20 +295,11 @@ function mapvote:calculate_votes()
                         end
                     end
                     if (result ~= nil) then
+                    
                         local mapname, gametype = result[2], result[3]
                         execute_command("map " .. mapname .. " " .. gametype)
-
                         local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
-                        for p = 1,16 do
-                            if player_present(p) then
-                                cls(p, 25)
-                                rprint(p, "|c" .. msg)
-                                rprint(p, "|c__________________________________________________________________")
-                                for space = 1,10 do
-                                    rprint(p, " ")
-                                end
-                            end
-                        end                        
+                        end_message.msg = msg
                         cprint(msg, 2+8)
                         break
                     end
@@ -314,13 +315,13 @@ function mapvote:calculate_votes()
             execute_command("map " .. map .. " " .. gametype)
 
             local msg = map .. " [ " .. gametype .. " ] has been randomly selected."
-            SayAll(msg)
+            end_message.msg = msg
             cprint(msg, 2+8)
         end
         timer(1000 * delay, "delay_map_selection")
 
         local msg = gsub(messages.no_one_voted, "%%seconds%%", delay)
-        SayAll(msg)
+        end_message.msg = msg
         cprint(msg, 2+8)
     end
 end
@@ -398,7 +399,27 @@ function OnTick()
                     
                     local seconds = secondsToTime(mapvote.timer[0])
                     local char = getChar(mapvote.timeout - floor(seconds))
-                    rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                    
+                    if not (has_voted[i]) then
+                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                    else
+                        rprint(i, "[YOU HAVE VOTED] - MapCycle Time Out Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                    end
+                end
+            end
+        end
+    elseif (end_message.timer ~= nil) then
+        end_message.timer = end_message.timer + 0.030
+        if (end_message.timer >= 5) then
+            end_message.timer = nil
+        else for i = 1,16 do
+                if player_present(i) then
+                    cls(i, 25)
+                    rprint(i, "|c" .. end_message.msg)
+                    rprint(i, "|c__________________________________________________________________")
+                    for space = 1,10 do
+                        rprint(i, " ")
+                    end
                 end
             end
         end
@@ -460,8 +481,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if (vote_options[p][1] ~= nil) then
                 vote_options[p][1] = nil
             end
-
-
+        -- VOTE SELECTION ...
         elseif (msg[1] ~= nil and msg[2] ~= nil) then
             local messages = mapvote.messages
             local name = get_var(p, "$name")
