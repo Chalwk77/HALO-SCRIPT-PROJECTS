@@ -418,7 +418,7 @@ function OnTick()
             end_message.timer, global_message = nil, nil
         else for i = 1,16 do
                 if player_present(i) then
-                    local _spacing = 1
+                    local _spacing = 5
                     cls(i, 25)
                     rprint(i, "|c" .. end_message.msg)
                     rprint(i, "|c__________________________________________________________________")
@@ -476,18 +476,24 @@ function mapvote:showMapVoteOptions(p)
     end
 end
 
+local function add_message(p, msg, name)
+    if (global_message ~= nil) then
+        if (name) then
+            name = name .. ": "
+        else
+            name = ""
+        end
+        local chat_format = name .. msg
+        global_message[#global_message + 1] = chat_format
+        if (global_message.timer[0] ~= nil) then
+            global_message.timer[0] = 0
+        end
+    end
+end
+
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
     local name = get_var(p, "$name")
-    local function add_message(p, msg)
-        if (global_message ~= nil) then
-            local chat_format = name .. ": " .. msg
-            global_message[#global_message + 1] = chat_format
-            if (global_message.timer[0] ~= nil) then
-                global_message.timer[0] = 0
-            end
-        end
-    end
     if (mapvote.start ~= nil and mapvote.start[p] ~= nil) then
         local msg = stringSplit(Message)
         if (#msg == 0) then
@@ -510,7 +516,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 vote_options[p][1] = nil
             end
         -- VOTE SELECTION ...
-        elseif (msg[1] ~= nil and msg[2] ~= nil) then
+        elseif (msg[1] ~= nil and msg[2] ~= nil) and msg[1]:match("%d+") and msg[2]:match("%d+") then
             local messages = mapvote.messages
             local name = get_var(p, "$name")
 
@@ -550,7 +556,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         local cur_votes = value.votes
                                         value.votes = cur_votes + 1
                                         local msg = gsub(gsub(gsub(gsub(messages.on_vote,
-                                                "%%name%%", "Chalwk"),
+                                                "%%name%%", name),
                                                 "%%mapname%%", mapname),
                                                 "%%gametype%%", gametype),
                                                 "%%votes%%", value.votes)
@@ -569,10 +575,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 rprint(p, msg)
             end
         elseif (global_message ~= nil) then
-            add_message(p, Message)
+            add_message(p, Message, name)
         end
     elseif (global_message ~= nil) and (mapvote.start ~= nil or mapvote.start == nil or mapvote.start[p] ~= nil) then
-        add_message(p, Message)
+        add_message(p, Message, name)
     else
         cls(PlayerIndex, 25)
         rprint(PlayerIndex, "Chat Muted. Please wait until the next game begins!")
