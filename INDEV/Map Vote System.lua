@@ -251,9 +251,13 @@ local getRandomMap = function()
     end
 end
 
+-- This function returns the total number of players currently online.
+local player_count = function()
+    return tonumber(get_var(0, "$pn"))
+end
+
 function mapvote:calculate_votes()
     cls(0, 25, true, "chat")
-    global_message = nil
     
     local final_results = { }
     end_message = end_message or { }
@@ -380,7 +384,7 @@ function OnTick()
                         rprint(i, ' ')
                         rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
                     end
-                                            
+                    
                     if (global_message ~= nil) then 
                         for j = 1,#global_message do
                             if (global_message[j] ~= nil) then
@@ -411,14 +415,30 @@ function OnTick()
     elseif (end_message.timer ~= nil) then
         end_message.timer = end_message.timer + 0.030
         if (end_message.timer >= 5) then
-            end_message.timer = nil
+            end_message.timer, global_message = nil, nil
         else for i = 1,16 do
                 if player_present(i) then
+                    local _spacing = 1
                     cls(i, 25)
                     rprint(i, "|c" .. end_message.msg)
                     rprint(i, "|c__________________________________________________________________")
-                    for space = 1,10 do
+                    for space = 1, ( _spacing - player_count() ) do
                         rprint(i, " ")
+                    end
+                    if (global_message ~= nil) then 
+                        for j = 1,#global_message do
+                            if (global_message[j] ~= nil) then
+                                if (global_message.timer[0] ~= nil) then
+                                    global_message.timer[0] = global_message.timer[0] + 0.030
+                                    if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
+                                        global_message.timer[0] = 0
+                                        table.remove(global_message, 1)
+                                    else
+                                        rprint(i, global_message[j])
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -459,8 +479,16 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
     local name = get_var(p, "$name")
-    if (mapvote.start[p] ~= nil) then
-
+    local function add_message(p, msg)
+        if (global_message ~= nil) then
+            local chat_format = name .. ": " .. msg
+            global_message[#global_message + 1] = chat_format
+            if (global_message.timer[0] ~= nil) then
+                global_message.timer[0] = 0
+            end
+        end
+    end
+    if (mapvote.start ~= nil and mapvote.start[p] ~= nil) then
         local msg = stringSplit(Message)
         if (#msg == 0) then
             return false
@@ -528,10 +556,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                                 "%%votes%%", value.votes)
                                         has_voted[p], mapvote.start[p] = true, nil
                                         cls(p, 25)
-                                        global_message[#global_message + 1] = msg
-                                        if (global_message.timer[0] ~= nil) then
-                                            global_message.timer[0] = 0
-                                        end
+                                        add_message(p, msg)
                                     end
                                 end
                             end
@@ -543,13 +568,11 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 local msg = gsub(messages.already_voted, "%%name%%", name)
                 rprint(p, msg)
             end
+        elseif (global_message ~= nil) then
+            add_message(p, Message)
         end
-    elseif (global_message ~= nil) then
-        local chat_format = name .. ": " .. Message
-        global_message[#global_message + 1] = chat_format
-        if (global_message.timer[0] ~= nil) then
-            global_message.timer[0] = 0
-        end
+    elseif (global_message ~= nil) and (mapvote.start ~= nil or mapvote.start == nil or mapvote.start[p] ~= nil) then
+        add_message(p, Message)
     else
         cls(PlayerIndex, 25)
         rprint(PlayerIndex, "Chat Muted. Please wait until the next game begins!")
@@ -564,7 +587,7 @@ function cls(PlayerIndex, count, clear_chat, type)
             rprint(PlayerIndex, " ")
         end
     elseif (clear_chat) then
-        for i = 1, 16 do
+        for i = 1, 16 do    
             if player_present(i) then
                 for _ = 1, count do
                     if (type == "chat") then
