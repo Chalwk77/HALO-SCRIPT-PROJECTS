@@ -53,35 +53,38 @@ mapvote.previous_page = "p"
 mapvote.serverprefix = "** SERVER ** " -- Leave a space after the last asterisk.
 --
 
-mapvote.messages = { 
+mapvote.messages = {
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
     already_voted = "You have already voted!",
     on_win_vote = "%mapname% [ %gametype% ] won the vote ",
     no_one_voted = "No votes were processed! Chosing random map in (%seconds%) seconds",
 }
 
-mapvote.maps = { -- Create map settings array
+mapvote.maps = {
+
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
-    ["ratrace"] = {"ctf", "slayer"},
-    ["bloodgulch"] = {"ctf", "slayer", "oddball"},
-    ["beavercreek"] = {"ctf", "slayer", "Team Slayer"},
-    ["boardingaction"] = {"ctf", "slayer"},
-    ["carousel"] = {"ctf", "slayer"},
-    ["dangercanyon"] = {"ctf", "slayer"},
-    ["deathisland"] = {"ctf", "slayer"},
-    ["gephyrophobia"] = {"ctf", "slayer"},
-    ["icefields"] = {"ctf", "slayer", "oddball"},
-    ["infinity"] = {"ctf", "slayer"},
-    ["sidewinder"] = {"ctf", "slayer", "oddball"},
-    ["timberland"] = {"ctf", "slayer"},
-    ["hangemhigh"] = {"ctf", "slayer", "Team Slayer", "Team King"},
-    ["ratrace"] = {"ctf", "slayer"},
-    ["damnation"] = {"ctf", "slayer"},
-    ["putput"] = {"ctf", "slayer"},
-    ["prisoner"] = {"ctf", "slayer"},
-    ["wizard"] = {"ctf", "slayer"},
-    ["longest"] = {"ctf", "slayer", "Team Slayer"}, 
-    
+    -- You can specify on a per-map basis what gametypes are available.
+
+    ["sidewinder"] = { "ctf", "slayer", "oddball" },
+    ["ratrace"] = { "ctf", "slayer" },
+    ["bloodgulch"] = { "ctf", "slayer", "oddball" },
+    ["beavercreek"] = { "ctf", "slayer", "Team Slayer" },
+    ["boardingaction"] = { "ctf", "slayer" },
+    ["carousel"] = { "ctf", "slayer" },
+    ["dangercanyon"] = { "ctf", "slayer" },
+    ["deathisland"] = { "ctf", "slayer" },
+    ["gephyrophobia"] = { "ctf", "slayer" },
+    ["icefields"] = { "ctf", "slayer", "oddball" },
+    ["infinity"] = { "ctf", "slayer" },
+    ["timberland"] = { "ctf", "slayer" },
+    ["hangemhigh"] = { "ctf", "slayer", "Team Slayer", "Team King" },
+    ["ratrace"] = { "ctf", "slayer" },
+    ["damnation"] = { "ctf", "slayer" },
+    ["putput"] = { "ctf", "slayer" },
+    ["prisoner"] = { "ctf", "slayer" },
+    ["wizard"] = { "ctf", "slayer" },
+    ["longest"] = { "ctf", "slayer", "Team Slayer" },
+
     -- Repeat the structure to add your own maps and gametypes.
 }
 
@@ -125,7 +128,7 @@ end
 local Say = function(p, message)
     if (p) and (message) then
         if (type(message) == "table") then
-            for i = 1,#message do
+            for i = 1, #message do
                 if (message[i] ~= nil) then
                     Chat(p, message[i])
                 end
@@ -206,23 +209,28 @@ function OnGameStart()
     -- Clear all arrays and counts
     results, votes, map_count = { }, { }, 0
     vote_options = { }
-    
+
     mapvote.timer, mapvote.start = { }, { }
-    
+
     for k, _ in pairs(mapvote.maps) do
         results[#results + 1] = k
         map_count = map_count + 1
     end
-    
+
     for i = 1, #results do
         if (results[i]) then
-        
+
             local mapname = results[i]
             local gametype = mapvote.maps[mapname]
-            
-            for j = 1,#gametype do
+
+            for j = 1, #gametype do
                 if (gametype[j] ~= nil) then
-                    votes[#votes + 1] = {[mapname] = {[gametype[j]] = {votes = 0}}}
+                    votes[#votes + 1] = {
+                        [mapname] = {
+                            [gametype[j]] = { votes = 0 }
+                        }
+                    }
+                    --break
                 end
             end
         end
@@ -231,14 +239,10 @@ end
 
 local getRandomMap = function()
     local map_table = mapvote.maps
-    
+
     local count = 0
     for _, _ in pairs(map_table) do
         count = count + 1
-    end
-    
-    for i = 1,#mapvote.maps do
-        print(i)
     end
 
     math.randomseed(os.time())
@@ -246,7 +250,7 @@ local getRandomMap = function()
     for mapname, _ in pairs(map_table) do
         local gametype_table = votes[x][mapname]
         if (gametype_table ~= nil) then
-            for gametype,_ in pairs(gametype_table) do
+            for gametype, _ in pairs(gametype_table) do
                 local map = mapname .. " - " .. gametype
                 return mapname, gametype
             end
@@ -256,14 +260,14 @@ end
 
 function mapvote:calculate_votes()
     local final_results = { }
-    
+
     local map_table = mapvote.maps
     for mapname, _ in pairs(map_table) do
         -- mapname = mapname string
-        for index,_ in pairs(votes) do
+        for index, _ in pairs(votes) do
             local gametype_table = votes[index][mapname]
             if (gametype_table ~= nil) then
-                for gametype,_ in pairs(gametype_table) do
+                for gametype, _ in pairs(gametype_table) do
                     -- gametype = gametype string
                     local votes = gametype_table[gametype].votes
                     if (votes ~= nil) and (votes > 0) then
@@ -274,7 +278,7 @@ function mapvote:calculate_votes()
             end
         end
     end
-    
+
     local messages = mapvote.messages
     if (#final_results > 0) then
         table.sort(final_results)
@@ -294,7 +298,7 @@ function mapvote:calculate_votes()
                     if (result ~= nil) then
                         local mapname, gametype = result[2], result[3]
                         execute_command("map " .. mapname .. " " .. gametype)
-                        
+
                         local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
                         SayAll(msg)
                         break
@@ -304,17 +308,17 @@ function mapvote:calculate_votes()
         end
     else
         -- RANDOM MAP SELECTION ...
-    
+
         local delay = 3
         function delay_map_selection()
             local map, gametype = select(1, getRandomMap()), select(2, getRandomMap())
             execute_command("map " .. map .. " " .. gametype)
-            
+
             local msg = map .. " [ " .. gametype .. " ] has been randomly selected."
-            SayAll(msg)            
+            SayAll(msg)
         end
-        timer(1000*delay, "delay_map_selection")
-    
+        timer(1000 * delay, "delay_map_selection")
+
         local msg = gsub(messages.no_one_voted, "%%seconds%%", delay)
         SayAll(msg)
     end
@@ -325,9 +329,9 @@ function delay_clear_chat()
 end
 
 function OnGameEnd()
-    if ( tonumber(get_var(0, "$pn")) >= mapvote.players_needed ) then
+    if (tonumber(get_var(0, "$pn")) >= mapvote.players_needed) then
         total_pages = getPageCount(map_count, mapvote.maxresults)
-        
+
         -- Register a hook into SAPP's chat event.
         register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
         -- Register a hook into SAPP's tick event.
@@ -339,9 +343,9 @@ function OnGameEnd()
 end
 
 function mapvote:begin()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
-            cur_page[i], has_voted[i] = start_page, false            
+            cur_page[i], has_voted[i] = start_page, false
             vote_options[i] = { }
             mapvote.timer[i], mapvote.start[i] = 0, true
         end
@@ -356,8 +360,8 @@ end
 
 function OnTick()
     if (mapvote.start ~= nil) then
-    
-        for i = 1,16 do
+
+        for i = 1, 16 do
             if player_present(i) then
                 if (mapvote.start[i]) then
                     mapvote.timer[i] = mapvote.timer[i] + 0.030
@@ -368,8 +372,8 @@ function OnTick()
                         mapvote:showMapVoteOptions(i)
                         rprint(i, ' ')
                         rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
-                        
-                        local days, hours, minutes, seconds = secondsToTime(mapvote.timer[i], 4)
+
+                        local seconds = secondsToTime(mapvote.timer[i])
                         local char = getChar(mapvote.timeout - floor(seconds))
                         rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
 
@@ -381,12 +385,12 @@ function OnTick()
                 end
             end
         end
-        
+
         if (mapvote.start[0]) then
             mapvote.timer[0] = mapvote.timer[0] + 0.030
             if (mapvote.timer[0] >= mapvote.timeout) then
                 mapvote.start[0], mapvote.start[0] = nil, nil
-                for i = 1,16 do
+                for i = 1, 16 do
                     if player_present(i) then
                         cls(i, 25)
                         mapvote.start[i], mapvote.start[i] = nil, nil
@@ -394,11 +398,10 @@ function OnTick()
                 end
                 mapvote:calculate_votes()
             else
-                -- TODO: Show player the remaining time (again)
-                for i = 1,16 do
+                for i = 1, 16 do
                     if player_present(i) and (mapvote.start[i] == nil) then
                         cls(i, 25)
-                        local days, hours, minutes, seconds = secondsToTime(mapvote.timer[0], 4)
+                        local seconds = secondsToTime(mapvote.timer[0])
                         local char = getChar(mapvote.timeout - floor(seconds))
                         rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
                     end
@@ -415,28 +418,24 @@ function mapvote:showMapVoteOptions(p)
         local startpage, endpage = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
         for i = startpage, endpage do
             if (results[i]) then
-                for k, _ in pairs(results) do
-                    if (k == i) then
 
-                        local mapname, m = results[i], { }
-                        local gametypes = mapvote.maps[mapname]
-                    
-                        local part_one, part_two = k .. spacing(2) .. mapname .. ":" .. spacing(1) .. ""
+                local mapname, m = results[i], { }
+                local gametypes = mapvote.maps[mapname]
 
-                        for j = 1,#gametypes do
-                            if (gametypes[j] ~= nil) then
-                                m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
-                                part_two = concat(m, ", ")
-                            end
-                        end
-                        
-                        vote_options[p][#vote_options[p] + 1] = part_one .. spacing(1) .. part_two
+                local part_one, part_two = i .. spacing(2) .. mapname .. ":" .. spacing(1) .. ""
+
+                for j = 1, #gametypes do
+                    if (gametypes[j] ~= nil) then
+                        m[#m + 1] = "[" .. j .. spacing(2) .. gametypes[j] .. "]"
+                        part_two = concat(m, ", ")
                     end
                 end
+
+                vote_options[p][#vote_options[p] + 1] = part_one .. spacing(1) .. part_two
             end
         end
     end
-   
+
     if (vote_options[p] ~= nil) and (vote_options[p][1] ~= nil) then
         Say(p, vote_options[p])
     end
@@ -445,72 +444,80 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
     if (mapvote.start[p] ~= nil) and (mapvote.start[p]) then
-                
+
         local msg = stringSplit(Message)
         if (#msg == 0) then
             return false
-        elseif ( msg[1] == mapvote.next_page ) or ( msg[1] == mapvote.previous_page ) then
-        
+        elseif (msg[1] == mapvote.next_page) or (msg[1] == mapvote.previous_page) then
+
             if (msg[1] == mapvote.next_page) then
                 cur_page[p] = cur_page[p] + 1
             elseif (msg[1] == mapvote.previous_page) then
                 cur_page[p] = cur_page[p] - 1
             end
-            
+
             if (cur_page[p] <= start_page - 1) or (cur_page[p] > total_pages) then
                 cur_page[p] = start_page
             end
-            
-            if (vote_options[p][1] ~= nil) then            
+
+            if (vote_options[p][1] ~= nil) then
                 vote_options[p][1] = nil
             end
-            
-            
+
+
         elseif (msg[1] ~= nil and msg[2] ~= nil) then
             local messages = mapvote.messages
             local name = get_var(p, "$name")
-            
+
+            local map_selection_id = tonumber(msg[1]:match("%d+")) or nil
+            local gamemode_selection_id = tonumber(msg[2]:match("%d+")) or nil
+
+            -- Check if the player has already voted
             if not (has_voted[p]) then
-                local map_num = tonumber(msg[1]:match("%d+")) or nil
-                local gametype_num = tonumber(msg[2]:match("%d+")) or nil
-            
-                if (map_num and gametype_num) then 
                 
-                    local mapname = results[map_num]
-                    local gametype = mapvote.maps[mapname]
-                    
-                    if (gametype ~= nil and gametype[gametype_num] ~= nil) then
-                        for i = 1,#votes do
-                            if votes[i] then
-                                local option = votes[i][mapname][gametype[gametype_num]] or nil
-                                if (option ~= nil) then
-                                    
-                                    local cur_votes = option.votes
-                                    if (mapvote.extra_vote) then
-                                        if hasExtraVotePower(p) then
-                                            option.votes = cur_votes + mapvote.extra
-                                        else
-                                            option.votes = cur_votes + 1
-                                        end
-                                    else
-                                        option.votes = cur_votes + 1                                        
+                local current_start, current_end = select(1, getPage(cur_page[p])), select(2, getPage(cur_page[p]))
+                
+                for index = current_start, current_end do
+                    if (results[index]) then
+
+                        local mapname, gametype
+                        local m = results[index]
+                        local gt = mapvote.maps[m]
+
+                        if (map_selection_id == index) then
+                            mapname = m
+                            for i = 1, #gt do
+                                if (gt[i] ~= nil) then
+                                    if (gamemode_selection_id == i) then
+                                        gametype = gt[i]
+                                        break
                                     end
-                                    
-                                    local msg = gsub(gsub(gsub(gsub(messages.on_vote, 
-                                    "%%name%%", name), 
-                                    "%%mapname%%", mapname),
-                                    "%%gametype%%", gametype[gametype_num]), 
-                                    "%%votes%%", option.votes)
-                                    say_all(msg)
-                                    has_voted[p] = true
-                                    mapvote.timer[p], mapvote.start[p] = 0, nil
-                                    cls(p, 25)
-                                    break
                                 end
                             end
                         end
-                    else
-                        -- to do ... [error handling]
+
+                        if (mapname ~= nil) and (gametype ~= nil) then
+                            for _, v in pairs(votes) do
+                                local map_table = v[mapname]
+                                if (map_table ~= nil) then
+                                    local value = v[mapname][gametype]
+                                    if (value ~= nil) then
+                                        local cur_votes = value.votes
+                                        value.votes = cur_votes + 1
+                                        local msg = gsub(gsub(gsub(gsub(messages.on_vote,
+                                                "%%name%%", "Chalwk"),
+                                                "%%mapname%%", mapname),
+                                                "%%gametype%%", gametype),
+                                                "%%votes%%", value.votes)
+                                        say_all(msg)
+                                        has_voted[p] = true
+                                        mapvote.timer[p], mapvote.start[p] = 0, nil
+                                        cls(p, 25)
+                                    end
+                                end
+                            end
+                            break
+                        end
                     end
                 end
             else
@@ -518,7 +525,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 rprint(p, msg)
             end
         end
-        
+
         -- Prevent players from typing general messages in chat while voting is in progress.
         return false
     end
@@ -537,7 +544,7 @@ function cls(PlayerIndex, count, clear_all, type)
             end
         end
     elseif (clear_all) then
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 for _ = 1, count do
                     if (type == "chat") then
@@ -565,30 +572,7 @@ function stringSplit(inp, sep)
     return t
 end
 
-function secondsToTime(seconds, places)
-
-    local years = floor(seconds / (60 * 60 * 24 * 365))
-    seconds = seconds % (60 * 60 * 24 * 365)
-    local weeks = floor(seconds / (60 * 60 * 24 * 7))
-    seconds = seconds % (60 * 60 * 24 * 7)
-    local days = floor(seconds / (60 * 60 * 24))
-    seconds = seconds % (60 * 60 * 24)
-    local hours = floor(seconds / (60 * 60))
-    seconds = seconds % (60 * 60)
-    local minutes = floor(seconds / 60)
+function secondsToTime(seconds)
     seconds = seconds % 60
-
-    if (places == 6) then
-        return format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
-    elseif (places == 5) then
-        return format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
-    elseif not (places) or (places == 4) then
-        return days, hours, minutes, seconds
-    elseif (places == 3) then
-        return format("%02d:%02d:%02d", hours, minutes, seconds)
-    elseif (places == 2) then
-        return format("%02d:%02d", minutes, seconds)
-    elseif (places == 1) then
-        return format("%02", seconds)
-    end
+    return seconds
 end
