@@ -198,7 +198,6 @@ function OnGameStart()
     vote_options = { }
 
     mapvote.timer, mapvote.start = { }, { }
-    mapvote.timer, mapvote.start = { }, { }
 
     for k, _ in pairs(mapvote.maps) do
         results[#results + 1] = k
@@ -246,7 +245,7 @@ local getRandomMap = function()
 end
 
 function mapvote:calculate_votes()
-    
+    cls(0, 25, true, "chat")
     global_message = nil
     
     local final_results = { }
@@ -290,7 +289,16 @@ function mapvote:calculate_votes()
                         execute_command("map " .. mapname .. " " .. gametype)
 
                         local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
-                        SayAll(msg)
+                        for p = 1,16 do
+                            if player_present(p) then
+                                cls(p, 25)
+                                rprint(p, "|c" .. msg)
+                                rprint(p, "|c__________________________________________________________________")
+                                for space = 1,10 do
+                                    rprint(p, " ")
+                                end
+                            end
+                        end                        
                         cprint(msg, 2+8)
                         break
                     end
@@ -343,8 +351,7 @@ function mapvote:begin()
     for i = 1, 16 do
         if player_present(i) then
             cur_page[i], has_voted[i] = start_page, false
-            vote_options[i] = { }
-            mapvote.timer[i], mapvote.start[i] = 0, true
+            vote_options[i], mapvote.start[i] = { }, true
         end
     end
     -- Map Cycle countdown
@@ -357,77 +364,41 @@ function OnScriptUnload()
 end
 
 function OnTick()
-    if (mapvote.start ~= nil) then
-
-        for i = 1, 16 do
-            if player_present(i) then
-                if (mapvote.start[i]) then
-                    mapvote.timer[i] = mapvote.timer[i] + 0.030
-                    if (mapvote.timer[i] >= mapvote.timeout) then
-                        mapvote.start[i], mapvote.start[i] = nil, nil
-                    else
-                        cls(i, 25)
+    if (mapvote.start ~= nil and mapvote.start[0] == true) then
+        mapvote.timer[0] = mapvote.timer[0] + 0.030
+        if (mapvote.timer[0] >= mapvote.timeout) then
+            mapvote.start = nil
+            mapvote:calculate_votes()
+        else
+            for i = 1, 16 do
+                if player_present(i) then
+                    cls(i, 25)
+                    
+                    if (mapvote.start[i] ~= nil) then
                         mapvote:showMapVoteOptions(i)
                         rprint(i, ' ')
                         rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
-
-                        local seconds = secondsToTime(mapvote.timer[i])
-                        local char = getChar(mapvote.timeout - floor(seconds))
-                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
-
-                        if (global_message ~= nil) then 
-                            for j = 1,#global_message do
-                                if (global_message[j] ~= nil) then
-                                    rprint(i, global_message[j])
-                                end
-                            end
-                        end
-                        
-                        for spaces = 1, (total_pages / 2 - 2) do
-                            rprint(spaces, ' ')
-                        end
-                        
                     end
-                end
-            end
-        end
-
-        if (mapvote.start[0]) then
-            mapvote.timer[0] = mapvote.timer[0] + 0.030
-            if (mapvote.timer[0] >= mapvote.timeout) then
-                mapvote.start[0], mapvote.start[0] = nil, nil
-                for i = 1, 16 do
-                    if player_present(i) then
-                        cls(i, 25)
-                        mapvote.start[i], mapvote.start[i] = nil, nil
-                    end
-                end
-                mapvote:calculate_votes()
-            else
-                for i = 1, 16 do
-                    if player_present(i) and (mapvote.start[i] == nil) then
-                        cls(i, 25)
-                        
-                        if (global_message ~= nil) then 
-                            for j = 1,#global_message do
-                                if (global_message[j] ~= nil) then
-                                    if (global_message.timer[0] ~= nil) then
-                                        global_message.timer[0] = global_message.timer[0] + 0.030
-                                        if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
-                                            global_message.timer[0] = 0
-                                            table.remove(global_message, 1)
-                                        else
-                                            rprint(i, global_message[j])
-                                        end
+                                            
+                    if (global_message ~= nil) then 
+                        for j = 1,#global_message do
+                            if (global_message[j] ~= nil) then
+                                if (global_message.timer[0] ~= nil) then
+                                    global_message.timer[0] = global_message.timer[0] + 0.030
+                                    if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
+                                        global_message.timer[0] = 0
+                                        table.remove(global_message, 1)
+                                    else
+                                        rprint(i, global_message[j])
                                     end
                                 end
                             end
                         end
-                        
-                        local seconds = secondsToTime(mapvote.timer[0])
-                        local char = getChar(mapvote.timeout - floor(seconds))
-                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
                     end
+                    
+                    local seconds = secondsToTime(mapvote.timer[0])
+                    local char = getChar(mapvote.timeout - floor(seconds))
+                    rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
                 end
             end
         end
@@ -467,7 +438,7 @@ end
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
     local name = get_var(p, "$name")
-    if (mapvote.start[p] ~= nil) and (mapvote.start[p]) then
+    if (mapvote.start[p] ~= nil) then
 
         local msg = stringSplit(Message)
         if (#msg == 0) then
@@ -535,8 +506,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                                 "%%mapname%%", mapname),
                                                 "%%gametype%%", gametype),
                                                 "%%votes%%", value.votes)
-                                        has_voted[p] = true
-                                        mapvote.timer[p], mapvote.start[p] = 0, nil
+                                        has_voted[p], mapvote.start[p] = true, nil
                                         cls(p, 25)
                                         global_message[#global_message + 1] = msg
                                         if (global_message.timer[0] ~= nil) then
@@ -557,6 +527,9 @@ function OnPlayerChat(PlayerIndex, Message, type)
     elseif (global_message ~= nil) then
         local chat_format = name .. ": " .. Message
         global_message[#global_message + 1] = chat_format
+        if (global_message.timer[0] ~= nil) then
+            global_message.timer[0] = 0
+        end
     else
         cls(PlayerIndex, 25)
         rprint(PlayerIndex, "Chat Muted. Please wait until the next game begins!")
