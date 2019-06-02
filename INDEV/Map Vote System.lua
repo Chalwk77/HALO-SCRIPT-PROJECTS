@@ -23,7 +23,7 @@ local mapvote = { }
 mapvote.players_needed = 1
 
 -- Map Cycle timeout (In Seconds):
-mapvote.timeout = 15 -- Do not set to 0!
+mapvote.timeout = 20 -- Do not set to 0!
 
 -- If this is true, Map Vote options will be displayed in the Console Environment (mapvote.show_in_chat must be false):
 mapvote.show_in_console = true
@@ -41,6 +41,17 @@ mapvote.maxresults = 5
 mapvote.extra_vote = false
 mapvote.extrapower = 4
 mapvote.extra = 2
+
+--==============================================================--
+-- WIP !!
+
+-- During Voting, Chat Messages will fade after this many seconds.
+mapvote.message_fade = 7
+
+-- Total number of chat messages allowed on screen at once.
+-- The 5th message will cause one of the chat message to be cleared from the screen.
+mapvote.max_chat_messages = 5
+--==============================================================--
 
 -- To navigate between pages, type 'mapvote.next_page' or 'mapvote.previous_page'.
 mapvote.next_page = "n"
@@ -68,7 +79,7 @@ mapvote.maps = {
     ["sidewinder"] = { "ctf", "slayer", "oddball" },
     ["ratrace"] = { "ctf", "slayer" },
     ["bloodgulch"] = { "ctf", "slayer", "oddball" },
-    ["beavercreek"] = { "ctf", "slayer", "Team Slayer" },
+    ["beavercreek"] = { "ctf", "slayer", "oddball" },
     ["boardingaction"] = { "ctf", "slayer" },
     ["carousel"] = { "ctf", "slayer" },
     ["dangercanyon"] = { "ctf", "slayer" },
@@ -77,13 +88,13 @@ mapvote.maps = {
     ["icefields"] = { "ctf", "slayer", "oddball" },
     ["infinity"] = { "ctf", "slayer" },
     ["timberland"] = { "ctf", "slayer" },
-    ["hangemhigh"] = { "ctf", "slayer", "Team Slayer", "Team King" },
+    ["hangemhigh"] = { "ctf", "slayer", "oddball"},
     ["ratrace"] = { "ctf", "slayer" },
     ["damnation"] = { "ctf", "slayer" },
     ["putput"] = { "ctf", "slayer" },
     ["prisoner"] = { "ctf", "slayer" },
     ["wizard"] = { "ctf", "slayer" },
-    ["longest"] = { "ctf", "slayer", "Team Slayer" },
+    ["longest"] = { "ctf", "slayer", "oddball" },
 
     -- Repeat the structure to add your own maps and gametypes.
 }
@@ -99,6 +110,7 @@ local match, gmatch = string.match, string.gmatch
 local upper, lower = string.upper, string.lower
 local floor = math.floor
 local concat = table.concat
+local global_messages = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -211,6 +223,7 @@ function OnGameStart()
     vote_options = { }
 
     mapvote.timer, mapvote.start = { }, { }
+    mapvote.timer, mapvote.start = { }, { }
 
     for k, _ in pairs(mapvote.maps) do
         results[#results + 1] = k
@@ -230,7 +243,6 @@ function OnGameStart()
                             [gametype[j]] = { votes = 0 }
                         }
                     }
-                    --break
                 end
             end
         end
@@ -259,6 +271,9 @@ local getRandomMap = function()
 end
 
 function mapvote:calculate_votes()
+    
+    global_messages = nil
+    
     local final_results = { }
 
     local map_table = mapvote.maps
@@ -301,6 +316,7 @@ function mapvote:calculate_votes()
 
                         local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
                         SayAll(msg)
+                        cprint(msg, 2+8)
                         break
                     end
                 end
@@ -316,11 +332,13 @@ function mapvote:calculate_votes()
 
             local msg = map .. " [ " .. gametype .. " ] has been randomly selected."
             SayAll(msg)
+            cprint(msg, 2+8)
         end
         timer(1000 * delay, "delay_map_selection")
 
         local msg = gsub(messages.no_one_voted, "%%seconds%%", delay)
         SayAll(msg)
+        cprint(msg, 2+8)
     end
 end
 
@@ -331,6 +349,10 @@ end
 function OnGameEnd()
     if (tonumber(get_var(0, "$pn")) >= mapvote.players_needed) then
         total_pages = getPageCount(map_count, mapvote.maxresults)
+        
+        global_messages = { }
+        global_messages.timer = { }
+        global_messages.timer[0] = 0
 
         -- Register a hook into SAPP's chat event.
         register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -352,6 +374,7 @@ function mapvote:begin()
     end
     -- Map Cycle countdown
     mapvote.timer[0], mapvote.start[0] = 0, true
+    cprint("MAP VOTING HAS BEGUN", 2+8)
 end
 
 function OnScriptUnload()
@@ -377,10 +400,19 @@ function OnTick()
                         local char = getChar(mapvote.timeout - floor(seconds))
                         rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
 
+                        if (global_messages ~= nil) then 
+                            for j = 1,#global_messages do
+                                if (global_messages[j] ~= nil) then
+                                    rprint(i, global_messages[j])
+                                end
+                            end
+                        end
+                
                         rprint(i, ' ')
                         rprint(i, ' ')
                         rprint(i, ' ')
                         rprint(i, ' ')
+                        
                     end
                 end
             end
@@ -400,10 +432,27 @@ function OnTick()
             else
                 for i = 1, 16 do
                     if player_present(i) and (mapvote.start[i] == nil) then
+                    
                         cls(i, 25)
                         local seconds = secondsToTime(mapvote.timer[0])
                         local char = getChar(mapvote.timeout - floor(seconds))
                         rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                        
+                        if (global_messages ~= nil) then 
+                            for j = 1,#global_messages do
+                                if (global_messages[j] ~= nil) then
+                                    if (global_messages.timer[0] ~= nil) then
+                                        global_messages.timer[0] = global_messages.timer[0] + 0.030
+                                        if (global_messages.timer[0] >= mapvote.message_fade) or (#global_messages >= mapvote.max_chat_messages) then
+                                            global_messages.timer[0] = 0
+                                            table.remove(global_messages, 1)
+                                        else
+                                            rprint(i, global_messages[j])
+                                        end
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -443,6 +492,7 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     local p = tonumber(PlayerIndex)
+    local name = get_var(p, "$name")
     if (mapvote.start[p] ~= nil) and (mapvote.start[p]) then
 
         local msg = stringSplit(Message)
@@ -455,8 +505,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
             elseif (msg[1] == mapvote.previous_page) then
                 cur_page[p] = cur_page[p] - 1
             end
-
-            if (cur_page[p] <= start_page - 1) or (cur_page[p] > total_pages) then
+            
+            if (cur_page[p] < start_page) then
+                cur_page[p] = total_pages
+            elseif (cur_page[p] > total_pages) then
                 cur_page[p] = start_page
             end
 
@@ -509,10 +561,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                                 "%%mapname%%", mapname),
                                                 "%%gametype%%", gametype),
                                                 "%%votes%%", value.votes)
-                                        say_all(msg)
                                         has_voted[p] = true
                                         mapvote.timer[p], mapvote.start[p] = 0, nil
                                         cls(p, 25)
+                                        global_messages[#global_messages + 1] = msg
                                     end
                                 end
                             end
@@ -525,8 +577,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 rprint(p, msg)
             end
         end
-
+        
         -- Prevent players from typing general messages in chat while voting is in progress.
+        return false
+    else
+        local chat_format = name .. ": " .. Message
+        global_messages[#global_messages + 1] = chat_format
         return false
     end
 end
