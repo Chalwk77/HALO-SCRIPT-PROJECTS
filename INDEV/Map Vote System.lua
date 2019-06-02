@@ -25,13 +25,8 @@ mapvote.players_needed = 1
 -- Map Cycle timeout (In Seconds):
 mapvote.timeout = 20 -- Do not set to 0!
 
--- If this is true, Map Vote options will be displayed in the Console Environment (mapvote.show_in_chat must be false):
-mapvote.show_in_console = true
 -- Voting Options screen alignment:
 mapvote.alignment = "l"  -- Left = l, Right = r, Center = c, Tab: t
-
--- If this is true, Map Voting options will be displayed in Chat (mapvote.show_in_console must be false)
-mapvote.show_in_chat = false
 
 -- Number of Map Vote entries to display per page:
 mapvote.maxresults = 5
@@ -110,31 +105,11 @@ local match, gmatch = string.match, string.gmatch
 local upper, lower = string.upper, string.lower
 local floor = math.floor
 local concat = table.concat
-local global_messages = { }
+local global_message = { }
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-end
-
-local sendToConsole = function()
-    if (mapvote.show_in_console) and not (mapvote.show_in_chat) then
-        return true
-    elseif not (mapvote.show_in_console) and (mapvote.show_in_chat) then
-        return false
-    end
-end
-
-local function Chat(p, m)
-    if (m ~= nil) then
-        if sendToConsole() then
-            rprint(p, "|" .. mapvote.alignment .. " " .. m)
-        else
-            execute_command("msg_prefix \"\"")
-            say(p, m)
-            execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
-        end
-    end
 end
 
 local Say = function(p, message)
@@ -142,11 +117,11 @@ local Say = function(p, message)
         if (type(message) == "table") then
             for i = 1, #message do
                 if (message[i] ~= nil) then
-                    Chat(p, message[i])
+                    rprint(p, "|" .. mapvote.alignment .. " " .. message[i])
                 end
             end
         else
-            Chat(p, message)
+            rprint(p, "|" .. mapvote.alignment .. " " .. message)
         end
     end
 end
@@ -272,7 +247,7 @@ end
 
 function mapvote:calculate_votes()
     
-    global_messages = nil
+    global_message = nil
     
     local final_results = { }
 
@@ -350,9 +325,9 @@ function OnGameEnd()
     if (tonumber(get_var(0, "$pn")) >= mapvote.players_needed) then
         total_pages = getPageCount(map_count, mapvote.maxresults)
         
-        global_messages = { }
-        global_messages.timer = { }
-        global_messages.timer[0] = 0
+        global_message = { }
+        global_message.timer = { }
+        global_message.timer[0] = 0
 
         -- Register a hook into SAPP's chat event.
         register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
@@ -400,18 +375,17 @@ function OnTick()
                         local char = getChar(mapvote.timeout - floor(seconds))
                         rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
 
-                        if (global_messages ~= nil) then 
-                            for j = 1,#global_messages do
-                                if (global_messages[j] ~= nil) then
-                                    rprint(i, global_messages[j])
+                        if (global_message ~= nil) then 
+                            for j = 1,#global_message do
+                                if (global_message[j] ~= nil) then
+                                    rprint(i, global_message[j])
                                 end
                             end
                         end
-                
-                        rprint(i, ' ')
-                        rprint(i, ' ')
-                        rprint(i, ' ')
-                        rprint(i, ' ')
+                        
+                        for spaces = 1, (total_pages / 2 - 2) do
+                            rprint(spaces, ' ')
+                        end
                         
                     end
                 end
@@ -432,27 +406,27 @@ function OnTick()
             else
                 for i = 1, 16 do
                     if player_present(i) and (mapvote.start[i] == nil) then
-                    
                         cls(i, 25)
-                        local seconds = secondsToTime(mapvote.timer[0])
-                        local char = getChar(mapvote.timeout - floor(seconds))
-                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
                         
-                        if (global_messages ~= nil) then 
-                            for j = 1,#global_messages do
-                                if (global_messages[j] ~= nil) then
-                                    if (global_messages.timer[0] ~= nil) then
-                                        global_messages.timer[0] = global_messages.timer[0] + 0.030
-                                        if (global_messages.timer[0] >= mapvote.message_fade) or (#global_messages >= mapvote.max_chat_messages) then
-                                            global_messages.timer[0] = 0
-                                            table.remove(global_messages, 1)
+                        if (global_message ~= nil) then 
+                            for j = 1,#global_message do
+                                if (global_message[j] ~= nil) then
+                                    if (global_message.timer[0] ~= nil) then
+                                        global_message.timer[0] = global_message.timer[0] + 0.030
+                                        if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
+                                            global_message.timer[0] = 0
+                                            table.remove(global_message, 1)
                                         else
-                                            rprint(i, global_messages[j])
+                                            rprint(i, global_message[j])
                                         end
                                     end
                                 end
                             end
                         end
+                        
+                        local seconds = secondsToTime(mapvote.timer[0])
+                        local char = getChar(mapvote.timeout - floor(seconds))
+                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
                     end
                 end
             end
@@ -564,7 +538,10 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                         has_voted[p] = true
                                         mapvote.timer[p], mapvote.start[p] = 0, nil
                                         cls(p, 25)
-                                        global_messages[#global_messages + 1] = msg
+                                        global_message[#global_message + 1] = msg
+                                        if (global_message.timer[0] ~= nil) then
+                                            global_message.timer[0] = 0
+                                        end
                                     end
                                 end
                             end
@@ -577,29 +554,23 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 rprint(p, msg)
             end
         end
-        
-        -- Prevent players from typing general messages in chat while voting is in progress.
-        return false
-    else
+    elseif (global_message ~= nil) then
         local chat_format = name .. ": " .. Message
-        global_messages[#global_messages + 1] = chat_format
-        return false
+        global_message[#global_message + 1] = chat_format
+    else
+        cls(PlayerIndex, 25)
+        rprint(PlayerIndex, "Chat Muted. Please wait until the next game begins!")
     end
+    return false
 end
 
-function cls(PlayerIndex, count, clear_all, type)
-    if (PlayerIndex) and not (clear_all) then
-        count = count or 25
+function cls(PlayerIndex, count, clear_chat, type)
+    count = count or 25
+    if (PlayerIndex) and not (clear_chat) then
         for _ = 1, count do
-            if sendToConsole() then
-                rprint(PlayerIndex, " ")
-            else
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, " ")
-                execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
-            end
+            rprint(PlayerIndex, " ")
         end
-    elseif (clear_all) then
+    elseif (clear_chat) then
         for i = 1, 16 do
             if player_present(i) then
                 for _ = 1, count do
