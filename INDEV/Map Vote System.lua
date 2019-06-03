@@ -17,8 +17,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 local mapvote = { }
--- mapvote config starts --
 
+-- ======================= MAPVOTE CONFIGURATION STARTS ======================= --
 -- Players needed to vote:
 mapvote.players_needed = 1
 
@@ -37,16 +37,11 @@ mapvote.extra_vote = false
 mapvote.extrapower = 4
 mapvote.extra = 2
 
---==============================================================--
--- WIP !!
-
--- During Voting, Chat Messages will fade after this many seconds.
+-- During Voting, Chat Messages will fade after this many seconds:
 mapvote.message_fade = 7
 
 -- Total number of chat messages allowed on screen at once.
--- The 5th message will cause one of the chat message to be cleared from the screen.
 mapvote.max_chat_messages = 5
---==============================================================--
 
 -- To navigate between pages, type 'mapvote.next_page' or 'mapvote.previous_page'.
 mapvote.next_page = "n"
@@ -61,15 +56,21 @@ mapvote.serverprefix = "** SERVER ** " -- Leave a space after the last asterisk.
 
 mapvote.messages = {
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
-    already_voted = "You have already voted!",
     on_win_vote = "%mapname% [ %gametype% ] won the vote ",
+    already_voted = "You have already voted!",
+    
+    -- Random Selection Messges:
     no_one_voted = "No votes were processed! Chosing random map in (%seconds%) seconds",
+    on_random_selection = "%mapname% [ %gametype% ] has been randomly selected",
 }
+
+-- This is the primary map vote configuration table.
+-- Each entry must contain a valid map name and gametype - make sure you spell these correctly.
 
 mapvote.maps = {
 
     -- [MAP NAME] - {AVAILABLE GAMETYPES}
-    -- You can specify on a per-map basis what gametypes are available.
+    -- You can specify on a per-map basis what gametypes are available:
 
     ["sidewinder"] = { "ctf", "slayer", "oddball" },
     ["ratrace"] = { "ctf", "slayer" },
@@ -94,7 +95,7 @@ mapvote.maps = {
     -- Repeat the structure to add your own maps and gametypes.
 }
 
--- mapvote config ends --
+-- ======================= MAPVOTE CONFIGURATION ENDS ======================= --
 
 local results, cur_page, votes = { }, { }, { }
 local start_page, map_count, total_pages = 1, 0, 0
@@ -130,12 +131,16 @@ end
 -- Restores the prefix when relay is done.
 local SayAll = function(Message)
     if (Message) then
+        -- Removes the prefix:
         execute_command("msg_prefix \"\"")
-        say_all(Message) -- Sends a global message.
-        execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"")
+        -- Sends a global message:
+        say_all(Message)
+        -- Restore the prefix:
+        execute_command("msg_prefix \" " .. mapvote.serverprefix .. "\"") 
     end
 end
 
+-- Returns the current vote page:
 local getPage = function(page)
     local page = tonumber(page) or nil
 
@@ -151,6 +156,7 @@ local getPage = function(page)
     return startpage, endpage
 end
 
+-- Returns the total number of pages:
 local getPageCount = function(total, max_results)
     local pages = total / (max_results)
     if ((pages) ~= floor(pages)) then
@@ -192,8 +198,7 @@ end
 
 function OnGameStart()
     execute_command("sv_mapcycle_timeout " .. mapvote.timeout)
-
-    -- Clear all arrays and counts
+    
     results, votes, map_count = { }, { }, 0
     vote_options = { }
     
@@ -230,6 +235,7 @@ function OnGameStart()
     end
 end
 
+-- This function iterates over the map table and selects a random map & gametype:
 local getRandomMap = function()
     local map_table = mapvote.maps
 
@@ -317,8 +323,7 @@ function mapvote:calculate_votes()
         function delay_map_selection()
             local map, gametype = select(1, getRandomMap()), select(2, getRandomMap())
             execute_command("map " .. map .. " " .. gametype)
-
-            local msg = map .. " [ " .. gametype .. " ] has been randomly selected."
+            local msg = gsub(gsub(messages.on_random_selection, "%%mapname%%", map), "%%gametype%%", gametype)
             end_message.msg = msg
             cprint(msg, 2+8)
         end
@@ -368,6 +373,27 @@ function OnScriptUnload()
     --
 end
 
+-- This function handles chat messages and vote feedback:
+local function RelayMessages(p)
+    if (global_message ~= nil) then 
+        for j = 1,#global_message do
+            if (global_message[j] ~= nil) then
+                if (global_message.timer[0] ~= nil) then
+                    global_message.timer[0] = global_message.timer[0] + 0.030
+                    if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
+                        global_message.timer[0] = 0                                        
+                        -- Remove the first message from the array:
+                        table.remove(global_message, 1)
+                    else
+                        -- Relay message to player
+                        rprint(p, global_message[j])
+                    end
+                end
+            end
+        end
+    end
+end
+
 function OnTick()
     if (mapvote.start ~= nil and mapvote.start[0] == true) then
         mapvote.timer[0] = mapvote.timer[0] + 0.030
@@ -377,29 +403,20 @@ function OnTick()
         else
             for i = 1, 16 do
                 if player_present(i) then
+                
+                    -- Clear Console
                     cls(i, 25)
                     
+                    -- Show Vote Options:
                     if (mapvote.start[i] ~= nil) then
                         mapvote:showMapVoteOptions(i)
                         rprint(i, ' ')
                         rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
                     end
                     
-                    if (global_message ~= nil) then 
-                        for j = 1,#global_message do
-                            if (global_message[j] ~= nil) then
-                                if (global_message.timer[0] ~= nil) then
-                                    global_message.timer[0] = global_message.timer[0] + 0.030
-                                    if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
-                                        global_message.timer[0] = 0
-                                        table.remove(global_message, 1)
-                                    else
-                                        rprint(i, global_message[j])
-                                    end
-                                end
-                            end
-                        end
-                    end
+                    -- Show chat messages and vote feedback:
+                    RelayMessages(i)
+                    --
                     
                     local seconds = secondsToTime(mapvote.timer[0])
                     local char = getChar(mapvote.timeout - floor(seconds))
@@ -419,27 +436,20 @@ function OnTick()
         else for i = 1,16 do
                 if player_present(i) then
                     local _spacing = 5
+                    
+                    -- Clear Console:
                     cls(i, 25)
+                    
+                    -- Print vote feedback:
                     rprint(i, "|c" .. end_message.msg)
                     rprint(i, "|c__________________________________________________________________")
                     for space = 1, ( _spacing - player_count() ) do
                         rprint(i, " ")
                     end
-                    if (global_message ~= nil) then 
-                        for j = 1,#global_message do
-                            if (global_message[j] ~= nil) then
-                                if (global_message.timer[0] ~= nil) then
-                                    global_message.timer[0] = global_message.timer[0] + 0.030
-                                    if (global_message.timer[0] >= mapvote.message_fade) or (#global_message >= mapvote.max_chat_messages) then
-                                        global_message.timer[0] = 0
-                                        table.remove(global_message, 1)
-                                    else
-                                        rprint(i, global_message[j])
-                                    end
-                                end
-                            end
-                        end
-                    end
+                    
+                    -- Show chat messages and vote feedback:
+                    RelayMessages(i)
+                    --
                 end
             end
         end
