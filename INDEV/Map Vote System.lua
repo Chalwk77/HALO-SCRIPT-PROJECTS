@@ -4,6 +4,7 @@ Script Name: Map Vote System (v1.0), for SAPP (PC & CE)
 Description: N/A
 
 IMPORTANT: SAPP's builtin map voting system must be disabled before using this script.
+           In the init.txt file, set "mapvote" to false.
 
 [!] [!] NOT READY FOR DOWNLOAD!
 
@@ -58,6 +59,11 @@ mapvote.messages = {
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
     on_win_vote = "%mapname% [ %gametype% ] won the vote ",
     already_voted = "You have already voted!",
+    
+    page_navigation = "[Page %current_page%/%total_pages%] Type '%next_cmd%' -> Next Page  |  Type '%prev_cmd%' -> Previous Page",
+    
+    vote_time_remaining_1 = "Vote Time Remaining: %seconds% second%plural%",
+    vote_time_remaining_2 = "[YOU HAVE VOTED] - MapCycle Time Out Remaining: %seconds% second%plural%",
     
     -- Random Selection Messges:
     no_one_voted = "No votes were processed! Chosing random map in (%seconds%) seconds",
@@ -208,7 +214,7 @@ function OnGameStart()
     if (end_message ~= nil) then
         end_message = nil
     end
-
+    
     mapvote.timer, mapvote.start = { }, { }
 
     for k, _ in pairs(mapvote.maps) do
@@ -408,10 +414,16 @@ function OnTick()
                     cls(i, 25)
                     
                     -- Show Vote Options:
+                    local m = mapvote.messages
                     if (mapvote.start[i] ~= nil) then
                         mapvote:showMapVoteOptions(i)
-                        rprint(i, ' ')
-                        rprint(i, "[Page " .. cur_page[i] .. '/' .. total_pages .. "] Type 'n' -> Next Page  |  Type 'p' -> Previous Page")
+                        rprint(i, ' ')    
+                        local msg = gsub(gsub(gsub(gsub(m.page_navigation, 
+                        "%%current_page%%", cur_page[i]), 
+                        "%%total_pages%%", total_pages),
+                        "%%next_cmd%%", mapvote.next_page),
+                        "%%prev_cmd%%", mapvote.previous_page)
+                        rprint(i, msg)
                     end
                     
                     -- Show chat messages and vote feedback:
@@ -422,9 +434,11 @@ function OnTick()
                     local char = getChar(mapvote.timeout - floor(seconds))
                     
                     if not (has_voted[i]) then
-                        rprint(i, "Vote Time Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                        local msg = gsub(gsub(m.vote_time_remaining_1, "%%seconds%%", mapvote.timeout - floor(seconds)), "%%plural%%", char)
+                        rprint(i, msg)
                     else
-                        rprint(i, "[YOU HAVE VOTED] - MapCycle Time Out Remaining: " .. mapvote.timeout - floor(seconds) .. " second" .. char)
+                        local msg = gsub(gsub(m.vote_time_remaining_2, "%%seconds%%", mapvote.timeout - floor(seconds)), "%%plural%%", char)
+                        rprint(i, msg)
                     end
                 end
             end
