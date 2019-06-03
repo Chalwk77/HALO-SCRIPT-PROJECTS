@@ -49,6 +49,9 @@ mapvote.next_page = "n"
 mapvote.previous_page = "p"
 --
 
+-- If enabled, vote options will always be shuffled
+mapvote.shuffle_votes = false
+
 -- Global Server Prefix:
 -- Several functions temporarily removes the ** SERVER ** prefix when it announces messges.
 -- The prefix will be restored to 'mapvote.serverprefix' when the relay has finished.
@@ -203,6 +206,7 @@ local function hasExtraVotePower(p)
 end
 
 function OnGameStart()
+    
     execute_command("sv_mapcycle_timeout " .. mapvote.timeout)
     
     results, votes, map_count = { }, { }, 0
@@ -221,7 +225,24 @@ function OnGameStart()
         results[#results + 1] = k
         map_count = map_count + 1
     end
+    
+    -- Shuffle Vote Options:
+    if (mapvote.shuffle_votes and #results > 0) then
+        local function shuffleResults(input)
+            math.randomseed(os.time())
+            local output = {}
+            for i = #input, 1, -1 do
+                local j = math.random(i)
+                input[i], input[j] = input[j], input[i]
+                table.insert(output, input[i])
+            end
+            return output
+        end
+        shuffleResults(results)
+    end
 
+
+    -- Create the primary vote table:
     for i = 1, #results do
         if (results[i]) then
 
