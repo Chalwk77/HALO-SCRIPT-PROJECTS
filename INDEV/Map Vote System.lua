@@ -370,7 +370,8 @@ function mapvote:begin()
             vote_options[i], mapvote.start[i] = { }, true
         end
     end
-    -- Map Cycle countdown
+    
+    -- Init map cycle timer:
     mapvote.timer[0], mapvote.start[0] = 0, true
     cprint("MAP VOTING HAS BEGUN", 2+8)
 end
@@ -425,10 +426,10 @@ function OnTick()
                         "%%prev_cmd%%", mapvote.previous_page)
                         rprint(i, msg)
                     end
+                    --
                     
                     -- Show chat messages and vote feedback:
                     RelayMessages(i)
-                    --
                     
                     local seconds = secondsToTime(mapvote.timer[0])
                     local char = getChar(mapvote.timeout - floor(seconds))
@@ -440,6 +441,7 @@ function OnTick()
                         local msg = gsub(gsub(m.vote_time_remaining_2, "%%seconds%%", mapvote.timeout - floor(seconds)), "%%plural%%", char)
                         rprint(i, msg)
                     end
+                    --
                 end
             end
         end
