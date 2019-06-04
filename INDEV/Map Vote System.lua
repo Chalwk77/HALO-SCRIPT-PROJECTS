@@ -217,6 +217,7 @@ local getPageCount = function(total, max_results)
     return pages
 end
 
+-- A neat function to handle spacing in a string.
 local function spacing(n, sep)
     sep = sep or ""
     local String = ""
@@ -258,13 +259,8 @@ end
 local getRandomMap = function()
     local map_table = mapvote.maps
 
-    local count = 0
-    for _, _ in pairs(map_table) do
-        count = count + 1
-    end
-
     math.randomseed(os.time())
-    local x = math.random(1, count)
+    local x = math.random(1, map_count)
     for mapname, _ in pairs(map_table) do
         local gametype_table = votes[x][mapname]
         if (gametype_table ~= nil) then
