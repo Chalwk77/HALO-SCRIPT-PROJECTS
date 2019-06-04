@@ -194,14 +194,14 @@ end
 
 -- Returns the current vote page:
 local getPage = function(page)
-    page = tonumber(page) or nil
+    local current_page = tonumber(page) or nil
 
-    if (page == nil) then
-        page = 1
+    if (current_page == nil) then
+        current_page = 1
     end
 
     local max_results = mapvote.maxresults
-    local start = (max_results) * page
+    local start = (max_results) * current_page
     local startpage = (start - max_results + 1)
     local endpage = start
 
