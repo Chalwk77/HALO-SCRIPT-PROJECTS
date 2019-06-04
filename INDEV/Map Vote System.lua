@@ -64,7 +64,7 @@ mapvote.serverprefix = "** SERVER ** " -- Leave a space after the last asterisk.
 
 mapvote.messages = {
     on_vote = "%name% voted for [ %mapname% ]  -  [ %gametype% ]  -  Votes: %votes%",
-    on_win_vote = "%mapname% [ %gametype% ] won the vote ",
+    on_win_vote = "%mapname% [ %gametype% ] won with %votes% vote%plural% !!",
     already_voted = "You have already voted!",
 
     page_navigation = "[Page %current_page%/%total_pages%] Type '%next_cmd%' -> Next Page  |  Type '%prev_cmd%' -> Previous Page",
@@ -323,9 +323,10 @@ function mapvote:calculate_votes()
                     end
                     if (fResult ~= nil) then
 
-                        local mapname, gametype = fResult[2], fResult[3]
+                        local final_votes, mapname, gametype = fResult[1], fResult[2], fResult[3]
+                        local char = getChar(final_votes)
                         execute_command("map " .. mapname .. " " .. gametype)
-                        local msg = gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype)
+                        local msg = gsub(gsub(gsub(gsub(messages.on_win_vote, "%%mapname%%", mapname), "%%gametype%%", gametype), "%%votes%%", final_votes), "%%plural%%", char)
                         end_message.msg = msg
                         cprint(msg, 2 + 8)
                         break
@@ -551,18 +552,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
     local msg = stringSplit(Message)
     if (#msg == 0) then
         return false
-    elseif sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\" then
+    elseif (sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\") then
         if (paused[p].start ~= true) then
             paused[p].start = true
-
             cls(p, 25)
-
             rprint(p, "Commands Disabled. Please wait until the next game begins.")
         end
         return false
-    end
-
-    if (mapvote.start ~= nil and mapvote.start[p] ~= nil) and not (paused[p]) then
+    elseif (mapvote.start ~= nil and mapvote.start[p] ~= nil) then
         if (msg[1] == mapvote.next_page) or (msg[1] == mapvote.previous_page) then
 
             if (msg[1] == mapvote.next_page) then
