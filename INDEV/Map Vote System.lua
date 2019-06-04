@@ -44,6 +44,10 @@ mapvote.message_fade = 7
 -- Total number of chat messages allowed on screen at once.
 mapvote.max_chat_messages = 5
 
+-- If players execute a command, all fedback timers will be paused for this many seconds,
+-- while an error message is being displayed:
+mapvote.pause_time = 1.5
+
 -- To navigate between pages, type 'mapvote.next_page' or 'mapvote.previous_page'.
 mapvote.next_page = "n"
 mapvote.previous_page = "p"
@@ -348,10 +352,6 @@ function mapvote:calculate_votes()
     end
 end
 
-function resume(p)
-    paused[p] = false
-end
-
 function OnGameEnd()
     setup_params()
     if (tonumber(get_var(0, "$pn")) >= mapvote.players_needed) then
@@ -383,7 +383,8 @@ function mapvote:begin()
         if player_present(i) then
             cur_page[i], has_voted[i] = start_page, false
             vote_options[i], mapvote.start[i] = { }, true
-            paused[i] = false
+            paused[i] = { }
+            paused[i].start, paused[i].timer = false, 0
         end
     end
 
@@ -423,7 +424,7 @@ function OnTick()
             for i = 1, 16 do
                 if player_present(i) then
 
-                    if not (paused[i]) then
+                    if not (paused[i].start) then
 
                         -- Clear Console
                         cls(i, 25)
@@ -455,6 +456,10 @@ function OnTick()
                             local msg = gsub(gsub(m.vote_time_remaining_2, "%%seconds%%", mapvote.timeout - floor(seconds)), "%%plural%%", char)
                             rprint(i, msg)
                         end
+                    elseif (paused[i].timer >= mapvote.pause_time) then
+                        paused[i].start, paused[i].timer = false, 0
+                    else
+                        paused[i].timer = paused[i].timer + 0.030
                     end
                     --
                 end
@@ -466,22 +471,28 @@ function OnTick()
             end_message.timer, global_message = nil, nil
         else
             for i = 1, 16 do
-                if player_present(i) and not (paused[i]) then
-                    local _spacing = 5
+                if player_present(i) then
+                    if not (paused[i].start) then
+                        local _spacing = 5
 
-                    -- Clear Console:
-                    cls(i, 25)
+                        -- Clear Console:
+                        cls(i, 25)
 
-                    -- Print vote feedback:
-                    rprint(i, "|c" .. end_message.msg)
-                    rprint(i, "|c__________________________________________________________________")
-                    for _ = 1, (_spacing - player_count()) do
-                        rprint(i, " ")
+                        -- Print vote feedback:
+                        rprint(i, "|c" .. end_message.msg)
+                        rprint(i, "|c__________________________________________________________________")
+                        for _ = 1, (_spacing - player_count()) do
+                            rprint(i, " ")
+                        end
+
+                        -- Show chat messages and vote feedback:
+                        RelayMessages(i)
+                        --
+                    elseif (paused[i].timer >= mapvote.pause_time) then
+                        paused[i].start, paused[i].timer = false, 0
+                    else
+                        paused[i].timer = paused[i].timer + 0.030
                     end
-
-                    -- Show chat messages and vote feedback:
-                    RelayMessages(i)
-                    --
                 end
             end
         end
@@ -541,14 +552,12 @@ function OnPlayerChat(PlayerIndex, Message, type)
     if (#msg == 0) then
         return false
     elseif sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\" then
-        if (paused[p] ~= true) then
-            paused[p] = true
+        if (paused[p].start ~= true) then
+            paused[p].start = true
 
             cls(p, 25)
 
             rprint(p, "Commands Disabled. Please wait until the next game begins.")
-            timer(1000 * 2, "resume", p)
-
         end
         return false
     end
@@ -656,13 +665,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     if (#msg == 0) then
         return false
-    elseif (paused[p] ~= true) then
-        paused[p] = true
+    elseif (paused[p].start ~= true) then
+        paused[p].start = true
 
         cls(p, 25)
 
         rprint(p, "Commands Disabled. Please wait until the next game begins.")
-        timer(1000 * 2, "resume", p)
         return false
     end
 end
