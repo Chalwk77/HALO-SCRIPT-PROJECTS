@@ -392,3 +392,10 @@ Script Updated to v1.62
 [6/1/19]
 1). Bug fix for Lurker - Players were joining in Lurker Mode when they shouldn't have been.
 Script Updated to v1.63
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/5/19]
+1). Minor tweak for Admin Chat:
+Admin Chat now has a chat-type prefix.
+Script Updated to v1.64
