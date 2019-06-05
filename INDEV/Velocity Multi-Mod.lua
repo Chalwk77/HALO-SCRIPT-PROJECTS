@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.63), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.64), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -732,7 +732,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.63, -- << --- do not touch
+            script_version = 1.64, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2783,7 +2783,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                 response = true
             end
         end
-
+        
         local chat_type
         if type == 0 then
             chat_type = "[GLOBAL]  "
@@ -2792,6 +2792,14 @@ function OnPlayerChat(PlayerIndex, Message, type)
         elseif type == 2 then
             chat_type = "[VEHICLE] "
         end
+        
+        if modEnabled("Admin Chat") then
+            local achat = players["Admin Chat"][ip]
+            if (achat ~= nil and achat.adminchat) then
+                chat_type = "[ADMIN CHAT]"
+            end
+        end     
+        
         local dir = settings.mod["Chat Logging"].dir
         local function LogChat(dir, msg)
             local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
@@ -2810,7 +2818,6 @@ function OnPlayerChat(PlayerIndex, Message, type)
             cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
         end
     end
-
 
     -- #Admin Chat
     if modEnabled("Admin Chat") then
@@ -7575,6 +7582,13 @@ function RecordChanges()
     cl[#cl + 1] = "[6/1/19]"
     cl[#cl + 1] = "1). Bug fix for Lurker - Players were joining in Lurker Mode when they shouldn't have been."
     cl[#cl + 1] = "Script Updated to v1.63"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[6/5/19]"
+    cl[#cl + 1] = "1). Minor tweak for Admin Chat:"
+    cl[#cl + 1] = "Admin Chat now has a chat-type prefix."
+    cl[#cl + 1] = "Script Updated to v1.64"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
