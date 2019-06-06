@@ -22,11 +22,11 @@ local server_prefix = "**LNZ**"
 
 boundry.maps = {
     ["timberland"] = {
-        max_size = 1000,
+        max_size = 4500,
         min_size = 20, 
         duration = 5,
         shrink_amount = 20,
-        1.179, -1.114, -21.197, 1000
+        1.179, -1.114, -21.197, 4500
     },
     
     -- Not yet Implemented --
@@ -53,7 +53,8 @@ boundry.maps = {
 -- Boundry variables:
 local bX, bY, bZ, bR
 local min_size, max_size, shrink_cycle, shrink_amount
-local start_trigger = true
+local start_trigger, game_in_progress = true, false
+local console_paused = { }
 
 -- Debugging variables:
 local debug_object, delete_object = { }
@@ -79,8 +80,17 @@ local player_count = function()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    if (start_trigger) and (player_count() >= players_needed) then
-        start_trigger = false
+    local p = tonumber(PlayerIndex)
+    
+    local enough_players = (player_count() >= players_needed)
+    
+    local function setup_params(p)
+        console_paused[p] = { }
+        console_paused[p] = false
+    end
+    
+    if (start_trigger) and (enough_players) then
+        start_trigger, game_in_progress = false, true
         local mapname = get_var(0, "$map")
         local coords = boundry.maps[mapname]
         if (coords ~= nil) then        
@@ -92,6 +102,8 @@ function OnPlayerConnect(PlayerIndex)
             delete_object = true
             --
             
+            setup_params(p)
+            
             -- Create new timer array:
             boundry.timer = { }
             boundry.timer = 0
@@ -99,8 +111,9 @@ function OnPlayerConnect(PlayerIndex)
             
             -- Register a hook into SAPP's tick event.
             register_callback(cb["EVENT_TICK"], "OnTick")
-            print('game has begun')
         end
+    elseif (game_in_progress and enough_players) then
+        setup_params(p)
     end
 end
 
@@ -113,12 +126,18 @@ function boundry:shrink()
     end
 end
 
-function boundry:inSphere(px, py, pz, x, y, z, r)
+function boundry:inSphere(p, px, py, pz, x, y, z, r)
     local coords = ( (px - x) ^ 2 + (py - y) ^ 2 + (pz - z) ^ 2)
     if (coords < r) then
         return true
     elseif (coords >= r + 1) then
         return false
+    elseif (coords > max_size) then
+        console_paused[p] = true
+        rprint(p, "|c--------- WARNING ---------")
+        rprint(p, "|cYOU ARE LEAVING THE COMBAT AREA!")
+        rprint(p, "|cRETURN NOW OR YOU WILL BE SHOT!")
+        return nil
     end
 end
 
@@ -130,23 +149,26 @@ function OnTick()
             if (player_object ~= 0) then
                 cls(i, 25)
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
-                if boundry:inSphere(px,py,pz, bX, bY, bZ, bR) then
-                    local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                    rprint(i, "|cINSIDE BOUNDS.")
-                    rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                    for _ = 1,7 do
-                        rprint(i, " ")
+                if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) then
+                    if not (console_paused[i]) then
+                        local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                        rprint(i, "|cINSIDE BOUNDS.")
+                        rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
+                        for _ = 1,7 do
+                            rprint(i, " ")
+                        end
                     end
                     -- 
                 else
-                
-                    rprint(i, "|cWARNING:")
-                    rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
-                    local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                    rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                    
-                    for _ = 1,7 do
-                        rprint(i, " ")
+                    if not (console_paused[i]) then
+                        rprint(i, "|cWARNING:")
+                        rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
+                        local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                        rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
+                        
+                        for _ = 1,7 do
+                            rprint(i, " ")
+                        end
                     end
                     -- Camo serves as a visual indication to the player
                     -- that they are outside the boundry:
