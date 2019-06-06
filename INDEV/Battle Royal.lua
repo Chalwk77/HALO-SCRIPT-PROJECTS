@@ -61,6 +61,9 @@ local debug_object, delete_object = { }
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    for i = 1,16 do
+        console_paused[i] = false
+    end
 end
 
 function OnScriptUnload()
@@ -85,7 +88,6 @@ function OnPlayerConnect(PlayerIndex)
     local enough_players = (player_count() >= players_needed)
     
     local function setup_params(p)
-        console_paused[p] = { }
         console_paused[p] = false
     end
     
@@ -137,7 +139,7 @@ function boundry:inSphere(p, px, py, pz, x, y, z, r)
         rprint(p, "|c--------- WARNING ---------")
         rprint(p, "|cYOU ARE LEAVING THE COMBAT AREA!")
         rprint(p, "|cRETURN NOW OR YOU WILL BE SHOT!")
-        return nil
+        return false
     end
 end
 
@@ -165,7 +167,6 @@ function OnTick()
                         rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                        
                         for _ = 1,7 do
                             rprint(i, " ")
                         end
