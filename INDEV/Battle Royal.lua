@@ -100,7 +100,7 @@ function boundry:shrink()
     end
 end
 
-local function inSphere(px, py, pz, x, y, z, r)
+function boundry:inSphere(px, py, pz, x, y, z, r)
     local coords = ( (px - x) ^ 2 + (py - y) ^ 2 + (pz - z) ^ 2)
     if (coords < r) then
         return true
@@ -117,7 +117,7 @@ function OnTick()
             if (player_object ~= 0) then
                 cls(i, 25)
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
-                if inSphere(px,py,pz, bX, bY, bZ, bR) then
+                if boundry:inSphere(px,py,pz, bX, bY, bZ, bR) then
                     -- 
                 else
                     -- Camo serves as a visual indication to the player
