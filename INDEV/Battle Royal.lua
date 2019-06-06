@@ -17,21 +17,23 @@ api_version = "1.12.0.0"
 local mod, boundry = { }, { }
 
 -- ==== Battle Royal Configuration [starts] ==== --
-mod.players_needed = 0
+mod.players_needed = 1
 
 -- BOUNDRY SETTINGS:
 -----------------------------
 -- Maximum Boundry Size
-boundry.max_size = 100
+boundry.max_size = 100 -- (100 for debugging purposes during development)
 -- Mininum Boundry Size
 boundry.min_size = 5
 -- The boundry radius will shrink by this amount every 'boundry.duration' seconds.
 boundry.shrink_amount = 30
--- Time between shrink cycles
+-- Time between shrink cycles (In Seconds)
 boundry.duration = 5
 
 boundry.maps = {
     ["timberland"] = { 1.179, -1.114, -21.197, 100},
+    
+    -- Not yet Implemented:
     ["sidewinder"] = { nil },
     ["ratrace"] = { nil },
     ["bloodgulch"] = { nil },
@@ -52,11 +54,10 @@ boundry.maps = {
 }
 -- ==== Battle Royal Configuration [ends] ==== --
 
--- Boundry variables
-local bX, bY, bZ, bR
-local start_trigger = true
+-- Boundry variables:
+local bX, bY, bZ, bR, start_trigger
 
--- debugging
+-- Debugging variables:
 local debug_object, delete_object = { }
 
 function OnScriptLoad()
@@ -65,14 +66,6 @@ end
 
 local player_count = function()
     return tonumber(get_var(0, "$pn"))
-end
-
-local boundry_coords = function()
-    local mapname = get_var(0, "$map")
-    local coords = boundry.maps[mapname]
-    if (coords ~= nil) then
-        return coords
-    end
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -113,17 +106,6 @@ local function inSphere(px, py, pz, x, y, z, r)
         return true
     elseif (coords >= r + 1) then
         return false
-    end
-end
-
--- DEBUGGING:
-function delete()
-    for i = 1,#debug_object do
-        local object = get_object_memory(debug_object[i])
-        if (object ~= nil and object ~= 0) then
-            destroy_object(debug_object[i])
-            delete_object = true
-        end
     end
 end
 
@@ -180,6 +162,17 @@ function cls(PlayerIndex, count)
     if (PlayerIndex) then
         for _ = 1, count do
             rprint(PlayerIndex, " ")
+        end
+    end
+end
+
+-- DEBUGGING:
+function delete()
+    for i = 1,#debug_object do
+        local object = get_object_memory(debug_object[i])
+        if (object ~= nil and object ~= 0) then
+            destroy_object(debug_object[i])
+            delete_object = true
         end
     end
 end
