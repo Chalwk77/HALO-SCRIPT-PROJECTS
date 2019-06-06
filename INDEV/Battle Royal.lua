@@ -14,26 +14,22 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-local mod, boundry = { }, { }
+local boundry = { }
 
 -- ==== Battle Royal Configuration [starts] ==== --
-mod.players_needed = 1
-
--- BOUNDRY SETTINGS:
------------------------------
--- Maximum Boundry Size
-boundry.max_size = 100 -- (100 for debugging purposes during development)
--- Mininum Boundry Size
-boundry.min_size = 5
--- The boundry radius will shrink by this amount every 'boundry.duration' seconds.
-boundry.shrink_amount = 30
--- Time between shrink cycles (In Seconds)
-boundry.duration = 5
+local players_needed = 1
+local server_prefix = "**LNZ**"
 
 boundry.maps = {
-    ["timberland"] = { 1.179, -1.114, -21.197, 100},
+    ["timberland"] = {
+        max_size = 1000,
+        min_size = 20, 
+        duration = 5,
+        shrink_amount = 20,
+        1.179, -1.114, -21.197, 1000
+    },
     
-    -- Not yet Implemented:
+    -- Not yet Implemented --
     ["sidewinder"] = { nil },
     ["ratrace"] = { nil },
     ["bloodgulch"] = { nil },
@@ -55,7 +51,9 @@ boundry.maps = {
 -- ==== Battle Royal Configuration [ends] ==== --
 
 -- Boundry variables:
-local bX, bY, bZ, bR, start_trigger
+local bX, bY, bZ, bR
+local min_size, max_size, shrink_cycle, shrink_amount
+local start_trigger = true
 
 -- Debugging variables:
 local debug_object, delete_object = { }
@@ -64,17 +62,31 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
 end
 
+function OnScriptUnload()
+    --
+end
+
+local Say = function(Player, Message)
+    if (Player) and (Message) then
+        execute_command("msg_prefix \"\"")
+        say(Player, Message)
+        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+    end
+end
+
 local player_count = function()
     return tonumber(get_var(0, "$pn"))
 end
 
 function OnPlayerConnect(PlayerIndex)
-    if (start_trigger) and (player_count() >= mod.players_needed) then
+    if (start_trigger) and (player_count() >= players_needed) then
         start_trigger = false
         local mapname = get_var(0, "$map")
         local coords = boundry.maps[mapname]
         if (coords ~= nil) then        
+            min_size, max_size = coords.min_size, coords.max_size
             bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[4]
+            shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
             
             -- For Debugging (temp)
             delete_object = true
@@ -87,15 +99,16 @@ function OnPlayerConnect(PlayerIndex)
             
             -- Register a hook into SAPP's tick event.
             register_callback(cb["EVENT_TICK"], "OnTick")
+            print('game has begun')
         end
     end
 end
 
 function boundry:shrink()
     if (bR ~= nil) then 
-        bR = (bR - boundry.shrink_amount)
-        if (bR < boundry.min_size) then
-            bR = boundry.min_size
+        bR = (bR - shrink_amount)
+        if (bR < min_size) then
+            bR = min_size
         end
     end
 end
@@ -118,8 +131,23 @@ function OnTick()
                 cls(i, 25)
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
                 if boundry:inSphere(px,py,pz, bX, bY, bZ, bR) then
+                    local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                    rprint(i, "|cINSIDE BOUNDS.")
+                    rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
+                    for _ = 1,7 do
+                        rprint(i, " ")
+                    end
                     -- 
                 else
+                
+                    rprint(i, "|cWARNING:")
+                    rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
+                    local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                    rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
+                    
+                    for _ = 1,7 do
+                        rprint(i, " ")
+                    end
                     -- Camo serves as a visual indication to the player
                     -- that they are outside the boundry:
                     execute_command("camo " .. i .. " 1")
@@ -136,12 +164,12 @@ function OnTick()
                     timer(1500, "delete")    
                 end                
                 
-                if ( boundry.timer >= (boundry.duration) ) then
-                    if (bR > boundry.min_size and bR <= boundry.max_size) then
+                if ( boundry.timer >= (shrink_duration) ) then
+                    if (bR > min_size and bR <= max_size) then
                         boundry.timer = 0
                         boundry:shrink()
-                        say(i, "THE PLAYABLE BOUNDRY HAS SHRUNKEN " .. boundry.shrink_amount .. " WORLD UNITS", 4+8)
-                    elseif (bR <= boundry.min_size) then
+                        Say(i, "BOUNDRY SHRUNK: " .. shrink_amount .. "/" .. bR .. " - MIN: " .. min_size, 4+8)
+                    elseif (bR <= min_size) then
                         boundry.init_timer = false
                         boundry.timer = 0
                         
@@ -149,7 +177,7 @@ function OnTick()
                         -- ...
                         
                         -- DEBUGGING:
-                        say(i, "THE PLAYABLE BOUNDRY IS NOW AT A MINIMUM SIZE OF " .. boundry.min_size .. " (actual: " .. bR .. ")", 4+8)
+                        Say(i, "THE PLAYABLE BOUNDRY IS NOW AT A MINIMUM SIZE OF " .. min_size .. " (actual: " .. bR .. ")", 4+8)
                     end
                 end
             end
