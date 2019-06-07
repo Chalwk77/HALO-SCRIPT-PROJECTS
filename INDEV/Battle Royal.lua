@@ -22,11 +22,11 @@ local server_prefix = "**LNZ**"
 
 boundry.maps = {
     ["timberland"] = {
-        max_size = 4500,
-        min_size = 20, 
+        max_size = 300,
+        min_size = 50, 
         duration = 5,
-        shrink_amount = 20,
-        1.179, -1.114, -21.197, 4500
+        shrink_amount = 50,
+        1.179, -1.114, -21.197, 300
     },
     
     -- Not yet Implemented --
@@ -53,8 +53,9 @@ boundry.maps = {
 -- Boundry variables:
 local bX, bY, bZ, bR
 local min_size, max_size, shrink_cycle, shrink_amount
-local start_trigger, game_in_progress = true, false
+local start_trigger, game_in_progress, game_time = true, false
 local console_paused = { }
+local game_timer = { }
 
 -- Debugging variables:
 local debug_object, delete_object = { }
@@ -99,7 +100,10 @@ function OnPlayerConnect(PlayerIndex)
             min_size, max_size = coords.min_size, coords.max_size
             bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[4]
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
-            
+            game_time = (shrink_duration * (max_size / shrink_amount))
+            game_timer.timer = { }
+            game_timer.timer = 0
+                       
             -- For Debugging (temp)
             delete_object = true
             --
@@ -147,18 +151,23 @@ function OnTick()
     for i = 1,16 do
         if player_present(i) then
             local player_object = get_dynamic_player(i)
-            
             if (player_object ~= 0) then
                 cls(i, 25)
+                
+                local time_remaining
+                if (game_timer.timer ~= nil) then
+                    game_timer.timer = game_timer.timer + 0.030
+                    local time = ( (game_time + 1) - (game_timer.timer) )
+                    time_remaining = TimeRemaining(time)
+                end
+                
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
                 if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) then
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|cINSIDE BOUNDS.")
                         rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                        for _ = 1,7 do
-                            rprint(i, " ")
-                        end
+                        rprint(i, "|cGame Time Remaining: " .. time_remaining)
                     end
                     -- 
                 else
@@ -167,9 +176,7 @@ function OnTick()
                         rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                        for _ = 1,7 do
-                            rprint(i, " ")
-                        end
+                        rprint(i, "|cGame Time Remaining: " .. time_remaining)
                     end
                     -- Camo serves as a visual indication to the player
                     -- that they are outside the boundry:
@@ -225,5 +232,18 @@ function delete()
             destroy_object(debug_object[i])
             delete_object = true
         end
+    end
+end
+
+function TimeRemaining(seconds)
+    local seconds = tonumber(seconds)
+
+    if (seconds <= 0) then
+        return "00:00";
+    else
+        hours = string.format("%02.f", math.floor(seconds/3600));
+        mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
+        secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
+        return mins..":"..secs
     end
 end
