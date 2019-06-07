@@ -23,7 +23,7 @@ local server_prefix = "**LNZ**"
 boundry.maps = {
     ["timberland"] = {
         max_size = 4500,
-        min_size = 50, 
+        min_size = 100, 
         duration = 60,
         shrink_amount = 50,
         1.179, -1.114, -21.197, 4500
@@ -54,14 +54,12 @@ boundry.maps = {
 local bX, bY, bZ, bR
 local min_size, max_size, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
-local console_paused, game_timer = { }, { }
+local time_scale = 0.030
+local console_paused = { }
 local floor, format = math.floor, string.format
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    for i = 1,16 do
-        console_paused[i] = false
-    end
 end
 
 function OnScriptUnload()
@@ -99,14 +97,9 @@ function OnPlayerConnect(PlayerIndex)
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
             game_time = (shrink_duration * (max_size / shrink_amount))
             
-            clock = os.clock()
-            
-            game_timer.timer = { }
-            game_timer.timer = 0
-            
-            -- Create new timer array:
-            boundry.timer = { }
-            boundry.timer = 0
+            game_timer = 0
+            reduction_timer = 0
+            boundry_timer = 0
                        
             -- For Debugging (temp)
             delete_object = true
@@ -134,14 +127,13 @@ end
 function boundry:inSphere(p, px, py, pz, x, y, z, r)
     local coords = ( (px - x) ^ 2 + (py - y) ^ 2 + (pz - z) ^ 2)
     if (coords < r) then
+        console_paused[p] = false
         return true
-    elseif (coords >= r + 1) then
+    elseif (coords >= r + 1) and (coords < max_size) then
+        console_paused[p] = false
         return false
-    elseif (coords > max_size) then
+    elseif (coords > max_size) and not (console_paused[p]) then
         console_paused[p] = true
-        rprint(p, "|c--------- WARNING ---------")
-        rprint(p, "|cYOU ARE LEAVING THE COMBAT AREA!")
-        rprint(p, "|cRETURN NOW OR YOU WILL BE SHOT!")
         return false
     end
 end
@@ -153,48 +145,51 @@ function OnTick()
             if (player_object ~= 0) then
                 cls(i, 25)
                 
-                local countdown = floor(os.clock())
-                
                 local time_remaining, until_next_shrink
                 
-                if (game_timer.timer ~= nil) then
-                    local time = ( (game_time + 1) - (countdown) )
+                if (game_timer ~= nil) then
+                    game_timer = game_timer + time_scale
+                    local time = ( (game_time + time_scale) - (game_timer) )
                     local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
-                    time_remaining = (mins..":"..secs)
-                end
-                
-                if (clock ~= nil) then
-                    if (boundry.timer ~= nil) then
-                        local time = ( (shrink_duration + 1) - (countdown) )
-                        if (time == 0) then
-                            time = (shrink_duration + 1)
+                    time_remaining = (mins..":"..secs)                    
+                    if (reduction_timer ~= nil) then
+                        reduction_timer = reduction_timer + time_scale
+                        local time = ( (shrink_duration + time_scale) - (reduction_timer) )
+                        if (time <= 0) then
+                            reduction_timer = 0
                         end
                         local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
                         until_next_shrink = (mins..":"..secs)
                     end
                 end
                 
+                
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
                 if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) then
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                        rprint(i, "|cINSIDE BOUNDS.")
+                        rprint(i, "|c-- INSIDE BOUNDS --")
                         rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
                         
-                        if (boundry.timer ~= nil) then
-                            shrink_time_msg = " | Time Until Next Shrink: " .. until_next_shrink
+                        if (boundry_timer ~= nil) then
+                            shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
                         else
                             shrink_time_msg = ""
                         end
+                        
                         rprint(i, "|cGame Time Remaining: " .. time_remaining .. shrink_time_msg)
                     end
                     -- 
                 else
                     if not (console_paused[i]) then
                         rprint(i, "|cWARNING:")
-                        rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
+                        rprint(i, "|cYOU ARE OUTSIDE THE CIRCLE!")
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
+                    else
+                        rprint(i, "|c--------- WARNING ---------")
+                        rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
+                        rprint(i, "|cRETURN NOW OR YOU WILL BE SHOT!")
                     end
                     -- Camo serves as a visual indication to the player
                     -- that they are outside the boundry:
@@ -202,16 +197,16 @@ function OnTick()
                 end
             end
             
-            if (boundry.timer ~= nil) then
-                boundry.timer = boundry.timer + 0.030
-                if ( boundry.timer >= (shrink_duration) ) then
+            if (boundry_timer ~= nil) then
+                boundry_timer = boundry_timer + time_scale
+                if ( boundry_timer >= (shrink_duration) ) then
                     if (bR > min_size and bR <= max_size) then
-                        boundry.timer = 0
+                        boundry_timer = 0
                         boundry:shrink()
-                        Say(i, "BOUNDRY SHRUNK: " .. shrink_amount .. "/" .. bR .. " - MIN: " .. min_size, 4+8)
+                        Say(i, "[ BOUNDRY REDUCTION ] Zone Size: " .. bR, 4+8)
                     elseif (bR <= min_size) then
-                        boundry.timer = nil
-                        Say(i, "THE PLAYABLE BOUNDRY IS NOW AT A MINIMUM SIZE OF " .. min_size, 4+8)
+                        boundry_timer = nil
+                        Say(i, "BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE", 4+8)
                     end
                 end
             end
