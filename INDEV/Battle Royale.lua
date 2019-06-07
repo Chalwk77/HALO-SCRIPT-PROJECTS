@@ -17,49 +17,101 @@ api_version = "1.12.0.0"
 local boundry = { }
 
 -- ==== Battle Royale Configuration [starts] ==== --
+
+-- Players needed to start the game:
 local players_needed = 1
--- If players are out of bounds for this amount of time, the script will auto-the player.
+
+-- Players will be auto-killed if Out Of Bounds for this mans seconds:
 local time_until_kill = 5
+
+-- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
+-- The prefix will be restored to 'server_prefix' when the relay has finished.
 local server_prefix = "**LNZ**"
 
 boundry.maps = {
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
+    
     ["timberland"] = {
-        -- End game this many minutes after the Boundry reduced to a size of 'min_size'
+        -- Boundry: x,y,z, Min Size, Max Size:
+        1.179, -1.114, -21.197, 50, 4500,
+        -- End game this many minutes after the Boundry reduced to a size of 'Min Size'
         extra_time = 2,
-        -- How often does the Boundry reduce in size:
+        -- How often does the Boundry reduce in size (in seconds):
         duration = 60,
         -- How many world units does the Boundry reduce in size:
         shrink_amount = 50,
-        -- Boundry: x,y,z, Min Size, Max Size:
-        1.179, -1.114, -21.197, 50, 4500
     },
         
     ["sidewinder"] = {
+        1.680, 31.881, -3.922, 150, 5500,
         extra_time = 2, duration = 60, shrink_amount = 50,
-        1.680, 31.881, -3.922, 150, 5500
     },
     ["ratrace"] = {
+        8.340, -10.787, 0.222, 40, 415,
         extra_time = 2, duration = 60, shrink_amount = 30,
-        8.340, -10.787, 0.222, 40, 415
     },
     
     -- Not yet Implemented --
-    ["bloodgulch"] = { nil },
-    ["beavercreek"] = { nil },
-    ["boardingaction"] = { nil },
-    ["carousel"] = { nil },
-    ["dangercanyon"] = { nil },
-    ["deathisland"] = { nil },
-    ["gephyrophobia"] = { nil },
-    ["icefields"] = { nil },
-    ["infinity"] = { nil },
-    ["hangemhigh"] = { nil },
-    ["damnation"] = { nil },
-    ["putput"] = { nil },
-    ["prisoner"] = { nil },
-    ["wizard"] = { nil },
-    ["longest"] = { nil },
+    ["bloodgulch"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["beavercreek"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["boardingaction"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["carousel"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["dangercanyon"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["deathisland"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["gephyrophobia"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["icefields"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["infinity"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["hangemhigh"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["damnation"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["putput"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["prisoner"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["wizard"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
+    ["longest"] = {
+        0000, 0000, 0000, 0, 0,
+        extra_time = 0, duration = 0, shrink_amount = 0,
+    },
 }
 -- ==== Battle Royale Configuration [ends] ==== --
 
@@ -230,7 +282,7 @@ function OnTick()
                 if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) and (monitor_coords) then
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                        rprint(i, "|c-- INSIDE BOUNDS --")
+                        rprint(i, "|c-- INSIDE SAFE ZONE --")
                         rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
                         
                         if (boundry_timer ~= nil) then
@@ -306,17 +358,39 @@ function GameOver()
         for i = 1,16 do
             if player_present(i) then
                 local score, kills = get_var(i, "$score"), get_var(i, "$kills")
-                
             end
         end
     else
+    
         game_timer = nil
         boundry_timer = nil
         monitor_coords = nil
         cls(i, 25)
         
-        -- TO DO:
-        -- Finish this ...
+        for i = 1,16 do
+            if player_present(i) then
+                local score = get_var(i, '$score')
+                if (score > 0) then
+                    scores[#scores + 1] = score
+                end
+            end
+        end
+        if (#scores >= 1) then
+            table.sort(scores)
+            local highest_score = tonumber(scores[#scores])
+            for i = 1,16 do
+                if player_present(i) then
+                    local score = get_var(i, "$score")
+                    if (score == highest_score) then
+                        
+                        
+                    end
+                end
+            end
+        else
+            -- calculate who has the best KDR
+        end
+
     end
 end
 
