@@ -25,29 +25,25 @@ local server_prefix = "**LNZ**"
 boundry.maps = {
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
     ["timberland"] = {
-        -- Maximum Boundry size:
-        max_size = 4500,
-        -- Final minimum size:
-        min_size = 100, 
         -- End game this many minutes after the Boundry reduced to a size of 'min_size'
         extra_time = 2,
         -- How often does the Boundry reduce in size:
         duration = 60,
         -- How many world units does the Boundry reduce in size:
-        shrink_amount = 50,
-        -- Boundry x,y,z, boundry radius:
-        -- Note: Radius must be the same as 'max_size' 
-        1.179, -1.114, -21.197, 4500
+        shrink_amount = 500,
+        -- Boundry: x,y,z, Min Size, Max Size:
+        1.179, -1.114, -21.197, 100, 4500
     },
         
     ["sidewinder"] = {
-        max_size = 5500, min_size = 150, extra_time = 2, duration = 60, shrink_amount = 50,
-        1.680, 31.881, -3.922, 5500
+        extra_time = 2, duration = 60, shrink_amount = 50,
+        1.680, 31.881, -3.922, 150, 5500
     },
     ["ratrace"] = {
-        max_size = 415, min_size = 40, extra_time = 2, duration = 60, shrink_amount = 30,
-        8.340, -10.787, 0.222, 415
+        extra_time = 2, duration = 60, shrink_amount = 30,
+        8.340, -10.787, 0.222, 40, 415
     },
+    
     -- Not yet Implemented --
     ["bloodgulch"] = { nil },
     ["beavercreek"] = { nil },
@@ -127,8 +123,8 @@ function OnPlayerConnect(PlayerIndex)
         local mapname = get_var(0, "$map")
         local coords = boundry.maps[mapname]
         if (coords ~= nil) then        
-            min_size, max_size = coords.min_size, coords.max_size
-            bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[4]
+            min_size, max_size = coords[4], coords[5]
+            bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
             extra_time = coords.extra_time
             game_time = (shrink_duration * (max_size / shrink_amount))
@@ -266,7 +262,7 @@ function OnTick()
                     if (bR > min_size and bR <= max_size) then
                         boundry_timer = 0
                         boundry:shrink()
-                        Say(i, "[ BOUNDRY REDUCTION ] Zone Size Decreased: " .. bR, 4+8)
+                        Say(i, "[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 4+8)
                     elseif (bR <= min_size) then
                         boundry_timer = nil
                         Say(i, "BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4+8)
