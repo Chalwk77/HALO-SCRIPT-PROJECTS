@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Battle Royal (beta v1.0), for SAPP (PC & CE)
+Script Name: Battle Royale (beta v1.0), for SAPP (PC & CE)
 Description: N/A
 
 [!] NOT READY FOR DOWNLOAD
@@ -16,17 +16,17 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 local boundry = { }
 
--- ==== Battle Royal Configuration [starts] ==== --
+-- ==== Battle Royale Configuration [starts] ==== --
 local players_needed = 1
 local server_prefix = "**LNZ**"
 
 boundry.maps = {
     ["timberland"] = {
-        max_size = 300,
+        max_size = 4500,
         min_size = 50, 
-        duration = 5,
+        duration = 60,
         shrink_amount = 50,
-        1.179, -1.114, -21.197, 300
+        1.179, -1.114, -21.197, 4500
     },
     
     -- Not yet Implemented --
@@ -48,17 +48,14 @@ boundry.maps = {
     ["wizard"] = { nil },
     ["longest"] = { nil },
 }
--- ==== Battle Royal Configuration [ends] ==== --
+-- ==== Battle Royale Configuration [ends] ==== --
 
 -- Boundry variables:
 local bX, bY, bZ, bR
 local min_size, max_size, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
-local console_paused = { }
-local game_timer = { }
-
--- Debugging variables:
-local debug_object, delete_object = { }
+local console_paused, game_timer = { }, { }
+local floor, format = math.floor, string.format
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -101,19 +98,21 @@ function OnPlayerConnect(PlayerIndex)
             bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[4]
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
             game_time = (shrink_duration * (max_size / shrink_amount))
+            
+            clock = os.clock()
+            
             game_timer.timer = { }
             game_timer.timer = 0
+            
+            -- Create new timer array:
+            boundry.timer = { }
+            boundry.timer = 0
                        
             -- For Debugging (temp)
             delete_object = true
             --
             
             setup_params(p)
-            
-            -- Create new timer array:
-            boundry.timer = { }
-            boundry.timer = 0
-            boundry.init_timer = true
             
             -- Register a hook into SAPP's tick event.
             register_callback(cb["EVENT_TICK"], "OnTick")
@@ -154,11 +153,25 @@ function OnTick()
             if (player_object ~= 0) then
                 cls(i, 25)
                 
-                local time_remaining
+                local countdown = floor(os.clock())
+                
+                local time_remaining, until_next_shrink
+                
                 if (game_timer.timer ~= nil) then
-                    game_timer.timer = game_timer.timer + 0.030
-                    local time = ( (game_time + 1) - (game_timer.timer) )
-                    time_remaining = TimeRemaining(time)
+                    local time = ( (game_time + 1) - (countdown) )
+                    local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
+                    time_remaining = (mins..":"..secs)
+                end
+                
+                if (clock ~= nil) then
+                    if (boundry.timer ~= nil) then
+                        local time = ( (shrink_duration + 1) - (countdown) )
+                        if (time == 0) then
+                            time = (shrink_duration + 1)
+                        end
+                        local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
+                        until_next_shrink = (mins..":"..secs)
+                    end
                 end
                 
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
@@ -166,8 +179,14 @@ function OnTick()
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|cINSIDE BOUNDS.")
-                        rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                        rprint(i, "|cGame Time Remaining: " .. time_remaining)
+                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
+                        
+                        if (boundry.timer ~= nil) then
+                            shrink_time_msg = " | Time Until Next Shrink: " .. until_next_shrink
+                        else
+                            shrink_time_msg = ""
+                        end
+                        rprint(i, "|cGame Time Remaining: " .. time_remaining .. shrink_time_msg)
                     end
                     -- 
                 else
@@ -175,8 +194,7 @@ function OnTick()
                         rprint(i, "|cWARNING:")
                         rprint(i, "|cYOU ARE OUTSIDE THE BOUNDS!")
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                        rprint(i, "|cUNITS FROM CENTER: " .. math.floor(rUnits) .. "/" .. bR)
-                        rprint(i, "|cGame Time Remaining: " .. time_remaining)
+                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
                     end
                     -- Camo serves as a visual indication to the player
                     -- that they are outside the boundry:
@@ -184,30 +202,16 @@ function OnTick()
                 end
             end
             
-            if (boundry.timer ~= nil) and (boundry.init_timer) then
+            if (boundry.timer ~= nil) then
                 boundry.timer = boundry.timer + 0.030
-                
-                if (delete_object) then
-                    delete_object = false
-                    local debug_obj = spawn_object("eqip", "powerups\\active camouflage", bX, bY, bZ + 0.5)
-                    debug_object[#debug_object + 1] = debug_obj
-                    timer(1500, "delete")    
-                end                
-                
                 if ( boundry.timer >= (shrink_duration) ) then
                     if (bR > min_size and bR <= max_size) then
                         boundry.timer = 0
                         boundry:shrink()
                         Say(i, "BOUNDRY SHRUNK: " .. shrink_amount .. "/" .. bR .. " - MIN: " .. min_size, 4+8)
                     elseif (bR <= min_size) then
-                        boundry.init_timer = false
-                        boundry.timer = 0
-                        
-                        -- TO DO:
-                        -- ...
-                        
-                        -- DEBUGGING:
-                        Say(i, "THE PLAYABLE BOUNDRY IS NOW AT A MINIMUM SIZE OF " .. min_size .. " (actual: " .. bR .. ")", 4+8)
+                        boundry.timer = nil
+                        Say(i, "THE PLAYABLE BOUNDRY IS NOW AT A MINIMUM SIZE OF " .. min_size, 4+8)
                     end
                 end
             end
@@ -224,26 +228,14 @@ function cls(PlayerIndex, count)
     end
 end
 
--- DEBUGGING:
-function delete()
-    for i = 1,#debug_object do
-        local object = get_object_memory(debug_object[i])
-        if (object ~= nil and object ~= 0) then
-            destroy_object(debug_object[i])
-            delete_object = true
-        end
-    end
-end
-
-function TimeRemaining(seconds)
+function secondsToTime(seconds)
     local seconds = tonumber(seconds)
-
     if (seconds <= 0) then
-        return "00:00";
+        return "00", "00";
     else
-        hours = string.format("%02.f", math.floor(seconds/3600));
-        mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
-        secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
-        return mins..":"..secs
+        hours = format("%02.f", floor(seconds/3600));
+        mins = format("%02.f", floor(seconds/60 - (hours*60)));
+        secs = format("%02.f", floor(seconds - hours*3600 - mins *60));
+        return mins, secs
     end
 end
