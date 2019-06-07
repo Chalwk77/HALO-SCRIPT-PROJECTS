@@ -28,11 +28,11 @@ boundry.maps = {
         -- End game this many minutes after the Boundry reduced to a size of 'min_size'
         extra_time = 2,
         -- How often does the Boundry reduce in size:
-        duration = 5,
+        duration = 60,
         -- How many world units does the Boundry reduce in size:
-        shrink_amount = 500,
+        shrink_amount = 50,
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.179, -1.114, -21.197, 50, 2000
+        1.179, -1.114, -21.197, 50, 4500
     },
         
     ["sidewinder"] = {
@@ -68,9 +68,10 @@ local bX, bY, bZ, bR
 local min_size, max_size, extra_time, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
 local monitor_coords
-local time_scale = 0.030
+local time_scale = 0.400
 local console_paused = { }
 local out_of_bounds = { }
+local last_man_standing = { }
 
 local floor, format = math.floor, string.format
 local globals = nil
@@ -78,6 +79,8 @@ local red_flag, blue_flag
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
@@ -92,6 +95,7 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
+    last_man_standing.count = 0
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
@@ -119,6 +123,8 @@ function OnPlayerConnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
     
     local enough_players = (player_count() >= players_needed)
+    
+    last_man_standing.count = last_man_standing.count + 1
     
     local function setup_params(p)
         console_paused[p] = false
@@ -158,6 +164,11 @@ function OnPlayerConnect(PlayerIndex)
     elseif (game_in_progress and enough_players) then
         setup_params(p)
     end
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    local p = tonumber(PlayerIndex)
+    last_man_standing.count = last_man_standing.count - 1
 end
 
 function boundry:shrink()
@@ -232,15 +243,17 @@ function OnTick()
                         if (time_remaining >= extra_time) then
                             send_timestamp = true
                             header = "Game Time Remaining: " .. time_stamp
-                        elseif (time_remaining <= extra_time) then
+                        elseif (time_remaining <= extra_time) and (time_remaining > 0) then
                             send_timestamp = true
                             header = "FINAL: " .. time_stamp
-                        elseif (time_remaining < extra_time) then
+                        elseif (time_remaining <= 0) then
                             send_timestamp = false
                             game_timer = nil
+                            monitor_coords = false
+                            GameOver()
                         end
                         
-                        if (send_timestamp) then
+                        if (send_timestamp) and (monitor_coords) then
                             out_of_bounds[i].timer = 0
                             rprint(i, "|c" .. header .. shrink_time_msg)
                         end
@@ -282,6 +295,41 @@ function OnTick()
                     end
                 end
             end
+        end
+    end
+end
+
+function GameOver()
+    -- Time ran out. Calculate best score.
+    local scores = { }
+    if (game_timer == nil) then
+        for i = 1,16 do
+            if player_present(i) then
+                local score, kills = get_var(i, "$score"), get_var(i, "$kills")
+                
+            end
+        end
+    else
+        game_timer = nil
+        boundry_timer = nil
+        monitor_coords = nil
+        cls(i, 25)
+        
+        -- TO DO:
+        -- Finish this ...
+    end
+end
+
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+    local victim = tonumber(PlayerIndex)
+    local killer = tonumber(KillerIndex)
+    if (killer > 0) then
+        
+        last_man_standing.count = last_man_standing.count - 1
+        if (last_man_standing.count > 0) then
+            SayAll(last_man_standing.count .. " players remaining!")
+        elseif (last_man_standing.count < 0) then
+            GameOver()
         end
     end
 end
