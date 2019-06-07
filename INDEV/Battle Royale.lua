@@ -28,11 +28,11 @@ boundry.maps = {
         -- End game this many minutes after the Boundry reduced to a size of 'min_size'
         extra_time = 2,
         -- How often does the Boundry reduce in size:
-        duration = 60,
+        duration = 5,
         -- How many world units does the Boundry reduce in size:
         shrink_amount = 500,
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.179, -1.114, -21.197, 100, 4500
+        1.179, -1.114, -21.197, 50, 2000
     },
         
     ["sidewinder"] = {
@@ -67,6 +67,7 @@ boundry.maps = {
 local bX, bY, bZ, bR
 local min_size, max_size, extra_time, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
+local monitor_coords
 local time_scale = 0.030
 local console_paused = { }
 local out_of_bounds = { }
@@ -102,6 +103,14 @@ local Say = function(Player, Message)
     end
 end
 
+local SayAll = function(Message)
+    if (Message) then
+        execute_command("msg_prefix \"\"")
+        say_all(Message)
+        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+    end
+end
+
 local player_count = function()
     return tonumber(get_var(0, "$pn"))
 end
@@ -126,9 +135,11 @@ function OnPlayerConnect(PlayerIndex)
             min_size, max_size = coords[4], coords[5]
             bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
-            extra_time = coords.extra_time
-            game_time = (shrink_duration * (max_size / shrink_amount))
+            extra_time = (coords.extra_time * 60)
             
+            game_time = (shrink_duration * (max_size / shrink_amount))
+            game_time = (game_time + extra_time)
+                        
             game_timer = 0
             reduction_timer = 0
             boundry_timer = 0
@@ -138,6 +149,8 @@ function OnPlayerConnect(PlayerIndex)
             --
             
             setup_params(p)
+            
+            monitor_coords = true
             
             -- Register a hook into SAPP's tick event.
             register_callback(cb["EVENT_TICK"], "OnTick")
@@ -152,6 +165,10 @@ function boundry:shrink()
         bR = (bR - shrink_amount)
         if (bR < min_size) then
             bR = min_size
+            boundry_timer = nil
+            SayAll("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4+8)
+        else
+            SayAll("[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 4+8)
         end
     end
 end
@@ -185,7 +202,7 @@ function OnTick()
                     game_timer = game_timer + time_scale
                     local time = ( (game_time + time_scale) - (game_timer) )
                     time_remaining = time
-                    local mins, secs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
+                    local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
                     time_stamp = (mins..":"..secs)
                     if (reduction_timer ~= nil) then
                         reduction_timer = reduction_timer + time_scale
@@ -199,7 +216,7 @@ function OnTick()
                 end
                 
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
-                if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) then
+                if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) and (monitor_coords) then
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|c-- INSIDE BOUNDS --")
@@ -212,12 +229,12 @@ function OnTick()
                         end
                         
                         local header, send_timestamp = ""
-                        if (time_remaining <= extra_time) then
-                            send_timestamp = true
-                            header = "FINAL: " .. time_stamp
-                        elseif (time_remaining >= extra_time) then
+                        if (time_remaining >= extra_time) then
                             send_timestamp = true
                             header = "Game Time Remaining: " .. time_stamp
+                        elseif (time_remaining <= extra_time) then
+                            send_timestamp = true
+                            header = "FINAL: " .. time_stamp
                         elseif (time_remaining < extra_time) then
                             send_timestamp = false
                             game_timer = nil
@@ -229,7 +246,7 @@ function OnTick()
                         end
                     end
                     -- 
-                else
+                elseif (monitor_coords) then
                     if not (console_paused[i]) then
                         rprint(i, "|cWARNING:")
                         rprint(i, "|cYOU ARE OUTSIDE THE BOUNDRY!")
@@ -262,10 +279,6 @@ function OnTick()
                     if (bR > min_size and bR <= max_size) then
                         boundry_timer = 0
                         boundry:shrink()
-                        Say(i, "[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 4+8)
-                    elseif (bR <= min_size) then
-                        boundry_timer = nil
-                        Say(i, "BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4+8)
                     end
                 end
             end
@@ -282,7 +295,7 @@ function cls(PlayerIndex, count)
     end
 end
 
-function secondsToTime(seconds, ExtraTime)
+function secondsToTime(seconds)
     local seconds = tonumber(seconds)
     if (seconds <= 0) then
         return "00", "00";
@@ -290,9 +303,6 @@ function secondsToTime(seconds, ExtraTime)
         hours = format("%02.f", floor(seconds/3600));
         mins = format("%02.f", floor(seconds/60 - (hours*60)));
         secs = format("%02.f", floor(seconds - hours*3600 - mins *60));
-        if (ExtraTime) then
-            mins = (mins + extra_time)
-        end
         return mins, secs
     end
 end
