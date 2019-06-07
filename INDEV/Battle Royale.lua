@@ -21,11 +21,22 @@ local players_needed = 1
 local server_prefix = "**LNZ**"
 
 boundry.maps = {
+
+    -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
+
     ["timberland"] = {
+        -- Maximum Boundry size:
         max_size = 4500,
+        -- Final minimum size:
         min_size = 100, 
+        -- End game this many minutes after the Boundry reduced to a size of 'min_size'
+        extra_time = 2,
+        -- How often does the Boundry reduce in size:
         duration = 60,
+        -- How many world units does the Boundry reduce in size:
         shrink_amount = 50,
+        -- Boundry x,y,z, boundry radius:
+        -- Note: Radius must be the same as 'max_size' 
         1.179, -1.114, -21.197, 4500
     },
     
@@ -52,7 +63,7 @@ boundry.maps = {
 
 -- Boundry variables:
 local bX, bY, bZ, bR
-local min_size, max_size, shrink_cycle, shrink_amount
+local min_size, max_size, extra_time, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
 local time_scale = 0.030
 local console_paused = { }
@@ -95,6 +106,7 @@ function OnPlayerConnect(PlayerIndex)
             min_size, max_size = coords.min_size, coords.max_size
             bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[4]
             shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
+            extra_time = coords.extra_time
             game_time = (shrink_duration * (max_size / shrink_amount))
             
             game_timer = 0
@@ -145,13 +157,15 @@ function OnTick()
             if (player_object ~= 0) then
                 cls(i, 25)
                 
-                local time_remaining, until_next_shrink
+                local time_stamp, until_next_shrink
+                local time_remaining 
                 
                 if (game_timer ~= nil) then
                     game_timer = game_timer + time_scale
                     local time = ( (game_time + time_scale) - (game_timer) )
-                    local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
-                    time_remaining = (mins..":"..secs)                    
+                    time_remaining = time
+                    local mins, secs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
+                    time_stamp = (mins..":"..secs)
                     if (reduction_timer ~= nil) then
                         reduction_timer = reduction_timer + time_scale
                         local time = ( (shrink_duration + time_scale) - (reduction_timer) )
@@ -162,7 +176,6 @@ function OnTick()
                         until_next_shrink = (mins..":"..secs)
                     end
                 end
-                
                 
                 local px,py,pz = read_vector3d(player_object + 0x5c) 
                 if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) then
@@ -177,7 +190,21 @@ function OnTick()
                             shrink_time_msg = ""
                         end
                         
-                        rprint(i, "|cGame Time Remaining: " .. time_remaining .. shrink_time_msg)
+                        local header, send_timestamp = ""
+                        if (time_remaining <= extra_time) then
+                            send_timestamp = true
+                            header = "FINAL: " .. time_stamp
+                        elseif (time_remaining >= extra_time) then
+                            send_timestamp = true
+                            header = "Game Time Remaining: " .. time_stamp
+                        elseif (time_remaining < extra_time) then
+                            send_timestamp = false
+                            game_timer = nil
+                        end
+                        
+                        if (send_timestamp) then
+                            rprint(i, "|c" .. header .. shrink_time_msg)
+                        end
                     end
                     -- 
                 else
@@ -198,7 +225,7 @@ function OnTick()
             end
             
             if (boundry_timer ~= nil) then
-                boundry_timer = boundry_timer + time_scale
+                boundry_timer = boundry_timer + time_scale                
                 if ( boundry_timer >= (shrink_duration) ) then
                     if (bR > min_size and bR <= max_size) then
                         boundry_timer = 0
@@ -223,7 +250,7 @@ function cls(PlayerIndex, count)
     end
 end
 
-function secondsToTime(seconds)
+function secondsToTime(seconds, ExtraTime)
     local seconds = tonumber(seconds)
     if (seconds <= 0) then
         return "00", "00";
@@ -231,6 +258,9 @@ function secondsToTime(seconds)
         hours = format("%02.f", floor(seconds/3600));
         mins = format("%02.f", floor(seconds/60 - (hours*60)));
         secs = format("%02.f", floor(seconds - hours*3600 - mins *60));
+        if (ExtraTime) then
+            mins = (mins + extra_time)
+        end
         return mins, secs
     end
 end
