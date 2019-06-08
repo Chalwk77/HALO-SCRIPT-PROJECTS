@@ -185,14 +185,16 @@ local function init_params(reset)
             last_man_standing.count = 0
             last_man_standing.player = nil
             start_trigger = true
-            unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb['EVENT_DIE'])
+            unregister_callback(cb['EVENT_TICK'])
+            unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
         else
             startTimer()
             
             -- Register a hook into SAPP's tick event.
             register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
         end
     end
 end
@@ -201,6 +203,10 @@ function OnGameStart()
     last_man_standing.count = 0
     last_man_standing.player = nil
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
+end
+
+function OnGameEnd()
+    init_params(true)
 end
 
 local Say = function(Player, Message)
