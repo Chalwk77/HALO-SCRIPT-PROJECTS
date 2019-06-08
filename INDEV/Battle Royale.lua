@@ -25,7 +25,7 @@ local players_needed = 2
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 60
+local gamestart_delay = 5
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -129,6 +129,7 @@ local out_of_bounds = { }
 local last_man_standing = { }
 
 local gamestart_countdown, init_countdown
+local init_victory_timer, victory_timer = false, 0
 
 local floor, format = math.floor, string.format
 local gmatch, sub = string.gmatch, string.sub
@@ -149,6 +150,21 @@ end
 
 function OnScriptUnload()
     --
+end
+
+local function set(reset_scores)
+    for i = 1, 16 do
+        if player_present(i) then
+            paused[i] = paused[i] or { }
+            paused[i].start, paused[i].timer = false, 0
+            if (reset_scores) then
+                execute_command("score " .. i .. " 0")
+                execute_command("kills " .. i .. " 0")
+                execute_command("assists " .. i .. " 0")
+                execute_command("deaths " .. i .. " 0")
+            end
+        end
+    end
 end
 
 -- Initialize start up parameters:
@@ -182,21 +198,6 @@ local function init_params(reset)
         
         monitor_coords = true
         
-        local function set(reset_scores)
-            for i = 1, 16 do
-                if player_present(i) then
-                    paused[i] = paused[i] or { }
-                    paused[i].start, paused[i].timer = false, 0
-                    if (reset_scores) then
-                        execute_command("score " .. i .. " 0")
-                        execute_command("kills " .. i .. " 0")
-                        execute_command("assists " .. i .. " 0")
-                        execute_command("deaths " .. i .. " 0")
-                    end
-                end
-            end
-        end
-        
         if (reset) then
             set(false)
             stopTimer()
@@ -224,10 +225,11 @@ function OnGameStart()
     last_man_standing.count = 0
     last_man_standing.player = nil
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
+    game_over = false
 end
 
 function OnGameEnd()
-    init_params(true)
+    game_over = true
 end
 
 local Say = function(Player, Message)
@@ -348,8 +350,7 @@ end
 function OnTick()
     if (init_countdown) then
         GameStartCountdown()
-    elseif not (init_countdown) then
-    
+    elseif not (init_countdown) and not (init_victory_timer) then
         local time_stamp, until_next_shrink
         local time_remaining 
         
@@ -458,6 +459,28 @@ function OnTick()
                 end
             end
         end
+    elseif (init_victory_timer) then
+        victory_timer = victory_timer + time_scale
+        if (victory_timer < 5) then
+            for i = 1,16 do
+                if player_present(i) then
+                    local last_man = last_man_standing.player
+                    cls(i, 25)
+                    if tonumber(i) == last_man then
+                        rprint(i, "|c ----- V I C T O R Y -----")
+                        rprint(i, "|cY O U   W O N   T H E   G A M E!")
+                    else
+                        rprint(i, "|cBetter Luck Next Time!")                    
+                        rprint(i, "|c________________________________________")
+                        rprint(i, "|c" .. get_var(last_man, "$name") .. " won the game!")                        
+                    end
+                    for _ = 1,7 do rprint(i, " ") end
+                end
+            end
+        else
+            init_params(true)
+            init_victory_timer, victory_timer = false, 0
+        end
     end
 end
 
@@ -481,7 +504,18 @@ function getKDR(p)
 end
 
 function GameOver()
-    local scores, winner = { }, ""
+    local scores = { }
+    
+    local function end_game()
+        init_victory_timer = true
+        victory_timer = victory_timer or 0
+        execute_command('sv_map_next')
+    end
+    
+    game_timer = nil
+    boundry_timer = nil
+    monitor_coords = nil
+    cls(0, 25, true, "rcon")
     
     -- Time ran out - Calculate best score:
     if (game_timer == nil) then
@@ -502,7 +536,7 @@ function GameOver()
                 if player_present(i) then
                     local kdr = getKDR(i)
                     if (kdr == highest_score) then
-                        winner = get_var(i, "$name")
+                        last_man_standing.player = tonumber(i)
                     end
                 end
             end
@@ -515,36 +549,28 @@ function GameOver()
             local count = 0
             for i = 1,16 do
                 if player_present(i) then
-                    
                     local score = tonumber(get_var(i, '$score'))
                     if (score == highest_score) then
-                    
-                        winner = get_var(i, "$name")
+                        last_man_standing.player = tonumber(i)
                         count = count + 1
                     end
                 end
             end
             -- Only one player has the highest score (no duplicate scores)
             if (count == 1) then
-                SayAll(winner .. " won the game!")
+                end_game()
             -- More than one player have the same score. Calcuate who has the best KDR instead:
             elseif (count > 1) then
                 bestKDR()
-                SayAll(winner .. " won the game!")
+                end_game()
             end
         else
             -- No players have any score points. Calcuate who has the best KDR instead:
             bestKDR()
-            SayAll(winner .. " won the game!")
+            end_game()
         end
     else
-        game_timer = nil
-        boundry_timer = nil
-        monitor_coords = nil
-        cls(0, 25, true, "rcon")
-        local id = last_man_standing.player
-        local victor_name = get_var(id, "$name")
-        SayAll(victor_name .. " won the game")
+        end_game()
     end
 end
 
@@ -552,7 +578,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     if (killer > 0) then
-        
+    
         last_man_standing.count = last_man_standing.count - 1
         
         -- More than 1 player remaining:
@@ -560,7 +586,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SayAll(last_man_standing.count .. " players remaining!")
             
         -- Killer is the Victor. End the Game.
-        elseif (last_man_standing.count < 0) then
+        elseif (last_man_standing.count <= 1) then
             last_man_standing.player = killer
             GameOver()
         end
@@ -681,8 +707,9 @@ function GameStartCountdown()
     gamestart_countdown = gamestart_countdown + 0.030
     local seconds = select(2, secondsToTime(gamestart_countdown))
     local time_remaining = gamestart_delay - math.floor(seconds)
-    if (time_remaining <= 1) then
+    if (time_remaining < 1) then
         stopTimer()
+        set(true)
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
         register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     elseif (init_countdown) then
@@ -692,8 +719,13 @@ function GameStartCountdown()
                 if (not paused[i].start) then
                     cls(i, 25)
                     local char = getChar(time_remaining)
+                    rprint(i, "|c________________________________________________________________", 4+8)
+                    rprint(i, "|cA", 4+8)
+                    rprint(i, "|cBATTLE ROYALE MOD", 4+8)
+                    rprint(i, "|cBeta (v1.0)", 4+8)
+                    rprint(i, "|cCreated by Chalwk", 4+8)
                     rprint(i, "|cGame will begin in " .. time_remaining .. " second" .. char, 4+8)
-                    for _ = 1,7 do rprint(i, " ") end
+                    rprint(i, "|c________________________________________________________________", 4+8)
                 end
             end
         end
