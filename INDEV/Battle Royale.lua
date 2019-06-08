@@ -21,7 +21,7 @@ local boundry = { }
 -- Players needed to start the game:
 local players_needed = 1
 
--- Players will be auto-killed if Out Of Bounds for this mans seconds:
+-- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
