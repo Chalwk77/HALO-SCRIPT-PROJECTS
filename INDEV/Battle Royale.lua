@@ -163,7 +163,7 @@ local function init_params(reset)
         -- Init Boundry coordinates and Radius
         bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
         
-        -- Declare boundry reductin rate and reduction size
+        -- Declare boundry reduction rate/size
         shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
         
         -- Extra time allocated when the boundry reaches its smallest possible size:
