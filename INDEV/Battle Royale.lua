@@ -196,6 +196,7 @@ local function init_params(reset)
         reduction_timer = 0
         boundry_timer = 0
         
+        -- Init boundry checker:
         monitor_coords = true
         
         if (reset) then
