@@ -37,7 +37,7 @@ boundry.maps = {
     ["timberland"] = {
         -- Boundry: x,y,z, Min Size, Max Size:
         1.179, -1.114, -21.197, 100, 4500,
-        -- End game this many minutes after the Boundry reduced to a size of 'Min Size'
+        -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
         extra_time = 2,
         -- How often does the Boundry reduce in size (in seconds):
         duration = 60,
