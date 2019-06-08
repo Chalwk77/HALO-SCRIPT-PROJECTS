@@ -19,7 +19,7 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 1
+local players_needed = 2
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
@@ -320,7 +320,6 @@ function OnPlayerDisconnect(PlayerIndex)
                 last_man_standing.player = tonumber(i)
             end
         end
-        GameOver()
     end
 end
 
@@ -363,13 +362,9 @@ local function reduceHealth(p, bool)
             if (current_health <= 0) then
                 killSilently(p)
                 spectator[p].enabled = true
-                last_man_standing.count = last_man_standing.count - 1
-                if (last_man_standing.count <= 1) then
-                    GameOver()
-                else                    
-                    local name = get_var(p, "$name")
-                    SayAll(name .. " has perished! " .. last_man_standing.count .. " players remain.")
-                end
+                last_man_standing.count = last_man_standing.count - 1                 
+                local name = get_var(p, "$name")
+                SayAll(name .. " has perished! " .. last_man_standing.count .. " players remain.")
             end
         end
     else
@@ -466,10 +461,19 @@ local function DispayHUD(params)
     end
 end
 
+function endGameCheck()
+    if (last_man_standing.count <= 1) then
+        GameOver()
+    end
+end
+
 function OnTick()
     if (init_countdown) then
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
+
+        endGameCheck()
+
         local time_stamp, until_next_shrink
         local time_remaining 
         
@@ -724,7 +728,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Killer is the Victor. End the Game.
         elseif (last_man_standing.count <= 1) then
             last_man_standing.player = killer
-            GameOver()
         end
     end
 end
