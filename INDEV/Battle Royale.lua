@@ -132,9 +132,7 @@ local red_flag, blue_flag
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if (gp == 3) then
         return
@@ -146,9 +144,49 @@ function OnScriptUnload()
     --
 end
 
+-- Initialize start up parameters:
+local function init_params(reset)
+    start_trigger, game_in_progress = false, true
+    local mapname = get_var(0, "$map")
+    local coords = boundry.maps[mapname]
+    if (coords ~= nil) then  
+    
+        -- Declare boundry Minimum/Maximum size
+        min_size, max_size = coords[4], coords[5]
+        
+        -- Init Boundry coordinates and Radius
+        bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
+        
+        -- Declare boundry reductin rate and reduction size
+        shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
+        
+        -- Extra time allocated when the boundry reaches its smallest possible size:
+        extra_time = (coords.extra_time * 60)
+        
+        -- Calculated total game time:
+        game_time = (shrink_duration * (max_size / shrink_amount))
+        game_time = (game_time + extra_time)
+               
+        -- Set initial timers to ZERO.
+        game_timer = 0
+        reduction_timer = 0
+        boundry_timer = 0
+        
+        if (reset) then
+            last_man_standing.count = 0
+            last_man_standing.player = nil
+        end
+        
+        monitor_coords = true
+        
+        -- Register a hook into SAPP's tick event.
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    end
+end
+
 function OnGameStart()
-    last_man_standing.count = 0
-    last_man_standing.player = nil
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
@@ -179,7 +217,7 @@ function OnPlayerConnect(PlayerIndex)
     
     last_man_standing.count = last_man_standing.count + 1
     
-    local function setup_params(p)
+    local function player_setup(p)
         console_paused[p] = false
         out_of_bounds[p] = { }
         out_of_bounds[p].yes = false
@@ -187,35 +225,15 @@ function OnPlayerConnect(PlayerIndex)
     end
     
     if (start_trigger) and (enough_players) then
-        start_trigger, game_in_progress = false, true
-        local mapname = get_var(0, "$map")
-        local coords = boundry.maps[mapname]
-        if (coords ~= nil) then        
-            min_size, max_size = coords[4], coords[5]
-            bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
-            shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
-            extra_time = (coords.extra_time * 60)
-            
-            game_time = (shrink_duration * (max_size / shrink_amount))
-            game_time = (game_time + extra_time)
-                        
-            game_timer = 0
-            reduction_timer = 0
-            boundry_timer = 0
-                       
-            -- For Debugging (temp)
-            delete_object = true
-            --
-            
-            setup_params(p)
-            
-            monitor_coords = true
-            
-            -- Register a hook into SAPP's tick event.
-            register_callback(cb["EVENT_TICK"], "OnTick")
-        end
+        
+        -- Initialize game parameters:
+        init_params(false)
+        
+        -- Setup player parameters:
+        player_setup(p)
+        
     elseif (game_in_progress and enough_players) then
-        setup_params(p)
+        --
     end
 end
 
@@ -226,7 +244,8 @@ function OnPlayerDisconnect(PlayerIndex)
     local count = last_man_standing.count
     
     if (count < 1) then
-        -- Reset All Parameters --
+        -- Initialize game parameters:
+        init_params(true)
     elseif (count == 1) then
         for i = 1,16 do
             if player_present(i) and (tonumber(i) ~= p) then
