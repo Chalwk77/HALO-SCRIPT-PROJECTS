@@ -19,13 +19,13 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 3
+local players_needed = 1
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 60
+local gamestart_delay = 5
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -424,6 +424,44 @@ local function hide_player(p, coords)
     write_float(get_player(p) + 0xFC, coords.y - yOff)
 end
 
+
+local function DispayHUD(params)
+    
+    local player = params.player 
+    local boundry_timer = params.boundry_timer 
+    local shrink_time_msg = params.shrink_time_msg
+    local until_next_shrink = params.until_next_shrink
+    local time_remaining, extra_time = params.time_remaining, params.extra_time
+    local time_stamp = params.time_stamp
+    
+    if (boundry_timer ~= nil) then
+        shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
+    else
+        shrink_time_msg = ""
+    end
+    
+    local header, send_timestamp = ""
+    if (time_remaining >= extra_time) then
+        send_timestamp = true
+        header = "Game Time Remaining: " .. time_stamp
+    elseif (time_remaining <= extra_time) and (time_remaining > 0) then
+        send_timestamp = true
+        header = "FINAL MINUTES: " .. time_stamp
+    elseif (time_remaining <= 0) then
+        send_timestamp = false
+        game_timer = nil
+        monitor_coords = false
+        GameOver()
+    end
+    
+    if (send_timestamp) and (monitor_coords) then
+        if not (spectator[player].enabled) then 
+            out_of_bounds[player].timer = 0
+        end
+        rprint(player, "|c" .. header .. shrink_time_msg)
+    end
+end
+
 function OnTick()
     if (init_countdown) then
         GameStartCountdown()
@@ -434,22 +472,21 @@ function OnTick()
         if (game_timer ~= nil) then
             game_timer = game_timer + time_scale
             
-            local time = ( (game_time) - (game_timer) )
+            local time = ( (game_time + time_scale) - (game_timer) )
             time_remaining = time
             
-            local GTmins, GTsecs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
+            local GTmins, GTsecs = select(1, secondsToTime(time, false)), select(2, secondsToTime(time, false))
             time_stamp = (GTmins..":"..GTsecs)
-            
             
             if (reduction_timer ~= nil) then
                 reduction_timer = reduction_timer + time_scale
                 
-                local time = ( (shrink_duration) - (reduction_timer) )
+                local time = ( (shrink_duration + time_scale) - (reduction_timer) )
                 if (time <= 0) then
                     reduction_timer = 0
                 end
                 
-                local Smins, Ssecs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
+                local Smins, Ssecs = select(1, secondsToTime(time, false)), select(2, secondsToTime(time, false))
                 until_next_shrink = (Smins..":"..Ssecs)
             end
         end
@@ -457,7 +494,7 @@ function OnTick()
         -- BOUNDRY REDUCTION TIMER:
         if (boundry_timer ~= nil) then
             boundry_timer = boundry_timer + time_scale                
-            if ( boundry_timer >= (shrink_duration) ) then
+            if ( boundry_timer >= (shrink_duration + time_scale) ) then
                 if (bR > min_size and bR <= max_size) then
                     boundry_timer = 0
                     boundry:shrink()
@@ -487,6 +524,16 @@ function OnTick()
                             hide_player(i, coords)
                         end
                         
+                        local p = { }
+                        p.player = tonumber(i)
+                        p.boundry_timer = boundry_timer
+                        p.shrink_time_msg = shrink_time_msg
+                        p.until_next_shrink = until_next_shrink
+                        p.time_remaining = time_remaining
+                        p.extra_time = extra_time
+                        p.time_stamp = time_stamp
+                        DispayHUD(p)
+                        
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
                         
                         local px,py,pz = read_vector3d(player_object + 0x5c) 
@@ -497,30 +544,15 @@ function OnTick()
                                 rprint(i, "|c-- INSIDE SAFE ZONE --")
                                 rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
                                 
-                                if (boundry_timer ~= nil) then
-                                    shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
-                                else
-                                    shrink_time_msg = ""
-                                end
-                                
-                                local header, send_timestamp = ""
-                                if (time_remaining >= extra_time) then
-                                    send_timestamp = true
-                                    header = "Game Time Remaining: " .. time_stamp
-                                elseif (time_remaining <= extra_time) and (time_remaining > 0) then
-                                    send_timestamp = true
-                                    header = "FINAL: " .. time_stamp
-                                elseif (time_remaining <= 0) then
-                                    send_timestamp = false
-                                    game_timer = nil
-                                    monitor_coords = false
-                                    GameOver()
-                                end
-                                
-                                if (send_timestamp) and (monitor_coords) then
-                                    out_of_bounds[i].timer = 0
-                                    rprint(i, "|c" .. header .. shrink_time_msg)
-                                end
+                                local p = { }
+                                p.player = tonumber(i)
+                                p.boundry_timer = boundry_timer
+                                p.shrink_time_msg = shrink_time_msg
+                                p.until_next_shrink = until_next_shrink
+                                p.time_remaining = time_remaining
+                                p.extra_time, p.time_stamp = extra_time, time_stamp
+                                DispayHUD(p)
+
                             end
 
                         elseif (monitor_coords) then
@@ -539,8 +571,8 @@ function OnTick()
                                 out_of_bounds[i].yes = true
                                 out_of_bounds[i].timer = out_of_bounds[i].timer + time_scale
                                 
-                                local time_remaining = ((time_until_kill) - out_of_bounds[i].timer)
-                                local seconds = select(2, secondsToTime(time_remaining))
+                                local time_remaining = ((time_until_kill + 1) - out_of_bounds[i].timer)
+                                local seconds = select(2, secondsToTime(time_remaining, false))
                                 
                                 rprint(i, "|c--------- WARNING ---------")
                                 rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
@@ -740,9 +772,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-function secondsToTime(seconds)
+function secondsToTime(seconds, bool)
     local seconds = tonumber(seconds)
-    if (seconds <= 0) then
+    if (seconds <= 0) and (bool) then
         return "00", "00";
     else
         hours = format("%02.f", floor(seconds/3600));
@@ -806,11 +838,16 @@ end
 
 function GameStartCountdown()
     gamestart_countdown = gamestart_countdown + time_scale
-    local seconds = select(2, secondsToTime(gamestart_countdown))
+    local seconds = select(2, secondsToTime(gamestart_countdown, false))
     local time_remaining = gamestart_delay - math.floor(seconds)
     if (time_remaining < 1) then
         stopTimer()
         set(true)
+        for i = 1,16 do
+            if player_present(i) then
+                killSilently(i)
+            end
+        end
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
         register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     elseif (init_countdown) then
