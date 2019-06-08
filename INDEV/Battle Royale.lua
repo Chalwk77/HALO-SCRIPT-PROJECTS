@@ -120,7 +120,7 @@ boundry.maps = {
 
 local bX, bY, bZ, bR
 local min_size, max_size, extra_time, shrink_cycle, shrink_amount
-local start_trigger, game_in_progress, game_time = true, false
+local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords
 local time_scale = 0.030
 
@@ -163,8 +163,7 @@ local function set(reset_scores)
             paused[i].start, paused[i].timer = false, 0
             
             spectator[i] = { }
-            spectator[i].enabled = false
-            spectator[i].timer = 0
+            spectator[i].enabled, spectator[i].timer = false, 0
             
             zone_transition[i] = false
             
@@ -179,7 +178,7 @@ local function set(reset_scores)
                 execute_command("kills " .. i .. " 0")
                 execute_command("assists " .. i .. " 0")
                 execute_command("deaths " .. i .. " 0")
-            end
+            end            
         end
     end
 end
@@ -850,11 +849,18 @@ function GameStartCountdown()
     if (time_remaining < 1) then
         stopTimer()
         set(true)
-        for i = 1,16 do
-            if player_present(i) then
-                killSilently(i)
-            end
-        end
+        
+        local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+        local original = read_dword(kill_message_addresss)
+        
+        safe_write(true)
+        write_dword(kill_message_addresss, 0x03EB01B1)
+        safe_write(false)        
+        execute_command("sv_map_reset")
+        safe_write(true)
+        write_dword(kill_message_addresss, original)
+        safe_write(false)
+        
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
         register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     elseif (init_countdown) then
