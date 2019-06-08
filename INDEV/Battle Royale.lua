@@ -33,13 +33,13 @@ boundry.maps = {
     
     ["timberland"] = {
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.179, -1.114, -21.197, 50, 4500,
+        1.179, -1.114, -21.197, 100, 4500,
         -- End game this many minutes after the Boundry reduced to a size of 'Min Size'
         extra_time = 2,
         -- How often does the Boundry reduce in size (in seconds):
         duration = 60,
         -- How many world units does the Boundry reduce in size:
-        shrink_amount = 50,
+        shrink_amount = 500,
     },
         
     ["sidewinder"] = {
@@ -120,7 +120,7 @@ local bX, bY, bZ, bR
 local min_size, max_size, extra_time, shrink_cycle, shrink_amount
 local start_trigger, game_in_progress, game_time = true, false
 local monitor_coords
-local time_scale = 0.400
+local time_scale = 0.030
 local console_paused = { }
 local out_of_bounds = { }
 local last_man_standing = { }
@@ -148,6 +148,7 @@ end
 
 function OnGameStart()
     last_man_standing.count = 0
+    last_man_standing.player = nil
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
@@ -221,6 +222,19 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
     last_man_standing.count = last_man_standing.count - 1
+    
+    local count = last_man_standing.count
+    
+    if (count < 1) then
+        -- Reset All Parameters --
+    elseif (count == 1) then
+        for i = 1,16 do
+            if player_present(i) and (tonumber(i) ~= p) then
+                last_man_standing.player = tonumber(i)
+            end
+        end
+        GameOver()
+    end
 end
 
 function boundry:shrink()
@@ -283,7 +297,7 @@ function OnTick()
                     if not (console_paused[i]) then
                         local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                         rprint(i, "|c-- INSIDE SAFE ZONE --")
-                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
+                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
                         
                         if (boundry_timer ~= nil) then
                             shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
@@ -351,46 +365,90 @@ function OnTick()
     end
 end
 
+function saveKDRs()
+    local kdr_table = { }
+    for i = 1,16 do
+        if player_present(i) then
+            local kills, deaths = get_var(i, "$kills"), get_var(i, "$deaths")
+            local kdr = (kills/deaths)
+            kdr_table[#kdr_table + 1] = kdr
+        end                    
+    end
+    table.sort(kdr_table)
+    return kdr_table
+end
+
+function getKDR(p)
+    local kills,deaths = get_var(p, "$kills"), get_var(p, "$deaths")
+    local kdr = (kills/deaths)
+    return kdr
+end
+
 function GameOver()
-    -- Time ran out. Calculate best score.
-    local scores = { }
+    local scores, winner = { }, ""
+    
+    -- Time ran out - Calculate best score:
     if (game_timer == nil) then
         for i = 1,16 do
             if player_present(i) then
-                local score, kills = get_var(i, "$score"), get_var(i, "$kills")
-            end
-        end
-    else
-    
-        game_timer = nil
-        boundry_timer = nil
-        monitor_coords = nil
-        cls(i, 25)
-        
-        for i = 1,16 do
-            if player_present(i) then
-                local score = get_var(i, '$score')
+                local score = tonumber(get_var(i, '$score'))
                 if (score > 0) then
                     scores[#scores + 1] = score
                 end
             end
         end
-        if (#scores >= 1) then
-            table.sort(scores)
-            local highest_score = tonumber(scores[#scores])
+        
+        local function bestKDR()
+            local KDRTab = saveKDRs()
+            local highest_score = tonumber(KDRTab[#KDRTab])
+            
             for i = 1,16 do
                 if player_present(i) then
-                    local score = get_var(i, "$score")
-                    if (score == highest_score) then
-                        
-                        
+                    local kdr = getKDR(i)
+                    if (kdr == highest_score) then
+                        winner = get_var(i, "$name")
                     end
                 end
             end
-        else
-            -- calculate who has the best KDR
         end
-
+        
+        -- Check who has the highest score:
+        if (#scores >= 1) then
+            table.sort(scores)
+            local highest_score = tonumber(scores[#scores])
+            local count = 0
+            for i = 1,16 do
+                if player_present(i) then
+                    
+                    local score = tonumber(get_var(i, '$score'))
+                    if (score == highest_score) then
+                    
+                        winner = get_var(i, "$name")
+                        count = count + 1
+                    end
+                end
+            end
+            -- Only one player has the highest score (no duplicate scores)
+            if (count == 1) then
+                SayAll(winner .. " won the game!")
+            -- More than one player have the same score. Calcuate who has the best KDR instead:
+            elseif (count > 1) then
+                bestKDR()
+                SayAll(winner .. " won the game!")
+            end
+        else
+            -- No players have any score points. Calcuate who has the best KDR instead:
+            bestKDR()
+            SayAll(winner .. " won the game!")
+        end
+    else
+        game_timer = nil
+        boundry_timer = nil
+        monitor_coords = nil
+        cls(0, 25, true, "rcon")
+        local id = last_man_standing.player
+        local victor_name = get_var(id, "$name")
+        SayAll(victor_name .. " won the game")
     end
 end
 
@@ -400,19 +458,36 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     if (killer > 0) then
         
         last_man_standing.count = last_man_standing.count - 1
-        if (last_man_standing.count > 0) then
+        
+        -- More than 1 player remaining:
+        if (last_man_standing.count > 1) then
             SayAll(last_man_standing.count .. " players remaining!")
+            
+        -- Killer is the Victor. End the Game.
         elseif (last_man_standing.count < 0) then
+            last_man_standing.player = killer
             GameOver()
         end
     end
 end
 
-function cls(PlayerIndex, count)
+function cls(PlayerIndex, count, clear_chat, type)
     count = count or 25
-    if (PlayerIndex) then
+    if (PlayerIndex) and not (clear_chat) then
         for _ = 1, count do
             rprint(PlayerIndex, " ")
+        end
+    elseif (clear_chat) then
+        if (type == "chat") then
+            SayAll(" ")
+        elseif (type == "rcon") then
+            for i = 1, 16 do
+                if player_present(i) then
+                    for _ = 1, count do
+                        rprint(i, " ")
+                    end
+                end
+            end
         end
     end
 end
@@ -478,4 +553,16 @@ function killSilently(PlayerIndex)
         local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
         execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
     end
+end
+
+function stringSplit(inp, sep)
+    if (sep == nil) then
+        sep = "%s"
+    end
+    local t, i = {}, 1
+    for str in gmatch(inp, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
