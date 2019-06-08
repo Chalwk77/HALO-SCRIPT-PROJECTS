@@ -364,8 +364,12 @@ local function reduceHealth(p, bool)
                 killSilently(p)
                 spectator[p].enabled = true
                 last_man_standing.count = last_man_standing.count - 1
-                local name = get_var(p, "$name")
-                SayAll(name .. " has perished! " .. last_man_standing.count .. " players remain.")
+                if (last_man_standing.count <= 1) then
+                    GameOver()
+                else                    
+                    local name = get_var(p, "$name")
+                    SayAll(name .. " has perished! " .. last_man_standing.count .. " players remain.")
+                end
             end
         end
     else
