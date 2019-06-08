@@ -25,7 +25,7 @@ local players_needed = 1
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 5
+local gamestart_delay = 60
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -152,8 +152,6 @@ end
 -- Initialize start up parameters:
 local function init_params(reset)
 
-    gamestart_countdown = 0
-
     start_trigger, game_in_progress = false, true
     local mapname = get_var(0, "$map")
     local coords = boundry.maps[mapname]
@@ -186,15 +184,16 @@ local function init_params(reset)
             stopTimer()
             last_man_standing.count = 0
             last_man_standing.player = nil
+            start_trigger = true
             unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb['EVENT_DIE'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
         else
             startTimer()
+            
+            -- Register a hook into SAPP's tick event.
+            register_callback(cb["EVENT_TICK"], "OnTick")
         end
-        
-        -- Register a hook into SAPP's tick event.
-        register_callback(cb["EVENT_TICK"], "OnTick")
     end
 end
 
