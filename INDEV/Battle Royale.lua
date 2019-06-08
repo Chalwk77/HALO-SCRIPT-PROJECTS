@@ -24,6 +24,9 @@ local players_needed = 1
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
 
+-- When enough players are present, the game will start in this many seconds:
+local gamestart_delay = 5
+
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
 local server_prefix = "**LNZ**"
@@ -125,6 +128,8 @@ local console_paused = { }
 local out_of_bounds = { }
 local last_man_standing = { }
 
+local gamestart_countdown, init_countdown
+
 local floor, format = math.floor, string.format
 local globals = nil
 local red_flag, blue_flag
@@ -146,6 +151,9 @@ end
 
 -- Initialize start up parameters:
 local function init_params(reset)
+
+    gamestart_countdown = 0
+
     start_trigger, game_in_progress = false, true
     local mapname = get_var(0, "$map")
     local coords = boundry.maps[mapname]
@@ -172,21 +180,27 @@ local function init_params(reset)
         reduction_timer = 0
         boundry_timer = 0
         
+        monitor_coords = true
+        
         if (reset) then
+            stopTimer()
             last_man_standing.count = 0
             last_man_standing.player = nil
+            unregister_callback(cb['EVENT_TICK'])
+            unregister_callback(cb['EVENT_DIE'])
+            unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+        else
+            startTimer()
         end
-        
-        monitor_coords = true
         
         -- Register a hook into SAPP's tick event.
         register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     end
 end
 
 function OnGameStart()
+    last_man_standing.count = 0
+    last_man_standing.player = nil
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
@@ -285,98 +299,102 @@ function boundry:inSphere(p, px, py, pz, x, y, z, r)
 end
 
 function OnTick()
-    for i = 1,16 do
-        if player_present(i) then
-            local player_object = get_dynamic_player(i)
-            if (player_object ~= 0) then
-                cls(i, 25)
-                
-                local time_stamp, until_next_shrink
-                local time_remaining 
-                
-                if (game_timer ~= nil) then
-                    game_timer = game_timer + time_scale
-                    local time = ( (game_time + time_scale) - (game_timer) )
-                    time_remaining = time
-                    local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
-                    time_stamp = (mins..":"..secs)
-                    if (reduction_timer ~= nil) then
-                        reduction_timer = reduction_timer + time_scale
-                        local time = ( (shrink_duration + time_scale) - (reduction_timer) )
-                        if (time <= 0) then
-                            reduction_timer = 0
-                        end
+    if (init_countdown) then
+        GameStartCountdown()
+    elseif not (init_countdown) then
+        for i = 1,16 do
+            if player_present(i) then
+                local player_object = get_dynamic_player(i)
+                if (player_object ~= 0) then
+                    cls(i, 25)
+                    
+                    local time_stamp, until_next_shrink
+                    local time_remaining 
+                    
+                    if (game_timer ~= nil) then
+                        game_timer = game_timer + time_scale
+                        local time = ( (game_time + time_scale) - (game_timer) )
+                        time_remaining = time
                         local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
-                        until_next_shrink = (mins..":"..secs)
-                    end
-                end
-                
-                local px,py,pz = read_vector3d(player_object + 0x5c) 
-                if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) and (monitor_coords) then
-                    if not (console_paused[i]) then
-                        local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                        rprint(i, "|c-- INSIDE SAFE ZONE --")
-                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
-                        
-                        if (boundry_timer ~= nil) then
-                            shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
-                        else
-                            shrink_time_msg = ""
-                        end
-                        
-                        local header, send_timestamp = ""
-                        if (time_remaining >= extra_time) then
-                            send_timestamp = true
-                            header = "Game Time Remaining: " .. time_stamp
-                        elseif (time_remaining <= extra_time) and (time_remaining > 0) then
-                            send_timestamp = true
-                            header = "FINAL: " .. time_stamp
-                        elseif (time_remaining <= 0) then
-                            send_timestamp = false
-                            game_timer = nil
-                            monitor_coords = false
-                            GameOver()
-                        end
-                        
-                        if (send_timestamp) and (monitor_coords) then
-                            out_of_bounds[i].timer = 0
-                            rprint(i, "|c" .. header .. shrink_time_msg)
-                        end
-                    end
-                    -- 
-                elseif (monitor_coords) then
-                    if not (console_paused[i]) then
-                        rprint(i, "|cWARNING:")
-                        rprint(i, "|cYOU ARE OUTSIDE THE BOUNDRY!")
-                        local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                        rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
-                        out_of_bounds[i].yes = true
-                    else
-                        out_of_bounds[i].yes = true
-                        out_of_bounds[i].timer = out_of_bounds[i].timer + time_scale
-                        local time_remaining = ((time_until_kill + 1) - out_of_bounds[i].timer)
-                        local seconds = select(2, secondsToTime(time_remaining))
-                        
-                        rprint(i, "|c--------- WARNING ---------")
-                        rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
-                        rprint(i, "|cRETURN NOW OR YOU WILL BE SHOT!")
-                        rprint(i, "|c(" .. seconds .. ")")
-                        if (out_of_bounds[i].timer >= time_until_kill) then
-                            out_of_bounds[i].timer = 0
-                            killSilently(i)
+                        time_stamp = (mins..":"..secs)
+                        if (reduction_timer ~= nil) then
+                            reduction_timer = reduction_timer + time_scale
+                            local time = ( (shrink_duration + time_scale) - (reduction_timer) )
+                            if (time <= 0) then
+                                reduction_timer = 0
+                            end
+                            local mins, secs = select(1, secondsToTime(time)), select(2, secondsToTime(time))
+                            until_next_shrink = (mins..":"..secs)
                         end
                     end
                     
-                    execute_command("camo " .. i .. " 1")
+                    local px,py,pz = read_vector3d(player_object + 0x5c) 
+                    if boundry:inSphere(i, px,py,pz, bX, bY, bZ, bR) and (monitor_coords) then
+                        if not (console_paused[i]) then
+                            local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                            rprint(i, "|c-- INSIDE SAFE ZONE --")
+                            rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
+                            
+                            if (boundry_timer ~= nil) then
+                                shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
+                            else
+                                shrink_time_msg = ""
+                            end
+                            
+                            local header, send_timestamp = ""
+                            if (time_remaining >= extra_time) then
+                                send_timestamp = true
+                                header = "Game Time Remaining: " .. time_stamp
+                            elseif (time_remaining <= extra_time) and (time_remaining > 0) then
+                                send_timestamp = true
+                                header = "FINAL: " .. time_stamp
+                            elseif (time_remaining <= 0) then
+                                send_timestamp = false
+                                game_timer = nil
+                                monitor_coords = false
+                                GameOver()
+                            end
+                            
+                            if (send_timestamp) and (monitor_coords) then
+                                out_of_bounds[i].timer = 0
+                                rprint(i, "|c" .. header .. shrink_time_msg)
+                            end
+                        end
+                        -- 
+                    elseif (monitor_coords) then
+                        if not (console_paused[i]) then
+                            rprint(i, "|cWARNING:")
+                            rprint(i, "|cYOU ARE OUTSIDE THE BOUNDRY!")
+                            local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                            rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
+                            out_of_bounds[i].yes = true
+                        else
+                            out_of_bounds[i].yes = true
+                            out_of_bounds[i].timer = out_of_bounds[i].timer + time_scale
+                            local time_remaining = ((time_until_kill + 1) - out_of_bounds[i].timer)
+                            local seconds = select(2, secondsToTime(time_remaining))
+                            
+                            rprint(i, "|c--------- WARNING ---------")
+                            rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
+                            rprint(i, "|cRETURN NOW OR YOU WILL BE SHOT!")
+                            rprint(i, "|c(" .. seconds .. ")")
+                            if (out_of_bounds[i].timer >= time_until_kill) then
+                                out_of_bounds[i].timer = 0
+                                killSilently(i)
+                            end
+                        end
+                        
+                        execute_command("camo " .. i .. " 1")
+                    end
                 end
-            end
-            
-            if (boundry_timer ~= nil) then
-                boundry_timer = boundry_timer + time_scale                
-                if ( boundry_timer >= (shrink_duration) ) then
-                    if (bR > min_size and bR <= max_size) then
-                        boundry_timer = 0
-                        boundry:shrink()
+                
+                if (boundry_timer ~= nil) then
+                    boundry_timer = boundry_timer + time_scale                
+                    if ( boundry_timer >= (shrink_duration) ) then
+                        if (bR > min_size and bR <= max_size) then
+                            boundry_timer = 0
+                            boundry:shrink()
+                        end
                     end
                 end
             end
@@ -572,4 +590,49 @@ function killSilently(PlayerIndex)
         local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
         execute_command("deaths " .. tonumber(PlayerIndex) .. " " .. deaths - 1)
     end
+end
+
+
+function GameStartCountdown()
+    gamestart_countdown = gamestart_countdown + 0.030
+    local seconds = select(2, secondsToTime(gamestart_countdown))
+    local time_remaining = gamestart_delay - math.floor(seconds)
+    if (time_remaining <= 0) then
+        stopTimer()
+        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    end
+    
+    if (init_countdown) then
+        for i = 1,16 do
+            if player_present(i) then
+                cls(i, 25)
+                local char = getChar(time_remaining)
+                rprint(i, "|cGame will begin in " .. time_remaining .. " second" .. char, 4+8)
+                for _ = 1,7 do rprint(i, " ") end
+            end
+        end
+    end
+end
+
+function startTimer()
+    gamestart_countdown = 0
+    init_countdown = true
+end
+
+function stopTimer()
+    init_countdown = false
+    gamestart_countdown = 0
+end
+
+-- Receives number - determines whether to pluralize.
+-- Returns string 's' if the input is greater than 1.
+function getChar(input)
+    local char = ""
+    if (tonumber(input) > 1) then
+        char = "s"
+    elseif (tonumber(input) <= 1) then
+        char = ""
+    end
+    return char
 end
