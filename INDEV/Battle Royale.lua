@@ -127,6 +127,8 @@ local time_scale = 0.030
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
 local last_man_standing = { }
+last_man_standing.count = 0
+last_man_standing.player = nil
 
 local spectator, health_trigger, health, health_bool = { }, { }, { }, { }
 local zone_transition = { }
@@ -135,7 +137,7 @@ local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
 
 local globals = nil
-local red_flag, blue_flag
+local red_flag, blue_flag, game_over
 
 local floor, format = math.floor, string.format
 local gmatch, sub = string.gmatch, string.sub
@@ -185,12 +187,10 @@ end
 
 -- Initialize start up parameters:
 local function init_params(reset)
-
-    start_trigger, game_in_progress = false, true
     local mapname = get_var(0, "$map")
     local coords = boundry.maps[mapname]
     if (coords ~= nil) then
-
+    
         -- Declare boundry Minimum/Maximum size
         min_size, max_size = coords[4], coords[5]
 
@@ -215,7 +215,7 @@ local function init_params(reset)
         -- Init boundry checker:
         monitor_coords = true
 
-        if (reset) then
+        if (reset) then            
             set(false)
             stopTimer()
             last_man_standing.count = 0
@@ -239,10 +239,8 @@ local function init_params(reset)
 end
 
 function OnGameStart()
-    last_man_standing.count = 0
-    last_man_standing.player = nil
-    red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
     game_over = false
+    red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
 function OnGameEnd()
@@ -285,13 +283,14 @@ function OnPlayerConnect(PlayerIndex)
     end
 
     if (start_trigger) and (enough_players) then
-
+        start_trigger = false
+        
         -- Initialize game parameters:
         init_params(false)
 
         -- Setup player parameters:
         player_setup(p)
-
+        
     elseif (game_in_progress and enough_players) or not (enough_players) then
         player_setup(p)
     end
@@ -426,31 +425,33 @@ local function DispayHUD(params)
     local _extra_time = params.extra_time
     local time_stamp = params.time_stamp
 
-    if (boundry_timer ~= nil) then
-        shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
-    else
-        shrink_time_msg = ""
-    end
-
-    local header, send_timestamp = ""
-    if (time_remaining >= _extra_time) then
-        send_timestamp = true
-        header = "Game Time Remaining: " .. time_stamp
-    elseif (time_remaining <= _extra_time) and (time_remaining > 0) then
-        send_timestamp = true
-        header = "FINAL MINUTES: " .. time_stamp
-    elseif (time_remaining <= 0) then
-        send_timestamp = false
-        game_timer = nil
-        monitor_coords = false
-        GameOver()
-    end
-
-    if (send_timestamp) and (monitor_coords) then
-        if not (spectator[player].enabled) then
-            out_of_bounds[player].timer = 0
+    if (time_remaining ~= nil) then
+        if (boundry_timer ~= nil) then
+            shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
+        else
+            shrink_time_msg = ""
         end
-        rprint(player, "|c" .. header .. shrink_time_msg)
+
+        local header, send_timestamp = ""
+        if (time_remaining >= _extra_time) then
+            send_timestamp = true
+            header = "Game Time Remaining: " .. time_stamp
+        elseif (time_remaining <= _extra_time) and (time_remaining > 0) then
+            send_timestamp = true
+            header = "FINAL MINUTES: " .. time_stamp
+        elseif (time_remaining <= 0) then
+            send_timestamp = false
+            game_timer = nil
+            monitor_coords = false
+            GameOver()
+        end
+
+        if (send_timestamp) and (monitor_coords) then
+            if not (spectator[player].enabled) then
+                out_of_bounds[player].timer = 0
+            end
+            rprint(player, "|c" .. header .. shrink_time_msg)
+        end
     end
 end
 
@@ -656,6 +657,9 @@ function GameOver()
     game_timer = nil
     boundry_timer = nil
     monitor_coords = nil
+    
+    start_trigger, game_in_progress, game_time = true, false, 0
+    
     cls(0, 25, true, "rcon")
 
     -- Time ran out - Calculate best score:
@@ -709,10 +713,21 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         last_man_standing.count = last_man_standing.count - 1
 
         spectator[victim].enabled = true
+        
+        local v_name, k_name = get_var(victim, "$name"), get_var(killer, "$name")
 
         -- More than 1 player remaining:
         if (last_man_standing.count > 1) then
-            SayAll(last_man_standing.count .. " players remaining!")
+        
+            safe_write(true)
+            write_dword(kill_message_addresss, 0x03EB01B1)
+            safe_write(false)
+            
+            SayAll(v_name .. " was killed by " .. k_name .. ". " .. last_man_standing.count .. " players remain!")
+            
+            safe_write(true)
+            write_dword(kill_message_addresss, original)
+            safe_write(false)
 
             -- Killer is the Victor. End the Game.
         elseif (last_man_standing.count <= 1) then
@@ -837,6 +852,7 @@ function GameStartCountdown()
         gamestart_countdown = gamestart_countdown + time_scale
         local gamestart_delay = gamestart_delay + 1
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
+        game_in_progress = true
 
         if (time < 1) then
             stopTimer()
