@@ -19,13 +19,13 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 1
+local players_needed = 2
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 10
+local gamestart_delay = 30
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -36,11 +36,11 @@ boundry.maps = {
 
     ["timberland"] = {
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.250, -1.487, -21.264, 100, 4500,
+        1.245, -1.028, -21.186, 100, 4500,
         -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
         extra_time = 2,
         -- How often does the Boundry reduce in size (in seconds):
-        duration = 5,
+        duration = 30,
         -- How many world units does the Boundry reduce in size:
         shrink_amount = 500,
     },
@@ -73,7 +73,7 @@ boundry.maps = {
         extra_time = 2, duration = 3, shrink_amount = 500,
     },
     ["gephyrophobia"] = {
-        26.783, -74.000, -20.316, 40, 6200,
+        26.735, -72.359, -16.996, 40, 6200,
         extra_time = 2, duration = 20, shrink_amount = 500,
     },
     ["deathisland"] = {
@@ -234,8 +234,18 @@ local function init_params(reset)
             unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
         else
+        
+            local function spawn_flag()
+                local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+                if TagInfo(tag_name, tag_id) then
+                    spawn_object("weap", "weapons\\flag\\flag", bX, bY, bZ)
+                    execute_command("disable_object " .. tag_id)
+                end
+            end
+        
             set(true)
             startTimer()
+            spawn_flag()
             -- Register hooks into SAPP Events:
             register_callback(cb["EVENT_TICK"], "OnTick")
             register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
@@ -276,7 +286,7 @@ function OnPlayerConnect(PlayerIndex)
 
     last_man_standing.count = last_man_standing.count + 1
 
-    local function player_setup(player)
+    local function player_setup(player, in_progress)
         console_paused[player] = false
 
         out_of_bounds[player] = { }
@@ -287,6 +297,10 @@ function OnPlayerConnect(PlayerIndex)
 
         spectator[player] = { }
         spectator[player].enabled, spectator[player].timer = false, 0
+        
+        if (in_progress) then
+            spectator[player].enabled = true
+        end
     end
 
     if (start_trigger) and (enough_players) then
@@ -296,10 +310,12 @@ function OnPlayerConnect(PlayerIndex)
         init_params(false)
 
         -- Setup player parameters:
-        player_setup(p)
+        player_setup(p, false)
         
-    elseif (game_in_progress and enough_players) or not (enough_players) then
-        player_setup(p)
+    elseif (game_in_progress and enough_players) then
+        player_setup(p, true)
+    elseif not (enough_players)
+        player_setup(p, false)
     end
 end
 
@@ -853,13 +869,12 @@ function GameStartCountdown()
         gamestart_countdown = gamestart_countdown + time_scale
         local gamestart_delay = gamestart_delay + 1
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
-        game_in_progress = true
 
         if (time < 1) then
-        
             stopTimer()
             set(true)
             cls(0, 25, true, "rcon")
+            game_in_progress = true
             execute_command("sv_map_reset")
             register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
             register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
@@ -952,4 +967,9 @@ function stringSplit(inp, sep)
         i = i + 1
     end
     return t
+end
+
+function TagInfo(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
