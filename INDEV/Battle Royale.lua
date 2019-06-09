@@ -81,24 +81,24 @@ boundry.maps = {
         extra_time = 2, duration = 25, shrink_amount = 500,
     },
     ["icefields"] = {
-        -26.032, 32.365, 9.007, 0, 0,
-        extra_time = 2, duration = 0, shrink_amount = 0,
+        -26.032, 32.365, 9.007, 30, 7500,
+        extra_time = 2, duration = 30, shrink_amount = 500,
     },
     ["infinity"] = {
-        9.631, -64.030, 7.776, 0, 0,
-        extra_time = 2, duration = 0, shrink_amount = 0,
+        9.631, -64.030, 7.776, 100, 11500,
+        extra_time = 2, duration = 30, shrink_amount = 1000,
     },
     ["hangemhigh"] = {
-        21.020, -4.632, -4.229, 0, 0,
-        extra_time = 2, duration = 0, shrink_amount = 0,
+        21.020, -4.632, -4.229, 10, 605,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
     ["damnation"] = {
-        -2.002, -4.301, 3.399, 15, 0,
-        extra_time = 2, duration = 0, shrink_amount = 0,
+        6.298, 0.047, 3.400, 15, 600,
+        extra_time = 2, duration = 15, shrink_amount = 50,
     },
     ["putput"] = {
-        -2.350, -21.121, 0.902, 15, 300,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        -3.751, -20.800, 0.902, 15, 1600,
+        extra_time = 2, duration = 30, shrink_amount = 100,
     },
     ["prisoner"] = {
         0.902, 0.088, 1.392, 15, 400,
@@ -534,14 +534,14 @@ function OnTick()
                         rprint(i, "|cYOU ARE IN SPECTATOR MODE")
                         rprint(i, "|c--- Players Remaining --- ")
                         rprint(i, "|c" .. count)
+                        
+                        DispayHUD(p)
 
                         local coords = getXYZ(i)
                         if (coords) then
                             execute_command("camo " .. i)
                             hide_player(i, coords)
                         end
-
-                        DispayHUD(p)
 
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
 
@@ -550,11 +550,9 @@ function OnTick()
                             if (not console_paused[i]) and (not paused[i].start) then
 
                                 local rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                                rprint(i, "|c-- INSIDE SAFE ZONE --")
-                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
-
+                                rprint(i, "|c--  I N S I D E   S A F E   Z O N E --")
+                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. shrink_amount .. ")")
                                 DispayHUD(p)
-
                             end
 
                         elseif (monitor_coords) then
