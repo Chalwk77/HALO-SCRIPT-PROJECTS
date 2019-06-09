@@ -25,7 +25,7 @@ local players_needed = 1
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 2
+local gamestart_delay = 5
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -36,87 +36,87 @@ boundry.maps = {
 
     ["timberland"] = {
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.245, -1.028, -21.186, 100, 4500,
+        1.245, -1.028, -21.186, 100, 4700,
         -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
         extra_time = 2,
         -- How often does the Boundry reduce in size (in seconds):
         duration = 30,
         -- How many world units does the Boundry reduce in size:
-        shrink_amount = 500,
+        reduction_amount = 500,
     },
     ["carousel"] = {
         0.012, -0.029, -0.856, 30, 270,
-        extra_time = 2, duration = 30, shrink_amount = 30,
+        extra_time = 2, duration = 30, reduction_amount = 30,
     },
     ["ratrace"] = {
         8.340, -10.787, 0.222, 50, 415,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50,
     },
     ["sidewinder"] = {
         2.051, 55.220, -2.801, 150, 5500,
-        extra_time = 2, duration = 25, shrink_amount = 50,
+        extra_time = 2, duration = 25, reduction_amount = 50,
     },
     ["beavercreek"] = {
         14.015, 14.238, -0.911, 10, 415,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50,
     },
     ["dangercanyon"] = {
-        -0.477, 55.331, 0.239, 60, 3600,
-        extra_time = 2, duration = 10, shrink_amount = 500,
+        -0.477, 55.331, 0.239, 60, 6500,
+        extra_time = 2, duration = 20, reduction_amount = 500,
     },
     ["bloodgulch"] = {
         65.749, -120.409, 0.118, 30, 7100,
-        extra_time = 2, duration = 30, shrink_amount = 700,
+        extra_time = 2, duration = 30, reduction_amount = 700,
     },
     ["boardingaction"] = {
         18.301, -0.573, 0.420, 30, 4500,
-        extra_time = 2, duration = 3, shrink_amount = 500,
+        extra_time = 2, duration = 3, reduction_amount = 500,
     },
     ["gephyrophobia"] = {
         26.735, -72.359, -16.996, 40, 6200,
-        extra_time = 2, duration = 20, shrink_amount = 500,
+        extra_time = 2, duration = 20, reduction_amount = 500,
     },
     ["deathisland"] = {
         -30.282, 31.312, 16.601, 30, 5000,
-        extra_time = 2, duration = 25, shrink_amount = 500,
+        extra_time = 2, duration = 25, reduction_amount = 500,
     },
     ["icefields"] = {
         -26.032, 32.365, 9.007, 30, 7500,
-        extra_time = 2, duration = 30, shrink_amount = 500,
+        extra_time = 2, duration = 30, reduction_amount = 500,
     },
     ["infinity"] = {
         9.631, -64.030, 7.776, 100, 11500,
-        extra_time = 2, duration = 30, shrink_amount = 1000,
+        extra_time = 2, duration = 30, reduction_amount = 1000,
     },
     ["hangemhigh"] = {
         21.020, -4.632, -4.229, 10, 605,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50,
     },
     ["damnation"] = {
         6.298, 0.047, 3.400, 15, 600,
-        extra_time = 2, duration = 15, shrink_amount = 50,
+        extra_time = 2, duration = 15, reduction_amount = 50,
     },
     ["putput"] = {
         -3.751, -20.800, 0.902, 15, 1600,
-        extra_time = 2, duration = 30, shrink_amount = 100,
+        extra_time = 2, duration = 30, reduction_amount = 100,
     },
     ["prisoner"] = {
         0.902, 0.088, 1.392, 15, 400,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50,
     },
     ["wizard"] = {
         -5.035, -5.064, -2.750, 20, 350,
-        extra_time = 2, duration = 15, shrink_amount = 30,
+        extra_time = 2, duration = 15, reduction_amount = 30,
     },
     ["longest"] = {
         -0.840, -14.540, 2.410, 20, 200,
-        extra_time = 2, duration = 30, shrink_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50,
     },
 }
 -- ==== Battle Royale Configuration [ends] ==== --
 
 local bX, bY, bZ, bR
-local min_size, max_size, extra_time, shrink_amount
+local min_size, max_size, extra_time, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords
 local time_scale = 0.030
@@ -130,6 +130,7 @@ last_man_standing.player = nil
 
 local spectator, health_trigger, health, health_bool = { }, { }, { }, { }
 local zone_transition = { }
+local flag_table = { }
 
 local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
@@ -185,6 +186,53 @@ local function set(reset_scores)
     end
 end
 
+-- local function SpawnFlag(x, y, z)
+    -- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+    -- if TagInfo(tag_name, tag_id) then
+    
+        -- if (#flag_table > 0) then
+            -- for i = 1,#flag_table do
+                -- local _flag_ = flag_table[i]
+                -- if get_object_memory(_flag_) then
+                    -- DestroyObject(_flag_)
+                -- end
+            -- end
+        -- end
+        
+        -- local amount = 8
+        -- for i = 1,amount do
+            -- if (i == 1) then
+                -- x = x
+                -- y = y + 1
+            -- elseif (i == 2) then
+                -- x = x + 1
+                -- y = y + 1
+            -- elseif (i == 3) then
+                -- x = x + 1
+                -- y = y
+            -- elseif (i == 4) then
+                -- x = x + 1
+                -- y = y - 1
+            -- elseif (i == 5) then
+                -- x = x
+                -- y = y - 1
+            -- elseif (i == 6) then
+                -- x = x - 1
+                -- y = y - 1
+            -- elseif (i == 7) then
+                -- x = x - 1
+                -- y = y
+            -- elseif (i == 8) then
+                -- x = x - 1
+                -- y = y + 1
+            -- end
+
+            -- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
+            -- flag_table[#flag_table + 1] = flag
+        -- end
+    -- end
+-- end
+
 -- Initialize start up parameters:
 local function init_params(reset)
     local mapname = get_var(0, "$map")
@@ -198,13 +246,13 @@ local function init_params(reset)
         bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
 
         -- Declare boundry reduction rate/size
-        shrink_duration, shrink_amount = coords.duration, coords.shrink_amount
+        reduction_rate, reduction_amount = coords.duration, coords.reduction_amount
 
         -- Extra time allocated when the boundry reaches its smallest possible size:
         extra_time = (coords.extra_time * 60)
 
         -- Calculated total game time:
-        game_time = (shrink_duration * (max_size / shrink_amount))
+        game_time = (reduction_rate * (max_size / reduction_amount))
         game_time = (game_time + extra_time)
 
         -- Set initial timers to ZERO.
@@ -227,18 +275,8 @@ local function init_params(reset)
             unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
         else
-        
-            local function spawn_flag()
-                local tag_name, tag_id = "weap", "weapons\\flag\\flag"
-                if TagInfo(tag_name, tag_id) then
-                    spawn_object("weap", "weapons\\flag\\flag", bX, bY, bZ)
-                    execute_command("disable_object " .. tag_id)
-                end
-            end
-        
             set(true)
             startTimer()
-            spawn_flag()
             -- Register hooks into SAPP Events:
             register_callback(cb["EVENT_TICK"], "OnTick")
             register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
@@ -337,7 +375,7 @@ end
 
 function boundry:shrink()
     if (bR ~= nil) then
-        bR = (bR - shrink_amount)
+        bR = (bR - reduction_amount)
         if (bR < min_size) then
             bR = min_size
             boundry_timer = nil
@@ -485,7 +523,7 @@ function OnTick()
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
 
-        --endGameCheck()
+        endGameCheck()
 
         local time_stamp, until_next_shrink
         local time_remaining
@@ -502,7 +540,7 @@ function OnTick()
             if (reduction_timer ~= nil) then
                 reduction_timer = reduction_timer + time_scale
 
-                local time = ((shrink_duration + time_scale) - (reduction_timer))
+                local time = ((reduction_rate + time_scale) - (reduction_timer))
                 if (time <= 0) then
                     reduction_timer = 0
                 end
@@ -515,7 +553,7 @@ function OnTick()
         -- BOUNDRY REDUCTION TIMER:
         if (boundry_timer ~= nil) then
             boundry_timer = boundry_timer + time_scale
-            if (boundry_timer >= (shrink_duration + time_scale)) then
+            if (boundry_timer >= (reduction_rate + time_scale)) then
                 if (bR > min_size and bR <= max_size) then
                     boundry_timer = 0
                     boundry:shrink()
@@ -574,7 +612,7 @@ function OnTick()
 
                                 local rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                                 rprint(i, "|c--  I N S I D E   S A F E   Z O N E --")
-                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. shrink_amount .. ")")
+                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. reduction_amount .. ")")
                                 DispayHUD(p)
                             end
 
@@ -761,7 +799,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- Suicide:
         elseif (victim == killer) and (response) then
             SayAll(v_name .. " committed suicide. " .. last_man_standing.count .. " players remain!")
-        end    
+        end
 
     elseif (killer == -1) or (killer == nil) or (killer == 0) then
         SayAll(v_name .. " died")
@@ -885,6 +923,17 @@ function GameStartCountdown()
             cls(0, 25, true, "rcon")
             game_in_progress = true
             execute_command("sv_map_reset")
+            
+            local function spawn_flag()
+                local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+                if TagInfo(tag_name, tag_id) then
+                    spawn_object(tag_name, tag_id, bX, bY, bZ + 0.5)
+                    execute_command("disable_object " .. tag_id)
+                end
+            end
+            
+            spawn_flag()
+            
             register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
             register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
