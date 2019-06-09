@@ -283,11 +283,15 @@ function OnPlayerConnect(PlayerIndex)
     
     local function player_setup(p)
         console_paused[p] = false
+        
         out_of_bounds[p] = { }
-        out_of_bounds[p].yes = false
-        out_of_bounds[p].timer = 0
+        out_of_bounds[p].yes, out_of_bounds[p].timer = false, 0
+        
         paused[p] = { }
         paused[p].start, paused[p].timer = false, 0
+        
+        spectator[p] = { }
+        spectator[p].enabled, spectator[p].timer = false, 0
     end
     
     if (start_trigger) and (enough_players) then
@@ -520,6 +524,14 @@ function OnTick()
                         cls(i, 25)
                     end
                     
+                    local p = { }
+                    p.player = tonumber(i)
+                    p.boundry_timer = boundry_timer
+                    p.shrink_time_msg = shrink_time_msg
+                    p.until_next_shrink = until_next_shrink
+                    p.time_remaining = time_remaining
+                    p.extra_time, p.time_stamp = extra_time, time_stamp
+                    
                     if (spectator[i] ~= nil) and (spectator[i].enabled) then
                         local count = last_man_standing.count
                         rprint(i, "|c--- Players Remaining --- ")
@@ -531,14 +543,6 @@ function OnTick()
                             hide_player(i, coords)
                         end
                         
-                        local p = { }
-                        p.player = tonumber(i)
-                        p.boundry_timer = boundry_timer
-                        p.shrink_time_msg = shrink_time_msg
-                        p.until_next_shrink = until_next_shrink
-                        p.time_remaining = time_remaining
-                        p.extra_time = extra_time
-                        p.time_stamp = time_stamp
                         DispayHUD(p)
                         
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
@@ -550,14 +554,7 @@ function OnTick()
                                 local rUnits = ( (px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                                 rprint(i, "|c-- INSIDE SAFE ZONE --")
                                 rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (final size: " .. min_size .. ")")
-                                
-                                local p = { }
-                                p.player = tonumber(i)
-                                p.boundry_timer = boundry_timer
-                                p.shrink_time_msg = shrink_time_msg
-                                p.until_next_shrink = until_next_shrink
-                                p.time_remaining = time_remaining
-                                p.extra_time, p.time_stamp = extra_time, time_stamp
+                               
                                 DispayHUD(p)
 
                             end
@@ -621,12 +618,17 @@ function OnTick()
     end
 end
 
-function saveKDRs()
+local function getKDR(p)
+    local kills,deaths = get_var(p, "$kills"), get_var(p, "$deaths")
+    local kdr = (kills/deaths)
+    return kdr
+end
+
+local function saveKDRs()
     local kdr_table = { }
     for i = 1,16 do
         if player_present(i) then
-            local kills, deaths = get_var(i, "$kills"), get_var(i, "$deaths")
-            local kdr = (kills/deaths)
+            getKDR(i)
             kdr_table[#kdr_table + 1] = kdr
         end                    
     end
@@ -634,10 +636,18 @@ function saveKDRs()
     return kdr_table
 end
 
-function getKDR(p)
-    local kills,deaths = get_var(p, "$kills"), get_var(p, "$deaths")
-    local kdr = (kills/deaths)
-    return kdr
+local function bestKDR()
+    local KDRTab = saveKDRs()
+    local highest_score = tonumber(KDRTab[#KDRTab])
+    
+    for i = 1,16 do
+        if player_present(i) then
+            local kdr = getKDR(i)
+            if (kdr == highest_score) then
+                last_man_standing.player = tonumber(i)
+            end
+        end
+    end
 end
 
 function GameOver()
@@ -661,20 +671,6 @@ function GameOver()
                 local score = tonumber(get_var(i, '$score'))
                 if (score > 0) then
                     scores[#scores + 1] = score
-                end
-            end
-        end
-        
-        local function bestKDR()
-            local KDRTab = saveKDRs()
-            local highest_score = tonumber(KDRTab[#KDRTab])
-            
-            for i = 1,16 do
-                if player_present(i) then
-                    local kdr = getKDR(i)
-                    if (kdr == highest_score) then
-                        last_man_standing.player = tonumber(i)
-                    end
                 end
             end
         end
