@@ -19,7 +19,7 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 2
+local players_needed = 1
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
@@ -36,84 +36,81 @@ boundry.maps = {
 
     ["timberland"] = {
         -- Boundry: x,y,z, Min Size, Max Size:
-        1.179, -1.114, -21.197, 100, 4500,
+        1.250, -1.487, -21.264, 100, 4500,
         -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
         extra_time = 2,
         -- How often does the Boundry reduce in size (in seconds):
-        duration = 60,
+        duration = 5,
         -- How many world units does the Boundry reduce in size:
         shrink_amount = 500,
     },
-
-    ["sidewinder"] = {
-        1.680, 31.881, -3.922, 150, 5500,
-        extra_time = 2, duration = 60, shrink_amount = 50,
+    ["carousel"] = {
+        0.012, -0.029, -0.856, 30, 270,
+        extra_time = 2, duration = 30, shrink_amount = 30,
     },
     ["ratrace"] = {
-        8.340, -10.787, 0.222, 40, 415,
-        extra_time = 2, duration = 60, shrink_amount = 30,
+        8.340, -10.787, 0.222, 50, 415,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
-
-    -- Not yet Implemented --
-    ["bloodgulch"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+    ["sidewinder"] = {
+        2.051, 55.220, -2.801, 150, 5500,
+        extra_time = 2, duration = 25, shrink_amount = 50,
     },
     ["beavercreek"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
-    },
-    ["boardingaction"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
-    },
-    ["carousel"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        14.015, 14.238, -0.911, 10, 415,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
     ["dangercanyon"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -0.477, 55.331, 0.239, 60, 3600,
+        extra_time = 2, duration = 10, shrink_amount = 500,
     },
-    ["deathisland"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+    ["bloodgulch"] = {
+        65.749, -120.409, 0.118, 30, 7100,
+        extra_time = 2, duration = 30, shrink_amount = 700,
+    },
+    ["boardingaction"] = {
+        18.301, -0.573, 0.420, 30, 4500,
+        extra_time = 2, duration = 3, shrink_amount = 500,
     },
     ["gephyrophobia"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        26.783, -74.000, -20.316, 40, 6200,
+        extra_time = 2, duration = 20, shrink_amount = 500,
+    },
+    ["deathisland"] = {
+        -30.282, 31.312, 16.601, 30, 5000,
+        extra_time = 2, duration = 25, shrink_amount = 500,
     },
     ["icefields"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -26.032, 32.365, 9.007, 0, 0,
+        extra_time = 2, duration = 0, shrink_amount = 0,
     },
     ["infinity"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        9.631, -64.030, 7.776, 0, 0,
+        extra_time = 2, duration = 0, shrink_amount = 0,
     },
     ["hangemhigh"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        21.020, -4.632, -4.229, 0, 0,
+        extra_time = 2, duration = 0, shrink_amount = 0,
     },
     ["damnation"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -2.002, -4.301, 3.399, 15, 0,
+        extra_time = 2, duration = 0, shrink_amount = 0,
     },
     ["putput"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -2.350, -21.121, 0.902, 15, 300,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
     ["prisoner"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        0.902, 0.088, 1.392, 15, 400,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
     ["wizard"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -5.035, -5.064, -2.750, 20, 350,
+        extra_time = 2, duration = 15, shrink_amount = 30,
     },
     ["longest"] = {
-        0000, 0000, 0000, 0, 0,
-        extra_time = 0, duration = 0, shrink_amount = 0,
+        -0.840, -14.540, 2.410, 20, 200,
+        extra_time = 2, duration = 30, shrink_amount = 50,
     },
 }
 -- ==== Battle Royale Configuration [ends] ==== --
@@ -126,6 +123,7 @@ local time_scale = 0.030
 
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
+
 local last_man_standing = { }
 last_man_standing.count = 0
 last_man_standing.player = nil
@@ -138,7 +136,7 @@ local init_victory_timer, victory_timer = false, 0
 
 local globals = nil
 local red_flag, blue_flag, game_over
-
+local kill_message_addresss, originl_kill_message
 local floor, format = math.floor, string.format
 local gmatch, sub = string.gmatch, string.sub
 
@@ -152,10 +150,19 @@ function OnScriptLoad()
         return
     end
     globals = read_dword(gp)
+    
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    originl_kill_message = read_dword(kill_message_addresss)
+
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
 end
 
 function OnScriptUnload()
-    --
+    safe_write(true)
+    write_dword(kill_message_addresss, originl_kill_message)
+    safe_write(false)
 end
 
 local function set(reset_scores)
@@ -276,7 +283,7 @@ function OnPlayerConnect(PlayerIndex)
         out_of_bounds[player].yes, out_of_bounds[player].timer = false, 0
 
         paused[player] = { }
-        paused[player].start, paused[player].timer = false, 0
+        paused[player].start, paused[player].timer, paused[player].duration = false, 0, 0
 
         spectator[player] = { }
         spectator[player].enabled, spectator[player].timer = false, 0
@@ -397,9 +404,8 @@ function checkForPause()
             if (paused[i] ~= nil) then
                 if (paused[i].start) then
                     paused[i].timer = paused[i].timer + time_scale
-                    if (paused[i].timer >= 3) then
-                        paused[i].start = false
-                        paused[i].timer = 0
+                    if (paused[i].timer >= paused[i].duration) then
+                        paused[i].start, paused[i].timer = false, 0
                         cls(i, 25)
                     end
                 end
@@ -466,7 +472,7 @@ function OnTick()
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
 
-        endGameCheck()
+        --endGameCheck()
 
         local time_stamp, until_next_shrink
         local time_remaining
@@ -525,6 +531,7 @@ function OnTick()
 
                     if (spectator[i] ~= nil) and (spectator[i].enabled) then
                         local count = last_man_standing.count
+                        rprint(i, "|cYOU ARE IN SPECTATOR MODE")
                         rprint(i, "|c--- Players Remaining --- ")
                         rprint(i, "|c" .. count)
 
@@ -559,7 +566,6 @@ function OnTick()
                                 local rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                                 rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
                                 out_of_bounds[i].yes = true
-
 
                             elseif (not paused[i].start) and console_paused[i] then
 
@@ -706,34 +712,39 @@ function GameOver()
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
+    
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
+    local v_name, k_name = get_var(victim, "$name"), get_var(killer, "$name")
+    
     if (killer > 0) then
 
         last_man_standing.count = last_man_standing.count - 1
-
         spectator[victim].enabled = true
         
-        local v_name, k_name = get_var(victim, "$name"), get_var(killer, "$name")
-
+        local response
+        
         -- More than 1 player remaining:
         if (last_man_standing.count > 1) then
-        
-            safe_write(true)
-            write_dword(kill_message_addresss, 0x03EB01B1)
-            safe_write(false)
-            
-            SayAll(v_name .. " was killed by " .. k_name .. ". " .. last_man_standing.count .. " players remain!")
-            
-            safe_write(true)
-            write_dword(kill_message_addresss, original)
-            safe_write(false)
-
-            -- Killer is the Victor. End the Game.
+            response = true
+        -- Killer is the Victor. End the Game.
         elseif (last_man_standing.count <= 1) then
+            response = false
             last_man_standing.player = killer
         end
+
+        -- PvP:
+        if (killer ~= victim) and (response) then
+            SayAll(v_name .. " was killed by " .. k_name .. ". " .. last_man_standing.count .. " players remain!")
+        -- Suicide:
+        elseif (victim == killer) and (response) then
+            SayAll(v_name .. " committed suicide. " .. last_man_standing.count .. " players remain!")
+        end    
+
+    elseif (killer == -1) or (killer == nil) or (killer == 0) then
+        SayAll(v_name .. " died")
     end
+    
 end
 
 function cls(PlayerIndex, count, clear_chat, type)
@@ -766,7 +777,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
     elseif (sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\") then
         if (paused[p].start ~= true) then
             cls(p, 25)
-            paused[p].start = true
+            paused[p].duration, paused[p].start = 3, true
         end
     end
 end
@@ -779,7 +790,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (paused[p].start ~= true) then
         cls(p, 25)
-        paused[p].start = true
+        paused[p].duration, paused[p].start = 3, true
     end
 end
 
@@ -831,15 +842,7 @@ end
 
 function killSilently(PlayerIndex)
     if DeleteWeapons(PlayerIndex) then
-        local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-        local original = read_dword(kill_message_addresss)
-        safe_write(true)
-        write_dword(kill_message_addresss, 0x03EB01B1)
-        safe_write(false)
         execute_command("kill " .. tonumber(PlayerIndex))
-        safe_write(true)
-        write_dword(kill_message_addresss, original)
-        safe_write(false)
         write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
         -- Deduct one death
         local deaths = tonumber(get_var(PlayerIndex, "$deaths"))
@@ -855,20 +858,11 @@ function GameStartCountdown()
         game_in_progress = true
 
         if (time < 1) then
+        
             stopTimer()
             set(true)
             cls(0, 25, true, "rcon")
-            local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-            local original = read_dword(kill_message_addresss)
-
-            safe_write(true)
-            write_dword(kill_message_addresss, 0x03EB01B1)
-            safe_write(false)
             execute_command("sv_map_reset")
-            safe_write(true)
-            write_dword(kill_message_addresss, original)
-            safe_write(false)
-
             register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
             register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
