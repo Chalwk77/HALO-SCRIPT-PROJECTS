@@ -19,7 +19,7 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 1
+local players_needed = 2
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
@@ -602,9 +602,6 @@ function OnTick()
                         for _ = 1, 7 do
                             rprint(i, " ")
                         end
-                    else
-                        -- TO DO: 
-                        -- FIX THIS EMPTY IF BRANCH!
                     end
                 end
             end
@@ -838,13 +835,13 @@ end
 function GameStartCountdown()
     if (gamestart_countdown ~= nil) then
         gamestart_countdown = gamestart_countdown + time_scale
-
+        local gamestart_delay = gamestart_delay + 1
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
 
         if (time < 1) then
             stopTimer()
             set(true)
-
+            cls(0, 25, true, "rcon")
             local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
             local original = read_dword(kill_message_addresss)
 
