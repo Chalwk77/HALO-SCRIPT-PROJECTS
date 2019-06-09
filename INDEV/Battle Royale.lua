@@ -18,20 +18,8 @@ local boundry = { }
 
 -- ==== Battle Royale Configuration [starts] ==== --
 
--- Players needed to start the game:
-local players_needed = 1
-
--- Players will be auto-killed if Out Of Bounds for this many seconds:
-local time_until_kill = 5
-
--- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 5
-
--- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
--- The prefix will be restored to 'server_prefix' when the relay has finished.
-local server_prefix = "**LNZ**"
-
 boundry.maps = {
+
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
 
     ["timberland"] = {
@@ -43,82 +31,95 @@ boundry.maps = {
         duration = 30,
         -- How many world units does the Boundry reduce in size:
         reduction_amount = 500,
+        -- Players needed to start the game:
+        players_needed = 2,
+        -- When enough players are present, the game will start in this many seconds:
+        gamestart_delay = 30,
+        
+        -- Players will be auto-killed if outside combat zone:
+        -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
+        -- * This is different from the playable boundry that has shrunk.
+        time_until_kill = 5,
     },
     ["carousel"] = {
         0.012, -0.029, -0.856, 30, 270,
-        extra_time = 2, duration = 30, reduction_amount = 30,
+        extra_time = 2, duration = 30, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["ratrace"] = {
         8.340, -10.787, 0.222, 50, 415,
-        extra_time = 2, duration = 30, reduction_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["sidewinder"] = {
         2.051, 55.220, -2.801, 150, 5500,
-        extra_time = 2, duration = 25, reduction_amount = 50,
+        extra_time = 2, duration = 25, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["beavercreek"] = {
         14.015, 14.238, -0.911, 10, 415,
-        extra_time = 2, duration = 30, reduction_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["dangercanyon"] = {
         -0.477, 55.331, 0.239, 60, 6500,
-        extra_time = 2, duration = 20, reduction_amount = 500,
+        extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["bloodgulch"] = {
         65.749, -120.409, 0.118, 30, 7100,
-        extra_time = 2, duration = 30, reduction_amount = 700,
+        extra_time = 2, duration = 30, reduction_amount = 700, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["boardingaction"] = {
         18.301, -0.573, 0.420, 30, 4500,
-        extra_time = 2, duration = 3, reduction_amount = 500,
+        extra_time = 2, duration = 3, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["gephyrophobia"] = {
         26.735, -72.359, -16.996, 40, 6200,
-        extra_time = 2, duration = 20, reduction_amount = 500,
+        extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["deathisland"] = {
         -30.282, 31.312, 16.601, 30, 5000,
-        extra_time = 2, duration = 25, reduction_amount = 500,
+        extra_time = 2, duration = 25, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["icefields"] = {
         -26.032, 32.365, 9.007, 30, 7500,
-        extra_time = 2, duration = 30, reduction_amount = 500,
+        extra_time = 2, duration = 30, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["infinity"] = {
         9.631, -64.030, 7.776, 100, 11500,
-        extra_time = 2, duration = 30, reduction_amount = 1000,
+        extra_time = 2, duration = 30, reduction_amount = 1000, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["hangemhigh"] = {
         21.020, -4.632, -4.229, 10, 605,
-        extra_time = 2, duration = 30, reduction_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["damnation"] = {
         6.298, 0.047, 3.400, 15, 600,
-        extra_time = 2, duration = 15, reduction_amount = 50,
+        extra_time = 2, duration = 15, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["putput"] = {
         -3.751, -20.800, 0.902, 15, 1600,
-        extra_time = 2, duration = 30, reduction_amount = 100,
+        extra_time = 2, duration = 30, reduction_amount = 100, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["prisoner"] = {
         0.902, 0.088, 1.392, 15, 400,
-        extra_time = 2, duration = 30, reduction_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["wizard"] = {
         -5.035, -5.064, -2.750, 20, 350,
-        extra_time = 2, duration = 15, reduction_amount = 30,
+        extra_time = 2, duration = 15, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
     ["longest"] = {
         -0.840, -14.540, 2.410, 20, 200,
-        extra_time = 2, duration = 30, reduction_amount = 50,
+        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
     },
 }
+
+-- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
+-- The prefix will be restored to 'server_prefix' when the relay has finished.
+local server_prefix = "**LNZ**"
 -- ==== Battle Royale Configuration [ends] ==== --
 
 local bX, bY, bZ, bR
-local min_size, max_size, extra_time, reduction_amount
+local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
-local monitor_coords
+local monitor_coords, time_until_kill, gamestart_delay
 local time_scale = 0.030
 
 local console_paused, paused = { }, { }
@@ -154,15 +155,20 @@ function OnScriptLoad()
     
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
     originl_kill_message = read_dword(kill_message_addresss)
-
-    safe_write(true)
-    write_dword(kill_message_addresss, 0x03EB01B1)
-    safe_write(false)
 end
 
 function OnScriptUnload()
+end
+
+function enableKillMessages()
     safe_write(true)
     write_dword(kill_message_addresss, originl_kill_message)
+    safe_write(false)
+end
+
+function disableKillMessages()
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
     safe_write(false)
 end
 
@@ -254,6 +260,8 @@ local function init_params(reset)
         -- Calculated total game time:
         game_time = (reduction_rate * (max_size / reduction_amount))
         game_time = (game_time + extra_time)
+        
+        time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
         -- Set initial timers to ZERO.
         game_timer = 0
@@ -287,6 +295,7 @@ local function init_params(reset)
 end
 
 function OnGameStart()
+    enableKillMessages()
     game_over = false
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
@@ -310,10 +319,18 @@ local player_count = function()
     return tonumber(get_var(0, "$pn"))
 end
 
+local players_needed = function()
+    local mapname = get_var(0, "$map")
+    local coords = boundry.maps[mapname]
+    if (coords ~= nil) then
+        return tonumber(coords.players_needed)
+    end
+end
+
 function OnPlayerConnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
 
-    local enough_players = (player_count() >= players_needed)
+    local enough_players = (player_count() >= players_needed())
 
     last_man_standing.count = last_man_standing.count + 1
 
@@ -718,6 +735,7 @@ function GameOver()
         init_victory_timer = true
         victory_timer = victory_timer or 0
         execute_command('sv_map_next')
+        enableKillMessages()
     end
 
     game_timer = nil
@@ -918,6 +936,7 @@ function GameStartCountdown()
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
 
         if (time < 1) then
+            disableKillMessages()
             stopTimer()
             set(true)
             cls(0, 25, true, "rcon")
