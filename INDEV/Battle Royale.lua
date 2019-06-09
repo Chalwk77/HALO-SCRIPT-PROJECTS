@@ -639,9 +639,8 @@ function OnTick()
                         
                         if (px) then
                             rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                            rUnits = format("%0.2f", rUnits)
                         end
-                        
-                        rUnits = format("%0.2f", rUnits)
                         
                         -- BOUNDRY CROSSOVER CHECKS:
                         if boundry:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
