@@ -25,7 +25,7 @@ local players_needed = 2
 local time_until_kill = 5
 
 -- When enough players are present, the game will start in this many seconds:
-local gamestart_delay = 30
+local gamestart_delay = 2
 
 -- Several functions temporarily remove the "** SERVER **" prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
@@ -168,13 +168,6 @@ end
 local function set(reset_scores)
     for i = 1, 16 do
         if player_present(i) then
-            paused[i] = paused[i] or { }
-            paused[i].start, paused[i].timer = false, 0
-
-            spectator[i] = { }
-            spectator[i].enabled, spectator[i].timer = false, 0
-
-            zone_transition[i] = false
 
             -- Ensure all players have full health
             execute_command("hp " .. i .. " 1")
@@ -286,7 +279,7 @@ function OnPlayerConnect(PlayerIndex)
 
     last_man_standing.count = last_man_standing.count + 1
 
-    local function player_setup(player, in_progress)
+    local function player_setup(player, in_progress)    
         console_paused[player] = false
 
         out_of_bounds[player] = { }
@@ -297,6 +290,8 @@ function OnPlayerConnect(PlayerIndex)
 
         spectator[player] = { }
         spectator[player].enabled, spectator[player].timer = false, 0
+        
+        zone_transition[player] = false
         
         if (in_progress) then
             spectator[player].enabled = true
@@ -312,9 +307,11 @@ function OnPlayerConnect(PlayerIndex)
         -- Setup player parameters:
         player_setup(p, false)
         
+    elseif (start_trigger and not enough_players) then
+        player_setup(p, false)
     elseif (game_in_progress and enough_players) then
         player_setup(p, true)
-    elseif not (enough_players) then
+    elseif not (game_in_progress) and (enough_players) then
         player_setup(p, false)
     end
 end
@@ -866,6 +863,7 @@ end
 
 function GameStartCountdown()
     if (gamestart_countdown ~= nil) then
+    
         gamestart_countdown = gamestart_countdown + time_scale
         local gamestart_delay = gamestart_delay + 1
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
