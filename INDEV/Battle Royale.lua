@@ -314,7 +314,7 @@ function OnPlayerConnect(PlayerIndex)
         
     elseif (game_in_progress and enough_players) then
         player_setup(p, true)
-    elseif not (enough_players)
+    elseif not (enough_players) then
         player_setup(p, false)
     end
 end
