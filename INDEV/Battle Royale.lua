@@ -18,96 +18,99 @@ local boundry = { }
 
 -- ==== Battle Royale Configuration [starts] ==== --
 
-boundry.maps = {
+boundry.settings = {
+    
+    spectator_running_speed = 2,
 
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
-
-    ["timberland"] = {
-        -- Boundry: x,y,z, Min Size, Max Size:
-        1.245, -1.028, -21.186, 100, 4700,
-        -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
-        extra_time = 2,
-        -- How often does the Boundry reduce in size (in seconds):
-        duration = 30,
-        -- How many world units does the Boundry reduce in size:
-        reduction_amount = 500,
-        -- Players needed to start the game:
-        players_needed = 2,
-        -- When enough players are present, the game will start in this many seconds:
-        gamestart_delay = 30,
-        
-        -- Players will be auto-killed if outside combat zone:
-        -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
-        -- * This is different from the playable boundry that has shrunk.
-        time_until_kill = 5,
-    },
-    ["carousel"] = {
-        0.012, -0.029, -0.856, 30, 270,
-        extra_time = 2, duration = 30, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["ratrace"] = {
-        8.340, -10.787, 0.222, 50, 415,
-        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["sidewinder"] = {
-        2.051, 55.220, -2.801, 150, 5500,
-        extra_time = 2, duration = 25, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["beavercreek"] = {
-        14.015, 14.238, -0.911, 10, 415,
-        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["dangercanyon"] = {
-        -0.477, 55.331, 0.239, 60, 6500,
-        extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["bloodgulch"] = {
-        65.749, -120.409, 0.118, 30, 7100,
-        extra_time = 2, duration = 30, reduction_amount = 700, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["boardingaction"] = {
-        18.301, -0.573, 0.420, 30, 4500,
-        extra_time = 2, duration = 3, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["gephyrophobia"] = {
-        26.735, -72.359, -16.996, 40, 6200,
-        extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["deathisland"] = {
-        -30.282, 31.312, 16.601, 30, 5000,
-        extra_time = 2, duration = 25, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["icefields"] = {
-        -26.032, 32.365, 9.007, 30, 7500,
-        extra_time = 2, duration = 30, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["infinity"] = {
-        9.631, -64.030, 7.776, 100, 11500,
-        extra_time = 2, duration = 30, reduction_amount = 1000, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["hangemhigh"] = {
-        21.020, -4.632, -4.229, 10, 605,
-        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["damnation"] = {
-        6.298, 0.047, 3.400, 15, 600,
-        extra_time = 2, duration = 15, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["putput"] = {
-        -3.751, -20.800, 0.902, 15, 1600,
-        extra_time = 2, duration = 30, reduction_amount = 100, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["prisoner"] = {
-        0.902, 0.088, 1.392, 15, 400,
-        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["wizard"] = {
-        -5.035, -5.064, -2.750, 20, 350,
-        extra_time = 2, duration = 15, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
-    },
-    ["longest"] = {
-        -0.840, -14.540, 2.410, 20, 200,
-        extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+    maps = { 
+        ["timberland"] = {
+            -- Boundry: x,y,z, Min Size, Max Size:
+            1.245, -1.028, -21.186, 100, 4700,
+            -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
+            extra_time = 2,
+            -- How often does the Boundry reduce in size (in seconds):
+            duration = 30,
+            -- How many world units does the Boundry reduce in size:
+            reduction_amount = 500,
+            -- Players needed to start the game:
+            players_needed = 2,
+            -- When enough players are present, the game will start in this many seconds:
+            gamestart_delay = 30,
+            
+            -- Players will be auto-killed if outside combat zone:
+            -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
+            -- * This is different from the playable boundry that has shrunk.
+            time_until_kill = 5,
+        },
+        ["carousel"] = {
+            0.012, -0.029, -0.856, 30, 270,
+            extra_time = 2, duration = 30, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["ratrace"] = {
+            8.340, -10.787, 0.222, 50, 415,
+            extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["sidewinder"] = {
+            2.051, 55.220, -2.801, 150, 5500,
+            extra_time = 2, duration = 25, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["beavercreek"] = {
+            14.015, 14.238, -0.911, 10, 415,
+            extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["dangercanyon"] = {
+            -0.477, 55.331, 0.239, 60, 6500,
+            extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["bloodgulch"] = {
+            65.749, -120.409, 0.118, 30, 7100,
+            extra_time = 2, duration = 30, reduction_amount = 700, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["boardingaction"] = {
+            18.301, -0.573, 0.420, 30, 4500,
+            extra_time = 2, duration = 3, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["gephyrophobia"] = {
+            26.735, -72.359, -16.996, 40, 6200,
+            extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["deathisland"] = {
+            -30.282, 31.312, 16.601, 30, 5000,
+            extra_time = 2, duration = 25, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["icefields"] = {
+            -26.032, 32.365, 9.007, 30, 7500,
+            extra_time = 2, duration = 30, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["infinity"] = {
+            9.631, -64.030, 7.776, 100, 11500,
+            extra_time = 2, duration = 30, reduction_amount = 1000, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["hangemhigh"] = {
+            21.020, -4.632, -4.229, 10, 605,
+            extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["damnation"] = {
+            6.298, 0.047, 3.400, 15, 600,
+            extra_time = 2, duration = 15, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["putput"] = {
+            -3.751, -20.800, 0.902, 15, 1600,
+            extra_time = 2, duration = 30, reduction_amount = 100, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["prisoner"] = {
+            0.902, 0.088, 1.392, 15, 400,
+            extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["wizard"] = {
+            -5.035, -5.064, -2.750, 20, 350,
+            extra_time = 2, duration = 15, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
+        ["longest"] = {
+            -0.840, -14.540, 2.410, 20, 200,
+            extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+        },
     },
 }
 
@@ -130,6 +133,7 @@ last_man_standing.count = 0
 last_man_standing.player = nil
 
 local spectator, health_trigger, health, health_bool = { }, { }, { }, { }
+local spectator_running_speed
 local zone_transition = { }
 local flag_table = { }
 
@@ -180,6 +184,8 @@ local function set(reset_scores)
             execute_command("hp " .. i .. " 1")
             health_trigger[i] = 0
             health_bool[i] = false
+            
+            -- Save current health to an array:
             health[i] = get_var(i, "$hp")
 
             if (reset_scores) then
@@ -242,7 +248,7 @@ end
 -- Initialize start up parameters:
 local function init_params(reset)
     local mapname = get_var(0, "$map")
-    local coords = boundry.maps[mapname]
+    local coords = boundry.settings.maps[mapname]
     if (coords ~= nil) then
     
         -- Declare boundry Minimum/Maximum size
@@ -270,6 +276,8 @@ local function init_params(reset)
 
         -- Init boundry checker:
         monitor_coords = true
+        
+        spectator_running_speed = (boundry.settings.spectator_running_speed)
 
         if (reset) then            
             set(false)
@@ -279,6 +287,7 @@ local function init_params(reset)
             unregister_callback(cb['EVENT_DIE'])
             unregister_callback(cb['EVENT_TICK'])
             unregister_callback(cb['EVENT_CHAT'])
+            unregister_callback(cb['EVENT_SPAWN'])
             unregister_callback(cb['EVENT_COMMAND'])
             unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
@@ -289,6 +298,7 @@ local function init_params(reset)
             register_callback(cb["EVENT_TICK"], "OnTick")
             register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
             register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+            register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
             register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
         end
     end
@@ -321,7 +331,7 @@ end
 
 local players_needed = function()
     local mapname = get_var(0, "$map")
-    local coords = boundry.maps[mapname]
+    local coords = boundry.settings.maps[mapname]
     if (coords ~= nil) then
         return tonumber(coords.players_needed)
     end
@@ -388,6 +398,10 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    --
 end
 
 function boundry:shrink()
@@ -608,12 +622,13 @@ function OnTick()
                         local coords = getXYZ(i)
                         if (coords) then
                             execute_command("camo " .. i)
+                            execute_command("s " .. tonumber(i) .. " " .. tonumber(spectator_running_speed))
                             hide_player(i, coords)
                         end
 
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
                     
-                        local px, py, pz
+                        local px, py, pz, rUnits
                         local coords = getXYZ(i)
                         
                         if (coords) then
@@ -622,25 +637,27 @@ function OnTick()
                             px, py, pz = read_vector3d(player_object + 0x5c)
                         end
                         
+                        if (px) then
+                            rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
+                        end
                         
+                        rUnits = format("%0.2f", rUnits)
                         
+                        -- BOUNDRY CROSSOVER CHECKS:
                         if boundry:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
                             if (not console_paused[i]) and (not paused[i].start) then
-
-                                local rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                                 rprint(i, "|c--  I N S I D E   S A F E   Z O N E --")
-                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. reduction_amount .. ")")
+                                rprint(i, "|cUNITS FROM CENTER: " .. rUnits .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. reduction_amount .. ")")
                                 DispayHUD(p)
                             end
 
                         elseif (monitor_coords) then
+                            execute_command("camo " .. i .. " 1")
                             if (not console_paused[i]) and (not paused[i].start) then
 
                                 rprint(i, "|cWARNING:")
                                 rprint(i, "|cYOU ARE OUTSIDE THE BOUNDRY!")
-
-                                local rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
-                                rprint(i, "|cUNITS FROM CENTER: " .. floor(rUnits) .. "/" .. bR)
+                                rprint(i, "|cUNITS FROM CENTER: " .. rUnits .. "/" .. bR)
                                 out_of_bounds[i].yes = true
 
                             elseif (not paused[i].start) and console_paused[i] then
@@ -661,7 +678,6 @@ function OnTick()
                                     killPlayer(i)
                                 end
                             end
-                            execute_command("camo " .. i .. " 1")
                         end
                     end
                 end
