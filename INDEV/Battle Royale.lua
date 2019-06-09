@@ -19,7 +19,7 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 -- Players needed to start the game:
-local players_needed = 2
+local players_needed = 1
 
 -- Players will be auto-killed if Out Of Bounds for this many seconds:
 local time_until_kill = 5
@@ -372,7 +372,7 @@ local function reduceHealth(p, bool)
 
             local current_health = tonumber(get_var(p, "$hp"))
             if (current_health <= 0) then
-                killSilently(p)
+                killPlayer(p)
                 spectator[p].enabled = true
                 last_man_standing.count = last_man_standing.count - 1
                 local name = get_var(p, "$name")
@@ -557,8 +557,18 @@ function OnTick()
                         end
 
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
-
-                        local px, py, pz = read_vector3d(player_object + 0x5c)
+                    
+                        local px, py, pz
+                        local coords = getXYZ(i)
+                        
+                        if (coords) then
+                            px, py, pz = coords.x, coords.y, coords.z
+                        else
+                            px, py, pz = read_vector3d(player_object + 0x5c)
+                        end
+                        
+                        
+                        
                         if boundry:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
                             if (not console_paused[i]) and (not paused[i].start) then
 
@@ -590,9 +600,10 @@ function OnTick()
                                 rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
                                 rprint(i, "|cRETURN NOW OR YOU WILL BE SHOT!")
                                 rprint(i, "|c(" .. seconds .. ")")
+                                
                                 if (out_of_bounds[i].timer >= time_until_kill) then
                                     out_of_bounds[i].timer = 0
-                                    killSilently(i)
+                                    killPlayer(i)
                                 end
                             end
                             execute_command("camo " .. i .. " 1")
@@ -851,7 +862,7 @@ local function DeleteWeapons(PlayerIndex)
     end
 end
 
-function killSilently(PlayerIndex)
+function killPlayer(PlayerIndex)
     if DeleteWeapons(PlayerIndex) then
         execute_command("kill " .. tonumber(PlayerIndex))
         write_dword(get_player(PlayerIndex) + 0x2C, 0 * 33)
@@ -930,12 +941,10 @@ function getXYZ(p)
     if (player_object ~= 0 and player_alive(p)) then
         local coords = { }
         if PlayerInVehicle(p) then
-            coords.invehicle = true
             local VehicleID = read_dword(player_object + 0x11C)
             local vehicle = get_object_memory(VehicleID)
             x, y, z = read_vector3d(vehicle + 0x5c)
         else
-            coords.invehicle = false
             x, y, z = read_vector3d(player_object + 0x5c)
         end
         coords.x, coords.y, coords.z = x, y, z
