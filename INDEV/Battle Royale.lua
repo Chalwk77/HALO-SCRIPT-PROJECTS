@@ -64,7 +64,7 @@ boundry.settings = {
             extra_time = 2, duration = 20, reduction_amount = 500, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
         },
         ["bloodgulch"] = {
-            65.749, -120.409, 0.118, 30, 7100,
+            65.749, -120.409, 0.118, 40, 7100,
             extra_time = 2, duration = 30, reduction_amount = 700, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
         },
         ["boardingaction"] = {
@@ -162,6 +162,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
+    --
 end
 
 function enableKillMessages()
@@ -264,7 +265,7 @@ local function init_params(reset)
         extra_time = (coords.extra_time * 60)
 
         -- Calculated total game time:
-        game_time = (reduction_rate * (max_size / reduction_amount))
+        game_time = reduction_rate * (max_size / reduction_amount)
         game_time = (game_time + extra_time)
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
@@ -311,6 +312,19 @@ function OnGameStart()
 end
 
 function OnGameEnd()
+    if (game_timer ~= nil) and (game_timer > 0) then
+        game_timer = nil
+        boundry_timer = nil
+        monitor_coords = nil
+        start_trigger, game_in_progress, game_time = true, false, 0
+        init_params(true)
+        cls(0, 25, true, "rcon")
+    elseif (gamestart_countdown ~= nil) and (gamestart_countdown > 0) then
+        start_trigger, game_in_progress, game_time = true, false, 0
+        stopTimer()
+        init_params(true)
+        cls(0, 25, true, "rcon")
+    end
     game_over = true
 end
 
@@ -342,8 +356,6 @@ function OnPlayerConnect(PlayerIndex)
 
     local enough_players = (player_count() >= players_needed())
 
-    last_man_standing.count = last_man_standing.count + 1
-
     local function player_setup(player, in_progress)    
         console_paused[player] = false
 
@@ -364,6 +376,7 @@ function OnPlayerConnect(PlayerIndex)
     end
 
     if (start_trigger) and (enough_players) then
+        last_man_standing.count = last_man_standing.count + 1
         start_trigger = false
         
         -- Initialize game parameters:
@@ -373,10 +386,12 @@ function OnPlayerConnect(PlayerIndex)
         player_setup(p, false)
         
     elseif (start_trigger and not enough_players) then
+        last_man_standing.count = last_man_standing.count + 1
         player_setup(p, false)
     elseif (game_in_progress and enough_players) then
         player_setup(p, true)
     elseif not (game_in_progress) and (enough_players) then
+        last_man_standing.count = last_man_standing.count + 1
         player_setup(p, false)
     end
 end
