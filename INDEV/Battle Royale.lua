@@ -271,14 +271,12 @@ local function init_params(reset)
 
         -- Calculated total game time:
         game_time = (reduction_rate * (max_size / reduction_amount))
-        game_time = (game_time + extra_time - reduction_rate)
-
+        game_time = (game_time + extra_time)
+        
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
         -- Set initial timers to ZERO.
-        game_timer = 0
-        reduction_timer = 0
-        boundry_timer = 0
+        game_timer, reduction_timer, boundry_timer = 0, 0, 0
 
         -- Init boundry checker:
         monitor_coords = true
@@ -401,10 +399,13 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
-    last_man_standing.count = last_man_standing.count - 1
+    
+    if (spectator[p] ~= nil and not spectator[p].enabled) then
+        spectator[p] = nil
+        last_man_standing.count = last_man_standing.count - 1
+    end
 
     local count = last_man_standing.count
-    spectator[p] = nil
 
     if (count < 1) then
         -- Initialize game parameters:
@@ -486,7 +487,7 @@ function boundry:inSphere(p, px, py, pz, x, y, z, r)
         console_paused[p], out_of_bounds[p].yes = false, false
         restoreHealth(p)
         return true
-    elseif (coords >= r + 1) and (coords < max_size) then
+    elseif (coords > r) and (coords < max_size) then
         console_paused[p] = false
         reduceHealth(p, false)
         return false
@@ -532,6 +533,7 @@ local function DispayHUD(params)
     local time_stamp = params.time_stamp
 
     if (time_remaining ~= nil) then
+    
         if (boundry_timer ~= nil) then
             shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
         else
@@ -539,7 +541,7 @@ local function DispayHUD(params)
         end
 
         local header, send_timestamp = ""
-        if (time_remaining >= _extra_time) then
+        if (time_remaining > _extra_time) then
             send_timestamp = true
             header = "Game Time Remaining: " .. time_stamp
         elseif (time_remaining <= _extra_time) and (time_remaining > 0) then
