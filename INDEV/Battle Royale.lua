@@ -36,7 +36,7 @@ boundry.settings = {
             -- Players needed to start the game:
             players_needed = 2,
             -- When enough players are present, the game will start in this many seconds:
-            gamestart_delay = 30,
+            gamestart_delay =60,
 
             -- Players will be auto-killed if outside combat zone:
             -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
@@ -588,6 +588,8 @@ function OnTick()
             local GTmins, GTsecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
             time_stamp = (GTmins .. ":" .. GTsecs)
 
+            -- BOUNDRY REDUCTION TIMER:
+            
             if (reduction_timer ~= nil) then
                 reduction_timer = reduction_timer + time_scale
 
@@ -599,15 +601,14 @@ function OnTick()
                 local Smins, Ssecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
                 until_next_shrink = (Smins .. ":" .. Ssecs)
             end
-        end
-
-        -- BOUNDRY REDUCTION TIMER:
-        if (boundry_timer ~= nil) then
-            boundry_timer = boundry_timer + time_scale
-            if (boundry_timer >= (reduction_rate + time_scale)) then
-                if (bR > min_size and bR <= max_size) then
-                    boundry_timer = 0
-                    boundry:shrink()
+            
+            if (boundry_timer ~= nil) then
+                boundry_timer = boundry_timer + time_scale
+                if (boundry_timer >= (reduction_rate + time_scale)) then
+                    if (bR > min_size and bR <= max_size) then
+                        boundry_timer = 0
+                        boundry:shrink()
+                    end
                 end
             end
         end
