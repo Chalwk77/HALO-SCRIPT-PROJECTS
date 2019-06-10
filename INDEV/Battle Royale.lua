@@ -26,7 +26,7 @@ boundry.settings = {
     maps = { 
         ["timberland"] = {
             -- Boundry: x,y,z, Min Size, Max Size:
-            1.245, -1.028, -21.186, 100, 4700,
+            1.245, -1.028, -21.186, 500, 2500,
             -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
             extra_time = 2,
             -- How often does the Boundry reduce in size (in seconds):
@@ -42,6 +42,11 @@ boundry.settings = {
             -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
             -- * This is different from the playable boundry that has shrunk.
             time_until_kill = 5,
+            
+            -- NOTE:
+            -- Total game time is calculated automatically:
+            -- Reduction Rate * (Max Size / Reduction Amount)
+            
         },
         ["carousel"] = {
             0.012, -0.029, -0.856, 30, 270,
@@ -256,7 +261,7 @@ local function init_params(reset)
         min_size, max_size = coords[4], coords[5]
 
         -- Init Boundry coordinates and Radius
-        bX, bY, bZ, bR = coords[1], coords[2], coords[3], coords[5]
+        bX, bY, bZ, bR = coords[1], coords[2], coords[3], max_size
 
         -- Declare boundry reduction rate/size
         reduction_rate, reduction_amount = coords.duration, coords.reduction_amount
@@ -265,7 +270,7 @@ local function init_params(reset)
         extra_time = (coords.extra_time * 60)
 
         -- Calculated total game time:
-        game_time = reduction_rate * (max_size / reduction_amount)
+        game_time = ( reduction_rate * (max_size / reduction_amount) )
         game_time = (game_time + extra_time)
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
