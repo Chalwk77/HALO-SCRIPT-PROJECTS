@@ -887,8 +887,6 @@ local weapon_status, portalgun_mode = { }, { }
 -- #Respawn Time
 local respawn_cmd_override, respawn_time = { }, { }
 
--- #Lurker
-
 -- #Teleport Manager
 local canset = { }
 local wait_for_response, previous_location = { }, { }
@@ -1152,6 +1150,7 @@ local function PreLoad()
         "50bbef5ebf4e0393016d129a545bd09d",
         "a77ee0be91bd38a0635b65991bc4b686",
         "3126fab3615a94119d5fe9eead1e88c1",
+        "2f02b641060da979e2b89abcfa1af3d6", -- new (needs verifying)
     }
 end
 -- #Alias System
