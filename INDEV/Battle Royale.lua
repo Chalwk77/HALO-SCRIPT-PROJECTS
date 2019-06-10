@@ -19,11 +19,11 @@ local boundry = { }
 -- ==== Battle Royale Configuration [starts] ==== --
 
 boundry.settings = {
-    
+
     spectator_running_speed = 2,
 
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
-    maps = { 
+    maps = {
         ["timberland"] = {
             -- Boundry: x,y,z, Min Size, Max Size:
             1.245, -1.028, -21.186, 50, 4700,
@@ -37,16 +37,16 @@ boundry.settings = {
             players_needed = 2,
             -- When enough players are present, the game will start in this many seconds:
             gamestart_delay = 30,
-            
+
             -- Players will be auto-killed if outside combat zone:
             -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
             -- * This is different from the playable boundry that has shrunk.
             time_until_kill = 5,
-            
+
             -- NOTE:
             -- Total game time is calculated automatically:
             -- Reduction Rate * (Max Size / Reduction Amount) + (Extra Time - Reduction Rate)
-            
+
         },
         ["carousel"] = {
             0.012, -0.029, -0.856, 30, 270,
@@ -140,13 +140,13 @@ last_man_standing.player = nil
 local spectator, health_trigger, health, health_bool = { }, { }, { }, { }
 local spectator_running_speed
 local zone_transition = { }
-local flag_table = { }
+-- local flag_table = { }
 
 local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
 
 local globals = nil
-local red_flag, blue_flag, game_over
+local red_flag, blue_flag
 local kill_message_addresss, originl_kill_message
 local floor, format = math.floor, string.format
 local gmatch, sub = string.gmatch, string.sub
@@ -161,7 +161,7 @@ function OnScriptLoad()
         return
     end
     globals = read_dword(gp)
-    
+
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
     originl_kill_message = read_dword(kill_message_addresss)
 end
@@ -190,7 +190,7 @@ local function set(reset_scores)
             execute_command("hp " .. i .. " 1")
             health_trigger[i] = 0
             health_bool[i] = false
-            
+
             -- Save current health to an array:
             health[i] = get_var(i, "$hp")
 
@@ -205,50 +205,50 @@ local function set(reset_scores)
 end
 
 -- local function SpawnFlag(x, y, z)
-    -- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
-    -- if TagInfo(tag_name, tag_id) then
-    
-        -- if (#flag_table > 0) then
-            -- for i = 1,#flag_table do
-                -- local _flag_ = flag_table[i]
-                -- if get_object_memory(_flag_) then
-                    -- DestroyObject(_flag_)
-                -- end
-            -- end
-        -- end
-        
-        -- local amount = 8
-        -- for i = 1,amount do
-            -- if (i == 1) then
-                -- x = x
-                -- y = y + 1
-            -- elseif (i == 2) then
-                -- x = x + 1
-                -- y = y + 1
-            -- elseif (i == 3) then
-                -- x = x + 1
-                -- y = y
-            -- elseif (i == 4) then
-                -- x = x + 1
-                -- y = y - 1
-            -- elseif (i == 5) then
-                -- x = x
-                -- y = y - 1
-            -- elseif (i == 6) then
-                -- x = x - 1
-                -- y = y - 1
-            -- elseif (i == 7) then
-                -- x = x - 1
-                -- y = y
-            -- elseif (i == 8) then
-                -- x = x - 1
-                -- y = y + 1
-            -- end
+-- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+-- if TagInfo(tag_name, tag_id) then
 
-            -- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
-            -- flag_table[#flag_table + 1] = flag
-        -- end
-    -- end
+-- if (#flag_table > 0) then
+-- for i = 1,#flag_table do
+-- local _flag_ = flag_table[i]
+-- if get_object_memory(_flag_) then
+-- DestroyObject(_flag_)
+-- end
+-- end
+-- end
+
+-- local amount = 8
+-- for i = 1,amount do
+-- if (i == 1) then
+-- x = x
+-- y = y + 1
+-- elseif (i == 2) then
+-- x = x + 1
+-- y = y + 1
+-- elseif (i == 3) then
+-- x = x + 1
+-- y = y
+-- elseif (i == 4) then
+-- x = x + 1
+-- y = y - 1
+-- elseif (i == 5) then
+-- x = x
+-- y = y - 1
+-- elseif (i == 6) then
+-- x = x - 1
+-- y = y - 1
+-- elseif (i == 7) then
+-- x = x - 1
+-- y = y
+-- elseif (i == 8) then
+-- x = x - 1
+-- y = y + 1
+-- end
+
+-- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
+-- flag_table[#flag_table + 1] = flag
+-- end
+-- end
 -- end
 
 -- Initialize start up parameters:
@@ -256,7 +256,7 @@ local function init_params(reset)
     local mapname = get_var(0, "$map")
     local coords = boundry.settings.maps[mapname]
     if (coords ~= nil) then
-    
+
         -- Declare boundry Minimum/Maximum size
         min_size, max_size = coords[4], coords[5]
 
@@ -270,9 +270,9 @@ local function init_params(reset)
         extra_time = (coords.extra_time * 60)
 
         -- Calculated total game time:
-        game_time = ( reduction_rate * (max_size / reduction_amount) )
+        game_time = (reduction_rate * (max_size / reduction_amount))
         game_time = (game_time + extra_time - reduction_rate)
-        
+
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
         -- Set initial timers to ZERO.
@@ -282,10 +282,10 @@ local function init_params(reset)
 
         -- Init boundry checker:
         monitor_coords = true
-        
+
         spectator_running_speed = (boundry.settings.spectator_running_speed)
 
-        if (reset) then            
+        if (reset) then
             set(false)
             stopTimer()
             last_man_standing.count = 0
@@ -312,7 +312,6 @@ end
 
 function OnGameStart()
     enableKillMessages()
-    game_over = false
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
@@ -330,7 +329,6 @@ function OnGameEnd()
         init_params(true)
         cls(0, 25, true, "rcon")
     end
-    game_over = true
 end
 
 -- Receives a string and executes SAPP function 'say_all' without the **SERVER** prefix.
@@ -361,7 +359,7 @@ function OnPlayerConnect(PlayerIndex)
 
     local enough_players = (player_count() >= players_needed())
 
-    local function player_setup(player, in_progress)    
+    local function player_setup(player, in_progress)
         console_paused[player] = false
 
         out_of_bounds[player] = { }
@@ -372,9 +370,9 @@ function OnPlayerConnect(PlayerIndex)
 
         spectator[player] = { }
         spectator[player].enabled, spectator[player].timer = false, 0
-        
+
         zone_transition[player] = false
-        
+
         if (in_progress) then
             spectator[player].enabled = true
         end
@@ -383,13 +381,13 @@ function OnPlayerConnect(PlayerIndex)
     if (start_trigger) and (enough_players) then
         last_man_standing.count = last_man_standing.count + 1
         start_trigger = false
-        
+
         -- Initialize game parameters:
         init_params(false)
 
         -- Setup player parameters:
         player_setup(p, false)
-        
+
     elseif (start_trigger and not enough_players) then
         last_man_standing.count = last_man_standing.count + 1
         player_setup(p, false)
@@ -636,7 +634,7 @@ function OnTick()
                         rprint(i, "|cYOU ARE IN SPECTATOR MODE")
                         rprint(i, "|c--- Players Remaining --- ")
                         rprint(i, "|c" .. count)
-                        
+
                         DispayHUD(p)
 
                         local coords = getXYZ(i)
@@ -647,21 +645,21 @@ function OnTick()
                         end
 
                     elseif (spectator[i] ~= nil) and not (spectator[i].eanbled) then
-                    
+
                         local px, py, pz, rUnits
                         local coords = getXYZ(i)
-                        
+
                         if (coords) then
                             px, py, pz = coords.x, coords.y, coords.z
                         else
                             px, py, pz = read_vector3d(player_object + 0x5c)
                         end
-                        
+
                         if (px) then
                             rUnits = ((px - bX) ^ 2 + (py - bY) ^ 2 + (pz - bZ) ^ 2)
                             rUnits = format("%0.2f", rUnits)
                         end
-                        
+
                         -- BOUNDRY CROSSOVER CHECKS:
                         if boundry:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
                             if (not console_paused[i]) and (not paused[i].start) then
@@ -691,7 +689,7 @@ function OnTick()
                                 rprint(i, "|cYOU ARE LEAVING THE COMBAT AREA!")
                                 rprint(i, "|cRETURN NOW OR YOU WILL BE SHOT!")
                                 rprint(i, "|c(" .. seconds .. ")")
-                                
+
                                 if (out_of_bounds[i].timer >= time_until_kill) then
                                     out_of_bounds[i].timer = 0
                                     killPlayer(i)
@@ -776,9 +774,9 @@ function GameOver()
     game_timer = nil
     boundry_timer = nil
     monitor_coords = nil
-    
+
     start_trigger, game_in_progress, game_time = true, false, 0
-    
+
     cls(0, 25, true, "rcon")
 
     -- Time ran out - Calculate best score:
@@ -825,22 +823,22 @@ function GameOver()
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    
+
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
     local v_name, k_name = get_var(victim, "$name"), get_var(killer, "$name")
-    
+
     if (killer > 0) then
 
         last_man_standing.count = last_man_standing.count - 1
         spectator[victim].enabled = true
-        
+
         local response
-        
+
         -- More than 1 player remaining:
         if (last_man_standing.count > 1) then
             response = true
-        -- Killer is the Victor. End the Game.
+            -- Killer is the Victor. End the Game.
         elseif (last_man_standing.count <= 1) then
             response = false
             last_man_standing.player = killer
@@ -849,7 +847,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- PvP:
         if (killer ~= victim) and (response) then
             SayAll(v_name .. " was killed by " .. k_name .. ". " .. last_man_standing.count .. " players remain!")
-        -- Suicide:
+            -- Suicide:
         elseif (victim == killer) and (response) then
             SayAll(v_name .. " committed suicide. " .. last_man_standing.count .. " players remain!")
         end
@@ -857,7 +855,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     elseif (killer == -1) or (killer == nil) or (killer == 0) then
         SayAll(v_name .. " died")
     end
-    
+
 end
 
 function cls(PlayerIndex, count, clear_chat, type)
@@ -965,7 +963,7 @@ end
 
 function GameStartCountdown()
     if (gamestart_countdown ~= nil) then
-    
+
         gamestart_countdown = gamestart_countdown + time_scale
         local gamestart_delay = gamestart_delay + 1
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
@@ -977,7 +975,7 @@ function GameStartCountdown()
             cls(0, 25, true, "rcon")
             game_in_progress = true
             execute_command("sv_map_reset")
-            
+
             local function spawn_flag()
                 local tag_name, tag_id = "weap", "weapons\\flag\\flag"
                 if TagInfo(tag_name, tag_id) then
@@ -985,9 +983,9 @@ function GameStartCountdown()
                     execute_command("disable_object " .. tag_id)
                 end
             end
-            
+
             spawn_flag()
-            
+
             register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
             register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
