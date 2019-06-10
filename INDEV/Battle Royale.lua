@@ -26,7 +26,7 @@ boundry.settings = {
     maps = { 
         ["timberland"] = {
             -- Boundry: x,y,z, Min Size, Max Size:
-            1.245, -1.028, -21.186, 500, 2500,
+            1.245, -1.028, -21.186, 50, 4700,
             -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
             extra_time = 2,
             -- How often does the Boundry reduce in size (in seconds):
@@ -45,7 +45,7 @@ boundry.settings = {
             
             -- NOTE:
             -- Total game time is calculated automatically:
-            -- Reduction Rate * (Max Size / Reduction Amount)
+            -- Reduction Rate * (Max Size / Reduction Amount) + (Extra Time - Reduction Rate)
             
         },
         ["carousel"] = {
@@ -271,7 +271,7 @@ local function init_params(reset)
 
         -- Calculated total game time:
         game_time = ( reduction_rate * (max_size / reduction_amount) )
-        game_time = (game_time + extra_time)
+        game_time = (game_time + extra_time - reduction_rate)
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
@@ -427,7 +427,7 @@ end
 function boundry:shrink()
     if (bR ~= nil) then
         bR = (bR - reduction_amount)
-        if (bR < min_size) then
+        if (bR <= min_size) then
             bR = min_size
             boundry_timer = nil
             SayAll("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
