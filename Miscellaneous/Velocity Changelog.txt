@@ -399,3 +399,9 @@ Script Updated to v1.63
 1). Minor tweak for Admin Chat:
 Admin Chat now has a chat-type prefix.
 Script Updated to v1.64
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/10/19]
+1). Updated the 'Known Pirated Hashes' list.
+Script Updated to v1.65
