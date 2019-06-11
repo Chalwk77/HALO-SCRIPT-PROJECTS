@@ -116,7 +116,7 @@ function OnTick()
     end
 end
 
--- As far as I can tell, there are no mistakes with this function:
+-- I don't believe I have any mistakes in this function:
 local floor, format = math.floor, string.format
 function secondsToTime(seconds)
     local seconds = tonumber(seconds)
