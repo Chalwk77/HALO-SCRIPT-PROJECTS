@@ -110,7 +110,7 @@ function OnTick()
         end
         
         local p = { }
-        p.time, p.time_stamp, p.time_stamp, p.until_reduction = time, game_time_left, game_time_left, until_reduction
+        p.time, p.time_stamp, p.until_reduction = time, game_time_left, until_reduction
         ShowDebug(p)
     end
 end
