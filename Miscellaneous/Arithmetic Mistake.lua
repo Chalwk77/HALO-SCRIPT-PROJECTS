@@ -1,8 +1,13 @@
+-- The total game time is calculated automatically.
+-- At exactly the 'bonus_time' mark, the boundry will be at its smallest possible size of 'min_size'.
+
 api_version = "1.12.0.0"
 
+-- :settings: -------------------------------------------------
 local min_size, max_size = 20, 350
 local reduction_rate, reduction_amount = 15, 30
 local bonus_time = 2
+---------------------------------------------------------------
 
 local bR, extra_time = max_size, 0
 local game_time, game_timer = 0,0
@@ -14,9 +19,14 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
+    -- Convert 'extra_time' from -> minutes to -> seconds:
     extra_time = (bonus_time * 60)
+    
+    -- Calculated total game time:
     game_time = (reduction_rate * ((max_size) / reduction_amount))
-    game_time = (game_time + extra_time + reduction_rate)
+    
+    -- Game Time equals itelf plus 'extra_time':
+    game_time = (game_time + extra_time) 
 end
 
 local function DispayHUD(params)
