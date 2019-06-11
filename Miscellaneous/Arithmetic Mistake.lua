@@ -35,8 +35,7 @@ function OnGameStart()
     
     -- ACTUAL BEHAVIOR:
     -- The time remaining when (bR) reaches its minimum allowed size is (+/-) 10-seconds-to-several-minutes.
-    -- It should be 2 minutes exactly!
-    -- The discrepancy of course, depends on the given settings.
+    -- It should be 2 minutes exactly! The discrepancy of course, depends on the given settings.
 end
 
 local function ShowDebug(params)
