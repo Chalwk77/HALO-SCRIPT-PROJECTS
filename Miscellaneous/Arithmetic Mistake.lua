@@ -34,11 +34,11 @@ function OnGameStart()
     -- leaving a final '2 bonus minutes' for players to fight to the death.
     
     -- ACTUAL BEHAVIOR:
-    -- The time remaining when the (bR) reaches its minimum allowed size is (+/-) 10-seconds-to-several-minutes.
-    -- It should be 2 minutes!
+    -- The time remaining when (bR) reaches its minimum allowed size is (+/-) 10-seconds-to-several-minutes.
+    -- It should be 2 minutes exactly!
 end
 
-local function DispayHUD(params)
+local function ShowDebug(params)
     if (game_timer ~= nil) then
     
         local time_remaining = params.time
@@ -111,10 +111,11 @@ function OnTick()
         
         local p = { }
         p.time, p.time_stamp, p.time_stamp, p.until_reduction = time, game_time_left, game_time_left, until_reduction
-        DispayHUD(p)
+        ShowDebug(p)
     end
 end
 
+-- As far as I can tell, there are no mistakes with this function:
 local floor, format = math.floor, string.format
 function secondsToTime(seconds)
     local seconds = tonumber(seconds)
