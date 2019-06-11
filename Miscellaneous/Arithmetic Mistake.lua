@@ -4,8 +4,8 @@
 api_version = "1.12.0.0"
 
 -- :settings: -------------------------------------------------
-local min_size, max_size = 20, 350
-local reduction_rate, reduction_amount = 15, 30
+local min_size, max_size = 50, 100
+local reduction_rate, reduction_amount = 60, 50
 local bonus_time = 2
 ---------------------------------------------------------------
 
@@ -50,7 +50,7 @@ local function DispayHUD(params)
         
         local footer = " "
         if (reduction_timer ~= nil and until_reduction ~= nil) then
-            footer = " | Reduction: " .. until_reduction .. " | bR: " .. bR .. " | Final: " .. min_size .. " rRate: " .. reduction_amount
+            footer = " | Reduction: " .. until_reduction .. " | bR: " .. bR .. " | Final: " .. min_size .. " | rRate: " .. reduction_amount
         else
             footer = ""
         end
@@ -83,7 +83,9 @@ function OnTick()
                     if (bR <= min_size) then
                         bR = min_size
                         reduction_timer = nil
-                        cprint("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 2 + 8)
+                        local Minutes, Seconds = select(1, secondsToTime(extra_time)), select(2, secondsToTime(extra_time))
+                        local expected = (Minutes .. ":" .. Seconds)                        
+                        cprint("bR (min_size): " ..  bR .. " | (Time Remaining: " .. game_time_left .. "  - expected: " .. expected .. ")", 2 + 8)
                     else
                         cprint("[ REDUCTION ] Radius now (" .. bR .. ") world units", 5 + 8)
                     end
