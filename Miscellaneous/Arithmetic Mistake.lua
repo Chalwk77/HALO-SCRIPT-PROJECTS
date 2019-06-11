@@ -7,9 +7,10 @@ local reduction_rate, reduction_amount = 30, 100
 local bonus_time = 2
 ---------------------------------------------------------------
 
+-- Variables:
 local bR, extra_time = max_size, 0
-local game_time, game_timer = 0,0
-local reduction_timer, time_scale = 0, 1
+local game_time, game_timer = 0, 0
+local reduction_timer, time_scale = 0, 0.030
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -21,13 +22,13 @@ function OnGameStart()
     extra_time = (bonus_time * 60)
     
     -- Calculated total game time:
-    game_time = (reduction_rate * ((max_size - min_size) / reduction_amount))
+    game_time = (reduction_rate * ((max_size) / reduction_amount))
     
     -- Game Time equals itelf plus 'extra_time':
     game_time = (game_time + extra_time) 
     
-    -- Game time formula needs to be written such that at exactly the 2 minute mark (bonus_time mark), 
-    -- the radius (bR) will be at its smallest possible size of 'min_size'.
+    -- Game time formula was written such that at exactly the 2 minute mark (bonus_time mark), 
+    -- the radius (bR) will be at its smallest possible size of 'min_size', leaving a final '2 bonus minutes' for players to fight to the death.
 end
 
 local function DispayHUD(params)
@@ -81,7 +82,7 @@ function OnTick()
                 if (bR <= max_size) then
                     reduction_timer = 0
                     bR = (bR - reduction_amount)
-                    if (bR <= min_size) then
+                    if (bR <= min_size) then -- to do: Calculate the difference!
                         bR = min_size
                         reduction_timer = nil
                         local Minutes, Seconds = select(1, secondsToTime(extra_time)), select(2, secondsToTime(extra_time))
