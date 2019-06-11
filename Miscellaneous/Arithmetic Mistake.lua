@@ -40,7 +40,7 @@ function OnGameStart()
     -- For further clarity:
     -- When the game begins, the radius (bR) will be at a maximum size of 'max_size'.
     -- Every 'reduction_rate' seconds, the radius (bR) will shrink by 'reduction_amount'.
-    -- This will repeat until the radius is at its smallest possible size.
+    -- This will repeat until the radius is at its smallest possible size of 'min_size'.
 end
 
 local function ShowDebug(params)
