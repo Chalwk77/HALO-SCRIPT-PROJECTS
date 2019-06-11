@@ -28,8 +28,14 @@ function OnGameStart()
     -- Game Time equals itelf plus 'extra_time':
     game_time = (game_time + extra_time) 
     
+    -- INTENDED BEHAVIOR:
     -- Game time formula was written such that at exactly the 2 minute mark (bonus_time mark), 
-    -- the radius (bR) will be at its smallest possible size of 'min_size', leaving a final '2 bonus minutes' for players to fight to the death.
+    -- the radius (bR) will be at its smallest possible size of 'min_size', 
+    -- leaving a final '2 bonus minutes' for players to fight to the death.
+    
+    -- ACTUAL BEHAVIOR:
+    -- The time remaining when the (bR) reaches its minimum allowed size is (+/-) 10-seconds-to-several-minutes.
+    -- It should be 2 minutes!
 end
 
 local function DispayHUD(params)
