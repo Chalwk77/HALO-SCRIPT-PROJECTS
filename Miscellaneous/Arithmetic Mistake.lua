@@ -36,6 +36,11 @@ function OnGameStart()
     -- ACTUAL BEHAVIOR:
     -- The time remaining when (bR) reaches its minimum allowed size is (+/-) 10-seconds-to-several-minutes.
     -- It should be 2 minutes exactly! The discrepancy of course, depends on the given settings.
+    
+    -- For further clarity:
+    -- When the game begins, the radius (bR) will be at a maximum size of 'max_size'.
+    -- Every 'reduction_rate' seconds, the radius (bR) will shrink by 'reduction_amount'.
+    -- This will repeat until the radius is at its smallest possible size.
 end
 
 local function ShowDebug(params)
