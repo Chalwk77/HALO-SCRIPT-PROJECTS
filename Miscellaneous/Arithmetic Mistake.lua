@@ -84,6 +84,13 @@ function OnTick()
                     reduction_timer = 0
                     bR = (bR - reduction_amount)
                     if (bR <= min_size) then -- to do: Calculate the difference!
+                    
+                        -- TO DO: (Caculate the Difference!) 
+                        -- If the radius is less than the reduction amount, this is a potential problem,
+                        -- despite setting (bR) -> to 'min_size'.
+                        -- In fact, this calculation should really be done before 'game_time' is declared.
+                        -- Although, not absolutely necessary; nor the cause of the aforementioned Arithmetic Mistake!
+                        
                         bR = min_size
                         reduction_timer = nil
                         local Minutes, Seconds = select(1, secondsToTime(extra_time)), select(2, secondsToTime(extra_time))
@@ -108,7 +115,7 @@ function secondsToTime(seconds)
     if (seconds <= 0) then
         return "00", "00";
     else
-        hours = format("%02.f", floor(seconds / 3600));
+        local hours, mins, secs = format("%02.f", floor(seconds / 3600));
         mins = format("%02.f", floor(seconds / 60 - (hours * 60)));
         secs = format("%02.f", floor(seconds - hours * 3600 - mins * 60));
         return mins, secs
