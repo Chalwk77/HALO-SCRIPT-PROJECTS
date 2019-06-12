@@ -3,7 +3,7 @@
 api_version = "1.12.0.0"
 
 -- :settings: -------------------------------------------------
-local min_size, max_size = 50, 2500
+local min_size, max_size = 50, 500
 local reduction_rate, reduction_amount = 30, 100
 local bonus_time = 2
 ---------------------------------------------------------------
@@ -12,6 +12,7 @@ local bonus_time = 2
 local bR, extra_time = max_size, 0
 local game_time, game_timer = 0, 0
 local reduction_timer, time_scale = 0, 0.030
+local is_error
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -19,14 +20,33 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
+
+    -- local CurRAD = bR
+    -- for i = 1,max_size do
+        -- if (CurRAD > min_size and CurRAD <= max_size) then
+            -- CurRAD = (CurRAD - reduction_amount)
+            -- print("CurRAD: " .. CurRAD)
+            -- if (CurRAD < reduction_amount) then
+                -- local offset = (CurRAD - reduction_amount)
+                -- print("offset: " .. CurRAD)
+            -- end
+        -- end
+    -- end
+
     -- Convert 'extra_time' from -> minutes to -> seconds:
     extra_time = (bonus_time * 60)
     
     -- Calculated total game time:
-    game_time = (reduction_rate * ((max_size) / reduction_amount))
+    game_time = (reduction_rate * ((max_size - min_size) / reduction_amount))
+    
+    if (game_time < extra_time) then
+        is_error = true
+        local minutes, seconds = select(1, secondsToTime(game_time)), select(2, secondsToTime(game_time))
+        error('game_time is lower than extra_time! GAME TIME: ' .. minutes .. ":" .. seconds)
+    end
     
     -- Game Time equals itelf plus 'extra_time':
-    game_time = (game_time + extra_time) 
+    game_time = (game_time + extra_time)
     
     -- INTENDED BEHAVIOR:
     -- Game time formula was written such that at exactly the 2 minute mark (bonus_time mark), 
@@ -76,7 +96,7 @@ local function ShowDebug(params)
 end
 
 function OnTick()
-    if (game_timer ~= nil) then
+    if (game_timer ~= nil) and not (is_error) then
         game_timer = game_timer + time_scale
     
         local game_time_left, until_reduction
@@ -87,9 +107,11 @@ function OnTick()
         
         if (reduction_timer ~= nil) then
             reduction_timer = reduction_timer + time_scale
+            
             local time_left = ((reduction_rate) - (reduction_timer))
             local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
             until_reduction = (mins .. ":" .. secs)
+            
             if (reduction_timer >= (reduction_rate)) then
                 if (bR <= max_size) then
                     reduction_timer = 0
