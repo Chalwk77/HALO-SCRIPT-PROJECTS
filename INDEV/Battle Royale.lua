@@ -14,24 +14,24 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-local boundry = { }
+local boundary = { }
 
 -- ==== Battle Royale Configuration [starts] ==== --
 
-boundry.settings = {
+boundary.settings = {
 
     spectator_running_speed = 2,
 
     -- IMPORTANT: (1 world unit = 10 feet or ~3.048 meters)
     maps = {
         ["timberland"] = {
-            -- Boundry: x,y,z, Min Size, Max Size:
+            -- boundary: x,y,z, Min Size, Max Size:
             1.245, -1.028, -21.186, 50, 4700,
-            -- End the game this many minutes after the boundry reaches its smallest possible size of 'Min Size':
+            -- End the game this many minutes after the boundary reaches its smallest possible size of 'Min Size':
             extra_time = 2,
-            -- How often does the Boundry reduce in size (in seconds):
+            -- How often does the boundary reduce in size (in seconds):
             duration = 30,
-            -- How many world units does the Boundry reduce in size:
+            -- How many world units does the boundary reduce in size:
             reduction_amount = 500,
             -- Players needed to start the game:
             players_needed = 2,
@@ -39,8 +39,8 @@ boundry.settings = {
             gamestart_delay = 30,
 
             -- Players will be auto-killed if outside combat zone:
-            -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
-            -- * This is different from the playable boundry that has shrunk.
+            -- * The non-combat-zone is any area outside the boundary start coordinates (x,y,z).
+            -- * This is different from the playable boundary that has shrunk.
             time_until_kill = 5,
 
         },
@@ -125,7 +125,9 @@ local calculated_max
 local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords, time_until_kill, gamestart_delay
-local time_scale = 0.030
+
+local clock, reduction_clock
+local game_timer
 
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
@@ -139,7 +141,7 @@ local spectator_running_speed
 local zone_transition = { }
 -- local flag_table = { }
 
-local gamestart_countdown, init_countdown
+local gamestart_countdown, init_countdown, gamestart_clock
 local init_victory_timer, victory_timer = false, 0
 
 local globals = nil
@@ -251,13 +253,13 @@ end
 -- Initialize start up parameters:
 local function init_params(reset)
     local mapname = get_var(0, "$map")
-    local coords = boundry.settings.maps[mapname]
+    local coords = boundary.settings.maps[mapname]
     if (coords ~= nil) then
 
-        -- Declare boundry Minimum/Maximum size
+        -- Declare boundary Minimum/Maximum size
         min_size, max_size = coords[4], coords[5]
 
-        -- Declare boundry reduction rate/size
+        -- Declare boundary reduction rate/size
         reduction_rate, reduction_amount = coords.duration, coords.reduction_amount
 
         -- Calculated total game time:
@@ -269,7 +271,7 @@ local function init_params(reset)
                     local offset = math.abs(radius)
                     calculated_max = (max_size + offset)
                     
-                    -- Extra time allocated when the boundry reaches its smallest possible size:
+                    -- Extra time allocated when the boundary reaches its smallest possible size:
                     extra_time = (coords.extra_time * 60)
                     
                     game_time = (reduction_rate * (calculated_max / reduction_amount) + extra_time)
@@ -278,18 +280,15 @@ local function init_params(reset)
             end
         end
         
-        -- Init Boundry coordinates and Radius
+        -- Init boundary coordinates and Radius
         bX, bY, bZ, bR = coords[1], coords[2], coords[3], calculated_max
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
-        -- Set initial timers to ZERO.
-        game_timer, boundry_timer = 0, 0
-
-        -- Init boundry checker:
+        -- Init boundary checker:
         monitor_coords = true
 
-        spectator_running_speed = (boundry.settings.spectator_running_speed)
+        spectator_running_speed = (boundary.settings.spectator_running_speed)
 
         if (reset) then
             set(false)
@@ -317,6 +316,8 @@ local function init_params(reset)
 end
 
 function OnGameStart()
+    clock, reduction_clock = os.clock(), os.clock()
+
     enableKillMessages()
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
@@ -324,12 +325,12 @@ end
 function OnGameEnd()
     if (game_timer ~= nil) and (game_timer > 0) then
         game_timer = nil
-        boundry_timer = nil
+        boundary_timer = nil
         monitor_coords = nil
         start_trigger, game_in_progress, game_time = true, false, 0
         init_params(true)
         cls(0, 25, true, "rcon")
-    elseif (gamestart_countdown ~= nil) and (gamestart_countdown > 0) then
+    elseif (gamestart_clock ~= nil) and (gamestart_clock > 0) then
         start_trigger, game_in_progress, game_time = true, false, 0
         stopTimer()
         init_params(true)
@@ -354,7 +355,7 @@ end
 
 local players_needed = function()
     local mapname = get_var(0, "$map")
-    local coords = boundry.settings.maps[mapname]
+    local coords = boundary.settings.maps[mapname]
     if (coords ~= nil) then
         return tonumber(coords.players_needed)
     end
@@ -431,15 +432,15 @@ function OnPlayerSpawn(PlayerIndex)
     --
 end
 
-function boundry:shrink()
+function boundary:shrink()
     if (bR ~= nil) then
         bR = (bR - reduction_amount)
-        if (bR <= min_size) then
-            bR, reduction_timer = min_size, nil
-            SayAll("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
+        if (bR <= min_size) then            
+            bR, reduction_clock = min_size, nil
+            SayAll("boundary IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
         else
             -- SpawnFlag(bX, bY, bZ)
-            SayAll("[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
+            SayAll("[ boundary REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
         end
     end
 end
@@ -489,7 +490,7 @@ local function restoreHealth(p)
     end
 end
 
-function boundry:inSphere(p, px, py, pz, x, y, z, r)
+function boundary:inSphere(p, px, py, pz, x, y, z, r)
     local coords = ((px - x) ^ 2 + (py - y) ^ 2 + (pz - z) ^ 2)
     if (coords < r) then
         console_paused[p], out_of_bounds[p].yes = false, false
@@ -537,9 +538,9 @@ local function DispayHUD(params)
         local shrink_time_msg = params.shrink_time_msg
         local until_next_shrink = params.until_next_shrink
         
-        local boundry_timer = params.boundry_timer
-        if (boundry_timer ~= nil and until_next_shrink ~= nil) then
-            shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
+        local boundary_timer = params.boundary_timer
+        if (boundary_timer ~= nil and until_next_shrink ~= nil) then
+            shrink_time_msg = " | Time Until boundary Reduction: " .. until_next_shrink
         else
             shrink_time_msg = ""
         end
@@ -587,28 +588,29 @@ function OnTick()
         local time_stamp, until_next_shrink
         local time_remaining
 
-        if (game_timer ~= nil) then
-            game_timer = game_timer + time_scale
-
-            local time = ((game_time + time_scale) - (game_timer))
+        if (clock ~= nil) then
+            game_timer = os.clock()
+        
+            local time = ((game_time) - (game_timer))
             time_remaining = time
 
             local GTmins, GTsecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
             time_stamp = (GTmins .. ":" .. GTsecs)
 
-            -- BOUNDRY REDUCTION TIMER:
+            -- boundary REDUCTION TIMER:
             
-            if (boundry_timer ~= nil) then
-                boundry_timer = boundry_timer + time_scale
-                
-                local time_left = ((reduction_rate) - (boundry_timer))
+            if (reduction_clock ~= nil) then
+                reduction_timer = os.clock()
+            
+                local time_left = ((reduction_rate) - (reduction_timer))
                 local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
                 until_next_shrink = (mins .. ":" .. secs)
                 
-                if (boundry_timer >= (reduction_rate + time_scale)) then
-                    if (bR > min_size and bR <= max_size) then
-                        boundry_timer = 0
-                        boundry:shrink()
+                if (reduction_timer >= (reduction_rate)) then
+                    reduction_rate = (reduction_rate + reduction_rate)
+                    
+                    if (bR > min_size and bR <= calculated_max) then
+                        boundary:shrink()
                     end
                 end
             end
@@ -627,7 +629,7 @@ function OnTick()
 
                     local p = { }
                     p.player = tonumber(i)
-                    p.boundry_timer = boundry_timer
+                    p.boundary_timer = boundary_timer
                     p.shrink_time_msg = shrink_time_msg
                     p.until_next_shrink = until_next_shrink
                     p.time_remaining = time_remaining
@@ -664,8 +666,8 @@ function OnTick()
                             rUnits = format("%0.2f", rUnits)
                         end
 
-                        -- BOUNDRY CROSSOVER CHECKS:
-                        if boundry:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
+                        -- boundary CROSSOVER CHECKS:
+                        if boundary:inSphere(i, px, py, pz, bX, bY, bZ, bR) and (monitor_coords) then
                             if (not console_paused[i]) and (not paused[i].start) then
                                 rprint(i, "|c--  I N S I D E   S A F E   Z O N E --")
                                 rprint(i, "|cUNITS FROM CENTER: " .. rUnits .. "/" .. bR .. " (Final Size: " .. min_size .. " | Reduction Rate: " .. reduction_amount .. ")")
@@ -677,7 +679,7 @@ function OnTick()
                             if (not console_paused[i]) and (not paused[i].start) then
 
                                 rprint(i, "|cWARNING:")
-                                rprint(i, "|cYOU ARE OUTSIDE THE BOUNDRY!")
+                                rprint(i, "|cYOU ARE OUTSIDE THE boundary!")
                                 rprint(i, "|cUNITS FROM CENTER: " .. rUnits .. "/" .. bR)
                                 out_of_bounds[i].yes = true
 
@@ -776,7 +778,7 @@ function GameOver()
     end
 
     game_timer = nil
-    boundry_timer = nil
+    boundary_timer = nil
     monitor_coords = nil
 
     start_trigger, game_in_progress, game_time = true, false, 0
@@ -967,10 +969,9 @@ end
 
 function GameStartCountdown()
     if (gamestart_countdown ~= nil) then
+        gamestart_clock = os.clock()
 
-        gamestart_countdown = gamestart_countdown + time_scale
-        local gamestart_delay = gamestart_delay + 1
-        local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
+        local time = ((gamestart_delay) - (gamestart_clock))
 
         if (time < 1) then
         
@@ -1020,13 +1021,13 @@ function GameStartCountdown()
 end
 
 function startTimer()
-    gamestart_countdown = 0
+    gamestart_countdown = os.clock()
     init_countdown = true
 end
 
 function stopTimer()
     init_countdown = false
-    gamestart_countdown = 0
+    gamestart_countdown = nil
 end
 
 function PlayerInVehicle(p)
