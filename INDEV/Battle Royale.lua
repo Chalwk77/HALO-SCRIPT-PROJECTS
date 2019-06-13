@@ -121,13 +121,10 @@ local server_prefix = "**LNZ**"
 -- ==== Battle Royale Configuration [ends] ==== --
 
 local bX, bY, bZ, bR
-local calculated_max
 local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords, time_until_kill, gamestart_delay
-
-local clock, reduction_clock
-local game_timer
+local time_scale = 0.030
 
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
@@ -141,7 +138,7 @@ local spectator_running_speed
 local zone_transition = { }
 -- local flag_table = { }
 
-local gamestart_countdown, init_countdown, gamestart_clock
+local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
 
 local globals = nil
@@ -269,7 +266,7 @@ local function init_params(reset)
                 radius = (radius - reduction_amount)
                 if (radius < min_size) then
                     local offset = math.abs(radius)
-                    calculated_max = (max_size + offset)
+                    local calculated_max = (max_size + offset)
                     
                     -- Extra time allocated when the boundary reaches its smallest possible size:
                     extra_time = (coords.extra_time * 60)
@@ -281,9 +278,12 @@ local function init_params(reset)
         end
         
         -- Init boundary coordinates and Radius
-        bX, bY, bZ, bR = coords[1], coords[2], coords[3], calculated_max
+        bX, bY, bZ, bR = coords[1], coords[2], coords[3], max_size
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
+
+        -- Set initial timers to ZERO.
+        game_timer, boundary_timer = 0, 0
 
         -- Init boundary checker:
         monitor_coords = true
@@ -316,8 +316,6 @@ local function init_params(reset)
 end
 
 function OnGameStart()
-    clock, reduction_clock = os.clock(), os.clock()
-
     enableKillMessages()
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
@@ -330,7 +328,7 @@ function OnGameEnd()
         start_trigger, game_in_progress, game_time = true, false, 0
         init_params(true)
         cls(0, 25, true, "rcon")
-    elseif (gamestart_clock ~= nil) and (gamestart_clock > 0) then
+    elseif (gamestart_countdown ~= nil) and (gamestart_countdown > 0) then
         start_trigger, game_in_progress, game_time = true, false, 0
         stopTimer()
         init_params(true)
@@ -435,8 +433,8 @@ end
 function boundary:shrink()
     if (bR ~= nil) then
         bR = (bR - reduction_amount)
-        if (bR <= min_size) then            
-            bR, reduction_clock = min_size, nil
+        if (bR <= min_size) then
+            bR, reduction_timer = min_size, nil
             SayAll("boundary IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
         else
             -- SpawnFlag(bX, bY, bZ)
@@ -588,10 +586,10 @@ function OnTick()
         local time_stamp, until_next_shrink
         local time_remaining
 
-        if (clock ~= nil) then
-            game_timer = os.clock()
-        
-            local time = ((game_time) - (game_timer))
+        if (game_timer ~= nil) then
+            game_timer = game_timer + time_scale
+
+            local time = ((game_time + time_scale) - (game_timer))
             time_remaining = time
 
             local GTmins, GTsecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
@@ -599,17 +597,16 @@ function OnTick()
 
             -- boundary REDUCTION TIMER:
             
-            if (reduction_clock ~= nil) then
-                reduction_timer = os.clock()
-            
-                local time_left = ((reduction_rate) - (reduction_timer))
+            if (boundary_timer ~= nil) then
+                boundary_timer = boundary_timer + time_scale
+                
+                local time_left = ((reduction_rate) - (boundary_timer))
                 local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
                 until_next_shrink = (mins .. ":" .. secs)
                 
-                if (reduction_timer >= (reduction_rate)) then
-                    reduction_rate = (reduction_rate + reduction_rate)
-                    
-                    if (bR > min_size and bR <= calculated_max) then
+                if (boundary_timer >= (reduction_rate + time_scale)) then
+                    if (bR > min_size and bR <= max_size) then
+                        boundary_timer = 0
                         boundary:shrink()
                     end
                 end
@@ -969,9 +966,10 @@ end
 
 function GameStartCountdown()
     if (gamestart_countdown ~= nil) then
-        gamestart_clock = os.clock()
 
-        local time = ((gamestart_delay) - (gamestart_clock))
+        gamestart_countdown = gamestart_countdown + time_scale
+        local gamestart_delay = gamestart_delay + 1
+        local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
 
         if (time < 1) then
         
@@ -1021,13 +1019,13 @@ function GameStartCountdown()
 end
 
 function startTimer()
-    gamestart_countdown = os.clock()
+    gamestart_countdown = 0
     init_countdown = true
 end
 
 function stopTimer()
     init_countdown = false
-    gamestart_countdown = nil
+    gamestart_countdown = 0
 end
 
 function PlayerInVehicle(p)
