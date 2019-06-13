@@ -272,7 +272,7 @@ local function init_params(reset)
                     local max = (max_size + offset)
                     
                     -- Extra time allocated when the boundry reaches its smallest possible size:
-                    local extra_time = (coords.extra_time * 60)
+                    extra_time = (coords.extra_time * 60)
                     
                     game_time = (reduction_rate * (max / reduction_amount) + extra_time)
                     break
