@@ -36,16 +36,12 @@ boundry.settings = {
             -- Players needed to start the game:
             players_needed = 2,
             -- When enough players are present, the game will start in this many seconds:
-            gamestart_delay =60,
+            gamestart_delay = 30,
 
             -- Players will be auto-killed if outside combat zone:
             -- * The non-combat-zone is any area outside the boundry start coordinates (x,y,z).
             -- * This is different from the playable boundry that has shrunk.
             time_until_kill = 5,
-
-            -- NOTE:
-            -- Total game time is calculated automatically:
-            -- Reduction Rate * (Max Size / Reduction Amount) + (Extra Time - Reduction Rate)
 
         },
         ["carousel"] = {
@@ -113,7 +109,7 @@ boundry.settings = {
             extra_time = 2, duration = 15, reduction_amount = 30, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
         },
         ["longest"] = {
-            -0.840, -14.540, 2.410, 20, 200,
+            -0.840, -14.540, 2.410, 20, 300,
             extra_time = 2, duration = 30, reduction_amount = 50, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
         },
     },
@@ -204,52 +200,52 @@ local function set(reset_scores)
     end
 end
 
--- local function SpawnFlag(x, y, z)
--- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
--- if TagInfo(tag_name, tag_id) then
+local function SpawnFlag(x, y, z)
+    -- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+    -- if TagInfo(tag_name, tag_id) then
 
--- if (#flag_table > 0) then
--- for i = 1,#flag_table do
--- local _flag_ = flag_table[i]
--- if get_object_memory(_flag_) then
--- DestroyObject(_flag_)
--- end
--- end
--- end
+        -- -- if (#flag_table > 0) then
+            -- -- for i = 1,#flag_table do
+                -- -- local _flag_ = flag_table[i]
+                -- -- if get_object_memory(_flag_) then
+                    -- -- DestroyObject(_flag_)
+                -- -- end
+            -- -- end
+        -- -- end
+        
+        -- -- local amount = 8
+        -- -- for i = 1,amount do
+            -- -- if (i == 1) then
+                -- -- x = x
+                -- -- y = y + 1
+            -- -- elseif (i == 2) then
+                -- -- x = x + 1
+                -- -- y = y + 1
+            -- -- elseif (i == 3) then
+                -- -- x = x + 1
+                -- -- y = y
+            -- -- elseif (i == 4) then
+                -- -- x = x + 1
+                -- -- y = y - 1
+            -- -- elseif (i == 5) then
+                -- -- x = x
+                -- -- y = y - 1
+            -- -- elseif (i == 6) then
+                -- -- x = x - 1
+                -- -- y = y - 1
+            -- -- elseif (i == 7) then
+                -- -- x = x - 1
+                -- -- y = y
+            -- -- elseif (i == 8) then
+                -- -- x = x - 1
+                -- -- y = y + 1
+            -- -- end
 
--- local amount = 8
--- for i = 1,amount do
--- if (i == 1) then
--- x = x
--- y = y + 1
--- elseif (i == 2) then
--- x = x + 1
--- y = y + 1
--- elseif (i == 3) then
--- x = x + 1
--- y = y
--- elseif (i == 4) then
--- x = x + 1
--- y = y - 1
--- elseif (i == 5) then
--- x = x
--- y = y - 1
--- elseif (i == 6) then
--- x = x - 1
--- y = y - 1
--- elseif (i == 7) then
--- x = x - 1
--- y = y
--- elseif (i == 8) then
--- x = x - 1
--- y = y + 1
--- end
-
--- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
--- flag_table[#flag_table + 1] = flag
--- end
--- end
--- end
+            -- -- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
+            -- -- flag_table[#flag_table + 1] = flag
+        -- -- end
+    -- end
+end
 
 -- Initialize start up parameters:
 local function init_params(reset)
@@ -266,17 +262,28 @@ local function init_params(reset)
         -- Declare boundry reduction rate/size
         reduction_rate, reduction_amount = coords.duration, coords.reduction_amount
 
-        -- Extra time allocated when the boundry reaches its smallest possible size:
-        extra_time = (coords.extra_time * 60)
-
         -- Calculated total game time:
-        game_time = (reduction_rate * (max_size / reduction_amount))
-        game_time = (game_time + extra_time)
+        local radius = max_size
+        for i = 1,max_size do
+            if (radius <= max_size) then
+                radius = (radius - reduction_amount)
+                if (radius < min_size) then
+                    local offset = math.abs(radius)
+                    local max = (max_size + offset)
+                    
+                    -- Extra time allocated when the boundry reaches its smallest possible size:
+                    local extra_time = (coords.extra_time * 60)
+                    
+                    game_time = (reduction_rate * (max / reduction_amount) + extra_time)
+                    break
+                end
+            end
+        end
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
         -- Set initial timers to ZERO.
-        game_timer, reduction_timer, boundry_timer = 0, 0, 0
+        game_timer, boundry_timer = 0, 0
 
         -- Init boundry checker:
         monitor_coords = true
@@ -427,10 +434,10 @@ function boundry:shrink()
     if (bR ~= nil) then
         bR = (bR - reduction_amount)
         if (bR <= min_size) then
-            bR = min_size
-            boundry_timer = nil
+            bR, reduction_timer = min_size, nil
             SayAll("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
         else
+            -- SpawnFlag(bX, bY, bZ)
             SayAll("[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
         end
     end
@@ -523,28 +530,27 @@ local function hide_player(p, coords)
 end
 
 local function DispayHUD(params)
-
-    local player = params.player
-    local boundry_timer = params.boundry_timer
-    local shrink_time_msg = params.shrink_time_msg
-    local until_next_shrink = params.until_next_shrink
     local time_remaining = params.time_remaining
-    local _extra_time = params.extra_time
-    local time_stamp = params.time_stamp
-
     if (time_remaining ~= nil) then
     
-        if (boundry_timer ~= nil) then
+        local shrink_time_msg = params.shrink_time_msg
+        local until_next_shrink = params.until_next_shrink
+        
+        local boundry_timer = params.boundry_timer
+        if (boundry_timer ~= nil and until_next_shrink ~= nil) then
             shrink_time_msg = " | Time Until Boundry Reduction: " .. until_next_shrink
         else
             shrink_time_msg = ""
         end
 
+        local time_stamp = params.time_stamp
+        local _extra_time = params.extra_time
+        
         local header, send_timestamp = ""
         if (time_remaining > _extra_time) then
             send_timestamp = true
             header = "Game Time Remaining: " .. time_stamp
-        elseif (time_remaining <= _extra_time) and (time_remaining > 0) then
+        elseif (time_remaining > 0) and (time_remaining <= _extra_time) then
             send_timestamp = true
             header = "FINAL MINUTES: " .. time_stamp
         elseif (time_remaining <= 0) then
@@ -555,6 +561,7 @@ local function DispayHUD(params)
         end
 
         if (send_timestamp) and (monitor_coords) then
+            local player = params.player
             if not (spectator[player].enabled) then
                 out_of_bounds[player].timer = 0
             end
@@ -590,20 +597,13 @@ function OnTick()
 
             -- BOUNDRY REDUCTION TIMER:
             
-            if (reduction_timer ~= nil) then
-                reduction_timer = reduction_timer + time_scale
-
-                local time = ((reduction_rate + time_scale) - (reduction_timer))
-                if (time <= 0) then
-                    reduction_timer = 0
-                end
-
-                local Smins, Ssecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
-                until_next_shrink = (Smins .. ":" .. Ssecs)
-            end
-            
             if (boundry_timer ~= nil) then
                 boundry_timer = boundry_timer + time_scale
+                
+                local time_left = ((reduction_rate) - (boundry_timer))
+                local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
+                until_next_shrink = (mins .. ":" .. secs)
+                
                 if (boundry_timer >= (reduction_rate + time_scale)) then
                     if (bR > min_size and bR <= max_size) then
                         boundry_timer = 0
@@ -913,7 +913,7 @@ function secondsToTime(seconds, bool)
     if (seconds <= 0) and (bool) then
         return "00", "00";
     else
-        hours = format("%02.f", floor(seconds / 3600));
+        local hours, mins, secs = format("%02.f", floor(seconds / 3600));
         mins = format("%02.f", floor(seconds / 60 - (hours * 60)));
         secs = format("%02.f", floor(seconds - hours * 3600 - mins * 60));
         return mins, secs
@@ -972,16 +972,18 @@ function GameStartCountdown()
         local time = ((gamestart_delay + time_scale) - (gamestart_countdown))
 
         if (time < 1) then
+        
             disableKillMessages()
             stopTimer()
             set(true)
             cls(0, 25, true, "rcon")
             game_in_progress = true
             execute_command("sv_map_reset")
-
+           
             local function spawn_flag()
                 local tag_name, tag_id = "weap", "weapons\\flag\\flag"
                 if TagInfo(tag_name, tag_id) then
+                    -- SpawnFlag(bX, bY, bZ)
                     spawn_object(tag_name, tag_id, bX, bY, bZ + 0.5)
                     execute_command("disable_object " .. tag_id)
                 end
