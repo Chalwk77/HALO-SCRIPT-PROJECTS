@@ -121,6 +121,7 @@ local server_prefix = "**LNZ**"
 -- ==== Battle Royale Configuration [ends] ==== --
 
 local bX, bY, bZ, bR
+local calculated_max
 local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords, time_until_kill, gamestart_delay
@@ -256,9 +257,6 @@ local function init_params(reset)
         -- Declare boundry Minimum/Maximum size
         min_size, max_size = coords[4], coords[5]
 
-        -- Init Boundry coordinates and Radius
-        bX, bY, bZ, bR = coords[1], coords[2], coords[3], max_size
-
         -- Declare boundry reduction rate/size
         reduction_rate, reduction_amount = coords.duration, coords.reduction_amount
 
@@ -269,16 +267,19 @@ local function init_params(reset)
                 radius = (radius - reduction_amount)
                 if (radius < min_size) then
                     local offset = math.abs(radius)
-                    local max = (max_size + offset)
+                    calculated_max = (max_size + offset)
                     
                     -- Extra time allocated when the boundry reaches its smallest possible size:
                     extra_time = (coords.extra_time * 60)
                     
-                    game_time = (reduction_rate * (max / reduction_amount) + extra_time)
+                    game_time = (reduction_rate * (calculated_max / reduction_amount) + extra_time)
                     break
                 end
             end
         end
+        
+        -- Init Boundry coordinates and Radius
+        bX, bY, bZ, bR = coords[1], coords[2], coords[3], calculated_max
         
         time_until_kill, gamestart_delay = coords.time_until_kill, coords.gamestart_delay
 
