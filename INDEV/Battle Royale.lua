@@ -124,7 +124,7 @@ local bX, bY, bZ, bR
 local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords, time_until_kill, gamestart_delay
-local time_scale = 0.030
+local time_scale = 0.03333333333333333
 
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
@@ -265,6 +265,7 @@ local function init_params(reset)
             if (radius <= max_size) then
                 radius = (radius - reduction_amount)
                 if (radius < min_size) then
+                
                     local offset = math.abs(radius)
                     local calculated_max = (max_size + offset)
                     
