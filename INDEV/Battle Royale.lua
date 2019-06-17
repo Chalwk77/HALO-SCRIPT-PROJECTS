@@ -980,6 +980,10 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             return false
         end
     end
+    
+    if (godmode_countdown[PlayerIndex] ~= nil) then
+        return false
+    end
 end
 
 function DestroyObject(object)
