@@ -590,7 +590,7 @@ function OnTick()
         if (game_timer ~= nil) then
             game_timer = game_timer + time_scale
 
-            local time = ((game_time + time_scale) - (game_timer))
+            local time = ((game_time + 1) - (game_timer))
             time_remaining = time
 
             local GTmins, GTsecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
@@ -601,11 +601,11 @@ function OnTick()
             if (boundary_timer ~= nil) then
                 boundary_timer = boundary_timer + time_scale
                 
-                local time_left = ((reduction_rate) - (boundary_timer))
+                local time_left = ((reduction_rate + 1) - (boundary_timer))
                 local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
                 until_next_shrink = (mins .. ":" .. secs)
                 
-                if (boundary_timer >= (reduction_rate + time_scale)) then
+                if (boundary_timer >= (reduction_rate + 1)) then
                     if (bR > min_size and bR <= max_size) then
                         boundary_timer = 0
                         boundary:shrink()
