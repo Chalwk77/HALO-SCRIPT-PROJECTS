@@ -56,7 +56,7 @@ function OnTick()
      
                 if (reduction_timer >= (reduction_rate)) then
                     reduction_timer = 0                
-                    if (bR <= max_size) then
+                    if (bR > min_size and bR <= max_size) then
                         bR = (bR - reduction_amount)
                         if (bR <= min_size) then
                             bR, reduction_timer = min_size, nil
