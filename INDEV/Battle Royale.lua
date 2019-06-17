@@ -248,6 +248,7 @@ local function SpawnFlag(x, y, z)
 end
 
 -- Initialize start up parameters:
+local expected_reductions
 local function init_params(reset)
     local mapname = get_var(0, "$map")
     local coords = boundary.settings.maps[mapname]
@@ -273,6 +274,7 @@ local function init_params(reset)
                     extra_time = (coords.extra_time * 60)
                     
                     game_time = (reduction_rate * (calculated_max / reduction_amount) + extra_time)
+                    expected_reductions = (i)
                     break
                 end
             end
@@ -434,12 +436,13 @@ end
 function boundary:shrink()
     if (bR ~= nil) then
         bR = (bR - reduction_amount)
+        expected_reductions = expected_reductions - 1
         if (bR <= min_size) then
             bR, reduction_timer = min_size, nil
-            SayAll("boundary IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
+            SayAll("BOUNDARY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
         else
             -- SpawnFlag(bX, bY, bZ)
-            SayAll("[ boundary REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
+            SayAll("[ BOUNDARY REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
         end
     end
 end
@@ -567,6 +570,7 @@ local function DispayHUD(params)
                 out_of_bounds[player].timer = 0
             end
             rprint(player, "|c" .. header .. shrink_time_msg)
+            rprint(player, "|cReductions Left: " .. expected_reductions)
         end
     end
 end
@@ -596,7 +600,7 @@ function OnTick()
             local GTmins, GTsecs = select(1, secondsToTime(time, true)), select(2, secondsToTime(time, true))
             time_stamp = (GTmins .. ":" .. GTsecs)
 
-            -- boundary REDUCTION TIMER:
+            -- BOUNDARY REDUCTION TIMER:
             
             if (boundary_timer ~= nil) then
                 boundary_timer = boundary_timer + time_scale
