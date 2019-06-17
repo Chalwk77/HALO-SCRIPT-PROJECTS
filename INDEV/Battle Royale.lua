@@ -66,7 +66,7 @@ boundary.settings = {
         },
         ["bloodgulch"] = {
             65.749, -120.409, 0.118, 40, 7100,
-            extra_time = 2, duration = 30, reduction_amount = 700, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
+            extra_time = 2, duration = 30, reduction_amount = 900, players_needed = 2, time_until_kill = 5, gamestart_delay = 30
         },
         ["boardingaction"] = {
             18.301, -0.573, 0.420, 30, 4500,
@@ -125,6 +125,9 @@ local min_size, max_size, extra_time, reduction_rate, reduction_amount
 local start_trigger, game_in_progress, game_time = true, false, 0
 local monitor_coords, time_until_kill, gamestart_delay
 local time_scale = 0.03333333333333333
+
+local spawn_coordinates
+local invincibility, godmode_countdown = { }, { }
 
 local console_paused, paused = { }, { }
 local out_of_bounds = { }
@@ -303,6 +306,7 @@ local function init_params(reset)
             unregister_callback(cb['EVENT_CHAT'])
             unregister_callback(cb['EVENT_SPAWN'])
             unregister_callback(cb['EVENT_COMMAND'])
+            unregister_callback(cb['EVENT_PRESPAWN'])
             unregister_callback(cb['EVENT_GAME_END'])
             unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
         else
@@ -319,6 +323,7 @@ local function init_params(reset)
 end
 
 function OnGameStart()
+    setupSpawns()
     enableKillMessages()
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
@@ -429,8 +434,39 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 end
 
+local function getRandomCoord()        
+    local mapname = get_var(0, "$map")
+    local t = spawn_coordinates[mapname]
+    if (t) then
+        for i = 1,#t do
+            if (t[i] ~= nil) then
+                local rn = rand(1, #t)
+                if (t[rn] ~= "used") then
+                    local x, y, z, h, time = t[rn][1], t[rn][2], t[rn][3], t[rn][4], t[rn][5] 
+                    t[rn] = "used"
+                    return x, y, z, h, time
+                end    
+            end
+        end
+    end
+end
+
+function Teleport(TargetID)
+    local player_object = get_dynamic_player(TargetID)
+    if (player_object ~= 0) then
+        local x, y, z, h, time = getRandomCoord()
+        execute_command("god " .. TargetID)
+        invincibility[TargetID], godmode_countdown[TargetID] = time, 0
+        write_vector3d(player_object + 0x5C, x, y, z + h)
+    end
+end
+
+function OnPlayerPrespawn(PlayerIndex)
+    Teleport(PlayerIndex)
+end
+
 function OnPlayerSpawn(PlayerIndex)
-    --
+    -- Not currently used.
 end
 
 function boundary:shrink()
@@ -585,8 +621,8 @@ function OnTick()
     if (init_countdown) then
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
-
-        endGameCheck()
+    
+        -- endGameCheck()
 
         local time_stamp, until_next_shrink
         local time_remaining
@@ -620,6 +656,17 @@ function OnTick()
 
         for i = 1, 16 do
             if player_present(i) then
+            
+                -- Invincibility Timer:
+                if (godmode_countdown[i] ~= nil) then 
+                    godmode_countdown[i] = godmode_countdown[i] + time_scale
+                    local godmode = invincibility[i]
+                    if (godmode_countdown[i] >= godmode) then
+                        godmode_countdown[i], invincibility[i] = nil, { }
+                        execute_command_sequence("ungod " .. i .. ";hp " .. i .. " 1")
+                    end
+                end
+            
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0) then
 
@@ -983,6 +1030,10 @@ function GameStartCountdown()
             set(true)
             cls(0, 25, true, "rcon")
             game_in_progress = true
+            
+            -- Must be registered before the map is reset:
+            register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+            
             execute_command("sv_map_reset")
            
             local function spawn_flag()
@@ -995,7 +1046,7 @@ function GameStartCountdown()
             end
 
             spawn_flag()
-
+        
             register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
             register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
@@ -1090,4 +1141,29 @@ end
 function TagInfo(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+function setupSpawns()
+    
+    -- x,y,z, height, invincibility time
+    
+    spawn_coordinates = { 
+        ["bloodgulch"] = {
+            [1] = {68.911, -173.686, 1.755, 35, 10},
+            [2] = {92.484, -169.559, 0.128, 35, 10},
+            [3] = {110.137, -173.322, 0.616, 35, 10},
+            [4] = {105.493, -157.454, 0.203, 35, 10},
+            [5] = {91.894, -157.781, 1.704, 35, 10},
+            [6] = {85.243, -157.767, -0.019, 35, 10},
+            [7] = {100.961, -146.249, 0.292, 35, 10},
+            [8] = {105.493, -157.454, 0.203, 35, 10},
+            [9] = {52.061, -82.221, 0.118, 35, 10},
+            [10] = {41.102, -90.282, 0.175, 35, 10},
+            [11] = {30.554, -89.436, 0.128, 35, 10},
+            [12] = {23.010, -65.879, 1.693, 35, 10},
+            [13] = {32.593, -65.859, 0.367, 35, 10},
+            [14] = {42.910, -67.763, 0.516, 35, 10},
+            [15] = {61.292, -65.713, 1.693, 35, 10},
+            [16] = {41.878, -81.025, 1.705, 35, 10},
+        }
+    }
 end
