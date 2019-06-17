@@ -61,8 +61,7 @@ function OnTick()
                         if (bR <= min_size) then
                             bR, reduction_timer = min_size, nil
                             game_timer = nil
-                            cprint("BOUNDRY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 5 + 8)
-                            cprint(time_remaining .. " | REDUCTION IN: " .. until_next_shrink .. " BR: " .. bR, 5 + 8)
+                            cprint("end --> " .. time_remaining .. " | REDUCTION IN: " .. until_next_shrink .. " BR: " .. bR, 5 + 8)
                         else
                             expected_reductions = expected_reductions - 1
                             cprint("[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 6 + 8)
