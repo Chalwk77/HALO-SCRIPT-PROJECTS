@@ -2,20 +2,23 @@
 -- By Jericho Crosby (Chalwk)
 
 api_version = "1.12.0.0"
-local game_timer, reduction_timer = 0,0
-local time_scale = 0.03333333333333333
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
 end
 
-local min_size, max_size = 20, 1250
-local reduction_rate, reduction_amount = 15, 300
-local game_time, bonus_time = 0, 2
-local bR = max_size
+-- Settings: ------------------------------------------
+local min_size, max_size = 22, 1281
+local reduction_rate, reduction_amount = 18, 474
+local bonus_time = 2
+-------------------------------------------------------
 
-local radius = max_size
-local expected_reductions
+-- Do not touch below this point!
+local time_scale = 0.03333333333333333
+local game_timer, reduction_timer = 0, 0
+local game_time, bR = 0, max_size
+
+local radius, expected_reductions = max_size, 0
 for i = 1,max_size do
     if (radius <= max_size) then
         radius = (radius - reduction_amount)
@@ -31,7 +34,7 @@ for i = 1,max_size do
 end
 
 function OnTick()
-    local countdown = os.clock() -- delay the simulation by 2 seconds.
+    local countdown = os.clock() -- Delay the simulation by 2 seconds.
     if (countdown >= 2) then
         if (game_timer ~= nil) then
             game_timer = game_timer + time_scale
@@ -51,33 +54,35 @@ function OnTick()
                 if (calculated_radius <= 0) then 
                     calculated_radius = calculated_radius + min_size
                 end
-
+                
                 until_next_shrink = ("REDUCTION T: " .. mins .. ":" .. secs .. " | bR: " .. bR .. " -> " .. calculated_radius .. "/" .. min_size .. " | Reductions Left: " .. expected_reductions)
      
                 if (reduction_timer >= (reduction_rate)) then
                     reduction_timer = 0                
                     if (bR > min_size and bR <= max_size) then
                         bR = (bR - reduction_amount)
+                        expected_reductions = expected_reductions - 1
                         if (bR <= min_size) then
                             bR, reduction_timer = min_size, nil
                             game_timer = nil
-                            cprint("end --> " .. time_remaining .. " | REDUCTION IN: " .. until_next_shrink .. " BR: " .. bR, 5 + 8)
+                            cprint(time_remaining .. " | " .. until_next_shrink .. " BR: " .. bR, 5 + 8)
                         else
-                            expected_reductions = expected_reductions - 1
-                            cprint("[ BOUNDRY REDUCTION ] Radius now (" .. bR .. ") world units", 6 + 8)
+                            cprint("[ BOUNDARY REDUCTION ] Radius now (" .. bR .. ") world units", 6 + 8)
                         end       
                     end
                 end
             end
             
-            local header
-            if (until_next_shrink == nil) then
-                header = ""
-            else
-                header = " | " .. until_next_shrink
-            end
+            if (expected_reductions > 0) then
+                local header
+                if (until_next_shrink == nil) then
+                    header = ""
+                else
+                    header = " | " .. until_next_shrink
+                end
 
-            cprint(time_remaining .. header, 2+8)
+                cprint(time_remaining .. header, 2+8)
+            end
         end
     end
 end
