@@ -205,50 +205,21 @@ local function set(reset_scores)
 end
 
 local function SpawnFlag(x, y, z)
-    -- local tag_name, tag_id = "weap", "weapons\\flag\\flag"
-    -- if TagInfo(tag_name, tag_id) then
+    local tag_name, tag_id = "weap", "weapons\\flag\\flag"
+    if TagInfo(tag_name, tag_id) then
 
-        -- -- if (#flag_table > 0) then
-            -- -- for i = 1,#flag_table do
-                -- -- local _flag_ = flag_table[i]
-                -- -- if get_object_memory(_flag_) then
-                    -- -- DestroyObject(_flag_)
-                -- -- end
-            -- -- end
-        -- -- end
+        if (#flag_table > 0) then
+            for i = 1,#flag_table do
+                local _flag_ = flag_table[i]
+                if get_object_memory(_flag_) then
+                    DestroyObject(_flag_)
+                end
+            end
+        end
         
-        -- -- local amount = 8
-        -- -- for i = 1,amount do
-            -- -- if (i == 1) then
-                -- -- x = x
-                -- -- y = y + 1
-            -- -- elseif (i == 2) then
-                -- -- x = x + 1
-                -- -- y = y + 1
-            -- -- elseif (i == 3) then
-                -- -- x = x + 1
-                -- -- y = y
-            -- -- elseif (i == 4) then
-                -- -- x = x + 1
-                -- -- y = y - 1
-            -- -- elseif (i == 5) then
-                -- -- x = x
-                -- -- y = y - 1
-            -- -- elseif (i == 6) then
-                -- -- x = x - 1
-                -- -- y = y - 1
-            -- -- elseif (i == 7) then
-                -- -- x = x - 1
-                -- -- y = y
-            -- -- elseif (i == 8) then
-                -- -- x = x - 1
-                -- -- y = y + 1
-            -- -- end
-
-            -- -- local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
-            -- -- flag_table[#flag_table + 1] = flag
-        -- -- end
-    -- end
+        local flag = spawn_object(tag_name, tag_id, x,y,z + 0.5)
+        flag_table[#flag_table + 1] = flag
+    end
 end
 
 -- Initialize start up parameters:
@@ -1076,6 +1047,10 @@ function GameStartCountdown()
                     -- SpawnFlag(bX, bY, bZ)
                     spawn_object(tag_name, tag_id, bX, bY, bZ + 0.5)
                     execute_command("disable_object " .. tag_id)
+                    
+                    -- local loot = getPoint(bX, bY, bR)
+                    -- local x,y,height = loot.x, loot.y, 50
+                    -- spawn_object("vehi", "vehicles\\scorpion\\scorpion_mp", x, y, height)
                 end
             end
 
@@ -1235,7 +1210,7 @@ function setupSpawns()
             [15] = {6.315, -8.379, 0.223, 0.1, 1.5},
             [16] = {-2.745, -12.952, 0.223, 0.1, 1.5},
         },
-        ["sidewinder"] = {
+        ["sidewinder"] = {/
             [1] = {33.732, -5.751, -3.433, 35, 10},
             [2] = {10.031, -10.273, 0.238, 35, 10},
             [3] = {42.062, -27.355, -3.809, 35, 10},
@@ -1254,17 +1229,17 @@ function setupSpawns()
             [16] = {30.243, -36.759, 0.559, 0.5, 1.5},
         },
         ["beavercreek"] = {
-            [1] = {23.545, 5.686, -0.215, 35, 10},
-            [2] = {32.880, 13.790, -0.216, 35, 10},
-            [3] = {25.627, 19.867, -0.216, 35, 10},
-            [4] = {29.044, 13.812, 0.837, 35, 10},
-            [5] = {-1.052, 13.804, 0.837, 35, 10},
-            [6] = {-4.882, 13.785, -0.216, 35, 10},
-            [7] = {1.691, 7.904, -0.215, 35, 10},
-            [8] = {8.442, 13.851, -0.216, 35, 10},
-            [9] = {17.050, 19.866, 5.059, 35, 10},
-            [10] = {15.329, 5.374, 3.549, 35, 10},
-            [11] = {15.649, 12.651, -0.216, 35, 10},
+            [1] = {23.545, 5.686, -0.215, 15, 5},
+            [2] = {32.880, 13.790, -0.216, 15, 5},
+            [3] = {25.627, 19.867, -0.216, 15, 5},
+            [4] = {29.044, 13.812, 0.837, 15, 5},
+            [5] = {-1.052, 13.804, 0.837, 15, 5},
+            [6] = {-4.882, 13.785, -0.216, 15, 5},
+            [7] = {1.691, 7.904, -0.215, 15, 5},
+            [8] = {8.442, 13.851, -0.216, 15, 5},
+            [9] = {17.050, 19.866, 5.059, 15, 5},
+            [10] = {15.329, 5.374, 3.549, 15, 5},
+            [11] = {15.649, 12.651, -0.216, 15, 5},
             [12] = {24.873, 13.704, -1.355, 0.1, 1.5},
             [13] = {21.987, 13.837, -1.355, 0.1, 1.5},
             [14] = {24.507, 10.438, -1.354, 0.1, 1.5},
