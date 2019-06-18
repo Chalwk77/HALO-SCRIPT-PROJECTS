@@ -474,8 +474,7 @@ function boundary:shrink()
         if (bR <= min_size) then
             bR, reduction_timer = min_size, nil
             SayAll("BOUNDARY IS NOW AT ITS SMALLEST POSSIBLE SIZE!", 4 + 8)
-        else
-            -- SpawnFlag(bX, bY, bZ)
+        else          
             SayAll("[ BOUNDARY REDUCTION ] Radius now (" .. bR .. ") world units", 4 + 8)
         end
     end
@@ -973,14 +972,15 @@ function secondsToTime(seconds, bool)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    local shooter = tonumber(CauserIndex)
-    local victim = tonumber(PlayerIndex)
+    local shooter, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
+    
     if (shooter > 0 and shooter ~= victim) then
         if (out_of_bounds[shooter].yes) or (spectator[shooter].enabled) or (spectator[victim].enabled) then
             return false
         end
     end
     
+    -- Prevent fall damage during free free (Sky Spawning System)
     local t = godmode_countdown[PlayerIndex]
     if (t ~= nil and t ~= "null") then
         return false
@@ -1047,10 +1047,6 @@ function GameStartCountdown()
                     -- SpawnFlag(bX, bY, bZ)
                     spawn_object(tag_name, tag_id, bX, bY, bZ + 0.5)
                     execute_command("disable_object " .. tag_id)
-                    
-                    -- local loot = getPoint(bX, bY, bR)
-                    -- local x,y,height = loot.x, loot.y, 50
-                    -- spawn_object("vehi", "vehicles\\scorpion\\scorpion_mp", x, y, height)
                 end
             end
 
