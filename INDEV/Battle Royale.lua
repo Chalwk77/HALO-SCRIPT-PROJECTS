@@ -36,7 +36,7 @@ boundary.settings = {
             -- Players needed to start the game:
             players_needed = 2,
             -- When enough players are present, the game will start in this many seconds:
-            gamestart_delay = 30,
+            gamestart_delay = 5,
 
             -- Players will be auto-killed if outside combat zone:
             -- * The non-combat-zone is any area outside the boundary start coordinates (x,y,z).
@@ -386,6 +386,7 @@ function OnPlayerConnect(PlayerIndex)
 
         zone_transition[player] = false
         
+        invincibility[player] = 0
         godmode_countdown[player] = 0
 
         if (in_progress) then
@@ -456,16 +457,22 @@ end
 function Teleport(TargetID)
     local player_object = get_dynamic_player(TargetID)
     if (player_object ~= 0) then
-        local x, y, z, h, time = getRandomCoord()
         execute_command("god " .. TargetID)
+        
+        local x, y, z, h, time = getRandomCoord()
         invincibility[TargetID] = time
+        
         write_vector3d(player_object + 0x5C, x, y, z + h)
+        cprint("GODMODE: " .. invincibility[TargetID], 2+8)
     end
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    if (godmode_countdown[PlayerIndex] ~= nil) then
+    local t = godmode_countdown[PlayerIndex]
+    if (t ~= nil and t ~= "null") then
+        print('teleporting')
         Teleport(PlayerIndex)
+        return false
     end
 end
 
@@ -626,7 +633,7 @@ function OnTick()
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
     
-        -- endGameCheck()
+        endGameCheck()
 
         local time_stamp, until_next_shrink
         local time_remaining
@@ -660,19 +667,21 @@ function OnTick()
 
         for i = 1, 16 do
             if player_present(i) then
-            
-                -- Invincibility Timer:
-                if (godmode_countdown[i] ~= nil) then 
-                    godmode_countdown[i] = godmode_countdown[i] + time_scale
-                    local godmode = invincibility[i]
-                    if (godmode_countdown[i] >= godmode) then
-                        godmode_countdown[i], invincibility[i] = nil, { }
-                        execute_command_sequence("ungod " .. i .. ";hp " .. i .. " 1")
-                    end
-                end
-            
+                        
                 local player_object = get_dynamic_player(i)
                 if (player_object ~= 0) then
+                
+                    -- Invincibility Timer:
+                    if (godmode_countdown[i] ~= nil and godmode_countdown[i] ~= "null") then
+
+                        godmode_countdown[i] = godmode_countdown[i] + time_scale
+                        execute_command("god " .. i)
+                                            
+                        if (godmode_countdown[i] >= invincibility[i]) then
+                            godmode_countdown[i], invincibility[i] = "null", 0
+                            execute_command_sequence("ungod " .. i .. ";hp " .. i .. " 1")
+                        end
+                    end
 
                     checkForPause()
 
@@ -985,7 +994,8 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         end
     end
     
-    if (godmode_countdown[PlayerIndex] ~= nil) then
+    local t = godmode_countdown[PlayerIndex]
+    if (t ~= nil and t ~= "null") then
         return false
     end
 end
