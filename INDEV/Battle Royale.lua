@@ -385,6 +385,8 @@ function OnPlayerConnect(PlayerIndex)
         spectator[player].enabled, spectator[player].timer = false, 0
 
         zone_transition[player] = false
+        
+        godmode_countdown[player] = 0
 
         if (in_progress) then
             spectator[player].enabled = true
@@ -456,13 +458,15 @@ function Teleport(TargetID)
     if (player_object ~= 0) then
         local x, y, z, h, time = getRandomCoord()
         execute_command("god " .. TargetID)
-        invincibility[TargetID], godmode_countdown[TargetID] = time, 0
+        invincibility[TargetID] = time
         write_vector3d(player_object + 0x5C, x, y, z + h)
     end
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    Teleport(PlayerIndex)
+    if (godmode_countdown[PlayerIndex] ~= nil) then
+        Teleport(PlayerIndex)
+    end
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -1189,7 +1193,6 @@ function setupSpawns()
         }
     }
 end
-
 
 
 
