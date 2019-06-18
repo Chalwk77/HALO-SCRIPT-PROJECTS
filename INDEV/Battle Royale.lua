@@ -36,7 +36,7 @@ boundary.settings = {
             -- Players needed to start the game:
             players_needed = 2,
             -- When enough players are present, the game will start in this many seconds:
-            gamestart_delay = 5,
+            gamestart_delay = 30,
 
             -- Players will be auto-killed if outside combat zone:
             -- * The non-combat-zone is any area outside the boundary start coordinates (x,y,z).
